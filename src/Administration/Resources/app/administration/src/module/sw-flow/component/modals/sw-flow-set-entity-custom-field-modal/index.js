@@ -3,7 +3,7 @@ import './sw-flow-set-entity-custom-field-modal.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
 /**
@@ -126,7 +126,7 @@ export default {
             return `config.label.${Shopware.Store.get('session').currentLocale}`;
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'triggerEvent',
             'customFieldSets',
             'customFields',

@@ -3,7 +3,7 @@ import template from './sw-flow-tag-modal.html.twig';
 const { Component, Mixin, Context } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { EntityCollection, Criteria } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -87,7 +87,7 @@ export default {
             return '';
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'triggerEvent',
             'triggerActions',
         ]),

@@ -2,7 +2,7 @@ import template from './sw-flow-affiliate-and-campaign-code-modal.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { ShopwareError } = Shopware.Classes;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -64,7 +64,7 @@ export default {
             return this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, properties);
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'triggerEvent',
             'triggerActions',
         ]),

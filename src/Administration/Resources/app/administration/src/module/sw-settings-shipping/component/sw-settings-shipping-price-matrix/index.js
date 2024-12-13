@@ -7,7 +7,7 @@ const {
     Data: { Criteria },
 } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
 
 /**
  * @package checkout
@@ -74,13 +74,13 @@ export default {
     },
 
     computed: {
-        ...mapState('swShippingDetail', [
+        ...mapVuexState('swShippingDetail', [
             'shippingMethod',
             'currencies',
             'restrictedRuleIds',
         ]),
 
-        ...mapGetters('swShippingDetail', [
+        ...mapVuexGetters('swShippingDetail', [
             'defaultCurrency',
             /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
             'usedRules',

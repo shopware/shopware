@@ -7,7 +7,7 @@ import template from './sw-order-create-base.html.twig';
 const { Component, State, Utils, Data, Service, Mixin } = Shopware;
 const { Criteria } = Data;
 const { get, format, array } = Utils;
-const { mapGetters } = Component.getComponentHelper();
+const { mapVuexGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -40,7 +40,7 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrder', [
+        ...mapVuexGetters('swOrder', [
             'cartErrors',
         ]),
 

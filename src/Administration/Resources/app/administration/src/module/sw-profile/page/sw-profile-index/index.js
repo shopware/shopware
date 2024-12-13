@@ -8,7 +8,7 @@ import swProfileState from '../../state/sw-profile.state';
 
 const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapPropertyErrors } = Component.getComponentHelper();
+const { mapVuexState, mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -58,7 +58,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swProfile', [
+        ...mapVuexState('swProfile', [
             'searchPreferences',
         ]),
 

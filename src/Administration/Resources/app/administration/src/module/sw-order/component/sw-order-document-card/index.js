@@ -10,7 +10,7 @@ import './sw-order-document-card.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapGetters } = Shopware.Component.getComponentHelper();
+const { mapVuexGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -75,7 +75,7 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
+        ...mapVuexGetters('swOrderDetail', [
             'isEditing',
         ]),
 

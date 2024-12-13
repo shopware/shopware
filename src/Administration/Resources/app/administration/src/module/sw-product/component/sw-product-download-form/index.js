@@ -3,7 +3,7 @@ import './sw-product-download-form.scss';
 
 const { Component, Mixin } = Shopware;
 const { format } = Shopware.Utils;
-const { mapGetters } = Component.getComponentHelper();
+const { mapVuexGetters } = Component.getComponentHelper();
 
 /**
  * @private
@@ -57,7 +57,7 @@ export default {
             return state.product;
         },
 
-        ...mapGetters('swProductDetail', {
+        ...mapVuexGetters('swProductDetail', {
             isStoreLoading: 'isLoading',
         }),
 

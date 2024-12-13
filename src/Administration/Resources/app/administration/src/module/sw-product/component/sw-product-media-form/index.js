@@ -6,7 +6,7 @@ import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
 const { Component, Mixin } = Shopware;
-const { mapGetters } = Component.getComponentHelper();
+const { mapVuexGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -89,7 +89,7 @@ export default {
             return this.product.media.find((media) => media.id === coverId);
         },
 
-        ...mapGetters('swProductDetail', {
+        ...mapVuexGetters('swProductDetail', {
             isStoreLoading: 'isLoading',
         }),
 

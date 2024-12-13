@@ -3,6 +3,7 @@
 namespace Shopware\Core\LoginConfig\Builder;
 
 use Shopware\Core\LoginConfig\Builder\Handler\AbstractLoginConfigHandler;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @internal
@@ -14,14 +15,14 @@ class LoginConfigBuilder
         private readonly iterable $loginConfigHandlers
     ) {}
 
-    public function build(): array
+    public function build(SessionInterface $session): array
     {
         $providers = [];
 
         foreach ($this->loginConfig['sso_providers'] as $key => $loginConfigItemArray) {
             $loginConfigItem = LoginConfigItem::fromArray($key, $loginConfigItemArray);
 
-            $handler = $this->getHandler($loginConfigItem->getKey());
+            $handler = $this->getHandler($loginConfigItem->getKey(), $session);
             if ($handler === null) {
                 continue;
             }
@@ -35,10 +36,12 @@ class LoginConfigBuilder
         ];
     }
 
-    private function getHandler(string $type): ?AbstractLoginConfigHandler
+    private function getHandler(string $type, SessionInterface $session): ?AbstractLoginConfigHandler
     {
         foreach ($this->loginConfigHandlers as $loginConfigHandler) {
             if ($loginConfigHandler->supports($type)) {
+                $loginConfigHandler->setSession($session);
+
                 return $loginConfigHandler;
             }
         }

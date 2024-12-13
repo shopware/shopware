@@ -2,6 +2,11 @@
 
 namespace Shopware\Core\LoginConfig\Builder;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
 class LoginConfigItem
 {
     /**
@@ -20,7 +25,7 @@ class LoginConfigItem
     ) {}
 
     /**
-     * @return array{key: string, snippet_key: ?string, icon: ?string, class: ?string, client_id: ?string, client_secret: ?string, redirect_uri: ?string, base_url: ?string, additionalData: array<string, mixed>}
+     * @return array{key: string, snippet_key: ?string, icon: ?string, class: ?string, client_id: ?string, client_secret: ?string, redirect_uri: ?string, base_url: ?string, additional_data: array<string, mixed>}
      */
     public function toArray(): array
     {
@@ -33,25 +38,25 @@ class LoginConfigItem
             'client_secret' => $this->clientSecret,
             'redirect_uri' => $this->redirectUri,
             'base_url' => $this->baseUrl,
-            'additionalData' => $this->additionalData,
+            'additional_data' => $this->additionalData,
         ];
     }
 
     /**
-     * @param array{snippet_key: ?string, icon: ?string, class: ?string, client_id: ?string, client_secret: ?string, redirect_uri: ?string, base_url: ?string, additionalData: array<string, mixed>} $array
+     * @param array{snippet_key: ?string, icon: ?string, class: ?string, client_id: ?string, client_secret: ?string, redirect_uri: ?string, base_url: ?string, additional_data: array<string, mixed>} $array
      */
     public static function fromArray(string $key, array $array): LoginConfigItem
     {
         return new self(
             $key,
-            $array['snippet_key'],
-            $array['icon'],
-            $array['class'],
-            $array['client_id'],
-            $array['client_secret'],
-            $array['redirect_uri'],
-            $array['base_url'],
-            $array['additional_data'],
+            $array['snippet_key'] ?? null,
+            $array['icon'] ?? null,
+            $array['class'] ?? null,
+            $array['client_id'] ?? null,
+            $array['client_secret'] ?? null,
+            $array['redirect_uri'] ?? null,
+            $array['base_url'] ?? null,
+            $array['additional_data'] ?? [],
         );
     }
 

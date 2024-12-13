@@ -10,6 +10,8 @@
         </service>
 
         <service id="Shopware\Core\LoginConfig\Builder\Handler\SwSsoLogin">
+            <argument>%env(APP_URL)%</argument>
+            <argument>%shopware_administration.path_name%</argument>
             <tag name="shopware.login.config.handler"/>
         </service>
     </services>

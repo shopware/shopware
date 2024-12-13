@@ -64,8 +64,8 @@ class AuthController extends AbstractController
     }
 
     #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.url', defaults: ['auth_required' => false], methods: ['GET'])]
-    public function loginButtonConfig(): JsonResponse
+    public function loginButtonConfig(Request $request): JsonResponse
     {
-        return new JsonResponse($this->loginConfigBuilder->build());
+        return new JsonResponse($this->loginConfigBuilder->build($request->getSession()));
     }
 }

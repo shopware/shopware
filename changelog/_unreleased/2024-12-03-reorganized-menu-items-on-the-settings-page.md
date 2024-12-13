@@ -10,6 +10,8 @@ author_github: @s.kalicki
 * Changed `settings-item.store.js` to extend the state for supporting the reorganized menu structure on the settings page.
 * Changed `sw-settings-index.html.twig` to implement the new groups and reflect the updated menu structure.
 
+___
+
 # Upgrade Information
 ## Updated Menu Structure in Settings Page
 The settings page has been reorganized into groups for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.

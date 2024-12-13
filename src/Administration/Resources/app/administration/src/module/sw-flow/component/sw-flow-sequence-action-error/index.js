@@ -2,7 +2,7 @@ import template from './sw-flow-sequence-action-error.html.twig';
 import './sw-flow-sequence-action-error.scss';
 
 const { Component, State } = Shopware;
-const { mapGetters } = Component.getComponentHelper();
+const { mapVuexGetters } = Component.getComponentHelper();
 
 /**
  * @private
@@ -21,7 +21,7 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swFlowState', ['sequences']),
+        ...mapVuexGetters('swFlowState', ['sequences']),
     },
 
     methods: {

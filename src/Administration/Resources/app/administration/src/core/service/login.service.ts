@@ -261,7 +261,7 @@ export default function createLoginService(
 
         if (!shouldConsiderUserActivity()) {
             const rememberMeDuration = context.refreshTokenTtl || 7 * 86400 * 1000;
-            cookieOptions.expires = new Date(Date.now() + rememberMeDuration);
+            cookieOptions.expires = new Date(Date.now() + Number(rememberMeDuration));
         }
 
         const authObject = { access, refresh, expiry };
@@ -425,10 +425,7 @@ export default function createLoginService(
                         // that contain urls to images from a different origin will throw a security error in Safari.
                     }
 
-                    sessionStorage.setItem(
-                        'lastKnownUser',
-                        Shopware.Store.get('session').currentUser?.username ?? '',
-                    );
+                    sessionStorage.setItem('lastKnownUser', Shopware.Store.get('session').currentUser?.username ?? '');
 
                     window.processingInactivityLogout = true;
 

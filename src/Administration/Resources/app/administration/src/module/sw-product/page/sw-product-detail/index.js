@@ -11,7 +11,7 @@ import './sw-product-detail.scss';
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPageErrors, mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
 const type = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -81,7 +81,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
             'parentProduct',
             'localMode',
@@ -89,7 +89,7 @@ export default {
             'modeSettings',
         ]),
 
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'productRepository',
             'isLoading',
             'isChild',

@@ -7,7 +7,7 @@ import template from './sw-order-promotion-field.html.twig';
 
 const { Component } = Shopware;
 const { ChangesetGenerator } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -68,7 +68,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swOrderDetail', [
+        ...mapVuexState('swOrderDetail', [
             'order',
             'versionContext',
         ]),

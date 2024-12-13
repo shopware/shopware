@@ -2,7 +2,7 @@ import template from './sw-flow-set-order-state-modal.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -67,7 +67,7 @@ export default {
             return criteria;
         },
 
-        ...mapState('swFlowState', ['stateMachineState']),
+        ...mapVuexState('swFlowState', ['stateMachineState']),
     },
 
     created() {

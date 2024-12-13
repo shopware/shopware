@@ -9,7 +9,7 @@ import swOrderDetailState from '../../state/order-detail.store';
 const { State, Mixin, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const { array } = Utils;
-const { mapState } = Shopware.Component.getComponentHelper();
+const { mapVuexState } = Shopware.Component.getComponentHelper();
 const ApiService = Shopware.Classes.ApiService;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -79,7 +79,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swOrderDetail', [
+        ...mapVuexState('swOrderDetail', [
             'order',
             'versionContext',
             'orderAddressIds',

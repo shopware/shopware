@@ -30,7 +30,14 @@ import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type { ComponentInternalInstance } from 'vue';
 import type { I18n } from 'vue-i18n';
 import type { Slots } from '@vue/runtime-core';
-import type { Store, mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+import type {
+    Store,
+    mapActions as mapVuexActions,
+    mapGetters as mapVuexGetters,
+    mapMutations as mapVuexMutations,
+    mapState as mapVuexState,
+} from 'vuex';
+import type { mapActions, mapState } from 'pinia';
 import type * as mapErrors from 'src/app/service/map-errors.service';
 import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
 import type { ComponentConfig } from './core/factory/async-component.factory';
@@ -322,9 +329,11 @@ declare global {
 
     interface ComponentHelper {
         mapState: typeof mapState;
-        mapMutations: typeof mapMutations;
-        mapGetters: typeof mapGetters;
         mapActions: typeof mapActions;
+        mapVuexState: typeof mapVuexState;
+        mapVuexMutations: typeof mapVuexMutations;
+        mapVuexGetters: typeof mapVuexGetters;
+        mapVuexActions: typeof mapVuexActions;
         mapPropertyErrors: typeof mapErrors.mapPropertyErrors;
         mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors;
         mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors;

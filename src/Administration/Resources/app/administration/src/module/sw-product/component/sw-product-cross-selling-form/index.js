@@ -7,7 +7,7 @@ import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Component, Mixin } = Shopware;
-const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
+const { mapPropertyErrors, mapVuexGetters, mapVuexState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -66,11 +66,11 @@ export default {
             'position',
         ]),
 
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
         ]),
 
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'isLoading',
         ]),
 

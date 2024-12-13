@@ -2,7 +2,7 @@ import template from './sw-flow-grant-download-access-modal.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { ShopwareError } = Shopware.Classes;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -56,7 +56,7 @@ export default {
             ];
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'triggerEvent',
             'triggerActions',
         ]),

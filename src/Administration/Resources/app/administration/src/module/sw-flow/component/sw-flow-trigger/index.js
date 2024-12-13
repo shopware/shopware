@@ -2,7 +2,7 @@ import template from './sw-flow-trigger.html.twig';
 import './sw-flow-trigger.scss';
 
 const { Component, State } = Shopware;
-const { mapPropertyErrors, mapState, mapGetters } = Component.getComponentHelper();
+const { mapPropertyErrors, mapVuexState, mapVuexGetters } = Component.getComponentHelper();
 const utils = Shopware.Utils;
 const { camelCase, capitalizeString } = Shopware.Utils.string;
 const { isEmpty } = utils.types;
@@ -94,11 +94,11 @@ export default {
             return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'flow',
             'triggerEvents',
         ]),
-        ...mapGetters('swFlowState', ['isSequenceEmpty']),
+        ...mapVuexGetters('swFlowState', ['isSequenceEmpty']),
         ...mapPropertyErrors('flow', ['eventName']),
     },
 

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +35,7 @@ class ManyToManyAssociationServiceTest extends TestCase
     {
         $ids = new IdsCollection();
         $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         $connection->expects(static::once())
             ->method('executeQuery')
             ->with(

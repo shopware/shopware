@@ -4,8 +4,6 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
@@ -92,6 +90,6 @@ class NullConnection extends Connection
 
     public function getDatabasePlatform(): MySQLPlatform
     {
-        return new MySQL80Platform();
+        return new MySQLPlatform();
     }
 }

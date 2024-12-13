@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
@@ -56,7 +56,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     public function testIgnoresMessageIfEntityDefinitionIsNotFound(): void
     {
         $connection = $this->createConnectionMock();
-        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
         $entityDispatcher->expects(static::never())
@@ -92,7 +92,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     public function testIgnoresMessageIfApprovalWasNeverGiven(): void
     {
         $connection = $this->createConnectionMock();
-        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
         $entityDispatcher->expects(static::never())
@@ -148,7 +148,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     public function testIgnoresMessageIfWasDispatchedForFormerShopId(): void
     {
         $connection = $this->createConnectionMock();
-        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
         $entityDispatcher->expects(static::never())
@@ -421,7 +421,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $expressionBuilder = $this->createMock(ExpressionBuilder::class);
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         $connection->method('getExpressionBuilder')
             ->willReturn($expressionBuilder);
         $connection->method('executeQuery')
@@ -545,7 +545,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $createdAndUpdatedAt = new \DateTimeImmutable('2023-07-31');
         $expressionBuilder = $this->createMock(ExpressionBuilder::class);
         $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         $connection->method('getExpressionBuilder')
             ->willReturn($expressionBuilder);
 
@@ -745,7 +745,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     private function createConnectionMock(): Connection&MockObject
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $connection->expects(static::never())
             ->method('createQueryBuilder');

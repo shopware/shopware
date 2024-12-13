@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
-use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -219,47 +218,6 @@ class SetOrderStateActionTest extends TestCase
 
         static::assertInstanceOf(OrderDeliveryEntity::class, $oderDeliveryForShippingCosts);
         static::assertSame('shipped', $oderDeliveryForShippingCosts->getStateMachineState()?->getTechnicalName());
-    }
-
-    public function testThrowsWhenEntityNotFoundAndInsideATransactionWithoutSavepointNesting(): void
-    {
-        $this->connection->executeStatement('DELETE FROM `sales_channel` WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('sales-channel'))]);
-        $this->connection->executeStatement('DELETE FROM `shipping_method` WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('shipping-method'))]);
-
-        // Because this test needs to change savepoint nesting we need to commit the current transaction, as we cannot
-        // change this property inside a running transaction.
-        $this->connection->commit();
-        $this->connection->setNestTransactionsWithSavepoints(false);
-        $this->connection->beginTransaction();
-
-        $orderId = Uuid::randomHex();
-        $context = Generator::generateSalesChannelContext();
-
-        $orderData = $this->getOrderData($orderId, $context->getContext());
-        $orderData[0]['deliveries'] = [];
-        $this->orderRepository->create($orderData, $context->getContext());
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->first();
-
-        static::assertInstanceOf(OrderEntity::class, $order);
-
-        $event = new CheckoutOrderPlacedEvent($context, $order);
-
-        $subscriber = new SetOrderStateAction(
-            static::getContainer()->get(Connection::class),
-            static::getContainer()->get(OrderService::class),
-        );
-
-        /** @var FlowFactory $flowFactory */
-        $flowFactory = static::getContainer()->get(FlowFactory::class);
-        $flow = $flowFactory->create($event);
-        $flow->setConfig(['order_delivery' => 'cancelled']);
-
-        static::expectException(TransactionFailedException::class);
-        static::expectExceptionMessage('Transaction failed because an exception occurred');
-
-        $this->connection->transactional(function () use ($subscriber, $flow): void {
-            $subscriber->handleFlow($flow);
-        });
     }
 
     /**

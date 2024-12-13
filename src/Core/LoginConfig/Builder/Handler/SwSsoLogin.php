@@ -18,12 +18,12 @@ class SwSsoLogin extends AbstractLoginConfigHandler
     public function createTemplateData(LoginConfigItem $loginConfigItem): array
     {
         return [
-            'key' => $loginConfigItem->getKey(),
-            'snippet_key' => $loginConfigItem->getSnippetKey(),
-            'icon' => $loginConfigItem->getIcon(),
-            'class' => $loginConfigItem->getClass(),
+            'key' => $loginConfigItem->key,
+            'snippet_key' => $loginConfigItem->snippetKey,
+            'icon' => $loginConfigItem->icon,
+            'class' => $loginConfigItem->class,
             'url' => $this->createButtonUrl($loginConfigItem),
-            'additionalData' => $loginConfigItem->getAdditionalData(),
+            'additionalData' => $loginConfigItem->additionalData,
         ];
     }
 
@@ -34,16 +34,16 @@ class SwSsoLogin extends AbstractLoginConfigHandler
 
     private function createButtonUrl(LoginConfigItem $loginConfigItem): string
     {
-        $sessionKey = sprintf('SSO_%s', $loginConfigItem->getKey());
+        $sessionKey = sprintf('SSO_%s', $loginConfigItem->key);
         $sessionValue = \sprintf('%s/%s+%s', $this->appUrl, $this->admin, ByteString::fromRandom(32)->toString());
 
         $this->getSession()->set($sessionKey, $sessionValue);
 
         return \sprintf(
             '%s/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=openid&state=%s',
-            $loginConfigItem->getBaseUrl(),
-            $loginConfigItem->getClientId(),
-            \urlencode($loginConfigItem->getRedirectUri()),
+            $loginConfigItem->baseUrl,
+            $loginConfigItem->clientId,
+            \urlencode($loginConfigItem->redirectUri),
             \urlencode($sessionValue)
         );
     }

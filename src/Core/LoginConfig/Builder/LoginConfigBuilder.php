@@ -22,7 +22,7 @@ class LoginConfigBuilder
         foreach ($this->loginConfig['sso_providers'] as $key => $loginConfigItemArray) {
             $loginConfigItem = LoginConfigItem::fromArray($key, $loginConfigItemArray);
 
-            $handler = $this->getHandler($loginConfigItem->getKey(), $session);
+            $handler = $this->getHandler($loginConfigItem->key, $session);
             if ($handler === null) {
                 continue;
             }

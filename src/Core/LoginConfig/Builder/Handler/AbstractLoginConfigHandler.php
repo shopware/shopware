@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\LoginConfig\Builder\Handler;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\LoginConfig\Builder\LoginConfigItem;
 use Shopware\Core\LoginConfig\LoginConfigException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * @internal
  */
+#[Package('core')]
 abstract class AbstractLoginConfigHandler
 {
     protected SessionInterface $session;

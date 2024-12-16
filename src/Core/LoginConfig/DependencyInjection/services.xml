@@ -6,7 +6,7 @@
     <services>
         <service id="Shopware\Core\LoginConfig\Builder\LoginConfigBuilder">
             <argument>%shopware.admin_login%</argument>
-            <argument type="tagged" tag="shopware.login.config.handler"/>
+            <argument type="tagged_iterator" tag="shopware.login.config.handler"/>
         </service>
 
         <service id="Shopware\Core\LoginConfig\Builder\Handler\SwSsoLogin">

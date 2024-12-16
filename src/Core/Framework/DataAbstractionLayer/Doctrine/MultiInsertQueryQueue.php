@@ -39,6 +39,8 @@ class MultiInsertQueryQueue
     }
 
     /**
+     * @todo migrate to prepared statements or remove $types parameter
+     *
      * @param array<string, mixed> $data
      * @param array<string, ParameterType::*>|null $types
      */
@@ -58,7 +60,7 @@ class MultiInsertQueryQueue
             if ($value === null) {
                 $value = 'NULL';
             } else {
-                $value = $this->connection->quote($value, $type);
+                $value = $this->connection->quote((string) $value);
             }
         }
 

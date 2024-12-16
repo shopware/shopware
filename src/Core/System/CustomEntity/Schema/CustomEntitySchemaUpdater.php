@@ -5,7 +5,6 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
@@ -58,8 +57,9 @@ class CustomEntitySchemaUpdater
 
     private function applyNewSchema(Schema $update): void
     {
-        $baseSchema = $this->connection->createSchemaManager()->introspectSchema();
-        $queries = $this->getPlatform()->getAlterSchemaSQL((new Comparator())->compareSchemas($baseSchema, $update));
+        $schemaManager = $this->connection->createSchemaManager();
+        $baseSchema = $schemaManager->introspectSchema();
+        $queries = $this->getPlatform()->getAlterSchemaSQL($schemaManager->createComparator()->compareSchemas($baseSchema, $update));
 
         foreach ($queries as $query) {
             try {
@@ -76,12 +76,7 @@ class CustomEntitySchemaUpdater
 
     private function getPlatform(): AbstractPlatform
     {
-        $platform = $this->connection->getDatabasePlatform();
-        if (!$platform instanceof AbstractPlatform) {
-            throw new \RuntimeException('Database platform can not be detected');
-        }
-
-        return $platform;
+        return $this->connection->getDatabasePlatform();
     }
 
     private function cleanup(Schema $schema): void

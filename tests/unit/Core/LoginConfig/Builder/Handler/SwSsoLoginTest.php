@@ -2,11 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\LoginConfig\Builder\Handler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\LoginConfig\Builder\Handler\SwSsoLogin;
 use Shopware\Core\LoginConfig\Builder\LoginConfigItem;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+/**
+ * @internal
+ */
+#[CoversClass(SwSsoLogin::class)]
 class SwSsoLoginTest extends TestCase
 {
     public function testCreateTemplateData(): void

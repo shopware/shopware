@@ -1058,8 +1058,8 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->booleanNode('use_default')->defaultFalse()->end()
-                ->arrayNode('sso_providers')
+                ->booleanNode('use_default')->defaultTrue()->end()
+                ->arrayNode('sso_providers')->defaultValue([])
                 ->useAttributeAsKey('provider')
                 ->arrayPrototype()
                     ->children()

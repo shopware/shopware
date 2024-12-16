@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 #[Package('core')]
 abstract class AbstractLoginConfigHandler
 {
-    protected SessionInterface $session;
+    protected ?SessionInterface $session;
 
     public function supports(string $type): bool
     {
@@ -25,6 +25,11 @@ abstract class AbstractLoginConfigHandler
         $this->session = $session;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    abstract public function createTemplateData(LoginConfigItem $loginConfigItem): array;
+
     protected function getSession(): SessionInterface
     {
         if (!$this->session instanceof SessionInterface) {
@@ -35,9 +40,4 @@ abstract class AbstractLoginConfigHandler
     }
 
     abstract protected function getType(): string;
-
-    /**
-     * @return array<string, mixed>
-     */
-    abstract public function createTemplateData(LoginConfigItem $loginConfigItem): array;
 }

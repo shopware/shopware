@@ -15,7 +15,8 @@ class SwSsoLogin extends AbstractLoginConfigHandler
     public function __construct(
         private readonly string $appUrl,
         private readonly string $admin,
-    ) {}
+    ) {
+    }
 
     public function createTemplateData(LoginConfigItem $loginConfigItem): array
     {
@@ -36,7 +37,7 @@ class SwSsoLogin extends AbstractLoginConfigHandler
 
     private function createButtonUrl(LoginConfigItem $loginConfigItem): string
     {
-        $sessionKey = sprintf('SSO_%s', $loginConfigItem->key);
+        $sessionKey = \sprintf('SSO_%s', $loginConfigItem->key);
         $sessionValue = \sprintf('%s/%s+%s', $this->appUrl, $this->admin, ByteString::fromRandom(32)->toString());
 
         $this->getSession()->set($sessionKey, $sessionValue);
@@ -45,7 +46,7 @@ class SwSsoLogin extends AbstractLoginConfigHandler
             '%s/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=openid&state=%s',
             $loginConfigItem->baseUrl,
             $loginConfigItem->clientId,
-            \urlencode($loginConfigItem->redirectUri),
+            \urlencode($loginConfigItem->redirectUri ?? ''),
             \urlencode($sessionValue)
         );
     }

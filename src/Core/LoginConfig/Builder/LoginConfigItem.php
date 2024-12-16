@@ -25,10 +25,11 @@ class LoginConfigItem
         public readonly ?string $redirectUri = null,
         public readonly ?string $baseUrl = null,
         public readonly ?array $additionalData = [],
-    ) {}
+    ) {
+    }
 
     /**
-     * @return array{key: string, snippet_key: ?string, icon: ?string, class: ?string, client_id: ?string, client_secret: ?string, redirect_uri: ?string, base_url: ?string, additional_data: array<string, mixed>}
+     * @return array{snippet_key: ?string, icon: ?string, class: ?string, client_id: ?string, client_secret: ?string, redirect_uri: ?string, base_url: ?string, additional_data: array<string, mixed>}
      */
     public function toArray(): array
     {
@@ -41,7 +42,7 @@ class LoginConfigItem
             'client_secret' => $this->clientSecret,
             'redirect_uri' => $this->redirectUri,
             'base_url' => $this->baseUrl,
-            'additional_data' => $this->additionalData,
+            'additional_data' => $this->additionalData ?? [],
         ];
     }
 

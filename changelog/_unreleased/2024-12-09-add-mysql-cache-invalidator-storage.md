@@ -5,7 +5,7 @@ issue: NEXT-39316
 # Core
 * Added `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage` to collect invalidations in MySQL in an atomic operation.
 ___
-# Next Major Version Changes
+# Upgrade Information
 
 ## Addition of MySQLInvalidatorStorage
 

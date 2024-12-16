@@ -36,8 +36,6 @@ interface LoginConfig {
     ssoProviders: SsoProvider[];
 }
 
-const REMEMBER_ME_DURATION = 14;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
     loginByUsername: (user: string, pass: string) => Promise<AuthObject>;

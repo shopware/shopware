@@ -28,8 +28,9 @@ class AuthController extends AbstractController
         private readonly AuthorizationServer $authorizationServer,
         private readonly PsrHttpFactory $psrHttpFactory,
         private readonly RateLimiter $rateLimiter,
-        private readonly LoginConfigBuilder $loginConfigBuilder,
-    ) {}
+        private readonly ?LoginConfigBuilder $loginConfigBuilder,
+    ) {
+    }
 
     /**
      * @deprecated tag:v6.7.0 - Remove endpoint "/api/oauth/authorize"
@@ -50,7 +51,7 @@ class AuthController extends AbstractController
 
             $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
         } catch (RateLimitExceededException $exception) {
-            throw ApiException::onRateLimitExceeded($exception->getWaitTime(), $exception);
+            throw ApiException::onRateLimitExceeded($exception);
         }
 
         $psr7Request = $this->psrHttpFactory->createRequest($request);
@@ -66,6 +67,10 @@ class AuthController extends AbstractController
     #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.url', defaults: ['auth_required' => false], methods: ['GET'])]
     public function loginButtonConfig(Request $request): JsonResponse
     {
-        return new JsonResponse($this->loginConfigBuilder->build($request->getSession()));
+        if ($this->loginConfigBuilder instanceof LoginConfigBuilder) {
+            return new JsonResponse($this->loginConfigBuilder->build($request->getSession()));
+        }
+
+        return new JsonResponse(['useDefault' => true, 'providers' => []]);
     }
 }

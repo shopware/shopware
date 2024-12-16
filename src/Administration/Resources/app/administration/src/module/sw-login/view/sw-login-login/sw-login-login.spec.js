@@ -50,6 +50,11 @@ async function createWrapper(loginSuccessfull) {
 
                         localStorage.setItem('rememberMe', `${+duration}`);
                     },
+                    getLoginTemplateConfig: () => {
+                        return new Promise((resolve) => {
+                            resolve({ useDefault: true, providers: [] });
+                        });
+                    }
                 },
                 userService: {},
                 licenseViolationService: {},
@@ -103,8 +108,11 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         jest.useFakeTimers();
         jest.spyOn(global, 'setTimeout');
 
-        await wrapper.get('#sw-field--username').setValue('Username');
-        await wrapper.get('#sw-field--password').setValue('Password');
+        const username = await wrapper.get('#sw-field--username');
+        await username.setValue('Username');
+
+        const password = await wrapper.get('#sw-field--password');
+        await password.setValue('Password');
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
 

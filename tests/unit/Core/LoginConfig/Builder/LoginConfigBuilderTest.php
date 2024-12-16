@@ -2,33 +2,37 @@
 
 namespace Shopware\Tests\Unit\Core\LoginConfig\Builder;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\LoginConfig\Builder\Handler\AbstractLoginConfigHandler;
 use Shopware\Core\LoginConfig\Builder\Handler\SwSsoLogin;
 use Shopware\Core\LoginConfig\Builder\LoginConfigBuilder;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+/**
+ * @internal
+ */
+#[CoversClass(LoginConfigBuilder::class)]
 class LoginConfigBuilderTest extends TestCase
 {
     public function testBuild(): void
     {
         $config = [
             'use_default' => false,
-            'sso_providers' =>
-                [
-                    'swsso' => [
-                        'snippet_key' => 'test-snippet-key',
-                        'icon' => 'test-icon',
-                        'class' => 'test-class',
-                        'client_id' => 'test-client-id',
-                        'client_secret' => 'test-client-secret',
-                        'redirect_uri' => 'test-redirect-uri',
-                        'base_url' => 'test-base-url',
-                        'additional_data' => [
-                            'test-key' => 'test-value',
-                        ],
+            'sso_providers' => [
+                'swsso' => [
+                    'snippet_key' => 'test-snippet-key',
+                    'icon' => 'test-icon',
+                    'class' => 'test-class',
+                    'client_id' => 'test-client-id',
+                    'client_secret' => 'test-client-secret',
+                    'redirect_uri' => 'test-redirect-uri',
+                    'base_url' => 'test-base-url',
+                    'additional_data' => [
+                        'test-key' => 'test-value',
                     ],
                 ],
+            ],
         ];
 
         $ssSsoLogin = new SwSsoLogin('http://appUrl', 'admin');
@@ -41,7 +45,6 @@ class LoginConfigBuilderTest extends TestCase
 
         $result = $loginConfigBuilder->build($sessionMock);
 
-        static::assertIsArray($result);
         static::assertFalse($result['useDefault']);
         static::assertArrayHasKey('providers', $result);
         static::assertIsArray($result['providers']);
@@ -61,11 +64,10 @@ class LoginConfigBuilderTest extends TestCase
     {
         $config = [
             'use_default' => true,
-            'sso_providers' =>
-                [
-                    'anyConfigBuilder' => [],
-                    'anyOtherConfigBuilder' => [],
-                ],
+            'sso_providers' => [
+                'anyConfigBuilder' => [],
+                'anyOtherConfigBuilder' => [],
+            ],
         ];
 
         $configBuilderMockOne = $this->createMock(AbstractLoginConfigHandler::class);
@@ -84,7 +86,6 @@ class LoginConfigBuilderTest extends TestCase
 
         $result = $loginConfigBuilder->build($sessionMock);
 
-        static::assertIsArray($result);
         static::assertTrue($result['useDefault']);
         static::assertArrayHasKey('providers', $result);
         static::assertIsArray($result['providers']);
@@ -95,10 +96,9 @@ class LoginConfigBuilderTest extends TestCase
     {
         $config = [
             'use_default' => false,
-            'sso_providers' =>
-                [
-                    'configBuilder' => [],
-                ],
+            'sso_providers' => [
+                'configBuilder' => [],
+            ],
         ];
 
         $configBuilderMock = $this->createMock(AbstractLoginConfigHandler::class);
@@ -117,7 +117,6 @@ class LoginConfigBuilderTest extends TestCase
 
         $result = $loginConfigBuilder->build($sessionMock);
 
-        static::assertIsArray($result);
         static::assertFalse($result['useDefault']);
         static::assertArrayHasKey('providers', $result);
         static::assertIsArray($result['providers']);

@@ -12,11 +12,19 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 #[Package('core')]
 class LoginConfigBuilder
 {
+    /**
+     * @param array<string, mixed> $loginConfig
+     * @param iterable<AbstractLoginConfigHandler> $loginConfigHandlers
+     */
     public function __construct(
         private readonly array $loginConfig,
         private readonly iterable $loginConfigHandlers
-    ) {}
+    ) {
+    }
 
+    /**
+     * @return array{useDefault: mixed, providers: list<array<string, mixed>>}
+     */
     public function build(SessionInterface $session): array
     {
         $providers = [];

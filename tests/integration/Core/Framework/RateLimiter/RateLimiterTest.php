@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\RateLimiter\RateLimiterTestTrait;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\LoginConfig\Builder\LoginConfigBuilder;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -189,7 +190,8 @@ class RateLimiterTest extends TestCase
             $psrFactory,
             $this->mockResetLimiter([
                 RateLimiter::OAUTH => 1,
-            ])
+            ]),
+            new LoginConfigBuilder(['use_default' => true, 'sso_providers' => []], []),
         );
 
         $controller->token(new Request());

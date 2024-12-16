@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,16 +26,22 @@ class AuthThrottledException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
+
         return 'FRAMEWORK__AUTH_THROTTLED';
     }
 
     public function getStatusCode(): int
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
+
         return Response::HTTP_TOO_MANY_REQUESTS;
     }
 
     public function getWaitTime(): int
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
+
         return $this->waitTime;
     }
 }

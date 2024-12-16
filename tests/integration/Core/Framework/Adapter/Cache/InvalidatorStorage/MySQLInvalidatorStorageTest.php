@@ -5,14 +5,15 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorSto
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
 class MySQLInvalidatorStorageTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     private MySQLInvalidatorStorage $storage;
 
@@ -90,5 +91,62 @@ class MySQLInvalidatorStorageTest extends TestCase
         $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
 
         static::assertSame(['tag1', 'tag2'], $result);
+    }
+
+    public function testLoadAndDeleteOnlyDeletesSelectedItems(): void
+    {
+        $storage = new MySQLInvalidatorStorage(
+            $this->connection,
+            fn (MySQLInvalidatorStorage $storage, array $tags) => $storage->store(['tag4', 'tag5', 'tag6']),
+        );
+
+        // store these first
+        $this->storage->store(['tag1', 'tag2', 'tag3']);
+
+        $tags = $storage->loadAndDelete();
+
+        static::assertEquals(['tag1', 'tag2', 'tag3'], $tags);
+
+        $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
+
+        static::assertSame(['tag4', 'tag5', 'tag6'], $result);
+    }
+
+    public function testLoadAndDeleteWithParallelDelete(): void
+    {
+        // create a separate connection to simulate parallel request
+        $connection2 = MySQLFactory::create();
+        $storage2 = new MySQLInvalidatorStorage($connection2);
+
+        $storage1 = new MySQLInvalidatorStorage(
+            $this->connection,
+            function () use ($storage2): void {
+                // in the middle of the original request running `loadAndDelete`
+                // 3. insert some more tags (in parallel worker)
+                $storage2->store(['tag4', 'tag5', 'tag6']);
+                $storage2->store(['tag7', 'tag8', 'tag9']);
+
+                // 4. now load and delete (in parallel worker)
+                // should only load and delete our tags inserted in this process
+                // as other tags will be locked by parallel worker (first worker, step 2)
+                $delete = $storage2->loadAndDelete();
+
+                static::assertSame(['tag4', 'tag5', 'tag6', 'tag7', 'tag8', 'tag9'], $delete);
+                $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
+                static::assertSame(['tag1', 'tag2', 'tag3'], $result);
+            },
+        );
+
+        // 1. store these first
+        $storage1->store(['tag1', 'tag2', 'tag3']);
+
+        // 2. load tags on original connection (which will trigger callable from above to simulate parallel request loading tags)
+        $tags = $storage1->loadAndDelete();
+
+        static::assertEquals(['tag1', 'tag2', 'tag3'], $tags);
+
+        $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
+
+        static::assertSame([], $result);
     }
 }

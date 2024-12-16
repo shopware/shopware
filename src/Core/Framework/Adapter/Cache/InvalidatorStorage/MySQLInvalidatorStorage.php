@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,8 +16,11 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 {
     private const TABLE_NAME = 'invalidation_tags';
 
-    public function __construct(private readonly Connection $connection)
+    private readonly \Closure $debug;
+
+    public function __construct(private readonly Connection $connection, ?\Closure $debug = null)
     {
+        $this->debug = $debug ?? (fn () => null)(...);
     }
 
     public function store(array $tags): void
@@ -39,10 +43,18 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
     public function loadAndDelete(): array
     {
-        return $this->connection->transactional(function (Connection $conn) {
+        // used so that we don't lock the table for inserts
+        $transactionIsolation = $this->connection->getTransactionIsolation();
+        $this->connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
+
+        return $this->connection->transactional(function (Connection $conn) use ($transactionIsolation) {
+            // fetch and lock records, ignoring locked records, se we don't handle tags
+            // being processed by parallel worker
             $rows = $conn->fetchAllAssociative(
-                'SELECT id, tag FROM ' . self::TABLE_NAME . ' ORDER BY id FOR UPDATE'
+                'SELECT id, tag FROM ' . self::TABLE_NAME . ' ORDER BY id FOR UPDATE SKIP LOCKED'
             );
+
+            ($this->debug)($this, $rows);
 
             if (empty($rows)) {
                 return [];
@@ -55,6 +67,8 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
                 'DELETE FROM ' . self::TABLE_NAME . ' WHERE id BETWEEN ? AND ?',
                 [$firstTagId, $lastTagId]
             );
+
+            $conn->setTransactionIsolation($transactionIsolation);
 
             return array_column($rows, 'tag');
         });

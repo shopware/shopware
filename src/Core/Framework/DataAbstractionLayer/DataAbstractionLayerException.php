@@ -255,15 +255,6 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function databasePlatformInvalid(): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DATABASE_PLATFORM_INVALID,
-            'Database platform can not be detected'
-        );
-    }
-
     public static function fieldHasNoType(string $fieldName): self
     {
         return new self(

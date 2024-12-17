@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want to continue shopping without accepting the cookies in storefront.', { tag: '@Settings' }, async ({
+test('As a shop customer, I want to continue shopping without accepting the cookies in the storefront.', { tag: '@Settings' }, async ({
     ShopCustomer,
     StorefrontHome,
     TestDataService,
@@ -18,18 +18,18 @@ test('As a shop customer, I want to continue shopping without accepting the cook
         await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).toBeVisible();
     });
 
-    await test.step('Interact with cookie consent banner', async () => {
+    await test.step('Dismiss cookie banner using the configure option', async () => {
         await StorefrontHome.consentConfigureButton.click();
         await StorefrontHome.offcanvasBackdrop.click();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
     });
 
-    await test.step('Verify cookies after dismissing banner', async () => {
+    await test.step('Verify cookies after dismissing the cookie banner', async () => {
         const allCookies = await StorefrontHome.page.context().cookies();
         ShopCustomer.expects(allCookies.length).toEqual(2);
     });
 
-    await test.step('Navigate to product page and verify cookie banner', async () => {
+    await test.step('Navigate to the product page and verify the cookie banner', async () => {
         const productListItemLocators = await StorefrontHome.getListingItemByProductId(product.id);
         await productListItemLocators.productImage.click();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();

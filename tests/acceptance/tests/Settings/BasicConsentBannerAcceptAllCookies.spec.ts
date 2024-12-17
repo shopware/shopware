@@ -7,7 +7,7 @@ test('As a shop customer, I want to use an "Accept All Cookies" button in the ba
     DefaultSalesChannel,
 }) => {
 
-    await test.step('Set system configuration to enable accept all cookies button', async () => {
+    await test.step('Enable "Accept All Cookies" button in system configuration', async () => {
         await TestDataService.createSystemConfigEntry('core.basicInformation.acceptAllCookies', true, DefaultSalesChannel.salesChannel.id);
     });
 
@@ -17,13 +17,13 @@ test('As a shop customer, I want to use an "Accept All Cookies" button in the ba
         await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).toBeVisible();
     });
 
-    await test.step('Accept all cookies', async () => {
+    await test.step('Click "Accept All Cookies" and verify initial cookies', async () => {
         await StorefrontHome.consentAcceptAllCookiesButton.click();
         const allCookies = await StorefrontHome.page.context().cookies();
         ShopCustomer.expects(allCookies.length).toEqual(2);  // Verify initial cookies
     });
 
-    await test.step('Reload page and verify cookies', async () => {
+    await test.step('Reload page and verify additional cookies are set', async () => {
         await StorefrontHome.page.reload();
         const allCookies = await StorefrontHome.page.context().cookies();
         ShopCustomer.expects(allCookies.length).toEqual(4);  // Verify cookies after reload

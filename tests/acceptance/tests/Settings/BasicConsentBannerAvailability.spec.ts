@@ -1,11 +1,11 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want use a basic cookie consent banner in storefront.', { tag: '@Settings' }, async ({
+test('As a shop customer, I want use a basic cookie consent banner in the storefront.', { tag: '@Settings' }, async ({
     ShopCustomer,
     StorefrontHome,
 }) => {
 
-    await test.step('Navigate to homepage and verify initial cookie banner visibility', async () => {
+    await test.step('Navigate to homepage and verify initial cookie banner visibility and content', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
         await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).not.toBeVisible();

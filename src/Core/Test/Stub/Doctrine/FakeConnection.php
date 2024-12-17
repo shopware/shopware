@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Test\Stub\Doctrine;
 
-use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
@@ -39,10 +38,7 @@ class FakeConnection extends Connection
 
     public function executeQuery(string $sql, array $params = [], array $types = [], ?QueryCacheProfile $qcp = null): Result
     {
-        return new Result(
-            new ArrayResult($this->dbRows),
-            $this
-        );
+        return FakeResultFactory::createResult($this->dbRows, $this);
     }
 
     public function createQueryBuilder(): QueryBuilder|FakeQueryBuilder

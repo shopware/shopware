@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
-use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -21,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Doctrine\FakeResultFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -50,8 +49,8 @@ class ManyToManyAssociationServiceTest extends TestCase
                 ]
             )
             ->willReturn(
-                new Result(
-                    new ArrayResult([
+                FakeResultFactory::createResult(
+                    [
                         [
                             'localColumn' => Uuid::fromHexToBytes($ids->get('1')),
                             'referenceColumn' => Uuid::fromHexToBytes($ids->get('referenceColumn-1')),
@@ -68,8 +67,8 @@ class ManyToManyAssociationServiceTest extends TestCase
                             'localColumn' => Uuid::fromHexToBytes($ids->get('3')),
                             'referenceColumn' => Uuid::fromHexToBytes($ids->get('referenceColumn-1')),
                         ],
-                    ]),
-                    $connection
+                    ],
+                    $connection,
                 )
             );
 

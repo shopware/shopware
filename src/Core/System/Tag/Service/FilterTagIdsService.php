@@ -128,8 +128,7 @@ class FilterTagIdsService
             return;
         }
 
-        $expressions = new CompositeExpression(CompositeExpression::TYPE_OR);
-
+        $parts = [];
         foreach ($manyToManyFields as $manyToManyField) {
             $mappingTable = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingDefinition()->getEntityName());
             $mappingLocalColumn = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingLocalColumn());
@@ -138,9 +137,9 @@ class FilterTagIdsService
                 ->select($mappingLocalColumn)
                 ->from($mappingTable);
 
-            $expressions = $expressions->with($query->expr()->in('`tag`.`id`', \sprintf('(%s)', $subQuery->getSQL())));
+            $parts[] = $query->expr()->in('`tag`.`id`', \sprintf('(%s)', $subQuery->getSQL()));
         }
 
-        $query->andWhere($expressions);
+        $query->andWhere(CompositeExpression::or(...$parts));
     }
 }

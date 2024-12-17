@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -179,6 +180,8 @@ class VersionManager
 
         // group all payloads by their action (insert, update, delete) and by their entity name
         $writes = $this->buildWrites($commits);
+
+        $this->eventDispatcher->dispatch(new BeforeVersionMergeEvent($writes));
 
         // execute writes and get access to the write result to dispatch events later on
         $result = $this->executeWrites($writes, $liveContext);
@@ -772,48 +775,7 @@ class VersionManager
             $writes['delete']['version_commit'][] = ['id' => $commit->getId()];
         }
 
-        $this->cleanupSlotsReferencingDeletedBlocks($writes);
-
         return $writes;
-    }
-
-    /**
-     * @param array{insert:array<string, array<int, mixed>>, update:array<string, array<int, mixed>>, delete:array<string, array<int, mixed>>} $writes
-     */
-    private function cleanupSlotsReferencingDeletedBlocks(array &$writes): void
-    {
-        if (empty($writes['delete']['cms_block'])) {
-            return;
-        }
-
-        // Map deleted blocks
-        $deletedBlocks = [];
-        foreach ($writes['delete']['cms_block'] as $deletedBlock) {
-            $blockId = $deletedBlock['id'] ?? null;
-            $blockVersionId = $deletedBlock['versionId'] ?? Defaults::LIVE_VERSION;
-            if ($blockId) {
-                if (!isset($deletedBlocks[$blockId])) {
-                    $deletedBlocks[$blockId] = [];
-                }
-                $deletedBlocks[$blockId][$blockVersionId] = true;
-            }
-        }
-
-        foreach (['insert', 'update'] as $operation) {
-            if (!empty($writes[$operation]['cms_slot'])) {
-                $writes[$operation]['cms_slot'] = array_filter($writes[$operation]['cms_slot'], function ($slot) use ($deletedBlocks) {
-                    $blockId = $slot['blockId'] ?? null;
-                    $blockVersionId = $slot['cmsBlockVersionId'] ?? Defaults::LIVE_VERSION;
-
-                    if (!$blockId) {
-                        return true;
-                    }
-
-                    // If blockId and versionId are deleted, remove slot
-                    return empty($deletedBlocks[$blockId][$blockVersionId]);
-                });
-            }
-        }
     }
 
     /**

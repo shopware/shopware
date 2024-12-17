@@ -422,7 +422,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
-        $connection->method('getExpressionBuilder')
+        $connection->method('createExpressionBuilder')
             ->willReturn($expressionBuilder);
         $connection->method('executeQuery')
             ->with(static::callback(function (string $query) use ($idFieldStorageName) {
@@ -546,7 +546,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $expressionBuilder = $this->createMock(ExpressionBuilder::class);
         $connection = $this->createMock(Connection::class);
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
-        $connection->method('getExpressionBuilder')
+        $connection->method('createExpressionBuilder')
             ->willReturn($expressionBuilder);
 
         $queryResult = FakeResultFactory::createResult(
@@ -748,7 +748,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $connection->expects(static::never())
             ->method('createQueryBuilder');
         $connection->expects(static::any())
-            ->method('getExpressionBuilder')
+            ->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($connection));
 
         return $connection;

@@ -49,7 +49,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         $this->connection->expects(static::never())
             ->method('createQueryBuilder');
         $this->connection->expects(static::any())
-            ->method('getExpressionBuilder')
+            ->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($this->connection));
 
         $this->queryHelper = new DispatchEntitiesQueryBuilder($this->connection);

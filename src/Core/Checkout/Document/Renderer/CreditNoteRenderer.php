@@ -161,50 +161,31 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
                 /** @var LocaleEntity $locale */
                 $locale = $language->getLocale();
-                $files = [];
 
-                foreach (self::FILE_TYPES as $type) {
-                    $configClone = clone $config;
-                    $configClone->merge([
-                        'fileType' => $type,
-                    ]);
-
-                    // HTML is only used to skip nested pages
-                    if ($type === FileTypes::HTML) {
-                        $configClone->merge([
-                            'itemsPerPage' => 1000,
-                        ]);
-                    }
-
-                    $files[$type] = $this->documentTemplateRenderer->render(
-                        $template,
-                        [
-                            'order' => $order,
-                            'creditItems' => $creditItems,
-                            'price' => $price->getTotalPrice() * -1,
-                            'amountTax' => $price->getCalculatedTaxes()->getAmount(),
-                            'config' => $configClone,
-                            'rootDir' => $this->rootDir,
-                            'context' => $context,
-                        ],
-                        $context,
-                        $order->getSalesChannelId(),
-                        $order->getLanguageId(),
-                        $locale->getCode()
-                    );
-                }
-
-                $contentType = $operation->getFileType() === FileTypes::HTML ? self::HTML_CONTENT_TYPE : self::PDF_CONTENT_TYPE;
+                $html = $this->documentTemplateRenderer->render(
+                    $template,
+                    [
+                        'order' => $order,
+                        'creditItems' => $creditItems,
+                        'price' => $price->getTotalPrice() * -1,
+                        'amountTax' => $price->getCalculatedTaxes()->getAmount(),
+                        'config' => $config,
+                        'rootDir' => $this->rootDir,
+                        'context' => $context,
+                    ],
+                    $context,
+                    $order->getSalesChannelId(),
+                    $order->getLanguageId(),
+                    $locale->getCode()
+                );
 
                 $doc = new RenderedDocument(
-                    $files[FileTypes::PDF],
+                    $html,
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
                     $config->jsonSerialize(),
-                    $contentType,
                 );
-                $doc->setFiles($files);
 
                 $doc->setHtmlA11y(
                     $this->htmlA11yRendered(

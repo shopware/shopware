@@ -80,13 +80,14 @@ class DocumentController extends AbstractController
     public function downloadDocuments(Request $request, Context $context): Response
     {
         $documentIds = $request->get('documentIds', []);
+        $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
 
         if (!\is_array($documentIds) || empty($documentIds)) {
             throw RoutingException::invalidRequestParameter('documentIds');
         }
 
         $download = $request->query->getBoolean('download', true);
-        $combinedDocument = $this->documentMerger->merge($documentIds, $context);
+        $combinedDocument = $this->documentMerger->merge($documentIds, $context, $fileType);
 
         if ($combinedDocument === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);

@@ -39,12 +39,15 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
 
         foreach (['insert', 'update'] as $operation) {
             if (!empty($writes[$operation]['cms_slot'])) {
-                $writes[$operation]['cms_slot'] = array_values(array_filter($writes[$operation]['cms_slot'], function ($slot) use ($deletedBlocks) {
-                    $blockId = $slot['blockId'] ?? null;
-                    $blockVersionId = $slot['cmsBlockVersionId'] ?? null;
+                $writes[$operation]['cms_slot'] = array_values(array_filter(
+                    $writes[$operation]['cms_slot'],
+                    function ($slot) use ($deletedBlocks) {
+                        $blockId = $slot['blockId'] ?? null;
+                        $blockVersionId = $slot['cmsBlockVersionId'] ?? null;
 
-                    return empty($deletedBlocks[$blockId][$blockVersionId]);
-                }));
+                        return empty($deletedBlocks[$blockId][$blockVersionId]);
+                    }
+                ));
             }
         }
     }

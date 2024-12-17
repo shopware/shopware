@@ -9,12 +9,20 @@ use Symfony\Contracts\EventDispatcher\Event;
 class BeforeVersionMergeEvent extends Event
 {
     /**
-     * @var array<string, array<string, mixed>>
+     * @var array{
+     *     insert: array<string, array<int, mixed>>,
+     *     update: array<string, array<int, mixed>>,
+     *     delete: array<string, array<int, mixed>>
+     * }
      */
     private array $writes;
 
     /**
-     * @param array<string, array<string, mixed>> $writes
+     * @param array{
+     *     insert: array<string, array<int, mixed>>,
+     *     update: array<string, array<int, mixed>>,
+     *     delete: array<string, array<int, mixed>>
+     * } $writes
      */
     public function __construct(array &$writes)
     {
@@ -22,7 +30,11 @@ class BeforeVersionMergeEvent extends Event
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return array{
+     *     insert: array<string, array<int, mixed>>,
+     *     update: array<string, array<int, mixed>>,
+     *     delete: array<string, array<int, mixed>>
+     * }
      */
     public function &getWrites(): array
     {

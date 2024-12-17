@@ -25,8 +25,16 @@ class CmsVersionMergeSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string, mixed>> $writes
-     * @param array<string, array<string, mixed>> $expectedWrites
+     * @param array{
+     *      insert: array<string, array<int, mixed>>,
+     *      update: array<string, array<int, mixed>>,
+     *      delete: array<string, array<int, mixed>>
+     *  } $writes
+     * @param array{
+     *      insert: array<string, array<int, mixed>>,
+     *      update: array<string, array<int, mixed>>,
+     *      delete: array<string, array<int, mixed>>
+     *  } $expectedWrites
      */
     #[DataProvider('versionMergeEventDataProvider')]
     public function testOnVersionMerge(array $writes, array $expectedWrites): void

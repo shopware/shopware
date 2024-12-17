@@ -20,13 +20,13 @@ test('As a shop customer, I want to use an "Accept All Cookies" button in the ba
     await test.step('Click "Accept All Cookies" and verify initial cookies', async () => {
         await StorefrontHome.consentAcceptAllCookiesButton.click();
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.length).toEqual(2);  // Verify initial cookies
+        ShopCustomer.expects(allCookies.length).toEqual(2);
     });
 
     await test.step('Reload page and verify additional cookies are set', async () => {
         await StorefrontHome.page.reload();
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.length).toEqual(4);  // Verify cookies after reload
+        ShopCustomer.expects(allCookies.length).toEqual(4);
     });
 
     await test.step('Verify cookie consent banner is no longer visible', async () => {

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 class StatementHelper
 {
     /**
-     * @param array<string|int, mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     public static function executeStatement(Statement $stmt, array $parameters = []): int|string
     {
@@ -20,7 +20,7 @@ class StatementHelper
     }
 
     /**
-     * @param array<string|int, mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     public static function executeQuery(Statement $stmt, array $parameters = []): Result
     {
@@ -30,7 +30,7 @@ class StatementHelper
     }
 
     /**
-     * @param array<string|int, mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     public static function bindParameters(Statement $stmt, array $parameters): void
     {

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 #[Package('buyers-experience')]
 class CmsVersionMergeSubscriber implements EventSubscriberInterface
 {
@@ -36,12 +39,12 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
 
         foreach (['insert', 'update'] as $operation) {
             if (!empty($writes[$operation]['cms_slot'])) {
-                $writes[$operation]['cms_slot'] = array_filter($writes[$operation]['cms_slot'], function ($slot) use ($deletedBlocks) {
+                $writes[$operation]['cms_slot'] = array_values(array_filter($writes[$operation]['cms_slot'], function ($slot) use ($deletedBlocks) {
                     $blockId = $slot['blockId'] ?? null;
                     $blockVersionId = $slot['cmsBlockVersionId'] ?? null;
 
                     return empty($deletedBlocks[$blockId][$blockVersionId]);
-                });
+                }));
             }
         }
     }

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want to use a accept all cookies button in the basic cookie consent banner in storefront.', { tag: '@Settings' }, async ({
+test('As a shop customer, I want to use an "Accept All Cookies" button in the basic cookie consent banner in the storefront.', { tag: '@Settings' }, async ({
     ShopCustomer,
     StorefrontHome,
     TestDataService,

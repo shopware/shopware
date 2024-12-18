@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
@@ -58,7 +59,7 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof AssociationField) {
-            if ($value === null || !\in_array($field->getReferenceClass(), [OrderDeliveryDefinition::class], true)) {
+            if ($value === null || !\in_array($field->getReferenceClass(), [OrderDeliveryDefinition::class, OrderTransactionDefinition::class], true)) {
                 return;
             }
 

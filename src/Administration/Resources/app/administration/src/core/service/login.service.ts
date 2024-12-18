@@ -28,7 +28,6 @@ interface SsoProvider {
     icon: string;
     class: string;
     url: string;
-    additionalData: [];
 }
 
 interface LoginConfig {
@@ -524,8 +523,6 @@ export default function createLoginService(
             .get<LoginConfig>('/oauth/sso/config', {
                 baseURL: context.apiPath!,
             })
-            .then((response) => {
-                return response.data;
-            });
+            .then((response) => response.data);
     }
 }

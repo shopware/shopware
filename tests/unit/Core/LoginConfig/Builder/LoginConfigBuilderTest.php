@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\LoginConfig\Builder\Handler\AbstractLoginConfigHandler;
 use Shopware\Core\LoginConfig\Builder\Handler\SwSsoLogin;
 use Shopware\Core\LoginConfig\Builder\LoginConfigBuilder;
+use Shopware\Core\LoginConfig\Builder\TemplateData;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -46,17 +47,16 @@ class LoginConfigBuilderTest extends TestCase
         $result = $loginConfigBuilder->build($sessionMock);
 
         static::assertFalse($result['useDefault']);
-        static::assertArrayHasKey('providers', $result);
-        static::assertIsArray($result['providers']);
-        static::assertCount(1, $result['providers']);
+        static::assertArrayHasKey('ssoProviders', $result);
+        static::assertIsArray($result['ssoProviders']);
+        static::assertCount(1, $result['ssoProviders']);
 
-        foreach ($result['providers'] as $provider) {
+        foreach ($result['ssoProviders'] as $provider) {
             static::assertSame('swsso', $provider['key']);
             static::assertSame('test-snippet-key', $provider['snippet_key']);
             static::assertSame('test-icon', $provider['icon']);
             static::assertSame('test-class', $provider['class']);
             static::assertStringStartsWith('test-base-url/oauth/authorize?client_id=test-client-id&redirect_uri=test-redirect-uri&response_type=code&scope=openid&state=http://appUrl/admin+', \urldecode($provider['url']));
-            static::assertSame(['test-key' => 'test-value'], $provider['additionalData']);
         }
     }
 
@@ -87,9 +87,9 @@ class LoginConfigBuilderTest extends TestCase
         $result = $loginConfigBuilder->build($sessionMock);
 
         static::assertTrue($result['useDefault']);
-        static::assertArrayHasKey('providers', $result);
-        static::assertIsArray($result['providers']);
-        static::assertCount(0, $result['providers']);
+        static::assertArrayHasKey('ssoProviders', $result);
+        static::assertIsArray($result['ssoProviders']);
+        static::assertCount(0, $result['ssoProviders']);
     }
 
     public function testBuildWithMock(): void
@@ -104,7 +104,7 @@ class LoginConfigBuilderTest extends TestCase
         $configBuilderMock = $this->createMock(AbstractLoginConfigHandler::class);
         $configBuilderMock->expects(static::once())
             ->method('createTemplateData')
-            ->willReturn([]);
+            ->willReturn(new TemplateData('test-key', 'test-snippet-key', 'test-icon', 'test-class', 'test-url'));
 
         $configBuilderMock->expects(static::once())
             ->method('supports')
@@ -118,8 +118,8 @@ class LoginConfigBuilderTest extends TestCase
         $result = $loginConfigBuilder->build($sessionMock);
 
         static::assertFalse($result['useDefault']);
-        static::assertArrayHasKey('providers', $result);
-        static::assertIsArray($result['providers']);
-        static::assertCount(1, $result['providers']);
+        static::assertArrayHasKey('ssoProviders', $result);
+        static::assertIsArray($result['ssoProviders']);
+        static::assertCount(1, $result['ssoProviders']);
     }
 }

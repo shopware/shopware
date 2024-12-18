@@ -4,6 +4,7 @@ namespace Shopware\Core\LoginConfig\Builder\Handler;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\LoginConfig\Builder\LoginConfigItem;
+use Shopware\Core\LoginConfig\Builder\TemplateData;
 use Shopware\Core\LoginConfig\LoginConfigException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -25,10 +26,7 @@ abstract class AbstractLoginConfigHandler
         $this->session = $session;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    abstract public function createTemplateData(LoginConfigItem $loginConfigItem): array;
+    abstract public function createTemplateData(LoginConfigItem $loginConfigItem): TemplateData;
 
     protected function getSession(): SessionInterface
     {

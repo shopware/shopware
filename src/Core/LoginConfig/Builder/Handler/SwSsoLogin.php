@@ -4,6 +4,7 @@ namespace Shopware\Core\LoginConfig\Builder\Handler;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\LoginConfig\Builder\LoginConfigItem;
+use Shopware\Core\LoginConfig\Builder\TemplateData;
 use Symfony\Component\String\ByteString;
 
 /**
@@ -18,16 +19,15 @@ class SwSsoLogin extends AbstractLoginConfigHandler
     ) {
     }
 
-    public function createTemplateData(LoginConfigItem $loginConfigItem): array
+    public function createTemplateData(LoginConfigItem $loginConfigItem): TemplateData
     {
-        return [
-            'key' => $loginConfigItem->key,
-            'snippet_key' => $loginConfigItem->snippetKey,
-            'icon' => $loginConfigItem->icon,
-            'class' => $loginConfigItem->class,
-            'url' => $this->createButtonUrl($loginConfigItem),
-            'additionalData' => $loginConfigItem->additionalData,
-        ];
+        return new TemplateData(
+            $loginConfigItem->key,
+            $loginConfigItem->snippetKey ?? '',
+            $loginConfigItem->icon ?? '',
+            $loginConfigItem->class ?? '',
+            $this->createButtonUrl($loginConfigItem),
+        );
     }
 
     protected function getType(): string

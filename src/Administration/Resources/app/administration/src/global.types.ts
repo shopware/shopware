@@ -115,6 +115,7 @@ import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-ur
 import type { ShopwareExtensionsStore } from './module/sw-extension/store/extensions.store';
 import type { SwOrderDetailStore } from './module/sw-order/store/order-detail.store';
 import type { SwOrderStore } from './module/sw-order/store/order.store';
+import type { SwShippingDetailStore } from './module/sw-settings-shipping/page/sw-settings-shipping-detail/store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -376,6 +377,7 @@ declare global {
         shopwareExtensions: ShopwareExtensionsStore;
         swOrderDetail: SwOrderDetailStore;
         swOrder: SwOrderStore;
+        swShippingDetailStore: SwShippingDetailStore;
     }
 
     /**

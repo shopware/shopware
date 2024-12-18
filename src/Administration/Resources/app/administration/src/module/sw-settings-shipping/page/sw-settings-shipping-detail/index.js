@@ -1,10 +1,10 @@
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
-import swShippingDetailState from './state';
+import './store';
 
 const { Mixin, Context } = Shopware;
-const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
+const { mapState } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
@@ -62,15 +62,16 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swShippingDetail', [
-            'shippingMethod',
-            'currencies',
-            'restrictedRuleIds',
-        ]),
-
-        ...mapVuexGetters('swShippingDetail', [
-            'usedRules',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swShippingDetail'),
+            [
+                'shippingMethod',
+                'currencies',
+                'restrictedRuleIds',
+                /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
+                'usedRules',
+            ],
+        ),
 
         ...mapPropertyErrors('shippingMethod', [
             'name',
@@ -175,16 +176,8 @@ export default {
         },
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swShippingDetail', swShippingDetailState);
-    },
-
     created() {
         this.createdComponent();
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swShippingDetail');
     },
 
     methods: {
@@ -199,7 +192,7 @@ export default {
                 shippingMethodPrice.shippingMethodId = shippingMethod.id;
                 shippingMethodPrice.ruleId = null;
                 shippingMethod.prices.add(shippingMethodPrice);
-                Shopware.State.commit('swShippingDetail/setShippingMethod', shippingMethod);
+                Shopware.Store.get('swShippingDetail').shippingMethod = shippingMethod;
             } else {
                 this.loadEntityData();
             }
@@ -213,7 +206,7 @@ export default {
         loadCurrencies() {
             this.currenciesLoading = true;
             this.currencyRepository.search(new Criteria(1, 500), Context.api).then((currencyResponse) => {
-                Shopware.State.commit('swShippingDetail/setCurrencies', this.sortCurrencies(currencyResponse));
+                Shopware.Store.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
                 this.currenciesLoading = false;
             });
         },
@@ -228,10 +221,10 @@ export default {
             this.shippingMethodRepository
                 .get(this.shippingMethodId, Shopware.Context.api, this.shippingMethodCriteria)
                 .then((res) => {
-                    Shopware.State.commit('swShippingDetail/setShippingMethod', res);
+                    Shopware.Store.get('swShippingDetail').shippingMethod = res;
 
                     this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices').then((result) => {
-                        Shopware.State.commit('swShippingDetail/setRestrictedRuleIds', this.usedRules.concat(result));
+                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.usedRules.concat(result);
                     });
 
                     this.loadCustomFieldSets().then(() => {

@@ -7,7 +7,7 @@ const {
     Context,
 } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
+const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
  * @package checkout
@@ -38,16 +38,16 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swShippingDetail', [
-            'shippingMethod',
-        ]),
-
-        ...mapVuexGetters('swShippingDetail', [
-            'shippingPriceGroups',
-            'usedRules',
-            'unrestrictedPriceMatrixExists',
-            'newPriceMatrixExists',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swShippingDetail'),
+            [
+                'shippingMethod',
+                'shippingPriceGroups',
+                'usedRules',
+                'unrestrictedPriceMatrixExists',
+                'newPriceMatrixExists',
+            ],
+        ),
 
         ruleRepository() {
             return this.repositoryFactory.create('rule');

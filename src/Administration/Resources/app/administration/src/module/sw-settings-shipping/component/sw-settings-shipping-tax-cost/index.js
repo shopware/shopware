@@ -2,7 +2,7 @@ import template from './sw-settings-shipping-tax-cost.html.twig';
 
 const { Criteria } = Shopware.Data;
 const { Mixin } = Shopware;
-const { mapPropertyErrors, mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
 /**
  * @package checkout
@@ -32,17 +32,17 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swShippingDetail', [
-            'shippingMethod',
-            'currencies',
-        ]),
-
-        ...mapVuexGetters('swShippingDetail', [
-            'defaultCurrency',
-            'usedRules',
-            'unrestrictedPriceMatrixExists',
-            'newPriceMatrixExists',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swShippingDetail'),
+            [
+                'shippingMethod',
+                'currencies',
+                'defaultCurrency',
+                'usedRules',
+                'unrestrictedPriceMatrixExists',
+                'newPriceMatrixExists',
+            ],
+        ),
 
         ...mapPropertyErrors('shippingMethod', [
             'taxType',

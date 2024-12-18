@@ -38,6 +38,11 @@ jobs:
         image: ${{ matrix.major == 'major' && 'redis:alpine' || '' }}
         ports:
           - "6379:6379"
+      mailpit:
+        image: axllent/mailpit
+        ports:
+          - "1025:1025"
+          - "8025:8025"
     steps:
       - name: Define environment for major testing
         shell: bash

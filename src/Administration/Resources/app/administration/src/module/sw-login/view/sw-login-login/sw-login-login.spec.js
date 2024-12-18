@@ -52,7 +52,7 @@ async function createWrapper(loginSuccessfull) {
                     },
                     getLoginTemplateConfig: () => {
                         return new Promise((resolve) => {
-                            resolve({ useDefault: true, providers: [] });
+                            resolve({ useDefault: true, ssoProviders: [] });
                         });
                     }
                 },

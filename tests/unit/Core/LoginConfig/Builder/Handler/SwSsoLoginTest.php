@@ -36,11 +36,10 @@ class SwSsoLoginTest extends TestCase
 
         $result = $swSsoLogin->createTemplateData($loginConfigItem);
 
-        static::assertSame('test-key', $result['key']);
-        static::assertSame('test-snippet-key', $result['snippet_key']);
-        static::assertSame('test-icon', $result['icon']);
-        static::assertSame('test-class', $result['class']);
-        static::assertStringStartsWith('/oauth/authorize?client_id=http://test-baseUrl&redirect_uri=http://test-redirectUri&response_type=code&scope=openid&state=http://appUrl/admin+', \urldecode($result['url']));
-        static::assertSame([], $result['additionalData']);
+        static::assertSame('test-key', $result->key);
+        static::assertSame('test-snippet-key', $result->snippetKey);
+        static::assertSame('test-icon', $result->icon);
+        static::assertSame('test-class', $result->class);
+        static::assertStringStartsWith('/oauth/authorize?client_id=http://test-baseUrl&redirect_uri=http://test-redirectUri&response_type=code&scope=openid&state=http://appUrl/admin+', \urldecode($result->url));
     }
 }

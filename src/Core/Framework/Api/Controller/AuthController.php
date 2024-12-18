@@ -71,6 +71,6 @@ class AuthController extends AbstractController
             return new JsonResponse($this->loginConfigBuilder->build($request->getSession()));
         }
 
-        return new JsonResponse(['useDefault' => true, 'providers' => []]);
+        return new JsonResponse(['useDefault' => true, 'sspProviders' => []]);
     }
 }

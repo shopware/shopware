@@ -5,14 +5,14 @@
     @submit.prevent="loginUserWithPassword"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_login_login_form_headline %}
+    {% block sw_login_login_form_headline %}
     <h2 class="sw-login__content-headline">
         {{ $tc('sw-login.index.headlineForm') }}
     </h2>
-        {% endblock %}
+    {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_login_login_alert %}
+    {% block sw_login_login_alert %}
     <sw-alert
         v-if="showLoginAlert"
         variant="info"
@@ -22,12 +22,12 @@
     >
         {{ loginAlertMessage }}
     </sw-alert>
-        {% endblock %}
+    {% endblock %}
 
     <div v-if="loginConfigLoaded">
         <template v-if="loginConfig.useDefault">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_login_login_user_field %}
+            {% block sw_login_login_user_field %}
             <sw-text-field
                 v-model:value="username"
                 v-autofocus
@@ -37,10 +37,10 @@
                 :disabled="showLoginAlert"
                 required
             />
-                {% endblock %}
+            {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_login_login_password_field %}
+            {% block sw_login_login_password_field %}
             <sw-password-field
                 v-model:value="password"
                 name="sw-field--password"
@@ -49,7 +49,7 @@
                 :disabled="showLoginAlert"
                 required
             />
-                {% endblock %}
+            {% endblock %}
 
             <sw-checkbox-field
                 v-model:value="rememberMe"
@@ -57,20 +57,20 @@
             />
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_login_login_submit %}
+            {% block sw_login_login_submit %}
             <div class="sw-login__submit">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_login_login_forgot_password %}
+                {% block sw_login_login_forgot_password %}
                 <router-link
                     :to="{ name: 'sw.login.index.recovery' }"
                     class="sw-login__forgot-password-action"
                 >
                     {{ $tc('sw-login.index.forgottenPasswordLink') }}
                 </router-link>
-                        {% endblock %}
+                {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_login_login_submit_button %}
+                {% block sw_login_login_submit_button %}
                 <sw-button
                     :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
                     class="sw-login__login-action"
@@ -78,12 +78,12 @@
                 >
                     {{ $tc('sw-login.index.buttonLogin') }}
                 </sw-button>
-                        {% endblock %}
-            </div>
                 {% endblock %}
+            </div>
+            {% endblock %}
         </template>
 
-        <template v-for="(loginType, index) in loginConfig.providers" :key="index">
+        <template v-for="loginType in loginConfig.ssoProviders" :key="loginType.key">
             <div>
                 <a
                     class="sw-button"
@@ -91,10 +91,14 @@
                     :disabled="isLoading"
                     :href="loginType.url"
                 >
-                    {{ $tc(loginType.snippet_key) }}&nbsp;<sw-icon :name="loginType.icon"/>
+                    {{ $tc(loginType.snippet_key) }}
+                    <sw-icon :name="loginType.icon"/>
                 </a>
             </div>
         </template>
+    </div>
+    <div v-else>
+        <sw-loader/>
     </div>
 </form>
 {% endblock %}

@@ -3,7 +3,10 @@ import { test } from '@fixtures/AcceptanceTest';
 test('As a shop customer, I want use a basic cookie consent banner in the storefront.', { tag: '@Settings' }, async ({
     ShopCustomer,
     StorefrontHome,
+    TestDataService,
 }) => {
+
+    await TestDataService.clearCaches();
 
     await test.step('Navigate to homepage and verify initial cookie banner visibility and content', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());

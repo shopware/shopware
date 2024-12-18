@@ -23,7 +23,7 @@ class LoginConfigBuilder
     }
 
     /**
-     * @return array{useDefault: mixed, providers: list<array<string, mixed>>}
+     * @return array{useDefault: bool, ssoProviders: list<array{key: string, snippet_key: string, icon: string, class: string, url: string}>}
      */
     public function build(SessionInterface $session): array
     {
@@ -37,12 +37,12 @@ class LoginConfigBuilder
                 continue;
             }
 
-            $providers[] = $handler->createTemplateData($loginConfigItem);
+            $providers[] = $handler->createTemplateData($loginConfigItem)->toArray();
         }
 
         return [
-            'useDefault' => $this->loginConfig['use_default'],
-            'providers' => $providers,
+            'useDefault' => (bool) $this->loginConfig['use_default'],
+            'ssoProviders' => $providers,
         ];
     }
 

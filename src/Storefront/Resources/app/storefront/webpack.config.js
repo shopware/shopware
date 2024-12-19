@@ -321,11 +321,19 @@ const pluginConfigs = pluginEntries.map((plugin) => {
     }
 
     if (isHotMode) {
-        if (plugin.isTheme && plugin.name === themeFiles.technicalName) {
+        const scriptAssetNames = [];
+        themeFiles.script.map((script) => {
+            scriptAssetNames.push(script.assetName);
+        });
+        const pluginNameDashes = plugin.name
+            .replace(/[A-Z]/g, m => '-' + m.toLowerCase())
+            .replace(/^-/, '');
+
+        if (plugin.isTheme && scriptAssetNames.includes(pluginNameDashes)) {
             console.log(chalk.bgYellowBright.black(`# Compiling Theme "${plugin.name}" in HotMode`));
         }
-        if (plugin.isTheme && plugin.name !== themeFiles.technicalName) {
-            console.log(chalk.bgYellowBright.black(`# Skipping "${plugin.name}" Theme in HotMode`));
+        if (plugin.isTheme && !scriptAssetNames.includes(pluginNameDashes)) {
+            console.log(chalk.bgHex('#fbbc39').black(`# Skipping "${plugin.name}" Theme in HotMode`));
             return merge([
                 coreConfig,
                 {},

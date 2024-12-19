@@ -8,9 +8,8 @@ import './sw-order-document-card.scss';
  * @package checkout
  */
 
-const { Mixin } = Shopware;
+const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapVuexGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -75,9 +74,7 @@ export default {
     },
 
     computed: {
-        ...mapVuexGetters('swOrderDetail', [
-            'isEditing',
-        ]),
+        isEditing: () => Store.get('swOrderDetail').isEditing,
 
         creditItems() {
             const items = [];

@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import orderStore from 'src/module/sw-order/state/order.store';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 
 /**
@@ -227,17 +226,9 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             };
         });
 
-        Shopware.State.registerModule('swOrder', {
-            ...orderStore,
-            state: {
-                ...orderStore.state,
-                customer: {
-                    ...customerData,
-                },
-                cart,
-                context,
-            },
-        });
+        Shopware.Store.get('swOrder').setCart(cart);
+        Shopware.Store.get('swOrder').setContext(context);
+        Shopware.Store.get('swOrder').setCustomer(customerData);
 
         if (Shopware.Store.get('context')) {
             Shopware.Store.unregister('context');

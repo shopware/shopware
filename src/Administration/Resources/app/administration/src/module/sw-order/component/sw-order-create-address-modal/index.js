@@ -5,7 +5,7 @@ import './sw-order-create-address-modal.scss';
  * @package checkout
  */
 
-const { Mixin, State, Service } = Shopware;
+const { Mixin, Store, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -153,7 +153,7 @@ export default {
                 [this.address.contextDataDefaultId]: address[this.address.contextDataDefaultId],
             };
 
-            await State.dispatch('swOrder/updateOrderContext', {
+            await Store.get('swOrder').updateOrderContext({
                 context,
                 salesChannelId: this.activeCustomer.salesChannelId,
                 contextToken: this.cart.token,

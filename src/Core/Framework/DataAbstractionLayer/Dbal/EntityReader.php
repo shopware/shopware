@@ -798,7 +798,7 @@ class EntityReader implements EntityReaderInterface
         $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
 
         $orderBy = '';
-        $parts = $query->getQueryPart('orderBy');
+        $parts = $query->getOrderByParts();
         if (!empty($parts)) {
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
             $query->resetOrderBy();
@@ -949,7 +949,7 @@ class EntityReader implements EntityReaderInterface
             EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id',
         );
 
-        foreach ($query->getQueryPart('orderBy') as $i => $sorting) {
+        foreach ($query->getOrderByParts() as $i => $sorting) {
             // The first order is the primary key
             if ($i === 0) {
                 continue;

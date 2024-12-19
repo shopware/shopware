@@ -5,24 +5,24 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @phpstan-type WriteOperation array<string, array<int, mixed>>
+ * @phpstan-type Writes array{
+ *     insert: WriteOperation,
+ *     update: WriteOperation,
+ *     delete: WriteOperation
+ * }
+ */
 #[Package('core')]
 class BeforeVersionMergeEvent extends Event
 {
     /**
-     * @var array{
-     *     insert: array<string, array<int, mixed>>,
-     *     update: array<string, array<int, mixed>>,
-     *     delete: array<string, array<int, mixed>>
-     * }
+     * @var Writes
      */
     private array $writes;
 
     /**
-     * @param array{
-     *     insert: array<string, array<int, mixed>>,
-     *     update: array<string, array<int, mixed>>,
-     *     delete: array<string, array<int, mixed>>
-     * } $writes
+     * @param Writes $writes
      */
     public function __construct(array &$writes)
     {
@@ -30,11 +30,7 @@ class BeforeVersionMergeEvent extends Event
     }
 
     /**
-     * @return array{
-     *     insert: array<string, array<int, mixed>>,
-     *     update: array<string, array<int, mixed>>,
-     *     delete: array<string, array<int, mixed>>
-     * }
+     * @return Writes
      */
     public function &getWrites(): array
     {

@@ -27,28 +27,52 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $deletedBlocks = [];
-        foreach ($writes['delete']['cms_block'] as $deletedBlock) {
+        $deletedBlocks = $this->mapDeletedBlocks($writes['delete']['cms_block']);
+
+        // Filter slots based on deleted blocks
+        foreach (['insert', 'update'] as $operation) {
+            if (empty($writes[$operation]['cms_slot'])) {
+                continue;
+            }
+
+            $writes[$operation]['cms_slot'] = $this->filterSlots($writes[$operation]['cms_slot'], $deletedBlocks);
+        }
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $deletedBlocks
+     * @return array<string, array<string, bool>>
+     */
+    private function mapDeletedBlocks(array $deletedBlocks): array
+    {
+        $mapped = [];
+        foreach ($deletedBlocks as $deletedBlock) {
             $blockId = $deletedBlock['id'] ?? null;
             $blockVersionId = $deletedBlock['versionId'] ?? null;
 
             if ($blockId && $blockVersionId) {
-                $deletedBlocks[$blockId][$blockVersionId] = true;
+                $mapped[$blockId][$blockVersionId] = true;
             }
         }
 
-        foreach (['insert', 'update'] as $operation) {
-            if (!empty($writes[$operation]['cms_slot'])) {
-                $writes[$operation]['cms_slot'] = array_values(array_filter(
-                    $writes[$operation]['cms_slot'],
-                    function ($slot) use ($deletedBlocks) {
-                        $blockId = $slot['blockId'] ?? null;
-                        $blockVersionId = $slot['cmsBlockVersionId'] ?? null;
+        return $mapped;
+    }
 
-                        return empty($deletedBlocks[$blockId][$blockVersionId]);
-                    }
-                ));
+    /**
+     * @param array<int, array<string, mixed>> $slots
+     * @param array<string, array<string, bool>> $deletedBlocks
+     * @return array<int, array<string, mixed>>
+     */
+    private function filterSlots(array $slots, array $deletedBlocks): array
+    {
+        return array_values(array_filter(
+            $slots,
+            static function (array $slot) use ($deletedBlocks): bool {
+                $blockId = $slot['blockId'] ?? null;
+                $blockVersionId = $slot['cmsBlockVersionId'] ?? null;
+
+                return empty($deletedBlocks[$blockId][$blockVersionId]);
             }
-        }
+        ));
     }
 }

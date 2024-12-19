@@ -14,7 +14,7 @@ class ProductConfiguratorSettingExceptionHandler implements ExceptionHandlerInte
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
-    public function matchException(\Exception $e): ?\Exception
+    public function matchException(\Throwable $e): ?\Exception
     {
         if (preg_match('/SQLSTATE\[23000]:.*1062 Duplicate.*product_configurator_setting\.uniq\.product_configurator_setting\.prod_id\.vers_id\.prop_group_id\'/', $e->getMessage())) {
             return ProductException::configurationOptionAlreadyExists();

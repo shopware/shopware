@@ -228,9 +228,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $inserts->execute();
             $entityDeleteEvent->success();
         } catch (Exception $e) {
-            // Match exception without passing a specific command when feature-flag 16640 is active
             $innerException = $this->exceptionHandlerRegistry->matchException($e);
-            if ($innerException instanceof \Exception) {
+            if ($innerException !== null) {
                 $e = $innerException;
             }
             $context->getExceptions()->add($e);

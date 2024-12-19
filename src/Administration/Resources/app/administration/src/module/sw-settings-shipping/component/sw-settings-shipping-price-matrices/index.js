@@ -7,7 +7,6 @@ const {
     Context,
 } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
 
 /**
  * @package checkout
@@ -38,16 +37,25 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swShippingDetail', [
-            'shippingMethod',
-        ]),
+        shippingMethod() {
+            return Shopware.Store.get('swShippingDetail').shippingMethod;
+        },
 
-        ...mapVuexGetters('swShippingDetail', [
-            'shippingPriceGroups',
-            'usedRules',
-            'unrestrictedPriceMatrixExists',
-            'newPriceMatrixExists',
-        ]),
+        shippingPriceGroups() {
+            return Shopware.Store.get('swShippingDetail').shippingPriceGroups;
+        },
+
+        usedRules() {
+            return Shopware.Store.get('swShippingDetail').usedRules;
+        },
+
+        unrestrictedPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').unrestrictedPriceMatrixExists;
+        },
+
+        newPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').newPriceMatrixExists;
+        },
 
         ruleRepository() {
             return this.repositoryFactory.create('rule');

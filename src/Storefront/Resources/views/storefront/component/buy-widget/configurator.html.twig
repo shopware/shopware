@@ -18,7 +18,7 @@
                 {% block buy_widget_configurator_groups %}
                     {% for group in configuratorSettings %}
                         {% block buy_widget_configurator_group %}
-                            <div class="product-detail-configurator-group">
+                            <fieldset role="radiogroup" class="product-detail-configurator-group{% if feature('ACCESSIBILITY_TWEAKS') %} mb-3{% endif %}">
                                 {% if group.displayType == 'select' %}
                                     {# @deprecated tag:v6.7.0 - Template `select.html.twig` is deprecated. Use `storefront/component/buy-widget/configurator/select.html.twig` instead. #}
                                     {% if feature('v6.7.0.0') %}
@@ -28,15 +28,15 @@
                                     {% endif %}
                                 {% else %}
                                     {% block buy_widget_configurator_group_title %}
-                                        <div class="product-detail-configurator-group-title">
+                                        <legend class="product-detail-configurator-group-title fs-5 fw-bold">
                                             {% block buy_widget_configurator_group_title_text %}
-                                                {{ group.translated.name }}
+                                                {{ 'component.product.configurator.legend'|trans({ '%group_name%': group.translated.name, '%hidden_cls%': 'visually-hidden' })|sw_sanitize }}
                                             {% endblock %}
-                                        </div>
+                                        </legend>
                                     {% endblock %}
 
                                     {% block buy_widget_configurator_options %}
-                                        <div class="product-detail-configurator-options">
+                                        <div class="product-detail-configurator-options{% if feature('ACCESSIBILITY_TWEAKS') %} d-flex flex-wrap gap-2{% endif %}">
                                             {% for option in group.options %}
                                                 {% if elementId is defined and elementId is not null %}
                                                     {% set optionIdentifier = [group.id, option.id, elementId]|join('-') %}
@@ -45,14 +45,14 @@
                                                 {% endif %}
 
                                                 {% set isActive = false %}
-                                                {% set isCombinableCls = 'is-combinable' %}
+
+                                                {# @deprecated tag:v6.7.0 - Variable `isCombinableCls` will always contain a string and no longer `false`. Will return `not-combinable disabled` instead. #}
+                                                {% set isCombinableCls = feature('ACCESSIBILITY_TWEAKS')
+                                                    ? (option.combinable ? 'is-combinable' : 'not-combinable disabled')
+                                                    : (option.combinable ? 'is-combinable' : false) %}
 
                                                 {% if option.id in product.optionIds %}
                                                     {% set isActive = true %}
-                                                {% endif %}
-
-                                                {% if not option.combinable %}
-                                                    {% set isCombinableCls = false %}
                                                 {% endif %}
 
                                                 {% if option.configuratorSetting.media %}
@@ -73,18 +73,19 @@
                                                             <input type="radio"
                                                                    name="{{ group.id }}"
                                                                    value="{{ option.id }}"
-                                                                   class="product-detail-configurator-option-input{% if isCombinableCls %} {{ isCombinableCls }}{% endif %}"
-                                                                   title="{{ optionIdentifier }}"
+                                                                   class="product-detail-configurator-option-input {{ isCombinableCls }}{% if feature('ACCESSIBILITY_TWEAKS') %} btn-check{% endif %}"
                                                                    id="{{ optionIdentifier }}"
+                                                                   aria-labelledby="{{ optionIdentifier }}-label"
                                                                    {% if isActive %}checked="checked"{% endif %}>
 
                                                             {% block buy_widget_configurator_option_radio_label %}
-                                                                <label class="product-detail-configurator-option-label{% if isCombinableCls %} {{ isCombinableCls }}{% endif %} is-display-{{ displayType }}"
+                                                                <label class="product-detail-configurator-option-label {{ isCombinableCls }} is-display-{{ displayType }}{% if feature('ACCESSIBILITY_TWEAKS') %} btn btn-outline-primary{% endif %}"
                                                                     {% if displayType == 'color' and option.colorHexCode %}
                                                                         style="background-color: {{ option.colorHexCode }}"
                                                                     {% endif %}
-                                                                       title="{{ option.translated.name }}"
-                                                                       for="{{ optionIdentifier }}">
+                                                                       id="{{ optionIdentifier }}-label"
+                                                                       for="{{ optionIdentifier }}"
+                                                                       aria-hidden="true">
 
                                                                     {% if displayType == 'media' and media %}
                                                                         {% block buy_widget_configurator_option_radio_label_media %}
@@ -105,6 +106,9 @@
                                                                         (displayType == 'color' and not option.colorHexCode) %}
                                                                         {% block buy_widget_configurator_option_radio_label_text %}
                                                                             {{ option.translated.name }}
+                                                                            {% if not option.combinable %}
+                                                                                <span class="visually-hidden">{{ 'component.product.configurator.notAvailable'|trans|sw_sanitize }}</span>
+                                                                            {% endif %}
                                                                         {% endblock %}
                                                                     {% endif %}
                                                                 </label>
@@ -116,7 +120,7 @@
                                         </div>
                                     {% endblock %}
                                 {% endif %}
-                            </div>
+                            </fieldset>
                         {% endblock %}
                     {% endfor %}
                 {% endblock %}

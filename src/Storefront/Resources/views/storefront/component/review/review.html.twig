@@ -92,13 +92,9 @@
                                                                     data-form-ajax-submit="true"
                                                                     data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
-                                                                    {% if app.request.get('limit') %}
-                                                                        <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
-                                                                    {% endif %}
-
                                                                     {% if app.request.get('sort') %}
-                                                                        <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
-                                                                    {% endif %}
+                                                                    <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
+                                                                {% endif %}
 
                                                                     {% if app.request.get('points') %}
                                                                         {% for points in app.request.get('points') %}
@@ -136,13 +132,9 @@
                                                                         data-form-ajax-submit="true"
                                                                         data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
-                                                                        {% if app.request.get('limit') %}
-                                                                            <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
-                                                                        {% endif %}
-
                                                                         {% if app.request.get('language') %}
-                                                                            <input type="hidden" name="language" value="{{ app.request.get('language') }}">
-                                                                        {% endif %}
+                                                                        <input type="hidden" name="language" value="{{ app.request.get('language') }}">
+                                                                    {% endif %}
 
                                                                         {% if app.request.get('points') %}
                                                                             {% for points in app.request.get('points') %}
@@ -221,10 +213,6 @@
                                                             {# @deprecated tag:v6.7.0 - Form input for page information will be a single input instead of multiple radio inputs within `pagination.html.twig`. #}
                                                             {% if feature('ACCESSIBILITY_TWEAKS') %}
                                                                 <input type="hidden" name="p" value="1">
-                                                            {% endif %}
-
-                                                            {% if app.request.get('limit') %}
-                                                                <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
                                                             {% endif %}
 
                                                             {% if app.request.get('language') %}

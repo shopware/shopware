@@ -86,6 +86,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
      */
     private function findDatabaseTemplate(string $name): ?array
     {
+        // @deprecated tag:v6.7.0 - remove if condition
         if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
             return null;
         }

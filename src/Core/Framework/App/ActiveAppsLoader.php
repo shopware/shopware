@@ -13,7 +13,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type App array{name: string, path: string, author: string|null}
+ * @phpstan-type App array{name: string, path: string, author: string|null, selfManaged: bool}
  */
 #[Package('core')]
 class ActiveAppsLoader implements ResetInterface
@@ -35,6 +35,7 @@ class ActiveAppsLoader implements ResetInterface
      */
     public function getActiveApps(): array
     {
+        // @deprecated tag:v6.7.0 - remove if condition
         if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
             return [];
         }
@@ -57,12 +58,18 @@ class ActiveAppsLoader implements ResetInterface
     private function loadApps(): array
     {
         try {
-            /** @phpstan-ignore-next-line PHPStan could not recognize the loaded array shape from the database */
-            return $this->connection->fetchAllAssociative('
-                SELECT `name`, `path`, `author`
+            $data = $this->connection->fetchAllAssociative('
+                SELECT `name`, `path`, `author`, `self_managed`
                 FROM `app`
                 WHERE `active` = 1
             ');
+
+            return array_map(fn (array $app) => [
+                'name' => $app['name'],
+                'path' => $app['path'],
+                'author' => $app['author'],
+                'selfManaged' => (bool) $app['self_managed'],
+            ], $data);
         } catch (\Throwable $e) {
             if (\defined('\STDERR')) {
                 fwrite(\STDERR, 'Warning: Failed to load apps. Loading apps from local. Message: ' . $e->getMessage() . \PHP_EOL);
@@ -72,6 +79,7 @@ class ActiveAppsLoader implements ResetInterface
                 'name' => $manifest->getMetadata()->getName(),
                 'path' => Path::makeRelative($manifest->getPath(), $this->projectDir),
                 'author' => $manifest->getMetadata()->getAuthor(),
+                'selfManaged' => false,
             ], $this->appLoader->load());
         }
     }

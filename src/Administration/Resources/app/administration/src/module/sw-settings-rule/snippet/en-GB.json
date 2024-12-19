@@ -85,7 +85,6 @@
     },
     "detail": {
       "textHeadline": "New rule",
-      "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "titleCard": "General",
       "labelName": "Name",

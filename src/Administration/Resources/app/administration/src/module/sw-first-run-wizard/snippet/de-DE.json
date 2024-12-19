@@ -19,7 +19,6 @@
             "headlineChangeLanguage": "Installiere zusätzliche Sprachpakete",
             "switchLanguageModalTitle": "Wähle die Sprache der Benutzeroberfläche",
             "confirmLanguageSwitch": "Sprache wechseln",
-            "cancelLanguageSwitch": "Abbrechen",
             "switchLanguageMessage": "Die Sprach-Erweiterung \"{pluginName}\" wurde erfolgreich installiert. Möchtest Du die Sprache der Benutzeroberfläche ändern?",
             "pluginsInstalled": "Sprach-Erweiterung installiert",
             "pluginsInstalledMessage": "Sprach-Erweiterung installiert: | Sprach-Erweiterung für folgende Sprachen wurden installiert: ",

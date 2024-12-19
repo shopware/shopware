@@ -19,7 +19,6 @@
             "headlineChangeLanguage": "Install additional languages",
             "switchLanguageModalTitle": "Select the interface language",
             "confirmLanguageSwitch": "Change language",
-            "cancelLanguageSwitch": "Cancel",
             "switchLanguageMessage": "\"{pluginName}\" has been installed successfully. Would you like to change your interface language?",
             "pluginsInstalled": "Extension installed | Extensions installed",
             "pluginsInstalledMessage": "Language extension has been installed: | These language extensions have been installed: ",

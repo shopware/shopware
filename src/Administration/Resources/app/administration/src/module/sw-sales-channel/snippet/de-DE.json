@@ -37,7 +37,6 @@
       "titleDetailPrefix": "{name} - Details",
       "buttonShowDetails": "Details",
       "buttonBack": "Zurück",
-      "buttonCancel": "Abbrechen",
       "titleDescription": "Informationen",
       "messageNoProductStreams": "Um Produktvergleiche anzulegen, musst Du zunächst eine dynamische Produktgruppe erstellen."
     },
@@ -94,7 +93,6 @@
       "buttonDelete": "Verkaufskanal löschen",
       "deleteModalTitle": "Verkaufskanal löschen",
       "textConfirmDelete": "Möchtest Du diesen Verkaufskanal wirklich löschen?",
-      "buttonCloseDeleteModal": "Abbrechen",
       "buttonConfirmDelete": "Löschen",
       "textHeadline": "Neuer Verkaufskanal",
       "placeholderName": "Gib einen Namen für den Verkaufskanal ein ...",
@@ -109,7 +107,6 @@
       "buttonAddDomain": "Domain hinzufügen",
       "deleteDomainModalTitle": "Domain löschen",
       "textConfirmDeleteDomain": "Möchtest Du diese Domain wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich",
-      "buttonCloseDeleteDomainModal": "Abbrechen",
       "buttonConfirmDeleteDomain": "Löschen",
       "customerGroup": "Kundengruppe",
       "favouriteLabel": "Verkaufskanal als Favorit markieren",
@@ -175,6 +172,10 @@
         "accessUrl": "Export-URL",
         "buttonCreateNewAccessKey": "Zugangsschlüssel neu generieren",
         "productStream": "Dynamische Produktgruppe",
+        "fileFormatLabels": {
+          "csv": "CSV",
+          "xml": "XML"
+        },
         "includeVariants": "Varianten als eigene Produkte exportieren",
         "interval": "Generierungsintervall",
         "generateByCronjob": "Per Scheduler generieren",
@@ -224,14 +225,9 @@
           "modal-title": "Template anwenden",
           "modal-message": "Bei Übernahme der Daten aus dem Template werden vorhandene Daten in diesem Verkaufskanal überschrieben. Es werden sowohl Einstellungen, als auch das Template angepasst.",
           "modal-confirm": "Template übernehmen",
-          "modal-cancel": "Abbrechen",
           "message": {
             "template-applied-message": "Die Daten aus dem Template wurden übernommen. Bitte speichere den Verkaufskanal, um die Änderungen dauerhaft zu übernehmen."
           }
-        },
-        "fileFormatLabels": {
-          "xml": "XML",
-          "csv": "CSV"
         },
         "cliCommand": "CLI-Befehl zur Erstellung des Produktexports"
       },

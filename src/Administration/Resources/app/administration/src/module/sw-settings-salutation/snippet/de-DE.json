@@ -7,7 +7,6 @@
   "sw-settings-salutation": {
     "general": {
       "mainMenuItemGeneral": "Anreden",
-      "buttonCancel": "Abbrechen",
       "buttonCreate": "Anrede anlegen",
       "buttonSave": "Speichern",
       "placeholderSearchBar": "Durchsuche Anreden ..."

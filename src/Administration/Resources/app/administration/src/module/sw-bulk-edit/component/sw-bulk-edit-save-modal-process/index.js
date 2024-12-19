@@ -111,7 +111,7 @@ export default {
             const buttonConfig = [
                 {
                     key: 'cancel',
-                    label: this.$tc('sw-bulk-edit.modal.process.buttons.cancel'),
+                    label: this.$tc('global.default.cancel'),
                     position: 'left',
                     action: '',
                     disabled: false,

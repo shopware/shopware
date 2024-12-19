@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -85,7 +86,12 @@ class TemplateDataSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($theme);
+        if (\method_exists($this->themeRegistry, 'getByTechnicalName')) {
+            /** @var StorefrontPluginConfiguration|null $themeConfig */
+            $themeConfig = $this->themeRegistry->getByTechnicalName($theme);
+        } else {
+            $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($theme);
+        }
 
         if (!$themeConfig) {
             return;

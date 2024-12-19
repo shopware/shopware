@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Mail\Service;
+namespace Shopware\Core\Content\Mail\Transport;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToRetrieveMetadata;
+use Shopware\Core\Content\Mail\Service\Mail;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

@@ -194,7 +194,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $criteria = new Criteria([$customer['id']]);
 
-        if (!Feature::isActive('v6.7.0.0')) {
+        if (!Feature::isActive('v6.7.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
             $criteria->addAssociation('addresses');
             $criteria->addAssociation('salutation');
             $criteria->addAssociation('defaultBillingAddress.country');

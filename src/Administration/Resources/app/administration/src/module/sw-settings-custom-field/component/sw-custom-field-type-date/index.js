@@ -30,11 +30,11 @@ export default {
             timeForms: [
                 {
                     id: 'true',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelYes'),
+                    name: this.$tc('global.default.yes'),
                 },
                 {
                     id: 'false',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelNo'),
+                    name: this.$tc('global.default.no'),
                 },
             ],
         };

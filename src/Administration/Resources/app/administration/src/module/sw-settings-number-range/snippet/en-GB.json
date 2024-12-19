@@ -19,7 +19,6 @@
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "messageDeleteSuccess": "Number range \"{name}\" has been deleted.",
-      "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "global": "Global"
     },

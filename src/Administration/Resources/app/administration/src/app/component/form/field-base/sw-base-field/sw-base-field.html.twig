@@ -49,7 +49,9 @@
         v-if="hasHint"
         class="sw-field__hint"
     >
-        <slot name="hint"></slot>
+        <slot name="hint">
+            {{ $tc(hint) }}
+        </slot>
     </div>
 </div>
 {% endblock %}

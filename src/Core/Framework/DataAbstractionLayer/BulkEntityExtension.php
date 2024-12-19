@@ -9,6 +9,13 @@ use Shopware\Core\Framework\Log\Package;
 abstract class BulkEntityExtension
 {
     /**
+     * Constructor is final to ensure the extensions can be built without any dependencies
+     */
+    final public function __construct()
+    {
+    }
+
+    /**
      * @return \Generator<string, list<Field>>
      */
     abstract public function collect(): \Generator;

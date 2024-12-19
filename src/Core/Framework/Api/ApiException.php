@@ -322,10 +322,21 @@ class ApiException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:exception-change - Will return status code 403 instead of 500
+     */
     public static function invalidAccessKey(): self
     {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new self(
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                self::API_INVALID_ACCESS_KEY_EXCEPTION,
+                'Access key is invalid and could not be identified.',
+            );
+        }
+
         return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_FORBIDDEN,
             self::API_INVALID_ACCESS_KEY_EXCEPTION,
             'Access key is invalid and could not be identified.',
         );

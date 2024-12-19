@@ -4,7 +4,7 @@
 acceptance:
   extends:
     - .long-running
-  image: mcr.microsoft.com/playwright:v1.45.0-jammy
+  image: mcr.microsoft.com/playwright:v1.49.1-jammy
   needs: [build image]
   tags:
     - shopware-amd64

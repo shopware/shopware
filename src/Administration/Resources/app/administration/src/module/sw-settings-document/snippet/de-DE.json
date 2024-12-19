@@ -15,7 +15,6 @@
       "buttonAddDocument": "Dokument anlegen",
       "contextMenuEdit": "Bearbeiten",
       "messageDeleteSuccess": "Dokument \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "global": "Global"
     },
@@ -60,7 +59,6 @@
       "placeholderDisplayDeliveryCountries": "Gültige Länder für \"innergemeinschaftliche Lieferung\" suchen und hinzufügen ...",
       "labelOptionMedia": "Geschäftslogo",
       "placeholderName": "Namen eingeben ...",
-      "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "disabledSalesChannel": "Es gibt bereits ein Dokument vom selben Typ in diesem Verkaufskanal.",
       "disabledSalesChannelSelect": "Wähle zunächst einen Dokumententyp.",

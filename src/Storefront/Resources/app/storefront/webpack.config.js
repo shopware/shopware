@@ -303,19 +303,6 @@ const pluginConfigs = pluginEntries.map((plugin) => {
     // add custom config optionally when it exists
     let customPluginConfig = {};
 
-    if (isHotMode) {
-        if (plugin.isTheme && plugin.name === themeFiles.technicalName) {
-            console.log(chalk.bgYellowBright.black(`# Compiling Theme "${plugin.name}" in HotMode`));
-        }
-        if (plugin.isTheme && plugin.name !== themeFiles.technicalName) {
-            console.log(chalk.bgYellowBright.black(`# Skipping "${plugin.name}" Theme in HotMode`));
-            return merge([
-                coreConfig,
-                {},
-                customPluginConfig,
-            ]);
-        }
-    }
     if (plugin.webpackConfig) {
         // eslint-disable-next-line no-console
         console.log(chalk.green(`# Plugin "${plugin.name}": Extends the webpack config successfully`));
@@ -331,6 +318,20 @@ const pluginConfigs = pluginEntries.map((plugin) => {
             technicalFolderName: plugin.technicalFolderName,
             plugin,
         });
+    }
+
+    if (isHotMode) {
+        if (plugin.isTheme && plugin.name === themeFiles.technicalName) {
+            console.log(chalk.bgYellowBright.black(`# Compiling Theme "${plugin.name}" in HotMode`));
+        }
+        if (plugin.isTheme && plugin.name !== themeFiles.technicalName) {
+            console.log(chalk.bgYellowBright.black(`# Skipping "${plugin.name}" Theme in HotMode`));
+            return merge([
+                coreConfig,
+                {},
+                customPluginConfig,
+            ]);
+        }
     }
 
     return merge([

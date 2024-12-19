@@ -56,10 +56,6 @@
                               data-form-ajax-submit="true"
                               data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
-                            {% if app.request.get('limit') %}
-                                <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
-                            {% endif %}
-
                             {% if app.request.get('language') %}
                                 <input type="hidden" name="language" value="{{ app.request.get('language') }}">
                             {% endif %}

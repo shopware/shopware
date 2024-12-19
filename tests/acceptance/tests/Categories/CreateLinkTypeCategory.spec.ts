@@ -6,6 +6,7 @@ test('Shop administrator should be able to create a internal link type of catego
      IdProvider,
      AdminCategories,
      CreateLinkTypeCategory,
+     TestDataService,
 }) => {
 
     const categoryData = {
@@ -17,13 +18,14 @@ test('Shop administrator should be able to create a internal link type of catego
     const categoryCustomizableLinkData = {
         linkType: 'Internal',
         entity: 'Category',
-        category: 'Home',
+        category: `00_category_${IdProvider.getIdPair().uuid}`,
         openInNewTab: true,
     };
 
     await test.step('Create a category with internal link type of Category', async () => {
+        await TestDataService.createCategory({ name: categoryCustomizableLinkData.category, active: true, parentId: null });
         await ShopAdmin.goesTo(AdminCategories.url());
-        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData));
+        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category));
 
         // Verify general data
         await AdminCategories.categoryItems.filter({ hasText: categoryData.name }).click();
@@ -57,12 +59,14 @@ test('Shop administrator should be able to create a internal link type of produc
         linkType: 'Internal',
         entity: 'Product',
         product: product.name,
+        category: `00_category_${IdProvider.getIdPair().uuid}`,
         openInNewTab: true,
     };
 
     await test.step('Create a category with internal link type of Product', async () => {
+        await TestDataService.createCategory({ name: categoryCustomizableLinkData.category, active: true, parentId: null });
         await ShopAdmin.goesTo(AdminCategories.url());
-        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData));
+        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category));
 
         // Verify general data
         await AdminCategories.categoryItems.filter({ hasText: categoryData.name }).click();
@@ -83,6 +87,7 @@ test('Shop administrator should be able to create a internal link type of landin
      AdminCategories,
      CreateLinkTypeCategory,
      CreateLandingPage,
+     TestDataService,
 }) => {
 
     const landingPageData = {
@@ -102,6 +107,7 @@ test('Shop administrator should be able to create a internal link type of landin
         linkType: 'Internal',
         entity: 'Landing page',
         landingPage: landingPageData.name,
+        category: `00_category_${IdProvider.getIdPair().uuid}`,
         openInNewTab: true,
     };
 
@@ -111,8 +117,9 @@ test('Shop administrator should be able to create a internal link type of landin
     });
 
     await test.step('Create a category with internal link type of Product', async () => {
+        await TestDataService.createCategory({ name: categoryCustomizableLinkData.category, active: true, parentId: null });
         await ShopAdmin.goesTo(AdminCategories.url());
-        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData));
+        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category));
 
         // Verify general data
         await AdminCategories.categoryItems.filter({ hasText: categoryData.name }).click();

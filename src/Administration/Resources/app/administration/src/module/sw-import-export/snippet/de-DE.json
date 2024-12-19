@@ -136,7 +136,6 @@
             "descriptionBlock": "Objekttypen definieren einen bestimmten Modus für das Importieren und Exportieren von Daten. Durch die Auswahl eines Objekttyps werden die Mapping-Optionen eingeschränkt. Beachte, dass du den Objekttyp nicht mehr ändern kannst, nachdem Mapping-Optionen hinzugefügt wurden.",
             "mappingDescriptionBlock": "Verwende die Tabelle unter dem \"Zuweisungen\"-Tab, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
             "csvDescriptionBlock": "Trennzeichen und Einschließungszeichen werden verwendet, um einzelne Felder in der CSV-Datei zu kennzeichnen. Trennzeichen werden verwendet, um einzelne Felder aufzuteilen, Anführungszeichen werden verwendet, um mehrere Felder zu gruppieren.",
-            "cancelLabel": "Abbrechen",
             "addMappingLabel": "Neues Mapping hinzufügen",
             "deleteMappingLabel": "Mapping entfernen",
             "downloadTemplateLabel": "Template herunterladen",

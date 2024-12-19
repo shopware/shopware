@@ -4,11 +4,6 @@ namespace Shopware\Tests\Unit\Storefront\Page\LandingPage;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -21,16 +16,12 @@ use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -132,21 +123,8 @@ class LandingPageLoaderTest extends TestCase
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId('salesChannelId');
 
-        return new SalesChannelContext(
-            Context::createDefaultContext(),
-            'foo',
-            'bar',
-            $salesChannelEntity,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            []
+        return Generator::createSalesChannelContext(
+            salesChannel: $salesChannelEntity,
         );
     }
 

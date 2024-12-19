@@ -10,6 +10,7 @@ on:
       - src/Elasticsearch/**/*
       - src/Storefront/DependencyInjection/*
       - src/**/snippet/**/*.json
+      - .github/workflows/php.yml
   workflow_dispatch:
   workflow_call:
 

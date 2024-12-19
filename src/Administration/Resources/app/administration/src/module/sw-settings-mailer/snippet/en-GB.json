@@ -12,6 +12,7 @@
       "local-agent": "Local email agent",
       "local-helptext": "This option uses your system‘s default mailer (Sendmail). Make sure Sendmail works and is available in your own hosting environment.",
       "smtp-server": "SMTP server",
+      "smtp-server-oauth": "SMTP server with OAuth 2",
       "env-file": "Use environment's configuration"
     },
     "first-configuration": {
@@ -31,6 +32,14 @@
       "username-placeholder": "Enter a your username...",
       "password": "Password",
       "password-placeholder": "Enter a password...",
+      "oauth-url": "OAuth URL",
+      "oauth-url-placeholder": "Enter the OAuth URL...",
+      "oauth-scope": "OAuth Scope",
+      "oauth-scope-placeholder": "Enter the OAuth scope...",
+      "oauth-client-id": "Client ID",
+      "oauth-client-id-placeholder": "Enter the client ID...",
+      "oauth-client-secret": "Client Secret",
+      "oauth-client-secret-placeholder": "Enter the client secret...",
       "encryption": "Encryption",
       "encryption-placeholder": "Select encryption method...",
       "sender-address": "Sender address",

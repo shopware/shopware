@@ -145,20 +145,23 @@ class EditOrderPageTest extends TestCase
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $this->placeRandomOrder($context);
 
-        $selectedPaymentMethod = $this->createCustomPaymentMethod($context, ['position' => 1]);
+        $primaryMethod = $this->createCustomPaymentMethod($context, ['position' => 1]);
 
         // create some dummy methods to test sorting
         $this->createCustomPaymentMethod($context, ['position' => 0]);
         $this->createCustomPaymentMethod($context, ['position' => 4]);
 
-        // replace active payment method with a new one
-        $context->assign(['paymentMethod' => $selectedPaymentMethod]);
+        if (Feature::isActive('ACCESSIBILITY_TWEAKS')) {
+            $context->getSalesChannel()->setPaymentMethodId($primaryMethod->getId());
+        } else {
+            // replace active payment method with a new one
+            $context->assign(['paymentMethod' => $primaryMethod]);
+        }
 
         $page = $this->getPageLoader()->load($request, $context);
         $paymentMethods = \array_values($page->getPaymentMethods()->getElements());
 
-        // selected payment method should be first
-        static::assertSame($selectedPaymentMethod->getId(), $paymentMethods[0]->getId());
+        static::assertSame($primaryMethod->getId(), $paymentMethods[0]->getId());
 
         if (!Feature::isActive('v6.7.0.0')) {
             // default payment method of customer should be second

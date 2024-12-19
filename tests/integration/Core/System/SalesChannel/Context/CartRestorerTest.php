@@ -45,6 +45,8 @@ class CartRestorerTest extends TestCase
 
     private CartService $cartService;
 
+    private CartPersister $cartPersister;
+
     /**
      * @var array<string, Event>
      */
@@ -62,6 +64,7 @@ class CartRestorerTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $this->cartService = static::getContainer()->get(CartService::class);
+        $this->cartPersister = static::getContainer()->get(CartPersister::class);
 
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
@@ -84,6 +87,7 @@ class CartRestorerTest extends TestCase
             $this->contextPersister,
             $this->cartService,
             $cartRuleLoader,
+            $this->cartPersister,
             $this->eventDispatcher,
             $requestStack
         );
@@ -137,36 +141,23 @@ class CartRestorerTest extends TestCase
 
     public function testRestoreByTokenIsMergedWithGuestCart(): void
     {
-        $guestToken = Uuid::randomHex();
-        $guestContext = $this->createSalesChannelContext($guestToken);
-        $this->contextPersister->save($guestToken, [], $guestContext->getSalesChannelId());
-
-        $guestProductQuantity = 3;
-        $guestProductLineItem1 = $this->createLineItem($guestContext, 1);
-        $guestProductLineItem2 = $this->createLineItem($guestContext, $guestProductQuantity);
-
         // Create Guest cart
-        $guestCart = $this->createAndSaveUnmodifiedCart($guestContext, $guestProductLineItem1, $guestProductLineItem2);
+        $guestProductQuantity = 3;
+        ['context' => $guestContext, 'cart' => $guestCart] = $this->createContextAndFilledCart(1, $guestProductQuantity);
+        $guestProductLineItem1 = $guestCart->getLineItems()->getAt(0);
+        $guestProductLineItem2 = $guestCart->getLineItems()->getAt(1);
+        static::assertInstanceOf(LineItem::class, $guestProductLineItem1);
+        static::assertInstanceOf(LineItem::class, $guestProductLineItem2);
 
         // Create Saved Customer cart
-        $customerToken = Uuid::randomHex();
-        $customerContext = $this->createSalesChannelContext($customerToken, $this->customerId);
-        $this->contextPersister->save(
-            $customerToken,
-            [],
-            $customerContext->getSalesChannelId(),
-            $this->customerId
-        );
-
         $customerLineItemQuantity = 4;
-        $customerLineItem1 = $this->createLineItem($customerContext, $customerLineItemQuantity);
-        $customerLineItem2 = $this->createLineItem($customerContext, 3);
+        ['context' => $customerContext, 'cart' => $customerCart] = $this->createContextAndFilledCart($customerLineItemQuantity, 3, true);
+        $customerToken = $customerContext->getToken();
+        $customerLineItem1 = $customerCart->getLineItems()->getAt(0);
+        $customerLineItem2 = $customerCart->getLineItems()->getAt(1);
+        static::assertInstanceOf(LineItem::class, $customerLineItem1);
+        static::assertInstanceOf(LineItem::class, $customerLineItem2);
 
-        $customerCart = $this->createAndSaveUnmodifiedCart(
-            $customerContext,
-            $customerLineItem1,
-            $customerLineItem2
-        );
         $combinedLineItemsCount = $guestCart->getLineItems()->count() + $customerCart->getLineItems()->count();
 
         $restoredContext = $this->cartRestorer->restoreByToken(
@@ -205,15 +196,115 @@ class CartRestorerTest extends TestCase
 
     public function testRestoreByTokenWithNotExistingToken(): void
     {
+        $formerContext = $this->createSalesChannelContext('formerToken', $this->customerId);
         $currentContext = $this->createSalesChannelContext('currentToken', $this->customerId);
 
         $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
-        $restoredContext = $this->cartRestorer->restoreByToken($currentContext->getToken(), $this->customerId, $currentContext);
+        $restoredContext = $this->cartRestorer->restoreByToken($formerContext->getToken(), $this->customerId, $currentContext);
+
+        static::assertSame($formerContext->getToken(), $restoredContext->getToken());
+
+        static::assertArrayNotHasKey(SalesChannelContextRestoredEvent::class, $this->events);
+    }
+
+    public function testRestoreByTokenIsReplacedWithNoExistingToken(): void
+    {
+        // Create Guest cart
+        ['context' => $guestContext, 'cart' => $guestCart] = $this->createContextAndFilledCart(3, 4);
+        $guestProductLineItem1 = $guestCart->getLineItems()->getAt(0);
+        $guestProductLineItem2 = $guestCart->getLineItems()->getAt(1);
+        static::assertInstanceOf(LineItem::class, $guestProductLineItem1);
+        static::assertInstanceOf(LineItem::class, $guestProductLineItem2);
+
+        $currentContext = $this->createSalesChannelContext('currentToken', $this->customerId);
+
+        $restoredContext = $this->cartRestorer->restoreByToken(
+            $currentContext->getToken(),
+            $this->customerId,
+            $guestContext
+        );
 
         static::assertSame($currentContext->getToken(), $restoredContext->getToken());
 
+        $restoredCart = $this->cartService->getCart($restoredContext->getToken(), $restoredContext);
+        $restoredLineItems = $restoredCart->getLineItems();
+
+        static::assertFalse($restoredCart->isModified());
+        static::assertSame(7, $restoredLineItems->getTotalQuantity());
+
+        static::assertIsString($guestProductLineItem1->getReferencedId());
+        static::assertIsString($guestProductLineItem2->getReferencedId());
+
+        $restoredGuestProductLineItem1 = $restoredLineItems->get($guestProductLineItem1->getReferencedId());
+        static::assertNotNull($restoredGuestProductLineItem1);
+        static::assertSame(3, $restoredGuestProductLineItem1->getQuantity());
+
+        $restoredGuestProductLineItem2 = $restoredLineItems->get($guestProductLineItem2->getReferencedId());
+        static::assertNotNull($restoredGuestProductLineItem2);
+        static::assertSame(4, $restoredGuestProductLineItem2->getQuantity());
+    }
+
+    public function testRestoreByTokenIsReplacedWhenExpired(): void
+    {
+        // Create Guest cart
+        $guestProductQuantity = 5;
+        ['context' => $guestContext, 'cart' => $guestCart] = $this->createContextAndFilledCart(3, $guestProductQuantity);
+        $guestProductLineItem1 = $guestCart->getLineItems()->getAt(0);
+        $guestProductLineItem2 = $guestCart->getLineItems()->getAt(1);
+        static::assertInstanceOf(LineItem::class, $guestProductLineItem1);
+        static::assertInstanceOf(LineItem::class, $guestProductLineItem2);
+
+        // Create Saved Customer cart
+        $customerLineItemQuantity = 2;
+        ['context' => $customerContext, 'cart' => $customerCart] = $this->createContextAndFilledCart($customerLineItemQuantity, 3, true);
+        $customerToken = $customerContext->getToken();
+
+        $customerLineItem1 = $customerCart->getLineItems()->getAt(0);
+        $customerLineItem2 = $customerCart->getLineItems()->getAt(1);
+        static::assertInstanceOf(LineItem::class, $customerLineItem1);
+        static::assertInstanceOf(LineItem::class, $customerLineItem2);
+
+        $this->connection->executeStatement(<<<SQL
+            UPDATE sales_channel_api_context
+            SET updated_at = DATE_SUB(updated_at, INTERVAL 7 DAY)
+            WHERE token = :token
+            SQL
+            , ['token' => $customerToken]);
+
+        $restoredContext = $this->cartRestorer->restoreByToken(
+            $customerToken,
+            $this->customerId,
+            $guestContext
+        );
+
         static::assertArrayNotHasKey(SalesChannelContextRestoredEvent::class, $this->events);
+
+        $restoredCart = $this->cartService->getCart($restoredContext->getToken(), $restoredContext);
+        $restoredLineItems = $restoredCart->getLineItems();
+
+        static::assertFalse($restoredCart->isModified());
+        static::assertCount(2, $restoredLineItems);
+        static::assertSame(3 + $guestProductQuantity, $restoredLineItems->getTotalQuantity());
+
+        static::assertIsString($guestProductLineItem1->getReferencedId());
+        static::assertIsString($guestProductLineItem2->getReferencedId());
+        static::assertIsString($customerLineItem1->getReferencedId());
+        static::assertIsString($customerLineItem2->getReferencedId());
+
+        $restoredGuestProductLineItem1 = $restoredLineItems->get($guestProductLineItem1->getReferencedId());
+        static::assertNotNull($restoredGuestProductLineItem1);
+        static::assertSame(3, $restoredGuestProductLineItem1->getQuantity());
+
+        $restoredGuestProductLineItem2 = $restoredLineItems->get($guestProductLineItem2->getReferencedId());
+        static::assertNotNull($restoredGuestProductLineItem2);
+        static::assertSame($guestProductQuantity, $restoredGuestProductLineItem2->getQuantity());
+
+        $restoredCustomerLineItem1 = $restoredLineItems->get($customerLineItem1->getReferencedId());
+        static::assertNull($restoredCustomerLineItem1);
+
+        $restoredCustomerLineItem2 = $restoredLineItems->get($customerLineItem2->getReferencedId());
+        static::assertNull($restoredCustomerLineItem2);
     }
 
     public function testRestore(): void
@@ -376,7 +467,7 @@ class CartRestorerTest extends TestCase
         $this->contextPersister->save($customerToken, [], $currentContext->getSalesChannel()->getId(), $this->customerId);
 
         $customerCart = new Cart($customerToken);
-        static::getContainer()->get(CartPersister::class)->save($customerCart, $customerContext);
+        $this->cartPersister->save($customerCart, $customerContext);
 
         $this->eventDispatcher->addListener(BeforeCartMergeEvent::class, $this->callbackFn);
         $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
@@ -555,11 +646,37 @@ class CartRestorerTest extends TestCase
         $cart->addLineItems(new LineItemCollection($lineItems));
         $cart->markUnmodified();
 
-        static::getContainer()->get(CartPersister::class)->save($cart, $context);
+        $this->cartPersister->save($cart, $context);
 
         static::assertTrue($this->cartExists($context->getToken()));
         static::assertTrue($this->contextExists($context->getToken()));
 
         return $cart;
+    }
+
+    /**
+     * @return array{context:SalesChannelContext, cart:Cart}
+     */
+    private function createContextAndFilledCart(
+        ?int $firstLineItemCount = 1,
+        ?int $secondLIneItemCount = 3,
+        ?bool $withCustomerId = false,
+    ): array {
+        $contextToken = Uuid::randomHex();
+        $contextCustomerId = $withCustomerId ? $this->customerId : null;
+        $context = $this->createSalesChannelContext($contextToken, $contextCustomerId);
+        $this->contextPersister->save(
+            $contextToken,
+            [],
+            $context->getSalesChannelId(),
+            $contextCustomerId
+        );
+
+        $productLineItem1 = $this->createLineItem($context, $firstLineItemCount);
+        $productLineItem2 = $this->createLineItem($context, $secondLIneItemCount);
+
+        $cart = $this->createAndSaveUnmodifiedCart($context, $productLineItem1, $productLineItem2);
+
+        return ['context' => $context, 'cart' => $cart];
     }
 }

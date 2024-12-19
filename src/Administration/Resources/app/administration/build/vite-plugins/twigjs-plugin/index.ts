@@ -21,24 +21,22 @@ export default () => ({
             return;
         }
 
-        // Remove all HTML comments (including multi-line comments)
-        fileContent = fileContent.replace(/<!--[\s\S]*?-->/gm, '');
+        // Trim the content and remove HTML comments
+        fileContent = fileContent
+            .replace(/<!--[\s\S]*?-->/gm, '')  // Remove HTML comments first
+            .trim()
+            .replace(/\s+/g, ' ');  // Normalize whitespace
 
-        // Remove all newline characters
-        fileContent = fileContent.replace(/\n/g, '');
+        // Escape characters that might break the string
+        fileContent = fileContent
+            .replace(/\\/g, '\\\\')  // Escape backslashes first
+            .replace(/"/g, '\\"')    // Escape double quotes
+            .replace(/\$/g, '\\$')   // Escape dollar signs
+            .replace(/\n/g, ' ')     // Replace newlines with spaces
+            .replace(/\r/g, ' ');    // Replace carriage returns with spaces
 
-        // Escape double quotes by adding backslashes
-        fileContent = fileContent.replace(/"/g, '\\"');
+        const code = `export default "${fileContent}"`;
 
-        // Escape dollar signs by adding backslashes
-        fileContent = fileContent.replace(/\$/g, '\\$');
-
-        // Replace all sequences of 2 or more spaces with a single space
-        fileContent = fileContent.replace(/ {2,}/g, ' ');
-
-        const code = `export default \"${fileContent}\"`;
-
-        // eslint-disable-next-line consistent-return
         return {
             code,
             ast: {

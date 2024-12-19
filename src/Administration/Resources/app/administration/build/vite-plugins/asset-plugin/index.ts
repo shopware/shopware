@@ -41,7 +41,7 @@ export default (isProd: boolean, adminDir: string) => {
             // Hook into the build process after it's done
             closeBundle: async () => {
                 const staticDir = path.resolve(adminDir, 'static');
-                const outDir = path.resolve(adminDir, '../../public/static');
+                const outDir = path.resolve(adminDir, '../../public/administration/static');
 
                 // Ensure the static directory exists
                 if (fs.existsSync(staticDir)) {
@@ -69,7 +69,6 @@ export default (isProd: boolean, adminDir: string) => {
                     directory: path.resolve(adminDir, 'static'),
                     publicPath: '/bundles/administration/static',
                 },
-                // TODO: add plugin entries from Webpack here
             ];
 
             server.middlewares.use((req, res, next) => {
@@ -77,6 +76,18 @@ export default (isProd: boolean, adminDir: string) => {
 
                 if (!originalUrl) {
                     return next();
+                }
+
+                // Add a custom route for sw-plugin-dev.json
+                if (originalUrl.endsWith('sw-plugin-dev.json')) {
+                    const pluginDevContent = fs.readFileSync(path.resolve(adminDir, '../../public/administration/sw-plugin-dev.json'), 'utf8');
+
+                    res.writeHead(200, {
+                        'Content-Type': 'application/json',
+                        'Content-Length': Buffer.byteLength(pluginDevContent)
+                    });
+                    res.end(pluginDevContent);
+                    return;
                 }
 
                 // Check if the URL matches any of the static mappings and use the first match

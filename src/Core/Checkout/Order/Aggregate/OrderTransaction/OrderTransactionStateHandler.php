@@ -112,17 +112,19 @@ class OrderTransactionStateHandler
     }
 
     /**
+     * @deprecated please use `paidPartially`, as the action `pay_partially` does not exist anymore.
+     *
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineException
      * @throws IllegalTransitionException
      */
-    public function pay(string $transactionId, Context $context): void
+    public function payPartially(string $transactionId, Context $context): void
     {
         $this->stateMachineRegistry->transition(
             new Transition(
                 OrderTransactionDefinition::ENTITY_NAME,
                 $transactionId,
-                StateMachineTransitionActions::ACTION_PAY,
+                StateMachineTransitionActions::ACTION_PAID_PARTIALLY,
                 'stateId'
             ),
             $context
@@ -134,7 +136,7 @@ class OrderTransactionStateHandler
      * @throws StateMachineException
      * @throws IllegalTransitionException
      */
-    public function payPartially(string $transactionId, Context $context): void
+    public function paidPartially(string $transactionId, Context $context): void
     {
         $this->stateMachineRegistry->transition(
             new Transition(

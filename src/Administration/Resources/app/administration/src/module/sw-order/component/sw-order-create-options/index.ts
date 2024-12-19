@@ -11,7 +11,7 @@ import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.ty
  * @package checkout
  */
 
-const { Component, State, Store } = Shopware;
+const { Component, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -51,7 +51,7 @@ export default Component.wrapComponentConfig({
 
     computed: {
         salesChannelId(): string {
-            return State.get('swOrder').context?.salesChannel?.id ?? '';
+            return Store.get('swOrder').context?.salesChannel?.id ?? '';
         },
 
         salesChannelCriteria(): CriteriaType {
@@ -87,15 +87,15 @@ export default Component.wrapComponentConfig({
         },
 
         customer(): Entity<'customer'> | null {
-            return State.get('swOrder').customer;
+            return Store.get('swOrder').customer;
         },
 
         currency(): Entity<'currency'> {
-            return State.get('swOrder').context.currency;
+            return Store.get('swOrder').context.currency;
         },
 
         cart(): Cart {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
         cartDelivery(): CartDelivery | null {
@@ -197,18 +197,16 @@ export default Component.wrapComponentConfig({
             await this.loadCart();
         },
 
-        updateOrderContext(): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/updateOrderContext', {
+        async updateOrderContext(): Promise<void> {
+            await Store.get('swOrder').updateOrderContext({
                 context: this.context,
                 salesChannelId: this.salesChannelId,
                 contextToken: this.cart.token,
             });
         },
 
-        loadCart(): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/getCart', {
+        async loadCart(): Promise<void> {
+            await Store.get('swOrder').getCart({
                 salesChannelId: this.salesChannelId,
                 contextToken: this.cart.token,
             });

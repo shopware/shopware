@@ -43,7 +43,6 @@ import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
 import type { PaymentOverviewCardState } from './module/sw-settings-payment/state/overview-cards.store';
-import type { SwOrderState } from './module/sw-order/state/order.store';
 import type AclService from './app/service/acl.service';
 import type EntityValidationService from './app/service/entity-validation.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
@@ -115,6 +114,7 @@ import type { SwCategoryDetailStore } from './module/sw-category/page/sw-categor
 import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
 import type { ShopwareExtensionsStore } from './module/sw-extension/store/extensions.store';
 import type { SwOrderDetailStore } from './module/sw-order/store/order-detail.store';
+import type { SwOrderStore } from './module/sw-order/store/order.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -340,7 +340,6 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
         paymentOverviewCardState: PaymentOverviewCardState;
-        swOrder: SwOrderState;
         swCategoryDetail: $TSFixMe;
     }
 
@@ -376,6 +375,7 @@ declare global {
         swSeoUrl: SwSeoUrlStore;
         shopwareExtensions: ShopwareExtensionsStore;
         swOrderDetail: SwOrderDetailStore;
+        swOrder: SwOrderStore;
     }
 
     /**

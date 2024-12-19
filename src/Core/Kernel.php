@@ -341,6 +341,8 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
+        asort($plugins);
+
         return Hasher::hash([
             $this->cacheId,
             (string) $this->shopwareVersionRevision,

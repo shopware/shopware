@@ -497,9 +497,11 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: cache
+                storage: redis
                 dsn: 'redis://localhost'
 ```
+
+Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 # 6.5.5.0
 Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.

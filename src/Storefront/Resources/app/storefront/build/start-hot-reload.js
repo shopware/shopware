@@ -79,7 +79,7 @@ const proxyOptions = {
                     return;
                 }
                 // we only replace things when the request is a document
-                if (req.headers['sec-fetch-dest'] === 'document') {
+                if (req.headers['sec-fetch-dest'] === 'document' || req.headers.accept.indexOf('text/html') !== -1) {
                     body = Buffer.concat(body).toString();
                     // if we have the offcanvas=1 parameter in the url, we will attach a script to open the offcanvas cart
                     if (req.url.indexOf('offcanvas=1') !== -1) {
@@ -89,7 +89,7 @@ const proxyOptions = {
                         // replace the webpack hot proxy with the url of the live reload server
                         .replace(new RegExp('/_webpack_hot_proxy_/', 'g'), `${proxyUrlEnv.protocol}//${proxyUrlEnv.hostname}:${assetPort}/`)
                         // replace the domain without port or without port with the proxy url
-                        .replace(new RegExp(`${appUrlEnv.origin}/`, 'g'), `${proxyUrlEnv.origin}/`)
+                        .replace(new RegExp(`${appUrlEnv.origin.replace(/[:\/]/g, '\\$&')}\\/`, 'g'), `${proxyUrlEnv.origin}/`)
                         // replace the media url back to use the default storefront url
                         .replace(new RegExp(`${proxyUrlEnv.origin}/media/`, 'g'), `${appUrlEnv.origin}/media/`)
                         // replace the thumbnail url back to use the default storefront url

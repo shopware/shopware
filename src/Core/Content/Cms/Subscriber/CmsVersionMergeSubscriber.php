@@ -41,14 +41,15 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
 
     /**
      * @param array<int, array<string, mixed>> $deletedBlocks
+     *
      * @return array<string, array<string, bool>>
      */
     private function mapDeletedBlocks(array $deletedBlocks): array
     {
         $mapped = [];
         foreach ($deletedBlocks as $deletedBlock) {
-            $blockId = $deletedBlock['id'] ?? null;
-            $blockVersionId = $deletedBlock['versionId'] ?? null;
+            $blockId = isset($deletedBlock['id']) ? (string) $deletedBlock['id'] : null;
+            $blockVersionId = isset($deletedBlock['versionId']) ? (string) $deletedBlock['versionId'] : null;
 
             if ($blockId && $blockVersionId) {
                 $mapped[$blockId][$blockVersionId] = true;
@@ -61,6 +62,7 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
     /**
      * @param array<int, array<string, mixed>> $slots
      * @param array<string, array<string, bool>> $deletedBlocks
+     *
      * @return array<int, array<string, mixed>>
      */
     private function filterSlots(array $slots, array $deletedBlocks): array

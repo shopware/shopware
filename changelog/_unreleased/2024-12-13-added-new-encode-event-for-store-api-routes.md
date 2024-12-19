@@ -1,6 +1,5 @@
 ---
 title: Added new .encode event for store api routes
-issue: 
 author: Oliver Skroblin
 author_email: oliver@goblin-coders.de
 author_github: OliverSkroblin

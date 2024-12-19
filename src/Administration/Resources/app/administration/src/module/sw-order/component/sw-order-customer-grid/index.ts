@@ -12,7 +12,7 @@ import type { Cart } from '../../order.types';
  * @package checkout
  */
 
-const { Component, State, Store, Mixin, Context } = Shopware;
+const { Component, Store, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 interface GridColumn {
@@ -66,7 +66,7 @@ export default Component.wrapComponentConfig({
 
     computed: {
         customerData(): Entity<'customer'> | null {
-            return State.get('swOrder').customer;
+            return Store.get('swOrder').customer;
         },
 
         customerRepository(): RepositoryType<'customer'> {
@@ -153,7 +153,7 @@ export default Component.wrapComponentConfig({
         },
 
         cart(): Cart {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
         assetFilter() {
@@ -268,11 +268,11 @@ export default Component.wrapComponentConfig({
 
         createCart(salesChannelId: string): Promise<void> {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/createCart', { salesChannelId });
+            return Store.get('swOrder').createCart({ salesChannelId });
         },
 
         setCustomer(customer: Entity<'customer'> | null): void {
-            void State.dispatch('swOrder/selectExistingCustomer', { customer });
+            void Store.get('swOrder').selectExistingCustomer({ customer });
         },
 
         async handleSelectCustomer(): Promise<void> {
@@ -308,24 +308,29 @@ export default Component.wrapComponentConfig({
             this.term = '';
         },
 
-        updateCustomerContext(): Promise<void> {
-            return State.dispatch('swOrder/updateCustomerContext', {
-                customerId: this.customer?.id,
-                salesChannelId: this.customer?.salesChannelId,
-                contextToken: this.cart.token,
-            }).then((response) => {
-                // Update cart after customer context is updated
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (response.status === 200) {
-                    void this.getCart();
-                }
-            });
+        async updateCustomerContext(): Promise<void> {
+            if (!this.customer) return;
+
+            await Store.get('swOrder')
+                .updateCustomerContext({
+                    customerId: this.customer.id,
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                })
+                .then((response) => {
+                    // Update cart after customer context is updated
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    if (response.status === 200) {
+                        void this.getCart();
+                    }
+                });
         },
 
-        getCart(): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/getCart', {
-                salesChannelId: this.customer?.salesChannelId,
+        async getCart(): Promise<void> {
+            if (!this.customer) return;
+
+            await Store.get('swOrder').getCart({
+                salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
             });
         },
@@ -371,7 +376,6 @@ export default Component.wrapComponentConfig({
 
         async onChangeCustomer() {
             this.isLoading = true;
-
             try {
                 await this.handleSelectCustomer();
             } finally {

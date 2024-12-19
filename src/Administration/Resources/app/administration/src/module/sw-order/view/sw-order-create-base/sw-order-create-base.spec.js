@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import orderStore from 'src/module/sw-order/state/order.store';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-create-base', { sync: true }), {
@@ -70,11 +69,7 @@ async function createWrapper() {
 
 describe('src/module/sw-order/view/sw-order-create-base', () => {
     beforeEach(() => {
-        if (Shopware.State.get('swOrder')) {
-            Shopware.State.unregisterModule('swOrder');
-        }
-
-        Shopware.State.registerModule('swOrder', orderStore);
+        Shopware.Store.get('swOrder').$reset();
     });
 
     it('should be show successful notification', async () => {
@@ -82,7 +77,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
 
         wrapper.vm.createNotificationSuccess = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -108,7 +103,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -134,7 +129,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -158,7 +153,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
     it('should only display Total row when status is tax free', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             price: {
@@ -176,7 +171,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
     it('should display Total excluding VAT and Total including VAT row when tax status is not tax free', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
         });
@@ -192,7 +187,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
     it('should able to edit shipping cost', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             price: {

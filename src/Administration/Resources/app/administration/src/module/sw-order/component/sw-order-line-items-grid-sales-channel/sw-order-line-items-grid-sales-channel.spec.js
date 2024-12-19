@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import swOrderState from 'src/module/sw-order/state/order.store';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
 
@@ -232,10 +231,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swOrder', swOrderState);
-    });
-
     it('should show empty state when there is not item', async () => {
         const wrapper = await createWrapper({});
 
@@ -424,7 +419,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
     it('should able to create new empty line item', async () => {
         const wrapper = await createWrapper({});
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('token');
         await wrapper.setProps({
             cart: {
                 token: 'token',
@@ -451,7 +446,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
     it('should able to create new product line item', async () => {
         const wrapper = await createWrapper({});
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('token');
         await wrapper.setProps({
             cart: {
                 token: 'token',
@@ -488,7 +483,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
     it('should able to create new custom line item', async () => {
         const wrapper = await createWrapper({});
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('token');
         await wrapper.setProps({
             cart: {
                 token: 'token',
@@ -518,7 +513,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
     it('should able to create new credit line item', async () => {
         const wrapper = await createWrapper({});
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('token');
         await wrapper.setProps({
             cart: {
                 token: 'token',
@@ -548,7 +543,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
     it('should able to cancel inline editing item', async () => {
         const wrapper = await createWrapper({});
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('token');
         await wrapper.setProps({
             cart: {
                 token: 'token',
@@ -576,7 +571,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
     it('should able to delete items', async () => {
         const wrapper = await createWrapper({});
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('token');
         await wrapper.setProps({
             cart: {
                 token: 'token',
@@ -586,7 +581,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         });
         const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-credit-item');
         await buttonAddCreditItem.trigger('click');
-        expect(Shopware.State.get('swOrder').cart.lineItems).toHaveLength(1);
+        expect(Shopware.Store.get('swOrder').cart.lineItems).toHaveLength(1);
 
         const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all input');
         await selectAllCheckBox.setChecked(true);
@@ -597,12 +592,12 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         await wrapper.vm.$nextTick();
 
-        expect(Shopware.State.get('swOrder').cart.lineItems).toHaveLength(0);
+        expect(Shopware.Store.get('swOrder').cart.lineItems).toHaveLength(0);
     });
 
     it('should change credit value to negative', async () => {
         const wrapper = await createWrapper({});
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('token');
         await wrapper.setProps({
             cart: {
                 token: 'token',

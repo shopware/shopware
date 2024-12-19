@@ -4,11 +4,10 @@
 import './init/services.init';
 import './acl';
 
-import swPromotionState from './page/sw-promotion-v2-detail/state';
+import './page/sw-promotion-v2-detail/store';
 import defaultSearchConfiguration from './default-search-configuration';
 
-const { Module, State } = Shopware;
-State.registerModule('swPromotionDetail', swPromotionState);
+const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register(

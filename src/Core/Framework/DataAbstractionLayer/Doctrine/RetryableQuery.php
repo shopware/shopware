@@ -19,7 +19,7 @@ class RetryableQuery
     }
 
     /**
-     * @param array<string, mixed> $params
+     * @param array<int|string, mixed> $params
      */
     public function execute(array $params = []): int
     {

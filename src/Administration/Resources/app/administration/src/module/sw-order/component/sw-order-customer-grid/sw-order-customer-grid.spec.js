@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import orderState from 'src/module/sw-order/state/order.store';
 
 /**
  * @sw-package checkout
@@ -58,6 +57,7 @@ function generateCustomers() {
                     name: 'Storefront',
                 },
             },
+            boundSalesChannelId: '1234',
         });
     }
 
@@ -202,6 +202,12 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
                     Promise.resolve({
                         status: 200,
                     }),
+                getSalesChannelContext: () =>
+                    Promise.resolve({
+                        data: {
+                            salesChannelId: '1234',
+                        },
+                    }),
             };
         });
 
@@ -210,31 +216,21 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
                 getCart: () =>
                     Promise.resolve({
                         data: {
-                            token: 'token',
+                            token: 'HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2',
                             lineItems: [],
                         },
                     }),
                 createCart: () =>
                     Promise.resolve({
                         data: {
-                            token: 'token',
+                            token: 'HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2',
                         },
                     }),
             };
         });
 
-        Shopware.State.registerModule('swOrder', {
-            ...orderState,
-            state: {
-                cart: {
-                    token: '',
-                    lineItems: [],
-                },
-                context: {
-                    customer: {},
-                },
-            },
-        });
+        Shopware.Store.get('swOrder').setCart({ token: '', lineItems: [] });
+        Shopware.Store.get('swOrder').setContext({ customer: {} });
 
         if (Shopware.Store.get('context')) {
             Shopware.Store.unregister('context');
@@ -358,10 +354,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
     it('should update customer context and cart after selecting a customer', async () => {
         setCustomerData(customers);
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('1d8af3ddddbd378ba0065debd5e4e4b1');
 
         const wrapper = await createWrapper();
-        await flushPromises();
 
         wrapper.vm.customerRepository.get = jest.fn(() => Promise.resolve(customers[0]));
         const spyUpdateCustomerContext = jest.spyOn(wrapper.vm, 'updateCustomerContext');
@@ -369,6 +364,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         await firstRow.find('.sw-field__radio-input input').setChecked(true);
+        await flushPromises();
 
         expect(spyUpdateCustomerContext).toHaveBeenCalled();
 
@@ -380,7 +376,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     it('should check customer initially if customer exists', async () => {
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCustomer', {
+        Shopware.Store.get('swOrder').setCustomer({
             ...customers[0],
         });
 
@@ -419,7 +415,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         ];
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const resetLanguageToDefaultSpy = jest.spyOn(Shopware.Store.get('context'), 'resetLanguageToDefault');
 
@@ -440,7 +436,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         customers[0].boundSalesChannelId = null;
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -463,7 +459,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         customers[0].boundSalesChannelId = null;
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -500,7 +496,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -518,7 +514,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         customers[0].boundSalesChannelId = '1234';
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
         await wrapper.setData({
@@ -539,7 +535,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         customers[0].boundSalesChannelId = '1234';
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
 
@@ -571,7 +567,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         customers[0].boundSalesChannelId = '1234';
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
 

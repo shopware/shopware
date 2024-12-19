@@ -1,6 +1,6 @@
 import type Repository from 'src/core/data/repository.data';
 import type { Cart, PromotionCodeTag } from '../../order.types';
-import swOrderState from '../../state/order.store';
+import '../../store/order.store';
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
 
@@ -50,16 +50,16 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customer(): Entity<'customer'> | null {
-            return State.get('swOrder').customer;
+            return Store.get('swOrder').customer;
         },
 
         cart(): Cart {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
         invalidPromotionCodes(): PromotionCodeTag[] {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            return State.getters['swOrder/invalidPromotionCodes'] as PromotionCodeTag[];
+            return Store.get('swOrder').invalidPromotionCodes;
         },
 
         isSaveOrderValid(): boolean {
@@ -78,16 +78,8 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    beforeCreate(): void {
-        State.registerModule('swOrder', swOrderState);
-    },
-
     created(): void {
         this.createdComponent();
-    },
-
-    beforeUnmount(): void {
-        this.unregisterModule();
     },
 
     methods: {
@@ -96,10 +88,6 @@ export default Shopware.Component.wrapComponentConfig({
             if (!Store.get('context').isSystemDefaultLanguage) {
                 Store.get('context').resetLanguageToDefault();
             }
-        },
-
-        unregisterModule(): void {
-            State.unregisterModule('swOrder');
         },
 
         redirectToOrderList(): void {
@@ -120,42 +108,43 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        onSaveOrder(): Promise<void> {
+        async onSaveOrder(): Promise<void> {
             if (this.isSaveOrderValid) {
                 this.isLoading = true;
                 this.isSaveSuccessful = false;
 
-                return (
-                    State.dispatch('swOrder/saveOrder', {
+                if (!this.customer) return;
+
+                await Store.get('swOrder')
+                    .saveOrder({
                         salesChannelId: this.customer?.salesChannelId,
                         contextToken: this.cart.token,
                     })
-                        .then((response) => {
-                            // eslint-disable-next-line max-len
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                            this.orderId = response?.data?.id;
-                            // eslint-disable-next-line max-len
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                            this.orderTransaction = response?.data?.transactions?.[0];
+                    .then((response) => {
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                        this.orderId = response?.data?.id;
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                        this.orderTransaction = response?.data?.transactions?.[0];
 
-                            if (!this.orderTransaction) {
-                                return;
-                            }
+                        if (!this.orderTransaction) {
+                            return;
+                        }
 
-                            void this.paymentMethodRepository
-                                .get(this.orderTransaction.paymentMethodId, Context.api, new Criteria(1, 1))
-                                .then((paymentMethod) => {
-                                    this.paymentMethodName = paymentMethod?.translated?.distinguishableName ?? '';
-                                });
+                        void this.paymentMethodRepository
+                            .get(this.orderTransaction.paymentMethodId, Context.api, new Criteria(1, 1))
+                            .then((paymentMethod) => {
+                                this.paymentMethodName = paymentMethod?.translated?.distinguishableName ?? '';
+                            });
 
-                            this.showRemindPaymentModal = true;
-                        })
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        .catch((error) => this.showError(error))
-                        .finally(() => {
-                            this.isLoading = false;
-                        })
-                );
+                        this.showRemindPaymentModal = true;
+                    })
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                    .catch((error) => this.showError(error))
+                    .finally(() => {
+                        this.isLoading = false;
+                    });
             }
 
             if (this.invalidPromotionCodes.length > 0) {
@@ -163,8 +152,6 @@ export default Shopware.Component.wrapComponentConfig({
             } else {
                 this.showError();
             }
-
-            return Promise.resolve();
         },
 
         onCancelOrder() {
@@ -173,10 +160,12 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            void State.dispatch('swOrder/cancelCart', {
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token,
-            }).then(() => this.redirectToOrderList());
+            void Store.get('swOrder')
+                .cancelCart({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                })
+                .then(() => this.redirectToOrderList());
         },
 
         showError(error: unknown = null) {
@@ -212,13 +201,17 @@ export default Shopware.Component.wrapComponentConfig({
         onRemindCustomer() {
             this.remindPaymentModalLoading = true;
 
-            void State.dispatch('swOrder/remindPayment', {
-                orderTransactionId: this.orderTransaction?.id,
-            }).then(() => {
-                this.remindPaymentModalLoading = false;
+            if (!this.orderTransaction) return;
 
-                this.onRemindPaymentModalClose();
-            });
+            void Store.get('swOrder')
+                .remindPayment({
+                    orderTransactionId: this.orderTransaction.id,
+                })
+                .then(() => {
+                    this.remindPaymentModalLoading = false;
+
+                    this.onRemindPaymentModalClose();
+                });
         },
     },
 });

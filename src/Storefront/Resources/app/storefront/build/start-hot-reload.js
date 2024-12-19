@@ -89,7 +89,7 @@ const proxyOptions = {
                         // replace the webpack hot proxy with the url of the live reload server
                         .replace(new RegExp('/_webpack_hot_proxy_/', 'g'), `${proxyUrlEnv.protocol}//${proxyUrlEnv.hostname}:${assetPort}/`)
                         // replace the domain without port or without port with the proxy url
-                        .replace(new RegExp(`${appUrlEnv.origin.replace(/[:\/]/g, '\\$&')}\\/`, 'g'), `${proxyUrlEnv.origin}/`)
+                        .replace(new RegExp(`${appUrlEnv.origin}/`, 'g'), `${proxyUrlEnv.origin}/`)
                         // replace the media url back to use the default storefront url
                         .replace(new RegExp(`${proxyUrlEnv.origin}/media/`, 'g'), `${appUrlEnv.origin}/media/`)
                         // replace the thumbnail url back to use the default storefront url

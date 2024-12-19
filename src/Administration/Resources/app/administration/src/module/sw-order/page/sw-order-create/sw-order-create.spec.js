@@ -108,9 +108,9 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
 
-        Shopware.State.unregisterModule('swOrder');
-        Shopware.State.registerModule('swOrder', {
-            namespaced: true,
+        Shopware.Store.unregister('swOrder');
+        Shopware.Store.register({
+            id: 'swOrder',
             state() {
                 return {
                     defaultSalesChannel: null,
@@ -129,7 +129,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             },
             actions: {
                 saveOrder() {
-                    return {
+                    return Promise.resolve({
                         data: {
                             id: Shopware.Utils.createId(),
                             transactions: [
@@ -138,7 +138,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                                 },
                             ],
                         },
-                    };
+                    });
                 },
                 createCart() {
                     return {

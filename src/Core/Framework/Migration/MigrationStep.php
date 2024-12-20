@@ -46,7 +46,7 @@ abstract class MigrationStep
 
             Feature::triggerDeprecationOrThrow(
                 'v6.7.0.0',
-                sprintf(
+                \sprintf(
                     'The method "%s::getCreationTimestamp" returned a timestamp of "%d". This method should return a timestamp between 1 and 2147483647 to ensure migration order is deterministic on every system.',
                     static::class,
                     $creationTime

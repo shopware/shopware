@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Framework\Migration;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -76,7 +76,7 @@ class TimestampMigrationStep extends MigrationStep
         return $this->timestamp;
     }
 
-    public function update($connection): void
+    public function update(Connection $connection): void
     {
     }
 }

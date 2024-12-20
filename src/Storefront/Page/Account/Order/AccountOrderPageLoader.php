@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class AccountOrderPageLoader
 {
+    private const DEFAULT_LIMIT = 10;
+
     /**
      * @internal
      */
@@ -99,10 +101,7 @@ class AccountOrderPageLoader
 
     private function createCriteria(Request $request): Criteria
     {
-        $limit = $request->get('limit');
-        $limit = $limit ? (int) $limit : 10;
-        $page = $request->get('p');
-        $page = $page ? (int) $page : 1;
+        $page = max((int) $request->get('p'), 1);
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
@@ -115,8 +114,8 @@ class AccountOrderPageLoader
             ->addAssociation('addresses')
             ->addAssociation('currency')
             ->addAssociation('documents.documentType')
-            ->setLimit($limit)
-            ->setOffset(($page - 1) * $limit)
+            ->setLimit(self::DEFAULT_LIMIT)
+            ->setOffset(($page - 1) * self::DEFAULT_LIMIT)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $criteria

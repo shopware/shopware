@@ -5,7 +5,14 @@ test('As an admin user, I want to have an overview of my assigned rules, so that
     ShopAdmin,
     AdminRuleDetail,
     AdminShippingDetail,
+    InstanceMeta,
 }) => {
+
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
 
     const rule = await TestDataService.createBasicRule();
     const shippingMethod = await TestDataService.createBasicShippingMethod({availabilityRuleId: rule.id});

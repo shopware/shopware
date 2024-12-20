@@ -4,8 +4,15 @@ test('Shop administrator should be able to create a landing page.', {tag: '@Cate
     ShopAdmin,
     IdProvider,
     TestDataService,
-    AdminCategories, CreateLandingPage, AdminLandingPageDetail,
+    AdminCategories, CreateLandingPage, AdminLandingPageDetail, InstanceMeta,
 }) => {
+
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
+
     const layoutUuid = IdProvider.getIdPair().uuid;
     const layoutName = `00_addlandingpage_${layoutUuid}`;
     const layoutType = 'landingpage';

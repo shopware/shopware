@@ -4,10 +4,16 @@ test('As a shop customer, I want to continue shopping without accepting the cook
     ShopCustomer,
     StorefrontHome,
     TestDataService,
-    DefaultSalesChannel,
+    InstanceMeta,
 }) => {
 
-    await TestDataService.createSystemConfigEntry('core.basicInformation.acceptAllCookies', true, DefaultSalesChannel.salesChannel.id);
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
+
+    await TestDataService.setSystemConfig({'core.basicInformation.acceptAllCookies': true});
     const product = await TestDataService.createBasicProduct();
     const category = await TestDataService.createCategory();
     await TestDataService.assignProductCategory(product.id, category.id);

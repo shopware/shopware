@@ -3,7 +3,14 @@ import { test } from '@fixtures/AcceptanceTest';
 test('As a shop customer, I want use a basic cookie consent banner in the storefront.', { tag: '@Settings' }, async ({
     ShopCustomer,
     StorefrontHome,
+    InstanceMeta,
 }) => {
+
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
 
     await test.step('Navigate to homepage and verify initial cookie banner visibility and content', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());

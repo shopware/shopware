@@ -2,12 +2,19 @@ import { test } from '@fixtures/AcceptanceTest';
 import { expect } from '@playwright/test';
 
 test('Shop administrator should be able to create a internal link type of category.', { tag: '@Categories' }, async ({
-     ShopAdmin,
-     IdProvider,
-     AdminCategories,
-     CreateLinkTypeCategory,
-     TestDataService,
+    ShopAdmin,
+    IdProvider,
+    AdminCategories,
+    CreateLinkTypeCategory,
+    TestDataService,
+    InstanceMeta,
 }) => {
+
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
 
     const categoryData = {
         name: `00_category_link_${IdProvider.getIdPair().uuid}`,
@@ -46,7 +53,13 @@ test('Shop administrator should be able to create a internal link type of produc
     AdminCategories,
     CreateLinkTypeCategory,
     TestDataService,
+    InstanceMeta,
 }) => {
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
 
     const product = await TestDataService.createBasicProduct();
     const categoryData = {
@@ -82,13 +95,20 @@ test('Shop administrator should be able to create a internal link type of produc
 });
 
 test('Shop administrator should be able to create a internal link type of landing page.', { tag: '@Categories' }, async ({
-     ShopAdmin,
-     IdProvider,
-     AdminCategories,
-     CreateLinkTypeCategory,
-     CreateLandingPage,
-     TestDataService,
+    ShopAdmin,
+    IdProvider,
+    AdminCategories,
+    CreateLinkTypeCategory,
+    CreateLandingPage,
+    TestDataService,
+    InstanceMeta,
 }) => {
+
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
 
     const landingPageData = {
         name: `landing_page_${IdProvider.getIdPair().uuid}`,

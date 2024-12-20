@@ -6,7 +6,15 @@ test('As an admin, I can create and verify customer groups in the admin.', { tag
     AdminCustomerGroupListing,
     AdminCustomerGroupDetail,
     DefaultSalesChannel,
+    InstanceMeta,
 }) => {
+
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
+
     const customerGroup = await TestDataService.createCustomerGroup();
 
     await test.step('Verify the created customer group in the admin', async () => {
@@ -37,7 +45,16 @@ test('As a customer, I must be able to register under a customer group in the St
     IdProvider,
     Register,
     CustomerGroupActivation,
+    InstanceMeta,
+
 }) => {
+
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
+
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
     const customerGroup = await TestDataService.createCustomerGroup();
 
@@ -67,7 +84,15 @@ test('As a commercial customer, I must be able to register under a customer grou
     IdProvider,
     Register,
     CustomerGroupActivation,
+    InstanceMeta,
 }) => {
+
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
+
     const uuid = IdProvider.getIdPair().uuid;
     const customer = { email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
     const commercialCustomerGroup = await TestDataService.createCustomerGroup({ registrationOnlyCompanyRegistration: true });

@@ -5,7 +5,14 @@ test('Shop administrator should be able to create product variants.', { tag: '@P
     TestDataService,
     AdminProductDetail,
     GenerateVariants,
+    InstanceMeta,
 }) => {
+    // eslint-disable-next-line
+    if (InstanceMeta.features['V6_7_0_0']) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip(true, 'This test is incompatible with V6_7_0_0');
+    }
+
     const product = await TestDataService.createBasicProduct();
     await TestDataService.createColorPropertyGroup();
     await TestDataService.createTextPropertyGroup();

@@ -20,7 +20,7 @@ test('As a merchant, I want to create custom fields use it in categories, produc
     // eslint-disable-next-line
     if (InstanceMeta.features['V6_7_0_0']) {
         // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
+        test.skip(true, 'This test is incompatible with V6_7_0_0: ticket: NEXT-40151 and NEXT-40150');
     }
 
     const product = await TestDataService.createBasicProduct();

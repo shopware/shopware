@@ -14,7 +14,7 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
     // eslint-disable-next-line
     if (InstanceMeta.features['V6_7_0_0']) {
         // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
+        test.skip(true, 'This test is incompatible with V6_7_0_0, ticket: NEXT-40150 ');
     }
 
     const customer1 = await TestDataService.createCustomer();

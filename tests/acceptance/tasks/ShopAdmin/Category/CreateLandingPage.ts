@@ -30,13 +30,13 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                     await AdminLandingPageCreate.searchLayoutInput.pressSequentially(layoutName.substring(0, 5), { delay: 500 });
 
                     const gridLocator = AdminLandingPageCreate.page.locator('.sw-data-grid__cell-content').first();
-                    const gridVisiable = await gridLocator.isVisible();
-                    if (gridVisiable) {
+                    const gridVisible = await gridLocator.isVisible();
+                    if (gridVisible) {
                         await AdminLandingPageCreate.page.getByLabel('Select layout').locator('div').filter({ hasText: 'Sort by:' }).getByRole('button').first().click();
                     }
                     await AdminLandingPageCreate.page.getByTitle(layoutName).click();
 
-                    if (gridVisiable) {
+                    if (gridVisible) {
                         await AdminLandingPageCreate.page.getByRole('button', { name: 'Add', exact: true }).click();
                     } else {
                         await AdminLandingPageCreate.layoutSaveButton.click();

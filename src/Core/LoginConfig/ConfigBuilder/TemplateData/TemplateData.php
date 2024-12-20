@@ -1,13 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\LoginConfig\Builder;
+namespace Shopware\Core\LoginConfig\ConfigBuilder\TemplateData;
 
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class TemplateData
@@ -18,6 +16,7 @@ class TemplateData
         public readonly string $icon,
         public readonly string $class,
         public readonly string $url,
+        public readonly string $random,
     ) {
     }
 

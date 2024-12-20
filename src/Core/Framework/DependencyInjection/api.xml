@@ -182,7 +182,8 @@
             <argument type="service" id="shopware.api.authorization_server"/>
             <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <argument type="service" id="shopware.rate_limiter"/>
-            <argument type="service" id="Shopware\Core\LoginConfig\Builder\LoginConfigBuilder" on-invalid="null"/>
+            <argument type="service" id="user.repository"/>
+            <argument type="service" id="Shopware\Core\LoginConfig\ConfigBuilder\LoginConfigService" on-invalid="null"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

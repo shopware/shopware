@@ -4,15 +4,19 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="Shopware\Core\LoginConfig\Builder\LoginConfigBuilder">
+        <service id="Shopware\Core\LoginConfig\ConfigBuilder\LoginConfigService">
             <argument>%shopware.admin_login%</argument>
             <argument type="tagged_iterator" tag="shopware.login.config.handler"/>
         </service>
 
-        <service id="Shopware\Core\LoginConfig\Builder\Handler\SwSsoLogin">
+        <service id="Shopware\Core\LoginConfig\ConfigBuilder\Handler\AbstractLoginConfigHandler" abstract="true">
             <argument>%env(APP_URL)%</argument>
             <argument>%shopware_administration.path_name%</argument>
-            <tag name="shopware.login.config.handler"/>
+        </service>
+
+        <service id="Shopware\Core\LoginConfig\ConfigBuilder\Handler\ShopwareSso"
+            parent="Shopware\Core\LoginConfig\ConfigBuilder\Handler\AbstractLoginConfigHandler">
+            <tag name="shopware.login.config.handler" key="swsso"/>
         </service>
     </services>
 </container>

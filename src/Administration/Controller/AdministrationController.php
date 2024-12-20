@@ -27,12 +27,14 @@ use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\LoginConfig\ConfigBuilder\LoginConfigService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -69,6 +71,7 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
+        private readonly ?LoginConfigService $loginConfigService = null,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -107,6 +110,20 @@ class AdministrationController extends AbstractController
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
         ]);
+    }
+
+    #[Route(path: '/%shopware_administration.path_name%/sso/auth', name: 'administration.sso.auth', defaults: ['auth_required' => false], methods: ['GET'])]
+    public function onSsoAuth(Request $request): RedirectResponse
+    {
+        $key = $request->get('key');
+        $random = $request->get('rdm');
+
+        // TODO: check LoginConfigService is available
+        $request->getSession()->set('SSO_' . $key, $random);
+
+        $url = $this->loginConfigService->createRedirectUrl($key, $random);
+
+        return new RedirectResponse($url);
     }
 
     #[Route(path: '/api/_admin/snippets', name: 'api.admin.snippets', methods: ['GET'])]

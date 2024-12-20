@@ -66,19 +66,22 @@
     }
 }
 
-.confirm-checkout-collapse-trigger {
-    text-underline: $link-color;
+// @deprecated tag:v6.7.0 - Remove the following styles
+@if not feature('ACCESSIBILITY_TWEAKS') {
+    .confirm-checkout-collapse-trigger {
+        text-underline: $link-color;
 
-    &:hover {
-        cursor: pointer;
-    }
+        &:hover {
+            cursor: pointer;
+        }
 
-    .icon-confirm-checkout-chevron {
-        height: 1.375rem;
+        .icon-confirm-checkout-chevron {
+            height: 1.375rem;
 
-        > svg {
-            color: $link-color;
-            transition: transform 0.2s ease-in-out;
+            > svg {
+                color: $link-color;
+                transition: transform 0.2s ease-in-out;
+            }
         }
     }
 }

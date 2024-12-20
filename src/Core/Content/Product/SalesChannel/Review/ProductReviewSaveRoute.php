@@ -148,6 +148,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
                 'entity' => 'product_review',
                 'context' => $context,
                 'criteria' => $criteria,
+                'primaryProperty' => 'customerId',
             ]));
         }
 

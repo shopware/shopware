@@ -26,6 +26,14 @@ jobs:
       BLUE_GREEN_DEPLOYMENT: 1
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
     services:
+      database:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: shopware
+        ports:
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping"
       redis: # Redis is required since cache rework
         image: ${{ matrix.major == 'major' && 'redis:alpine' || '' }}
         ports:
@@ -40,10 +48,12 @@ jobs:
           echo "FEATURE_ALL=major" >> $GITHUB_ENV
           echo "DISABLE_VUE_COMPAT=0" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+          echo "ADMIN_VITE=1" >> $GITHUB_ENV
 
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          mysql-version: 'skip'
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install: ${{ matrix.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
@@ -86,7 +96,12 @@ jobs:
       - name: Run your tests with reporting
         if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
-        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project ${{ matrix.name }} --trace=on
+        run: |-
+          npx pwc \
+            --ci-build-id "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major }}" \
+            --project-id ${{ secrets.CURRENTS_PROJECT_ID }} \
+            --key ${{ secrets.CURRENTS_RECORD_KEY }} \
+            -- --project ${{ matrix.name }} --trace=on
 
       - name: Run your tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
@@ -101,32 +116,25 @@ jobs:
           retention-days: 3
 
   phpunit:
-    name: "${{ matrix.suite.name }} ${{matrix.suite.path }}"
-    continue-on-error: ${{ !matrix.stable }}
+    name: "${{ matrix.tests.testsuite }}${{ matrix.tests.path }} ${{ matrix.db }}"
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        suite:
-          - name: integration
-            path: tests/integration/Administration
-          - name: integration
-            path: tests/integration/Core/Checkout
-          - name: integration
-            path: tests/integration/Core/Content
-          - name: integration
-            path: tests/integration/Core/Framework
-          - name: integration
-            path: tests/integration/Core/Installer
-          - name: integration
-            path: tests/integration/Core/Maintenance
-          - name: integration
-            path: tests/integration/Core/System
-          - name: integration
-            path: tests/integration/Elasticsearch
-          - name: integration
-            path: tests/integration/Storefront
-          - name: migration,devops
+        tests:
+          - path: Administration
+          - path: Core/Checkout
+          - path: Core/Content
+          - path: Core/Framework
+          - path: Core/Installer
+          - path: Core/Maintenance
+          - path: Core/System
+          - path: Elasticsearch
+          - path: Storefront
+          - testsuite: devops,migration
+        db:
+          - mysql:8.0
+          - mariadb:11
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
@@ -139,17 +147,26 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.suite.name == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        image: ${{ matrix.tests.path != '' && 'opensearchproject/opensearch:1' || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
         ports:
           - "9200:9200"
+      database:
+        image: ${{ matrix.db }}
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: shopware
+        ports:
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping || mariadb-admin ping"
 
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          mysql-version: 'skip'
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
@@ -159,8 +176,13 @@ jobs:
       - name: Install Shopware
         run: php src/Core/TestBootstrap.php
 
-      - name: Run PHPUnit
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite.name }}" -- ${{ matrix.suite.path || '' }}
+      - name: Run PHPUnit testsuite
+        if: ${{ matrix.tests.testsuite != '' }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.tests.testsuite }}"
+
+      - name: Run PHPUnit path
+        if: ${{ matrix.tests.path != '' }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit -- tests/integration/${{ matrix.tests.path }}
 
   win-checkout:
     runs-on: windows-latest

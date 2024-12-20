@@ -71,6 +71,19 @@ describe('app/component/entity/sw-one-to-many-grid', () => {
     it('should enable the context menu delete item', async () => {
         const wrapper = await createWrapper();
 
+        await wrapper.setData({
+            records: [
+                {
+                    name: 'name',
+                    shortCode: 'shortCode',
+                },
+                {
+                    name: 'name',
+                    shortCode: 'shortCode',
+                },
+            ],
+        });
+
         const firstRow = wrapper.find('.sw-data-grid__row--1');
         const firstRowActions = firstRow.find('.sw-data-grid__cell--actions');
         const firstRowActionDelete = firstRowActions.find('.sw-one-to-many-grid__delete-action');
@@ -84,6 +97,19 @@ describe('app/component/entity/sw-one-to-many-grid', () => {
 
         await wrapper.setProps({
             allowDelete: false,
+        });
+
+        await wrapper.setData({
+            records: [
+                {
+                    name: 'name',
+                    shortCode: 'shortCode',
+                },
+                {
+                    name: 'name',
+                    shortCode: 'shortCode',
+                },
+            ],
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');

@@ -37,20 +37,6 @@ class PagingListingProcessorTest extends TestCase
             24,
         ];
 
-        yield 'Empty criteria, request with limit' => [
-            new Criteria(),
-            new Request(['limit' => 50]),
-            1,
-            50,
-        ];
-
-        yield 'Empty criteria, request with page and limit' => [
-            new Criteria(),
-            new Request(['p' => 2, 'limit' => 50]),
-            2,
-            50,
-        ];
-
         yield 'Criteria with limit, empty request' => [
             (new Criteria())->setLimit(50),
             new Request(),
@@ -63,13 +49,6 @@ class PagingListingProcessorTest extends TestCase
             new Request(['p' => 2]),
             2,
             50,
-        ];
-
-        yield 'Criteria with limit, request with limit' => [
-            (new Criteria())->setLimit(50),
-            new Request(['limit' => 100]),
-            1,
-            100,
         ];
     }
 

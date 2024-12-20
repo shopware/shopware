@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
@@ -21,7 +22,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
     private readonly \Closure $debug;
 
-    public function __construct(private readonly Connection $connection, ?\Closure $debug = null)
+    public function __construct(private readonly Connection $connection, private readonly LoggerInterface $logger, ?\Closure $debug = null)
     {
         $this->debug = $debug ?? (fn () => null)(...);
     }
@@ -53,32 +54,42 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
      */
     public function loadAndDelete(): array
     {
-        return $this->readCommittedIsolation(
-            function (Connection $conn) {
-                // fetch and lock records, ignoring locked records, se we don't handle tags
-                // being processed by parallel worker
-                $rows = $conn->fetchAllAssociative(
-                    \sprintf('SELECT id, tag FROM %s ORDER BY id FOR UPDATE SKIP LOCKED', self::TABLE_NAME)
-                );
+        try {
+            return $this->readCommittedIsolation($this->executeLoadAndDelete(...));
+        } catch (\Throwable $e) {
+            $this->logger->warning('Cache tags could not be fetched or removed from storage. Possible deadlock encountered. If the error persists, try the redis adapter. Error: ' . $e->getMessage());
 
-                ($this->debug)($this, $rows);
+            return [];
+        }
+    }
 
-                if (empty($rows)) {
-                    return [];
-                }
-
-                $firstTagId = $rows[0]['id'];
-                $lastTagId = $rows[array_key_last($rows)]['id'];
-
-                $query = new RetryableQuery(
-                    $this->connection,
-                    $this->connection->prepare(\sprintf('DELETE FROM %s WHERE id BETWEEN ? AND ?', self::TABLE_NAME))
-                );
-                $query->execute([$firstTagId, $lastTagId]);
-
-                return array_column($rows, 'tag');
-            }
+    /**
+     * @return list<string>
+     */
+    private function executeLoadAndDelete(): array
+    {
+        // fetch and lock records, ignoring locked records, se we don't handle tags
+        // being processed by parallel worker
+        $rows = $this->connection->fetchAllAssociative(
+            \sprintf('SELECT id, tag FROM %s ORDER BY id FOR UPDATE SKIP LOCKED', self::TABLE_NAME)
         );
+
+        ($this->debug)($this, $rows);
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        $firstTagId = $rows[0]['id'];
+        $lastTagId = $rows[array_key_last($rows)]['id'];
+
+        $query = new RetryableQuery(
+            $this->connection,
+            $this->connection->prepare(\sprintf('DELETE FROM %s WHERE id BETWEEN ? AND ?', self::TABLE_NAME))
+        );
+        $query->execute([$firstTagId, $lastTagId]);
+
+        return array_column($rows, 'tag');
     }
 
     /**

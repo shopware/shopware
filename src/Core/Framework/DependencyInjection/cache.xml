@@ -37,6 +37,7 @@
 
         <service id="shopware.cache.invalidator.storage.mysql" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage" lazy="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.cache.invalidator.storage" storage="mysql"/>
         </service>

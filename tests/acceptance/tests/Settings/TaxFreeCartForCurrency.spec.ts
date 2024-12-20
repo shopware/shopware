@@ -21,7 +21,7 @@ test('As a merchant, I would be able to adjust free tax for defined currency', {
     // eslint-disable-next-line
     if (InstanceMeta.features['V6_7_0_0']) {
         // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
+        test.skip(true, 'This test is incompatible with V6_7_0_0 Ticket already created: https://shopware.atlassian.net/browse/NEXT-40119');
     }
 
     const product = await TestDataService.createBasicProduct();

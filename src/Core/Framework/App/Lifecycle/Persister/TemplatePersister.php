@@ -38,7 +38,7 @@ class TemplatePersister
         $app = $this->getAppWithExistingTemplates($appId, $context);
         $existingTemplates = $app->getTemplates();
 
-        assert($existingTemplates !== null);
+        \assert($existingTemplates !== null);
 
         $templatePaths = $this->templateLoader->getTemplatePathsForApp($manifest);
 

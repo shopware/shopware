@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
@@ -323,19 +322,6 @@ class SetOrderStateActionTest extends TestCase
             ',
             ['id' => $orderId]
         );
-    }
-
-    private function getPrePaymentMethodId(): string
-    {
-        /** @var EntityRepository $repository */
-        $repository = static::getContainer()->get('payment_method.repository');
-
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
-
-        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId() ?: '';
     }
 
     private function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string

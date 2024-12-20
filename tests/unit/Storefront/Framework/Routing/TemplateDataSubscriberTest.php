@@ -17,6 +17,7 @@ use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -236,6 +237,44 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn($collection);
 
         $this->subscriber->addIconSetConfig($event);
+
+        static::assertArrayHasKey('themeIconConfig', $event->getParameters());
+    }
+
+    public function testAddIconSetConfigWithRegistryWithGetByTechnicalName(): void
+    {
+        $request = new Request();
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
+
+        $event = new StorefrontRenderEvent(
+            'test',
+            [],
+            $request,
+            Generator::createSalesChannelContext()
+        );
+
+        $themeConfig = new StorefrontPluginConfiguration('Storefront');
+        $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
+
+        $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
+
+        $themeRegistry
+            ->expects(static::never())
+            ->method('getConfigurations');
+
+        $themeRegistry
+            ->expects(static::once())
+            ->method('getByTechnicalName')
+            ->willReturn($themeConfig);
+
+        $subscriber = new TemplateDataSubscriber(
+            $this->hreflangLoader,
+            $this->shopIdProvider,
+            $themeRegistry,
+            $this->activeAppsLoader
+        );
+
+        $subscriber->addIconSetConfig($event);
 
         static::assertArrayHasKey('themeIconConfig', $event->getParameters());
     }

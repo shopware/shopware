@@ -4,20 +4,10 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -28,7 +18,7 @@ class SalesChannelContextTest extends TestCase
 {
     public function testGetRuleIdsByAreas(): void
     {
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         $idA = Uuid::randomHex();
         $idB = Uuid::randomHex();
@@ -51,24 +41,5 @@ class SalesChannelContextTest extends TestCase
         static::assertEquals([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a', 'c']));
         static::assertEquals([$idC], $salesChannelContext->getRuleIdsByAreas(['d']));
         static::assertEquals([], $salesChannelContext->getRuleIdsByAreas(['f']));
-    }
-
-    private function getSalesChannelContext(): SalesChannelContext
-    {
-        return new SalesChannelContext(
-            Context::createDefaultContext(),
-            'foo',
-            'bar',
-            new SalesChannelEntity(),
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true)
-        );
     }
 }

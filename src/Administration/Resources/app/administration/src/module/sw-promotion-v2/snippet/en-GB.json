@@ -71,6 +71,7 @@
                         "columnCode": "Code",
                         "columnRedeemed": "Redeemed",
                         "columnCustomer": "Customer",
+                        "columnCreatedAt": "Generated at",
                         "textDeleteConfirm": "Are you sure you want to delete the code \"{code}\"? | Are you sure cou want to delete these {count} codes?",
                         "openCustomer": "Open customer",
                         "routingError": "The customer \"{name}\" has not been found.",
@@ -273,7 +274,6 @@
                     "delete": {
                         "confirmTitle": "Delete discount",
                         "confirmText": "Do you really want to delete this discount from the promotion?",
-                        "buttonCancel": "Cancel",
                         "buttonDelete": "Delete discount"
                     },
                     "labelSorting": "Sort by",

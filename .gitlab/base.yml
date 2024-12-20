@@ -56,17 +56,7 @@ variables:
     - shopware-multi-arch
   before_script:
     - echo -e "\e[0Ksection_start:$(date +%s):base_init[collapsed=true]\r\e[0Kbase initialization"
-    - >
-      if [[ -r context.tar.gz ]]; then
-          tar -xzf context.tar.gz
-          mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
-          mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
-          bin/console system:generate-jwt || true
-          touch install.lock
-          bin/console assets:install
-      else
-          composer run setup
-      fi
+    - composer run setup
     - echo -e "\e[0Ksection_end:`date +%s`:base_init\r\e[0K"
     - "rm -Rf /var/www/html/public || true"
     - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public

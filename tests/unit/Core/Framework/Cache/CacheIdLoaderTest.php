@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -15,12 +16,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(CacheIdLoader::class)]
 class CacheIdLoaderTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     private AbstractKeyValueStorage&MockObject $storage;
 
     protected function setUp(): void
     {
         $this->storage = $this->createMock(AbstractKeyValueStorage::class);
-        unset($_SERVER['SHOPWARE_CACHE_ID'], $_ENV['SHOPWARE_CACHE_ID']);
+        $this->setEnvVars(['SHOPWARE_CACHE_ID' => null]);
     }
 
     public function testLoadExisting(): void

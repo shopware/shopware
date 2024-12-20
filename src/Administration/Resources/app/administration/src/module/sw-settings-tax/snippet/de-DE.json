@@ -15,7 +15,6 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "messageDeleteSuccess": "Die Steuer \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "taxCardTitle": "Steuern",
       "taxProvider": {
@@ -45,7 +44,6 @@
       "labelDefaultTaxRate": "Steuersatz",
       "placeholderName": "Namen eingeben ...",
       "placeholderDefaultTaxRate": "Standard-Steuersatz eingeben ...",
-      "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "messageSaveError": "Fehler beim Speichern des Steuersatzes.",
       "messageSaveSuccess": "Steuersatz gespeichert.",
@@ -60,7 +58,6 @@
       "cardTitle": "Länder-Steuersätze",
       "searchBarPlaceholder": "Suche Länder",
       "labelCreateNew": "Land hinzufügen",
-      "labelCancel": "Abbrechen",
       "labelStates": "Staaten",
       "labelZipCode": "Postleitzahl",
       "labelFromZipCode": "Bis ...",

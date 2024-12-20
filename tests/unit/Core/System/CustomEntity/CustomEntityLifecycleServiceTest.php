@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
@@ -59,8 +60,13 @@ class CustomEntityLifecycleServiceTest extends TestCase
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - remove test as functionality dropped
+     */
     public function testUpdatePluginOnlyCustomEntities(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $customEntityPersister = $this->createMock(CustomEntityPersister::class);
         $customEntityPersister->expects(static::once())->method('update');
 
@@ -123,8 +129,13 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $this->checkFieldsAndFlagsCount($schema);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - remove test as functionality dropped
+     */
     public function testUpdatePluginCustomEntitiesWithAdminUi(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $customEntityPersister = $this->createMock(CustomEntityPersister::class);
         $customEntityPersister->expects(static::once())->method('update');
 

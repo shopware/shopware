@@ -18,7 +18,6 @@
         "contextMenuDelete": "Löschen",
         "titleModalDelete": "Rolle löschen",
         "textModalDelete": "Möchtest Du die Rolle \"{name}\" wirklich löschen?",
-        "labelButtonCancel": "Abbrechen",
         "labelButtonDelete": "Löschen",
         "notification": {
           "deleteSuccess":  {
@@ -75,7 +74,6 @@
         "contextMenuDuplicate": "Duplizieren",
         "titleModalDelete": "Benutzer löschen",
         "textModalDelete": "Möchtest Du den Benutzer \"{name}\" wirklich löschen?",
-        "labelButtonCancel": "Abbrechen",
         "labelButtonDelete": "Löschen",
         "notification": {
           "deleteSuccess": {
@@ -111,7 +109,6 @@
         "labelNewUser": "Neuer Benutzer",
         "placeholderNewPassword": "Neues Passwort eingeben ...",
         "placeholderNewPasswordConfirm": "Neues Passwort bestätigen ...",
-        "labelButtonCancel": "Abbrechen",
         "labelButtonChangePassword": "Ändern",
         "labelButtonSave": "Speichern",
         "writeAccess": "Schreiben",
@@ -129,7 +126,6 @@
           "titleConfirmPasswordModal": "Passwort bestätigen",
           "labelConfirmPassword": "Passwort",
           "placeholderConfirmPassword": "Aktuelles Passwort eingeben ...",
-          "labelButtonCancel": "Abbrechen",
           "labelButtonConfirm": "Bestätigen",
           "notificationPasswordErrorTitle": "Fehler",
           "notificationPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein."
@@ -140,7 +136,6 @@
           "confirmDelete": "Möchtest Du diese Integration wirklich löschen?",
           "buttonApply": "Integration speichern",
           "buttonApplyEdit": "Änderungen speichern",
-          "buttonCancel": "Abbrechen",
           "buttonDelete": "Löschen",
           "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
           "hintCreateNewApiKeys": "Die Neugenerierung der API-Zugangsdaten erfordert die Aktualisierung aller zugehörigen Skripte oder Anwendungen.",

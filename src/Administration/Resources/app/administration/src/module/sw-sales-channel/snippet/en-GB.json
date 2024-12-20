@@ -37,7 +37,6 @@
       "titleDetailPrefix": "{name} - details",
       "buttonShowDetails": "Show details",
       "buttonBack": "Back",
-      "buttonCancel": "Cancel",
       "titleDescription": "Information",
       "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first."
     },
@@ -94,7 +93,6 @@
       "buttonDelete": "Delete Sales Channel",
       "deleteModalTitle": "Delete Sales Channel",
       "textConfirmDelete": "Are you sure you want to delete this Sales Channel?",
-      "buttonCloseDeleteModal": "Cancel",
       "buttonConfirmDelete": "Delete",
       "textHeadline": "New Sales Channel",
       "placeholderName": "Enter Sales Channel name...",
@@ -109,7 +107,6 @@
       "buttonAddDomain": "Add domain",
       "deleteDomainModalTitle": "Delete domain",
       "textConfirmDeleteDomain": "Are you sure you want to delete this domain? The Sales Channel will no longer be accessible by \"{url}\"",
-      "buttonCloseDeleteDomainModal": "Cancel",
       "buttonConfirmDeleteDomain": "Delete",
       "customerGroup": "Customer group",
       "favouriteLabel": "Mark Sales Channel as favourite",
@@ -228,7 +225,6 @@
           "modal-title": "Apply template",
           "modal-message": "If you apply the template, existing data in this Sales Channel will be overwritten. Settings and template tabs will be subject to these changes.",
           "modal-confirm": "Apply template",
-          "modal-cancel": "Cancel",
           "message": {
             "template-applied-message": "Template data has been applied, but not yet saved. Please save this Sales Channel to keep the changes."
           }

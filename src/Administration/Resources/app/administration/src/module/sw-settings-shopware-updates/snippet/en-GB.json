@@ -65,7 +65,6 @@
     },
     "updateModal": {
       "actions": {
-        "cancel": "Cancel",
         "install": "Install",
         "goToUpdate": "Update now"
       },

@@ -126,6 +126,15 @@
         {% sw_include '@Storefront/storefront/component/pseudo-modal.html.twig' %}
     {% endblock %}
 
+    {% block base_speculation_rules %}
+        {% if config('core.storefrontSettings.speculationRules') %}
+            {% set options = {
+                selectorNavigationLinks: '.nav-item.nav-link',
+            } %}
+            <template data-speculation-rules="true" data-speculation-rules-options="{{ options|json_encode }}"></template>
+        {% endif %}
+    {% endblock %}
+
     {% block base_body_script %}
     {% endblock %}
     </body>

@@ -43,6 +43,7 @@ class ScriptExecutor
 
     public function execute(Hook $hook): void
     {
+        // @deprecated tag:v6.7.0 - remove if condition
         if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
             return;
         }

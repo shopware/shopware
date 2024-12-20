@@ -15,7 +15,6 @@
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "messageDeleteSuccess": "Essential characteristic \"{name}\" has been deleted.",
-      "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
     "detail": {
@@ -43,7 +42,6 @@
       "emptyStateDescription": "Add values to define essential characteristics that are custom-tailored to your product range."
     },
     "modal": {
-      "buttonAdd": "Add",
       "textPropertyLabel": "Property",
       "textCustomFieldLabel": "Custom field",
       "textProductInfoLabel": "Product information",
@@ -52,7 +50,6 @@
       "labelTitleModal": "Add values",
       "labelName": "Name",
       "buttonNext": "Next",
-      "buttonCancel": "Cancel",
       "label": {
         "property": "Property",
         "width": "Width",

@@ -1,3 +1,7 @@
+{% if selectedPaymentMethodId is not defined %}
+    {% set selectedPaymentMethodId = context.paymentMethod.id %}
+{% endif %}
+
 <div class="payment-method">
     {% block component_payment_method_field %}
         <div class="payment-form-group form-group">
@@ -43,11 +47,11 @@
                                         <strong>{{ paymentName }}</strong>
                                     {% endblock %}
 
-                                    {% if payment.translated.description %}
+                                    {% if payment.translated.description and (payment.id is same as(selectedPaymentMethodId) or not feature('ACCESSIBILITY_TWEAKS')) %}
                                         {% set paymentDescription = payment.translated.description|raw %}
                                         {% set paymentDescriptionTitle = payment.translated.description|striptags|raw %}
 
-                                        {% if not payment.id is same as(selectedPaymentMethodId) %}
+                                        {% if not payment.id is same as(selectedPaymentMethodId) and not feature('ACCESSIBILITY_TWEAKS') %}
                                             {% set paymentDescription = (paymentDescription|length > 75 ? paymentDescription[:75] ~ ' ...' : paymentDescription) %}
                                         {% endif %}
 

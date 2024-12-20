@@ -21,10 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 class PagingProcessorTest extends TestCase
 {
     #[DataProvider('prepareProvider')]
-    public function testPrepare(Request $request, Criteria $expected, string $method = Request::METHOD_GET): void
+    public function testPrepare(Request $request, Criteria $criteria, int $expectedOffset, int $expectedLimit): void
     {
-        $request->setMethod($method);
-        $criteria = new Criteria();
         $context = $this->createMock(SalesChannelContext::class);
 
         $config = new StaticSystemConfigService([
@@ -34,52 +32,52 @@ class PagingProcessorTest extends TestCase
         $processor = new PagingListingProcessor($config);
         $processor->prepare($request, $criteria, $context);
 
-        static::assertSame($expected->getOffset(), $criteria->getOffset());
-        static::assertSame($expected->getLimit(), $criteria->getLimit());
+        static::assertSame($expectedOffset, $criteria->getOffset());
+        static::assertSame($expectedLimit, $criteria->getLimit());
     }
 
     public static function prepareProvider(): \Generator
     {
-        yield 'Provided GET limit will be accepted' => [
-            new Request(['limit' => 10]),
-            (new Criteria())->setOffset(0)->setLimit(10),
+        yield 'Provided limit will be accepted' => [
+            new Request(),
+            (new Criteria())->setLimit(10),
+            0,
+            10,
         ];
 
-        yield 'Provided POST limit will be accepted' => [
-            new Request([], ['limit' => 10]),
-            (new Criteria())->setOffset(0)->setLimit(10),
-            Request::METHOD_POST,
+        yield 'Not provided limit' => [
+            new Request(),
+            (new Criteria())->setOffset(0),
+            0,
+            24,
         ];
 
         yield 'Provided page will be accepted' => [
             new Request(['p' => 2]),
             (new Criteria())->setOffset(24)->setLimit(24),
+            24,
+            24,
         ];
 
-        yield 'Provided page and limit will be accepted' => [
-            new Request(['p' => 2, 'limit' => 10]),
-            (new Criteria())->setOffset(10)->setLimit(10),
-        ];
-
-        yield 'Provided page and POST limit will be accepted' => [
-            new Request([], ['p' => 2, 'limit' => 10]),
-            (new Criteria())->setOffset(10)->setLimit(10),
-            Request::METHOD_POST,
-        ];
-
-        yield 'Provided page and GET limit will be accepted' => [
-            new Request(['p' => 2, 'limit' => 10]),
-            (new Criteria())->setOffset(10)->setLimit(10),
+        yield 'Provided page and free limit will be accepted' => [
+            new Request(['p' => 2]),
+            (new Criteria())->setOffset(10)->setLimit(100),
+            100,
+            100,
         ];
 
         yield 'Test negative limit' => [
-            new Request(['limit' => -1]),
-            (new Criteria())->setOffset(0)->setLimit(24),
+            new Request(),
+            (new Criteria())->setOffset(0)->setLimit(-1),
+            0,
+            24,
         ];
 
         yield 'Test negative page' => [
             new Request(['p' => -1]),
             (new Criteria())->setOffset(0)->setLimit(24),
+            0,
+            24,
         ];
     }
 

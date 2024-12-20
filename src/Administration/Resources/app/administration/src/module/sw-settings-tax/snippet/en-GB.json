@@ -15,7 +15,6 @@
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "messageDeleteSuccess": "Tax \"{name}\" has been deleted.",
-      "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "taxCardTitle": "Taxes",
       "taxProvider": {
@@ -45,7 +44,6 @@
       "labelDefaultTaxRate": "Tax rate",
       "placeholderName": "Enter name...",
       "placeholderDefaultTaxRate": "Enter default rate...",
-      "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "messageSaveError": "An error occurred while saving the tax rate.",
       "messageSaveSuccess": "Tax rate has been saved.",
@@ -60,7 +58,6 @@
       "cardTitle": "Countries",
       "searchBarPlaceholder": "Search countries...",
       "labelCreateNew": "Add country",
-      "labelCancel": "Cancel",
       "labelStates": "States",
       "labelZipCode": "Postal code",
       "labelFromZipCode": "From...",

@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -146,7 +147,6 @@ class SetOrderStateActionTest extends TestCase
 
     public function testSetStateOnOrderDeliveryWithDiscountOnDelivery(): void
     {
-        $context = Context::createDefaultContext();
         $flowCreatePayload = [
             'id' => Uuid::randomHex(),
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
@@ -192,12 +192,15 @@ class SetOrderStateActionTest extends TestCase
             ]),
         ];
 
+        $context = Generator::createSalesChannelContext();
+
         $this->createOrder($customerId, ['deliveries' => $orderDeliveries, 'id' => $orderId]);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
 
-        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order);
+
         $subscriber = new SetOrderStateAction(
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(OrderService::class),
@@ -212,7 +215,7 @@ class SetOrderStateActionTest extends TestCase
 
         $criteria = new Criteria([$IdForShippingCosts]);
         $criteria->addAssociation('stateMachineState');
-        $oderDeliveryForShippingCosts = $this->orderDeliveryRepository->search($criteria, $context)->first();
+        $oderDeliveryForShippingCosts = $this->orderDeliveryRepository->search($criteria, $context->getContext())->first();
 
         static::assertInstanceOf(OrderDeliveryEntity::class, $oderDeliveryForShippingCosts);
         static::assertSame('shipped', $oderDeliveryForShippingCosts->getStateMachineState()?->getTechnicalName());
@@ -230,16 +233,16 @@ class SetOrderStateActionTest extends TestCase
         $this->connection->beginTransaction();
 
         $orderId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
+        $context = Generator::createSalesChannelContext();
 
-        $orderData = $this->getOrderData($orderId, $context);
+        $orderData = $this->getOrderData($orderId, $context->getContext());
         $orderData[0]['deliveries'] = [];
-        $this->orderRepository->create($orderData, $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $this->orderRepository->create($orderData, $context->getContext());
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
 
-        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order);
 
         $subscriber = new SetOrderStateAction(
             static::getContainer()->get(Connection::class),

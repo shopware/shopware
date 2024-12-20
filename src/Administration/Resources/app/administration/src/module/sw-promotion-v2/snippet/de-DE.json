@@ -71,6 +71,7 @@
                         "columnCode": "Code",
                         "columnRedeemed": "Eingelöst",
                         "columnCustomer": "Kunde",
+                        "columnCreatedAt": "Erzeugt am",
                         "textDeleteConfirm": "Möchtest Du den Aktionscode \"{code}\" wirklich löschen? | Möchtest Du diese {count} Aktionscodes wirklich löschen?",
                         "openCustomer": "Kunde öffnen",
                         "routingError": "Der Kunde \"{name}\" konnte nicht gefunden werden.",
@@ -273,7 +274,6 @@
                     "delete": {
                         "confirmTitle": "Rabatt entfernen",
                         "confirmText": "Möchtest Du diesen Rabatt wirklich aus der Rabattaktion entfernen?",
-                        "buttonCancel": "Abbrechen",
                         "buttonDelete": "Rabatt entfernen"
                     },
                     "labelSorting": "Sortieren nach",

@@ -22,8 +22,6 @@ interface TokenResponse {
     /* eslint-enable camelcase */
 }
 
-const REMEMBER_ME_DURATION = 14;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
     loginByUsername: (user: string, pass: string) => Promise<AuthObject>;
@@ -32,6 +30,7 @@ export interface LoginService {
     getToken: () => string;
     getBearerAuthentication: <K extends keyof AuthObject>(section?: K) => AuthObject[K];
     setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject;
+    restartAutoTokenRefresh: (expiryTimestamp: number) => void;
     logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean;
     forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void;
     isLoggedIn: () => boolean;
@@ -45,8 +44,6 @@ export interface LoginService {
     setRememberMe: (active?: boolean) => void;
 }
 
-let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createLoginService(
     httpClient: InitContainer['httpClient'],
@@ -59,6 +56,7 @@ export default function createLoginService(
     const onLogoutListener: (() => void)[] = [];
     const onLoginListener: (() => void)[] = [];
     const cookieStorage = cookieStorageFactory();
+    let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
     return {
         loginByUsername,
@@ -67,6 +65,7 @@ export default function createLoginService(
         getToken,
         getBearerAuthentication,
         setBearerAuthentication,
+        restartAutoTokenRefresh,
         logout,
         forwardLogout,
         isLoggedIn,
@@ -118,9 +117,7 @@ export default function createLoginService(
                 },
             )
             .then((response) => {
-                if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
-                    cookieStorage.setItem('lastActivity', `${Math.round(+new Date() / 1000)}`);
-                }
+                Shopware.Service('userActivityService').updateLastUserActivity();
 
                 const auth = setBearerAuthentication({
                     access: response.data.access_token,
@@ -128,7 +125,7 @@ export default function createLoginService(
                     expiry: response.data.expires_in,
                 });
 
-                window.localStorage.setItem('redirectFromLogin', 'true');
+                sessionStorage.setItem('redirectFromLogin', 'true');
 
                 return auth;
             });
@@ -239,11 +236,11 @@ export default function createLoginService(
      * notifies the listener for the onLoginEvent
      */
     function notifyOnLoginListener(): void[] | null {
-        if (!window.localStorage.getItem('redirectFromLogin')) {
+        if (!sessionStorage.getItem('redirectFromLogin')) {
             return null;
         }
 
-        window.localStorage.removeItem('redirectFromLogin');
+        sessionStorage.removeItem('redirectFromLogin');
 
         return onLoginListener.map((callback) => {
             return callback.call(null);
@@ -255,14 +252,15 @@ export default function createLoginService(
      * object identifier.
      */
     function setBearerAuthentication({ access, refresh, expiry }: AuthObject): AuthObject {
-        expiry = Math.round(Date.now() + expiry * 1000);
+        expiry = Date.now() + expiry * 1000;
 
         const cookieOptions: CookieOptions = {
             expires: new Date(expiry),
         };
 
         if (!shouldConsiderUserActivity()) {
-            cookieOptions.expires = new Date(Number(localStorage.getItem('rememberMe') || expiry));
+            const rememberMeDuration = context.refreshTokenTtl || 7 * 86400 * 1000;
+            cookieOptions.expires = new Date(Date.now() + rememberMeDuration);
         }
 
         const authObject = { access, refresh, expiry };
@@ -278,7 +276,7 @@ export default function createLoginService(
 
         context.authToken = authObject;
 
-        autoRefreshToken(expiry);
+        restartAutoTokenRefresh(expiry);
 
         return authObject;
     }
@@ -286,24 +284,13 @@ export default function createLoginService(
     /**
      * Refresh token in half of expiry time
      */
-    function autoRefreshToken(expiryTimestamp: number): void {
-        const needTokenUpdate = getBearerAuthentication('expiry') !== expiryTimestamp;
-
-        if (autoRefreshTokenTimeoutId && needTokenUpdate) {
+    function restartAutoTokenRefresh(expiryTimestamp: number): void {
+        if (autoRefreshTokenTimeoutId) {
             clearTimeout(autoRefreshTokenTimeoutId);
             autoRefreshTokenTimeoutId = undefined;
         }
 
-        if (shouldConsiderUserActivity() && lastActivityOverThreshold()) {
-            logout(true);
-            return;
-        }
-
-        if (!needTokenUpdate && autoRefreshTokenTimeoutId) {
-            return;
-        }
-
-        const timeUntilExpiry = expiryTimestamp - Date.now();
+        const timeUntilExpiry = (expiryTimestamp - Date.now()) / 2;
 
         autoRefreshTokenTimeoutId = setTimeout(() => {
             autoRefreshTokenTimeoutId = undefined;
@@ -314,7 +301,7 @@ export default function createLoginService(
             }
 
             void refreshToken();
-        }, timeUntilExpiry / 2);
+        }, timeUntilExpiry);
     }
 
     /**
@@ -323,11 +310,10 @@ export default function createLoginService(
      * @private
      */
     function lastActivityOverThreshold(): boolean {
-        const lastActivity = Number(cookieStorage.getItem('lastActivity'));
+        const lastActivity = Shopware.Service('userActivityService').getLastUserActivity().getTime();
 
-        // (Current time in seconds) - 25 minutes
-        // 25 minutes + half the 10-minute expiry = 30 minute threshold
-        const threshold = Math.round(+new Date() / 1000) - 1500;
+        // (Current time) - (30 minutes)
+        const threshold = Date.now() - 30 * 60 * 1000;
 
         return lastActivity <= threshold;
     }
@@ -338,17 +324,14 @@ export default function createLoginService(
             return;
         }
 
-        const duration = new Date();
-        duration.setDate(duration.getDate() + REMEMBER_ME_DURATION);
-
-        localStorage.setItem('rememberMe', `${+duration}`);
+        localStorage.setItem('rememberMe', 'true');
     }
 
     function shouldConsiderUserActivity(): boolean {
-        const rememberMe = Number(localStorage.getItem('rememberMe') || 0);
+        const rememberMe = Boolean(localStorage.getItem('rememberMe'));
         const devEnv = Shopware.Context.app.environment === 'development';
 
-        return !devEnv && rememberMe < +new Date();
+        return !devEnv && !rememberMe;
     }
 
     /**
@@ -434,14 +417,14 @@ export default function createLoginService(
                     scale: 0.1,
                 }).then((canvas) => {
                     try {
-                        window.localStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
+                        sessionStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
                     } catch (e) {
                         // empty catch intended
                         // Calling toDataURL on a canvas with images from a different origin or css rules
                         // that contain urls to images from a different origin will throw a security error in Safari.
                     }
 
-                    window.sessionStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
+                    sessionStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
 
                     window.processingInactivityLogout = true;
 
@@ -451,7 +434,7 @@ export default function createLoginService(
                     });
                 });
             } else {
-                cookieStorage.setItem('refresh-after-logout', 'true');
+                sessionStorage.setItem('refresh-after-logout', 'true');
 
                 void router.push({ name: 'sw.login.index' });
             }
@@ -476,14 +459,15 @@ export default function createLoginService(
      * Checks if the user is logged in by checking if the bearer token exists
      * in the cookies.
      *
-     * A check for expiration is not possible because the refresh token is longer
-     * valid then the normal token.
+     * If the user was logged in but the last activity was over the threshold,
+     * the user will be logged out and the function will return false.
      */
     function isLoggedIn(): boolean {
         const tokenExists = !!getToken();
 
-        if (tokenExists) {
-            autoRefreshToken(getBearerAuthentication('expiry'));
+        if (tokenExists && shouldConsiderUserActivity() && lastActivityOverThreshold()) {
+            logout(true);
+            return false;
         }
 
         return tokenExists;

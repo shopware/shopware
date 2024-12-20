@@ -14,7 +14,6 @@
       "contextMenuDuplicate": "Duplicate tag",
       "contextMenuDelete": "Delete tag",
       "messageDeleteSuccess": "Tag \"{name}\" deleted.",
-      "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "titleEmptyStateList": "No tags found.",
       "searchPlaceholder": "Search tags...",

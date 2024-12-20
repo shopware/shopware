@@ -87,7 +87,7 @@
                                                                 <sw-icon
                                                                     name="regular-lock"
                                                                     class="sw-theme-list__icon-lock"
-                                                                    v-if="!item.parentThemeId"
+                                                                    v-if="item.technicalName"
                                                                     v-tooltip="lockToolTip"
                                                                     size="14">
                                                                 </sw-icon>
@@ -135,7 +135,7 @@
                                                                         :disabled="item.salesChannels.length > 0 || !acl.can('theme.deleter')"
                                                                         v-tooltip="deleteDisabledToolTip(item)"
                                                                         @click="onDeleteTheme(item)"
-                                                                        v-if="item.parentThemeId">
+                                                                        v-if="!item.technicalName">
 
                                                                         {{ $tc('sw-theme-manager.themeListItem.delete') }}
                                                                     </sw-context-menu-item>
@@ -143,7 +143,7 @@
 
                                                                 {% block sw_theme_list_listing_list_data_grid_actions_create %}
                                                                     <sw-context-menu-item
-                                                                        v-if="!item.parentThemeId"
+                                                                        v-if="item.technicalName"
                                                                         class="sw-theme-list-item__option-duplicate"
                                                                         @click="onDuplicateTheme(item)"
                                                                         :disabled="!acl.can('theme.creator')">
@@ -219,7 +219,7 @@
 
                                                                     {% block sw_theme_list_listing_list_item_option_create %}
                                                                         <sw-context-menu-item
-                                                                            v-if="!theme.parentThemeId"
+                                                                            v-if="theme.technicalName"
                                                                             class="sw-theme-list-item__option-duplicate"
                                                                             @click="onDuplicateTheme(theme)"
                                                                             :disabled="!acl.can('theme.creator')">
@@ -229,7 +229,7 @@
 
                                                                     {% block sw_theme_list_listing_list_item_option_delete %}
                                                                         <sw-context-menu-item
-                                                                            v-if="theme.parentThemeId"
+                                                                            v-if="!theme.technicalName"
                                                                             class="sw-theme-list-item__option-delete"
                                                                             variant="danger"
                                                                             :disabled="theme.salesChannels.length > 0 || !acl.can('theme.deleter')"

@@ -17,7 +17,6 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "messageDeleteSuccess": "Die Währung \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
     "detail": {
@@ -36,7 +35,6 @@
       "placeholderShortName": "Kurznamen eingeben ...",
       "placeholderSymbol": "Symbol eingeben ...",
       "placeholderFactor": "Faktor eingeben ...",
-      "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "notificationErrorMessage": "Fehler beim Speichern der Währung.",
       "titleRoundingCard": "Preisrundung",

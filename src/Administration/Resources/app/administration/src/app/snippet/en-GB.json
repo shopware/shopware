@@ -170,6 +170,9 @@
         "emptyMessageNoSearchResults": "No products found for \"{term}\""
       }
     },
+    "accessibility": {
+      "optionWarning": "In the interest of accessibility, it is not recommended to activate this option."
+    },
     "sw-field": {
       "notification": {
         "notificationCopySuccessMessage": "Text has been copied to clipboard.",
@@ -734,8 +737,6 @@
         "orderCustomFieldRule": "Order with custom field",
         "orderDocumentTypeRule": "Order with document",
         "orderDocumentTypeSentRule": "Order with sent document",
-        "yes": "Yes",
-        "no": "No",
         "withTime": "Including timestamp",
         "withoutTime": "Excluding timestamp",
         "and": "And",
@@ -1544,7 +1545,6 @@
         "explanationHeader": "We have noticed a change in your shop domain.",
         "explanation": "Installed apps are still connected with the old domain and won't work with the new domain. There are three options from here to proceed.",
         "confirmation": "Confirm",
-        "cancellation": "Cancel",
         "success": "Domain changed.",
         "error": "Error while changing domain for apps"
       },

@@ -19,7 +19,6 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "messageDeleteSuccess": "Der Nummernkreis \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "global": "Global"
     },

@@ -42,6 +42,7 @@ interface ContextState {
         firstRunWizard: null | boolean;
         systemCurrencyISOCode: null | string;
         systemCurrencyId: null | string;
+        // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
         disableExtensions: boolean;
     };
     api: {
@@ -63,6 +64,7 @@ interface ContextState {
         systemLanguageId: null | string;
         currencyId: null | string;
         versionId: null | string;
+        refreshTokenTtl: null | number;
     };
 }
 
@@ -84,6 +86,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             firstRunWizard: null,
             systemCurrencyId: null,
             systemCurrencyISOCode: null,
+            // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
             disableExtensions: false,
         },
         api: {
@@ -102,6 +105,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             systemLanguageId: null,
             currencyId: null,
             versionId: null,
+            refreshTokenTtl: null,
         },
     }),
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\System\CustomEntity;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
@@ -31,14 +32,23 @@ class CustomEntityLifecycleService
     ) {
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Custom entity for plugins are deprecated for performance reasons, use attribute entities instead
+     */
     public function updatePlugin(string $pluginId, string $pluginPath): ?CustomEntityXmlSchema
     {
+        $pathToCustomEntityFile = \sprintf(
+            '%s/%s/src/Resources/',
+            $this->projectDir,
+            $pluginPath,
+        );
+
+        if (\file_exists(Path::join($pathToCustomEntityFile, CustomEntityXmlSchema::FILENAME))) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Custom entity for plugins are deprecated for performance reasons, use attribute entities instead');
+        }
+
         return $this->update(
-            \sprintf(
-                '%s/%s/src/Resources/',
-                $this->projectDir,
-                $pluginPath,
-            ),
+            $pathToCustomEntityFile,
             PluginEntity::class,
             $pluginId
         );

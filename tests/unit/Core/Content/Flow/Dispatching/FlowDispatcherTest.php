@@ -20,11 +20,10 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Content\Flow\FlowException;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -65,12 +64,7 @@ class FlowDispatcherTest extends TestCase
 
     public function testDispatchWithNotFlowEventAware(): void
     {
-        $order = new OrderEntity();
-        $event = new CheckoutOrderPlacedEvent(
-            Context::createDefaultContext(),
-            $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-        );
+        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $this->dispatcher->expects(static::once())->method('dispatch');
         $this->flowDispatcher->dispatch($event);
@@ -78,14 +72,10 @@ class FlowDispatcherTest extends TestCase
 
     public function testDispatchSkipTrigger(): void
     {
-        $context = Context::createDefaultContext();
+        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
+
+        $context = $event->getContext();
         $context->addState('skipTriggerFlow');
-        $order = new OrderEntity();
-        $event = new CheckoutOrderPlacedEvent(
-            $context,
-            $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-        );
 
         $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
         $this->dispatcher->expects(static::exactly(2))
@@ -97,20 +87,14 @@ class FlowDispatcherTest extends TestCase
 
     public function testDispatchWithoutFlows(): void
     {
-        $context = Context::createDefaultContext();
-        $order = new OrderEntity();
-        $event = new CheckoutOrderPlacedEvent(
-            $context,
-            $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-        );
+        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
         $this->dispatcher->expects(static::exactly(2))
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
 
-        $flow = new StorableFlow('state_enter.order.state.in_progress', $context, [], []);
+        $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
         $this->flowFactory->expects(static::once())
             ->method('create')
             ->willReturn($flow);
@@ -130,20 +114,14 @@ class FlowDispatcherTest extends TestCase
     #[DataProvider('flowsData')]
     public function testDispatch(array $flows): void
     {
-        $context = Context::createDefaultContext();
-        $order = new OrderEntity();
-        $event = new CheckoutOrderPlacedEvent(
-            $context,
-            $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-        );
+        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
         $this->dispatcher->expects(static::exactly(2))
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
 
-        $flow = new StorableFlow('state_enter.order.state.in_progress', $context, [], []);
+        $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
         $this->flowFactory->expects(static::once())
             ->method('create')
             ->willReturn($flow);
@@ -165,20 +143,14 @@ class FlowDispatcherTest extends TestCase
 
     public function testNestedTransactionExceptionsAreRethrownWhenSavePointsAreNotEnabled(): void
     {
-        $context = Context::createDefaultContext();
-        $order = new OrderEntity();
-        $event = new CheckoutOrderPlacedEvent(
-            $context,
-            $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-        );
+        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $this->dispatcher->method('dispatch')->willReturnOnConsecutiveCalls(
             $event,
             new FlowLogEvent(FlowLogEvent::NAME, $event),
         );
 
-        $flow = new StorableFlow('state_enter.order.state.in_progress', $context, [], []);
+        $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
         $this->flowFactory->method('create')->willReturn($flow);
 
         $flowLoader = $this->createMock(FlowLoader::class);
@@ -228,20 +200,14 @@ class FlowDispatcherTest extends TestCase
 
     public function testExceptionsAreLoggedAndExecutionContinuesWhenNestedTransactionsWithSavePointsIsEnabled(): void
     {
-        $context = Context::createDefaultContext();
-        $order = new OrderEntity();
-        $event = new CheckoutOrderPlacedEvent(
-            $context,
-            $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-        );
+        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $this->dispatcher->method('dispatch')->willReturnOnConsecutiveCalls(
             $event,
             new FlowLogEvent(FlowLogEvent::NAME, $event),
         );
 
-        $flow = new StorableFlow('state_enter.order.state.in_progress', $context, [], []);
+        $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
         $this->flowFactory->method('create')->willReturn($flow);
 
         $flowLoader = $this->createMock(FlowLoader::class);
@@ -315,5 +281,12 @@ class FlowDispatcherTest extends TestCase
                 ],
             ],
         ]];
+    }
+
+    private function createCheckoutOrderPlacedEvent(OrderEntity $order): CheckoutOrderPlacedEvent
+    {
+        $context = Generator::createSalesChannelContext();
+
+        return new CheckoutOrderPlacedEvent($context, $order);
     }
 }

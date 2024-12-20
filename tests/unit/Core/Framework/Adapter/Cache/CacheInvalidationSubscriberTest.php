@@ -58,7 +58,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                     'context-factory-' . $salesChannelId,
                     'base-context-factory-' . $salesChannelId,
                 ],
-                false
+                true
             );
 
         $subscriber = new CacheInvalidationSubscriber(

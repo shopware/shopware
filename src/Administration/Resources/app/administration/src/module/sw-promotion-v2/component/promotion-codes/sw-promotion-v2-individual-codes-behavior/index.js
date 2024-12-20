@@ -82,11 +82,19 @@ export default {
                     property: 'payload.customerName',
                     label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
                 },
+                {
+                    property: 'createdAt',
+                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCreatedAt'),
+                },
             ];
         },
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

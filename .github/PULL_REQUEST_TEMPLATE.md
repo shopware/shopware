@@ -17,11 +17,16 @@ Please create a second pull request at https://github.com/shopware/docs
 
 
 ### 4. Please link to the relevant issues (if any).
+<!-- Examples:
+- closes #123  - closes the issue #123 when the PR is merged
+- relates #123 - relates to the issue #123
 
+In case of issue existing only on Jira, link to the Jira issue.
+- Jira issue: https://shopware.atlassian.net/browse/NEXT-123
+-->
 
 ### 5. Checklist
 
-- [ ] I have rebased my changes to remove merge conflicts
 - [ ] I have written tests and verified that they fail without my change
 - [ ] I have created a [changelog file](https://github.com/shopware/platform/blob/trunk/adr/2020-08-03-implement-new-changelog.md) with all necessary information about my changes
 - [ ] I have written or adjusted the documentation according to my changes

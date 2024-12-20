@@ -65,7 +65,6 @@ Build:
     - bin/console theme:compile
     - bin/console theme:change --all Storefront
     - echo -e "\e[0Ksection_end:`date +%s`:theme\r\e[0K"
-    - "mysqldump -uroot -papp -hdatabase root > var/database.sql"
     - chown -R www-data:www-data .
     - tar -cz --exclude .git --exclude "**/node_modules" -f /tmp/context.tar.gz .
     - mv /tmp/context.tar.gz ${CI_PROJECT_DIR}/

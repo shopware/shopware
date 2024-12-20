@@ -93,7 +93,7 @@ class CacheInvalidationSubscriber
             return;
         }
 
-        $this->cacheInvalidator->invalidate([InitialStateIdLoader::CACHE_KEY]);
+        $this->cacheInvalidator->invalidate([InitialStateIdLoader::CACHE_KEY], true);
     }
 
     public function invalidateSitemap(SitemapGeneratedEvent $event): void
@@ -105,16 +105,18 @@ class CacheInvalidationSubscriber
 
     public function invalidateConfig(): void
     {
-        // invalidates the complete cached config
-        $this->cacheInvalidator->invalidate([
-            CachedSystemConfigLoader::CACHE_TAG,
-        ]);
+        // invalidates the complete cached config immediately
+        $this->cacheInvalidator->invalidate([CachedSystemConfigLoader::CACHE_TAG], true);
     }
 
     public function invalidateConfigKey(SystemConfigChangedHook $event): void
     {
         if (Feature::isActive('cache_rework')) {
-            $this->cacheInvalidator->invalidate(['global.system.config', CachedSystemConfigLoader::CACHE_TAG]);
+            // invalidates the complete cached config immediately
+            $this->cacheInvalidator->invalidate([CachedSystemConfigLoader::CACHE_TAG], true);
+
+            // global system config tag is used in all http caches that access system config, that should be invalidated delayed
+            $this->cacheInvalidator->invalidate(['global.system.config']);
 
             return;
         }
@@ -183,8 +185,8 @@ class CacheInvalidationSubscriber
 
     public function invalidateRules(): void
     {
-        // invalidates the rule loader each time a rule changed or a plugin install state changed
-        $this->cacheInvalidator->invalidate([CachedRuleLoader::CACHE_KEY]);
+        // immediately invalidates the rule loader each time a rule changed or a plugin install state changed
+        $this->cacheInvalidator->invalidate([CachedRuleLoader::CACHE_KEY], true);
     }
 
     public function invalidateCmsPageIds(EntityWrittenContainerEvent $event): void
@@ -464,7 +466,8 @@ class CacheInvalidationSubscriber
             return;
         }
 
-        $this->cacheInvalidator->invalidate($keys);
+        // immediately invalidates the context cache
+        $this->cacheInvalidator->invalidate($keys, true);
     }
 
     public function invalidateManufacturerFilters(EntityWrittenContainerEvent $event): void

@@ -5,19 +5,13 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -106,7 +100,7 @@ class PaymentMethodValidatorTest extends TestCase
         static::assertNotNull($error);
     }
 
-    public function getSalesChannelContext(): SalesChannelContext
+    private function getSalesChannelContext(): SalesChannelContext
     {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('payment-method-id');
@@ -119,20 +113,10 @@ class PaymentMethodValidatorTest extends TestCase
         $base = Context::createDefaultContext();
         $base->setRuleIds(['payment-method-availability-rule-id']);
 
-        return new SalesChannelContext(
-            $base,
-            'token',
-            null,
-            $salesChannel,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            $paymentMethod,
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            null,
-            new CashRoundingConfig(2, 3, true),
-            new CashRoundingConfig(2, 3, true),
+        return Generator::createSalesChannelContext(
+            baseContext: $base,
+            salesChannel: $salesChannel,
+            paymentMethod: $paymentMethod,
         );
     }
 }

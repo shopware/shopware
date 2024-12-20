@@ -7,7 +7,6 @@
   "sw-settings-salutation": {
     "general": {
       "mainMenuItemGeneral": "Salutations",
-      "buttonCancel": "Cancel",
       "buttonCreate": "Add salutation",
       "buttonSave": "Save",
       "placeholderSearchBar": "Search salutations..."

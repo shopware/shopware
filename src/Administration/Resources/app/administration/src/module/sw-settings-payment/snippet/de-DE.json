@@ -34,7 +34,6 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "messageDeleteSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "pluginDeleteTitleText": "Zahlungsarten von Plugins können nicht gelöscht werden."
     },
@@ -59,7 +58,6 @@
       "placeholderPosition": "Position eingeben ...",
       "placeholderDescription": "Beschreibung eingeben ...",
       "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ...",
-      "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "helpTextTechnicalName": "Der technische Name wird für die einzigartige Identifikation der Zahlungsart verwendet. Eine nachträgliche Änderung des technischen Namens kann dazu führen, dass Zahlungsintegrationen, die sich auf diesen Namen verlassen, nicht mehr funktionieren.",
       "hintTextTechnicalName": "Wird ab Version 6.7.0 erforderlich sein",
@@ -70,7 +68,6 @@
         "textButton": "Zahlungsart löschen",
         "modal": {
           "textConfirmation": "Möchtest Du diese Zahlungsart wirklich löschen?",
-          "buttonCancel": "Abbrechen",
           "buttonDelete": "Löschen"
         }
       }

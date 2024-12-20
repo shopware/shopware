@@ -32,6 +32,11 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Enable OpenTelemetry metrics"
+      - name: PERFORMANCE_TWEAKS
+        default: false
+        major: true
+        toggleable: true
+        description: "Breaking performance tweaks, which will be activated next major"
       - name: cache_rework
         default: false
         major: true

@@ -217,7 +217,7 @@
                                                 {% block sw_theme_manager_detail_context_button_option_create %}
                                                     <sw-context-menu-item
                                                         @click="onDuplicateTheme(theme)"
-                                                        v-if="!theme.parentThemeId"
+                                                        v-if="theme.technicalName"
                                                         :disabled="!acl.can('theme.creator')">
                                                         {{ $tc('sw-theme-manager.actions.duplicate') }}
                                                     </sw-context-menu-item>
@@ -235,7 +235,7 @@
 
                                                 {% block sw_theme_manager_detail_context_button_option_delete %}
                                                     <sw-context-menu-item
-                                                        v-if="theme.parentThemeId"
+                                                        v-if="!theme.technicalName"
                                                         :disabled="!acl.can('theme.deleter') || theme.salesChannels.length > 0"
                                                         v-tooltip.right="deleteDisabledToolTip"
                                                         class="sw-theme-manager-detail__option-delete"

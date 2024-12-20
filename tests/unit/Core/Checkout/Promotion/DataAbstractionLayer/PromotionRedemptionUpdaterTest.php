@@ -25,8 +25,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -287,12 +287,8 @@ class PromotionRedemptionUpdaterTest extends TestCase
             $order->setOrderCustomer($orderCustomer);
         }
 
-        $event = new CheckoutOrderPlacedEvent(
-            Context::createDefaultContext(),
-            $order,
-            TestDefaults::SALES_CHANNEL,
-        );
+        $context = Generator::createSalesChannelContext();
 
-        return $event;
+        return new CheckoutOrderPlacedEvent($context, $order);
     }
 }

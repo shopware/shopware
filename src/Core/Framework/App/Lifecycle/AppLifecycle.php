@@ -268,7 +268,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->shippingMethodPersister->updateShippingMethods($manifest, $id, $defaultLocale, $context);
         $this->ruleConditionPersister->updateConditions($manifest, $id, $defaultLocale, $context);
         $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
-        $this->templatePersister->updateTemplates($manifest, $id, $context);
+        $this->templatePersister->updateTemplates($manifest, $id, $context, $install);
         $this->scriptPersister->updateScripts($id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());

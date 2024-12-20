@@ -33,17 +33,16 @@ class TemplatePersister
     ) {
     }
 
-    public function updateTemplates(Manifest $manifest, string $appId, Context $context): void
+    public function updateTemplates(Manifest $manifest, string $appId, Context $context, bool $install): void
     {
         $app = $this->getAppWithExistingTemplates($appId, $context);
         $existingTemplates = $app->getTemplates();
-        if ($existingTemplates === null) {
-            throw AppException::notFound('templates'); // TODO use proper exception
-        }
+
+        assert($existingTemplates !== null);
+
         $templatePaths = $this->templateLoader->getTemplatePathsForApp($manifest);
 
         $upserts = [];
-        $needsCacheClear = false;
 
         foreach ($templatePaths as $templatePath) {
             $templateContent = $this->templateLoader->getTemplateContent($templatePath, $manifest);
@@ -73,6 +72,7 @@ class TemplatePersister
                 'hash' => Hasher::hash($templateContent),
             ];
         }
+        $needsCacheClear = false;
 
         if (!empty($upserts)) {
             $needsCacheClear = true;
@@ -87,9 +87,14 @@ class TemplatePersister
             $this->templateRepository->delete($ids, $context);
         }
 
-        if ($needsCacheClear) {
-            // TODO use `clearHttpCache` method once https://gitlab.shopware.com/shopware/6/product/platform/-/merge_requests/15477 is merged
-            $this->cacheClearer->clear();
+        /**
+         * only clear cache when we are in an update context
+         * otherwise cache is cleared on template active/deactivate
+         *
+         * @see \Shopware\Core\Framework\App\Template\TemplateStateService::updateAppTemplates
+         **/
+        if ($needsCacheClear && !$install) {
+            $this->cacheClearer->clearHttpCache();
         }
     }
 

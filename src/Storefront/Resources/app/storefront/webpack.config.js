@@ -321,10 +321,7 @@ const pluginConfigs = pluginEntries.map((plugin) => {
     }
 
     if (isHotMode) {
-        const scriptAssetNames = [];
-        themeFiles.script.map((script) => {
-            scriptAssetNames.push(script.assetName);
-        });
+        const scriptAssetNames = themeFiles.script.map(script => script.assetName);
         const pluginNameDashes = plugin.name
             .replace(/[A-Z]/g, m => '-' + m.toLowerCase())
             .replace(/^-/, '');

@@ -8,6 +8,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ * Handles cleanup of CMS entities (`cms_slot`) referencing deleted parent entities (`cms_block`) during a version merge.
  */
 #[Package('buyers-experience')]
 class CmsVersionMergeSubscriber implements EventSubscriberInterface
@@ -21,7 +22,7 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
 
     public function onBeforeVersionMerge(BeforeVersionMergeEvent $event): void
     {
-        $writes = &$event->getWrites();
+        $writes = $event->writes;
 
         if (empty($writes['delete']['cms_block'])) {
             return;
@@ -37,6 +38,8 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
 
             $writes[$operation]['cms_slot'] = $this->filterSlots($writes[$operation]['cms_slot'], $deletedBlocks);
         }
+
+        $event->writes = $writes;
     }
 
     /**

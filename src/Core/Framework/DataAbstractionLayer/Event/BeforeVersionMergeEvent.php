@@ -6,6 +6,12 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * @internal
+ *
+ * This event is dispatched during the version merge process and solves specific CMS entities problem.
+ * It allows listeners to manipulate the writes array before they are applied.
+ * If a similar issue arises for other entities, this approach should be revisited and generalized at a more abstract level
+ *
  * @phpstan-type WriteOperation array<string, array<int, mixed>>
  * @phpstan-type Writes array{
  *     insert: WriteOperation,
@@ -17,23 +23,20 @@ use Symfony\Contracts\EventDispatcher\Event;
 class BeforeVersionMergeEvent extends Event
 {
     /**
-     * @var Writes
-     */
-    private array $writes;
-
-    /**
      * @param Writes $writes
      */
-    public function __construct(array &$writes)
+    public function __construct(public array $writes)
     {
-        $this->writes = &$writes;
     }
 
     /**
      * @return Writes
      */
-    public function &getWrites(): array
+    public function filterWrites(callable $callback): array
     {
-        return $this->writes;
+        $filtered = array_filter($this->writes, $callback);
+
+        /** @var Writes $filtered */
+        return $filtered;
     }
 }

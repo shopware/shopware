@@ -58,7 +58,7 @@ jobs:
         run: ./.github/bin/compile_deployment_info.sh deployment_env_b64 CI_B64_ENVIRONMENT >> "${GITHUB_ENV}"
       - name: Trigger SaaS Pipeline
         run: |
-          curl -X POST \
+          curl -fsSL -X POST \
             --form "token=${{ secrets.GITLAB_SAAS_TOKEN }}" \
             --form "variables[CI_UPDATE_DEPENDENCY]=1" \
             --form "variables[CUSTOM_VERSION]=1" \

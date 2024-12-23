@@ -14,7 +14,7 @@ class RuleAreaUpdaterBench extends AbstractBenchCase
 {
     public function setUp(): void
     {
-        parent::setup();
+        parent::setUp();
 
         $rulePayload = [];
 

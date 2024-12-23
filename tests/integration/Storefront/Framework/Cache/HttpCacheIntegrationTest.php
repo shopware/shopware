@@ -35,7 +35,7 @@ class HttpCacheIntegrationTest extends TestCase
 
     private static string $originalHttpCacheValue;
 
-    public static function setupBeforeClass(): void
+    public static function setUpBeforeClass(): void
     {
         self::$originalHttpCacheValue = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] ?? '';
     }

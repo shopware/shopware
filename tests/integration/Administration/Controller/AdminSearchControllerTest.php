@@ -19,7 +19,7 @@ class AdminSearchControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $roles = ['product:read', 'product_manufacturer:read', 'user:read'];
 

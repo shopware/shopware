@@ -27,7 +27,7 @@ class AdministrationControllerTest extends TestCase
 
     private EntityRepository $customerRepository;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $newLanguageId = $this->insertOtherLanguage();

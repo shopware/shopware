@@ -20,7 +20,7 @@ class AdminProductStreamControllerTest extends TestCase
 
     private IdsCollection $ids;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->ids = new IdsCollection();
         $this->prepareTestData();

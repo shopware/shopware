@@ -28,7 +28,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
     }
 
     #[DataProvider('invoicesDataProvider')]
-    public function testInvoiceLoader(string $orderVersionId, string $versionId, \Closure $expectsClosure): void
+    public function testInvoiceLoader(string $orderVersionId, string $versionId, string $invoiceOrderVersionId): void
     {
         $orderId = Uuid::randomHex();
         $deepLinkCode = 'uojRco91RO5hZ1l6VihVDjKZpWydHVqb';
@@ -48,11 +48,12 @@ class ReferenceInvoiceLoaderTest extends TestCase
         $referenceInvoiceLoader = new ReferenceInvoiceLoader($this->connection);
         $invoice = $referenceInvoiceLoader->load($orderId, $referenceDocumentId, $deepLinkCode);
 
-        $expectsClosure($invoice);
+        static::assertNotSame(Defaults::LIVE_VERSION, $versionId);
+        static::assertSame($invoiceOrderVersionId, $invoice['orderVersionId']);
     }
 
     /**
-     * @return array<string, array{orderVersionId: string, versionId: string, \Closure}>
+     * @return array<string, array{orderVersionId: string, versionId: string, invoiceOrderVersionId: string}>
      */
     public static function invoicesDataProvider(): iterable
     {
@@ -61,19 +62,13 @@ class ReferenceInvoiceLoaderTest extends TestCase
         yield 'load invoice with live version id' => [
             'orderVersionId' => Uuid::randomHex(),
             'versionId' => $versionId,
-            function ($invoice) use ($versionId): void {
-                static::assertNotSame($versionId, Defaults::LIVE_VERSION);
-                static::assertSame($invoice['orderVersionId'], Defaults::LIVE_VERSION);
-            },
+            'invoiceOrderVersionId' => Defaults::LIVE_VERSION,
         ];
 
         yield 'load invoice with new version id' => [
             'orderVersionId' => $versionId,
             'versionId' => $versionId,
-            function ($invoice) use ($versionId): void {
-                static::assertNotSame($versionId, Defaults::LIVE_VERSION);
-                static::assertSame($invoice['orderVersionId'], $versionId);
-            },
+            'invoiceOrderVersionId' => $versionId,
         ];
     }
 }

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Exception\LanguageOfSalesChannelDomainDeleteException;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

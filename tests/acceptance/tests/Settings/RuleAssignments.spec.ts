@@ -8,9 +8,7 @@ test('As an admin user, I want to have an overview of my assigned rules, so that
     InstanceMeta,
 }) => {
 
-    if (InstanceMeta.features['V6_7_0_0']) {
-         test.skip(true, 'This test is incompatible with V6_7_0_0');
-    }
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
 
     const rule = await TestDataService.createBasicRule();
     const shippingMethod = await TestDataService.createBasicShippingMethod({availabilityRuleId: rule.id});

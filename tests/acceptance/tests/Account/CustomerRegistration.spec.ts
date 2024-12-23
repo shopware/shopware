@@ -6,14 +6,7 @@ test('As a new customer, I must be able to register in the Storefront.', { tag: 
     StorefrontAccount,
     IdProvider,
     Register,
-    InstanceMeta,
 }) => {
-
-
-    if (InstanceMeta.features['V6_7_0_0']) {
-         test.skip(true, 'This test is incompatible with V6_7_0_0');
-    }
-
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
 
     await ShopCustomer.goesTo(StorefrontAccountLogin.url());

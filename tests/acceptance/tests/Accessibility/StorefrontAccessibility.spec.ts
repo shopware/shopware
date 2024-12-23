@@ -21,9 +21,7 @@ test('The Storefront should implement accessibility best practices.', { tag: '@A
     InstanceMeta,
 }) => {
 
-    if (InstanceMeta.features['V6_7_0_0']) {
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
-    }
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
 
     test.slow();
 

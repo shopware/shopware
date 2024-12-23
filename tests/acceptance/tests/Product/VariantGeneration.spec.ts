@@ -7,9 +7,7 @@ test('Shop administrator should be able to create product variants.', { tag: '@P
     GenerateVariants,
     InstanceMeta,
 }) => {
-    if (InstanceMeta.features['V6_7_0_0']) {
-         test.skip(true, 'This test is incompatible with V6_7_0_0');
-    }
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
 
     const product = await TestDataService.createBasicProduct();
     await TestDataService.createColorPropertyGroup();

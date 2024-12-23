@@ -18,9 +18,7 @@ test('As a merchant, I would be able to adjust free tax for defined currency', {
     InstanceMeta,
 }) => {
 
-    if (InstanceMeta.features['V6_7_0_0']) {
-         test.skip(true, 'This test is incompatible with V6_7_0_0 Ticket already created: https://shopware.atlassian.net/browse/NEXT-40119');
-    }
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0 Ticket already created: https://shopware.atlassian.net/browse/NEXT-40119');
 
     const product = await TestDataService.createBasicProduct();
     const currency = await TestDataService.createCurrency({ taxFreeFrom: 5 });

@@ -17,9 +17,7 @@ test('As a merchant, I want to create custom fields use it in categories, produc
     InstanceMeta,
 }) => {
 
-    if (InstanceMeta.features['V6_7_0_0']) {
-         test.skip(true, 'This test is incompatible with V6_7_0_0: ticket: NEXT-40151 and NEXT-40150');
-    }
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0: ticket: NEXT-40151 and NEXT-40150');
 
     const product = await TestDataService.createBasicProduct();
     const customer = await TestDataService.createCustomer();

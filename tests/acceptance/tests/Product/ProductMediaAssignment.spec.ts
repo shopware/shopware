@@ -12,9 +12,7 @@ test('Shop administrator should be able to upload an image to the product galler
     InstanceMeta,
 }) => {
 
-    if (InstanceMeta.features['V6_7_0_0']) {
-         test.skip(true, 'This test is incompatible with V6_7_0_0');
-    }
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
 
     await test.slow();
 

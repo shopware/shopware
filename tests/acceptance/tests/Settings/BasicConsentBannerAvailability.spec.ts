@@ -6,9 +6,7 @@ test('As a shop customer, I want use a basic cookie consent banner in the storef
     InstanceMeta,
 }) => {
 
-    if (InstanceMeta.features['V6_7_0_0']) {
-         test.skip(true, 'This test is incompatible with V6_7_0_0');
-    }
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
 
     await test.step('Navigate to homepage and verify initial cookie banner visibility and content', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());

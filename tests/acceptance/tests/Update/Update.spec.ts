@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-conditional-in-test */
 import { test, expect } from '@fixtures/AcceptanceTest';
 
 test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`, { tag: '@Update' }, async ({

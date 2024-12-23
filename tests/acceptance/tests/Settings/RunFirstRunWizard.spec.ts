@@ -9,16 +9,12 @@ test('Merchant is able to be guided through the First Run Wizard.', { tag: '@Fir
     AdminApiContext,
     InstanceMeta,
 }) => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
     if (await isSaaSInstance(AdminApiContext)) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true,'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
+         test.skip(true,'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
     }
 
-    // eslint-disable-next-line
     if (InstanceMeta.features['V6_7_0_0']) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
+         test.skip(true, 'This test is incompatible with V6_7_0_0');
     }
 
     await ShopAdmin.goesTo(AdminFirstRunWizard.url());

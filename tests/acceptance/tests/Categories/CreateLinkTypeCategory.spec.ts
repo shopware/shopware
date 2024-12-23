@@ -10,10 +10,9 @@ test('Shop administrator should be able to create a internal link type of catego
     InstanceMeta,
 }) => {
 
-    // eslint-disable-next-line
+
     if (InstanceMeta.features['V6_7_0_0']) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
+         test.skip(true, 'This test is incompatible with V6_7_0_0');
     }
 
     const categoryData = {
@@ -55,10 +54,9 @@ test('Shop administrator should be able to create a internal link type of produc
     TestDataService,
     InstanceMeta,
 }) => {
-    // eslint-disable-next-line
+
     if (InstanceMeta.features['V6_7_0_0']) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
+         test.skip(true, 'This test is incompatible with V6_7_0_0');
     }
 
     const product = await TestDataService.createBasicProduct();
@@ -104,10 +102,8 @@ test('Shop administrator should be able to create a internal link type of landin
     InstanceMeta,
 }) => {
 
-    // eslint-disable-next-line
     if (InstanceMeta.features['V6_7_0_0']) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
+         test.skip(true, 'This test is incompatible with V6_7_0_0');
     }
 
     const landingPageData = {

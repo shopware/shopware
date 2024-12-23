@@ -7,10 +7,8 @@ test('As a shop customer, I want to continue shopping without accepting the cook
     InstanceMeta,
 }) => {
 
-    // eslint-disable-next-line
     if (InstanceMeta.features['V6_7_0_0']) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
+         test.skip(true, 'This test is incompatible with V6_7_0_0');
     }
 
     await TestDataService.setSystemConfig({'core.basicInformation.acceptAllCookies': true});

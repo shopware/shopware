@@ -10,15 +10,11 @@ test('As a new customer, I must be able to register as a commercial customer in 
     InstanceMeta,
 }) => {
 
-    //eslint-disable-next-line
     if (InstanceMeta.isSaaS) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip();
+         test.skip();
     }
-    //eslint-disable-next-line
     if (InstanceMeta.features['V6_7_0_0']) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40118');
+         test.skip(true, 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40118');
     }
 
     const uuid = IdProvider.getIdPair().uuid;

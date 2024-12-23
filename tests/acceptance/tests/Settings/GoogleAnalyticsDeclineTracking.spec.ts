@@ -8,10 +8,8 @@ test('As a shop customer, I want to accept only the technically required cookies
     InstanceMeta,
 }) => {
 
-    // eslint-disable-next-line
     if (InstanceMeta.features['V6_7_0_0']) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0 Ticket is already created: https://shopware.atlassian.net/browse/NEXT-40121');
+         test.skip(true, 'This test is incompatible with V6_7_0_0 Ticket is already created: https://shopware.atlassian.net/browse/NEXT-40121');
     }
 
     await test.step('Configure sales channel analytics and verify cookie banner visibility', async () => {

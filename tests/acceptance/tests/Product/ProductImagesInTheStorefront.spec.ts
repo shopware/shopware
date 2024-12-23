@@ -24,10 +24,8 @@ test('Shop customer should be able to see the product image in the Storefront.',
     Logout,
     InstanceMeta,
 }) => {
-    // eslint-disable-next-line
     if (InstanceMeta.features['V6_7_0_0']) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true, 'This test is incompatible with V6_7_0_0');
+         test.skip(true, 'This test is incompatible with V6_7_0_0');
     }
 
     const product = await TestDataService.createBasicProduct();

@@ -211,8 +211,11 @@ class PostWriteValidationEventTest extends TestCase
                     'primaryKey' => ['id' => $ids->getBytes('p1')],
                 ],
             ],
-            [
-                'product' => [['id' => $ids->getBytes('p1')]],
+            'assertions' => [
+                'product' => [
+                    ['id' => $ids->getBytes('p1')],
+                ],
+                'not-found' => [],
             ],
         ];
 

@@ -67,3 +67,4 @@ jobs:
             --form "variables[CI_UPDATE_DEPENDENCY]=1" \
             --form "variables[CUSTOM_VERSION]=1" \
             --form "variables[CI_B64_ENVIRONMENT]=${{ env.CI_B64_ENVIRONMENT }}"
+            "${{ secrets.GITLAB_SAAS_TRIGGER_URL }}"

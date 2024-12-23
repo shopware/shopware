@@ -1,0 +1,153 @@
+<div class="js-pseudo-modal-template-root-element address-manager-modal">
+    <div class="modal-header pb-0 align-items-start">
+        {% block address_manager_modal_title %}
+        <h1>
+            {{ 'account.addressModalTitle'|trans|sw_sanitize }}
+        </h1>
+        {% endblock %}
+
+        {% block address_manager_modal_close_button %}
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        {% endblock %}
+    </div>
+    <div class="modal-body">
+        {% block address_manager_modal_tab_group %}
+            <div
+                class="btn-group address-manager-modal-tab-navigation-list w-100 sticky-top bg-white"
+                id="address-manager-modal-tab-navigation-tabs"
+            >
+                {% block address_manager_modal_navigation_shipping %}
+                    <input
+                        type="radio"
+                        class="btn-check"
+                        name="btnradio"
+                        id="shipping-address-tab"
+                        autocomplete="off"
+                        checked
+                    >
+                    <label class="btn btn-outline-secondary" for="shipping-address-tab">
+                        {{ 'account.addressesTitleShippingAddress'|trans|sw_sanitize }}
+                    </label>
+                {% endblock %}
+
+                {% block address_manager_modal_navigation_billing %}
+                    <input
+                        type="radio"
+                        class="btn-check"
+                        name="btnradio"
+                        id="billing-address-tab"
+                        autocomplete="off"
+                    >
+                    <label class="btn btn-outline-secondary" for="billing-address-tab">
+                        {{ 'account.addressesTitleBillingAddress'|trans|sw_sanitize }}
+                    </label>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block address_manager_modal_content %}
+            <div class="mt-4 address-manager-modal-content-wrapper tab-content">
+                {% block address_manager_modal_flashes %}
+                    {% for type, messages in app.flashes %}
+                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
+                    {% endfor %}
+                {% endblock %}
+
+                {% block address_manager_modal_shipping %}
+                    <div
+                        class="tab-pane fade show active"
+                        id="shipping-address-tab-pane"
+                        role="tabpanel"
+                        aria-labelledby="shipping-address-tab"
+                    >
+                        {% block address_manager_modal_shipping_title %}
+                            <h5>
+                                {{ 'account.addressesTitleCurrentShippingAddress'|trans|sw_sanitize }}
+                            </h5>
+                        {% endblock %}
+
+                        {% block address_manager_modal_shipping_warning %}
+                            {% set ableToShipToDefaultShippingAddress =context.customer.defaultShippingAddress.country.shippingAvailable %}
+
+                            {% if not ableToShipToDefaultShippingAddress %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: 'warning',
+                                    content: 'address.countryNoShippingAlert'|trans|sw_sanitize
+                                } %}
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block address_manager_modal_shipping_content %}
+                            {% sw_include '@Storefront/storefront/component/address/address-manager-modal-list.html.twig' with {
+                                changeShipping: true,
+                                typePrefix: typePrefix
+                            } %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block address_manager_modal_billing %}
+                    <div
+                        class="tab-pane fade"
+                        id="billing-address-tab-pane"
+                        role="tabpanel"
+                        aria-labelledby="billing-address-tab"
+                    >
+                        {% block address_manager_modal_billing_title %}
+                            <h5 class="mt-4">
+                                {{ 'account.addressesTitleCurrentBillingAddress'|trans|sw_sanitize }}
+                            </h5>
+                        {% endblock %}
+
+                        {% block address_manager_modal_billing_content %}
+                            {% sw_include '@Storefront/storefront/component/address/address-manager-modal-list.html.twig' with {
+                                changeBilling: true,
+                                typePrefix: typePrefix
+                            } %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+    {% block address_manager_modal_footer %}
+        <div class="modal-footer">
+            {% block address_manager_modal_footer_close_button %}
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    {{ 'account.addressModalFooterClose'|trans|sw_sanitize }}
+                </button>
+            {% endblock %}
+            {% block address_manager_modal_footer_form %}
+                <form
+                    action="{{ path('frontend.account.addressmanager.switch')}}"
+                    method="post"
+                    data-form-submit-loader="true"
+                >
+                    <input
+                        type="hidden"
+                        class="address-manager-modal-currentShippingId"
+                        name="shippingAddressId"
+                        value=""
+                    >
+
+                    <input
+                        type="hidden"
+                        class="address-manager-modal-currentBillingId"
+                        name="billingAddressId"
+                        value=""
+                    >
+
+                    {% block address_manager_modal_footer_form_submit_button %}
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="submit-button"
+                        >
+                            {{ 'account.addressesChangeAddress'|trans|sw_sanitize }}
+                        </button>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    {% endblock%}
+</div>

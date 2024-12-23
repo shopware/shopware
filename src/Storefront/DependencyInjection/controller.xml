@@ -61,6 +61,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -1,0 +1,48 @@
+{% block address_base_default_address %}
+    <ul class="list-unstyled row g-3 mb-5">
+        {% block address_base_default_address_item %}{% endblock %}
+    </ul>
+{% endblock %}
+
+{% block address_base_list %}
+    <div class="address-manager-list-base mb-3" data-address-search="true">
+        {% block address_base_list_title %}
+            <h5 class="mt-4">
+                {{ "account.addressListHeader"|trans|sw_sanitize }}
+            </h5>
+        {% endblock %}
+
+        <div class="d-flex justify-content-between gap-3 mb-4">
+            {% block address_base_list_search %}
+                <input
+                    type="search"
+                    class="form-control address-manager-list-search"
+                    autocomplete="address"
+                    placeholder="{{ "account.addressSearchPlaceholder"|trans|sw_sanitize }}"
+                    name="search"
+                    value=""
+                >
+            {% endblock %}
+
+            {% block address_base_list_create_address %}{% endblock %}
+        </div>
+
+        {% block address_base_list_address %}
+            <ul class="list-unstyled row g-3 address-manager-list-wrapper">
+                {% for address in page.addresses %}
+                    {% block address_base_list_address_item %}{% endblock %}
+                {% endfor %}
+            </ul>
+        {% endblock %}
+
+        {% block address_base_list_address_empty_state %}
+            <p class="address-manager-no-address d-none">
+                {{ "account.addressNotFound"|trans|sw_sanitize }}
+            </p>
+
+            <p class="address-manager-empty-address d-none">
+                {{ "account.noAvailableAddresses"|trans|sw_sanitize }}
+            </p>
+        {% endblock %}
+    </div>
+{% endblock %}

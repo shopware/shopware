@@ -1,0 +1,33 @@
+{% sw_extends '@Storefront/storefront/component/address/addresses-base.html.twig' %}
+
+{% set type = 'account' %}
+
+{% block address_base_default_address_item %}
+    {% sw_include '@Storefront/storefront/page/account/addressbook/address-item.html.twig' with {
+        address: defaultShippingAddress,
+        defaultShipping: true
+    }  %}
+
+    {% sw_include '@Storefront/storefront/page/account/addressbook/address-item.html.twig' with {
+        address: defaultBillingAddress,
+        defaultBilling: true
+    }  %}
+{% endblock %}
+
+{% block address_base_list_create_address %}
+    <a
+        href="{{ path('frontend.account.address.create.page') }}"
+        class="address-manager-modal-address-form btn-outline-primary btn flex-shrink-0 btn-icon-hover-white"
+    >
+        {% sw_icon 'plus' style {size: 's', pack: 'solid'} %}
+        {{ 'account.addressCreateBtn'|trans|sw_sanitize }}
+    </a>
+{% endblock %}
+
+{% block address_base_list_address_item %}
+    {% if defaultShippingAddress.id != address.id and defaultBillingAddress.id != address.id %}
+        {% sw_include '@Storefront/storefront/page/account/addressbook/address-item.html.twig' with {
+            address: address,
+        }  %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,35 @@
+.address-manager-modal {
+  .btn-icon-hover-white {
+    &:hover, &:focus {
+      span.icon {
+        color: $white;
+      }
+    }
+  }
+
+  .loader {
+    color: $white;
+  }
+
+  .address-manager-modal-header-content {
+    width: 100%;
+  }
+
+  .modal-body {
+    padding-top: 0;
+    height: 550px;
+  }
+
+  .modal-footer {
+    background-color: $gray-100;
+  }
+
+  .address-manager-modal-select-address:hover {
+    border-color: $primary;
+    cursor: pointer;
+  }
+
+  .address-manager-modal-select-address {
+    height: 210px;
+  }
+}

@@ -1,0 +1,88 @@
+{% if changeShipping %}
+    {% set type = 'shipping' %}
+{% else %}
+    {% set type = 'billing' %}
+{% endif %}
+
+<div class="js-pseudo-modal-template-root-element address-manager-modal">
+    <div class="modal-header pb-0 align-items-start">
+        {% block address_manager_modal_address_title %}
+            {% if postedAddress %}
+                <h1>{{ 'account.addressEditWelcome'|trans|sw_sanitize }}</h1>
+            {% else %}
+                {% if changeShipping %}
+                        <h1 class="fs-2">{{ 'account.addressNewShipping'|trans|sw_sanitize }}</h1>
+                    {% else %}
+                        <h1 class="fs-2">{{ 'account.addressNewBilling'|trans|sw_sanitize }}</h1>
+                {% endif %}
+            {% endif %}
+        {% endblock %}
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        {% block address_manager_modal_address_form_create %}
+            <form
+                method="post"
+                action="{{ url('frontend.account.addressmanager', { addressId: postedAddress.id, type }) }}"
+                id="address-manager-modal-address-form"
+                data-form-validation="true"
+                data-form-submit-loader="true"
+            >
+                {% block address_manager_modal_address_form_create_personal %}
+                    {% if postedAddress.has('accountType') %}
+                        {% set accountType = postedAddress.get('accountType') %}
+                    {% else %}
+                        {% set accountType = '' %}
+                    {% endif %}
+
+                    {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
+                        data: postedAddress,
+                        accountType
+                    } %}
+                {% endblock %}
+
+                {% block address_manager_modal_address_form_create_general %}
+                    {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                        data: postedAddress,
+                        showFormCompany: true,
+                    } %}
+                {% endblock %}
+
+                {% block address_manager_modal_address_required %}
+                    <p class="address-required-info required-fields">
+                        {{ 'general.requiredFields'|trans|sw_sanitize }}
+                    </p>
+                {% endblock %}
+            </form>
+        {% endblock %}
+    </div>
+    <div class="modal-footer justify-content-between">
+        {% block address_manager_modal_address_action_button_back%}
+            <button
+                type="button"
+                class="address-form-create-cancel btn btn-outline-dark btn-icon-hover-white"
+                data-address-type="{{ type }}"
+            >
+                {% sw_icon 'arrow-left' style {size: 's'} %}
+                <span class="ps-1">
+                    {{ 'account.editOrderCancelOrderModalFooterButtonBack'|trans|sw_sanitize }}
+                </span>
+            </button>
+        {% endblock %}
+
+        {% block address_manager_modal_address_action_button_send%}
+            <button
+                type="submit"
+                form="address-manager-modal-address-form"
+                class="btn btn-primary align-text-bottom address-form-create-submit"
+                title="{{ 'account.addressSaveChange'|trans|striptags }}"
+            >
+                {% if (changeShipping and postedAddress.id === context.customer.activeShippingAddress.id) or (not changeShipping and postedAddress.id === context.customer.activeBillingAddress.id) %}
+                    {{ 'account.addressSaveChange'|trans|sw_sanitize }}
+                {% else %}
+                    {{ 'account.addressSaveAndUse'|trans|sw_sanitize }}
+                {% endif %}
+            </button>
+        {% endblock %}
+    </div>
+</div>

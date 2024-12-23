@@ -1,0 +1,98 @@
+<li class="col-12 col-lg-6">
+    <div class="p-3 border address-manager-select-address">
+        <div class="row h-100">
+            <div class="d-flex justify-content-between">
+                {% block address_item_address %}
+                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                        address: address
+                    } %}
+                {% endblock %}
+
+                {% block address_item_dropdown %}
+                    <div class="dropdown">
+                        {% block address_item_dropdown_button %}
+                            <button
+                                type="button"
+                                id="dropdownMenuButton"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                class="bg-transparent border-0"
+                            >
+                                {% sw_icon 'more-vertical' style {size: 's'} %}
+                            </button>
+                        {% endblock %}
+
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            {% block address_item_dropdown_items %}
+                                <li>
+                                    <a
+                                        class="dropdown-item text-primary address-manager-modal-address-form"
+                                        href="{{ path('frontend.account.address.edit.page', {addressId: address.id}) }}"
+                                    >
+                                        {{ 'global.default.edit'|trans|sw_sanitize }}
+                                    </a>
+                                </li>
+                                {% if not (defaultShipping || defaultBilling) %}
+                                    <li>
+                                        <form
+                                            action="{{ path('frontend.account.address.set-default-address', {'type': 'shipping', 'addressId': address.id}) }}"
+                                            method="post"
+                                        >
+                                            <button
+                                                type="submit"
+                                                title="{{ "account.addressesSetAsDefaultShippingAction"|trans|striptags }}"
+                                                class="dropdown-item"{% if not address.country.shippingAvailable %}disabled="disabled"{% endif %}
+                                            >
+                                                {{ "account.addressesSetAsDefaultShippingAction"|trans|sw_sanitize }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form
+                                            action="{{ path('frontend.account.address.set-default-address', {'type': 'billing', 'addressId': address.id}) }}"
+                                            method="post"
+                                        >
+                                            <button
+                                                type="submit"
+                                                title="{{ "account.addressesSetAsDefaultBillingAction"|trans|striptags }}"
+                                                class="dropdown-item"
+                                            >
+                                                {{ "account.addressesSetAsDefaultBillingAction"|trans|sw_sanitize }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form
+                                            action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
+                                            method="post"
+                                        >
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                {{ "account.addressesContentItemActionDelete"|trans|sw_sanitize }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                {% endif %}
+                            {% endblock %}
+                        </ul>
+                    </div>
+                {% endblock %}
+            </div>
+
+            {% if defaultShipping %}
+                {% set snippet = 'account.addressesTitleDefaultShippingAddress' %}
+            {% elseif defaultBilling %}
+                {% set snippet = 'account.addressesTitleDefaultBillingAddress' %}
+            {% endif %}
+
+            {% if defaultShipping or defaultBilling %}
+                {% block address_item_badge%}
+                    <div class="mt-auto d-flex justify-content-end">
+                        <span class="fs-6 fw-semibold px-4 py-1 bg-primary rounded-pill text-white">
+                            {{ snippet|trans|sw_sanitize }}
+                        </span>
+                    </div>
+               {% endblock %}
+            {% endif %}
+        </div>
+    </div>
+</li>

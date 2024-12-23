@@ -1,2 +1,2 @@
 pentatrion_vite:
-    build_directory: bundles/administration
+    build_directory: bundles/administration/administration

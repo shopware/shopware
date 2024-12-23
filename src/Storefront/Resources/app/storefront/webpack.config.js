@@ -226,7 +226,7 @@ const coreConfig = {
     name: 'shopware-6-storefront',
     optimization: {
         moduleIds: 'deterministic',
-        chunkIds: 'named', // replaced by FilenameToChunkNamePlugin (not used)
+        chunkIds: 'named', // replaced by FilenameToChunkNamePlugin (named not used)
         ...(() => {
             if (isProdMode) {
                 return {

@@ -7,7 +7,7 @@ test('As a shop customer, I want to continue shopping without accepting the cook
     InstanceMeta,
 }) => {
     test.skip(InstanceMeta.isSaaS, 'Cache invalidation does not happen immediately on SaaS');
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40156');
 
     await TestDataService.setSystemConfig({'core.basicInformation.acceptAllCookies': true});
     const product = await TestDataService.createBasicProduct();

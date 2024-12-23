@@ -13,7 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     final public const TYPE = 'product-description-reviews';

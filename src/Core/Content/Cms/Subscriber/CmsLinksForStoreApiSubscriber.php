@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsLinksForStoreApiSubscriber implements EventSubscriberInterface
 {
     private string $delimiter = '###UNIQUE_DELIMITER###';

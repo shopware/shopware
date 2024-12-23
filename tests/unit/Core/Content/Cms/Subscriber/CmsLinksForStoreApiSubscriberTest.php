@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CmsLinksForStoreApiSubscriber::class)]
 class CmsLinksForStoreApiSubscriberTest extends TestCase
 {

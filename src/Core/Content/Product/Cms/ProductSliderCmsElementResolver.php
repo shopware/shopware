@@ -27,7 +27,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';

@@ -3,7 +3,7 @@ import './sw-cms-preview-image-text-cover.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 export default {
     template,

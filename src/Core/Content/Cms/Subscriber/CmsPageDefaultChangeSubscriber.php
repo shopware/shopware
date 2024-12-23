@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
 {
     /**

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package discovery
  */
 import 'src/module/sw-cms/service/cms.service';
 import './index';

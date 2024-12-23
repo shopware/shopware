@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(UnexpectedFieldConfigValueType::class)]
 class UnexpectedFieldConfigValueTypeTest extends TestCase
 {

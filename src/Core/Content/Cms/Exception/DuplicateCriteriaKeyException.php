@@ -6,7 +6,7 @@ use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class DuplicateCriteriaKeyException extends CmsException
 {
     public function __construct(string $key)

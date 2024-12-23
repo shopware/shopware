@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ManufacturerLogoCmsElementResolver::class)]
 class ManufacturerLogoCmsElementResolverTest extends TestCase
 {

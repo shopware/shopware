@@ -3,7 +3,7 @@ import './sw-cms-preview-image-simple-grid.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 export default {
     template,

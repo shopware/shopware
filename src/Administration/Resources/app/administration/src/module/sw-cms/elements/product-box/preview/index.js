@@ -3,7 +3,7 @@ import './sw-cms-el-preview-product-box.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 export default {
     template,

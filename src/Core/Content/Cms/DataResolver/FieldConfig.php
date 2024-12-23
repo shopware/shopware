@@ -6,7 +6,7 @@ use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FieldConfig extends Struct
 {
     final public const SOURCE_STATIC = 'static';

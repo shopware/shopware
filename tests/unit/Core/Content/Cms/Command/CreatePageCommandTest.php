@@ -17,7 +17,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CreatePageCommand::class)]
 class CreatePageCommandTest extends TestCase
 {

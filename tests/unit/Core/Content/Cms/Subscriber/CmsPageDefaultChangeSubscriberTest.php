@@ -23,7 +23,7 @@ use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CmsPageDefaultChangeSubscriber::class)]
 class CmsPageDefaultChangeSubscriberTest extends TestCase
 {

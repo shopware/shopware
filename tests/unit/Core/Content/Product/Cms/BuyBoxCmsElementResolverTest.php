@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(BuyBoxCmsElementResolver::class)]
 class BuyBoxCmsElementResolverTest extends TestCase
 {

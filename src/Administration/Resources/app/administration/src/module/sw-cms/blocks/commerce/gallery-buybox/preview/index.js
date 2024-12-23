@@ -3,7 +3,7 @@ import './sw-cms-preview-gallery-buybox.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 export default {
     template,

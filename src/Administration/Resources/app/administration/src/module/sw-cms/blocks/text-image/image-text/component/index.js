@@ -3,7 +3,7 @@ import './sw-cms-block-image-text.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 export default {
     template,

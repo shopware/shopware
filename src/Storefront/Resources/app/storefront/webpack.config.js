@@ -226,7 +226,7 @@ const coreConfig = {
     name: 'shopware-6-storefront',
     optimization: {
         moduleIds: 'deterministic',
-        chunkIds: 'named', // named is only used in development mode
+        chunkIds: 'named', // replaced by FilenameToChunkNamePlugin (not used)
         ...(() => {
             if (isProdMode) {
                 return {
@@ -265,21 +265,7 @@ const coreConfig = {
             filename: './css/[name].css',
             chunkFilename: './css/[name].css',
         }),
-        ...(() => {
-            if (isHotMode) {
-                return [
-                    new webpack.HotModuleReplacementPlugin(),
-                ];
-            }
-
-            if (isProdMode) {
-                return [
-                    new FilenameToChunkNamePlugin(),
-                ];
-            }
-
-            return [];
-        })(),
+        new FilenameToChunkNamePlugin(),
         ...(() => {
             if (fs.existsSync(path.resolve(__dirname, 'static'))) {
                 // copy custom static assets
@@ -469,7 +455,7 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    coreConfig.entry.css = [scssEntryFilePath];
+    coreConfig.entry['hot-reloading'] = [scssEntryFilePath];
 }
 
 const mergedCoreConfig = merge([
@@ -488,7 +474,7 @@ const mergedCoreConfig = merge([
                             colors: true,
                         },
                     },
-                    hot: false,
+                    hot: true,
                     compress: false,
                     allowedHosts: 'all',
                     port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),

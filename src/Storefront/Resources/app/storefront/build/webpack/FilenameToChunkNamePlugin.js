@@ -6,13 +6,18 @@ class FilenameToChunkNamePlugin {
     apply(compiler) {
         compiler.hooks.compilation.tap('FilenameToChunkNamePlugin', (compilation) => {
             compilation.hooks.chunkIds.tap('FilenameToChunkNamePlugin', (chunks) => {
+                let index = 0;
+                let compilationName = '';
                 chunks.forEach((chunk) => {
-                    // do not change the name in development mode (it is using the original chunkIds: 'named')
+                    if (index === 0) {
+                        compilationName = chunk.name ? `${chunk.name}.` : '';
+                    }
+
                     if (!chunk.name) {
                         const chunkModule = compilation.chunkGraph.getChunkRootModules(chunk)[0];
                         const rootModule = (chunkModule && chunkModule.rootModule) || chunkModule;
                         const rootPath = rootModule && rootModule.userRequest;
-                        const name = rootPath && rootPath.split(path.sep).slice(-1)[0].replace('.js', '');
+                        const name = rootPath && compilationName + rootPath.split(path.sep).slice(-1)[0].replace('.js', '');
                         // only set the name if it is not already used by another chunk
                         if (name && !allChunkNames.includes(name)) {
                             chunk.name = name;
@@ -24,11 +29,12 @@ class FilenameToChunkNamePlugin {
                         } else {
                             if (debug) {
                                 // eslint-disable-next-line no-console
-                                console.log(`Chunk name '${name}' already exists, keeping original name`);
+                                console.log(`Chunk name '${name}' already exists, keeping chunkIds: \'named\'`);
                             }
                         }
                         allChunkNames.push(name);
                     }
+                    index++;
                 });
                 if (debug) {
                     // eslint-disable-next-line no-console

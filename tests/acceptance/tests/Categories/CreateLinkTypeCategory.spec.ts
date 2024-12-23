@@ -11,7 +11,7 @@ test('Shop administrator should be able to create a internal link type of catego
 }) => {
 
 
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
 
     const categoryData = {
         name: `00_category_link_${IdProvider.getIdPair().uuid}`,
@@ -53,7 +53,7 @@ test('Shop administrator should be able to create a internal link type of produc
     InstanceMeta,
 }) => {
 
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
 
     const product = await TestDataService.createBasicProduct();
     const categoryData = {
@@ -98,7 +98,7 @@ test('Shop administrator should be able to create a internal link type of landin
     InstanceMeta,
 }) => {
 
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
 
     const landingPageData = {
         name: `landing_page_${IdProvider.getIdPair().uuid}`,

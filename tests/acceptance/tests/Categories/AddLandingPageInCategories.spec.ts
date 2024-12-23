@@ -7,7 +7,7 @@ test('Shop administrator should be able to create a landing page.', {tag: '@Cate
     AdminCategories, CreateLandingPage, AdminLandingPageDetail, InstanceMeta,
 }) => {
 
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40153');
 
     const layoutUuid = IdProvider.getIdPair().uuid;
     const layoutName = `00_addlandingpage_${layoutUuid}`;

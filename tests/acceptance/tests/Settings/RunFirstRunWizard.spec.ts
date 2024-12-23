@@ -11,7 +11,7 @@ test('Merchant is able to be guided through the First Run Wizard.', { tag: '@Fir
 }) => {
     test.skip(await isSaaSInstance(AdminApiContext),'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
 
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40160');
 
     await ShopAdmin.goesTo(AdminFirstRunWizard.url());
 

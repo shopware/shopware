@@ -19,6 +19,6 @@ Duplicate Filename: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e6
 
 Filenames **after** this change in different modes  
 Hot-Reloading: `http://localhost:9999/storefront/hot-reloading.scroll-up.plugin.js`  
-Development: `http://localhost:8000/storefront/storefront.scroll-up.plugin.6c4f31.js`  
-Production: `https://localhost:8000/storefront/storefront.scroll-up.plugin.2e9f58.js`  
-Duplicate Filename: `https://localhost:8000/storefront/storefront.scroll-up.plugin.4t0v62.2e9f58.js`
+Development: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/storefront.scroll-up.plugin.6c4f31.js`  
+Production: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/storefront.scroll-up.plugin.2e9f58.js`  
+Duplicate Filename: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/storefront.scroll-up.plugin.4t0v62.2e9f58.js`

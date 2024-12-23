@@ -11,6 +11,8 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
     InstanceMeta,
 }) => {
 
+    test.slow();
+
     if (InstanceMeta.features['V6_7_0_0']) {
          test.skip(true, 'This test is incompatible with V6_7_0_0');
     }
@@ -20,9 +22,9 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
     const tagUuid = IdProvider.getIdPair().uuid;
     const originalTag = await TestDataService.createTag('Tag1-' + tagUuid);
     const addedTag = await TestDataService.createTag('Tag2-' + tagUuid);
-    const changedProduct1 = await TestDataService.createBasicProduct( { stock: originalStock, restockTime: originalRestockTime, tags: [ { id: originalTag.id } ], visibilities: [ { salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 } ] } );
-    const changedProduct2 = await TestDataService.createBasicProduct( { stock: originalStock, restockTime: originalRestockTime, tags: [ { id: originalTag.id } ], visibilities: [ { salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 } ] } );
-    const unchangedProduct = await TestDataService.createBasicProduct( { stock: originalStock, restockTime: originalRestockTime, tags: [ { id: originalTag.id } ], visibilities: [ { salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 } ] } );
+    const changedProduct1 = await TestDataService.createBasicProduct({ stock: originalStock, restockTime: originalRestockTime, tags: [{ id: originalTag.id }], visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }] });
+    const changedProduct2 = await TestDataService.createBasicProduct({ stock: originalStock, restockTime: originalRestockTime, tags: [{ id: originalTag.id }], visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }] });
+    const unchangedProduct = await TestDataService.createBasicProduct({ stock: originalStock, restockTime: originalRestockTime, tags: [{ id: originalTag.id }], visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }] });
     const originalProductPrice = unchangedProduct.price[0].gross.toString();
     const changedProducts = [changedProduct1, changedProduct2];
     const changedManufacturer = await TestDataService.createBasicManufacturer();

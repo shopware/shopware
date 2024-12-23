@@ -3,10 +3,9 @@ import { test } from '@fixtures/AcceptanceTest';
 // Annotate entire file as serial run.
 test.describe.configure({ mode: 'serial' });
 
-test ('Customers are able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
-    DefaultSalesChannel,
     TestDataService,
     Login,
 }) => {
@@ -18,7 +17,7 @@ test ('Customers are able to cancel orders in storefront account.', { tag: '@Ord
         customer
     );
 
-    await TestDataService.createSystemConfigEntry('core.cart.enableOrderRefunds', true, DefaultSalesChannel.salesChannel.id);
+    await TestDataService.setSystemConfig({ 'core.cart.enableOrderRefunds': true });
 
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
@@ -36,10 +35,9 @@ test ('Customers are able to cancel orders in storefront account.', { tag: '@Ord
     await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
 });
 
-test ('Customers are able to cancel orders on the final checkout page in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are able to cancel orders on the final checkout page in storefront account.', { tag: '@Order @Account' }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
-    DefaultSalesChannel,
     TestDataService,
     Login,
     StorefrontCheckoutOrderEdit,
@@ -52,7 +50,7 @@ test ('Customers are able to cancel orders on the final checkout page in storefr
         customer
     );
 
-    await TestDataService.createSystemConfigEntry('core.cart.enableOrderRefunds', true, DefaultSalesChannel.salesChannel.id);
+    await TestDataService.setSystemConfig({ 'core.cart.enableOrderRefunds': true });
 
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
@@ -71,10 +69,9 @@ test ('Customers are able to cancel orders on the final checkout page in storefr
     await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
 });
 
-test ('Customers are not able to cancel orders on the final checkout page in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are not able to cancel orders on the final checkout page in storefront account.', { tag: '@Order @Account' }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
-    DefaultSalesChannel,
     TestDataService,
     Login,
     StorefrontCheckoutOrderEdit,
@@ -87,7 +84,7 @@ test ('Customers are not able to cancel orders on the final checkout page in sto
         customer
     );
 
-    await TestDataService.createSystemConfigEntry('core.cart.enableOrderRefunds', false, DefaultSalesChannel.salesChannel.id);
+    await TestDataService.setSystemConfig({ 'core.cart.enableOrderRefunds': false });
 
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
@@ -98,10 +95,9 @@ test ('Customers are not able to cancel orders on the final checkout page in sto
     await ShopCustomer.expects(StorefrontCheckoutOrderEdit.orderCancelButton).not.toBeVisible();
 });
 
-test ('Customers are not able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are not able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
-    DefaultSalesChannel,
     TestDataService,
     Login,
 }) => {
@@ -113,7 +109,7 @@ test ('Customers are not able to cancel orders in storefront account.', { tag: '
         customer
     );
 
-    await TestDataService.createSystemConfigEntry('core.cart.enableOrderRefunds', false, DefaultSalesChannel.salesChannel.id);
+    await TestDataService.setSystemConfig({ 'core.cart.enableOrderRefunds': false });
 
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());

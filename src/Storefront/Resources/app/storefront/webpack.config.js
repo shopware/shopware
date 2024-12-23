@@ -9,6 +9,7 @@ const webpack = require('webpack');
 const fs = require('fs');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
 
@@ -279,6 +280,26 @@ const coreConfig = {
 
             return [];
         })(),
+        ...(() => {
+            if (fs.existsSync(path.resolve(__dirname, 'static'))) {
+                // copy custom static assets
+                return [
+                    new CopyWebpackPlugin({
+                        patterns: [
+                            {
+                                from: path.resolve(__dirname, 'static'),
+                                to: path.resolve(__dirname, '../../../Resources/public/assets'),
+                                globOptions: {
+                                    ignore: ['.*'],
+                                },
+                            },
+                        ],
+                    }),
+                ];
+            }
+
+            return [];
+        })(),
     ],
     resolve: {
         extensions: [ '.ts', '.tsx', '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
@@ -321,11 +342,16 @@ const pluginConfigs = pluginEntries.map((plugin) => {
     }
 
     if (isHotMode) {
-        if (plugin.isTheme && plugin.name === themeFiles.technicalName) {
+        const scriptAssetNames = themeFiles.script.map(script => script.assetName);
+        const pluginNameDashes = plugin.name
+            .replace(/[A-Z]/g, m => '-' + m.toLowerCase())
+            .replace(/^-/, '');
+
+        if (plugin.isTheme && scriptAssetNames.includes(pluginNameDashes)) {
             console.log(chalk.bgYellowBright.black(`# Compiling Theme "${plugin.name}" in HotMode`));
         }
-        if (plugin.isTheme && plugin.name !== themeFiles.technicalName) {
-            console.log(chalk.bgYellowBright.black(`# Skipping "${plugin.name}" Theme in HotMode`));
+        if (plugin.isTheme && !scriptAssetNames.includes(pluginNameDashes)) {
+            console.log(chalk.bgHex('#fbbc39').black(`# Skipping "${plugin.name}" Theme in HotMode`));
             return merge([
                 coreConfig,
                 {},

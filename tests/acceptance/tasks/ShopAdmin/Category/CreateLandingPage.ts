@@ -2,7 +2,7 @@ import { test as base } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 
 export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, FixtureTypes>({
-    CreateLandingPage: async ({ ShopAdmin, AdminCategories, AdminLandingPageCreate, AdminLandingPageDetail, TestDataService }, use ) => {
+    CreateLandingPage: async ({ ShopAdmin, AdminCategories, AdminLandingPageCreate, AdminLandingPageDetail, TestDataService }, use) => {
 
         const task = (layoutName: string, landingPageData) => {
             return async function CreateLandingPage() {
@@ -27,9 +27,20 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                     // Select existing layout
                     await AdminLandingPageCreate.assignLayoutButton.click();
                     // Search input need to delay press more than 300ms to mimic user typing in order to activate search action
-                    await AdminLandingPageCreate.searchLayoutInput.pressSequentially(layoutName.substring(0,5), {delay: 500});
+                    await AdminLandingPageCreate.searchLayoutInput.pressSequentially(layoutName.substring(0, 5), { delay: 500 });
+
+                    const gridLocator = AdminLandingPageCreate.page.locator('.sw-data-grid__cell-content').first();
+                    const gridVisible = await gridLocator.isVisible();
+                    if (gridVisible) {
+                        await AdminLandingPageCreate.page.getByLabel('Select layout').locator('div').filter({ hasText: 'Sort by:' }).getByRole('button').first().click();
+                    }
                     await AdminLandingPageCreate.page.getByTitle(layoutName).click();
-                    await AdminLandingPageCreate.layoutSaveButton.click();
+
+                    if (gridVisible) {
+                        await AdminLandingPageCreate.page.getByRole('button', { name: 'Add', exact: true }).click();
+                    } else {
+                        await AdminLandingPageCreate.layoutSaveButton.click();
+                    }
                 }
                 await AdminLandingPageCreate.saveLandingPageButton.click();
                 await AdminLandingPageCreate.loadingSpinner.waitFor({ state: 'hidden' });

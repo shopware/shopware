@@ -37,8 +37,15 @@ $body-secondary-color: $sw-text-color !default;
 // Components
 $border-color: $sw-border-color !default;
 
-$focus-ring-width: 0.2rem;
-$focus-ring-opacity: 0.6 !default;
+// Focus outlines
+// @deprecated tag:v6.7.0 - The focus outline will have full opacity (1) and an additional body colored box-shadow for visual spacing.
+$focus-ring-width: if(feature('ACCESSIBILITY_TWEAKS'), 0.25rem, 0.2rem) !default;
+$focus-ring-opacity: if(feature('ACCESSIBILITY_TWEAKS'), 1, 0.6) !default;
+$focus-ring-color: rgba($primary, $focus-ring-opacity) !default;
+$focus-ring-blur: 0 !default;
+$focus-ring-box-shadow: if(feature('ACCESSIBILITY_TWEAKS'),
+    (0 0 0 0.125rem $body-bg, 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color),
+    (0 0 $focus-ring-blur $focus-ring-width $focus-ring-color)) !default;
 
 $border-radius: 0 !default;
 $border-radius-lg: 0 !default;
@@ -109,6 +116,14 @@ $form-check-padding-start: 1.5rem !default;
 $input-focus-border-color: $sw-color-brand-primary !default;
 $custom-select-indicator-color: $input-color !default;
 $custom-control-indicator-active-bg: $sw-color-brand-primary !default;
+$input-btn-focus-width: $focus-ring-width !default;
+$input-btn-focus-color: $focus-ring-color !default;
+$form-select-focus-border-color: $input-focus-border-color !default;
+$form-select-focus-width: $input-btn-focus-width !default;
+// @deprecated tag:v6.7.0 - The focus outline will have full opacity (1) and an additional body colored box-shadow for visual spacing.
+$form-select-focus-box-shadow: if(feature('ACCESSIBILITY_TWEAKS'),
+    (0 0 0 0.125rem $body-bg, 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color),
+    (0 0 0 $form-select-focus-width $input-btn-focus-color)) !default;
 
 // Pagination
 $pagination-color: $sw-text-color !default;

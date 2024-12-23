@@ -90,6 +90,7 @@ class ScheduledTaskHandlerTest extends TestCase
     public static function allowedStatus(): array
     {
         return [
+            [ScheduledTaskDefinition::STATUS_RUNNING],
             [ScheduledTaskDefinition::STATUS_QUEUED],
             [ScheduledTaskDefinition::STATUS_FAILED],
         ];
@@ -265,7 +266,6 @@ class ScheduledTaskHandlerTest extends TestCase
     public static function notAllowedStatus(): array
     {
         return [
-            [ScheduledTaskDefinition::STATUS_RUNNING],
             [ScheduledTaskDefinition::STATUS_SCHEDULED],
             [ScheduledTaskDefinition::STATUS_INACTIVE],
         ];

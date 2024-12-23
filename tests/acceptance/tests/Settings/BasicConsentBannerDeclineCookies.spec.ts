@@ -6,7 +6,9 @@ test('As a shop customer, I want to continue shopping without accepting the cook
     TestDataService,
     InstanceMeta,
 }) => {
+    test.skip(InstanceMeta.isSaaS, 'Cache invalidation does not happen immediately on SaaS');
 
+    await TestDataService.setSystemConfig({ 'core.basicInformation.acceptAllCookies': true });
     if (InstanceMeta.features['V6_7_0_0']) {
          test.skip(true, 'This test is incompatible with V6_7_0_0');
     }

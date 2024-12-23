@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: "0 0 * * 1"
 
+permissions:
+  id-token: write
+
 jobs:
   create_deployment_branches:
     name: Create Deployment branches

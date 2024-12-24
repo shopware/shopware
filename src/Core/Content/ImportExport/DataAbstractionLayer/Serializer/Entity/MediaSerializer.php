@@ -63,6 +63,8 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
             return $deserialized;
         }
 
+        $url = str_replace(' ', '%20', $url);
+
         if (!filter_var($url, \FILTER_VALIDATE_URL)) {
             $deserialized['_error'] = new InvalidMediaUrlException($url);
 

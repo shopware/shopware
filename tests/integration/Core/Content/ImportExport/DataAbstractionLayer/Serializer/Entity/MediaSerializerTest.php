@@ -149,6 +149,57 @@ class MediaSerializerTest extends TestCase
         $eventDispatcher->dispatch($writtenEvent, 'media.written');
     }
 
+    public function testUrlWithWhitespaces(): void
+    {
+        $context = Context::createDefaultContext();
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $fileSaver = $this->createMock(FileSaver::class);
+
+        $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
+        $mediaRepository = $this->createMock(EntityRepository::class);
+
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
+        $mediaSerializer->setRegistry($serializerRegistry);
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addSubscriber(new MediaSerializerSubscriber($mediaSerializer));
+
+        $mediaId = Uuid::randomHex();
+        $expectedDestination = 'shopware logo';
+        $record = [
+            'id' => $mediaId,
+            'url' => 'http://172.16.11.80/shopware logo.png',
+        ];
+
+        $expectedMediaFile = new MediaFile(
+            '/tmp/foo/bar/baz',
+            'image/png',
+            'png',
+            1337
+        );
+        $mediaService->expects(static::once())
+            ->method('fetchFile')
+            ->willReturn($expectedMediaFile);
+
+        $fileSaver->expects(static::once())
+            ->method('persistFileToMedia')
+            ->willReturnCallback(function (MediaFile $m, string $dest, string $id) use ($expectedMediaFile, $expectedDestination, $mediaId): void {
+                $this->assertSame($expectedMediaFile, $m);
+                $this->assertSame($expectedDestination, $dest);
+                $this->assertSame($mediaId, $id);
+            });
+
+        $result = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, $record);
+        $result = \is_array($result) ? $result : iterator_to_array($result);
+
+        $writtenResult = new EntityWriteResult($mediaId, $result, 'media', 'insert');
+        $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);
+        $eventDispatcher->dispatch($writtenEvent, 'media.written');
+    }
+
     public function testOnlyUrl(): void
     {
         $context = Context::createDefaultContext();

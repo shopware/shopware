@@ -167,6 +167,14 @@ class AccountService
         return $customer;
     }
 
+    public function customerExists(string $email, SalesChannelContext $context): bool
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('email', $email));
+
+        return (bool) $this->fetchCustomer($criteria, $context);
+    }
+
     private function isCustomerConfirmed(CustomerEntity $customer): bool
     {
         return !$customer->getDoubleOptInRegistration() || $customer->getDoubleOptInConfirmDate();

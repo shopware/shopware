@@ -39,6 +39,7 @@ use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegi
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\Register\AccountRegisterPageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Prepare\CheckoutPreparePageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
@@ -97,6 +98,7 @@ class RegisterControllerTest extends TestCase
             $container->get(RegisterConfirmRoute::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
+            $container->get(CheckoutPreparePageLoader::class),
             $mock,
             $customerRepository,
             $this->createMock(CustomerGroupRegistrationPageLoader::class),
@@ -151,6 +153,7 @@ class RegisterControllerTest extends TestCase
             $container->get(RegisterConfirmRoute::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
+            $container->get(CheckoutPreparePageLoader::class),
             $systemConfigService,
             $customerRepository,
             $this->createMock(CustomerGroupRegistrationPageLoader::class),
@@ -205,6 +208,7 @@ class RegisterControllerTest extends TestCase
             $container->get(RegisterConfirmRoute::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
+            $container->get(CheckoutPreparePageLoader::class),
             $systemConfigService,
             $customerRepository,
             $this->createMock(CustomerGroupRegistrationPageLoader::class),
@@ -262,6 +266,7 @@ class RegisterControllerTest extends TestCase
             $container->get(RegisterConfirmRoute::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
+            $container->get(CheckoutPreparePageLoader::class),
             $systemConfigService,
             $customerRepository,
             $this->createMock(CustomerGroupRegistrationPageLoader::class),

@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLookupRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -54,8 +55,9 @@ class AuthController extends StorefrontController
         private readonly AbstractLoginRoute $loginRoute,
         private readonly AbstractLogoutRoute $logoutRoute,
         private readonly AbstractImitateCustomerRoute $imitateCustomerRoute,
+        private readonly AbstractLookupRoute $lookupRoute,
         private readonly StorefrontCartFacade $cartFacade,
-        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader
+        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
     ) {
     }
 
@@ -87,6 +89,12 @@ class AuthController extends StorefrontController
             'errorSnippet' => $request->get('errorSnippet'),
             'data' => $data,
         ]);
+    }
+
+    #[Route(path: '/account/lookup', name: 'frontend.account.lookup.data', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
+    public function lookup(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        return $this->lookupRoute->lookup($data, $context);
     }
 
     #[Route(path: '/account/guest/login', name: 'frontend.account.guest.login.page', defaults: ['_noStore' => true], methods: ['GET'])]
@@ -157,6 +165,13 @@ class AuthController extends StorefrontController
             return $this->createActionResponse($request);
         }
 
+        $action = $data->get('action');
+        if ($action === 'register') {
+            // status code 307 to keep the POST data AKA the email address
+            // redirect instead of forward to have correct URL in browser
+            return $this->redirectToRoute('frontend.checkout.register.page', [], Response::HTTP_TEMPORARY_REDIRECT);
+        }
+
         try {
             $token = $this->loginRoute->login($data, $context)->getToken();
             $cartBeforeNewContext = $this->cartFacade->get($token, $context);
@@ -181,7 +196,7 @@ class AuthController extends StorefrontController
         }
 
         return $this->forwardToRoute(
-            'frontend.account.login.page',
+            $data->get('errorRoute', 'frontend.account.login.page'),
             [
                 'loginError' => true,
                 'errorSnippet' => $errorSnippet ?? null,

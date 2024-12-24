@@ -195,7 +195,7 @@ class CheckoutControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.checkout.register.page', $response->getTargetUrl());
+        static::assertEquals('frontend.checkout.prepare.page', $response->getTargetUrl());
     }
 
     public function testConfirmPageEmptyCart(): void
@@ -301,7 +301,7 @@ class CheckoutControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.checkout.register.page', $response->getTargetUrl());
+        static::assertEquals('frontend.checkout.prepare.page', $response->getTargetUrl());
     }
 
     public function testFinishPageOrderNotFound(): void
@@ -391,7 +391,7 @@ class CheckoutControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.checkout.register.page', $response->getTargetUrl());
+        static::assertEquals('frontend.checkout.prepare.page', $response->getTargetUrl());
     }
 
     public function testOrder(): void

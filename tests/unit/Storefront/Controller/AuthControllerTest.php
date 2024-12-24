@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLookupRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -49,6 +50,7 @@ class AuthControllerTest extends TestCase
         $loginRoute = $this->createMock(AbstractLoginRoute::class);
         $logoutRoute = $this->createMock(AbstractLogoutRoute::class);
         $imitateCustomerRoute = $this->createMock(AbstractImitateCustomerRoute::class);
+        $lookupRoute = $this->createMock(AbstractLookupRoute::class);
         $cartFacade = $this->createMock(StorefrontCartFacade::class);
         $recoverPasswordRoute = $this->createMock(AccountRecoverPasswordPageLoader::class);
 
@@ -59,6 +61,7 @@ class AuthControllerTest extends TestCase
             $loginRoute,
             $logoutRoute,
             $imitateCustomerRoute,
+            $lookupRoute,
             $cartFacade,
             $recoverPasswordRoute,
         );
@@ -90,6 +93,23 @@ class AuthControllerTest extends TestCase
         static::assertSame('[]', $this->controller->renderStorefrontParameters['redirectParameters'] ?? '');
         static::assertSame('frontend.account.login.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
         static::assertInstanceOf(AccountLoginPageLoadedHook::class, $this->controller->calledHook);
+    }
+
+    public function testAccountLoginWithRegisterActionRedirectsToCheckoutRegister(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.account.login');
+        $dataBag = new RequestDataBag(['action' => 'register']);
+
+        $this->controller->login($request, $dataBag, $context);
+
+        static::assertSame(['frontend.checkout.register.page' => [[
+            'parameters' => [],
+            'status' => 307,
+        ]],
+        ], $this->controller->redirected);
     }
 
     public function testGuestLoginPageWithoutRedirectParametersRedirects(): void

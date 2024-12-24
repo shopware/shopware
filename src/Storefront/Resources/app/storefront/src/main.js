@@ -53,6 +53,7 @@ PluginManager.register('AccountGuestAbortButton', () => import('src/plugin/heade
 PluginManager.register('OffCanvasCart', () => import('src/plugin/offcanvas-cart/offcanvas-cart.plugin'), '[data-off-canvas-cart]');
 PluginManager.register('AddToCart', () => import('src/plugin/add-to-cart/add-to-cart.plugin'), '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', () => import('src/plugin/collapse/collapse-footer-columns.plugin'), '[data-collapse-footer-columns]');
+PluginManager.register('CheckoutPrepare', () => import('src/plugin/checkout-prepare/checkout-prepare.plugin'), '[data-checkout-prepare]');
 if (!Feature.isActive('v6.7.0.0')) {
     PluginManager.register('CollapseCheckoutConfirmMethods', () => import('src/plugin/collapse/collapse-checkout-confirm-methods.plugin'), '[data-collapse-checkout-confirm-methods]');
 }

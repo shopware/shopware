@@ -200,6 +200,17 @@ shopware:
                       interval: '30 seconds'
                     - limit: 20
                       interval: '60 seconds'
+            lookup:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours' # reset limit after this time if no more requests failed
+                limits:
+                    - limit: 10
+                      interval: '10 seconds'
+                    - limit: 15
+                      interval: '30 seconds'
+                    - limit: 20
+                      interval: '60 seconds'
             guest_login:
                 enabled: true
                 policy: 'time_backoff'

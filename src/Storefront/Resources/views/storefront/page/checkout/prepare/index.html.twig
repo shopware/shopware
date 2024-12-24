@@ -1,0 +1,81 @@
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block base_header %}
+    {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
+{% endblock %}
+
+{% block base_navigation %}{% endblock %}
+
+{% block page_checkout_main_content %}
+    {% block page_checkout_prepare %}
+        {% block page_checkout_prepare_express %}
+            {% set expressOptions -%}
+                {%- block page_checkout_prepare_express_list -%}
+                    {# extend this block to add your own Express Wallet options like Apple Pay, Google Pay, PayPal, etc. #}
+                    <img src="{{ asset('assets/express.png', 'theme') }}"
+                         class="col-md-5">
+                {%- endblock -%}
+            {%- endset %}
+
+            {% if expressOptions %}
+            <div class="checkout-prepare-express border p-3">
+                {% block page_checkout_prepare_express_header %}
+                    <h2>
+                        {{ 'checkout.prepareExpressHeader'|trans|sw_sanitize }}
+                    </h2>
+                {% endblock %}
+
+                {{ expressOptions }}
+            </div>
+            {% endif %}
+        {% endblock %}
+
+        {% block page_checkout_prepare_account %}
+            <div class="checkout-prepare-account border p-3 mt-4">
+                {% block page_checkout_prepare_account_header %}
+                    <h2>
+                        {{ 'checkout.prepareAccountHeader'|trans|sw_sanitize }}
+                    </h2>
+                {% endblock %}
+
+                {% block page_checkout_prepare_account_form %}
+                    {% sw_include '@Storefront/storefront/component/account/combined-login.html.twig' %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+    {% endblock %}
+{% endblock %}
+
+{% block page_checkout_aside_summary %}
+    {{ parent() }}
+
+    {% block page_checkout_address_products %}
+        <div class="checkout-aside-products">
+            {% block page_checkout_address_products_header %}
+                <h2 class="checkout-aside-product-header mb-4">
+                    {{ 'checkout.cartHeader'|trans|sw_sanitize }}
+                </h2>
+            {% endblock %}
+
+            {% block page_checkout_address_products_list %}
+                <ul class="checkout-aside-product-list list-unstyled">
+                    {% block page_checkout_address_product_list_container %}
+                        {% for lineItem in page.cart.lineItems %}
+                            {% block page_checkout_address_product_summary_item %}
+                                {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                                    displayMode: 'offcanvas',
+                                    showQuantitySelect: false
+                                } %}
+                            {% endblock %}
+                        {% endfor %}
+                    {% endblock %}
+                </ul>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}
+
+{% block base_footer %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
+{% endblock %}

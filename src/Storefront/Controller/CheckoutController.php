@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Content\Flow\FlowException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -102,7 +103,11 @@ class CheckoutController extends StorefrontController
     public function confirmPage(Request $request, SalesChannelContext $context): Response
     {
         if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.checkout.register.page');
+            if (!Feature::isActive('v6.7.0.0')) {
+                return $this->redirectToRoute('frontend.checkout.register.page');
+            }
+
+            return $this->redirectToRoute('frontend.checkout.prepare.page');
         }
 
         if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
@@ -134,7 +139,11 @@ class CheckoutController extends StorefrontController
     public function finishPage(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {
         if ($context->getCustomer() === null) {
-            return $this->redirectToRoute('frontend.checkout.register.page');
+            if (!Feature::isActive('v6.7.0.0')) {
+                return $this->redirectToRoute('frontend.checkout.register.page');
+            }
+
+            return $this->redirectToRoute('frontend.checkout.prepare.page');
         }
 
         try {
@@ -168,7 +177,11 @@ class CheckoutController extends StorefrontController
     public function order(RequestDataBag $data, SalesChannelContext $context, Request $request): Response
     {
         if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.checkout.register.page');
+            if (!Feature::isActive('v6.7.0.0')) {
+                return $this->redirectToRoute('frontend.checkout.register.page');
+            }
+
+            return $this->redirectToRoute('frontend.checkout.prepare.page');
         }
 
         try {

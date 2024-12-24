@@ -154,6 +154,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\LookupRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="Shopware\Core\Framework\RateLimiter\RateLimiter"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>

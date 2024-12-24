@@ -15,8 +15,8 @@ class SuccessResponse extends StoreApiResponse
      */
     protected $object;
 
-    public function __construct()
+    public function __construct(bool $success = true)
     {
-        parent::__construct(new ArrayStruct(['success' => true]));
+        parent::__construct(new ArrayStruct(['success' => $success]));
     }
 }

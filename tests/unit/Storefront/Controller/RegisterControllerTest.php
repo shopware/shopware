@@ -27,6 +27,9 @@ use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegi
 use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\Register\AccountRegisterPageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Prepare\CheckoutPreparePage;
+use Shopware\Storefront\Page\Checkout\Prepare\CheckoutPreparePageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Prepare\CheckoutPreparePageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPage;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
@@ -51,6 +54,8 @@ class RegisterControllerTest extends TestCase
 
     private MockObject&CheckoutRegisterPageLoader $checkoutRegisterPageLoader;
 
+    private MockObject&CheckoutPreparePageLoader $checkoutPreparePageLoader;
+
     private MockObject&CartService $cartService;
 
     private MockObject&CustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader;
@@ -66,6 +71,7 @@ class RegisterControllerTest extends TestCase
         $registerConfirmRoute = $this->createMock(RegisterConfirmRoute::class);
         $this->cartService = $this->createMock(CartService::class);
         $this->checkoutRegisterPageLoader = $this->createMock(CheckoutRegisterPageLoader::class);
+        $this->checkoutPreparePageLoader = $this->createMock(CheckoutPreparePageLoader::class);
         $this->systemConfigService = new StaticSystemConfigService();
         $customerRepository = $this->createMock(EntityRepository::class);
         $this->customerGroupRegistrationPageLoader = $this->createMock(CustomerGroupRegistrationPageLoader::class);
@@ -77,6 +83,7 @@ class RegisterControllerTest extends TestCase
             $registerConfirmRoute,
             $this->cartService,
             $this->checkoutRegisterPageLoader,
+            $this->checkoutPreparePageLoader,
             $this->systemConfigService,
             $customerRepository,
             $this->customerGroupRegistrationPageLoader,
@@ -136,6 +143,36 @@ class RegisterControllerTest extends TestCase
         static::assertSame('frontend.checkout.confirm.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? '');
         static::assertSame('frontend.checkout.register.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
         static::assertInstanceOf(CheckoutRegisterPageLoadedHook::class, $this->controller->calledHook);
+    }
+
+    public function testCheckoutPrepare(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.checkout.prepare.page');
+        $dataBag = new RequestDataBag();
+        $page = new CheckoutPreparePage();
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(new LineItem('test', 'test'));
+
+        $this->checkoutPreparePageLoader->expects(static::once())
+            ->method('load')
+            ->with($request, $context)
+            ->willReturn($page);
+
+        $this->cartService->expects(static::once())
+            ->method('getCart')
+            ->with($context->getToken(), $context)
+            ->willReturn($cart);
+
+        $this->controller->checkoutPreparePage($request, $dataBag, $context);
+
+        static::assertSame($page, $this->controller->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $this->controller->renderStorefrontParameters['data']);
+        static::assertSame('frontend.checkout.confirm.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('frontend.checkout.prepare.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertInstanceOf(CheckoutPreparePageLoadedHook::class, $this->controller->calledHook);
     }
 
     public function testCustomerGroupRegistration(): void

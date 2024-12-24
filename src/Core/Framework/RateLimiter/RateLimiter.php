@@ -10,6 +10,8 @@ class RateLimiter
 {
     final public const LOGIN_ROUTE = 'login';
 
+    final public const LOOKUP_ROUTE = 'lookup';
+
     final public const GUEST_LOGIN = 'guest_login';
 
     final public const RESET_PASSWORD = 'reset_password';

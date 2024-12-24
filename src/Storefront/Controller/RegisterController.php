@@ -28,6 +28,8 @@ use Shopware\Storefront\Page\Account\CustomerGroupRegistration\AbstractCustomerG
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\Register\AccountRegisterPageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Prepare\CheckoutPreparePageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Prepare\CheckoutPreparePageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,6 +56,7 @@ class RegisterController extends StorefrontController
         private readonly AbstractRegisterConfirmRoute $registerConfirmRoute,
         private readonly CartService $cartService,
         private readonly CheckoutRegisterPageLoader $registerPageLoader,
+        private readonly CheckoutPreparePageLoader $preparePageLoader,
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $customerRepository,
         private readonly AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader,
@@ -119,7 +122,7 @@ class RegisterController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/checkout/register', name: 'frontend.checkout.register.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/checkout/register', name: 'frontend.checkout.register.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET', 'POST'])]
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
@@ -141,6 +144,39 @@ class RegisterController extends StorefrontController
         return $this->renderStorefront(
             '@Storefront/storefront/page/checkout/address/index.html.twig',
             ['redirectTo' => $redirect, 'errorRoute' => $errorRoute, 'page' => $page, 'data' => $data]
+        );
+    }
+
+    #[Route(path: '/checkout/prepare', name: 'frontend.checkout.prepare.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
+    public function checkoutPreparePage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        /** @var string $redirect */
+        $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');
+        $errorRoute = $request->attributes->get('_route');
+
+        if ($context->getCustomer()) {
+            return $this->redirectToRoute($redirect);
+        }
+
+        if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
+            return $this->redirectToRoute('frontend.checkout.cart.page');
+        }
+
+        $page = $this->preparePageLoader->load($request, $context);
+
+        $this->hook(new CheckoutPreparePageLoadedHook($page, $context));
+
+        return $this->renderStorefront(
+            '@Storefront/storefront/page/checkout/prepare/index.html.twig',
+            [
+                'redirectTo' => $redirect,
+                'errorRoute' => $errorRoute,
+                'page' => $page,
+                'loginError' => (bool) $request->get('loginError'),
+                'waitTime' => $request->get('waitTime'),
+                'errorSnippet' => $request->get('errorSnippet'),
+                'data' => $data,
+            ]
         );
     }
 

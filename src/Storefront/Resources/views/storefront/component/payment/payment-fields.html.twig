@@ -7,7 +7,6 @@
 {# @deprecated tag:v6.7.0 - payment method list is moved to `component/payment/payment-form.html.twig` #}
 {% block component_payment_methods %}
     <div class="payment-methods">
-
         {# @deprecated tag:v6.7.0 - payment method list is moved to `component/payment/payment-form.html.twig` #}
         {% block component_payment_method %}
             {% for payment in page.paymentMethods[:visiblePaymentMethodsLimit] %}

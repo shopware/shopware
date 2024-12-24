@@ -22,6 +22,18 @@
                         <input type="hidden"
                                name="redirectParameters"
                                value="{{ redirectParameters }}">
+
+                        {% if errorRoute %}
+                            <input type="hidden"
+                                   name="errorRoute"
+                                   value="{{ errorRoute }}">
+                        {% endif %}
+
+                        {% if errorParameters %}
+                            <input type="hidden"
+                                   name="errorParameters"
+                                   value="{{ errorParameters }}">
+                        {% endif %}
                     {% endblock %}
 
                     {% block component_account_login_form_description %}
@@ -68,7 +80,7 @@
                                                autocomplete="username webauthn"
                                                id="loginMail"
                                                placeholder="{{ 'account.loginMailPlaceholder'|trans|striptags }}"
-                                               name="username"
+                                               name="{{ feature('v6.7.0.0') ? 'email' : 'username' }}"
                                                required="required">
                                     {% endblock %}
                                 </div>

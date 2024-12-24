@@ -73,6 +73,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LookupRoute"/>
             <argument type="service" id="Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader"/>
             <call method="setContainer">
@@ -226,6 +227,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Checkout\Prepare\CheckoutPreparePageLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader"/>

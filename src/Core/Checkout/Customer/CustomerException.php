@@ -59,6 +59,7 @@ class CustomerException extends HttpException
     public const CUSTOMER_CHANGE_PAYMENT_ERROR = 'CHECKOUT__CUSTOMER_CHANGE_PAYMENT_METHOD_NOT_FOUND';
     public const CUSTOMER_GUEST_AUTH_INVALID = 'CHECKOUT__CUSTOMER_AUTH_INVALID';
     public const IMITATE_CUSTOMER_INVALID_TOKEN = 'CHECKOUT__IMITATE_CUSTOMER_INVALID_TOKEN';
+    public const CUSTOMER_LOOKUP_DISABLED = 'CHECKOUT__CUSTOMER_LOOKUP_DISABLED';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -294,6 +295,15 @@ class CustomerException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::CUSTOMER_GUEST_AUTH_INVALID,
             'Guest account is not allowed to login'
+        );
+    }
+
+    public static function accountLookupDisabled(): ShopwareHttpException
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::CUSTOMER_LOOKUP_DISABLED,
+            'Customer account lookup is disabled'
         );
     }
 

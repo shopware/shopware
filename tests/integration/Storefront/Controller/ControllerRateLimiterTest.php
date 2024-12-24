@@ -7,12 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLookupRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LookupRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -120,6 +122,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(LoginRoute::class),
             static::getContainer()->get(LogoutRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
+            static::getContainer()->get(LookupRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
             static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
         );
@@ -152,6 +155,7 @@ class ControllerRateLimiterTest extends TestCase
             $this->createMock(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
             $this->createMock(AbstractImitateCustomerRoute::class),
+            $this->createMock(AbstractLookupRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
             static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
         );
@@ -189,6 +193,7 @@ class ControllerRateLimiterTest extends TestCase
             $loginRoute,
             $this->createMock(AbstractLogoutRoute::class),
             $this->createMock(AbstractImitateCustomerRoute::class),
+            $this->createMock(AbstractLookupRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
             static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
         );

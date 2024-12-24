@@ -30,8 +30,9 @@ return [
         // Criteria is @final so changing from void should be fine
         'The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria#setTitle\(\) changed from void',
 
-        // Added new optional parameter to those classes
+        // Added new optional parameter to constructors of those classes
         'Parameter session was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Event\\\\SalesChannelContextCreatedEvent',
+        'Parameter success was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SuccessResponse',
         'Parameter collectionClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
 
         // Changed $languageIdChain parameter to $context in TokenQueryBuilder

@@ -1,0 +1,68 @@
+{% sw_extends '@Storefront/storefront/component/account/login.html.twig' %}
+
+{% block component_account_login_form %}
+    <div data-checkout-prepare="true"
+         data-checkout-prepare-options="{{ {
+             allowAccountLookup: config('core.loginRegistration.allowAccountLookup'),
+             accountLookupUrl: path('frontend.account.lookup.data'),
+         }|json_encode }}">
+        {{ parent() }}
+    </div>
+{% endblock %}
+
+{% block component_account_login_form_description %}
+{% endblock %}
+
+{% block component_account_login_form_mail %}
+    <div class="form-group">
+        {% block component_account_login_form_mail_label %}
+            {{ parent() }}
+        {% endblock %}
+
+        {% block component_account_login_form_mail_input %}
+            {{ parent() }}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block component_account_login_form_password %}
+    <div class="form-group">
+        {% block component_account_login_form_password_label %}
+            {{ parent() }}
+        {% endblock %}
+
+        {% block component_account_login_form_password_input %}
+            {# same as parent, but not required #}
+            <input type="password"
+                   class="form-control{% if loginError %} is-invalid{% endif %}"
+                   autocomplete="current-password"
+                   id="loginPassword"
+                   placeholder="{{ 'account.loginPasswordPlaceholder'|trans|striptags }}"
+                   name="password">
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block component_account_login_submit %}
+    {% block component_account_combined_login_login %}
+    <div class="login-action d-grid col-md-12">
+        <button type="submit"
+                name="action"
+                value="login"
+                class="btn btn-primary">
+            {{ (config('core.loginRegistration.allowAccountLookup') ? 'checkout.continueAction' : 'checkout.loginAction')|trans|sw_sanitize }}
+        </button>
+    </div>
+    {% endblock %}
+
+    {% block component_account_combined_login_register %}
+    <div class="register-action d-grid col-md-12 mt-3">
+        <button type="submit"
+                name="action"
+                value="register"
+                class="btn btn-primary">
+            {{ 'checkout.registerAction'|trans|sw_sanitize }}
+        </button>
+    </div>
+    {% endblock %}
+{% endblock %}

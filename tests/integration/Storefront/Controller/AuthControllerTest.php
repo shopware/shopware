@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LookupRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -705,6 +706,7 @@ class AuthControllerTest extends TestCase
             static::getContainer()->get(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
+            static::getContainer()->get(LookupRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
             static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
         );

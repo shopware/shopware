@@ -650,6 +650,41 @@
                 ]
             }
         },
+        "/account/lookup": {
+            "post": {
+                "tags": ["Login & Registration"],
+                "summary": "Look up the existence of a customer",
+                "description": "Looks up, if a customer account with the passed email exists. Depends on lookup being allowed by the System Config.",
+                "operationId": "lookupCustomer",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["username"],
+                                "properties": {
+                                    "username": {
+                                        "description": "Email",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SuccessResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
         "/account/login/imitate-customer": {
             "post": {
                 "tags": ["Login & Registration"],

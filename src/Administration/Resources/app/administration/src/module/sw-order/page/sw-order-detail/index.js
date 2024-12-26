@@ -135,7 +135,7 @@ export default {
 
             criteria.getAssociation('lineItems.children').addSorting(Criteria.sort('position', 'ASC'));
 
-            criteria.addAssociation('salesChannel');
+            criteria.addAssociation('salesChannel.domains');
 
             criteria
                 .addAssociation('addresses.country')

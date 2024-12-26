@@ -64,7 +64,7 @@
             name="media-item-name"
             @blur="onBlur($event, item, endInlineEdit)"
             @click.stop
-            @keydown.enter.stop
+            @keydown.enter="onBlur($event, item, endInlineEdit)"
             @keyup.esc="endInlineEdit"
         />
         <div

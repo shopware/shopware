@@ -160,6 +160,7 @@ class SchemaUpdater
                     break;
                 case 'string':
                 case 'email':
+                    $nullable['length'] = 255;
                     $table->addColumn($field['name'], Types::STRING, $nullable);
 
                     break;

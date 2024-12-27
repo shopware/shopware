@@ -8,7 +8,6 @@ use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -43,10 +42,6 @@ class ResolvedCriteriaProductSuggestRoute extends AbstractProductSuggestRoute
     {
         if (!$request->get('search')) {
             throw RoutingException::missingRequestParameter('search');
-        }
-
-        if (!$request->get('order')) {
-            $request->request->set('order', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT);
         }
 
         $criteria->addState(ProductSuggestRoute::STATE);

@@ -460,3 +460,24 @@ jobs:
       - name: Run blue-green check
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         run: php .gitlab/bin/blue-green-check.php # TODO: Move script to .github after migration
+
+  # this allows us to specifiy just one required job/check
+  # this is not practical with matrix jobs directly, because you've to specify all permutations
+  check:
+    if: always()
+    needs:
+    - acceptance
+    - phpunit
+    - win-checkout
+    - code-ql
+    - acceptance-update
+    - blue-green-66-67
+
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        # allowed-failures: docs, linters
+        # allowed-skips: non-voting-flaky-job
+        jobs: ${{ toJSON(needs) }}

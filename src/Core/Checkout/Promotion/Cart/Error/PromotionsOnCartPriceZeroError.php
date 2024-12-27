@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Error;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionsOnCartPriceZeroError extends Error
 {
     private const KEY = 'promotions-on-cart-price-zero-error';

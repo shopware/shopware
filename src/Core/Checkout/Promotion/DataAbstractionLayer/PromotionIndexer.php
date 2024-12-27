@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionIndexer extends EntityIndexer
 {
     final public const EXCLUSION_UPDATER = 'promotion.exclusion';

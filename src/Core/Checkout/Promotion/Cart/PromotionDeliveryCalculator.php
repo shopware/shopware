@@ -36,7 +36,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Absolute discount is 10 => Shippingcosts = 90
  * Percentage discount is 30 => Shippingcosts = 60 (Shippingcosts = 100 - (10 + 100 * 0.3))
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionDeliveryCalculator
 {
     use PromotionCartInformationTrait;

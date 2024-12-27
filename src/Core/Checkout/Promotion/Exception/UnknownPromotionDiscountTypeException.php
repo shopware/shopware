@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - Will be removed. Use PromotionException::unknownPromotionDiscountType instead
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class UnknownPromotionDiscountTypeException extends ShopwareHttpException
 {
     public function __construct(PromotionDiscountEntity $discount)

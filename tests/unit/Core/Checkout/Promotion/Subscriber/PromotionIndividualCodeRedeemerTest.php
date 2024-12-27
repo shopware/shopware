@@ -25,7 +25,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionIndividualCodeRedeemer::class)]
 class PromotionIndividualCodeRedeemerTest extends TestCase
 {

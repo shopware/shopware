@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionItemBuilder
 {
     /**

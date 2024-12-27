@@ -24,7 +24,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(CartScopeDiscountPackager::class)]
 class CartScopeDiscountPackagerTest extends TestCase
 {

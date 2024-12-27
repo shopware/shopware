@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class CartPromotionsDataDefinition extends Struct
 {
     /**

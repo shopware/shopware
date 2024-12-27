@@ -18,7 +18,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionCodeServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

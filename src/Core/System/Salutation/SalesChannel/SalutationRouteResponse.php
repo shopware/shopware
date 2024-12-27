@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class SalutationRouteResponse extends StoreApiResponse
 {
     /**

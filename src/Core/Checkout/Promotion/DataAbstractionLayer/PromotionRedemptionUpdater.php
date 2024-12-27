@@ -22,7 +22,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionRedemptionUpdater implements EventSubscriberInterface, ResetInterface
 {
     /**

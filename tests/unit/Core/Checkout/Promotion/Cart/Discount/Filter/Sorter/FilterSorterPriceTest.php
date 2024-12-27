@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(FilterSorterPriceAsc::class)]
 #[CoversClass(FilterSorterPriceDesc::class)]
 class FilterSorterPriceTest extends TestCase

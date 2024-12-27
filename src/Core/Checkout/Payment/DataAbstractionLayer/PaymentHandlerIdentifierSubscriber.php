@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('checkout')]
 class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

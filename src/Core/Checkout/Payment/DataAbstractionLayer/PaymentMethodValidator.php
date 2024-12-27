@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('checkout')]
 final class PaymentMethodValidator implements EventSubscriberInterface
 {
     /**

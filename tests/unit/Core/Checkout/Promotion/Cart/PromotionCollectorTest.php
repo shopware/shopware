@@ -34,7 +34,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionCollector::class)]
 class PromotionCollectorTest extends TestCase
 {

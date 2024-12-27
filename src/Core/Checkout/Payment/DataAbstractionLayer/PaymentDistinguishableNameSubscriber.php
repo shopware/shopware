@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('checkout')]
 class PaymentDistinguishableNameSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

@@ -2,7 +2,7 @@ import template from './sw-promotion-v2-empty-state-hero.html.twig';
 import './sw-promotion-v2-empty-state-hero.scss';
 
 /**
- * @package buyers-experience
+ * @package checkout
  * @private
  */
 export default {

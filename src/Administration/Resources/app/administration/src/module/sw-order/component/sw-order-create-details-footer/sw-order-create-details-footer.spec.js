@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 async function createWrapper() {

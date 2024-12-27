@@ -3,6 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
+use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
+use Doctrine\DBAL\Platforms\MySQL\Comparator;
+use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
@@ -27,12 +31,28 @@ class MigrationQueryGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
+        $platform = new MySQLPlatform();
+
         $this->schemaBuilder = $this->createMock(SchemaBuilder::class);
         $this->schemaManager = $this->createMock(MySQLSchemaManager::class);
 
+        $charsetMetadataProvider = $this->createMock(CharsetMetadataProvider::class);
+        $charsetMetadataProvider->method('getDefaultCharsetCollation')
+            ->willReturn('utf8mb4_unicode_ci');
+
+        $collationMetadataProvider = $this->createMock(CollationMetadataProvider::class);
+        $collationMetadataProvider->method('getCollationCharset')
+            ->willReturn('utf8mb4');
+        $this->schemaManager->method('createComparator')->willReturn(new Comparator(
+            $platform,
+            $charsetMetadataProvider,
+            $collationMetadataProvider,
+            new DefaultTableOptions('utf8mb4', 'utf8mb4_unicode_ci'),
+        ));
+
         $connection = $this->createMock(Connection::class);
         $connection->method('createSchemaManager')->willReturn($this->schemaManager);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
+        $connection->method('getDatabasePlatform')->willReturn($platform);
 
         $this->generator = new MigrationQueryGenerator($connection, $this->schemaBuilder);
     }
@@ -73,8 +93,8 @@ class MigrationQueryGeneratorTest extends TestCase
     {
         $table = new Table('test');
 
-        $table->addColumn('id', 'string');
-        $table->addColumn('name', 'string');
+        $table->addColumn('id', 'string', ['length' => 255]);
+        $table->addColumn('name', 'string', ['length' => 255]);
         $table->addColumn('created_at', 'datetime');
         $table->addColumn('updated_at', 'datetime');
 
@@ -89,8 +109,8 @@ class MigrationQueryGeneratorTest extends TestCase
     {
         $table = new Table('test');
 
-        $table->addColumn('id', 'string');
-        $table->addColumn('name', 'string');
+        $table->addColumn('id', 'string', ['length' => 255]);
+        $table->addColumn('name', 'string', ['length' => 255]);
         $table->addColumn('priority', 'integer');
         $table->addColumn('created_at', 'datetime');
         $table->addColumn('updated_at', 'datetime');

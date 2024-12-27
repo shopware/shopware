@@ -28,6 +28,7 @@ use Shopware\Core\System\UsageData\EntitySync\DispatchEntitiesQueryBuilder;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -59,10 +60,11 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
     {
         static::assertSame($this->queryHelper, $this->queryHelper->forEntity('test_entity'));
 
-        static::assertCount(1, $this->queryHelper->getQueryBuilder()->getQueryPart('from'));
+        $from = QueryBuilderDataExtractor::getFrom($this->queryHelper->getQueryBuilder());
+        static::assertCount(1, $from);
         static::assertSame(
             EntityDefinitionQueryHelper::escape('test_entity'),
-            $this->queryHelper->getQueryBuilder()->getQueryPart('from')[0]['table'],
+            $from[0],
         );
     }
 
@@ -75,10 +77,11 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
             ]))
         );
 
-        static::assertCount(1, $this->queryHelper->getQueryBuilder()->getQueryPart('select'));
+        $select = QueryBuilderDataExtractor::getSelect($this->queryHelper->getQueryBuilder());
+        static::assertCount(1, $select);
         static::assertSame(
             EntityDefinitionQueryHelper::escape('storage_aware'),
-            $this->queryHelper->getQueryBuilder()->getQueryPart('select')[0],
+            $select[0],
         );
     }
 
@@ -91,14 +94,14 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
             ]))
         );
 
-        static::assertEmpty($this->queryHelper->getQueryBuilder()->getQueryPart('select'));
+        static::assertEmpty(QueryBuilderDataExtractor::getSelect($this->queryHelper->getQueryBuilder()));
     }
 
     public function testWithPrimaryKeyAddsNothingForEmptyArray(): void
     {
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys([]));
 
-        static::assertEmpty($this->queryHelper->getQueryBuilder()->getQueryPart('where'));
+        static::assertEmpty(QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()));
     }
 
     public function testWithPrimaryKeysWithCombinedPrimaryKey(): void
@@ -110,15 +113,13 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys($primaryKeys));
 
         static::assertEquals(
-            CompositeExpression::and( // wrapper
-                CompositeExpression::or(
-                    CompositeExpression::and(
-                        '`product_id` = :pk_1',
-                        '`category_id` = :pk_2',
-                    ),
+            CompositeExpression::or(
+                CompositeExpression::and(
+                    '`product_id` = :pk_1',
+                    '`category_id` = :pk_2',
                 ),
             ),
-            $this->queryHelper->getQueryBuilder()->getQueryPart('where'),
+            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
@@ -137,17 +138,15 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys($primaryKeys));
 
         static::assertEquals(
-            CompositeExpression::and( // wrapper
-                CompositeExpression::or(
-                    CompositeExpression::and(
-                        '`id` = :pk_1',
-                    ),
-                    CompositeExpression::and(
-                        '`id` = :pk_2',
-                    ),
+            CompositeExpression::or(
+                CompositeExpression::and(
+                    '`id` = :pk_1',
+                ),
+                CompositeExpression::and(
+                    '`id` = :pk_2',
                 ),
             ),
-            $this->queryHelper->getQueryBuilder()->getQueryPart('where'),
+            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
@@ -181,7 +180,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
                 \sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('version_id')),
                 \sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('test_version_id')),
             ),
-            $this->queryHelper->getQueryBuilder()->getQueryPart('where'),
+            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
@@ -200,13 +199,11 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         );
 
         static::assertEquals(
-            CompositeExpression::and(
-                CompositeExpression::or(
-                    '`updated_at` IS NULL',
-                    '`updated_at` <= :lastApprovalDate',
-                ),
+            CompositeExpression::or(
+                '`updated_at` IS NULL',
+                '`updated_at` <= :lastApprovalDate',
             ),
-            $this->queryHelper->getQueryBuilder()->getQueryPart('where'),
+            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
@@ -230,7 +227,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
             CompositeExpression::and(
                 '`updated_at` <= :lastApprovalDate',
             ),
-            $this->queryHelper->getQueryBuilder()->getQueryPart('where'),
+            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();

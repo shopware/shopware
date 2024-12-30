@@ -251,7 +251,7 @@ Component.register('sw-select-result-list', {
         },
 
         getBottomDistance(element) {
-            return element.scrollHeight - element.clientHeight - element.scrollTop;
+            return Math.floor(element.scrollHeight - element.clientHeight - element.scrollTop);
         },
     },
 });

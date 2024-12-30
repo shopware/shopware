@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\EntitySerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
@@ -124,6 +127,67 @@ class FieldSerializerTest extends TestCase
         static::assertNull($this->first($fieldSerializer->serialize($config, $field, null)));
 
         static::assertSame([], $this->first($fieldSerializer->serialize($config, $field, new OrderDeliveryCollection())));
+    }
+
+    public function testOrderTransactionsSerialize(): void
+    {
+        $fieldSerializer = new FieldSerializer();
+        $registry = new SerializerRegistry([new EntitySerializer()], [new FieldSerializer()]);
+        $fieldSerializer->setRegistry($registry);
+
+        $config = new Config([], [], []);
+
+        $field = new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id');
+
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+
+        $orderTransactionDefinition = new OrderTransactionDefinition();
+        $orderTransactionDefinition->compile($definitionRegistry);
+
+        $definitionRegistry->method('getByClassOrEntityName')->willReturn($orderTransactionDefinition);
+
+        $field->compile($definitionRegistry);
+
+        $transactionId = Uuid::randomHex();
+        $transactions = new OrderTransactionCollection([(new OrderTransactionEntity())->assign(['id' => $transactionId])]);
+
+        static::assertSame([
+            '_uniqueIdentifier' => $transactionId,
+            'versionId' => null,
+            'translated' => [],
+            'orderId' => null,
+            'orderVersionId' => null,
+            'paymentMethodId' => null,
+            'amount' => null,
+            'stateId' => null,
+            'validationData' => '[]',
+            'customFields' => null,
+            'id' => $transactionId,
+        ], $this->first($fieldSerializer->serialize($config, $field, $transactions)));
+    }
+
+    public function testEmptyOrderTransactionsSerialize(): void
+    {
+        $fieldSerializer = new FieldSerializer();
+        $registry = new SerializerRegistry([new EntitySerializer()], [new FieldSerializer()]);
+        $fieldSerializer->setRegistry($registry);
+
+        $config = new Config([], [], []);
+
+        $field = new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id');
+
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+
+        $orderTransactionDefinition = new OrderTransactionDefinition();
+        $orderTransactionDefinition->compile($definitionRegistry);
+
+        $definitionRegistry->method('getByClassOrEntityName')->willReturn($orderTransactionDefinition);
+
+        $field->compile($definitionRegistry);
+
+        static::assertNull($this->first($fieldSerializer->serialize($config, $field, null)));
+
+        static::assertSame([], $this->first($fieldSerializer->serialize($config, $field, new OrderTransactionCollection())));
     }
 
     public function testUnhandledOneToManyAssociationField(): void

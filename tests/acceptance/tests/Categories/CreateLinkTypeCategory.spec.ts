@@ -2,12 +2,16 @@ import { test } from '@fixtures/AcceptanceTest';
 import { expect } from '@playwright/test';
 
 test('Shop administrator should be able to create a internal link type of category.', { tag: '@Categories' }, async ({
-     ShopAdmin,
-     IdProvider,
-     AdminCategories,
-     CreateLinkTypeCategory,
-     TestDataService,
+    ShopAdmin,
+    IdProvider,
+    AdminCategories,
+    CreateLinkTypeCategory,
+    TestDataService,
+    InstanceMeta,
 }) => {
+
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
 
     const categoryData = {
         name: `00_category_link_${IdProvider.getIdPair().uuid}`,
@@ -46,7 +50,10 @@ test('Shop administrator should be able to create a internal link type of produc
     AdminCategories,
     CreateLinkTypeCategory,
     TestDataService,
+    InstanceMeta,
 }) => {
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
 
     const product = await TestDataService.createBasicProduct();
     const categoryData = {
@@ -82,13 +89,16 @@ test('Shop administrator should be able to create a internal link type of produc
 });
 
 test('Shop administrator should be able to create a internal link type of landing page.', { tag: '@Categories' }, async ({
-     ShopAdmin,
-     IdProvider,
-     AdminCategories,
-     CreateLinkTypeCategory,
-     CreateLandingPage,
-     TestDataService,
+    ShopAdmin,
+    IdProvider,
+    AdminCategories,
+    CreateLinkTypeCategory,
+    CreateLandingPage,
+    TestDataService,
+    InstanceMeta,
 }) => {
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
 
     const landingPageData = {
         name: `landing_page_${IdProvider.getIdPair().uuid}`,

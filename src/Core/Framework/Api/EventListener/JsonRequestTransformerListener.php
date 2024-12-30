@@ -23,7 +23,8 @@ class JsonRequestTransformerListener implements EventSubscriberInterface
 
     public function onRequest(RequestEvent $event): void
     {
-        if ($event->getRequest()->getContent() && stripos($event->getRequest()->headers->get('Content-Type', ''), 'application/json') === 0) {
+        // It's important to check the content-type before, otherwise we read the content
+        if (str_starts_with($event->getRequest()->headers->get('Content-Type', ''), 'application/json') && $event->getRequest()->getContent()) {
             try {
                 $data = json_decode($event->getRequest()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
             } catch (\JsonException $e) {

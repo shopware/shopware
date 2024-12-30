@@ -114,10 +114,23 @@ class RuleAreaUpdaterTest extends TestCase
         )->willReturn($resultStatement);
 
         $statement = $this->createMock(Statement::class);
-        $statement->expects(static::once())->method('executeStatement')->with([
-            'areas' => json_encode([RuleAreas::PRODUCT_AREA, RuleAreas::PROMOTION_AREA, RuleAreas::PAYMENT_AREA, RuleAreas::SHIPPING_AREA]),
-            'id' => Uuid::fromHexToBytes($id),
-        ]);
+        $params = [
+            ['areas', json_encode([RuleAreas::PRODUCT_AREA, RuleAreas::PROMOTION_AREA, RuleAreas::PAYMENT_AREA, RuleAreas::SHIPPING_AREA])],
+            ['id', Uuid::fromHexToBytes($id)],
+        ];
+        $matcher = static::exactly(2);
+        $statement->expects($matcher)
+            ->method('bindValue')
+            ->with(static::callback(function ($key) use ($matcher, $params) {
+                self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
+
+                return true;
+            }), static::callback(function ($value) use ($matcher, $params) {
+                self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
+
+                return true;
+            }));
+        $statement->expects(static::once())->method('executeStatement')->willReturn(1);
         $this->connection->method('prepare')->willReturn($statement);
 
         $this->conditionRegistry->method('getFlowRuleNames')->willReturn(['orderTags']);

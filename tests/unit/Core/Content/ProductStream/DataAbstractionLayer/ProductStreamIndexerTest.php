@@ -192,11 +192,25 @@ class ProductStreamIndexerTest extends TestCase
         $this->productDefinition->expects(static::exactly(5))->method('getEntityName')->willReturn('product');
 
         $statement = $this->createMock(Statement::class);
-        $statement->expects(static::once())->method('executeStatement')->with([
-            'serialized' => $serialized,
-            'invalid' => 0,
-            'id' => Uuid::fromHexToBytes($productStreamId),
-        ]);
+        $params = [
+            ['serialized', $serialized],
+            ['invalid', 0],
+            ['id', Uuid::fromHexToBytes($productStreamId)],
+        ];
+        $matcher = static::exactly(3);
+        $statement->expects($matcher)
+            ->method('bindValue')
+            ->with(static::callback(function ($key) use ($matcher, $params) {
+                self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
+
+                return true;
+            }), static::callback(function ($value) use ($matcher, $params) {
+                self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
+
+                return true;
+            }));
+
+        $statement->expects(static::once())->method('executeStatement')->willReturn(1);
 
         $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn($filters);
         $this->connection->expects(static::once())->method('prepare')->willReturn($statement);

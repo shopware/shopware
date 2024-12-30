@@ -12,6 +12,7 @@ jobs:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+      APP_URL: http://localhost:8000
     services:
       database:
         image: mysql:8.0

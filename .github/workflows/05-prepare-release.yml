@@ -129,15 +129,15 @@ jobs:
           git -C repos/${{ matrix.package }} log -n 2
           git -C repos/${{ matrix.package }} diff @^.. | head -n 100
       - name: Create temporary branch
-        if: github.ref_type != 'tag'
+        if: github.ref_type != 'tag' && !github.ref_protected
         run: |
           bash .github/bin/split.bash branch "${{ matrix.package }}" "tmp-${{ github.sha }}"
       - name: Push
-        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag' || github.ref_protected
         run: |
           bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "${{ github.ref_name }}"
       - name: Push temporary branch
-        if: github.ref_type != 'tag'
+        if: github.ref_type != 'tag' && !github.ref_protected
         run: |
           bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "tmp-${{ github.sha }}"
 

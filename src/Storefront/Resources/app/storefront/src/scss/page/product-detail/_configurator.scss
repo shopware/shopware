@@ -6,11 +6,17 @@
         --#{$prefix}btn-color: #{$body-color};
         --#{$prefix}btn-padding-y: 0.125rem;
         --#{$prefix}btn-line-height: 1.625rem;
-        --#{$prefix}btn-disabled-border-color: $gray-600;
+        --#{$prefix}btn-disabled-border-color: #{$gray-600};
 
         &.disabled {
             pointer-events: all;
             text-decoration: line-through;
+        }
+
+        &.is-display-color {
+            --#{$prefix}btn-line-height: 3.4rem;
+            min-width: 3.75rem;
+            height: 3.75rem;
         }
     }
 } @else {

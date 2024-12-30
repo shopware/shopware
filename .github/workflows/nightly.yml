@@ -94,4 +94,7 @@ jobs:
     if: github.repository == 'shopware/shopware'
     with:
       nightly: true
-
+  prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
+    uses: ./.github/workflows/05-prepare-release.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware'

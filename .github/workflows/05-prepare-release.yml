@@ -2,6 +2,7 @@ name: Prepare release
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
@@ -127,7 +128,6 @@ jobs:
           git -C repos/${{ matrix.package }} log -n 2
           git -C repos/${{ matrix.package }} diff @^.. | head -n 100
       - name: Push
-        if: github.ref_type == 'tag'
         run: |
           bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "${{ github.ref_name }}"
 

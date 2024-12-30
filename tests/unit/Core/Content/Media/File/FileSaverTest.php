@@ -34,7 +34,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(FileSaver::class)]
 class FileSaverTest extends TestCase
 {

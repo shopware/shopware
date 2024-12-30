@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class UnusedMediaSearchStartEvent
 {
     public function __construct(public int $totalMedia, public int $totalMediaDeletionCandidates)

@@ -157,6 +157,8 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
     public function testExecute(): void
     {
+        // can't call execute with empty query
+        $this->queryHelper->getQueryBuilder()->select('1');
         $this->connection->expects(static::once())
             ->method('executeQuery')
             ->willReturn($this->createStub(Result::class));

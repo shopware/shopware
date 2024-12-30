@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -15,6 +17,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -28,6 +31,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
     public const TYPE = 'storno';
 
     /**
+     * @decrecated tag:v6.7.0.0, DocumentTemplateRenderer will be removed
+     *
      * @internal
      */
     public function __construct(
@@ -38,7 +43,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly string $rootDir,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly DocumentFileRendererRegistry $fileRendererRegistry,
     ) {
     }
 
@@ -159,34 +165,39 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     $context,
                     $order->getSalesChannelId(),
                     $order->getLanguageId(),
-                    $locale->getCode()
+                    $locale->getCode(),
                 );
 
                 $doc = new RenderedDocument(
-                    $html,
+                    $html, // @deprecated tag:v6.7.0 - html argument will be removed
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
                     $config->jsonSerialize(),
                 );
 
-                $doc->setHtmlA11y(
-                    $this->htmlA11yRendered(
-                        $this->documentTemplateRenderer,
-                        $template,
-                        $number,
-                        [
-                            'order' => $order,
-                            'config' => $config,
-                            'rootDir' => $this->rootDir,
-                            'context' => $context,
-                        ],
-                        $order,
-                        $config,
-                        $locale,
-                        $context,
-                    ),
-                );
+                // set the template renderer to be able to render the a11y version
+                $doc->setTemplateOptions([
+                    $template,
+                    [
+                        'order' => $order,
+                        'config' => $config,
+                        'rootDir' => $this->rootDir,
+                        'context' => $context,
+                    ],
+                    $context,
+                    $order->getSalesChannelId(),
+                    $order->getLanguageId(),
+                    $locale->getCode(),
+                ]);
+
+                if ($operation->getFileType() === HtmlRenderer::FILE_EXTENSION) {
+                    $doc->setContentType(HtmlRenderer::FILE_CONTENT_TYPE);
+                }
+
+                if (Feature::isActive('v6.7.0.0')) {
+                    $doc->setContent($this->fileRendererRegistry->render($doc));
+                }
 
                 $result->addSuccess($orderId, $doc);
             } catch (\Throwable $exception) {

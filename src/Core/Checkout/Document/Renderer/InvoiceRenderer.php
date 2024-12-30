@@ -5,8 +5,9 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -27,6 +29,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
     public const TYPE = 'invoice';
 
     /**
+     * @decrecated tag:v6.7.0.0, DocumentTemplateRenderer will be removed
+     *
      * @internal
      */
     public function __construct(
@@ -36,7 +40,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         private readonly DocumentTemplateRenderer $documentTemplateRenderer,
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly string $rootDir,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly DocumentFileRendererRegistry $fileRendererRegistry,
     ) {
     }
 
@@ -109,13 +114,13 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                         'custom' => [
                             'invoiceNumber' => $number,
                         ],
-                        'fileType' => FileTypes::PDF,
                     ]);
 
                     // create version of order to ensure the document stays the same even if the order changes
                     $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
 
                     if ($operation->isStatic()) {
+                        // @deprecated tag:v6.7.0 - html argument will be removed
                         $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
 
@@ -142,34 +147,39 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                         $context,
                         $order->getSalesChannelId(),
                         $order->getLanguageId(),
-                        $locale->getCode()
+                        $locale->getCode(),
                     );
 
                     $doc = new RenderedDocument(
-                        $html,
+                        $html, // @deprecated tag:v6.7.0 - html argument will be removed
                         $number,
                         $config->buildName(),
                         $operation->getFileType(),
                         $config->jsonSerialize(),
                     );
 
-                    $doc->setHtmlA11y(
-                        $this->htmlA11yRendered(
-                            $this->documentTemplateRenderer,
-                            $template,
-                            $number,
-                            [
-                                'order' => $order,
-                                'config' => $config,
-                                'rootDir' => $this->rootDir,
-                                'context' => $context,
-                            ],
-                            $order,
-                            $config,
-                            $locale,
-                            $context,
-                        ),
-                    );
+                    // set the template renderer to be able to render the a11y version
+                    $doc->setTemplateOptions([
+                        $template,
+                        [
+                            'order' => $order,
+                            'config' => $config,
+                            'rootDir' => $this->rootDir,
+                            'context' => $context,
+                        ],
+                        $context,
+                        $order->getSalesChannelId(),
+                        $order->getLanguageId(),
+                        $locale->getCode(),
+                    ]);
+
+                    if ($operation->getFileType() === HtmlRenderer::FILE_EXTENSION) {
+                        $doc->setContentType(HtmlRenderer::FILE_CONTENT_TYPE);
+                    }
+
+                    if (Feature::isActive('v6.7.0.0')) {
+                        $doc->setContent($this->fileRendererRegistry->render($doc));
+                    }
 
                     $result->addSuccess($orderId, $doc);
                 } catch (\Throwable $exception) {

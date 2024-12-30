@@ -7,11 +7,14 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 #[Package('checkout')]
-final class PdfRenderer
+final class PdfRenderer extends AbstractDocumentTypeRenderer
 {
     public const FILE_EXTENSION = 'pdf';
 
@@ -24,6 +27,7 @@ final class PdfRenderer
      */
     public function __construct(
         private readonly array $dompdfOptions,
+        private readonly DocumentTemplateRenderer $documentTemplateRenderer,
         private readonly ExtensionDispatcher $extensions
     ) {
     }
@@ -42,6 +46,31 @@ final class PdfRenderer
         );
     }
 
+    public function getDecorated(): AbstractDocumentTypeRenderer
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    /**
+     * @param array<mixed> $templateOptions
+     */
+    public function templateRenderer(array $templateOptions, string $html = ''): void
+    {
+        $this->htmlRenderer[self::FILE_EXTENSION] = $html;
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            return;
+        }
+
+        if (empty($templateOptions)) {
+            return;
+        }
+
+        $this->htmlRenderer[self::FILE_EXTENSION] = $this->documentTemplateRenderer->render(
+            ...$templateOptions,
+        );
+    }
+
     private function _render(RenderedDocument $document): string
     {
         $dompdf = new Dompdf();
@@ -50,7 +79,7 @@ final class PdfRenderer
 
         $dompdf->setOptions($options);
         $dompdf->setPaper($document->getPageSize(), $document->getPageOrientation());
-        $dompdf->loadHtml($document->getHtml());
+        $dompdf->loadHtml($this->htmlRenderer[self::FILE_EXTENSION]);
 
         /*
          * Dompdf creates and destroys a lot of objects. The garbage collector slows the process down by ~50% for
@@ -68,6 +97,11 @@ final class PdfRenderer
 
         if ($gcEnabledAtStart) {
             gc_enable();
+        }
+
+        if (Feature::isActive('v6.7.0.0')) {
+            $document->setContentType(self::FILE_CONTENT_TYPE);
+            $document->setFileExtension(self::FILE_EXTENSION);
         }
 
         return (string) $dompdf->output();

@@ -9,6 +9,7 @@ jobs:
   clean-ghcr:
     name: Delete old unused container images
     runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware'
     steps:
       - name: Collect skipped SHAs
         id: skip-sha
@@ -44,6 +45,7 @@ jobs:
   redis:
     name: Redis
     runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware'
     strategy:
       fail-fast: false
       matrix:
@@ -73,18 +75,23 @@ jobs:
   admin:
     uses: ./.github/workflows/admin.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
   integration:
     uses: ./.github/workflows/integration.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
   php:
     uses: ./.github/workflows/php.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
   storefront:
     uses: ./.github/workflows/storefront.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
   downstream:
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
     with:
       nightly: true
 

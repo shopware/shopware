@@ -58,7 +58,10 @@ export default {
         },
 
         isSmtpMode() {
-            return this.mailerSettings['core.mailerSettings.emailAgent'] === 'smtp';
+            return [
+                'smtp',
+                'smtp+oauth',
+            ].includes(this.mailerSettings['core.mailerSettings.emailAgent']);
         },
     },
 

@@ -1,15 +1,20 @@
+{# @deprecated tag:v6.7.0 - template will be removed, the list is now rendered in `component/payment/payment-form.html.twig` #}
 {% set collapseTriggerLabels = {
     collapseTriggerMoreLabel: 'checkout.collapseTriggerMore'|trans|sw_sanitize,
     collapseTriggerLessLabel: 'checkout.collapseTriggerLess'|trans|sw_sanitize
 } %}
 
+{# @deprecated tag:v6.7.0 - payment method list is moved to `component/payment/payment-form.html.twig` #}
 {% block component_payment_methods %}
     <div class="payment-methods">
+
+        {# @deprecated tag:v6.7.0 - payment method list is moved to `component/payment/payment-form.html.twig` #}
         {% block component_payment_method %}
             {% for payment in page.paymentMethods[:visiblePaymentMethodsLimit] %}
                 {% sw_include '@Storefront/storefront/component/payment/payment-method.html.twig' %}
             {% endfor %}
 
+            {# @deprecated tag:v6.7.0 - block will be removed, all payment methods will be shown for accessibility #}
             {% block component_payment_method_collapse %}
                 {% if page.paymentMethods|length > visiblePaymentMethodsLimit and visiblePaymentMethodsLimit is not same as(null) %}
                     <div class="collapse">
@@ -18,17 +23,20 @@
                         {% endfor %}
                     </div>
 
+                    {# @deprecated tag:v6.7.0 - block will be removed, all payment methods will be shown for accessibility #}
                     {% block component_payment_method_collapse_trigger %}
                         <button class="btn btn-link confirm-checkout-collapse-trigger"
                                 type="button"
                                 data-collapse-checkout-confirm-methods="true"
                                 data-collapse-checkout-confirm-methods-options="{{ collapseTriggerLabels|json_encode }}">
                             <span class="confirm-checkout-collapse-trigger-label">
+                                {# @deprecated tag:v6.7.0 - block will be removed, all payment methods will be shown for accessibility #}
                                 {% block component_payment_method_collapse_trigger_label %}
                                     {{ collapseTriggerLabels.collapseTriggerMoreLabel }}
                                 {% endblock %}
                             </span>
 
+                            {# @deprecated tag:v6.7.0 - block will be removed, all payment methods will be shown for accessibility #}
                             {% block component_payment_method_collapse_trigger_icon %}
                                 {% sw_icon 'arrow-down' style {
                                     class: 'confirm-checkout-chevron',

@@ -1,0 +1,15 @@
+<div style="font-family:arial; font-size:12px;">
+    {% set htmlFileType = constant('Shopware\\Core\\Checkout\\Document\\FileGenerator\\FileTypes::HTML') %}
+    {% set Ayy1Link = rawUrl('frontend.account.order.single.document', { documentId: document.id, 'deepLinkCode': document.deepLinkCode, fileType: 'html' }, salesChannel.domains|first.url)%}
+
+    <p>
+        In addition to the PDF document, we provide an HTML version for better accessibility here (
+        <a href="{{ Ayy1Link }}" target="_blank">
+            {{ document.documentType.translated.name|replace({' ' : '-'}) }}_{{ document.config.documentNumber }}_{{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ htmlFileType }}
+        </a>). <br>
+        For data protection reasons the HTML version requires to login. <br>
+        You can use your usual customer login credentials. <br>
+        In case of a guest order, you can instead use your mail address and the postal code of your billing address
+    </p>
+    <br>
+</div>

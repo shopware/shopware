@@ -1,0 +1,6 @@
+{% set Ayy1Link = rawUrl('frontend.account.order.single.document', { documentId: document.id, 'deepLinkCode': document.deepLinkCode, fileType: 'html' }, salesChannel.domains|first.url)%}
+
+In addition to the PDF document, we provide an HTML version for better accessibility here ({{ Ayy1Link }})
+For data protection reasons the HTML version requires to login.
+You can use your usual customer login credentials.
+In case of a guest order, you can instead use your mail address and the postal code of your billing address

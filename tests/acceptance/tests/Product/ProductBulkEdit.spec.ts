@@ -1,5 +1,4 @@
 import { test } from '@fixtures/AcceptanceTest';
-import { satisfies } from 'compare-versions';
 
 test('As a merchant, I want to perform bulk edits on products information.', { tag: '@Product' }, async ({
     TestDataService,
@@ -27,10 +26,11 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
     const originalProductPrice = unchangedProduct.price[0].gross.toString();
     const changedProducts = [changedProduct1, changedProduct2];
     const changedManufacturer = await TestDataService.createBasicManufacturer();
+
     // eslint-disable-next-line playwright/no-conditional-in-test
-    const changedReleaseDate = satisfies(InstanceMeta.version, '<6.7')
-        ? '2025-01-01 01:23'
-        : '01/01/2025, 01:23';
+    const changedReleaseDate: string = InstanceMeta.features['V6_7_0_0']
+        ? '2025-01-01 00:01'
+        : '31/12/2024, 23:59';
 
     const changes = {
         'grossPrice': { value: '99.99', method: '' },
@@ -42,7 +42,6 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
         'tags': { value: addedTag.name, method: 'Add' },
         'saleschannel': { value: DefaultSalesChannel.salesChannel.name, method: 'Remove' },
     };
-
 
     await test.step('Bulk edit two products.', async () => {
         await ShopAdmin.goesTo(AdminProductListing.url([changedProduct1.name, changedProduct2.name, unchangedProduct.name]));
@@ -72,14 +71,13 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
         await ShopAdmin.expects(AdminProductDetail.manufacturerDropdownText).toHaveText('Enter product manufacturer...');
 
         // Verify the release date input value
-        const todayDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
-        const releaseDateInput = AdminProductDetail.releaseDateInput;
         // eslint-disable-next-line playwright/no-conditional-in-test
-        if (satisfies(InstanceMeta.version, '<6.7')) {
-            const receivedDate = (await releaseDateInput.inputValue()).split(' ')[0];
-            await ShopAdmin.expects(receivedDate).toBe(todayDate);
+        if (InstanceMeta.features['V6_7_0_0']) {
+            const todayDate = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+            const receivedDate = (await AdminProductDetail.releaseDateInput.inputValue()).split(' ')[0];
+            await ShopAdmin.expects(receivedDate).toContain(todayDate);
         } else {
-            await ShopAdmin.expects(releaseDateInput).toHaveValue('');
+            await ShopAdmin.expects(AdminProductDetail.releaseDateInput).toHaveValue('');
         }
 
         await ShopAdmin.expects(AdminProductDetail.stockInput).toHaveValue(originalStock.toString());

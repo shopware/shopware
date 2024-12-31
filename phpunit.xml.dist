@@ -142,7 +142,7 @@
         <server name="HTTPS" value="off"/>
         <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
         <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[direct]=0&amp;ignoreFile=./deprecation.ignore" />
     </php>
     <testsuites>
         <testsuite name="unit">

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapGenerateTask extends ScheduledTask
 {
     public static function getTaskName(): string

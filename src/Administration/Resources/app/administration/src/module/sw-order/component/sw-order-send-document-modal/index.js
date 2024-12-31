@@ -49,6 +49,7 @@ export default {
             subject: '',
             recipient: '',
             content: '',
+            mailA11yTemplate: null,
         };
     },
 
@@ -74,6 +75,7 @@ export default {
                     'invoice_mail',
                     'credit_note_mail',
                     'cancellation_mail',
+                    'a11y_mail',
                 ]),
             );
 
@@ -113,6 +115,7 @@ export default {
                 credit_note: 'credit_note_mail',
                 delivery_note: 'delivery_mail',
                 storno: 'cancellation_mail',
+                a11y: 'a11y_mail',
             };
 
             if (!documentMailTemplateMapping.hasOwnProperty(this.document.documentType.technicalName)) {
@@ -127,6 +130,10 @@ export default {
                             documentMailTemplateMapping[this.document.documentType.technicalName],
                     )
                     .first();
+
+                this.mailA11yTemplate = result.find(
+                    (t) => t.mailTemplateType.technicalName === documentMailTemplateMapping.a11y,
+                );
 
                 if (!mailTemplate) {
                     return;
@@ -212,10 +219,44 @@ export default {
                         })
                         .then(() => {
                             this.$emit('document-sent');
+
+                            this.onSendDocumentForA11y();
                         })
                         .finally(() => {
                             this.isLoading = false;
                         });
+                });
+        },
+
+        onSendDocumentForA11y() {
+            if (!this.mailA11yTemplate) {
+                return;
+            }
+
+            this.mailService
+                .sendMailTemplate(
+                    this.recipient,
+                    `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                    {
+                        ...this.mailA11yTemplate,
+                        ...{
+                            recipient: this.recipient,
+                        },
+                    },
+                    {
+                        getIds: () => {},
+                    },
+                    this.order.salesChannelId,
+                    false,
+                    [this.document.id],
+                    {
+                        order: this.order,
+                        salesChannel: this.order.salesChannel,
+                        document: this.document,
+                    },
+                )
+                .catch(() => {
+                    // do something
                 });
         },
     },

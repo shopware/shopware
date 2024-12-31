@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentCollection;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('checkout')]
 final class DocumentMerger
@@ -30,14 +33,15 @@ final class DocumentMerger
         private readonly EntityRepository $documentRepository,
         private readonly MediaService $mediaService,
         private readonly DocumentGenerator $documentGenerator,
-        private readonly Fpdi $fpdi
+        private readonly Fpdi $fpdi,
+        private readonly Connection $connection
     ) {
     }
 
     /**
      * @param array<string> $documentIds
      */
-    public function merge(array $documentIds, Context $context): ?RenderedDocument
+    public function merge(array $documentIds, Context $context, string $fileType = FileTypes::PDF): ?RenderedDocument
     {
         if (empty($documentIds)) {
             return null;
@@ -47,6 +51,7 @@ final class DocumentMerger
         $criteria->addAssociation('documentType');
         $criteria->addSorting(new FieldSorting('order.orderNumber'));
 
+        /** @var DocumentCollection $documents */
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
 
         if ($documents->count() === 0) {
@@ -54,6 +59,7 @@ final class DocumentMerger
         }
 
         $fileName = Random::getAlphanumericString(32) . '.' . PdfRenderer::FILE_EXTENSION;
+        $renderedDocument = new RenderedDocument('', '', $fileName);
 
         if ($documents->count() === 1) {
             $document = $documents->first();
@@ -61,25 +67,47 @@ final class DocumentMerger
                 return null;
             }
 
-            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
-
+            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
             if ($documentMediaId === null) {
                 return null;
             }
 
             $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
-
-            $renderedDocument = new RenderedDocument('', '', $fileName);
             $renderedDocument->setContent($fileBlob);
+
+            if ($fileType === FileTypes::HTML) {
+                $renderedDocument->setContentType(RenderedDocument::HTML_CONTENT_TYPE);
+                $renderedDocument->setFileExtension(FileTypes::HTML);
+                $renderedDocument->setName(Random::getAlphanumericString(32) . '.' . $fileType);
+
+                return $renderedDocument;
+            }
 
             return $renderedDocument;
         }
 
         $totalPage = 0;
-        foreach ($documents as $document) {
-            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
 
+        $zipFileName = Random::getAlphanumericString(32) . '.zip';
+        $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName; // Temporary ZIP file path
+
+        $zip = new \ZipArchive();
+        $zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        foreach ($documents as $document) {
+            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
             if ($documentMediaId === null) {
+                continue;
+            }
+
+            // add HTML file to ZIP archive
+            if ($fileType === FileTypes::HTML) {
+                $content = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
+                $zip->addFromString(
+                    $document->getDocumentType()?->getTechnicalName() . '_' . $document->getDocumentNumber() . '.' . $fileType,
+                    $content,
+                );
+
                 continue;
             }
 
@@ -101,30 +129,44 @@ final class DocumentMerger
             }
         }
 
+        if ($zip->numFiles > 0) {
+            $zip->close();
+
+            $renderedDocument = new RenderedDocument(
+                '',
+                '',
+                $zipFileName,
+                'zip',
+                [],
+                'application/zip',
+            );
+            $renderedDocument->setContent(file_get_contents($zipFilePath) ?: '');
+
+            unlink($zipFilePath);
+
+            return $renderedDocument;
+        }
+
         if ($totalPage === 0) {
             return null;
         }
 
-        $renderedDocument = new RenderedDocument('', '', $fileName);
-
         $renderedDocument->setContent($this->fpdi->Output($fileName, 'S'));
         $renderedDocument->setContentType(PdfRenderer::FILE_CONTENT_TYPE);
-        $renderedDocument->setName($fileName);
 
         return $renderedDocument;
     }
 
-    private function ensureDocumentMediaFileGenerated(DocumentEntity $document, Context $context): ?string
+    private function ensureDocumentMediaFileGenerated(DocumentEntity $document, string $fileType, Context $context): ?string
     {
-        $documentMediaId = $document->getDocumentMediaFileId();
-
+        $documentMediaId = $this->loadMediaByFileExtension($document->getDocumentMediaFileIds() ?: [], $fileType);
         if ($documentMediaId !== null || $document->isStatic()) {
             return $documentMediaId;
         }
 
         $operation = new DocumentGenerateOperation(
             $document->getOrderId(),
-            FileTypes::PDF,
+            $fileType,
             $document->getConfig(),
             $document->getReferencedDocumentId()
         );
@@ -146,9 +188,25 @@ final class DocumentMerger
             return null;
         }
 
+        // need to check media
         $documentMediaId = $documentStruct->getMediaId();
         $document->setDocumentMediaFileId($documentMediaId);
 
         return $documentMediaId;
+    }
+
+    /**
+     * @param array<string> $mediaIds
+     */
+    private function loadMediaByFileExtension(array $mediaIds, string $fileExtension): ?string
+    {
+        /** @var array{fileExtension: string, fileName: string, id: string, mimeType: string}[] $data */
+        $data = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(id)) as id, file_name as fileName, file_extension as fileExtension, mime_type as mimeType FROM media WHERE id IN (:ids) AND file_extension = :fileExtension',
+            ['ids' => Uuid::fromHexToBytesList($mediaIds), 'fileExtension' => $fileExtension],
+            ['ids' => ArrayParameterType::STRING],
+        );
+
+        return empty($data) ? null : $data[0]['id'];
     }
 }

@@ -24,7 +24,7 @@ final class RenderedDocument extends Struct
         private readonly string $html = '',
         private readonly string $number = '',
         private string $name = '',
-        private readonly string $fileExtension = FileTypes::PDF,
+        private string $fileExtension = FileTypes::PDF,
         private readonly array $config = [],
         private ?string $contentType = self::PDF_CONTENT_TYPE,
     ) {
@@ -68,6 +68,11 @@ final class RenderedDocument extends Struct
     public function getFileExtension(): string
     {
         return $this->fileExtension;
+    }
+
+    public function setFileExtension(string $fileExtension): void
+    {
+        $this->fileExtension = $fileExtension;
     }
 
     public function getPageOrientation(): string

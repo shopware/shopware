@@ -14,11 +14,11 @@ class ThemeConfigFieldFactory
         $configField->setName($name);
 
         foreach ($configFieldArray as $key => $value) {
-            $setter = 'set' . ucfirst($key);
+            $setter = 'set' . $key;
             if (!method_exists($configField, $setter)) {
                 throw new InvalidThemeConfigException($key);
             }
-            $configField->$setter($value); // @phpstan-ignore-line
+            $configField->$setter($value); /* @phpstan-ignore-line */
         }
 
         return $configField;

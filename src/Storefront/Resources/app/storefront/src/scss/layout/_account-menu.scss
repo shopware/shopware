@@ -30,6 +30,10 @@ The menu opens on smaller viewports inside an offcanvas and on larger viewports 
 .account-menu-dropdown {
     padding: $spacer-sm $spacer;
     min-width: 200px;
+
+    .offcanvas-body {
+        overflow: visible;
+    }
 }
 
 .account-menu-offcanvas,

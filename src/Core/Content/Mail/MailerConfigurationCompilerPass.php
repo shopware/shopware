@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Mail;
 
-use Shopware\Core\Content\Mail\Service\MailerTransportLoader;
 use Shopware\Core\Content\Mail\Service\MailSender;
+use Shopware\Core\Content\Mail\Transport\MailerTransportLoader;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

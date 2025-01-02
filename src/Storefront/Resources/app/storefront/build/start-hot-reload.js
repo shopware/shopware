@@ -79,7 +79,7 @@ const proxyOptions = {
                     return;
                 }
                 // we only replace things when the request is a document
-                if (req.headers['sec-fetch-dest'] === 'document') {
+                if (req.headers['sec-fetch-dest'] === 'document' || req.headers.accept.indexOf('text/html') !== -1) {
                     body = Buffer.concat(body).toString();
                     // if we have the offcanvas=1 parameter in the url, we will attach a script to open the offcanvas cart
                     if (req.url.indexOf('offcanvas=1') !== -1) {

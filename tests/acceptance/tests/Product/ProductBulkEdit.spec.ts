@@ -1,4 +1,4 @@
-import { test } from '@fixtures/AcceptanceTest'; 
+import { test } from '@fixtures/AcceptanceTest';
 
 test('As a merchant, I want to perform bulk edits on products information.', { tag: '@Product' }, async ({
     TestDataService,
@@ -8,16 +8,21 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
     BulkEditProducts,
     DefaultSalesChannel,
     IdProvider,
+    InstanceMeta,
 }) => {
-    
+
+    test.slow();
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40155');
+
     const originalStock = 200;
     const originalRestockTime = 10;
     const tagUuid = IdProvider.getIdPair().uuid;
     const originalTag = await TestDataService.createTag('Tag1-' + tagUuid);
     const addedTag = await TestDataService.createTag('Tag2-' + tagUuid);
-    const changedProduct1 = await TestDataService.createBasicProduct( { stock: originalStock, restockTime: originalRestockTime, tags: [ { id: originalTag.id } ], visibilities: [ { salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 } ] } );
-    const changedProduct2 = await TestDataService.createBasicProduct( { stock: originalStock, restockTime: originalRestockTime, tags: [ { id: originalTag.id } ], visibilities: [ { salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 } ] } );
-    const unchangedProduct = await TestDataService.createBasicProduct( { stock: originalStock, restockTime: originalRestockTime, tags: [ { id: originalTag.id } ], visibilities: [ { salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 } ] } );
+    const changedProduct1 = await TestDataService.createBasicProduct({ stock: originalStock, restockTime: originalRestockTime, tags: [{ id: originalTag.id }], visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }] });
+    const changedProduct2 = await TestDataService.createBasicProduct({ stock: originalStock, restockTime: originalRestockTime, tags: [{ id: originalTag.id }], visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }] });
+    const unchangedProduct = await TestDataService.createBasicProduct({ stock: originalStock, restockTime: originalRestockTime, tags: [{ id: originalTag.id }], visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }] });
     const originalProductPrice = unchangedProduct.price[0].gross.toString();
     const changedProducts = [changedProduct1, changedProduct2];
     const changedManufacturer = await TestDataService.createBasicManufacturer();
@@ -38,7 +43,7 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
     });
 
     await test.step('Confirm that two products have changes and one has no changes.', async () => {
-        
+
         // Verify the changes for the bulk edited products
         for (const product of changedProducts) {
             await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
@@ -51,7 +56,7 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
             await ShopAdmin.expects(AdminProductDetail.tagsInput).toContainText(originalTag.name);
             await ShopAdmin.expects(AdminProductDetail.tagsInput).toContainText(addedTag.name);
             await ShopAdmin.expects(AdminProductDetail.saleChannelsInput).toHaveText('');
-        } 
+        }
 
         // Verify that the product that was not part of the bulk edit has not changed
         await ShopAdmin.goesTo(AdminProductDetail.url(unchangedProduct.id));

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Log\Package;
@@ -31,6 +32,8 @@ class CartRestorerTest extends TestCase
 
     private CartRuleLoader&MockObject $cartRuleLoader;
 
+    private CartPersister&MockObject $cartPersister;
+
     private EventDispatcher $eventDispatcher;
 
     private RequestStack $requestStack;
@@ -41,6 +44,7 @@ class CartRestorerTest extends TestCase
         $this->persister = $this->createMock(SalesChannelContextPersister::class);
         $this->cartService = $this->createMock(CartService::class);
         $this->cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $this->cartPersister = $this->createMock(CartPersister::class);
         $this->eventDispatcher = new EventDispatcher();
         $this->requestStack = new RequestStack();
     }
@@ -65,6 +69,7 @@ class CartRestorerTest extends TestCase
             $this->persister,
             $this->cartService,
             $this->cartRuleLoader,
+            $this->cartPersister,
             $this->eventDispatcher,
             $this->requestStack
         );
@@ -115,6 +120,7 @@ class CartRestorerTest extends TestCase
             $this->persister,
             $this->cartService,
             $this->cartRuleLoader,
+            $this->cartPersister,
             $this->eventDispatcher,
             $this->requestStack
         );
@@ -164,6 +170,7 @@ class CartRestorerTest extends TestCase
             $this->persister,
             $this->cartService,
             $this->cartRuleLoader,
+            $this->cartPersister,
             $this->eventDispatcher,
             $this->requestStack
         );

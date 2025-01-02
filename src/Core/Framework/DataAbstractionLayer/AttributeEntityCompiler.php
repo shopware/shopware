@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field as DalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -63,6 +64,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml as AllowHtmlAttr;
 
 /**
  * @phpstan-type FieldArray array{type?: string, name?: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}
@@ -292,6 +294,11 @@ class AttributeEntityCompiler
 
         if ($this->getAttribute($property, AllowEmptyStringAttr::class)) {
             $flags[AllowEmptyString::class] = ['class' => AllowEmptyString::class];
+        }
+
+        if ($attr = $this->getAttribute($property, AllowHtmlAttr::class)) {
+            $instance = $attr->newInstance();
+            $flags[AllowHtml::class] = ['class' => AllowHtml::class, 'args' => ['sanitized' => $instance->sanitized]];
         }
 
         if ($field->api !== false) {

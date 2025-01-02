@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Core\LoginConfig;
+namespace Shopware\Administration\LoginConfig;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -22,9 +22,13 @@ class LoginConfigException extends HttpException
 
     final public const LOGIN_CONFIG_FOR_KEY_NOT_FOUND = 'LOGIN_CONFIG__CONFIG_FOR_KEY_NOT_FOUND';
 
+    /**
+     * @param array<string> $fields
+     */
     public static function configurationIncomplete(array $fields): self
     {
         $fields = implode(', ', $fields);
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::LOGIN_CONFIG_INCOMPLETE,

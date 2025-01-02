@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api;
 use Shopware\Administration\Notification\Exception\NotificationThrottledException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Controller\Exception\AuthThrottledException;
 use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
@@ -21,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssocia
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,6 +65,12 @@ class ApiException extends HttpException
     public const API_ROUTES_ARE_LOADED_ALREADY = 'FRAMEWORK__API_ROUTES_ARE_LOADED_ALREADY';
 
     public const API_NOTIFICATION_THROTTLED = 'FRAMEWORK__NOTIFICATION_THROTTLED';
+
+    public const API_INVALID_LOGIN_STATE = 'FRAMEWORK__INVALID_LOGIN_STATE';
+
+    public const API_NO_LOGIN_SERVICE = 'FRAMEWORK__NO_LOGIN_SERVICE';
+
+    public const API_INVALID_JWT_TOKEN = 'FRAMEWORK__INVALID_JWT_TOKEN';
 
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
@@ -453,6 +457,33 @@ class ApiException extends HttpException
             'Notification throttled for {{ seconds }} seconds.',
             ['seconds' => $waitTime],
             $e
+        );
+    }
+
+    public static function invalidLoginState(): self
+    {
+        return new self(
+            Response::HTTP_UNAUTHORIZED,
+            self::API_INVALID_LOGIN_STATE,
+            'Invalid login state'
+        );
+    }
+
+    public static function loginConfigServiceNotAvailable(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_NO_LOGIN_SERVICE,
+            'LoginConfigService not available'
+        );
+    }
+
+    public static function invalidJwtToken(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_JWT_TOKEN,
+            'Invalid JWT token'
         );
     }
 }

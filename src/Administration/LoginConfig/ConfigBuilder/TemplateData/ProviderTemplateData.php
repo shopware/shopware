@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\LoginConfig\ConfigBuilder\TemplateData;
+namespace Shopware\Administration\LoginConfig\ConfigBuilder\TemplateData;
 
 use Shopware\Core\Framework\Log\Package;
 
@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('core')]
-class TemplateData
+class ProviderTemplateData implements \JsonSerializable
 {
     public function __construct(
         public readonly string $key,
@@ -23,7 +23,15 @@ class TemplateData
     /**
      * @return array{key: string, snippet_key: string, icon: string, class: string, url: string}
      */
-    public function toArray(): array
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * @return array{key: string, snippet_key: string, icon: string, class: string, url: string}
+     */
+    private function toArray(): array
     {
         return [
             'key' => $this->key,

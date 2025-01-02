@@ -3,16 +3,15 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
+use Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\LoginConfig\ConfigBuilder\LoginConfigService;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,6 +19,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('services-settings')]
@@ -33,8 +33,10 @@ class AuthController extends AbstractController
         private readonly PsrHttpFactory $psrHttpFactory,
         private readonly RateLimiter $rateLimiter,
         private readonly EntityRepository $userRepository,
-        private readonly ?LoginConfigService $configFactory
-    ) {}
+        private readonly ?LoginConfigService $loginConfigService,
+        private readonly HttpClientInterface $client,
+    ) {
+    }
 
     /**
      * @deprecated tag:v6.7.0 - Remove endpoint "/api/oauth/authorize"
@@ -55,7 +57,7 @@ class AuthController extends AbstractController
 
             $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
         } catch (RateLimitExceededException $exception) {
-            throw ApiException::onRateLimitExceeded($exception);
+            throw ApiException::notificationThrottled($exception->getWaitTime(), $exception);
         }
 
         $psr7Request = $this->psrHttpFactory->createRequest($request);
@@ -71,30 +73,38 @@ class AuthController extends AbstractController
     #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.config', defaults: ['auth_required' => false], methods: ['GET'])]
     public function loginButtonConfig(Request $request): JsonResponse
     {
-        if (!$this->configFactory instanceof LoginConfigService) {
+        if (!$this->loginConfigService instanceof LoginConfigService) {
             return new JsonResponse(['useDefault' => true, 'ssoProviders' => [], 'error' => 'LoginConfigService not available']);
         }
 
-        return new JsonResponse($this->configFactory->templateDataToArray($this->configFactory->createTemplateData()));
+        $templateData = $this->loginConfigService->createTemplateData();
+        foreach ($templateData['ssoProviders'] as $key => $provider) {
+            $request->getSession()->set('SSO_' . $key, $provider->random);
+        }
+
+        return new JsonResponse($templateData);
     }
 
     #[Route(path: '/api/oauth/sso/code', name: 'api.oauth.sso.code', defaults: ['auth_required' => false], methods: ['GET'])]
-    public function code(Request $request, Context $context): Response
+    public function code(Request $request): Response
     {
         $storedState = $request->getSession()->get('SSO_swsso');
         $state = $request->get('rdm');
 
         if ($storedState !== $state) {
-            throw new \Exception('Invalid state');
+            throw ApiException::invalidLoginState();
         }
 
         $code = $request->get('code');
 
-        $config = $this->configFactory->getLoginConfigItemByKey('swsso');
+        if (!$this->loginConfigService instanceof LoginConfigService) {
+            throw ApiException::loginConfigServiceNotAvailable();
+        }
 
-        $client = new \GuzzleHttp\Client(['base_uri' => $config->baseUrl]);
-        $tokenResponse = $client->post('/oauth/access_token', [
-            'form_params' => [
+        $config = $this->loginConfigService->getLoginConfigItemByKey('swsso');
+
+        $tokenResponse = $this->client->request('POST', $config->baseUrl . '/oauth/access_token', [
+            'body' => [
                 'grant_type' => 'authorization_code',
                 'scope' => 'openid',
                 'client_id' => $config->clientId,
@@ -104,50 +114,11 @@ class AuthController extends AbstractController
             ],
         ]);
 
-        $json = json_decode($tokenResponse->getBody()->getContents(), true);
+        $json = json_decode($tokenResponse->getContent(), true);
 
+        // the following code is just an example and should be replaced with real user handling
+        $this->userRepository->search(new Criteria(), Context::createDefaultContext());
 
-        $JWT = json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', $json['id_token'])[1]))));
-
-        $email = $JWT->email;
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('email', $email));
-        $searchResult = $this->userRepository->search($criteria, $context);
-
-        // TODO: REMOVE AFTER DEBUG
-        echo '<pre>';
-        var_export($searchResult->getEntities()->first());
-        echo '<br/>';
-        die();
-        // TODO: REMOVE AFTER DEBUG
-
-//        $userInfoResponse = $client->get('/openid/userinfo', [
-//            'headers' => [
-//                'Authorization' => 'Bearer ' . $json['access_token']
-//            ],
-//        ]);
-//
-//        $userInfo = json_decode($userInfoResponse->getBody()->getContents(), true);
-//
-//        // get jwks token
-//        $jwksResponse = $client->get('openid/jwks', [
-//            'headers' => [
-//                'Authorization' => 'Bearer ' . $json['access_token']
-//            ],
-//        ]);
-//
-//        $jwks = json_decode($jwksResponse->getBody()->getContents(), true);
-//        // TODO: REMOVE AFTER DEBUG
-//        echo'<pre>';
-//        var_export('$userInfoResponse');
-//        var_export($userInfoResponse->getBody()->getContents());
-//        var_export('$jwksResponse');
-//        var_export($jwksResponse->getBody()->getContents());
-//        echo '<br/>';
-//        die();
-//        // TODO: REMOVE AFTER DEBUG
-
-        return new Response();
+        return new Response($json);
     }
 }

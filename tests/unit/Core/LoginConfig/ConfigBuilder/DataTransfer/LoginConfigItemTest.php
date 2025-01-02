@@ -2,10 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\LoginConfig\ConfigBuilder\DataTransfer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\LoginConfig\ConfigBuilder\LoginConfigItem;
+use Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigItem;
 
+/**
+ * @internal
+ */
+#[CoversClass(LoginConfigItem::class)]
 class LoginConfigItemTest extends TestCase
 {
     public function testFromArrayShouldCreateSuccessfully(): void
@@ -36,6 +41,9 @@ class LoginConfigItemTest extends TestCase
         static::assertSame($loginConfigItemArray['additional_data'], $loginConfigItem->additionalData);
     }
 
+    /**
+     * @param array{snippet_key: string, icon: string, class: string, client_id: string, client_secret: string, redirect_uri: string, base_url: string, additional_data: ?array<string, mixed>} $array
+     */
     #[DataProvider('fromArrayDataProvider')]
     public function testFromArray(array $array, ?string $expectedMessage): void
     {
@@ -55,6 +63,9 @@ class LoginConfigItemTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array<string,array<string, array<string, string>|string>|string|null>>
+     */
     public static function fromArrayDataProvider(): array
     {
         return [

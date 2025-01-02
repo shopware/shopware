@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\LoginConfig\ConfigBuilder\Handler;
+namespace Shopware\Administration\LoginConfig\ConfigBuilder\Handler;
 
+use Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigItem;
+use Shopware\Administration\LoginConfig\ConfigBuilder\TemplateData\ProviderTemplateData;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\LoginConfig\ConfigBuilder\LoginConfigItem;
-use Shopware\Core\LoginConfig\ConfigBuilder\TemplateData\TemplateData;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ abstract class AbstractLoginConfigHandler
     ) {
     }
 
-    abstract public function createTemplateData(LoginConfigItem $loginConfigItem): TemplateData;
+    abstract public function createTemplateData(LoginConfigItem $loginConfigItem): ProviderTemplateData;
 
     abstract public function createRedirectUrl(LoginConfigItem $loginConfigItem, string $random): string;
 

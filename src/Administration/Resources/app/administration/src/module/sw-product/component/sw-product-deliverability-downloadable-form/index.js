@@ -2,7 +2,7 @@ import template from './sw-product-deliverability-downloadable-form.html.twig';
 import './sw-product-deliverability-downloadable-form.scss';
 
 const { Mixin } = Shopware;
-const { mapVuexState, mapPropertyErrors, mapVuexGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /*
  * @package inventory
@@ -32,15 +32,17 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'loading',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapVuexGetters('swProductDetail', [
-            'showModeSetting',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        showModeSetting() {
+            return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
 
         ...mapPropertyErrors('product', [
             'stock',

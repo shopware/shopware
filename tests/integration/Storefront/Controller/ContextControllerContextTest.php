@@ -128,7 +128,7 @@ class ContextControllerContextTest extends TestCase
     public function testSwitchWithProductIdAndCorrectRedirectTo(): void
     {
         $this->browser->request('GET', $this->testBaseUrl);
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent() ?: '' );
 
         $productId = Uuid::randomHex();
 

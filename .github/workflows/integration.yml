@@ -18,8 +18,7 @@ jobs:
           - ''
         include:
           - name: 'Platform'
-            major: ${{ contains(github.workflow_ref, 'nightly') && 'major' || '' }}
-    continue-on-error: ${{ matrix.major == 'true' }}
+            major: 'major'
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"

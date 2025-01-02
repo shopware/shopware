@@ -116,7 +116,7 @@ jobs:
           retention-days: 3
 
   phpunit:
-    name: "${{ matrix.php}} ${{ matrix.tests.testsuite }}${{ matrix.tests.path }} ${{ matrix.db }}"
+    name: "test (${{ matrix.php == '8.4' && true || false }}) ${{ matrix.php}} ${{ matrix.tests.testsuite }}${{ matrix.tests.path }} ${{ matrix.db }}"
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -133,8 +133,8 @@ jobs:
           - mysql:8.0
           - mariadb:11
         php:
-          - 8.2
-          - 8.4
+          - '8.2'
+          - '8.4'
     continue-on-error: >-
       ${{ matrix.php == '8.4' && true || false }}
     env:

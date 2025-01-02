@@ -5,9 +5,8 @@
 import template from './sw-product-detail-reviews.html.twig';
 import './sw-product-detail-reviews.scss';
 
-const { Component, Data, Context } = Shopware;
+const { Data, Context } = Shopware;
 const { Criteria } = Data;
-const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -32,13 +31,13 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         cardTitle() {
             return this.total ? this.$tc('sw-product.reviews.cardTitleReviews') : null;

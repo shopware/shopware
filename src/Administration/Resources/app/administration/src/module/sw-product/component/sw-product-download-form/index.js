@@ -5,9 +5,8 @@
 import template from './sw-product-download-form.html.twig';
 import './sw-product-download-form.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { format } = Shopware.Utils;
-const { mapVuexGetters } = Component.getComponentHelper();
 
 /**
  * @private
@@ -52,7 +51,7 @@ export default {
 
     computed: {
         product() {
-            const state = Shopware.State.get('swProductDetail');
+            const state = Shopware.Store.get('swProductDetail');
 
             if (this.isInherited) {
                 return state.parentProduct;
@@ -61,9 +60,9 @@ export default {
             return state.product;
         },
 
-        ...mapVuexGetters('swProductDetail', {
-            isStoreLoading: 'isLoading',
-        }),
+        isStoreLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         isLoading() {
             return this.isMediaLoading || this.isStoreLoading;

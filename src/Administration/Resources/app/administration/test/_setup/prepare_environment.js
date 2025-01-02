@@ -83,6 +83,7 @@ import '../../src/module/sw-order/store/order-detail.store';
 import '../../src/module/sw-order/store/order.store';
 import '../../src/module/sw-settings-shipping/page/sw-settings-shipping-detail/store';
 import '../../src/module/sw-settings-payment/store/overview-cards.store';
+import '../../src/module/sw-product/page/sw-product-detail/store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

@@ -101,7 +101,7 @@ export default class FormValidation {
      * Add a validator rule that can be used for form validation.
      *
      * @param {string} validatorName - The technical name under which the validation rule is tracked.
-     * @param {function} validationFunction - They function that does the validation of the field value.
+     * @param {function} validationFunction - The function that does the validation of the field value.
      * @param {string} errorMessage - The validation message that should be shown if the validation fails.
      * @returns {boolean}
      */

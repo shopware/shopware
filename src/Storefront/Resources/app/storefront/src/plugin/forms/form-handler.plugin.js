@@ -84,7 +84,8 @@ export default class FormHandler extends Plugin {
 
     init() {
         if (this._isFormElement(this.el) === false) {
-            throw Error('Element is not of type <form>');
+            console.error('[FormHandler]: Element is not of type <form>', this.el);
+            return;
         }
 
         this.form = this.el;
@@ -198,7 +199,7 @@ export default class FormHandler extends Plugin {
     _checkValidity() {
         const invalidFields = window.formValidation.validateForm(this.form, this.formFields);
 
-        return invalidFields.length <= 0;
+        return invalidFields.length === 0;
     }
 
     /**

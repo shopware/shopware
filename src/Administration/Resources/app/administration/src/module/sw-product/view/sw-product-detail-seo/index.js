@@ -4,9 +4,6 @@
 
 import template from './sw-product-detail-seo.html.twig';
 
-const { Component } = Shopware;
-const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -25,14 +22,17 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         categories() {
             if (this.product.categories.length > 0) {

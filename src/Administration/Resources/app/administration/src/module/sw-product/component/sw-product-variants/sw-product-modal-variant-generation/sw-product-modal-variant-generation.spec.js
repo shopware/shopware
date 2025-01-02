@@ -246,10 +246,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 },
             };
         });
-
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
-        });
     });
 
     it('should be a Vue.JS component', async () => {

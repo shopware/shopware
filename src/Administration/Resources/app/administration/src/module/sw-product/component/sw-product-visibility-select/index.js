@@ -5,7 +5,6 @@
 import template from './sw-product-visibility-select.html.twig';
 
 const { EntityCollection, Criteria } = Shopware.Data;
-const { mapVuexState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -32,9 +31,9 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
         repository() {
             return this.repositoryFactory.create('sales_channel');

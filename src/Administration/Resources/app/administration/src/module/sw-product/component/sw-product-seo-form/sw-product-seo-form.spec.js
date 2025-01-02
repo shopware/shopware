@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { createStore } from 'vuex';
 
 describe('module/sw-product/component/sw-product-seo-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
@@ -25,6 +24,9 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
             },
         ];
 
+        Shopware.Store.get('swProductDetail').product = productEntity;
+        Shopware.Store.get('swProductDetail').parentProduct = parentProduct;
+
         return mount(await wrapTestComponent('sw-product-seo-form', { sync: true }), {
             global: {
                 directives: {
@@ -39,22 +41,6 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                         }),
                     },
                     validationService: {},
-                },
-                mocks: {
-                    $store: createStore({
-                        modules: {
-                            swProductDetail: {
-                                namespaced: true,
-                                state: {
-                                    product: productEntity,
-                                    parentProduct,
-                                },
-                                getters: {
-                                    isLoading: () => false,
-                                },
-                            },
-                        },
-                    }),
                 },
                 stubs: {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),

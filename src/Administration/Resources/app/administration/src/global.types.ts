@@ -117,6 +117,7 @@ import type { SwOrderDetailStore } from './module/sw-order/store/order-detail.st
 import type { SwOrderStore } from './module/sw-order/store/order.store';
 import type { SwShippingDetailStore } from './module/sw-settings-shipping/page/sw-settings-shipping-detail/store';
 import type { PaymentOverviewCardStore } from './module/sw-settings-payment/store/overview-cards.store';
+import type { SwProductDetailStore } from './module/sw-product/page/sw-product-detail/store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -380,6 +381,7 @@ declare global {
         swOrder: SwOrderStore;
         swShippingDetailStore: SwShippingDetailStore;
         paymentOverviewCard: PaymentOverviewCardStore;
+        swProductDetail: SwProductDetailStore;
     }
 
     /**

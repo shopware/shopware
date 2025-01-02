@@ -3,8 +3,9 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 let productPropertiesMock = [
     { id: '01', groupId: 'sizeId', name: '30' },
@@ -175,13 +176,15 @@ async function createWrapper() {
 
 describe('src/module/sw-product/component/sw-product-properties', () => {
     beforeAll(() => {
-        State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product: productMock,
-                parentProduct: parentProductMock,
+        Store.register({
+            id: 'swProductDetail',
+            state() {
+                return {
+                    product: productMock,
+                    parentProduct: parentProductMock,
+                };
             },
-            mutations: {
+            actions: {
                 setProduct(state, newProduct) {
                     state.product = newProduct;
                 },
@@ -207,7 +210,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await flushPromises();
 
         await wrapper.vm.$nextTick();
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
 
         expect(wrapper.vm.groupIds).toEqual(
@@ -224,7 +227,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await flushPromises();
 
         await wrapper.vm.$nextTick();
-        await State.commit('swProductDetail/setProduct', {});
+        Store.get('swProductDetail').product = {};
         await wrapper.vm.getGroupIds();
 
         expect(wrapper.vm.groupIds).toEqual(expect.arrayContaining([]));
@@ -239,7 +242,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
+        await nextTick();
         await wrapper.vm.getGroupIds();
         wrapper.vm.getProperties();
 
@@ -256,9 +260,9 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.reject();
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
-        wrapper.vm.getProperties();
+        await wrapper.vm.getProperties();
 
         expect(wrapper.vm.properties).toEqual(expect.arrayContaining([]));
         wrapper.vm.propertyGroupRepository.search.mockRestore();
@@ -273,7 +277,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.reject(new Error('Whoops!'));
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
 
         const getError = async () => {
             try {
@@ -299,7 +303,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -337,7 +341,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -370,7 +374,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -449,7 +453,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -547,7 +551,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -566,7 +570,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -585,7 +589,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -604,7 +608,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 

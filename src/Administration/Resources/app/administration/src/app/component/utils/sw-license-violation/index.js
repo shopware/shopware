@@ -1,4 +1,3 @@
-import { mapState } from 'pinia';
 import template from './sw-license-violation.html.twig';
 import './sw-license-violation.scss';
 
@@ -33,13 +32,13 @@ Shopware.Component.register('sw-license-violation', {
     },
 
     computed: {
-        ...mapState(
-            () => Shopware.Store.get('licenseViolation'),
-            [
-                'violations',
-                'warnings',
-            ],
-        ),
+        violations() {
+            return Shopware.Store.get('licenseViolation').violations;
+        },
+
+        warnings() {
+            return Shopware.Store.get('licenseViolation').warnings;
+        },
 
         visible() {
             if (!this.showViolation) {

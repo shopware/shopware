@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 const productMock = {
     id: 'productId',
@@ -64,15 +64,8 @@ describe('module/sw-product/component/sw-product-cross-selling-form', () => {
     let wrapper;
 
     beforeAll(() => {
-        State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product: productMock,
-            },
-            getters: {
-                isLoading: () => false,
-            },
-        });
+        Store.get('swProductDetail').$reset();
+        Store.get('swProductDetail').product = productMock;
     });
 
     beforeEach(async () => {

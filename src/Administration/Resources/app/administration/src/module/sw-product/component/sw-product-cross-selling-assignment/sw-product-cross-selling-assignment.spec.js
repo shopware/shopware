@@ -4,8 +4,6 @@
 
 import { mount } from '@vue/test-utils';
 
-const { State } = Shopware;
-
 const productMock = {
     id: 'productId',
     properties: [],
@@ -96,15 +94,8 @@ describe('module/sw-product/component/sw-product-cross-selling-assignment', () =
     let wrapper;
 
     beforeAll(() => {
-        State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product: productMock,
-            },
-            getters: {
-                isLoading: () => false,
-            },
-        });
+        Shopware.Store.get('swProductDetail').$reset();
+        Shopware.Store.get('swProductDetail').product = productMock;
     });
 
     beforeEach(async () => {

@@ -100,6 +100,11 @@ class BaseContext
 
     public function getCurrencyId(): string
     {
-        return $this->getCurrency()->getId();
+        return $this->currency->getId();
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannel->getId();
     }
 }

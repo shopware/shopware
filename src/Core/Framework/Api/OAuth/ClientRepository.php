@@ -22,17 +22,13 @@ class ClientRepository implements ClientRepositoryInterface
     {
     }
 
-    public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
+    public function validateClient(string $clientIdentifier, ?string $clientSecret, ?string $grantType): bool
     {
         if (($grantType === 'password' || $grantType === 'refresh_token') && $clientIdentifier === 'administration') {
             return true;
         }
 
         if ($grantType === 'client_credentials' && $clientSecret !== null) {
-            if (!\is_string($clientIdentifier)) {
-                return false;
-            }
-
             $values = $this->getByAccessKey($clientIdentifier);
             if (!$values) {
                 return false;
@@ -54,12 +50,11 @@ class ClientRepository implements ClientRepositoryInterface
         // @codeCoverageIgnoreEnd
     }
 
-    public function getClientEntity($clientIdentifier): ?ClientEntityInterface
+    /**
+     * @param non-empty-string $clientIdentifier
+     */
+    public function getClientEntity(string $clientIdentifier): ?ClientEntityInterface
     {
-        if (!\is_string($clientIdentifier)) {
-            return null;
-        }
-
         if ($clientIdentifier === 'administration') {
             return new ApiClient('administration', true);
         }

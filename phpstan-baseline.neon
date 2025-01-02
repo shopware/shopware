@@ -2036,7 +2036,7 @@ parameters:
 			path: src/Core/Framework/Api/Exception/ResourceNotFoundException.php
 
 		-
-			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, int\\|string\\|null given\\.$#"
+			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/OAuth/RefreshTokenRepository.php
 

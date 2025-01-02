@@ -40,7 +40,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getScopeEntityByIdentifier($identifier): ?ScopeEntityInterface
+    public function getScopeEntityByIdentifier(string $identifier): ?ScopeEntityInterface
     {
         return $this->scopes[$identifier] ?? null;
     }
@@ -50,9 +50,10 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function finalizeScopes(
         array $scopes,
-        $grantType,
+        string $grantType,
         ClientEntityInterface $clientEntity,
-        $userIdentifier = null
+        ?string $userIdentifier = null,
+        ?string $authCodeId = null
     ): array {
         $hasWrite = false;
 

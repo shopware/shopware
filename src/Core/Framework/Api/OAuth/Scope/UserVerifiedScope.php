@@ -10,10 +10,7 @@ class UserVerifiedScope implements ScopeEntityInterface
 {
     final public const IDENTIFIER = 'user-verified';
 
-    /**
-     * @return string
-     */
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return self::IDENTIFIER;
     }

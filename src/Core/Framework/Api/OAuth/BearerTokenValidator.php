@@ -23,10 +23,7 @@ readonly class BearerTokenValidator implements AuthorizationValidatorInterface
     ) {
     }
 
-    /**
-     * @return ServerRequestInterface
-     */
-    public function validateAuthorization(ServerRequestInterface $request)
+    public function validateAuthorization(ServerRequestInterface $request): ServerRequestInterface
     {
         $sfRequest = $this->httpFoundationFactory->createRequest($request, true);
 

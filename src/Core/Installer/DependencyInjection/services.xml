@@ -83,8 +83,6 @@
 
         <service id="Shopware\Core\Installer\Requirements\IniConfigReader"/>
 
-        <service id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
-
         <service id="shopware.installer.guzzle" class="GuzzleHttp\Client"/>
 
         <service id="Shopware\Core\Installer\License\LicenseFetcher">
@@ -101,8 +99,6 @@
 
         <service id="Shopware\Core\Installer\Controller\RequirementsController" public="true">
             <argument type="tagged_iterator" tag="shopware.installer.requirement"/>
-            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
-            <argument type="string">%kernel.project_dir%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -120,10 +116,8 @@
         <service id="Shopware\Core\Installer\Controller\DatabaseConfigurationController" public="true">
             <argument type="service" id="translator"/>
             <argument type="service" id="Shopware\Core\Installer\Database\BlueGreenDeploymentService"/>
-            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
-            <argument type="string">%kernel.project_dir%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

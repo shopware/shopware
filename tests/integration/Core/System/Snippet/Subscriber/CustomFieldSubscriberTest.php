@@ -714,6 +714,7 @@ class CustomFieldSubscriberTest extends TestCase
         $this->customFieldRepository->delete([['id' => $customFieldId]], $this->context);
 
         $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchFirstColumn();
+        // dd($snippets);
         static::assertSame([
             'DE - Label 2',
             'EN - Label 2',

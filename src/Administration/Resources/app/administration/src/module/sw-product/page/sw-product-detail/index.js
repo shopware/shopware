@@ -11,7 +11,7 @@ import '../../page/sw-product-detail/store';
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapPageErrors, mapState } = Shopware.Component.getComponentHelper();
+const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const type = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -81,24 +81,53 @@ export default {
     },
 
     computed: {
-        ...mapState(
-            () => Shopware.Store.get('swProductDetail'),
-            [
-                'product',
-                'parentProduct',
-                'localMode',
-                'advancedModeSetting',
-                'modeSettings',
-                'productRepository',
-                'isLoading',
-                'isChild',
-                'defaultCurrency',
-                'getDefaultFeatureSet',
-                'showModeSetting',
-                'advanceModeEnabled',
-                'productStates',
-            ],
-        ),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        localMode() {
+            return Shopware.Store.get('swProductDetail').localMode;
+        },
+
+        advancedModeSetting() {
+            return Shopware.Store.get('swProductDetail').advancedModeSetting;
+        },
+
+        modeSettings() {
+            return Shopware.Store.get('swProductDetail').modeSettings;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        isChild() {
+            return Shopware.Store.get('swProductDetail').isChild;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        getDefaultFeatureSet() {
+            return Shopware.Store.get('swProductDetail').getDefaultFeatureSet;
+        },
+
+        showModeSetting() {
+            return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
+
+        advanceModeEnabled() {
+            return Shopware.Store.get('swProductDetail').advanceModeEnabled;
+        },
+
+        productStates() {
+            return Shopware.Store.get('swProductDetail').productStates;
+        },
 
         ...mapPageErrors(errorConfiguration),
 

@@ -5,9 +5,8 @@
 import template from './sw-product-properties.html.twig';
 import './sw-product-properties.scss';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -95,15 +94,21 @@ export default {
             ];
         },
 
-        ...mapState(
-            () => Shopware.Store.get('swProductDetail'),
-            [
-                'product',
-                'parentProduct',
-                'isLoading',
-                'isChild',
-            ],
-        ),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        isChild() {
+            return Shopware.Store.get('swProductDetail').isChild;
+        },
 
         productProperties() {
             return this.isChild && this.product?.properties?.length <= 0

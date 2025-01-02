@@ -7,7 +7,6 @@ import './sw-products-variants-overview.scss';
 
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -69,19 +68,37 @@ export default {
     },
 
     computed: {
-        ...mapState(
-            () => Shopware.Store.get('swProductDetail'),
-            [
-                'product',
-                'currencies',
-                'taxes',
-                'variants',
-                'isLoading',
-                'defaultPrice',
-                'defaultCurrency',
-                'productTaxRate',
-            ],
-        ),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        currencies() {
+            return Shopware.Store.get('swProductDetail').currencies;
+        },
+
+        taxes() {
+            return Shopware.Store.get('swProductDetail').taxes;
+        },
+
+        variants() {
+            return Shopware.Store.get('swProductDetail').variants;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        defaultPrice() {
+            return Shopware.Store.get('swProductDetail').defaultPrice;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        productTaxRate() {
+            return Shopware.Store.get('swProductDetail').productTaxRate;
+        },
 
         productRepository() {
             return this.repositoryFactory.create('product');

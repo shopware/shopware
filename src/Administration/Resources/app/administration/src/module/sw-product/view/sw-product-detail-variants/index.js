@@ -7,7 +7,6 @@ import './sw-product-detail-variants.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 const { uniqBy } = Shopware.Utils.array;
-const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -38,21 +37,21 @@ export default {
     },
 
     computed: {
-        ...mapState(
-            () => Shopware.Store.get('swProductDetail'),
-            [
-                'product',
-                'variants',
-            ],
-        ),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        variants() {
+            return Shopware.Store.get('swProductDetail').variants;
+        },
+
+        isStoreLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         contextLanguageId() {
             return Shopware.Store.get('context').api.languageId;
         },
-
-        ...mapState(() => Shopware.Store.get('swProductDetail'), {
-            isStoreLoading: 'isLoading',
-        }),
 
         productRepository() {
             return this.repositoryFactory.create('product');

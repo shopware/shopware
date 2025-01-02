@@ -2,11 +2,10 @@ import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
 import '../../../sw-product/page/sw-product-detail/store';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
-const { mapState } = Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 /**
@@ -51,16 +50,25 @@ export default {
     },
 
     computed: {
-        ...mapState(
-            () => Shopware.Store.get('swProductDetail'),
-            [
-                'product',
-                'parentProduct',
-                'taxes',
-                'defaultCurrency',
-                'defaultPrice',
-            ],
-        ),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        taxes() {
+            return Shopware.Store.get('swProductDetail').taxes;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        defaultPrice() {
+            return Shopware.Store.get('swProductDetail').defaultPrice;
+        },
 
         selectedIds() {
             return Shopware.Store.get('shopwareApps').selectedIds;
@@ -241,7 +249,7 @@ export default {
                     name: 'price',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.price,
+                        price: this.product?.price,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -255,7 +263,7 @@ export default {
                     name: 'purchasePrices',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.purchasePrices,
+                        price: this.product?.purchasePrices,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -269,7 +277,7 @@ export default {
                     name: 'listPrice',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.listPrice,
+                        price: this.product?.listPrice,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -285,7 +293,7 @@ export default {
                     name: 'regulationPrice',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.regulationPrice,
+                        price: this.product?.regulationPrice,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -497,7 +505,7 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-category-tree-field',
-                        categoriesCollection: this.product.categories,
+                        categoriesCollection: this.product?.categories,
                         allowOverwrite: true,
                         allowClear: true,
                         allowAdd: true,
@@ -512,7 +520,7 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-entity-tag-select',
-                        entityCollection: this.product.tags,
+                        entityCollection: this.product?.tags,
                         entityName: 'tag',
                         allowOverwrite: true,
                         allowClear: true,
@@ -528,7 +536,7 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-multi-tag-select',
-                        value: this.product.searchKeywords,
+                        value: this.product?.searchKeywords,
                         allowOverwrite: true,
                         allowClear: true,
                         allowAdd: false,
@@ -762,7 +770,7 @@ export default {
                 return null;
             }
 
-            return this.repositoryFactory.create(this.product.prices.entity, this.product.prices.source);
+            return this.repositoryFactory.create(this.product?.prices.entity, this.product?.prices.source);
         },
 
         ruleCriteria() {
@@ -778,11 +786,11 @@ export default {
         },
 
         priceRuleGroups() {
-            if (!this.product.prices) {
+            if (!this.product?.prices) {
                 return {};
             }
 
-            return this.product.prices.reduce((r, a) => {
+            return this.product?.prices.reduce((r, a) => {
                 r[a.ruleId] = [
                     ...(r[a.ruleId] || []),
                     a,
@@ -798,8 +806,8 @@ export default {
                 return;
             }
 
-            const ids = this.product.prices?.getIds();
-            ids.forEach((id) => this.product.prices.remove(id));
+            const ids = this.product?.prices?.getIds();
+            ids.forEach((id) => this.product?.prices.remove(id));
         },
         'product.visibilities': {
             handler(productVisibilities) {
@@ -1056,7 +1064,7 @@ export default {
             }
 
             return this.taxes.find((tax) => {
-                return tax.id === this.product.taxId;
+                return tax.id === this.product?.taxId;
             });
         },
 
@@ -1132,7 +1140,7 @@ export default {
                 },
             ];
 
-            if (!types.isEmpty(this.parentProduct.price[0][price])) {
+            if (!types.isEmpty(this.parentProduct.price?.[0][price])) {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
                     this.$set(this.product, `${price}`, [
                         this.parentProduct.price[0][price],
@@ -1264,9 +1272,9 @@ export default {
 
             if (priceField) {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(priceField.value[0], 'listPrice', this.product.listPrice[0]);
+                    this.$set(priceField.value[0], 'listPrice', this.product?.listPrice[0]);
                 } else {
-                    priceField.value[0].listPrice = this.product.listPrice[0];
+                    priceField.value[0].listPrice = this.product?.listPrice[0];
                 }
             }
         },
@@ -1278,9 +1286,9 @@ export default {
 
             if (priceField) {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(priceField.value[0], 'regulationPrice', this.product.regulationPrice[0]);
+                    this.$set(priceField.value[0], 'regulationPrice', this.product?.regulationPrice[0]);
                 } else {
-                    priceField.value[0].regulationPrice = this.product.regulationPrice[0];
+                    priceField.value[0].regulationPrice = this.product?.regulationPrice[0];
                 }
             }
         },
@@ -1335,10 +1343,10 @@ export default {
         },
 
         onRuleChange(rules) {
-            if (rules.length > this.product.prices.length) {
+            if (rules.length > this.product?.prices.length) {
                 const newPriceRule = this.priceRepository.create();
 
-                newPriceRule.productId = this.product.id;
+                newPriceRule.productId = this.product?.id;
                 newPriceRule.quantityStart = 1;
                 newPriceRule.quantityEnd = null;
                 newPriceRule.currencyId = this.defaultCurrency.id;
@@ -1372,25 +1380,25 @@ export default {
                 }
 
                 rules.forEach((rule) => {
-                    if (this.product.prices.some((item) => item.ruleId === rule.ruleId)) {
+                    if (this.product?.prices.some((item) => item.ruleId === rule.ruleId)) {
                         return;
                     }
 
                     newPriceRule.ruleId = rule.id;
                     newPriceRule.ruleName = rule.name;
 
-                    this.product.prices.add(newPriceRule);
+                    this.product?.prices.add(newPriceRule);
                 });
 
                 return;
             }
 
-            this.product.prices.forEach((price) => {
+            this.product?.prices.forEach((price) => {
                 if (rules.some((rule) => price.ruleId === rule.ruleId)) {
                     return;
                 }
 
-                this.product.prices.remove(price.id);
+                this.product?.prices.remove(price.id);
             });
         },
 
@@ -1417,8 +1425,8 @@ export default {
             }
             if (item.name === 'isPriceInherited') {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product.price, 0, parentProductFrozen.price[0]);
-                    this.$set(this.product.purchasePrices, 0, parentProductFrozen.purchasePrices[0]);
+                    this.$set(this.product?.price, 0, parentProductFrozen.price[0]);
+                    this.$set(this.product?.purchasePrices, 0, parentProductFrozen.purchasePrices[0]);
                 } else {
                     this.product.price[0] = parentProductFrozen.price[0];
                     this.product.purchasePrices[0] = parentProductFrozen.purchasePrices[0];
@@ -1434,7 +1442,7 @@ export default {
                       };
                 if (this.isCompatEnabled('INSTANCE_SET')) {
                     this.$set(this.product, 'listPrice', [listPrice]);
-                    this.$set(this.product.price[0], 'listPrice', listPrice);
+                    this.$set(this.product?.price[0], 'listPrice', listPrice);
                 } else {
                     this.product.listPrice = [listPrice];
                     this.product.price[0].listPrice = listPrice;
@@ -1452,7 +1460,7 @@ export default {
                     this.$set(this.product, 'regulationPrice', [
                         regulationPrice,
                     ]);
-                    this.$set(this.product.price[0], 'regulationPrice', regulationPrice);
+                    this.$set(this.product?.price[0], 'regulationPrice', regulationPrice);
                 } else {
                     this.product.regulationPrice = [regulationPrice];
                     this.product.price[0].regulationPrice = regulationPrice;

@@ -28,17 +28,15 @@ const productFixture = {
 function createStateMapper(customProduct = {}) {
     Shopware.Store.unregister('swProductDetail');
     Shopware.Store.register({
-        ...{
-            id: 'swProductDetail',
-            state: () => ({
-                isLoading: false,
-                isSavedSuccessful: false,
-                product: {
-                    ...productFixture,
-                    ...customProduct,
-                },
-            }),
-        },
+        id: 'swProductDetail',
+        state: () => ({
+            isLoading: false,
+            isSavedSuccessful: false,
+            product: {
+                ...productFixture,
+                ...customProduct,
+            },
+        }),
     });
 }
 

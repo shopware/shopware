@@ -6,7 +6,6 @@ import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
-const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -37,21 +36,21 @@ export default {
     },
 
     computed: {
-        ...mapState(
-            () => Shopware.Store.get('swProductDetail'),
-            [
-                'product',
-                'isLoading',
-                'isChild',
-            ],
-        ),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapState(
-            () => Shopware.Store.get('context'),
-            [
-                'isSystemDefaultLanguage',
-            ],
-        ),
+        isChild() {
+            return Shopware.Store.get('swProductDetail').isChild;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        isSystemDefaultLanguage() {
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
+        },
 
         showCrossSellingCard() {
             return !this.isLoading && this.product.crossSellings && this.product.crossSellings.length > 0;

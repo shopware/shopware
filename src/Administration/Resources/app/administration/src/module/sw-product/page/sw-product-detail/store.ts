@@ -142,7 +142,7 @@ const swProductDetail = Shopware.Store.register({
         },
 
         productStates(state): string[] {
-            if (state.product.isNew() && state.creationStates) {
+            if (state.product.isNew?.() && state.creationStates) {
                 return state.creationStates;
             }
 
@@ -170,7 +170,7 @@ const swProductDetail = Shopware.Store.register({
                 return false;
             }
 
-            return this.modeSettings.includes(key);
+            return this.modeSettings?.includes(key);
         },
 
         setCustomFields(fieldSet: { id: string }) {

@@ -5,9 +5,8 @@
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
 
-const { Component, Store, Context, Utils } = Shopware;
+const { Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
 const { cloneDeep, merge, get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -43,13 +42,13 @@ export default {
             return (!this.isLoading || !this.isConfigLoading) && !this.currentPage.locked;
         },
 
-        ...mapState(
-            () => Store.get('swProductDetail'),
-            [
-                'product',
-                'isLoading',
-            ],
-        ),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         cmsPageCriteria() {
             const criteria = new Criteria(1, 25);

@@ -6,8 +6,7 @@ import Criteria from 'src/core/data/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
 
-const { Component, Context, Utils, Mixin } = Shopware;
-const { mapState } = Component.getComponentHelper();
+const { Context, Utils, Mixin } = Shopware;
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -41,19 +40,33 @@ export default {
     },
 
     computed: {
-        ...mapState(
-            () => Shopware.Store.get('swProductDetail'),
-            [
-                'product',
-                'parentProduct',
-                'customFieldSets',
-                'loading',
-                'isLoading',
-                'showModeSetting',
-                'showProductCard',
-                'productStates',
-            ],
-        ),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        customFieldSets() {
+            return Shopware.Store.get('swProductDetail').customFieldSets;
+        },
+
+        loading() {
+            return Shopware.Store.get('swProductDetail').loading;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        showModeSetting() {
+            return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
+
+        productStates() {
+            return Shopware.Store.get('swProductDetail').productStates;
+        },
 
         mediaFormVisible() {
             return (
@@ -92,6 +105,10 @@ export default {
             this.getMediaDefaultFolderId().then((mediaDefaultFolderId) => {
                 this.mediaDefaultFolderId = mediaDefaultFolderId;
             });
+        },
+
+        showProductCard(key) {
+            return Shopware.Store.get('swProductDetail').showProductCard(key);
         },
 
         getMediaDefaultFolderId() {

@@ -167,9 +167,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
     it('should show Properties card even advanced mode is off', async () => {
         const wrapper = await createWrapper();
-        const advancedModeSetting = Shopware.Store.get('swProductDetail').modeSettings;
+        const advancedModeSetting = Shopware.Store.get('swProductDetail').advancedModeSetting;
 
-        Shopware.Store.get('swProductDetail').modeSettings = {
+        Shopware.Store.get('swProductDetail').advancedModeSetting = {
             value: {
                 ...advancedModeSetting.value,
                 advancedMode: {

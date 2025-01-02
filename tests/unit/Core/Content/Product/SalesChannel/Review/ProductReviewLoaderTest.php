@@ -276,8 +276,7 @@ class ProductReviewLoaderTest extends TestCase
 
         return Generator::createSalesChannelContext(
             salesChannel: $salesChannelEntity,
-            customer: $customer,
-            createCustomer: $setCustomer
+            overrides: ['customer' => $customer],
         );
     }
 

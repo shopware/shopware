@@ -90,13 +90,13 @@ class AdminSalesChannelSourceRuleTest extends TestCase
 
         yield 'Condition is not processed by Admin SalesChannel source => Does not match because the order is processed by Admin SalesChannel source' => [
             new AdminSalesChannelSourceRule(false),
-            Generator::createSalesChannelContext(new Context($contextAdminSource)),
+            Generator::createSalesChannelContext(baseContext: new Context($contextAdminSource)),
             false,
         ];
 
         yield 'Condition is processed by Admin SalesChannel source => Matches because the order is processed by Admin SalesChannel source' => [
             new AdminSalesChannelSourceRule(true),
-            Generator::createSalesChannelContext(new Context($contextAdminSource)),
+            Generator::createSalesChannelContext(baseContext: new Context($contextAdminSource)),
             true,
         ];
 

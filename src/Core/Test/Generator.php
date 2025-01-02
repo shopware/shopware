@@ -45,26 +45,38 @@ use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 #[Package('checkout')]
 class Generator extends TestCase
 {
+    /**
+     * @param array<string, string[]> $areaRuleIds
+     * @param array<array-key, mixed> $overrides
+     */
     public static function createSalesChannelContext(
         ?Context $baseContext = null,
-        ?CustomerGroupEntity $currentCustomerGroup = null,
-        ?SalesChannelEntity $salesChannel = null,
-        ?CurrencyEntity $currency = null,
-        ?TaxCollection $taxes = null,
-        ?CountryEntity $country = null,
-        ?CountryStateEntity $state = null,
-        ?CustomerAddressEntity $shipping = null,
-        ?PaymentMethodEntity $paymentMethod = null,
-        ?ShippingMethodEntity $shippingMethod = null,
-        ?CustomerEntity $customer = null,
         ?string $token = null,
         ?string $domainId = null,
-        bool $createCustomer = true
+        ?SalesChannelEntity $salesChannel = null,
+        ?CurrencyEntity $currency = null,
+        ?CustomerGroupEntity $currentCustomerGroup = null,
+        ?TaxCollection $taxRules = null,
+        ?PaymentMethodEntity $paymentMethod = null,
+        ?ShippingMethodEntity $shippingMethod = null,
+        ?ShippingLocation $shippingLocation = null,
+        ?CustomerEntity $customer = null,
+        ?CashRoundingConfig $itemRounding = null,
+        ?CashRoundingConfig $totalRounding = null,
+        ?array $areaRuleIds = [],
+        ?DeliveryTimeEntity $deliveryTime = null,
+        ?CountryEntity $country = null,
+        ?CountryStateEntity $countryState = null,
+        ?CustomerAddressEntity $customerAddress = null,
+        ?array $overrides = [],
     ): SalesChannelContext {
-        if (!$baseContext) {
-            $baseContext = Context::createDefaultContext();
-        }
-        if ($salesChannel === null) {
+        $baseContext ??= Context::createDefaultContext();
+
+        $token ??= Uuid::randomHex();
+
+        $domainId ??= Uuid::randomHex();
+
+        if (!$salesChannel) {
             $salesChannel = new SalesChannelEntity();
             $salesChannel->setId('ffa32a50e2d04cf38389a53f8d6cd594');
             $salesChannel->setNavigationCategoryId(Uuid::randomHex());
@@ -73,12 +85,11 @@ class Generator extends TestCase
             $salesChannel->setShippingMethodId($shippingMethod?->getId() ?? '8beeb66e9dda46b18891a059257a590e');
         }
 
-        $currency = $currency ?: (new CurrencyEntity())->assign([
-            'id' => '4c8eba11bd3546d786afbed481a6e665',
-            'factor' => 1,
-        ]);
-
-        $currency->setFactor(1);
+        if (!$currency) {
+            $currency = new CurrencyEntity();
+            $currency->setId('4c8eba11bd3546d786afbed481a6e665');
+            $currency->setFactor(1);
+        }
 
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupEntity();
@@ -86,78 +97,90 @@ class Generator extends TestCase
             $currentCustomerGroup->setDisplayGross(true);
         }
 
-        if (!$taxes) {
+        if (!$taxRules) {
             $tax = new TaxEntity();
             $tax->setId('4926035368e34d9fa695e017d7a231b9');
             $tax->setName('test');
             $tax->setTaxRate(19.0);
 
-            $taxes = new TaxCollection([$tax]);
-        }
-
-        if (!$country) {
-            $country = new CountryEntity();
-            $country->setId('5cff02b1029741a4891c430bcd9e3603');
-            $country->setCustomerTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
-            $country->setCompanyTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
-            $country->setName('Germany');
-        }
-        if (!$state) {
-            $state = new CountryStateEntity();
-            $state->setId('bd5e2dcf547e4df6bb1ff58a554bc69e');
-            $state->setCountryId($country->getId());
-        }
-
-        if (!$shipping) {
-            $shipping = new CustomerAddressEntity();
-            $shipping->setCountry($country);
-            $shipping->setCountryState($state);
+            $taxRules = new TaxCollection([$tax]);
         }
 
         if (!$paymentMethod) {
-            $paymentMethod = (new PaymentMethodEntity())->assign(
-                [
-                    'id' => '19d144ffe15f4772860d59fca7f207c1',
-                    'handlerIdentifier' => SyncTestPaymentHandler::class,
-                    'name' => 'Generated Payment',
-                    'active' => true,
-                ]
-            );
+            $paymentMethod = new PaymentMethodEntity();
+            $paymentMethod->setId('19d144ffe15f4772860d59fca7f207c1');
+            $paymentMethod->setHandlerIdentifier(SyncTestPaymentHandler::class);
+            $paymentMethod->setName('Generated Payment');
+            $paymentMethod->setActive(true);
         }
 
         if (!$shippingMethod) {
-            $deliveryTime = new DeliveryTimeEntity();
-            $deliveryTime->setMin(1);
-            $deliveryTime->setMax(2);
-            $deliveryTime->setUnit(DeliveryTimeEntity::DELIVERY_TIME_DAY);
+            if (!$deliveryTime) {
+                $deliveryTime = new DeliveryTimeEntity();
+                $deliveryTime->setMin(1);
+                $deliveryTime->setMax(2);
+                $deliveryTime->setUnit(DeliveryTimeEntity::DELIVERY_TIME_DAY);
+            }
 
             $shippingMethod = new ShippingMethodEntity();
             $shippingMethod->setDeliveryTime($deliveryTime);
             $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
         }
 
-        if (!$customer && $createCustomer) {
-            $customer = (new CustomerEntity())->assign(['id' => Uuid::randomHex()]);
-            $customer->setId(Uuid::randomHex());
-            $customer->setGroup($currentCustomerGroup);
+        if (!$shippingLocation) {
+            if (!$country) {
+                $country = new CountryEntity();
+                $country->setId('5cff02b1029741a4891c430bcd9e3603');
+                $country->setCustomerTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
+                $country->setCompanyTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
+                $country->setName('Germany');
+            }
+
+            if (!$countryState) {
+                $countryState = new CountryStateEntity();
+                $countryState->setId('bd5e2dcf547e4df6bb1ff58a554bc69e');
+                $countryState->setCountryId($country->getId());
+            }
+
+            if (!$customerAddress) {
+                $customerAddress = new CustomerAddressEntity();
+                $customerAddress->setId(Uuid::randomHex());
+            }
+
+            $customerAddress->setCountry($country);
+            $customerAddress->setCountryState($countryState);
+
+            $shippingLocation = ShippingLocation::createFromAddress($customerAddress);
         }
 
-        return new SalesChannelContext(
+        $itemRounding ??= new CashRoundingConfig(2, 0.01, true);
+
+        $totalRounding ??= new CashRoundingConfig(2, 0.01, true);
+
+        $areaRuleIds ??= [];
+
+        $salesChannelContext = new SalesChannelContext(
             $baseContext,
-            $token ?? Uuid::randomHex(),
-            $domainId ?? Uuid::randomHex(),
+            $token,
+            $domainId,
             $salesChannel,
             $currency,
             $currentCustomerGroup,
-            $taxes,
+            $taxRules,
             $paymentMethod,
             $shippingMethod,
-            ShippingLocation::createFromAddress($shipping),
+            $shippingLocation,
             $customer,
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            []
+            $itemRounding,
+            $totalRounding,
+            $areaRuleIds
         );
+
+        if ($overrides) {
+            $salesChannelContext->assign($overrides);
+        }
+
+        return $salesChannelContext;
     }
 
     public static function createCart(): Cart

@@ -71,11 +71,14 @@ class SearchKeywordUpdater implements ResetInterface
 
         $products = [];
         foreach ($languages as $language) {
+            /** @var non-empty-list<string> $languageIdChain */
+            $languageIdChain = array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]);
+
             $languageContext = new Context(
                 new SystemSource(),
                 [],
                 Defaults::CURRENCY,
-                array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]),
+                $languageIdChain,
                 $context->getVersionId()
             );
 

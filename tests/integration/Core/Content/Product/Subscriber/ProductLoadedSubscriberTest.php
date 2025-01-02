@@ -370,10 +370,9 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @param non-empty-array<string> $languageChain
      * @param array<mixed> $product
      * @param array<mixed> $expected
-     * @param array<string> $languageChain
+     * @param non-empty-list<string> $languageChain
      */
     #[DataProvider('variationCases')]
     public function testVariation(array $product, array $expected, array $languageChain, Criteria $criteria, bool $sort, string $languageId): void

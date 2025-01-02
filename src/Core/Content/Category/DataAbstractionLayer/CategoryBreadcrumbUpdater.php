@@ -15,13 +15,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Language\LanguageCollection;
 
 #[Package('inventory')]
 class CategoryBreadcrumbUpdater
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -61,15 +64,17 @@ class CategoryBreadcrumbUpdater
 
         $all = array_filter(array_keys(array_flip($all)));
 
-        $languages = $this->languageRepository->search(new Criteria(), $context);
+        $languages = $this->languageRepository->search(new Criteria(), $context)->getEntities();
 
-        /** @var LanguageEntity $language */
         foreach ($languages as $language) {
+            /** @var non-empty-list<string> $languageIdChain */
+            $languageIdChain = array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]);
+
             $context = new Context(
                 new SystemSource(),
                 [],
                 Defaults::CURRENCY,
-                array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]),
+                $languageIdChain,
                 Defaults::LIVE_VERSION
             );
 

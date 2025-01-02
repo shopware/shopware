@@ -174,7 +174,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     /**
      * @param array{languageId: string, systemFallbackLanguageId: string} $params
      *
-     * @return non-empty-array<string>
+     * @return non-empty-list<string>
      */
     private function getLanguageIdChain(array $params): array
     {
@@ -186,7 +186,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $chain[] = $this->getParentLanguageId($chain[0]);
         $chain[] = $params['systemFallbackLanguageId'];
 
-        /** @var non-empty-array<string> $filtered */
+        /** @var non-empty-list<string> $filtered */
         $filtered = array_filter($chain);
 
         return $filtered;

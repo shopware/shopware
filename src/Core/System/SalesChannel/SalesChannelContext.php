@@ -181,7 +181,7 @@ class SalesChannelContext extends Struct
     {
         $tax = $this->taxRules->get($taxId);
 
-        if ($tax === null || $tax->getRules() === null) {
+        if ($tax?->getRules() === null) {
             throw new TaxNotFoundException($taxId);
         }
 
@@ -229,15 +229,15 @@ class SalesChannelContext extends Struct
      */
     public function getRuleIds(): array
     {
-        return $this->getContext()->getRuleIds();
+        return $this->context->getRuleIds();
     }
 
     /**
-     * @param array<string> $ruleIds
+     * @param string[] $ruleIds
      */
     public function setRuleIds(array $ruleIds): void
     {
-        $this->getContext()->setRuleIds($ruleIds);
+        $this->context->setRuleIds($ruleIds);
     }
 
     /**
@@ -284,7 +284,7 @@ class SalesChannelContext extends Struct
 
     public function lockRules(): void
     {
-        $this->getContext()->lockRules();
+        $this->context->lockRules();
     }
 
     public function lockPermissions(): void
@@ -309,7 +309,7 @@ class SalesChannelContext extends Struct
 
     public function getTaxCalculationType(): string
     {
-        return $this->getSalesChannel()->getTaxCalculationType();
+        return $this->salesChannel->getTaxCalculationType();
     }
 
     /**
@@ -344,7 +344,7 @@ class SalesChannelContext extends Struct
 
     public function getSalesChannelId(): string
     {
-        return $this->getSalesChannel()->getId();
+        return $this->salesChannel->getId();
     }
 
     public function addState(string ...$states): void
@@ -381,7 +381,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return non-empty-list<string>
      */
     public function getLanguageIdChain(): array
     {

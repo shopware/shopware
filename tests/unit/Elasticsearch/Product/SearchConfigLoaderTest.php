@@ -36,11 +36,14 @@ class SearchConfigLoaderTest extends TestCase
 
         $loader = new SearchConfigLoader($connection);
 
+        /** @var non-empty-list<string> $languageIdChain */
+        $languageIdChain = array_filter(array_keys($configKeyedByLanguageId));
+
         $context = new Context(
             new SystemSource(),
             [],
             Defaults::CURRENCY,
-            array_filter(array_keys($configKeyedByLanguageId)),
+            $languageIdChain,
         );
 
         $result = $loader->load($context);

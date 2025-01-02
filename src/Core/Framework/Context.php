@@ -25,11 +25,6 @@ class Context extends Struct
 
     final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
-    /**
-     * @var non-empty-array<string>
-     */
-    protected array $languageIdChain;
-
     protected string $scope = self::USER_SCOPE;
 
     protected bool $rulesLocked = false;
@@ -41,20 +36,17 @@ class Context extends Struct
     protected $extensions = [];
 
     /**
-     * @param array<string> $languageIdChain
-     * @param array<string> $ruleIds
+     * @param non-empty-list<string> $languageIdChain
+     * @param string[] $ruleIds
      */
     public function __construct(
         protected ContextSource $source,
         protected array $ruleIds = [],
         protected string $currencyId = Defaults::CURRENCY,
-        array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
+        protected array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         protected string $versionId = Defaults::LIVE_VERSION,
         protected float $currencyFactor = 1.0,
         protected bool $considerInheritance = false,
-        /**
-         * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
-         */
         protected string $taxState = CartPrice::TAX_STATE_GROSS,
         protected CashRoundingConfig $rounding = new CashRoundingConfig(2, 0.01, true)
     ) {
@@ -66,7 +58,7 @@ class Context extends Struct
             throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
         }
 
-        /** @var non-empty-array<string> $chain */
+        /** @var non-empty-list<string> $chain */
         $chain = array_keys(array_flip(array_filter($languageIdChain)));
         $this->languageIdChain = $chain;
     }
@@ -112,7 +104,7 @@ class Context extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return string[]
      */
     public function getRuleIds(): array
     {
@@ -120,7 +112,7 @@ class Context extends Struct
     }
 
     /**
-     * @return non-empty-array<string>
+     * @return non-empty-list<string>
      */
     public function getLanguageIdChain(): array
     {
@@ -205,7 +197,7 @@ class Context extends Struct
     }
 
     /**
-     * @param array<string> $ruleIds
+     * @param string[] $ruleIds
      */
     public function setRuleIds(array $ruleIds): void
     {

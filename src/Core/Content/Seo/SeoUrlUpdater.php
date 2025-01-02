@@ -56,6 +56,9 @@ class SeoUrlUpdater
         $context = Context::createDefaultContext();
 
         $languageChains = $this->fetchLanguageChains($context);
+        if (!$languageChains) {
+            return;
+        }
 
         $criteria = new Criteria();
         $criteria->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
@@ -70,6 +73,10 @@ class SeoUrlUpdater
             }
 
             $chain = $languageChains[$config['languageId']];
+            if (!$chain) {
+                continue;
+            }
+
             $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
             $languageContext->setConsiderInheritance(true);
 
@@ -136,7 +143,7 @@ class SeoUrlUpdater
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, non-empty-list<string>>
      */
     private function fetchLanguageChains(Context $context): array
     {
@@ -152,6 +159,7 @@ class SeoUrlUpdater
             ]);
         }
 
+        /** @var array<string, non-empty-list<string>> $languageChains */
         return $languageChains;
     }
 }

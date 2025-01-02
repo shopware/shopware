@@ -90,21 +90,7 @@ class CartRestorerTest extends TestCase
         $this->persister->expects(static::never())->method('save');
 
         $this->salesChannelContextFactory->expects(static::once())->method('create')->willReturn(
-            Generator::createSalesChannelContext(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                $token,
-                ''
-            )
+            Generator::createSalesChannelContext(token: $token)
         );
 
         $eventIsThrown = false;
@@ -141,20 +127,7 @@ class CartRestorerTest extends TestCase
         $this->persister->expects(static::once())->method('save');
 
         $this->salesChannelContextFactory->expects(static::once())->method('create')->willReturn(
-            Generator::createSalesChannelContext(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                $token,
-            )
+            Generator::createSalesChannelContext(token: $token)
         );
 
         $eventIsThrown = false;

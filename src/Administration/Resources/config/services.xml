@@ -47,7 +47,7 @@
             <argument type="service" id="parameter_bag"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.asset"/>
-            <argument type="service" id="Shopware\Core\LoginConfig\ConfigBuilder\LoginConfigService" on-invalid="null"/>
+            <argument type="service" id="Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService"/>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
             <call method="setContainer">
@@ -189,6 +189,21 @@
             <argument>%pentatrion_vite.configs%</argument>
             <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="service" id="assets.packages"/>
+        </service>
+
+        <service id="Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService">
+            <argument>%shopware.admin_login%</argument>
+            <argument type="tagged_iterator" tag="shopware.login.config.handler" index-by="key"/>
+        </service>
+
+        <service id="Shopware\Administration\LoginConfig\ConfigBuilder\Handler\AbstractLoginConfigHandler" abstract="true">
+            <argument>%env(APP_URL)%</argument>
+            <argument>%shopware_administration.path_name%</argument>
+        </service>
+
+        <service id="Shopware\Administration\LoginConfig\ConfigBuilder\Handler\ShopwareSso"
+                 parent="Shopware\Administration\LoginConfig\ConfigBuilder\Handler\AbstractLoginConfigHandler">
+            <tag name="shopware.login.config.handler" key="swsso"/>
         </service>
     </services>
 </container>

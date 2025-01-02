@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\LoginConfig\ConfigBuilder\TemplateData;
+namespace Shopware\Administration\LoginConfig\ConfigBuilder\TemplateData;
 
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @implements \Iterator<TemplateData>
+ * @implements \Iterator<ProviderTemplateData>
  */
 #[Package('core')]
-class TemplateDataCollection implements \Iterator
+class TemplateDataCollection implements \Iterator, \JsonSerializable
 {
     private int $index = 0;
 
     /**
-     * @var array<TemplateData>
+     * @var array<ProviderTemplateData>
      */
     private array $providers = [];
 
@@ -24,7 +24,7 @@ class TemplateDataCollection implements \Iterator
         $this->index = 0;
     }
 
-    public function current(): TemplateData
+    public function current(): ProviderTemplateData
     {
         return $this->providers[$this->index];
     }
@@ -49,8 +49,16 @@ class TemplateDataCollection implements \Iterator
         $this->index = 0;
     }
 
-    public function addTemplateData(TemplateData $provider): void
+    public function addTemplateData(ProviderTemplateData $provider): void
     {
         $this->providers[] = $provider;
+    }
+
+    /**
+     * @return array<ProviderTemplateData>
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->providers;
     }
 }

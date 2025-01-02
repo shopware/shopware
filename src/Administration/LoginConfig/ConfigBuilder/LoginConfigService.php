@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\LoginConfig\ConfigBuilder;
+namespace Shopware\Administration\LoginConfig\ConfigBuilder;
 
+use Shopware\Administration\LoginConfig\ConfigBuilder\Handler\AbstractLoginConfigHandler;
+use Shopware\Administration\LoginConfig\ConfigBuilder\TemplateData\ProviderTemplateData;
+use Shopware\Administration\LoginConfig\LoginConfigException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\LoginConfig\ConfigBuilder\Handler\AbstractLoginConfigHandler;
-use Shopware\Core\LoginConfig\ConfigBuilder\TemplateData\TemplateDataCollection;
-use Shopware\Core\LoginConfig\LoginConfigException;
 
 /**
  * @internal
@@ -16,14 +16,17 @@ class LoginConfigService
     /**
      * @var array<string, AbstractLoginConfigHandler>
      */
-    private array $loginConfigHandlers = [];
+    private array $loginConfigHandlers;
 
     /**
      * @param array<string, mixed> $loginConfig
+     * @param array<string, AbstractLoginConfigHandler> $handlers
      */
     public function __construct(
         private readonly array $loginConfig,
+        iterable $handlers,
     ) {
+        $this->loginConfigHandlers = $handlers instanceof \Traversable ? iterator_to_array($handlers) : $handlers;
     }
 
     public function addHandler(AbstractLoginConfigHandler $handler, string $key): void
@@ -31,35 +34,24 @@ class LoginConfigService
         $this->loginConfigHandlers[$key] = $handler;
     }
 
-    public function createTemplateData(): TemplateDataCollection
+    /**
+     * @return array{useDefault: bool, ssoProviders: array<ProviderTemplateData>}
+     */
+    public function createTemplateData(): array
     {
-        $templateDataCollection = new TemplateDataCollection();
+        $templateDataArray = [];
         foreach ($this->loginConfig['sso_providers'] as $key => $configArray) {
             $loginConfigItem = LoginConfigItem::fromArray($key, $configArray);
 
-            $handler = $this->loginConfigHandlers[$loginConfigItem->configKey] ?? null;
-            if ($handler === null) {
-                throw LoginConfigException::handlerNotFound($loginConfigItem->configKey);
-            }
+            $handler = $this->loginConfigHandlers[$loginConfigItem->configKey] ?? throw LoginConfigException::handlerNotFound($loginConfigItem->configKey);
 
-            $templateDataCollection->addTemplateData($handler->createTemplateData($loginConfigItem));
+            $templateDataArray[$key] = $handler->createTemplateData($loginConfigItem);
         }
 
-        return $templateDataCollection;
-    }
-
-    /**
-     * @return array{useDefault: bool, ssoProviders: array<array{key: string, snippet_key: string, icon: string, class: string, url: string}>}
-     */
-    public function templateDataToArray(TemplateDataCollection $templateDataCollection): array
-    {
         $data = [
             'useDefault' => (bool) $this->loginConfig['use_default'],
-            'ssoProviders' => [],
+            'ssoProviders' => $templateDataArray,
         ];
-        foreach ($templateDataCollection as $templateData) {
-            $data['ssoProviders'][] = $templateData->toArray();
-        }
 
         return $data;
     }

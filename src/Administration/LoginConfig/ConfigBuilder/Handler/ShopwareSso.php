@@ -1,19 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\LoginConfig\ConfigBuilder\Handler;
+namespace Shopware\Administration\LoginConfig\ConfigBuilder\Handler;
 
-use Shopware\Core\LoginConfig\ConfigBuilder\LoginConfigItem;
-use Shopware\Core\LoginConfig\ConfigBuilder\TemplateData\TemplateData;
+use Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigItem;
+use Shopware\Administration\LoginConfig\ConfigBuilder\TemplateData\ProviderTemplateData;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\String\ByteString;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class ShopwareSso extends AbstractLoginConfigHandler
 {
     protected string $configKey = 'swsso';
 
-    public function createTemplateData(LoginConfigItem $loginConfigItem): TemplateData
+    public function createTemplateData(LoginConfigItem $loginConfigItem): ProviderTemplateData
     {
         $random = ByteString::fromRandom(32)->toString();
-        return new TemplateData(
+
+        return new ProviderTemplateData(
             $loginConfigItem->configKey,
             $loginConfigItem->snippetKey,
             $loginConfigItem->icon,

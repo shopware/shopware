@@ -108,11 +108,8 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         jest.useFakeTimers();
         jest.spyOn(global, 'setTimeout');
 
-        const username = await wrapper.get('#sw-field--username');
-        await username.setValue('Username');
-
-        const password = await wrapper.get('#sw-field--password');
-        await password.setValue('Password');
+        await wrapper.get('#sw-field--username').setValue('Username');
+        await wrapper.get('#sw-field--password').setValue('Password');
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
 

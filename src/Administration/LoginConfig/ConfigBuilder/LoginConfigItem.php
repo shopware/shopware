@@ -1,17 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\LoginConfig\ConfigBuilder;
+namespace Shopware\Administration\LoginConfig\ConfigBuilder;
 
+use Shopware\Administration\LoginConfig\LoginConfigException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\LoginConfig\LoginConfigException;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class LoginConfigItem

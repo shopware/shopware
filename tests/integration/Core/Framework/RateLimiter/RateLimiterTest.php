@@ -9,11 +9,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -21,7 +23,6 @@ use Shopware\Core\Framework\Test\RateLimiter\RateLimiterTestTrait;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\LoginConfig\Builder\LoginConfigBuilder;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -35,6 +36,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Policy\NoLimiter;
@@ -191,7 +193,9 @@ class RateLimiterTest extends TestCase
             $this->mockResetLimiter([
                 RateLimiter::OAUTH => 1,
             ]),
-            new LoginConfigBuilder(['use_default' => true, 'sso_providers' => []], []),
+            $this->createMock(EntityRepository::class),
+            new LoginConfigService(['use_default' => true, 'sso_providers' => []], []),
+            new CurlHttpClient()
         );
 
         $controller->token(new Request());

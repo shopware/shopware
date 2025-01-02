@@ -428,7 +428,6 @@ const missingTests = [
     'src/module/sw-settings-payment/index.js',
     'src/module/sw-settings-payment/init/index.ts',
     'src/module/sw-settings-payment/page/sw-settings-payment-create/index.js',
-    'src/module/sw-settings-payment/state/overview-cards.store.ts',
     'src/module/sw-settings-product-feature-sets/index.js',
     'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service.js',
     'src/module/sw-settings-salutation/index.js',

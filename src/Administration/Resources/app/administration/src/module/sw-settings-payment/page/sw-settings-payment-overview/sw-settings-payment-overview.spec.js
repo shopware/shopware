@@ -5,14 +5,7 @@ import { mount } from '@vue/test-utils';
  */
 
 async function createWrapper(methods = [], cards = [], privileges = []) {
-    if (typeof Shopware.State.get('paymentOverviewCardState') !== 'undefined') {
-        Shopware.State.unregisterModule('paymentOverviewCardState');
-    }
-
-    Shopware.State.registerModule('paymentOverviewCardState', {
-        namespaced: true,
-        state: { cards },
-    });
+    Shopware.Store.get('paymentOverviewCard').cards = cards;
 
     return mount(
         await wrapTestComponent('sw-settings-payment-overview', {

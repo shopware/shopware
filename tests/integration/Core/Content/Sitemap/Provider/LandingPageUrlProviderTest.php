@@ -249,7 +249,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'active' => true,
                 'versionId' => Defaults::LIVE_VERSION,
                 'salesChannels' => [
-                    ['id' => $newsalesChannelContext->getSalesChannelId()],
+                    ['id' => $newSalesChannelContext->getSalesChannelId()],
                 ],
             ],
             // not active

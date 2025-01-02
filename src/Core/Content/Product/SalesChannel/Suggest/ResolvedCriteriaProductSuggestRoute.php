@@ -53,7 +53,7 @@ class ResolvedCriteriaProductSuggestRoute extends AbstractProductSuggestRoute
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $criteria->addFilter(
-            new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)
+            new ProductAvailableFilter($context->getSalesChannelId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)
         );
 
         $this->searchBuilder->build($request, $criteria, $context);

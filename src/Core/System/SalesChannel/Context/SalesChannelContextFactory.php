@@ -210,7 +210,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria->addAssociation('appPaymentMethod');
         $criteria->setTitle('context-factory::payment-method');
         $criteria->addFilter(new EqualsFilter('active', 1));
-        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
 
         /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->get($id);

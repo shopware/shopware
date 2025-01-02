@@ -153,6 +153,12 @@ class Generator extends TestCase
             $shippingLocation = ShippingLocation::createFromAddress($customerAddress);
         }
 
+        if (!$customer) {
+            $customer = new CustomerEntity();
+            $customer->setId(Uuid::randomHex());
+            $customer->setGroup($currentCustomerGroup);
+        }
+
         $itemRounding ??= new CashRoundingConfig(2, 0.01, true);
 
         $totalRounding ??= new CashRoundingConfig(2, 0.01, true);

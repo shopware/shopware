@@ -212,7 +212,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             $productData[0]['mainCategories'][] = [
                 'categoryId' => $this->ids->get('navigation-a-1'),
                 'id' => Uuid::randomHex(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
             ];
         }
 

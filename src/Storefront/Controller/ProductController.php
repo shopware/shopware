@@ -198,7 +198,7 @@ class ProductController extends StorefrontController
      */
     private function checkReviewsActive(SalesChannelContext $context): void
     {
-        $showReview = $this->systemConfigService->get('core.listing.showReview', $context->getSalesChannel()->getId());
+        $showReview = $this->systemConfigService->get('core.listing.showReview', $context->getSalesChannelId());
 
         if (!$showReview) {
             throw StorefrontException::reviewNotActive();

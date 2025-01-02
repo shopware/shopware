@@ -89,7 +89,7 @@ class SalesChannelContextPersister
             $this->connection->insert('sales_channel_api_context', [
                 'token' => $newToken,
                 'payload' => json_encode([]),
-                'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannel()->getId()),
+                'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannelId()),
                 'customer_id' => $customer ? Uuid::fromHexToBytes($customer->getId()) : null,
                 'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);

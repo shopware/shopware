@@ -142,7 +142,7 @@ class SortingListingProcessor extends AbstractListingProcessor
     {
         $id = $this->systemConfigService->getString(
             'core.listing.defaultSorting',
-            $context->getSalesChannel()->getId()
+            $context->getSalesChannelId()
         );
 
         if (empty($id)) {

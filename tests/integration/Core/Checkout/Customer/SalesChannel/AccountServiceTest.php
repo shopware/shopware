@@ -87,11 +87,11 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email);
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email);
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
         static::assertEquals($email, $customer->getEmail());
-        static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
+        static::assertEquals($context->getSalesChannelId(), $customer->getSalesChannelId());
     }
 
     public function testGetCustomerByLoginWithInvalidPassword(): void
@@ -110,11 +110,11 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email);
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email);
 
         $customer = $this->accountService->getCustomerByLogin($email, 'invalid-password', $context);
         static::assertEquals($email, $customer->getEmail());
-        static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
+        static::assertEquals($context->getSalesChannelId(), $customer->getSalesChannelId());
     }
 
     public function testGetCustomerByLoginWhenCustomersHaveSameEmailReturnsTheLatestCreatedCustomer(): void
@@ -133,8 +133,8 @@ class AccountServiceTest extends TestCase
             ],
         ]);
 
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer1, '2022-10-21 10:00:00');
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer2, '2022-10-22 10:00:00');
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer1, '2022-10-21 10:00:00');
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer2, '2022-10-22 10:00:00');
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
         static::assertEquals($idCustomer2, $customer->getId());
@@ -191,7 +191,7 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, false);
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, false);
 
         $this->expectException(CustomerNotFoundException::class);
         $this->expectExceptionMessage('No matching customer for the email "johndoe@example.com" was found.');
@@ -213,11 +213,11 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('shopware', 'md5'), 'Md5');
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('shopware', 'md5'), 'Md5');
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
         static::assertEquals($email, $customer->getEmail());
-        static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
+        static::assertEquals($context->getSalesChannelId(), $customer->getSalesChannelId());
 
         $customer = $this
             ->getContainer()
@@ -245,7 +245,7 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('test', 'md5'), 'Md5');
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('test', 'md5'), 'Md5');
 
         static::expectException(PasswordPoliciesUpdatedException::class);
         static::expectExceptionMessage('Password policies updated.');

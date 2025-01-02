@@ -58,7 +58,7 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
             ->add('lastName', new NotBlank(), new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]))
             ->add('accountType', new Choice($this->accountTypes));
 
-        $salesChannelId = $context->getSalesChannel()->getId();
+        $salesChannelId = $context->getSalesChannelId();
 
         if ($this->systemConfigService->get('core.loginRegistration.showBirthdayField', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.birthdayFieldRequired', $salesChannelId)) {

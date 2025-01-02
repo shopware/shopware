@@ -97,7 +97,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             }
         }
 
-        $salesChannelId = $context->getSalesChannel()->getId();
+        $salesChannelId = $context->getSalesChannelId();
 
         $currencyCriteria = new Criteria();
         $currencyCriteria->addFilter(

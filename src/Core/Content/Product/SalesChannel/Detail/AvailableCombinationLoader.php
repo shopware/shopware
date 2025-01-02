@@ -34,7 +34,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
         $combinations = $this->getCombinations(
             $productId,
             $salesChannelContext->getContext(),
-            $salesChannelContext->getSalesChannel()->getId()
+            $salesChannelContext->getSalesChannelId()
         );
 
         $stocks = $this->stockStorage->load(

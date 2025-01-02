@@ -14,6 +14,6 @@ class SalesChannelCountryDefinition extends CountryDefinition implements SalesCh
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('country.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('country.salesChannels.id', $context->getSalesChannelId()));
     }
 }

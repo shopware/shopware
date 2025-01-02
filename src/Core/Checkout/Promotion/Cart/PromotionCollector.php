@@ -244,7 +244,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // make sure to load it and assign it to
         // the code in our cache list.
         if (\count($codesToFetch) > 0) {
-            $salesChannelId = $context->getSalesChannel()->getId();
+            $salesChannelId = $context->getSalesChannelId();
 
             foreach ($codesToFetch as $currentCode) {
                 // try to find a global code first because

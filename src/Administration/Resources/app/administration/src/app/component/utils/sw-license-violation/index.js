@@ -1,4 +1,3 @@
-import { mapState } from 'pinia';
 import template from './sw-license-violation.html.twig';
 import './sw-license-violation.scss';
 

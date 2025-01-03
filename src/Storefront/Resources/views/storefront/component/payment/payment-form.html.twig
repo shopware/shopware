@@ -1,8 +1,12 @@
+{% block component_payment_form %}
+{# @deprecated tag:v6.7.0 - Block `page_checkout_change_payment_form` will be renamed to `component_payment_form` #}
 {% block page_checkout_change_payment_form %}
     {% set formAjaxSubmitOptions = {
         changeTriggerSelectors: ['.payment-method-input']
     } %}
 
+    {% block component_payment_form_element %}
+    {# @deprecated tag:v6.7.0 - Block `page_checkout_change_payment_form_element` will be renamed to `component_payment_form_element` #}
     {% block page_checkout_change_payment_form_element %}
         <form id="changePaymentForm"
               name="changePaymentForm"
@@ -10,17 +14,35 @@
               data-form-auto-submit="true"
               data-form-auto-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
               method="post">
+            {% block component_payment_form_redirect %}
+            {# @deprecated tag:v6.7.0 - Block `page_checkout_change_payment_form_redirect` will be renamed to `component_payment_form_redirect` #}
             {% block page_checkout_change_payment_form_redirect %}
                 <input type="hidden" name="redirectTo" value="{{ redirect }}">
                 <input type="hidden" name="redirectParameters" value="{{ redirectParameters }}">
             {% endblock %}
-
-            {% block page_checkout_change_payment_form_fields %}
-                {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
-                    visiblePaymentMethodsLimit: 5,
-                    selectedPaymentMethodId: context.paymentMethod.id
-                } %}
             {% endblock %}
+
+            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                {% block component_payment_form_list %}
+                    <div class="payment-methods">
+                        {% for payment in page.paymentMethods %}
+                            {% block component_payment_form_method %}
+                                {% sw_include '@Storefront/storefront/component/payment/payment-method.html.twig' %}
+                            {% endblock %}
+                        {% endfor %}
+                    </div>
+                {% endblock %}
+            {% else %}
+                {# @deprecated tag:v6.7.0 - Block `page_checkout_change_payment_form_fields` will be replaced with `component_payment_form_list` #}
+                {% block page_checkout_change_payment_form_fields %}
+                    {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
+                        visiblePaymentMethodsLimit: 5,
+                        selectedPaymentMethodId: context.paymentMethod.id
+                    } %}
+                {% endblock %}
+            {% endif %}
         </form>
     {% endblock %}
+    {% endblock %}
+{% endblock %}
 {% endblock %}

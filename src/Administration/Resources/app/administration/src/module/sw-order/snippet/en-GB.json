@@ -32,7 +32,6 @@
       "titleSidebarItemFilterAffiliateCode": "Affiliate code",
       "titleSidebarItemFilterCampaignCode": "Campaign code",
       "buttonDelete": "Delete",
-      "buttonCancel": "Cancel",
       "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?",
       "labelManualOrder": "Created by admin"
     },
@@ -55,7 +54,6 @@
     "create": {
       "textNewOrder": "New order",
       "buttonSaveOrder": "Save order",
-      "buttonCancelOrder": "Cancel",
       "messageSaveError": "Order could not be saved.",
       "messageSwitchCustomerError": "An error occurred during switching customer",
       "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses",

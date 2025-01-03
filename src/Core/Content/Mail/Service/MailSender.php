@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Envelope;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\Email;
 
@@ -25,10 +26,11 @@ class MailSender extends AbstractMailSender
      * @internal
      */
     public function __construct(
-        private readonly MessageBusInterface $messageBus,
+        private readonly TransportInterface $transport,
         private readonly FilesystemOperator $filesystem,
         private readonly SystemConfigService $configService,
         private readonly int $maxContentLength,
+        private readonly ?MessageBusInterface $messageBus = null,
     ) {
     }
 
@@ -56,6 +58,16 @@ class MailSender extends AbstractMailSender
 
         if ($this->maxContentLength > 0 && \strlen($email->getBody()->toString()) > $this->maxContentLength) {
             throw MailException::mailBodyTooLong($this->maxContentLength);
+        }
+
+        if ($this->messageBus === null) {
+            try {
+                $this->transport->send($email);
+            } catch (\Throwable $e) {
+                throw MailException::mailTransportFailedException($e);
+            }
+
+            return;
         }
 
         $mailData = serialize($email);

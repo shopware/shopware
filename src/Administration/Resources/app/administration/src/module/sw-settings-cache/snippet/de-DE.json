@@ -50,7 +50,6 @@
       "title": "Cache leeren",
       "message": "Bist Du sicher, dass Du alle Caches leeren möchtest?",
       "actions": {
-        "cancel": "Abbrechen",
         "clear": "Leeren"
       }
     }

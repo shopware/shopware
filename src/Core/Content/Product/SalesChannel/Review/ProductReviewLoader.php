@@ -24,7 +24,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class ProductReviewLoader extends AbstractProductReviewLoader
 {
-    private const PARAMETER_NAME_LIMIT = 'limit';
     private const PARAMETER_NAME_PAGE = 'p';
     private const PARAMETER_NAME_SORT = 'sort';
     private const PARAMETER_NAME_LANGUAGE = 'language';
@@ -101,7 +100,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
 
     private function createReviewCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        $limit = (int) $request->get(self::PARAMETER_NAME_LIMIT, $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId()));
+        $limit = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId());
         $page = (int) $request->get(self::PARAMETER_NAME_PAGE, 1);
         $offset = max(0, $limit * ($page - 1));
 

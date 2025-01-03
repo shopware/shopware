@@ -17,3 +17,4 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoInconfiguredMetricAllowed
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\UseHasherRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PropertyNativeTypeRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoManualSalesChannelContextCreationRule

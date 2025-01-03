@@ -59,6 +59,7 @@ class Generator extends TestCase
         ?CustomerEntity $customer = null,
         ?string $token = null,
         ?string $domainId = null,
+        bool $createCustomer = true
     ): SalesChannelContext {
         if (!$baseContext) {
             $baseContext = Context::createDefaultContext();
@@ -135,7 +136,7 @@ class Generator extends TestCase
             $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
         }
 
-        if (!$customer) {
+        if (!$customer && $createCustomer) {
             $customer = (new CustomerEntity())->assign(['id' => Uuid::randomHex()]);
             $customer->setId(Uuid::randomHex());
             $customer->setGroup($currentCustomerGroup);

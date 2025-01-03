@@ -28,7 +28,6 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "messageDeleteSuccess": "Das Land \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
     "detail": {
@@ -53,7 +52,6 @@
       "placeholderStateSearch": "Durchsuche Länder/Regionen ...",
       "placeholderIso": "Zweistelligen ISO-Code eingeben ...",
       "placeholderIso3": "Dreistelligen ISO-Code eingeben ...",
-      "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "buttonAddCountryState": "Land/Region hinzufügen",
       "editAction": "Editieren",
@@ -89,7 +87,6 @@
     "titleNew": "Neues Land/Region",
     "titleEdit": "Land/Region bearbeiten",
     "buttonSave": "Speichern",
-    "buttonCancel": "Abbrechen",
     "labelName": "Name",
     "labelPosition": "Position",
     "labelShortCode": "ISO",

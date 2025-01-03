@@ -15,7 +15,6 @@
       "buttonAddDocument": "Add document",
       "contextMenuEdit": "Edit",
       "messageDeleteSuccess": "Document \"{name}\" has been deleted.",
-      "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "global": "Global"
     },
@@ -60,7 +59,6 @@
       "placeholderDisplayDeliveryCountries": "Search and add countries valid for intra-Community delivery...",
       "labelOptionMedia": "Company logo",
       "placeholderName": "Enter name...",
-      "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "disabledSalesChannel": "There is already another document of the same type in this Sales Channel.",
       "disabledSalesChannelSelect": "Choose a document type first.",

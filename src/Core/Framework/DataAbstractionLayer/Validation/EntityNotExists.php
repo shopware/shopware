@@ -4,10 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Exception\InvalidOptionsException;
-use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 #[Package('core')]
 class EntityNotExists extends Constraint
@@ -29,7 +28,7 @@ class EntityNotExists extends Constraint
     protected string $primaryProperty = 'id';
 
     /**
-     * @param array{entity: string, context: Context, criteria?: Criteria} $options
+     * @param array{entity: string, context: Context, criteria?: Criteria, primaryProperty?: string} $options
      *
      * @internal
      */
@@ -41,15 +40,19 @@ class EntityNotExists extends Constraint
         );
 
         if (!\is_string($options['entity'] ?? null)) {
-            throw new MissingOptionsException(\sprintf('Option "entity" must be given for constraint %s', self::class), ['entity']);
+            throw FrameworkException::missingOptions(\sprintf('Option "entity" must be given for constraint %s', self::class), ['entity']);
         }
 
         if (!($options['context'] ?? null) instanceof Context) {
-            throw new MissingOptionsException(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
+            throw FrameworkException::missingOptions(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
         }
 
         if (!($options['criteria'] ?? null) instanceof Criteria) {
-            throw new InvalidOptionsException(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class), ['criteria']);
+            throw FrameworkException::invalidOptions(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class), ['criteria']);
+        }
+
+        if (isset($options['primaryProperty']) && !\is_string($options['primaryProperty'])) {
+            throw FrameworkException::invalidOptions(\sprintf('Option "primaryProperty" must be a string for constraint %s', self::class), ['primaryProperty']);
         }
 
         parent::__construct($options);

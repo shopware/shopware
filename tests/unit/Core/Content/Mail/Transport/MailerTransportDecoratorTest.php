@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
+namespace Shopware\Tests\Unit\Core\Content\Mail\Transport;
 
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
-use Shopware\Core\Content\Mail\Service\MailerTransportDecorator;
+use Shopware\Core\Content\Mail\Transport\MailerTransportDecorator;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;

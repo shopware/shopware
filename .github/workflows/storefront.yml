@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - src/Storefront/Resources/app/storefront/**/*
+      - .github/workflows/storefront.yml
   workflow_dispatch:
   workflow_call:
 

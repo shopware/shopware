@@ -19,7 +19,7 @@
             v-tooltip.bottom="tooltipCancel"
             @click="onCancel"
         >
-            {{ $tc('sw-users-permissions.users.user-detail.labelButtonCancel') }}
+            {{ $tc('global.default.cancel') }}
         </sw-button>
         {% endblock %}
 
@@ -359,7 +359,7 @@
                     size="small"
                     @click="onCloseDeleteModal"
                 >
-                    {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCancel') }}
+                    {{ $tc('global.default.cancel') }}
                 </sw-button>
                 <sw-button
                     size="small"
@@ -469,7 +469,7 @@
                     :disabled="isModalLoading || undefined"
                     @click="onCloseDetailModal"
                 >
-                    {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCancel') }}
+                    {{ $tc('global.default.cancel') }}
                 </sw-button>
                 {% endblock %}
 

@@ -75,7 +75,7 @@ export default {
 
         labelSaveButton() {
             if (this.currentCustomField._isNew) {
-                return this.$tc('sw-settings-custom-field.customField.detail.buttonSaveApply');
+                return this.$tc('global.default.add');
             }
 
             return this.$tc('sw-settings-custom-field.customField.detail.buttonEditApply');

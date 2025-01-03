@@ -48,6 +48,7 @@ jobs:
           echo "DISABLE_VUE_COMPAT=0" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
           echo "ADMIN_VITE=1" >> $GITHUB_ENV
+          echo "COMPOSER_ROOT_VERSION=6.7.9999999-dev" >> $GITHUB_ENV
 
       - name: Setup Shopware
         uses: shopware/setup-shopware@main

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
 use Shopware\Core\Checkout\Document\DocumentException;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -37,7 +37,7 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
-        $fileType = $request->query->get('fileType', FileTypes::PDF);
+        $fileType = $request->query->getString('fileType', PdfRenderer::FILE_EXTENSION);
 
         $download = $request->query->getBoolean('download');
 

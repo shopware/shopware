@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,14 +37,14 @@ class DocumentGenerator
      */
     public function __construct(
         private readonly DocumentRendererRegistry $rendererRegistry,
-        private readonly PdfRenderer $pdfRenderer,
+        private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly MediaService $mediaService,
         private readonly EntityRepository $documentRepository,
         private readonly Connection $connection
     ) {
     }
 
-    public function readDocument(string $documentId, Context $context, string $deepLinkCode = '', string $fileType = FileTypes::PDF): ?RenderedDocument
+    public function readDocument(string $documentId, Context $context, string $deepLinkCode = '', string $fileType = PdfRenderer::FILE_EXTENSION): ?RenderedDocument
     {
         $criteria = new Criteria([$documentId]);
 
@@ -115,12 +115,8 @@ class DocumentGenerator
             throw DocumentException::generationError($rendered->getOrderError($operation->getOrderId())?->getMessage());
         }
 
-        if ($operation->getFileType() === FileTypes::HTML && $document->getHtmlA11y() instanceof RenderedDocument) {
-            $document = $document->getHtmlA11y();
-        }
-
-        if ($operation->getFileType() === FileTypes::PDF) {
-            $document->setContent($this->pdfRenderer->render($document));
+        if (!Feature::isActive('v6.7.0.0')) {
+            $document->setContent($this->fileRendererRegistry->render($document));
         }
 
         return $document;
@@ -163,7 +159,7 @@ class DocumentGenerator
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
                 $mediaId = $this->resolveMediaId($operation, $context, $document);
-                $mediaIdForHtmlA11y = $this->resolveMediaId($operation, $context, $document->getHtmlA11y());
+                $mediaIdForHtmlA11y = $this->resolveMediaIdForA11y($operation, $context, $document);
 
                 $records[] = [
                     'id' => $id,
@@ -333,13 +329,13 @@ class DocumentGenerator
         return $document;
     }
 
-    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, ?RenderedDocument $document): ?string
+    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
     {
-        if ($operation->isStatic() || $document === null) {
+        if ($operation->isStatic()) {
             return null;
         }
 
-        $blob = $document->getFileExtension() === FileTypes::HTML ? $document->getContent() : $this->pdfRenderer->render($document);
+        $blob = $this->fileRendererRegistry->render($document);
 
         if ($blob === '') {
             return null;
@@ -386,5 +382,14 @@ class DocumentGenerator
         );
 
         return empty($data) ? null : $data[0];
+    }
+
+    private function resolveMediaIdForA11y(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
+    {
+        $document = clone $document;
+        $document->setContentType(HtmlRenderer::FILE_CONTENT_TYPE);
+        $document->setFileExtension(HtmlRenderer::FILE_EXTENSION);
+
+        return $this->resolveMediaId($operation, $context, $document);
     }
 }

@@ -4,10 +4,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\Extension\HtmlRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -19,29 +20,29 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(PdfRenderer::class)]
-class PdfRendererTest extends TestCase
+#[CoversClass(HtmlRenderer::class)]
+class HtmlRendererTest extends TestCase
 {
     public function testGetContentType(): void
     {
-        $pdfRenderer = new PdfRenderer([], $this->createMock(DocumentTemplateRenderer::class), new ExtensionDispatcher(new EventDispatcher()));
+        $htmlRenderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), new ExtensionDispatcher(new EventDispatcher()));
 
-        static::assertEquals('application/pdf', $pdfRenderer->getContentType());
+        static::assertEquals('text/html', $htmlRenderer->getContentType());
     }
 
     public function testExtensionIsDispatched(): void
     {
         $dispatcher = new EventDispatcher();
-        $renderer = new PdfRenderer([], $this->createMock(DocumentTemplateRenderer::class), new ExtensionDispatcher($dispatcher));
+        $renderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), new ExtensionDispatcher($dispatcher));
         $rendered = new RenderedDocument('html', '1001', InvoiceRenderer::TYPE);
 
         $pre = $this->createMock(CallableClass::class);
         $pre->expects(static::once())->method('__invoke');
-        $dispatcher->addListener(PdfRendererExtension::NAME . '.pre', $pre);
+        $dispatcher->addListener(HtmlRendererExtension::NAME . '.pre', $pre);
 
         $post = $this->createMock(CallableClass::class);
         $post->expects(static::once())->method('__invoke');
-        $dispatcher->addListener(PdfRendererExtension::NAME . '.post', $post);
+        $dispatcher->addListener(HtmlRendererExtension::NAME . '.post', $post);
 
         $renderer->render($rendered);
     }
@@ -69,27 +70,48 @@ class PdfRendererTest extends TestCase
             $html,
             '1001',
             InvoiceRenderer::TYPE,
-            FileTypes::PDF,
-            ['displayFooter' => true]
+            HtmlRenderer::FILE_EXTENSION,
+            ['displayFooter' => true],
+            HtmlRenderer::FILE_CONTENT_TYPE,
         );
+
+        $config = new DocumentConfiguration();
+        $config->merge([
+            'fileType' => PdfRenderer::FILE_EXTENSION,
+            'itemsPerPage' => 10,
+        ]);
+
+        $rendered->setTemplateOptions([
+            '',
+            [
+                'config' => $config,
+            ],
+        ]);
 
         static::assertStringContainsString('<html>', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
         static::assertStringContainsString('DOMPDF_PAGE_COUNT_PLACEHOLDER', $rendered->getHtml());
 
-        $pdfRenderer = new PdfRenderer(
-            [
-                'isRemoteEnabled' => true,
-                'isHtml5ParserEnabled' => true,
-            ],
-            $this->createMock(DocumentTemplateRenderer::class),
+        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
+        $documentTemplateRenderer->expects(static::once())
+            ->method('render')
+            ->willReturn($html);
+
+        $htmlRenderer = new HtmlRenderer(
+            $documentTemplateRenderer,
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
-        $generatorOutput = $pdfRenderer->render($rendered);
-        static::assertNotEmpty($generatorOutput);
+        $generatorOutput = $htmlRenderer->render($rendered);
 
-        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+        static::assertNotEmpty($config->getVars());
+        static::assertSame($config->getVars()['fileType'], 'html');
+        static::assertSame($config->getVars()['itemsPerPage'], 1000);
+
+        static::assertNotEmpty($generatorOutput);
+        static::assertEquals($html, $generatorOutput);
+
+        static::assertSame(HtmlRenderer::FILE_EXTENSION, $rendered->getFileExtension());
+        static::assertSame(HtmlRenderer::FILE_CONTENT_TYPE, $rendered->getContentType());
     }
 }

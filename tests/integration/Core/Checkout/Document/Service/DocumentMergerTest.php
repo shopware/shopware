@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaService;
@@ -223,7 +224,7 @@ class DocumentMergerTest extends TestCase
         $docIds = [];
 
         for ($i = 0; $i < 2; ++$i) {
-            $deliveryOperation = new DocumentGenerateOperation($this->orderId, FileTypes::HTML, [], null, true);
+            $deliveryOperation = new DocumentGenerateOperation($this->orderId, HtmlRenderer::FILE_EXTENSION, [], null, true);
             $result = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $deliveryOperation], $this->context)->getSuccess()->first();
             static::assertNotNull($result);
             $docIds[] = $result->getId();
@@ -231,7 +232,7 @@ class DocumentMergerTest extends TestCase
             $staticFileContent = 'this is some content';
 
             $uploadFileRequest = new Request([
-                'extension' => FileTypes::HTML,
+                'extension' => HtmlRenderer::FILE_EXTENSION,
                 'fileName' => Uuid::randomHex(),
             ], [], [], [], [], [
                 'HTTP_CONTENT_LENGTH' => \strlen($staticFileContent),
@@ -249,7 +250,7 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(Connection::class),
         );
 
-        $mergeResult = $documentMerger->merge($docIds, $this->context, FileTypes::HTML);
+        $mergeResult = $documentMerger->merge($docIds, $this->context, HtmlRenderer::FILE_EXTENSION);
 
         static::assertInstanceOf(RenderedDocument::class, $mergeResult);
 

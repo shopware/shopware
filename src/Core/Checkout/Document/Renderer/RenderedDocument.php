@@ -2,20 +2,19 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
 final class RenderedDocument extends Struct
 {
-    final public const PDF_CONTENT_TYPE = 'application/pdf';
-
-    final public const HTML_CONTENT_TYPE = 'text/html';
-
     private string $content;
 
-    private ?RenderedDocument $htmlA11y = null;
+    /**
+     * @var array<mixed>
+     */
+    private array $templateOptions = [];
 
     /**
      * @param array<string, mixed> $config
@@ -24,9 +23,9 @@ final class RenderedDocument extends Struct
         private readonly string $html = '',
         private readonly string $number = '',
         private string $name = '',
-        private string $fileExtension = FileTypes::PDF,
+        private string $fileExtension = PdfRenderer::FILE_EXTENSION,
         private readonly array $config = [],
-        private ?string $contentType = self::PDF_CONTENT_TYPE,
+        private ?string $contentType = PdfRenderer::FILE_CONTENT_TYPE,
     ) {
     }
 
@@ -57,7 +56,7 @@ final class RenderedDocument extends Struct
 
     public function getContentType(): string
     {
-        return $this->contentType ?? self::PDF_CONTENT_TYPE;
+        return $this->contentType ?? PdfRenderer::FILE_CONTENT_TYPE;
     }
 
     public function setContentType(?string $contentType): void
@@ -98,13 +97,19 @@ final class RenderedDocument extends Struct
         return $this->config;
     }
 
-    public function getHtmlA11y(): ?RenderedDocument
+    /**
+     * @param array<mixed> $templateOptions
+     */
+    public function setTemplateOptions(array $templateOptions): void
     {
-        return $this->htmlA11y;
+        $this->templateOptions = $templateOptions;
     }
 
-    public function setHtmlA11y(?RenderedDocument $htmlA11y): void
+    /**
+     * @return mixed[]
+     */
+    public function getTemplateOptions(): array
     {
-        $this->htmlA11y = $htmlA11y;
+        return $this->templateOptions;
     }
 }

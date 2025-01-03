@@ -12,10 +12,10 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -157,7 +157,7 @@ class DocumentMergerTest extends TestCase
             $this->createMock(Connection::class),
         );
 
-        $renderedDocument = $documentMerger->merge([Uuid::randomHex()], Context::createDefaultContext(), FileTypes::HTML);
+        $renderedDocument = $documentMerger->merge([Uuid::randomHex()], Context::createDefaultContext(), HtmlRenderer::FILE_EXTENSION);
 
         static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
         static::assertSame($renderedDocument->getFileExtension(), 'zip');

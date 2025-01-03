@@ -80,7 +80,6 @@
       "contextMenuEdit": "Bearbeiten",
       "messageEmpty": "Noch keine Kunden",
       "textDeleteConfirm": "Möchtest Du den Kunden \"{name}\" wirklich löschen?",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarItemFilter": "Filter",
@@ -157,10 +156,7 @@
     },
     "detailAddresses": {
       "buttonAddAddress": "Adresse anlegen",
-      "buttonAdd": "Anlegen",
-      "buttonCancel": "Abbrechen",
       "buttonClose": "Schließen",
-      "buttonApply": "Übernehmen",
       "buttonDelete": "Löschen",
       "buttonSelect": "Auswahl",
       "buttonSaveAndSelect": "Speichern und auswählen",
@@ -237,7 +233,6 @@
     },
     "detail": {
       "buttonSave": "Speichern",
-      "buttonCancel": "Abbrechen",
       "buttonEdit": "Bearbeiten",
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",

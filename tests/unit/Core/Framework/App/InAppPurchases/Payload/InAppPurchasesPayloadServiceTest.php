@@ -196,4 +196,36 @@ class InAppPurchasesPayloadServiceTest extends TestCase
             Context::createDefaultContext()
         );
     }
+
+    public function testClientIsUsingPostMethod(): void
+    {
+        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->expects(static::once())
+            ->method('createRequestOptions')
+            ->willReturn(new AppPayloadStruct([
+                'app_request_context' => Context::createDefaultContext(),
+                'request_type' => [
+                    'app_secret' => 'very-secret',
+                    'validated_response' => true,
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => '{"purchases":["purchase-1","purchase-2"]}',
+            ]));
+
+        /** @phpstan-ignore shopware.mockingSimpleObjects (it is literally tested, if post method is used) */
+        $client = $this->createMock(Client::class);
+        $client
+            ->expects(static::once())
+            ->method('post')
+            ->willReturn(new Response(200, [], \json_encode([
+                'purchases' => [
+                    'purchase-2',
+                ],
+            ], \JSON_THROW_ON_ERROR)));
+
+        $inAppPayloadServiceHelper = new InAppPurchasesPayloadService($appPayloadServiceHelper, $client);
+        $inAppPayloadServiceHelper->request('https://example.com', new InAppPurchasesPayload([]), new AppEntity(), Context::createDefaultContext());
+    }
 }

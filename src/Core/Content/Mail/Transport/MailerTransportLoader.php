@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Mail\Service;
+namespace Shopware\Core\Content\Mail\Transport;
 
 use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Mail\MailException;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -86,10 +87,27 @@ class MailerTransportLoader
         $emailAgent = $this->configService->getString('core.mailerSettings.emailAgent');
 
         return match ($emailAgent) {
+            'smtp+oauth' => $this->createSmtpOAuthTransport($this->configService),
             'smtp' => $this->createSmtpTransport($this->configService),
             'local' => $this->createSendmailTransport($this->configService),
             default => throw MailException::givenMailAgentIsInvalid($emailAgent),
         };
+    }
+
+    private function createSmtpOAuthTransport(SystemConfigService $configService): TransportInterface
+    {
+        $dsn = new Dsn(
+            'smtp',
+            $configService->getString('core.mailerSettings.host'),
+            $configService->getString('core.mailerSettings.senderAddress'),
+            $configService->getString('core.mailerSettings.clientSecret'),
+            $configService->getInt('core.mailerSettings.port'),
+            [
+                SmtpOauthTransportFactoryDecorator::OPTION_KEY_USE_OAUTH => true,
+            ]
+        );
+
+        return $this->envBasedTransport->fromDsnObject($dsn);
     }
 
     private function createSmtpTransport(SystemConfigService $configService): TransportInterface

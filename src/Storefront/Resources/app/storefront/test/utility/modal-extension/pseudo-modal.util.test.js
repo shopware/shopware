@@ -1,11 +1,12 @@
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 
-import PseudoModalTemplate from './pseudo-modal.template.html'
-import ModalContentTemplate from './modal-content.template.html'
+import PseudoModalTemplate from './pseudo-modal.template.html';
+import ModalContentTemplate from './modal-content.template.html';
 
 const selector = {
     templateTitle: '.js-pseudo-modal-template-title-element',
-}
+    templateRoot: '.js-pseudo-modal-template-root-element',
+};
 
 /**
  * @package storefront
@@ -124,5 +125,23 @@ describe('pseudo-modal.util tests', () => {
 
         // Ensure only a single backdrop exists
         expect(document.querySelectorAll('.modal-backdrop').length).toBe(1);
+    });
+
+    test('it should place the content below the modal content', () => {
+        const newPseudoModal = new PseudoModalUtil('<div class="`${selector.templateRoot}`"><h1>New modal content</h1></div>');
+        newPseudoModal.open();
+        jest.runAllTimers();
+
+        const newModal = document.querySelector('.js-pseudo-modal .modal.fade.show');
+        expect(newModal.querySelector('.modal-content').innerHTML).toContain('<h1>New modal content</h1>');
+    });
+
+    test('it should handle just a string', () => {
+        const newPseudoModal = new PseudoModalUtil('New modal content string');
+        newPseudoModal.open();
+        jest.runAllTimers();
+
+        const newModal = document.querySelector('.js-pseudo-modal .modal.fade.show');
+        expect(newModal.querySelector('.modal-body').innerHTML).toContain('New modal content string');
     });
 });

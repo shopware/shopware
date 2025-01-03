@@ -56,6 +56,14 @@ class MySQLFactory
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
+        if (EnvironmentHelper::getVariable('DATABASE_PERSISTENT_CONNECTION')) {
+            $parameters['driverOptions'][\PDO::ATTR_PERSISTENT] = true;
+        }
+
+        if (EnvironmentHelper::getVariable('DATABASE_PROTOCOL_COMPRESSION')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_COMPRESS] = true;
+        }
+
         if ($replicaUrl) {
             $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
             $parameters['primary'] = ['url' => $url, 'driverOptions' => $parameters['driverOptions']];

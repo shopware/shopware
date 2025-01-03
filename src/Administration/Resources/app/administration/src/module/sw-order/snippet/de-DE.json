@@ -32,7 +32,6 @@
       "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
       "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
       "buttonDelete": "Löschen",
-      "buttonCancel": "Abbrechen",
       "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?",
       "labelManualOrder": "Erstellt von Admin"
     },
@@ -55,7 +54,6 @@
     "create": {
       "textNewOrder": "Neue Bestellung",
       "buttonSaveOrder": "Bestellung speichern",
-      "buttonCancelOrder": "Abbrechen",
       "messageSaveError": "Bestellung konnte nicht gespeichert werden",
       "messageSwitchCustomerError": "Beim Kundenwechsel ist ein Fehler aufgetreten",
       "messageFetchCustomerAddressesError": "Beim Abrufen der Kundenadresse ist ein Fehler aufgetreten",

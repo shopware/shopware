@@ -80,7 +80,6 @@
       "contextMenuEdit": "Edit",
       "messageEmpty": "No customers yet",
       "textDeleteConfirm": "Are you sure you want to delete the customer \"{name}\"?",
-      "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filter",
@@ -157,10 +156,7 @@
     },
     "detailAddresses": {
       "buttonAddAddress": "Add address",
-      "buttonAdd": "Add",
-      "buttonCancel": "Cancel",
       "buttonClose": "Close",
-      "buttonApply": "Apply",
       "buttonDelete": "Delete",
       "buttonSelect": "Select",
       "buttonSaveAndSelect": "Save and select",
@@ -237,7 +233,6 @@
     },
     "detail": {
       "buttonSave": "Save",
-      "buttonCancel": "Cancel",
       "buttonEdit": "Edit",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",

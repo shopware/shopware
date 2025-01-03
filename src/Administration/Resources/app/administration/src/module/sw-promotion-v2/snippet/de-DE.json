@@ -274,7 +274,6 @@
                     "delete": {
                         "confirmTitle": "Rabatt entfernen",
                         "confirmText": "Möchtest Du diesen Rabatt wirklich aus der Rabattaktion entfernen?",
-                        "buttonCancel": "Abbrechen",
                         "buttonDelete": "Rabatt entfernen"
                     },
                     "labelSorting": "Sortieren nach",

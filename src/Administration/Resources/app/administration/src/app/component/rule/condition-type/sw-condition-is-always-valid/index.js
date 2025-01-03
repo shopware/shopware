@@ -29,7 +29,7 @@ Component.extend('sw-condition-is-always-valid', 'sw-condition-base', {
         selectValues() {
             return [
                 {
-                    label: this.$tc('global.sw-condition.condition.yes'),
+                    label: this.$tc('global.default.yes'),
                     value: true,
                 },
             ];

@@ -29,6 +29,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_username %}
     <sw-text-field
+        v-if="!isOauth"
         v-model:value="mailerSettings['core.mailerSettings.username']"
         :label="$tc('sw-settings-mailer.card-smtp.username')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.username-placeholder')"
@@ -38,9 +39,52 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_password %}
     <sw-password-field
+        v-if="!isOauth"
         v-model:value="mailerSettings['core.mailerSettings.password']"
         :label="$tc('sw-settings-mailer.card-smtp.password')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.password-placeholder')"
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_oauth_url %}
+    <sw-text-field
+        v-if="isOauth"
+        v-model:value="mailerSettings['core.mailerSettings.oauthUrl']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-url')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-url-placeholder')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_oauth_scope %}
+    <sw-text-field
+        v-if="isOauth"
+        v-model:value="mailerSettings['core.mailerSettings.oauthScope']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-scope')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-scope-placeholder')"
+        required
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_mailer_smtp_client_id %}
+    <sw-text-field
+        v-if="isOauth"
+        v-model:value="mailerSettings['core.mailerSettings.clientId']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-client-id')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-client-id-placeholder')"
+        required
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_mailer_smtp_client_secret %}
+    <sw-password-field
+        v-if="isOauth"
+        v-model:value="mailerSettings['core.mailerSettings.clientSecret']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-client-secret')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-client-secret-placeholder')"
+        required
     />
     {% endblock %}
 

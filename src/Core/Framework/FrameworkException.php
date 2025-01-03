@@ -4,7 +4,12 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\InvalidOptionsException;
+use Symfony\Component\Validator\Exception\MissingOptionsException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('core')]
 class FrameworkException extends HttpException
 {
@@ -22,6 +27,9 @@ class FrameworkException extends HttpException
     private const EXTENSION_RESULT_NOT_SET = 'FRAMEWORK__EXTENSION_RESULT_NOT_SET';
     private const VALIDATION_FAILED = 'FRAMEWORK__VALIDATION_FAILED';
     private const CLASS_NOT_FOUND = 'FRAMEWORK__CLASS_NOT_FOUND';
+
+    private const MISSING_OPTIONS = 'FRAMEWORK__MISSING_OPTIONS';
+    private const INVALID_OPTIONS = 'FRAMEWORK__INVALID_OPTIONS';
 
     public static function projectDirNotExists(string $dir, ?\Throwable $e = null): self
     {
@@ -114,6 +122,44 @@ class FrameworkException extends HttpException
             self::INVALID_COLLECTION_ELEMENT_TYPE,
             'Expected collection element of type {{ expected }} got {{ element }}',
             ['expected' => $expectedClass, 'element' => $elementClass]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     * @deprecated tag:v6.7.0 - reason:argument-will-be-removed - $option will be removed
+     *
+     * @param array<string> $option
+     */
+    public static function missingOptions(string $message, array $option): self|MissingOptionsException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new MissingOptionsException($message, $option);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_OPTIONS,
+            $message
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     * @deprecated tag:v6.7.0 - reason:argument-will-be-removed - $option will be removed
+     *
+     * @param array<string> $option
+     */
+    public static function invalidOptions(string $message, array $option): self|InvalidOptionsException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new InvalidOptionsException($message, $option);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_OPTIONS,
+            $message
         );
     }
 }

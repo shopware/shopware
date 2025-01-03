@@ -274,7 +274,6 @@
                     "delete": {
                         "confirmTitle": "Delete discount",
                         "confirmText": "Do you really want to delete this discount from the promotion?",
-                        "buttonCancel": "Cancel",
                         "buttonDelete": "Delete discount"
                     },
                     "labelSorting": "Sort by",

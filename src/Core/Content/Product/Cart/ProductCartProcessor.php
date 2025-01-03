@@ -88,7 +88,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
                     // product was fetched, update timestamp to not fetch it again
                     if ($product) {
-                        if (Feature::isActive('v6.7.0.0')) {
+                        if (Feature::isActive('v6.7.0.0') || Feature::isActive('PERFORMANCE_TWEAKS')) {
                             $lineItem->setDataTimestamp($product->getUpdatedAt() ?? $product->getCreatedAt());
                         } else {
                             $lineItem->setDataTimestamp(new \DateTimeImmutable());

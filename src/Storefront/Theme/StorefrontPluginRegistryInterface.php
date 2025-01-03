@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed
+ */
 #[Package('storefront')]
 interface StorefrontPluginRegistryInterface
 {

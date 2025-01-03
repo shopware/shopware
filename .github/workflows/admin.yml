@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - src/Administration/Resources/app/administration/**/*
+      - .github/workflows/admin.yml
   workflow_dispatch:
   workflow_call:
 
@@ -43,6 +44,11 @@ jobs:
   admin:
     runs-on: ubuntu-24.04
     name: "Jest Admin"
+    strategy:
+      matrix:
+        test-type:
+          - unit
+          - unit:disabled-compat
     env:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root
@@ -58,9 +64,8 @@ jobs:
           install-admin: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-      # idea: Only run tests that have changed or the tests for files that have changed
-      - name: Run Jest Admin
-        run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
+      - name: Run Jest Admin ${{ matrix.test-type }}
+        run: npm --prefix src/Administration/Resources/app/administration run ${{ matrix.test-type }} -- --silent
 
   license-check:
     runs-on: ubuntu-24.04

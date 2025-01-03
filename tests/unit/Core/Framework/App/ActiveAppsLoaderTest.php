@@ -27,6 +27,7 @@ class ActiveAppsLoaderTest extends TestCase
                     'name' => 'test',
                     'path' => 'test',
                     'author' => 'test',
+                    'self_managed' => 1,
                 ],
             ]);
 
@@ -41,6 +42,7 @@ class ActiveAppsLoaderTest extends TestCase
                 'name' => 'test',
                 'path' => 'test',
                 'author' => 'test',
+                'selfManaged' => true,
             ],
         ];
 
@@ -84,6 +86,7 @@ class ActiveAppsLoaderTest extends TestCase
                 'name' => 'test',
                 'path' => \basename(\dirname($xmlFile)),
                 'author' => 'shopware AG',
+                'selfManaged' => false,
             ],
         ];
 

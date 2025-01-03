@@ -7,9 +7,7 @@
     },
     "changeTypes": {
       "overwrite": "Overwrite",
-      "clear": "Clear",
-      "add": "Add",
-      "remove": "Remove"
+      "clear": "Clear"
     },
     "product": {
       "textTitle": "Bulk edit: {productTotal} product | Bulk edit: {productTotal} products",
@@ -251,10 +249,7 @@
       "process": {
         "title": "Bulk edit - In process",
         "description": "Depending on the amount of changes, this may take a while.",
-        "helpText": "Please be aware that manual changes to one of the selected items during the bulk edit process may yield unwanted results.",
-        "buttons": {
-          "cancel": "Cancel"
-        }
+        "helpText": "Please be aware that manual changes to one of the selected items during the bulk edit process may yield unwanted results."
       },
       "success": {
         "title": "Bulk edit - Success",

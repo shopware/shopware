@@ -78,7 +78,6 @@
       "chooseSectionHelpText": "Sections divide your working space into areas and help you to be more creative. You may combine different sections and move or delete them at any time.",
       "chooseNameTitle": "How do you want to label your new layout?",
       "createLayout": "Create layout",
-      "abortCreation": "Cancel",
       "stepBack": "Back"
     },
     "detail": {
@@ -118,7 +117,6 @@
         "blockCategoryHtml": "HTML",
         "blockCategoryApp": "Apps",
         "buttonElementSettingsConfirm": "Done",
-        "buttonElementChangeAbort": "Cancel",
         "blockNameField": "Block name",
         "blockNameFieldPlaceholder": "Enter name...",
         "blockSizingField": "Sizing mode",
@@ -741,7 +739,6 @@
         "infoText": "Please note that all products that are currently assigned to a default layout will be reassigned to this layout and newly created products will automatically be assigned to it as well. Do you really want to use this layout as default? | Please note that all categories that are currently assigned to a default layout will be reassigned to this layout and newly created categories will automatically be assigned to it as well. Do you really want to use this layout as default?"
       },
       "cmsLayoutModal": {
-        "actionCancel": "Cancel",
         "actionConfirm": "Save",
         "modalTitle": "Select layout",
         "headline": "Landing page / product listing"
@@ -758,9 +755,6 @@
         "resetOptionSalesChannel": "All Sales Channels",
         "helpTextSalesChannel": "Layouts assigned to specific Sales Channels will override layout assignments in \"All Sales Channels\".",
         "labelShopPages": "Shop pages",
-        "confirmChanges": "Apply",
-        "confirmChangesConfirm": "Apply",
-        "confirmChangesRestorePrev": "Discard",
         "confirmChangesTextCategories": "You have removed layout assignments from categories. If you confirm these changes, those categories will no longer have a layout assigned.",
         "confirmChangesTextCategoriesAssignedLayouts": "Some of the selected categories already have a layout assigned. If you proceed those previous assignments will be replaced with the current layout.",
         "confirmChangesTextLandingPages": "You have removed layout assignments from landing pages. If you confirm these changes, those landing pages will no longer have a layout assigned.",
@@ -822,7 +816,6 @@
           "textRenameConfirm": "Choose a new name for \"{pageName}\":",
           "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",
           "buttonRename": "Rename",
-          "buttonCancel": "Cancel",
           "buttonDelete": "Delete"
         }
       }

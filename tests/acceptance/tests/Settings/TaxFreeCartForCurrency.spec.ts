@@ -15,7 +15,11 @@ test('As a merchant, I would be able to adjust free tax for defined currency', {
     SelectInvoicePaymentOption,
     SelectStandardShippingOption,
     SubmitOrder,
+    InstanceMeta,
 }) => {
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0 Ticket already created: https://shopware.atlassian.net/browse/NEXT-40119');
+
     const product = await TestDataService.createBasicProduct();
     const currency = await TestDataService.createCurrency({ taxFreeFrom: 5 });
     const customer = await TestDataService.createCustomer();

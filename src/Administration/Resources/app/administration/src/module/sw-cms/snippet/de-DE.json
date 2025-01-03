@@ -78,7 +78,6 @@
       "chooseSectionHelpText": "Sektionen teilen Deine Arbeitsbühne in Bereiche, in denen Du kreativ sein kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
       "chooseNameTitle": "Wie soll Dein Layout heißen?",
       "createLayout": "Layout erstellen",
-      "abortCreation": "Abbrechen",
       "stepBack": "Zurück"
     },
     "detail": {
@@ -118,7 +117,6 @@
         "blockCategoryApp": "Apps",
         "blockCategoryHtml": "HTML",
         "buttonElementSettingsConfirm": "Fertig",
-        "buttonElementChangeAbort": "Abbrechen",
         "blockNameField": "Block-Name",
         "blockNameFieldPlaceholder": "Gib einen Namen ein ...",
         "blockSizingField": "Größenmodus",
@@ -741,7 +739,6 @@
         "infoText": "Bitte beachte, dass alle Produkte, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Produkte diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden? | Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
       },
       "cmsLayoutModal": {
-        "actionCancel": "Abbrechen",
         "actionConfirm": "Layout übernehmen",
         "modalTitle": "Layout auswählen",
         "headline": "Landingpage / Produktlisting"
@@ -758,9 +755,6 @@
         "resetOptionSalesChannel": "Alle Verkaufskanäle",
         "helpTextSalesChannel": "Layouts, die spezifischen Verkaufskanälen zugewiesen sind, überschreiben Layout-Zuweisungen in \"Alle Verkaufskanäle\".",
         "labelShopPages": "Shopseiten",
-        "confirmChanges": "Übernehmen",
-        "confirmChangesConfirm": "Übernehmen",
-        "confirmChangesRestorePrev": "Verwerfen",
         "confirmChangesTextCategories": "Du hast Layout-Zuweisungen von Kategorie entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Kategorien kein Layout mehr zugewiesen.",
         "confirmChangesTextCategoriesAssignedLayouts": "Einigen der ausgewählten Kategorien ist bereits ein Layout zugewiesen. Wenn Du fortfährst, werden die bestehenden Zuweisungen durch das aktuelle Layout ersetzt.",
         "confirmChangesTextProducts": "Sie haben Layoutzuweisungen aus Produkten entfernt. Wenn Sie diese Änderungen bestätigen, ist diesen Produkten kein Layout mehr zugewiesen.",
@@ -822,7 +816,6 @@
           "textRenameConfirm": "Wähle einen neuen Namen für \"{pageName}\":",
           "textDeleteConfirm": "Möchtest Du das Layout \"{pageName}\" wirklich löschen?",
           "buttonRename": "Umbenennen",
-          "buttonCancel": "Abbrechen",
           "buttonDelete": "Löschen"
         }
       }

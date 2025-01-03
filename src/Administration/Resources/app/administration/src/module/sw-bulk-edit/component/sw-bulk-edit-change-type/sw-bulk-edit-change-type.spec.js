@@ -79,7 +79,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await flushPromises();
 
         const selectAdd = wrapper.find('.sw-select-option--2');
-        expect(selectAdd.text()).toBe('sw-bulk-edit.changeTypes.add');
+        expect(selectAdd.text()).toBe('global.default.add');
         await selectAdd.trigger('click');
 
         expect(wrapper.vm.isDisplayingValue).toBeTruthy();
@@ -100,9 +100,9 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await flushPromises();
 
         const selectClear = wrapper.find('.sw-select-option--0');
-        expect(selectClear.text()).toBe('sw-bulk-edit.changeTypes.add');
+        expect(selectClear.text()).toBe('global.default.add');
 
         const selectRemove = wrapper.find('.sw-select-option--1');
-        expect(selectRemove.text()).toBe('sw-bulk-edit.changeTypes.remove');
+        expect(selectRemove.text()).toBe('global.default.remove');
     });
 });

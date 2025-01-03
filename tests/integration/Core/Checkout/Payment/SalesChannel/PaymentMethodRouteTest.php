@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -74,8 +75,13 @@ class PaymentMethodRouteTest extends TestCase
         static::assertArrayHasKey(PaymentMethodRouteHook::HOOK_NAME, $traces);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed due to behavior change
+     */
     public function testSorting(): void
     {
+        Feature::skipTestIfActive('ACCESSIBILITY_TWEAKS', $this);
+
         $paymentMethodRoute = static::getContainer()->get(PaymentMethodRoute::class);
 
         $request = new Request();

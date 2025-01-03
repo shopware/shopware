@@ -1,6 +1,8 @@
 <div style="font-family:arial; font-size:12px;">
-    {% set htmlFileType = constant('Shopware\\Core\\Checkout\\Document\\FileGenerator\\FileTypes::HTML') %}
-    {% set Ayy1Link = rawUrl('frontend.account.order.single.document', { documentId: document.id, 'deepLinkCode': document.deepLinkCode, fileType: 'html' }, salesChannel.domains|first.url)%}
+    {% set htmlFileType = constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION') %}
+    {% set Ayy1Link = rawUrl('frontend.account.order.single.document', { documentId: document.id, 'deepLinkCode': document.deepLinkCode, fileType: htmlFileType }, salesChannel.domains|first.url)%}
+
+    {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br>
 
     <p>
         In addition to the PDF document, we provide an HTML version for better accessibility here (

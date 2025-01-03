@@ -12,15 +12,16 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
+use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
-use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -57,9 +58,13 @@ class DocumentGeneratorTest extends TestCase
             ->willReturn($result);
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
+
+        $mockTypeRenderer = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $fileRenderer = new DocumentFileRendererRegistry([$mockTypeRenderer]);
+
         $generator = new DocumentGenerator(
             $registry,
-            new PdfRenderer([], new ExtensionDispatcher(new EventDispatcher())),
+            $fileRenderer,
             $this->createMock(MediaService::class),
             new StaticEntityRepository([]),
             $this->createMock(Connection::class),
@@ -75,7 +80,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $operation = new DocumentGenerateOperation(
             'orderId',
-            FileTypes::HTML,
+            HtmlRenderer::FILE_EXTENSION,
             [],
             null,
             false,
@@ -84,7 +89,7 @@ class DocumentGeneratorTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $htmlA11y = new RenderedDocument(
+        $resultRenderer = new RenderedDocument(
             '',
             '',
             'invoice',
@@ -92,18 +97,15 @@ class DocumentGeneratorTest extends TestCase
             [],
             'text/html',
         );
-        $htmlA11y->setContent('html');
+        $resultRenderer->setContent('html');
 
-        $resultRenderer = new RenderedDocument(
+        $resultRenderer->setTemplateOptions([
             '',
-            '',
-            'invoice',
-            'pdf',
-            [],
-            'application/pdf',
-        );
-
-        $resultRenderer->setHtmlA11y($htmlA11y);
+            [
+                'order' => new OrderEntity(),
+                'context' => $context,
+            ],
+        ]);
 
         $result = new RendererResult();
         $result->addSuccess('orderId', $resultRenderer);
@@ -120,12 +122,16 @@ class DocumentGeneratorTest extends TestCase
             )
             ->willReturn($result);
 
+        $mockTypeRenderer = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $mockTypeRenderer->method('getContentType')->willReturn('text/html');
+        $mockTypeRenderer->method('render')->willReturn('html');
+
         $registry = new DocumentRendererRegistry([$mockRenderer]);
-        $pdfRenderer = new PdfRenderer([], new ExtensionDispatcher(new EventDispatcher()));
+        $fileRenderer = new DocumentFileRendererRegistry([$mockTypeRenderer]);
 
         $generator = new DocumentGenerator(
             $registry,
-            $pdfRenderer,
+            $fileRenderer,
             $this->createMock(MediaService::class),
             new StaticEntityRepository([]),
             $this->createMock(Connection::class),

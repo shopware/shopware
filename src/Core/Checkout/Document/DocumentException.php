@@ -29,6 +29,8 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_INVALID_RENDERER_TYPE = 'DOCUMENT__INVALID_RENDERER_TYPE';
 
+    public const DOCUMENT_INVALID_RENDERER_FILE_EXTENSION = 'DOCUMENT__INVALID_RENDERER_FILE_EXTENSION';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new InvalidDocumentGeneratorTypeException(
@@ -100,5 +102,15 @@ class DocumentException extends HttpException
     public static function invalidDocumentRenderer(string $type): self|InvalidDocumentRendererException
     {
         return new InvalidDocumentRendererException($type);
+    }
+
+    public static function invalidDocumentRendererFileExtension(string $fileExtension): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            DocumentException::DOCUMENT_INVALID_RENDERER_FILE_EXTENSION,
+            'Invalid file extension: "{{ fileExtension }}"',
+            ['fileExtension' => $fileExtension]
+        );
     }
 }

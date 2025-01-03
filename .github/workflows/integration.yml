@@ -24,6 +24,8 @@ jobs:
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"
       BLUE_GREEN_DEPLOYMENT: 1
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+      MAILER_DSN: "smtp://localhost:1025"
+      MAILPIT_BASE_URL: "http://localhost:8025"
     services:
       database:
         image: mysql:8.0
@@ -37,6 +39,12 @@ jobs:
         image: ${{ matrix.major == 'major' && 'redis:alpine' || '' }}
         ports:
           - "6379:6379"
+      mailpit:
+        image: axllent/mailpit
+        ports:
+          - "1025:1025"
+          - "8025:8025"
+
     steps:
       - name: Define environment for major testing
         shell: bash

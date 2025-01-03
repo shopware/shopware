@@ -47,7 +47,7 @@ test ('As a customer, I can request a new password without existing customer ema
     });
 });
 
-test.only ('As a customer, I can create and login with new password with existing customer email address.', { tag: '@Account @Password' }, async ({
+test ('As a customer, I can create and login with new password with existing customer email address.', { tag: '@Account @Password' }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccountRecover,

@@ -18,15 +18,17 @@
                 {% block buy_widget_configurator_groups %}
                     {% for group in configuratorSettings %}
                         {% block buy_widget_configurator_group %}
-                            <fieldset role="radiogroup" class="product-detail-configurator-group{% if feature('ACCESSIBILITY_TWEAKS') %} mb-3{% endif %}">
-                                {% if group.displayType == 'select' %}
+                            {% if group.displayType == 'select' %}
+                                <div class="product-detail-configurator-group{% if feature('ACCESSIBILITY_TWEAKS') %} mb-3{% endif %}">
                                     {# @deprecated tag:v6.7.0 - Template `select.html.twig` is deprecated. Use `storefront/component/buy-widget/configurator/select.html.twig` instead. #}
                                     {% if feature('v6.7.0.0') %}
                                         {% sw_include '@Storefront/storefront/component/buy-widget/configurator/select.html.twig' %}
                                     {% else %}
                                         {% sw_include '@Storefront/storefront/page/product-detail/configurator/select.html.twig' %}
                                     {% endif %}
-                                {% else %}
+                                </div>
+                            {% else %}
+                                <fieldset class="product-detail-configurator-group{% if feature('ACCESSIBILITY_TWEAKS') %} mb-3{% endif %}">
                                     {% block buy_widget_configurator_group_title %}
                                         <legend class="product-detail-configurator-group-title fs-5 fw-bold">
                                             {% block buy_widget_configurator_group_title_text %}
@@ -101,15 +103,21 @@
                                                                                 }
                                                                             } %}
                                                                         {% endblock %}
-                                                                    {% elseif displayType == 'text' or
-                                                                        (displayType == 'media' and not media) or
-                                                                        (displayType == 'color' and not option.colorHexCode) %}
-                                                                        {% block buy_widget_configurator_option_radio_label_text %}
-                                                                            {{ option.translated.name }}
-                                                                            {% if not option.combinable %}
-                                                                                <span class="visually-hidden">{{ 'component.product.configurator.notAvailable'|trans|sw_sanitize }}</span>
-                                                                            {% endif %}
-                                                                        {% endblock %}
+                                                                    {% endif %}
+
+                                                                    {#
+                                                                        Always offer an alternative text
+                                                                        * Display type media or color with data: Text is visually hidden for screen readers.
+                                                                        * Display type media or color without data: Text is shown as fallback.
+                                                                        * Display type text: Text is shown.
+                                                                    #}
+                                                                    {% if displayType == 'media' and media or displayType == 'color' and option.colorHexCode %}
+                                                                        <span class="visually-hidden">{{ option.translated.name }}</span>
+                                                                    {% else %}
+                                                                        {{ option.translated.name }}
+                                                                    {% endif %}
+                                                                    {% if not option.combinable %}
+                                                                        <span class="visually-hidden">{{ 'component.product.configurator.notAvailable'|trans|sw_sanitize }}</span>
                                                                     {% endif %}
                                                                 </label>
                                                             {% endblock %}
@@ -119,8 +127,8 @@
                                             {% endfor %}
                                         </div>
                                     {% endblock %}
-                                {% endif %}
-                            </fieldset>
+                                </fieldset>
+                            {% endif %}
                         {% endblock %}
                     {% endfor %}
                 {% endblock %}

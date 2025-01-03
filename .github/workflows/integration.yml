@@ -59,6 +59,7 @@ jobs:
           install-admin: ${{ matrix.name != 'Install' }}
           install-storefront: ${{ matrix.name != 'Install' }}
           env: prod
+          composer-root-version: ${{ matrix.major == 'major' && '6.7.9999999-dev' || '.auto' }}
 
       - name: Build js
         if: ${{ matrix.name == 'Install' }}

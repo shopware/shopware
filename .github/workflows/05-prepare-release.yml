@@ -56,12 +56,13 @@ jobs:
 
   check-recipe:
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' && github.ref_type == 'tag'
     env:
       GH_TOKEN: ${{ github.token }}
       CHECK_REPOSITORY: 'shopware/recipes'
       CHECK_WORKFLOW: 'nightly.yml'
       CHECK_STATUS: 'success'
+      DEBUG: ${{ runner.debug }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,6 +91,7 @@ jobs:
       GIT_AUTHOR_NAME: "shopwareBot"
       GIT_COMMITTER_EMAIL: "shopwarebot@shopware.com"
       GIT_COMMITTER_NAME: "shopwareBot"
+      DEBUG: ${{ runner.debug }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -157,6 +159,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # set dry run if it's not a tag
           DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
+          DEBUG: ${{ runner.debug }}
         run: |
           echo DRY_RUN: "${DRY_RUN}"
           bash .github/bin/create_github_release.bash draft "${{ github.ref_name }}"
@@ -173,6 +176,7 @@ jobs:
       SBP_TOKEN: ${{ secrets[format('SBP_API_TOKEN_{0}', matrix.sbp-environment)] }}
       # set dry run if it's not a tag
       DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
+      DEBUG: ${{ runner.debug }}
     continue-on-error: true
     steps:
       - name: Checkout

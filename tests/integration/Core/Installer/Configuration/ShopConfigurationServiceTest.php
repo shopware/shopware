@@ -18,7 +18,7 @@ class ShopConfigurationServiceTest extends TestCase
 
     public function testUpdateShop(): void
     {
-        $service = new ShopConfigurationService();
+        $service = new ShopConfigurationService($this->getContainer()->get('event_dispatcher'));
 
         $connection = static::getContainer()->get(Connection::class);
 

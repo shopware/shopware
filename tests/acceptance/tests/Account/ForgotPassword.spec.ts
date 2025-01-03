@@ -1,4 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
+import * as console from "node:console";
 
 test ('As a customer, I can request a new password with existing customer email address.', { tag: '@Account @Password' }, async ({
     ShopCustomer,
@@ -80,6 +81,7 @@ test ('As a customer, I can create and login with new password with existing cus
     });
 
     await test.step('Verify email headers and content', async () => {
+        console.log('MAILPIT_BASE_URL', process.env['MAILPIT_BASE_URL']);
         const emailHeaders = await MailpitApiContext.getEmailHeaders(customer.email);
         const emailBody = await MailpitApiContext.getEmailBody(customer.email);
         ShopCustomer.expects(emailHeaders.subject).toContain('Password recovery');

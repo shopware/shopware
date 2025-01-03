@@ -849,7 +849,7 @@ class DocumentGeneratorTest extends TestCase
                 'documentMediaFileIds' => [],
             ]], $this->context);
 
-            $ids = \array_values(\array_map(static fn (string $id) => ['id' => $id], $document->getDocumentMediaFileIds()));
+            $ids = \array_map(static fn (string $id) => ['id' => $id], $document->getDocumentMediaFileIds());
 
             $mediaRepository->delete($ids, $this->context);
         }

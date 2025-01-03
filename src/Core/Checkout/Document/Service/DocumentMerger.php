@@ -9,7 +9,6 @@ use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaService;
@@ -41,7 +40,7 @@ final class DocumentMerger
     /**
      * @param array<string> $documentIds
      */
-    public function merge(array $documentIds, Context $context, string $fileType = FileTypes::PDF): ?RenderedDocument
+    public function merge(array $documentIds, Context $context, string $fileType = PdfRenderer::FILE_EXTENSION): ?RenderedDocument
     {
         if (empty($documentIds)) {
             return null;
@@ -75,9 +74,9 @@ final class DocumentMerger
             $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
             $renderedDocument->setContent($fileBlob);
 
-            if ($fileType === FileTypes::HTML) {
-                $renderedDocument->setContentType(RenderedDocument::HTML_CONTENT_TYPE);
-                $renderedDocument->setFileExtension(FileTypes::HTML);
+            if ($fileType === HtmlRenderer::FILE_EXTENSION) {
+                $renderedDocument->setContentType(HtmlRenderer::FILE_CONTENT_TYPE);
+                $renderedDocument->setFileExtension(HtmlRenderer::FILE_EXTENSION);
                 $renderedDocument->setName(Random::getAlphanumericString(32) . '.' . $fileType);
 
                 return $renderedDocument;
@@ -101,7 +100,7 @@ final class DocumentMerger
             }
 
             // add HTML file to ZIP archive
-            if ($fileType === FileTypes::HTML) {
+            if ($fileType === HtmlRenderer::FILE_EXTENSION) {
                 $content = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
                 $zip->addFromString(
                     $document->getDocumentType()?->getTechnicalName() . '_' . $document->getDocumentNumber() . '.' . $fileType,

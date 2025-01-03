@@ -8,6 +8,4 @@ use Shopware\Core\Framework\Log\Package;
 class FileTypes
 {
     final public const PDF = 'pdf';
-
-    final public const HTML = 'html';
 }

@@ -1,5 +1,7 @@
 {% set Ayy1Link = rawUrl('frontend.account.order.single.document', { documentId: document.id, 'deepLinkCode': document.deepLinkCode, fileType: 'html' }, salesChannel.domains|first.url)%}
 
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+
 In addition to the PDF document, we provide an HTML version for better accessibility here ({{ Ayy1Link }})
 For data protection reasons the HTML version requires to login.
 You can use your usual customer login credentials.

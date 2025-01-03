@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document\Controller;
 
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -33,7 +33,7 @@ class DocumentController extends AbstractController
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
         $download = $request->query->getBoolean('download');
-        $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
+        $fileType = $request->query->getString('fileType', PdfRenderer::FILE_EXTENSION);
 
         $generatedDocument = $this->documentGenerator->readDocument($documentId, $context, $deepLinkCode, $fileType);
 
@@ -60,7 +60,7 @@ class DocumentController extends AbstractController
         $config = $request->query->get('config');
         $config = \is_string($config) ? json_decode($config, true, 512, \JSON_THROW_ON_ERROR) : [];
 
-        $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
+        $fileType = $request->query->getAlnum('fileType', PdfRenderer::FILE_EXTENSION);
         $download = $request->query->getBoolean('download');
         $referencedDocumentId = $request->query->getAlnum('referencedDocumentId');
 
@@ -80,7 +80,7 @@ class DocumentController extends AbstractController
     public function downloadDocuments(Request $request, Context $context): Response
     {
         $documentIds = $request->get('documentIds', []);
-        $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
+        $fileType = $request->query->getAlnum('fileType', PdfRenderer::FILE_EXTENSION);
 
         if (!\is_array($documentIds) || empty($documentIds)) {
             throw RoutingException::invalidRequestParameter('documentIds');

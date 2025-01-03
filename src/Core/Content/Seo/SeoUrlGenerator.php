@@ -32,7 +32,7 @@ use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoUrlGenerator
 {
     final public const ESCAPE_SLUGIFY = 'slugifyurlencode';

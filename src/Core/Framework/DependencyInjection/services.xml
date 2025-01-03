@@ -120,6 +120,12 @@ frame-ancestors 'none';
             <tag name="shopware.migration_source"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_8"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">core.V6_8</argument>
+            <tag name="shopware.migration_source"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\MigrationSource.null"
                  class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">null</argument>

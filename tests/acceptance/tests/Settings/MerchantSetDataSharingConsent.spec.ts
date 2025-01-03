@@ -7,12 +7,12 @@ test('Merchant is able accept or decline the data sharing consent.', { tag: '@Da
     AdminDashboard,
     AdminDataSharing,
     AdminApiContext,
+    InstanceMeta,
 }) => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
-    if (await isSaaSInstance(AdminApiContext)) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true,'Skipping test for merchants consent process, because it is disabled on SaaS instances.');
-    }
+    test.skip(await isSaaSInstance(AdminApiContext),'Skipping test for merchants consent process, because it is disabled on SaaS instances.');
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40167');
+
     let consentResponsePromise: Promise<Response>;
     let response: Response;
 

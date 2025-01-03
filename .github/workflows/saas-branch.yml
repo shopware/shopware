@@ -1,0 +1,70 @@
+name: SaaS branch creation
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 1"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  create_deployment_branches:
+    name: Create Deployment branches
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'shopware/shopware-private' }}
+    strategy:
+      matrix:
+        REPO: ["shopware-private", "SwagCommercial", "Rufus"]
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: octo-sts/action@v1.0.0
+        id: sts-shopware-private
+        with:
+          scope: shopware
+          identity: ShopwarePrivateSaaSBranches
+      - name: Set GH_TOKEN
+        run: echo "GH_TOKEN=${{ steps.sts-shopware-private.outputs.token }}" >> "${GITHUB_ENV}"
+      - name: Get deployment branch name
+        id: branch-name
+        run: echo "name=$(date --utc --date="now" +'saas/%Y/%W')" >> "${GITHUB_OUTPUT}"
+      - name: Get latest SHA
+        id: latest-sha
+        run: echo "sha=$(gh api --jq '.sha' /repos/shopware/${{ matrix.REPO }}/commits/trunk)" >> "${GITHUB_OUTPUT}"
+      - name: Create branch
+        run: |
+          gh api --method POST \
+          /repos/shopware/${{ matrix.REPO }}/git/refs \
+          -f "ref=refs/heads/${{ steps.branch-name.outputs.name }}" \
+          -f "sha=${{ steps.latest-sha.outputs.sha }}"
+
+  create_saas_mr:
+    name: Create SaaS MR
+    runs-on: ubuntu-latest
+    needs: create_deployment_branches
+    if: ${{ github.repository == 'shopware/shopware-private' }}
+    env:
+      CURRENT_MAJOR_ALIAS: "6.6.x-dev"
+    steps:
+      - name: Checkout platform
+        uses: actions/checkout@v4
+      - uses: octo-sts/action@v1.0.0
+        id: sts-shopware-private
+        with:
+          scope: shopware
+          identity: ShopwarePrivateSaaSBranches
+      - name: Compile deployment info
+        env:
+          GH_TOKEN: ${{ steps.sts-shopware-private.outputs.token }}
+          GITLAB_SAAS_TOKEN: ${{ secrets.GITLAB_SAAS_TOKEN }}
+        shell: bash
+        run: ./.github/bin/compile_deployment_info.sh deployment_env_b64 CI_B64_ENVIRONMENT >> "${GITHUB_ENV}"
+      - name: Trigger SaaS Pipeline
+        run: |
+          curl -fsSL -X POST \
+            --form "token=${{ secrets.GITLAB_SAAS_TOKEN }}" \
+            --form "variables[CI_UPDATE_DEPENDENCY]=1" \
+            --form "variables[CUSTOM_VERSION]=1" \
+            --form "variables[CI_B64_ENVIRONMENT]=${{ env.CI_B64_ENVIRONMENT }}" \
+            "${{ secrets.GITLAB_SAAS_TRIGGER_URL }}"

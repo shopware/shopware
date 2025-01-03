@@ -5,39 +5,33 @@
     {%- else -%}
         <div class="row order-detail-content-row" role="listitem">
     {%- endif -%}
-        {% set documentLink = path('frontend.account.order.single.document', {documentId: document.id, deepLinkCode: document.deepLinkCode}) %}
-        {% set htmlFileType = constant('Shopware\\Core\\Checkout\\Document\\FileGenerator\\FileTypes::HTML') %}
-
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
-                <a href="{{ documentLink }}"
-                   target="_blank">
-                    {% block page_account_order_document_item_detail_file_name_icon %}
-                        <span class="icon icon-xs">{% sw_icon 'file' %}</span>
-                    {% endblock %}
+                {% for mediaFileId in document.documentMediaFileIds %}
+                    {% set fileType = mediaFileId === document.documentMediaFileId
+                        ? constant('Shopware\\Core\\Checkout\\Document\\Service\\PdfRenderer::FILE_EXTENSION')
+                        : constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION')
+                    %}
 
-                    {% block page_account_order_document_item_detail_file_name_value %}
-                        {{ document.documentType.translated.name|replace({' ' : '-'}) }}_
-                        {{ document.config.documentNumber }}_
-                        {{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ document.fileType }}
-                    {% endblock %}
-                </a><br>
+                    {% set documentLink = path('frontend.account.order.single.document', {
+                        documentId: document.id,
+                        deepLinkCode: document.deepLinkCode,
+                        fileType,
+                    }) %}
 
-                {% if not document.config.isCustom %}
-                <a href="{{ path('frontend.account.order.single.document', {documentId: document.id, deepLinkCode: document.deepLinkCode, fileType: htmlFileType}) }}"
-                   target="_blank"
-                >
-                    {% block page_account_order_document_item_detail_html_file_name_icon %}
-                        <span class="icon icon-xs">{% sw_icon 'file' %}</span>
-                    {% endblock %}
+                    <a href="{{ documentLink }}"
+                       target="_blank">
+                        {% block page_account_order_document_item_detail_file_name_icon %}
+                            <span class="icon icon-xs">{% sw_icon 'file' %}</span>
+                        {% endblock %}
 
-                    {% block page_account_order_document_item_detai_html_file_name_value %}
-                        {{ document.documentType.translated.name|replace({' ' : '-'}) }}_
-                        {{ document.config.documentNumber }}_
-                        {{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ htmlFileType }}
-                    {% endblock %}
-                </a>
-                {% endif %}
+                        {% block page_account_order_document_item_detail_file_name_value %}
+                            {{ document.documentType.translated.name|replace({' ' : '-'}) }}_
+                            {{ document.config.documentNumber }}_
+                            {{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ fileType }}
+                        {% endblock %}
+                    </a><br>
+                {% endfor %}
             </div>
         {% endblock %}
 

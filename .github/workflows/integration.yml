@@ -48,7 +48,6 @@ jobs:
           echo "DISABLE_VUE_COMPAT=0" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
           echo "ADMIN_VITE=1" >> $GITHUB_ENV
-          echo "COMPOSER_ROOT_VERSION=6.7.9999999-dev" >> $GITHUB_ENV
 
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -60,6 +59,7 @@ jobs:
           install-admin: ${{ matrix.name != 'Install' }}
           install-storefront: ${{ matrix.name != 'Install' }}
           env: prod
+          composer-root-version: ${{ matrix.major == 'major' && '6.7.9999999-dev' || '.auto' }}
 
       - name: Build js
         if: ${{ matrix.name == 'Install' }}
@@ -106,7 +106,7 @@ jobs:
       - name: Run your tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
-        run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
+        run: npx playwright test --project=${{ matrix.name }} ${{ (matrix.name == 'Install' || matrix.major == 'major') && '--trace=on' || '' }}
 
       - uses: actions/upload-artifact@v4
         if: always()

@@ -106,7 +106,7 @@ jobs:
       - name: Run your tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
-        run: npx playwright test --project=${{ matrix.name }} ${{ (matrix.name == 'Install' || matrix.major == 'major') && '--trace=on' || '' }}
+        run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
 
       - uses: actions/upload-artifact@v4
         if: always()

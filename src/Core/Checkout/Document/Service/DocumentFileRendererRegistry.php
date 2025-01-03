@@ -1,0 +1,44 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Document\Service;
+
+use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
+class DocumentFileRendererRegistry
+{
+    /**
+     * Constructor for DocumentFileRendererRegistry.
+     *
+     * @internal
+     *
+     * @param AbstractDocumentTypeRenderer[] $renderers An iterable collection of document type renderers.
+     */
+    public function __construct(protected iterable $renderers)
+    {
+    }
+
+    /**
+     * Renders a document using the appropriate renderer based on the document's content type.
+     *
+     * @param RenderedDocument $document The document to be rendered.
+     *
+     * @return string The rendered document content.
+     *
+     * @throws DocumentException If no renderer matches the document's file extension.
+     */
+    public function render(RenderedDocument $document): string
+    {
+        foreach ($this->renderers as $renderer) {
+            if ($renderer->getContentType() !== $document->getContentType()) {
+                continue;
+            }
+
+            return $renderer->render($document);
+        }
+
+        throw DocumentException::invalidDocumentRendererFileExtension($document->getFileExtension());
+    }
+}

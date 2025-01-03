@@ -58,6 +58,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.sts-shopware-private.outputs.token }}
           GITLAB_SAAS_TOKEN: ${{ secrets.GITLAB_SAAS_TOKEN }}
+          DEBUG: ${{ runner.debug }}
         shell: bash
         run: ./.github/bin/compile_deployment_info.sh deployment_env_b64 CI_B64_ENVIRONMENT >> "${GITHUB_ENV}"
       - name: Trigger SaaS Pipeline

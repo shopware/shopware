@@ -134,8 +134,6 @@ jobs:
         php:
           - '8.2'
           - '8.4'
-    continue-on-error: >-
-      ${{ matrix.php == '8.4' && true || false }}
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root

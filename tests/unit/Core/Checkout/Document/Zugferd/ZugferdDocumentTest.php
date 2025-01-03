@@ -6,7 +6,6 @@ use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -28,6 +27,6 @@ class ZugferdDocumentTest extends TestCase
         $order->setAmountTotal(0.0);
         $order->setAmountNet(0.0);
 
-        (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), new DocumentConfiguration()))->getContent($order);
+        (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3)))->getContent($order);
     }
 }

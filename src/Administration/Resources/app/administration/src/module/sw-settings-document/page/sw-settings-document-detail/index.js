@@ -323,7 +323,6 @@ export default {
                         type: 'text',
                         label: this.$tc('sw-settings-document.detail.labelPaymentDueDate'),
                         helpText: this.$tc('sw-settings-document.detail.helpTextPaymentDueDate'),
-                        placeholder: '+30 day'
                     },
                 },
             ],

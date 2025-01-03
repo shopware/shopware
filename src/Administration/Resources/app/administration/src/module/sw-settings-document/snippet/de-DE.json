@@ -75,7 +75,7 @@
       "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
       "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen Hinweis zur \"innergemeinschaftlichen Lieferung\" auf den Rechnungsdokumenten.",
       "helpTextCompanyAddress": "Veraltet für 6.7 - Benutze die neuen einzelnen Felder für die Adresse. Verwende Bindestriche (\"-\") um die einzelnen Elemente der Adresse voneinander abzugrenzen. Das hilft bei der gleichzeitigen Darstellung der Adresse an unterschiedlichen Stellen der Kopfzeile.",
-      "helpTextPaymentDueDate": "+30 day, +4 week, +1 week 2 day"
+      "helpTextPaymentDueDate": "Bsp.: +30 days, +4 weeks, +1 week 2 days"
     }
   },
   "sw-privileges": {

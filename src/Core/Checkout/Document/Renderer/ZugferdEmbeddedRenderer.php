@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use horstoeko\zugferd\ZugferdDocumentPdfMerger;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -45,8 +46,15 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
         return $this->embedXMLIntoPDF($operations, $context, $rendererConfig, $invoice);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed without replacement
+     *
+     * @param DocumentGenerateOperation[] $operations
+     */
     public function finalize(array $operations, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $result): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed without replacement');
+
         $this->embedXMLIntoPDF($operations, $context, $rendererConfig, $result);
     }
 
@@ -63,7 +71,7 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
         foreach ($invoice->getSuccess() as $orderId => $invoiceDocument) {
             $electronicDoc = $electronicInvoice->getOrderSuccess($orderId);
             if ($electronicDoc === null) {
-                $renderResult->addError($orderId, new \RuntimeException('Electronic invoice is null'));
+                $renderResult->addError($orderId, DocumentException::electronicInvoiceViolation(1, ['Electronic invoice is null' => [$orderId]]));
 
                 continue;
             }

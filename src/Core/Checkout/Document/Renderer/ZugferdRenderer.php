@@ -60,9 +60,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
         foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
             $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $ids), $rendererConfig->deepLinkCode);
-            $criteria->addAssociations([
-                'lineItems.product.manufacturer',
-            ]);
+            $criteria->addAssociation('lineItems.product.manufacturer');
 
             $context->assign([
                 'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$languageIdChain]))),
@@ -94,9 +92,9 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $config->merge($operation->getConfig());
 
         $documentNumber = $config->getDocumentNumber();
-         if ($documentNumber === null) {
-             $config->setDocumentNumber($documentNumber = $this->getNumber($context, $order, $operation));
-         }
+        if ($documentNumber === null) {
+            $config->setDocumentNumber($documentNumber = $this->getNumber($context, $order, $operation));
+        }
 
         try {
             $content = $this->documentBuilder->buildDocument($order, $operation, $config, $context);

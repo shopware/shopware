@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Document\Zugferd;
 
-use DateTimeInterface;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -33,24 +31,17 @@ class ZugferdBuilder
 
     public function buildDocument(OrderEntity $order, DocumentGenerateOperation $operation, DocumentConfiguration $config, Context $context): string
     {
-        $config->__set('isGross',  match ($order->getTaxStatus()) {
-            CartPrice::TAX_STATE_GROSS => true,
-            CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE => false,
-            default => throw DocumentException::generationError('Unsupported tax status'),
-        });
-
         /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
         /** @var OrderCustomerEntity $customer */
         $customer = $order->getOrderCustomer();
 
-        /** @var DateTimeInterface $deliveryDate */
         $deliveryDate = $order->getDeliveries()?->first()?->getShippingDateLatest();
         if ($deliveryDate instanceof \DateTimeImmutable) {
             $deliveryDate = \DateTime::createFromImmutable($deliveryDate);
         }
 
-        $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $config))
+        $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $order->getTaxStatus() === CartPrice::TAX_STATE_GROSS))
             ->withBuyerInformation($customer, $billingAddress)
             ->withSellerInformation($config)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())

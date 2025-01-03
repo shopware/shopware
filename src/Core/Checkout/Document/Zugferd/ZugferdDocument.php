@@ -32,7 +32,7 @@ class ZugferdDocument
 
     public function __construct(
         protected readonly ZugferdDocumentBuilder $zugferdBuilder,
-        protected readonly DocumentConfiguration $config
+        protected readonly bool $isGross = false,
     ) {
     }
 
@@ -93,25 +93,25 @@ class ZugferdDocument
     public function withSellerInformation(DocumentConfiguration $documentConfig): self
     {
         $sellerAddress = [
-            'lineOne' => $documentConfig->companyStreet,
-            'postCode' => $documentConfig->companyZipcode,
-            'city' => $documentConfig->companyCity,
-            'country' => $documentConfig->companyCountry?->getIso(),
+            'lineOne' => $documentConfig->getCompanyStreet(),
+            'postCode' => $documentConfig->getCompanyZipcode(),
+            'city' => $documentConfig->getCompanyCity(),
+            'country' => $documentConfig->getCompanyCountry()?->getIso(),
         ];
 
         $this->zugferdBuilder
-            ->addDocumentPaymentTerm(null, (new \DateTime())->modify($documentConfig->paymentDueDate))
-            ->setDocumentSeller($documentConfig->companyName ?? '')
-            ->addDocumentSellerTaxRegistration('FC', $documentConfig->taxNumber)
-            ->addDocumentSellerTaxRegistration('VA', $documentConfig->vatId)
+            ->addDocumentPaymentTerm(null, (new \DateTime())->modify($documentConfig->getPaymentDueDate()))
+            ->setDocumentSeller($documentConfig->getCompanyName() ?? '')
+            ->addDocumentSellerTaxRegistration('FC', $documentConfig->getTaxNumber())
+            ->addDocumentSellerTaxRegistration('VA', $documentConfig->getVatId())
             ->setDocumentSellerAddress(...$sellerAddress)
-            ->setDocumentSellerCommunication('EM', $documentConfig->companyEmail ?? null)
+            ->setDocumentSellerCommunication('EM', $documentConfig->getCompanyEmail())
             ->setDocumentSellerContact(
-                $documentConfig->executiveDirector ?? null,
+                $documentConfig->getExecutiveDirector(),
                 null,
-                $documentConfig->companyPhone ?? null,
+                $documentConfig->getCompanyPhone(),
                 null,
-                $documentConfig->companyEmail ?? null
+                $documentConfig->getCompanyEmail()
             );
 
         return $this;
@@ -148,8 +148,8 @@ class ZugferdDocument
         }
 
         $discountValue = (float) ($lineItem->getPayload()['value'] ?? 0);
-        $isPercentage = (($lineItem->getPayload()['discountType'] ?? null) === PromotionDiscountEntity::TYPE_PERCENTAGE) &&
-            (abs($lineItem->getTotalPrice()) !== (float) ($lineItem->getPayload()['maxValue'] ?? null));
+        $isPercentage = (($lineItem->getPayload()['discountType'] ?? null) === PromotionDiscountEntity::TYPE_PERCENTAGE)
+            && (abs($lineItem->getTotalPrice()) !== (float) ($lineItem->getPayload()['maxValue'] ?? null));
 
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
             $actualAmount = $this->getPrice($calculatedTax);
@@ -171,7 +171,7 @@ class ZugferdDocument
         }
     }
 
-    public function withGeneralOrderData(\DateTime $deliveryDate, string $documentDate, string $documentNumber, string $isoCode): self
+    public function withGeneralOrderData(?\DateTime $deliveryDate, string $documentDate, string $documentNumber, string $isoCode): self
     {
         $this->zugferdBuilder
             ->setDocumentInformation($documentNumber, ZugferdInvoiceType::INVOICE, new \DateTime($documentDate), $isoCode)
@@ -230,7 +230,7 @@ class ZugferdDocument
     protected function getPrice(CalculatedTax $tax): float
     {
         $price = $tax->getPrice();
-        if ($this->config->isGross ?? false) {
+        if ($this->isGross ?? false) {
             $price -= $tax->getTax();
         }
 

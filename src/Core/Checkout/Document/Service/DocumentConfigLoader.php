@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -63,8 +64,11 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
         $config = DocumentConfigurationFactory::createConfiguration([], $globalConfig, $salesChannelConfig);
 
-        if (Uuid::isValid($config->companyCountryId)) {
-            $config->companyCountry = $this->countryRepository->search(new Criteria([$config->companyCountryId]), $context)->first();
+        if (Uuid::isValid($config->getCompanyCountryId())) {
+            /** @var ?CountryEntity $country */
+            $country = $this->countryRepository->search(new Criteria([$config->getCompanyCountryId()]), $context)->first();
+
+            $config->setCompanyCountry($country);
         }
 
         $this->configs[$documentType] ??= [];

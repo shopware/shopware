@@ -10,9 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
-use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
@@ -49,18 +47,6 @@ class ZugferdBuilderTest extends TestCase
         $this->position = 0;
     }
 
-    public function testUnsupportedTax(): void
-    {
-        $this->expectException(DocumentException::class);
-        $this->expectExceptionMessage('Unsupported tax status');
-
-        $order = new OrderEntity();
-        $order->setTaxStatus('random-tax');
-
-        (new ZugferdBuilder($this->createMock(EventDispatcherInterface::class)))
-            ->buildDocument($order, new DocumentGenerateOperation('order-id'), new DocumentConfiguration(), Context::createDefaultContext());
-    }
-
     public function testBuildDocument(): void
     {
         $order = $this->buildOrder();
@@ -72,7 +58,6 @@ class ZugferdBuilderTest extends TestCase
         $config = [
             'documentNumber' => 'test-1000',
             'companyCountryId' => $country->getId(),
-            'companyCountry' => $country,
             'companyStreet' => 'Musterstreet 1',
             'companyZipcode' => '12345',
             'companyCity' => 'Mustercity',
@@ -83,13 +68,16 @@ class ZugferdBuilderTest extends TestCase
             'placeOfJurisdiction' => 'Muster',
             'taxNumber' => '0123456789',
             'vatId' => '012356789',
-            'paymentDueDate' => '+30 day'
+            'paymentDueDate' => '+30 day',
         ];
 
-        $xmlContent = (new ZugferdBuilder($this->createMock(EventDispatcherInterface::class)))
-            ->buildDocument($order, new DocumentGenerateOperation('order-id'), DocumentConfigurationFactory::createConfiguration($config), Context::createDefaultContext());;
+        $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
+        $documentConfig->setCompanyCountry($country);
 
-        $totalAmount = number_format($this->totalAmount,2, '.', '');
+        $xmlContent = (new ZugferdBuilder($this->createMock(EventDispatcherInterface::class)))
+            ->buildDocument($order, new DocumentGenerateOperation('order-id'), $documentConfig, Context::createDefaultContext());
+
+        $totalAmount = number_format($this->totalAmount, 2, '.', '');
 
         static::assertStringStartsWith('<?xml', $xmlContent);
         static::assertStringContainsString("LineTotalAmount>$totalAmount<", $xmlContent);
@@ -101,7 +89,7 @@ class ZugferdBuilderTest extends TestCase
         static::assertStringContainsString('DuePayableAmount>1213.80<', $xmlContent);
 
         foreach ($config as $key => $value) {
-            match(true) {
+            match (true) {
                 str_starts_with($key, 'companyCountry') => static::assertStringContainsString('UK', $xmlContent),
                 $key === 'paymentDueDate' => static::assertStringContainsString('DueDateDateTime', $xmlContent),
                 default => static::assertStringContainsString($value, $xmlContent),
@@ -123,40 +111,8 @@ class ZugferdBuilderTest extends TestCase
         }
     }
 
-    private function assertLineItemProperties(OrderLineItemEntity $lineItem, string $xmlContent): void
+    private function buildOrder(): OrderEntity
     {
-        if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            $quantity = number_format($lineItem->getQuantity(), 2, '.', '');
-            $unitPrice = number_format($lineItem->getUnitPrice() / 1.19, 2, '.', '');
-            $totalPrice = number_format($lineItem->getTotalPrice() / 1.19, 2, '.', '');
-
-            static::assertStringContainsString("LineID>{$this->getPosition($lineItem)}<", $xmlContent);
-            static::assertStringContainsString("Name>{$lineItem->getLabel()}<", $xmlContent);
-            static::assertStringContainsString("ChargeAmount>$unitPrice<", $xmlContent);
-            static::assertStringContainsString("BasisQuantity unitCode=\"H87\">$quantity<", $xmlContent);
-            static::assertStringContainsString("BilledQuantity unitCode=\"H87\">$quantity<", $xmlContent);
-            static::assertStringContainsString("LineTotalAmount>$totalPrice<", $xmlContent);
-            static::assertStringContainsString("Name>{$lineItem->getLabel()}<", $xmlContent);
-        }
-
-        if ($lineItem->getChildren()) {
-            foreach ($lineItem->getChildren() as $child) {
-                $this->assertLineItemProperties($child, $xmlContent);
-            }
-        }
-    }
-
-    private function getPosition(OrderLineItemEntity $lineItem): string {
-        $position = '';
-
-        if ($lineItem->getParent()) {
-            $position .= $this->getPosition($lineItem->getParent()) . '-';
-        }
-
-        return $position . $lineItem->getPosition();
-    }
-
-    protected function buildOrder(): OrderEntity {
         $normalId = Uuid::randomHex();
         $bundleId = Uuid::randomHex();
         $bundleFirstId = Uuid::randomHex();
@@ -226,6 +182,40 @@ class ZugferdBuilderTest extends TestCase
         $order->setDeliveries(new OrderDeliveryCollection([$delivery]));
 
         return $order;
+    }
+
+    private function assertLineItemProperties(OrderLineItemEntity $lineItem, string $xmlContent): void
+    {
+        if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            $quantity = number_format($lineItem->getQuantity(), 2, '.', '');
+            $unitPrice = number_format($lineItem->getUnitPrice() / 1.19, 2, '.', '');
+            $totalPrice = number_format($lineItem->getTotalPrice() / 1.19, 2, '.', '');
+
+            static::assertStringContainsString("LineID>{$this->getPosition($lineItem)}<", $xmlContent);
+            static::assertStringContainsString("Name>{$lineItem->getLabel()}<", $xmlContent);
+            static::assertStringContainsString("ChargeAmount>$unitPrice<", $xmlContent);
+            static::assertStringContainsString("BasisQuantity unitCode=\"H87\">$quantity<", $xmlContent);
+            static::assertStringContainsString("BilledQuantity unitCode=\"H87\">$quantity<", $xmlContent);
+            static::assertStringContainsString("LineTotalAmount>$totalPrice<", $xmlContent);
+            static::assertStringContainsString("Name>{$lineItem->getLabel()}<", $xmlContent);
+        }
+
+        if ($lineItem->getChildren()) {
+            foreach ($lineItem->getChildren() as $child) {
+                $this->assertLineItemProperties($child, $xmlContent);
+            }
+        }
+    }
+
+    private function getPosition(OrderLineItemEntity $lineItem): string
+    {
+        $position = '';
+
+        if ($lineItem->getParent()) {
+            $position .= $this->getPosition($lineItem->getParent()) . '-';
+        }
+
+        return $position . $lineItem->getPosition();
     }
 
     /**
@@ -305,7 +295,7 @@ class ZugferdBuilderTest extends TestCase
                 $item->getUnitPrice(),
                 $item->getTotalPrice(),
                 new CalculatedTaxCollection([
-                    new CalculatedTax($item->getTotalPrice()-$item->getTotalPrice() / 1.19, 19, $item->getTotalPrice()),
+                    new CalculatedTax($item->getTotalPrice() - $item->getTotalPrice() / 1.19, 19, $item->getTotalPrice()),
                 ]),
                 new TaxRuleCollection(),
                 $item->getQuantity()

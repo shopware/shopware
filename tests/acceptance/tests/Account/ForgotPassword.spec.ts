@@ -47,7 +47,7 @@ test ('As a customer, I can request a new password without existing customer ema
     });
 });
 
-test ('As a customer, I can create and login with new password with existing customer email address.', { tag: '@Account @Password' }, async ({
+test ('As a customer, I can reset my password using the password recovery process for an existing account and successfully log in with the new password.', { tag: '@Account @Password' }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccountRecover,
@@ -62,6 +62,7 @@ test ('As a customer, I can create and login with new password with existing cus
     let passwordResetLink = '';
     const newPassword = 'new-password';
     const customer = await TestDataService.createCustomer();
+
     await test.step('Navigate to the login page and click on forgot password', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
         await StorefrontAccountLogin.forgotPasswordLink.click();

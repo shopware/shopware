@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Salutation;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class SalutationSorter extends AbstractSalutationsSorter
 {
     public function getDecorated(): AbstractSalutationsSorter

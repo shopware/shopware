@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @final
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionGateway implements PromotionGatewayInterface
 {
     /**

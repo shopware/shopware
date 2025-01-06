@@ -4,11 +4,12 @@ test('As a shop customer, I want to use an "Accept All Cookies" button in the ba
     ShopCustomer,
     StorefrontHome,
     TestDataService,
-    DefaultSalesChannel,
+    InstanceMeta,
 }) => {
+    test.skip(InstanceMeta.isSaaS, 'Cache invalidation does not happen immediately on SaaS');
 
     await test.step('Enable "Accept All Cookies" button in system configuration', async () => {
-        await TestDataService.createSystemConfigEntry('core.basicInformation.acceptAllCookies', true, DefaultSalesChannel.salesChannel.id);
+        await TestDataService.setSystemConfig({ 'core.basicInformation.acceptAllCookies': true });
     });
 
     await test.step('Navigate to the homepage and verify cookie consent banner', async () => {

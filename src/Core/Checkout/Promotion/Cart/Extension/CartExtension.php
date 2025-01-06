@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Extension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class CartExtension extends Struct
 {
     /**

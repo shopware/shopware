@@ -117,7 +117,7 @@ class ZugferdDocument
         return $this;
     }
 
-    public function withProductLineItem(OrderLineItemEntity $lineItem, string $parentPosition): void
+    public function withProductLineItem(OrderLineItemEntity $lineItem, string $parentPosition): self
     {
         /** @var CalculatedTax $tax */
         $tax = $lineItem->getPrice()?->getCalculatedTaxes()->first();
@@ -139,12 +139,14 @@ class ZugferdDocument
                 globalID: $product?->getEan(),
                 brandName: $product?->getManufacturer()?->getName()
             );
+
+        return $this;
     }
 
-    public function withDiscountItem(OrderLineItemEntity $lineItem): void
+    public function withDiscountItem(OrderLineItemEntity $lineItem): self
     {
         if ($lineItem->getPrice() === null) {
-            return;
+            return $this;
         }
 
         $discountValue = (float) ($lineItem->getPayload()['value'] ?? 0);
@@ -169,6 +171,8 @@ class ZugferdDocument
                 ]
             );
         }
+
+        return $this;
     }
 
     public function withGeneralOrderData(?\DateTime $deliveryDate, string $documentDate, string $documentNumber, string $isoCode): self

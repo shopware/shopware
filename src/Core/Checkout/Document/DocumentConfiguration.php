@@ -146,7 +146,7 @@ class DocumentConfiguration extends Struct
     /**
      * @var string|null
      *
-     * @deprecated tag:v6.7.0 - Will be splitted up into single fields. companyStreet, companyZipcode, companyCity, companyCountry
+     * @deprecated tag:v6.7.0 - Will be replaced by single fields: companyStreet, companyZipcode, companyCity, companyCountry
      */
     protected $companyAddress;
 

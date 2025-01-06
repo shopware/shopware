@@ -7,16 +7,27 @@
         --#{$prefix}btn-padding-y: 0.125rem;
         --#{$prefix}btn-line-height: 1.625rem;
         --#{$prefix}btn-disabled-border-color: #{$gray-600};
+        --#{$prefix}btn-disabled-opacity: 0.65;
 
         &.disabled {
             pointer-events: all;
             text-decoration: line-through;
         }
 
-        &.is-display-color {
-            --#{$prefix}btn-line-height: 3.4rem;
+        &.is-display-color,
+        &.is-display-media {
+            --#{$prefix}btn-padding-x: 0.125rem;
+            background-clip: content-box;
             min-width: 3.75rem;
             height: 3.75rem;
+        }
+
+        &.is-display-text {
+            height: auto;
+        }
+
+        .product-detail-configurator-option-image {
+            height: 100%;
         }
     }
 } @else {

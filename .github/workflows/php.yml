@@ -195,13 +195,19 @@ jobs:
       - name: Install Shopware
         run: php src/Core/TestBootstrap.php
 
+      - name: Only consider migrations in coverage for migration test suite
+        if: ${{ matrix.suite == 'migration' }}
+        run: sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Core/Migration</directory>|' phpunit.xml.dist
       - name: Run PHPUnit with coverage
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: coverage.xml
+          flags: phpunit-${{ matrix.suite }}
 
   license-check:
     runs-on: ubuntu-24.04

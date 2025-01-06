@@ -24,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 #[CoversClass(CountryRoute::class)]
 class CountryRouteTest extends TestCase
 {

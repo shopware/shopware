@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CountryStateEntity>
  */
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 class CountryStateCollection extends EntityCollection
 {
     /**

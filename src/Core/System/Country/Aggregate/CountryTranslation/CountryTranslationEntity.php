@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 class CountryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

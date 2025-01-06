@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 class LanguageRouteResponse extends StoreApiResponse
 {
     /**

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 #[CoversClass(CountryException::class)]
 class CountryExceptionTest extends TestCase
 {

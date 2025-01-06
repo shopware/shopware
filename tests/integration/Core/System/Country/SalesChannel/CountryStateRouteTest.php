@@ -13,7 +13,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals_byteclub')]
 #[Group('store-api')]
 class CountryStateRouteTest extends TestCase
 {

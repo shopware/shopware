@@ -14,7 +14,7 @@ use Shopware\Core\System\Language\LanguageLoader;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 #[CoversClass(LanguageLoader::class)]
 class LanguageLoaderTest extends TestCase
 {

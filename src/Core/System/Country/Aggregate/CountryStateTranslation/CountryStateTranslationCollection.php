@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CountryStateTranslationEntity>
  */
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 class CountryStateTranslationCollection extends EntityCollection
 {
     public function getCountryStateIds(): array

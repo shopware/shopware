@@ -11,7 +11,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  *
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberInterface
 {
     private const CACHE_KEY = 'shopware.languages';

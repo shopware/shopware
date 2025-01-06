@@ -9,7 +9,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 class SalesChannelCountryStateDefinition extends CountryStateDefinition implements SalesChannelDefinitionInterface
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void

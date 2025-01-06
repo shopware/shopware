@@ -10,7 +10,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 class SalesChannelLanguageLoader implements ResetInterface
 {
     /**

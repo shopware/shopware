@@ -11,7 +11,7 @@ use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('fundamentals_byteclub')]
 #[CoversClass(SalesChannelLanguageLoader::class)]
 class SalesChannelLanguageLoaderTest extends TestCase
 {

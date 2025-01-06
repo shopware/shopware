@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @phpstan-type LanguageData array<string, array{id: string, code: string, parentId: string, parentCode?: ?string}>
  */
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 interface LanguageLoaderInterface
 {
     /**

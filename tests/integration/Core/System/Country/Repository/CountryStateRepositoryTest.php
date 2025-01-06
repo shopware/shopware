@@ -17,7 +17,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals_byteclub')]
 class CountryStateRepositoryTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 class LanguageRoute extends AbstractLanguageRoute
 {
     final public const ALL_TAG = 'language-route';

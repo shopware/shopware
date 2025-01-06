@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\Exception\LanguageForeignKeyDeleteException;
 
-#[Package('discovery')]
+#[Package('fundamentals_byteclub')]
 class LanguageExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

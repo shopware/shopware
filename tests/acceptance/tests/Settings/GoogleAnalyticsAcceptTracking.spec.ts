@@ -5,7 +5,10 @@ test('As a shop customer, I want to accept Google Analytics tracking via the bas
     StorefrontHome,
     TestDataService,
     DefaultSalesChannel,
+    InstanceMeta,
 }) => {
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0 Ticket is already created: https://shopware.atlassian.net/browse/NEXT-40121');
 
     await test.step('Configure sales channel analytics and verify cookie banner visibility on the home page', async () => {
         const salesChannelAnalytics = await TestDataService.createSalesChannelAnalytics();

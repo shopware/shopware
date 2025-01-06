@@ -339,10 +339,10 @@ export default {
                 name: user.username,
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInUser'),
                 link: {
-                    name: 'sw.settings.user.detail',
+                    name: 'sw.users.permissions.user.detail',
                     id: user.id,
                 },
-                icon: this.getIconForModule('sw-settings-user'),
+                icon: this.getIconForModule('sw-users-permissions'),
             };
         },
 

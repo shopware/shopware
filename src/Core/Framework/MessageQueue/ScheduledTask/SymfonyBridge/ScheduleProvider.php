@@ -6,9 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @experimental stableVersion:v6.7.0 feature:SYMFONY_SCHEDULER
@@ -24,6 +26,8 @@ class ScheduleProvider implements ScheduleProviderInterface
     public function __construct(
         private readonly iterable $tasks,
         private readonly Connection $connection,
+        private readonly CacheInterface $cache,
+        private readonly LockFactory $lockFactory,
     ) {
     }
 
@@ -34,7 +38,8 @@ class ScheduleProvider implements ScheduleProviderInterface
             'SELECT name, run_interval, status FROM scheduled_task'
         );
 
-        $schedule = new Schedule();
+        $schedules = [];
+
         foreach ($this->tasks as $task) {
             $name = $task::getTaskName();
 
@@ -43,11 +48,14 @@ class ScheduleProvider implements ScheduleProviderInterface
             }
 
             $interval = $dbConfigs[$name]['run_interval'] ?? $task::getDefaultInterval();
-            $schedule->add(
-                RecurringMessage::every($interval, $task)
-            );
+            $schedules[] = RecurringMessage::every($interval, $task);
         }
 
-        return $schedule;
+        $lock = $this->lockFactory->createLock('scheduled-task-shopware');
+
+        return (new Schedule())
+            ->with(...$schedules)
+            ->stateful($this->cache)
+            ->lock($lock);
     }
 }

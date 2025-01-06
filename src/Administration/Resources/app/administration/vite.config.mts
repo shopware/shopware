@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import symfonyPlugin from 'vite-plugin-symfony';
 import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
+import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 
 console.log('╔════════════════════════════════════════════════╗');
 console.log('║               EXPERIMENTAL VITE BUILD          ║');
@@ -60,6 +61,7 @@ export default defineConfig(({ command }) => {
                 // Shopware plugins: build/vite-plugins
                 TwigPlugin(),
                 AssetPlugin(isProd, __dirname),
+                AssetPathPlugin(),
             ];
 
             if (isDev) {

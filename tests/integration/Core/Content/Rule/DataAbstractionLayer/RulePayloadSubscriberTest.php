@@ -41,17 +41,17 @@ class RulePayloadSubscriberTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->updater = $this->createMock(RulePayloadUpdater::class);
 
         $this->rulePayloadSubscriber = new RulePayloadSubscriber(
             $this->updater,
-            $this->getContainer()->get(ScriptTraces::class),
-            $this->getContainer()->getParameter('kernel.cache_dir'),
-            $this->getContainer()->getParameter('kernel.debug')
+            static::getContainer()->get(ScriptTraces::class),
+            static::getContainer()->getParameter('kernel.cache_dir'),
+            static::getContainer()->getParameter('kernel.debug')
         );
 
-        $this->ruleDefinition = $this->getContainer()->get(RuleDefinition::class);
+        $this->ruleDefinition = static::getContainer()->get(RuleDefinition::class);
     }
 
     public function testLoadValidRuleWithoutPayload(): void
@@ -185,7 +185,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->executeStatement();
 
-        $rule = $this->getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
+        $rule = static::getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
         static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(AndRule::class, $rule->getPayload());
@@ -224,7 +224,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->executeStatement();
 
-        $rule = $this->getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
+        $rule = static::getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
         static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNull($rule->getPayload());
         static::assertTrue($rule->isInvalid());

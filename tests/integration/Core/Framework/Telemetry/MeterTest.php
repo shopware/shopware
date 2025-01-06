@@ -34,9 +34,9 @@ class MeterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $meter = $this->getContainer()->get(Meter::class);
-        $definitions = $this->getContainer()->getParameter('shopware.telemetry.metrics.definitions');
-        $transportsCollection = $this->getContainer()->get(TransportCollection::class);
+        $meter = static::getContainer()->get(Meter::class);
+        $definitions = static::getContainer()->getParameter('shopware.telemetry.metrics.definitions');
+        $transportsCollection = static::getContainer()->get(TransportCollection::class);
         assertInstanceOf(TransportCollection::class, $transportsCollection);
         $traceableTransport = current(iterator_to_array($transportsCollection->getIterator()));
 

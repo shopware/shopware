@@ -18,66 +18,92 @@ class ProductCrossSellingEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $position;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $sortBy;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $sortDirection;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $limit;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $active;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
     /**
      * @var ProductEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $product;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productStreamId;
 
     /**
      * @var ProductStreamEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productStream;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var ProductCrossSellingAssignedProductsCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $assignedProducts;
 
     /**
      * @var ProductCrossSellingTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 

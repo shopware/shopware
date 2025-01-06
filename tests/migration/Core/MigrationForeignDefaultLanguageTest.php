@@ -34,7 +34,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
      */
     public function testMigrationWithoutEnGb(): void
     {
-        $orgConnection = $this->getContainer()->get(Connection::class);
+        $orgConnection = static::getContainer()->get(Connection::class);
         $orgConnection->rollBack();
 
         $connection = $this->setupDB($orgConnection);
@@ -117,7 +117,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
      */
     public function testMigrationWithoutEnGbOrDe(): void
     {
-        $orgConnection = $this->getContainer()->get(Connection::class);
+        $orgConnection = static::getContainer()->get(Connection::class);
         $orgConnection->rollBack();
 
         $connection = $this->setupDB($orgConnection);
@@ -216,7 +216,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
      */
     public function testMigrationWithEnGbAndDeButDifferentDefault(): void
     {
-        $orgConnection = $this->getContainer()->get(Connection::class);
+        $orgConnection = static::getContainer()->get(Connection::class);
         $orgConnection->rollBack();
 
         $connection = $this->setupDB($orgConnection);
@@ -309,10 +309,10 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     private function collectMigrations(): MigrationCollection
     {
-        return $this->getContainer()
+        return static::getContainer()
             ->get(MigrationCollectionLoader::class)
             ->collectAllForVersion(
-                $this->getContainer()->getParameter('kernel.shopware_version'),
+                static::getContainer()->getParameter('kernel.shopware_version'),
                 MigrationCollectionLoader::VERSION_SELECTION_ALL
             );
     }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
+use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -188,5 +189,13 @@ class OrderException extends HttpException
             'Order with id "{{ orderId }}" was cancelled and cannot be edited afterwards.',
             ['orderId' => $orderId]
         );
+    }
+
+    /**
+     * The {@see CustomerDeletedException} is a flow exception and should not be converted to a real domain exception
+     */
+    public static function orderCustomerDeleted(string $orderId): CustomerDeletedException
+    {
+        return new CustomerDeletedException($orderId);
     }
 }

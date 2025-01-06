@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -34,9 +35,9 @@ class CustomerChangePasswordSubscriberTest extends TestCase
     private IdsCollection $ids;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -46,7 +47,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         ]);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testClearLegacyWhenUserChangePassword(): void
@@ -166,7 +167,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
+        static::getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

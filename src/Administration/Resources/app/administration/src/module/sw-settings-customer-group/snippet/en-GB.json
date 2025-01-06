@@ -2,7 +2,6 @@
   "sw-settings-customer-group": {
     "general": {
       "mainMenuItemGeneral": "Customer groups",
-      "buttonCancel": "Cancel",
       "buttonCreate": "Add customer group",
       "buttonSave": "Save",
       "placeholderSearchBar": "Search customer groups..."
@@ -46,7 +45,6 @@
         "salesChannel": "Sales Channel",
         "urlSuffix": "URL suffix",
         "exampleUrl": "Example URL",
-        "cancel": "Cancel",
         "generate": "Generate"
       }
     },

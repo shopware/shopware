@@ -34,8 +34,8 @@ class StoreClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->configService = $this->getContainer()->get(SystemConfigService::class);
-        $this->storeClient = $this->getContainer()->get(StoreClient::class);
+        $this->configService = static::getContainer()->get(SystemConfigService::class);
+        $this->storeClient = static::getContainer()->get(StoreClient::class);
 
         $this->setLicenseDomain('shopware-test');
 

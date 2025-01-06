@@ -43,6 +43,7 @@
         {% block sw_sales_channel_menu_headline_action %}
         <button
             v-if="canCreateSalesChannels"
+            :aria-label="$tc('sw-sales-channel.general.addSalesChannel')"
             class="sw-admin-menu__headline-action"
             @click="openSalesChannelModal"
         >
@@ -111,6 +112,7 @@
         <sw-context-button
             class="sw-sales-channel-menu__collapsed-context-menu"
             icon="regular-ellipsis-v"
+            aria-label="sw-sales-channel.general.manageSalesChannels"
         >
             <sw-context-menu-item
                 class="sw-admin-menu__headline-context-menu-manage-sales-channels"

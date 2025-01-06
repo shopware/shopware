@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Checkout\DependencyInjection\CompilerPass\CartRedisCompilerPass;
 use Shopware\Core\Checkout\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -29,12 +30,6 @@ class CartRedisCompilerPassTest extends TestCase
             RedisCartPersister::class => new Definition(),
             CartPersister::class => new Definition(),
         ]);
-
-        // @deprecated tag:v6.7.0 - remove next line
-        $this->container->setParameter('shopware.cart.storage.config.dsn', 'redis://localhost:6379');
-
-        // equal to default in config
-        $this->container->setParameter('shopware.cart.storage.config.connection', null);
     }
 
     public function testCompilerPassMysqlStorage(): void
@@ -55,7 +50,7 @@ class CartRedisCompilerPassTest extends TestCase
     public function testCompilerPassRedisStorageDsn(): void
     {
         $this->container->setParameter('shopware.cart.storage.type', 'redis');
-        $this->container->setParameter('shopware.cart.storage.config.connection', 'default');
+        $this->container->setParameter('shopware.cart.storage.config.dsn', 'redis://localhost:6379');
 
         $compilerPass = new CartRedisCompilerPass();
         $compilerPass->process($this->container);
@@ -67,6 +62,7 @@ class CartRedisCompilerPassTest extends TestCase
     public function testCompilerPassRedisStorageConnectionName(): void
     {
         $this->container->setParameter('shopware.cart.storage.type', 'redis');
+        $this->container->setParameter('shopware.cart.storage.config.connection', 'persistent');
 
         $compilerPass = new CartRedisCompilerPass();
         $compilerPass->process($this->container);
@@ -75,8 +71,25 @@ class CartRedisCompilerPassTest extends TestCase
         static::assertFalse($this->container->hasDefinition(CartPersister::class));
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Remove in 6.7
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
+    public function testCompilerPassRedisUrl(): void
+    {
+        $this->container->setParameter('shopware.cart.redis_url', 'redis://localhost:6379');
+
+        $compilerPass = new CartRedisCompilerPass();
+        $compilerPass->process($this->container);
+
+        static::assertTrue($this->container->hasParameter('shopware.cart.storage.config.connection'));
+        static::assertTrue($this->container->hasDefinition(RedisCartPersister::class));
+        static::assertFalse($this->container->hasDefinition(CartPersister::class));
+    }
+
     public function testCompilerPassRedisStorageWithoutDsn(): void
     {
+        $this->container->setParameter('shopware.cart.storage.config.connection', null); // equal to default in config
         $this->container->setParameter('shopware.cart.storage.type', 'redis');
         $this->container->getParameterBag()->remove('shopware.cart.storage.config.dsn');
 

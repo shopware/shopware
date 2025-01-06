@@ -61,6 +61,9 @@
     "sw-desktop": {
       "stagingBarText": "The Shop is in staging mode."
     },
+    "sw-skip-link": {
+      "label": "Skip to content"
+    },
     "notification-center": {
       "title": "Notifications",
       "emptyText": "Nothing going on lately.",
@@ -150,6 +153,7 @@
       "textProjectName": "Administration",
       "administrator": "Administrator",
       "navigation": {
+        "label": "Main navigation",
         "mainMenuItemCatalogue": "Catalogues",
         "mainMenuItemContent": "Content",
         "mainMenuItemMarketing": "Marketing"
@@ -165,6 +169,9 @@
         "emptyMessageNoProducts": "No products found",
         "emptyMessageNoSearchResults": "No products found for \"{term}\""
       }
+    },
+    "accessibility": {
+      "optionWarning": "In the interest of accessibility, it is not recommended to activate this option."
     },
     "sw-field": {
       "notification": {
@@ -201,7 +208,8 @@
     },
     "sw-price-field": {
       "labelPriceGross": "Price (gross)",
-      "labelPriceNet": "Price (net)"
+      "labelPriceNet": "Price (net)",
+      "toggleLinkedCurrency": "Toggle link between gross and net price"
     },
     "sw-list-price-field": {
       "labelListPriceGross": "List price (gross)",
@@ -237,10 +245,17 @@
       "labelColumnHide": "Hide column",
       "labelSelectionCount": "Selected:",
       "labelDeSelectAll": "Deselect all",
-      "maximumSelectionExceed": "Maximum amount of items selected"
+      "maximumSelectionExceed": "Maximum amount of items selected",
+      "columnsActions": "Column actions",
+      "actionsMenu": "Open actions menu",
+      "labelSelectAll": "Select all",
+      "labelSelected": "Selected"
     },
     "sw-pagination": {
-      "labelItemsPerPage": "Items per page:"
+      "labelItemsPerPage": "Items per page:",
+      "previousPage": "Go to previous page",
+      "nextPage": "Go to next page",
+      "page": "Go to page {page}"
     },
     "sw-modal": {
       "labelClose": "Close"
@@ -448,6 +463,7 @@
       "caption": "Drag files here to upload"
     },
     "sw-media-upload-v2": {
+      "switchMode": "Switch upload mode",
       "buttonFileUpload": "Upload file",
       "buttonFilesUpload": "Upload files",
       "buttonUrlUpload": "Upload file from URL",
@@ -524,6 +540,9 @@
     },
     "sw-select": {
       "messageNoResults": "No results found for \"{term}\"."
+    },
+    "sw-select-base": {
+      "buttonClear": "Clear all elements"
     },
     "sw-select-result-list": {
       "messageNoResults": "No results found."
@@ -661,6 +680,7 @@
         "billingStateRule": "Billing address: State",
         "billingZipCodeRule": "Billing address: Postal code",
         "customerGroupRule": "Customer group",
+        "customerRequestedGroupRule": "Requested customer group",
         "customerTagRule": "Customer with tag",
         "customerNumberRule": "Customer number",
         "differentAddressesRule": "Customer with deviating shipping address",
@@ -710,14 +730,13 @@
         "orderTagRule": "Order with tag",
         "orderTrackingCodeRule": "Tracking code",
         "orderDeliveryStatusRule": "Delivery status",
-        "orderCreatedByAdminRule": "Order created by admin",
+        "orderCreatedByAdminRule": "Order created by administrator (flow)",
+        "adminSalesChannelSourceRule": "Applicable in Administration",
         "orderTransactionStatusRule": "Payment status",
         "orderStatusRule": "Order status",
         "orderCustomFieldRule": "Order with custom field",
         "orderDocumentTypeRule": "Order with document",
         "orderDocumentTypeSentRule": "Order with sent document",
-        "yes": "Yes",
-        "no": "No",
         "withTime": "Including timestamp",
         "withoutTime": "Excluding timestamp",
         "and": "And",
@@ -954,23 +973,28 @@
       },
       "orderCreatedByAdmin": {
         "shouldOrderBeCreatedByAdmin": {
-          "placeholder": "Select condition ..."
+          "placeholder": "Select condition..."
+        }
+      },
+      "adminSalesChannelSource": {
+        "hasAdminSalesChannelSource": {
+          "placeholder": "Select condition..."
         }
       },
       "orderTransactionStatus": {
         "stateIds": {
-          "placeholder": "Select state ..."
+          "placeholder": "Select state..."
         },
         "operator": {
-          "placeholder": "Select operator ..."
+          "placeholder": "Select operator..."
         }
       },
       "orderStatus": {
         "stateIds": {
-          "placeholder": "Select state ..."
+          "placeholder": "Select state..."
         },
         "operator": {
-          "placeholder": "Select operator ..."
+          "placeholder": "Select operator..."
         }
       }
     },
@@ -1172,6 +1196,9 @@
         "linkText": "Create support request",
         "linkUrl": "https://account.shopware.com/shops/support"
       }
+    },
+    "sw-page": {
+      "backButton": "Go back"
     }
   },
   "sw-text-editor-toolbar": {
@@ -1214,7 +1241,7 @@
       "h5": "Headline 5",
       "h6": "Headline 6",
       "blockquote": "Blockquote",
-      "text-color": "Text color",
+      "text-color": "Text colour",
       "bold": "Bold",
       "italic": "Italic",
       "underline": "Underline",
@@ -1254,6 +1281,14 @@
       "textDeleteMultipleConfirm": "Are you sure you want to delete the \"{count}\" selected elements?",
       "textDeleteChildrenConfirm": "All subcategories will be deleted too."
     }
+  },
+  "sw-tree-item": {
+    "toggleTreeItem": "Toggle tree item \"{name}\"",
+    "toggleItem": "Toggle item \"{name}\"",
+    "childrenLabel": "Subitems for \"{name}\""
+  },
+  "sw-sidebar-collapse": {
+    "collapseIndicator": "Collapse sidebar"
   },
   "sw-category-tree-field": {
     "emptySearchResults": "No categories found."
@@ -1510,7 +1545,6 @@
         "explanationHeader": "We have noticed a change in your shop domain.",
         "explanation": "Installed apps are still connected with the old domain and won't work with the new domain. There are three options from here to proceed.",
         "confirmation": "Confirm",
-        "cancellation": "Cancel",
         "success": "Domain changed.",
         "error": "Error while changing domain for apps"
       },
@@ -1597,6 +1631,9 @@
   "sw-ai-copilot-warning": {
     "text": "AI responses can be inaccurate or misleading."
   },
+  "sw-in-app-purchase-checkout": {
+    "exsTitle": "Activate the Shopware Extension Store"
+  },
   "help-center": {
     "sidebar": {
       "title": "Help",
@@ -1626,5 +1663,8 @@
     "datetime": {
       "placeholder": "Select date and time..."
     }
+  },
+  "sw-context-button": {
+    "ariaLabel": "Open context menu"
   }
 }

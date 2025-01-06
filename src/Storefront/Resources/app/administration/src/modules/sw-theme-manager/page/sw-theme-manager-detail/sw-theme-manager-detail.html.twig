@@ -91,6 +91,21 @@
                                         {{ $tc('sw-theme-manager.actions.saveClean') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
+
+                                {% block sw_theme_manager_detail_smart_bar_actions_validate %}
+                                    <sw-context-menu-item
+                                        class="sw_theme_manager_detail__validate-action"
+                                        :disabled="!acl.can('theme.editor')"
+                                        @click="onValidate"
+                                        v-tooltip.top="{
+                                            message: $tc('sw-theme-manager.actions.validateToolTip'),
+                                            disabled: !acl.can('theme.editor'),
+                                            showOnDisabledElements: true
+                                        }"
+                                    >
+                                        {{ $tc('sw-theme-manager.actions.validate') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
                             {% endblock %}
                         </sw-context-button>
                     {% endblock %}
@@ -202,7 +217,7 @@
                                                 {% block sw_theme_manager_detail_context_button_option_create %}
                                                     <sw-context-menu-item
                                                         @click="onDuplicateTheme(theme)"
-                                                        v-if="!theme.parentThemeId"
+                                                        v-if="theme.technicalName"
                                                         :disabled="!acl.can('theme.creator')">
                                                         {{ $tc('sw-theme-manager.actions.duplicate') }}
                                                     </sw-context-menu-item>
@@ -220,7 +235,7 @@
 
                                                 {% block sw_theme_manager_detail_context_button_option_delete %}
                                                     <sw-context-menu-item
-                                                        v-if="theme.parentThemeId"
+                                                        v-if="!theme.technicalName"
                                                         :disabled="!acl.can('theme.deleter') || theme.salesChannels.length > 0"
                                                         v-tooltip.right="deleteDisabledToolTip"
                                                         class="sw-theme-manager-detail__option-delete"

@@ -7,18 +7,28 @@
         <service id="Shopware\Core\Framework\Webhook\WebhookDispatcher" decorates="event_dispatcher"
                  decoration-priority="100">
             <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookDispatcher.inner"/>
+            <argument type="service"  id="Shopware\Core\Framework\Webhook\Service\WebhookManager" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="shopware.app_system.guzzle"/>
-            <argument type="string">%env(APP_URL)%</argument>
-            <argument type="service" id="service_container"/>
+        </service>
+
+        <service lazy="true" id="Shopware\Core\Framework\Webhook\Service\WebhookManager">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookLoader"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory"/>
-            <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\AppLocaleProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
+            <argument type="string">%env(APP_URL)%</argument>
+            <argument>%kernel.shopware_version%</argument>
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">
-            <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookDispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookManager"/>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="kernel.reset" method="reset"/>
@@ -40,10 +50,15 @@
 
         <service id="Shopware\Core\Framework\Webhook\WebhookDefinition">
             <tag name="shopware.entity.definition"/>
+
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition">
             <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector">
@@ -53,15 +68,16 @@
 
         <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
             <argument type="service" id="shopware.app_system.guzzle"/>
-            <argument type="service" id="webhook.repository"/>
             <argument type="service" id="webhook_event_log.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
 
             <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber">
-            <argument type="service" id="webhook.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="webhook_event_log.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

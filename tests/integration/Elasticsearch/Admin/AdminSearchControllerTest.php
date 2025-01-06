@@ -33,13 +33,13 @@ class AdminSearchControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!$this->getContainer()->getParameter('elasticsearch.administration.enabled')) {
+        if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
             static::markTestSkipped('No OPENSEARCH configured');
         }
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->promotionRepo = $this->getContainer()->get('promotion.repository');
+        $this->promotionRepo = static::getContainer()->get('promotion.repository');
     }
 
     public function testIndexing(): IdsCollection
@@ -168,7 +168,7 @@ class AdminSearchControllerTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     private function createData(IdsCollection $ids): void

@@ -31,6 +31,7 @@ import FlatTreeHelper from 'src/core/helper/flattree.helper';
 import SanitizerHelper from 'src/core/helper/sanitizer.helper';
 import DeviceHelper from 'src/core/helper/device.helper';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
+import { DiscountScopes, DiscountTypes, PromotionPermissions } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 import data from 'src/core/data/index';
 import ApplicationBootstrapper from 'src/core/application';
 
@@ -47,7 +48,9 @@ import Store from 'src/app/store';
 import { createExtendableSetup, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
+import InAppPurchase from './in-app-purchase';
 import ExtensionApi from './extension-api';
+import { LineItemType } from '../module/sw-order/order.types';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -206,6 +209,8 @@ class ShopwareClass implements CustomShopwareProperties {
 
     public Feature = Feature;
 
+    public InAppPurchase = InAppPurchase;
+
     public Vue = Vue;
 
     public ApiService = {
@@ -276,6 +281,14 @@ class ShopwareClass implements CustomShopwareProperties {
         RefreshTokenHelper: RefreshTokenHelper,
         SanitizerHelper: SanitizerHelper,
         DeviceHelper: DeviceHelper,
+        PromotionHelper: {
+            DiscountScopes,
+            DiscountTypes,
+            PromotionPermissions,
+        },
+        OrderHelper: {
+            LineItemType,
+        },
     };
 
     /**
@@ -345,6 +358,9 @@ class ShopwareClass implements CustomShopwareProperties {
 }
 
 const ShopwareInstance = new ShopwareClass();
+
+// Freeze InAppPurchase to prevent modifications
+Object.defineProperty(ShopwareInstance, 'InAppPurchase', { configurable: false, writable: false });
 
 // Only works for webpack order of imports
 if (!window._features_.ADMIN_VITE) {

@@ -20,6 +20,7 @@ async function createWrapper() {
                     'sw-meteor-navigation': true,
                     'sw-icon': true,
                     'sw-tabs': true,
+                    'sw-app-topbar-button': true,
                 },
                 mocks: {
                     $route: {

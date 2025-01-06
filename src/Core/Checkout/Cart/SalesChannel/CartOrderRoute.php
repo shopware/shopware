@@ -111,11 +111,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
             throw CartException::invalidPaymentOrderNotStored($orderId);
         }
 
-        $event = new CheckoutOrderPlacedEvent(
-            $context->getContext(),
-            $orderEntity,
-            $context->getSalesChannel()->getId()
-        );
+        $event = new CheckoutOrderPlacedEvent($context, $orderEntity);
 
         Profiler::trace('checkout-order::event-listeners', function () use ($event): void {
             $this->eventDispatcher->dispatch($event);
@@ -124,7 +120,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->cartPersister->delete($context->getToken(), $context);
 
         // @deprecated tag:v6.7.0 - remove post payment completely
-        if (!Feature::isActive('v6.7.0.0')) {
+        Feature::callSilentIfInactive('v6.7.0.0', function () use ($orderEntity, $data, $context, $orderId, $preOrderPayment): void {
             try {
                 Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
                     $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
@@ -132,7 +128,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
             } catch (PaymentException) {
                 throw CartException::invalidPaymentButOrderStored($orderId);
             }
-        }
+        });
 
         return new CartOrderRouteResponse($orderEntity);
     }

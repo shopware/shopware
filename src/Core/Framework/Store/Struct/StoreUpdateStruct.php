@@ -13,36 +13,50 @@ class StoreUpdateStruct extends Struct
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $label;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $iconPath;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $version;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $changelog;
 
     /**
      * @var \DateTimeInterface
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $releaseDate;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $integrated;
 

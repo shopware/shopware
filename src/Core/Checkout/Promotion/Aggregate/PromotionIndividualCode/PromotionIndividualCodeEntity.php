@@ -8,28 +8,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionIndividualCodeEntity extends Entity
 {
     use EntityIdTrait;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotionId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $code;
 
     /**
      * @var PromotionEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotion;
 
     /**
      * @var array<string>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $payload;
 

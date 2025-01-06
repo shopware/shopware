@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
@@ -54,6 +55,13 @@ class StorefrontControllerTest extends TestCase
         $this->controller = new TestStorefrontController();
     }
 
+    #[DoesNotPerformAssertions]
+    public function testSetTwigDeprecated(): void
+    {
+        $twig = static::createMock(Environment::class);
+        $this->controller->setTwig($twig);
+    }
+
     public function testRenderStorefront(): void
     {
         $context = static::createMock(SalesChannelContext::class);
@@ -102,9 +110,9 @@ class StorefrontControllerTest extends TestCase
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $seoUrlReplacer);
         $container->set(MediaUrlPlaceholderHandlerInterface::class, $mediaUrlHandler);
         $container->set(SystemConfigService::class, static::createMock(SystemConfigService::class));
+        $container->set('twig', $twig);
 
         $this->controller->setContainer($container);
-        $this->controller->setTwig($twig);
 
         $response = $this->controller->testRenderStorefront('test.html.twig');
 
@@ -152,9 +160,9 @@ class StorefrontControllerTest extends TestCase
         $container->set(TemplateFinder::class, $templateFinder);
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $seoUrlReplacer);
         $container->set(SystemConfigService::class, static::createMock(SystemConfigService::class));
+        $container->set('twig', $twig);
 
         $this->controller->setContainer($container);
-        $this->controller->setTwig($twig);
 
         static::expectException(StorefrontException::class);
         $this->controller->testRenderStorefront('test.html.twig');
@@ -507,33 +515,13 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set(TemplateFinder::class, $templateFinder);
+        $container->set('twig', $twig);
 
         $this->controller->setContainer($container);
-        $this->controller->setTwig($twig);
 
         $response = $this->controller->testRenderView('test.html.twig', ['foo' => 'bar']);
 
         static::assertSame('<html lang="en">test</html>', $response);
-    }
-
-    public function testRenderViewWithoutTwigThrows(): void
-    {
-        $templateFinder = static::createMock(TemplateFinder::class);
-        $templateFinder
-            ->expects(static::once())
-            ->method('find')
-            ->with('test.html.twig')
-            ->willReturn('storefront-view.html.twig');
-
-        $container = new ContainerBuilder();
-        $container->set(TemplateFinder::class, $templateFinder);
-
-        $this->controller->setContainer($container);
-
-        static::expectException(\Exception::class);
-        static::expectExceptionMessageMatches('/does not have twig injected. Add to your service definition a method call to setTwig with the twig instance/');
-
-        $this->controller->testRenderView('test.html.twig', ['foo' => 'bar']);
     }
 
     public function testHook(): void

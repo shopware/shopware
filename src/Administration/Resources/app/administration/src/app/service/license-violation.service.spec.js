@@ -21,6 +21,7 @@ describe('app/service/license-violation.service.js', () => {
 
     beforeEach(async () => {
         jest.clearAllMocks();
+        delete window.location;
     });
 
     it('should be an object', async () => {
@@ -218,5 +219,17 @@ describe('app/service/license-violation.service.js', () => {
         expect(cacheApiServiceMock.clear).not.toHaveBeenCalled();
         expect(extensionApiServiceMock.uninstallExtension).not.toHaveBeenCalled();
         expect(extensionApiServiceMock.removeExtension).toHaveBeenCalled();
+    });
+
+    it('should not trigger license violation for loopback', async () => {
+        window.location = new URL('http://127.0.0.1');
+
+        const res = await licenseViolationService.checkForLicenseViolations();
+
+        expect(res).toEqual({
+            warnings: [],
+            violations: [],
+            other: [],
+        });
     });
 });

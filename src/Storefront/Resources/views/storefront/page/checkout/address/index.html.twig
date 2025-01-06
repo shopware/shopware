@@ -28,7 +28,9 @@
         {% block page_checkout_address_login %}
             <div class="collapse" id="loginCollapse">
                 {% block page_checkout_address_login_card %}
-                    {% sw_include '@Storefront/storefront/component/account/login.html.twig' %}
+                    {% sw_include '@Storefront/storefront/component/account/login.html.twig' with {
+                        cardTitle: 'account.loginHeader'|trans|sw_sanitize
+                    } %}
                 {% endblock %}
             </div>
         {% endblock %}

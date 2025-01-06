@@ -17,6 +17,9 @@ const defaultElementConfig = {
     videoID: {
         value: '',
     },
+    iframeTitle: {
+        value: '',
+    },
     previewMedia: {
         value: null,
     },

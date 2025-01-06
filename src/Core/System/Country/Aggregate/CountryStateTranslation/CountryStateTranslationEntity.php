@@ -14,16 +14,22 @@ class CountryStateTranslationEntity extends TranslationEntity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $countryStateId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var CountryStateEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $countryState;
 

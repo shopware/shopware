@@ -52,7 +52,7 @@ class StreamedCommandResponseGeneratorTest extends TestCase
         $generator = new StreamedCommandResponseGenerator();
 
         $theFinishedProcess = null;
-        $response = $generator->runJson(['echo', 'foo'], function (Process $process) use (&$theFinishedProcess): void {
+        $response = $generator->runJSON(['echo', 'foo'], function (Process $process) use (&$theFinishedProcess): void {
             $theFinishedProcess = $process;
         });
 
@@ -75,7 +75,7 @@ class StreamedCommandResponseGeneratorTest extends TestCase
         $generator = new StreamedCommandResponseGenerator();
 
         $theFinishedProcess = null;
-        $response = $generator->runJson(['echo', 'foo'], function (Process $process) use (&$theFinishedProcess): void {
+        $response = $generator->runJSON(['echo', 'foo'], function (Process $process) use (&$theFinishedProcess): void {
             $theFinishedProcess = $process;
         });
 
@@ -94,7 +94,7 @@ class StreamedCommandResponseGeneratorTest extends TestCase
         $generator = new StreamedCommandResponseGenerator();
 
         $theFinishedProcess = null;
-        $response = $generator->runJson(['echo', 'foo'], function (Process $process) use (&$theFinishedProcess): void {
+        $response = $generator->runJSON(['echo', 'foo'], function (Process $process) use (&$theFinishedProcess): void {
             $theFinishedProcess = $process;
         });
 
@@ -116,7 +116,7 @@ class StreamedCommandResponseGeneratorTest extends TestCase
         $generator = new StreamedCommandResponseGenerator();
 
         $theFinishedProcess = null;
-        $response = $generator->runJson(['echo', 'foo'], function (Process $process) use (&$theFinishedProcess): void {
+        $response = $generator->runJSON(['echo', 'foo'], function (Process $process) use (&$theFinishedProcess): void {
             $theFinishedProcess = $process;
         });
 

@@ -10,11 +10,15 @@ class File implements ConfigHandlerInterface
 {
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     private $excludedUrls;
 
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     private $customUrls;
 

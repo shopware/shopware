@@ -52,12 +52,12 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $this->context = Context::createDefaultContext();
-        $this->remoteThumbnailsEnable = $this->getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
+        $this->remoteThumbnailsEnable = static::getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
 
-        $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
+        $this->thumbnailCommand = static::getContainer()->get(GenerateThumbnailsCommand::class);
 
         /** @var array<string> $ids */
         $ids = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
@@ -261,7 +261,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnailServiceMock,
             $this->mediaRepository,
             $this->mediaFolderRepository,
-            $this->getContainer()->get('messenger.bus.shopware')
+            static::getContainer()->get('messenger.bus.shopware')
         );
 
         $commandTester = new CommandTester($command);
@@ -284,7 +284,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnailServiceMock,
             $this->mediaRepository,
             $this->mediaFolderRepository,
-            $this->getContainer()->get('messenger.bus.shopware')
+            static::getContainer()->get('messenger.bus.shopware')
         );
 
         $commandTester = new CommandTester($command);
@@ -313,7 +313,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $messageBusMock = new CollectingMessageBus();
 
         $command = new GenerateThumbnailsCommand(
-            $this->getContainer()->get(ThumbnailService::class),
+            static::getContainer()->get(ThumbnailService::class),
             $this->mediaRepository,
             $this->mediaFolderRepository,
             $messageBusMock,

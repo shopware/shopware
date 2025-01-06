@@ -70,7 +70,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                 $this->productDefinition->getEntityName(),
                 $token,
                 $configs,
-                $context->getLanguageIdChain(),
+                $context,
             );
 
             if ($query) {
@@ -98,7 +98,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             $this->productDefinition->getEntityName(),
             $originalTerm,
             $configs,
-            $context->getLanguageIdChain(),
+            $context
         );
 
         if (!$originalTermQuery) {

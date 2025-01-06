@@ -1,13 +1,4 @@
-<?php
-/*
- * Copyright (c) Pickware GmbH. All rights reserved.
- * This file is part of software that is released under a proprietary license.
- * You must not copy, modify, distribute, make publicly available, or execute
- * its contents or parts thereof without express permission by the copyright
- * holder, unless otherwise permitted by law.
- */
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
@@ -74,15 +65,15 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resolver = $this->getContainer()->get(ManyToOneAssociationFieldResolver::class);
-        $this->queryBuilder = new QueryBuilder($this->getContainer()->get(Connection::class));
-        $this->definitionInstanceRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->documentRepository = $this->getContainer()->get('document.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->resolver = static::getContainer()->get(ManyToOneAssociationFieldResolver::class);
+        $this->queryBuilder = new QueryBuilder(static::getContainer()->get(Connection::class));
+        $this->definitionInstanceRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->documentRepository = static::getContainer()->get('document.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
@@ -275,7 +266,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
                     ->build()
             );
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $context = Context::createDefaultContext();
         $this->productRepository->create([$p->build()], $context);
@@ -284,7 +275,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         $connection->executeStatement('UPDATE product SET product_media_version_id = NULL WHERE product_media_id IS NULL');
 
         $criteria = new Criteria([$ids->get('p1'), $ids->get('p2')]);
-        $criteria->addAssociation('cover');
+        $criteria->addAssociation('cover.media');
 
         $products = array_values($this->productRepository->search($criteria, $context)->getElements());
 

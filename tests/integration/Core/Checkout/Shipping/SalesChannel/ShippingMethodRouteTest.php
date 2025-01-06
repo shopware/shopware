@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -74,10 +75,10 @@ class ShippingMethodRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('shipping_method.repository')
+        static::getContainer()->get('shipping_method.repository')
             ->update($updateData, Context::createDefaultContext());
 
-        $this->salesChannelContext = $this->getContainer()
+        $this->salesChannelContext = static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
@@ -101,7 +102,7 @@ class ShippingMethodRouteTest extends TestCase
         static::assertContains($this->ids->get('shipping2'), $ids);
         static::assertEmpty($response['elements'][0]['availabilityRule']);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 
@@ -150,7 +151,12 @@ class ShippingMethodRouteTest extends TestCase
         $ids = array_column($response['elements'], 'id');
 
         static::assertEquals(
+            Feature::isActive('ACCESSIBILITY_TWEAKS') ?
             [
+                $this->ids->get('shipping'),    // position  1 (sales-channel default)
+                $this->ids->get('shipping3'),   // position -3
+                $this->ids->get('shipping2'),   // position  5 (selected method)
+            ] : [
                 $this->ids->get('shipping2'),   // position  5 (selected method)
                 $this->ids->get('shipping'),    // position  1 (sales-channel default)
                 $this->ids->get('shipping3'),   // position -3
@@ -159,9 +165,14 @@ class ShippingMethodRouteTest extends TestCase
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed due to behavior change
+     */
     public function testSorting(): void
     {
-        $shippingMethodRoute = $this->getContainer()->get(ShippingMethodRoute::class);
+        Feature::skipTestIfActive('ACCESSIBILITY_TWEAKS', $this);
+
+        $shippingMethodRoute = static::getContainer()->get(ShippingMethodRoute::class);
 
         $request = new Request();
 
@@ -174,7 +185,7 @@ class ShippingMethodRouteTest extends TestCase
         static::assertInstanceOf(SortedShippingMethodRoute::class, $shippingMethodRoute);
         static::assertSame($lastPaymentMethodId, $selectedPaymentMethodResult->getShippingMethods()->first()?->getId());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 
@@ -233,7 +244,7 @@ class ShippingMethodRouteTest extends TestCase
         static::assertCount(2, $response['elements']);
         static::assertNotContains($this->ids->get('shipping3'), array_column($response['elements'], 'id'));
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 
@@ -252,7 +263,7 @@ class ShippingMethodRouteTest extends TestCase
         static::assertCount(2, $response['elements']);
         static::assertNotContains($this->ids->get('shipping3'), array_column($response['elements'], 'id'));
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 
@@ -351,7 +362,7 @@ class ShippingMethodRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('shipping_method.repository')
+        static::getContainer()->get('shipping_method.repository')
             ->create($data, Context::createDefaultContext());
     }
 }

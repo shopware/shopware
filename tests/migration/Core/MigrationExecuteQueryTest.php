@@ -24,9 +24,9 @@ class MigrationExecuteQueryTest extends TestCase
     public function testExecuteQueryDoesNotPerformWriteOperations(): void
     {
         $nullConnection = new NullConnection();
-        $nullConnection->setOriginalConnection($this->getContainer()->get(Connection::class));
+        $nullConnection->setOriginalConnection(static::getContainer()->get(Connection::class));
 
-        $loader = $this->getContainer()->get(MigrationCollectionLoader::class);
+        $loader = static::getContainer()->get(MigrationCollectionLoader::class);
         $migrationCollection = $loader->collectAll();
 
         $exceptions = [];

@@ -305,7 +305,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Validator">
-            <argument type="tagged" tag="shopware.cart.validator"/>
+            <argument type="tagged_iterator" tag="shopware.cart.validator"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemValidator">
@@ -316,8 +316,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Validator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
-            <argument type="tagged" tag="shopware.cart.processor"/>
-            <argument type="tagged" tag="shopware.cart.collector"/>
+            <argument type="tagged_iterator" tag="shopware.cart.processor"/>
+            <argument type="tagged_iterator" tag="shopware.cart.collector"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
         </service>
 
@@ -400,7 +400,7 @@
         <service id="Shopware\Core\Checkout\Cart\PriceDefinitionFactory"/>
 
         <service id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry">
-            <argument type="tagged" tag="shopware.cart.line_item.factory"/>
+            <argument type="tagged_iterator" tag="shopware.cart.line_item.factory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
@@ -443,8 +443,8 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry">
-            <argument type="tagged" tag="lineitem.group.packager"/>
-            <argument type="tagged" tag="lineitem.group.sorter"/>
+            <argument type="tagged_iterator" tag="lineitem.group.packager"/>
+            <argument type="tagged_iterator" tag="lineitem.group.sorter"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager">

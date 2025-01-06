@@ -32,7 +32,6 @@
       "titleSidebarItemFilterAffiliateCode": "Affiliate code",
       "titleSidebarItemFilterCampaignCode": "Campaign code",
       "buttonDelete": "Delete",
-      "buttonCancel": "Cancel",
       "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?",
       "labelManualOrder": "Created by admin"
     },
@@ -49,12 +48,12 @@
       "messageSaveError": "An error occurred during saving",
       "messageShippingNotAvailable": "Delivery to the selected country not possible.",
       "labelManualOrder": "Created by admin",
-      "textUnsavedOrderWarning": "There are unsaved changes. Please save the order before leaving this page."
+      "textUnsavedOrderWarning": "There are unsaved changes. Please save the order before leaving this page.",
+      "messageEmptyLineItems": "Could not save order. There are no line items."
     },
     "create": {
       "textNewOrder": "New order",
       "buttonSaveOrder": "Save order",
-      "buttonCancelOrder": "Cancel",
       "messageSaveError": "Order could not be saved.",
       "messageSwitchCustomerError": "An error occurred during switching customer",
       "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses",

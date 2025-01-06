@@ -7,6 +7,7 @@ use Faker\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -62,9 +63,13 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $console->progressStart($numberOfItems);
 
         foreach ($payload as $cat) {
+            $context->getContext()->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
             $this->categoryRepository->create([$cat], $context->getContext());
 
             $context->getConsole()->progressAdvance();
+
+            $context->getContext()->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
         }
 
         $context->getConsole()->progressFinish();

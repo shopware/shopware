@@ -8,33 +8,43 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionDiscountPriceEntity extends Entity
 {
     use EntityIdTrait;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currencyId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $discountId;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $price;
 
     /**
      * @var PromotionDiscountEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotionDiscount;
 
     /**
      * @var CurrencyEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currency;
 

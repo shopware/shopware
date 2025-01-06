@@ -29,14 +29,11 @@ class ResponseTypeRegistryTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /**
-     * @var ResponseFactoryRegistry
-     */
-    private $responseRegistry;
+    private ResponseFactoryRegistry $responseRegistry;
 
     protected function setUp(): void
     {
-        $this->responseRegistry = $this->getContainer()->get(ResponseFactoryRegistry::class);
+        $this->responseRegistry = static::getContainer()->get(ResponseFactoryRegistry::class);
     }
 
     public function getAdminContext(): Context
@@ -140,7 +137,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $category = $this->getTestCategory($id);
 
-        $definition = $this->getContainer()->get(CategoryDefinition::class);
+        $definition = static::getContainer()->get(CategoryDefinition::class);
         $request = Request::create($path, 'GET', [], [], [], ['HTTP_ACCEPT' => $accept]);
         $this->setOrigin($request, $context);
 
@@ -155,7 +152,7 @@ class ResponseTypeRegistryTest extends TestCase
         $criteria = new Criteria();
         $searchResult = new EntitySearchResult('product', 1, $col, null, $criteria, $context);
 
-        $definition = $this->getContainer()->get(CategoryDefinition::class);
+        $definition = static::getContainer()->get(CategoryDefinition::class);
         $request = Request::create($path, 'GET', [], [], [], ['HTTP_ACCEPT' => $accept]);
         $this->setOrigin($request, $context);
 

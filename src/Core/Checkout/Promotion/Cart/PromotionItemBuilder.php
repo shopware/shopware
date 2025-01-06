@@ -12,13 +12,14 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionItemBuilder
 {
     /**
@@ -26,6 +27,15 @@ class PromotionItemBuilder
      * within placeholder items
      */
     final public const PLACEHOLDER_PREFIX = 'promotion-';
+
+    // If a promotion is global, it can be automatically added to the cart if the conditions are met
+    final public const PROMOTION_TYPE_GLOBAL = 'global';
+
+    // If a promotion is individual, it can only be added to the cart if the customer has a valid code (limited usage)
+    final public const PROMOTION_TYPE_INDIVIDUAL = 'individual';
+
+    // If a promotion is fixed, it can only be added to the cart if the customer has a valid code (unlimited usage)
+    final public const PROMOTION_TYPE_FIXED = 'fixed';
 
     /**
      * Builds a new placeholder promotion line item that does not have
@@ -113,7 +123,7 @@ class PromotionItemBuilder
         }
 
         if ($promotionDefinition === null) {
-            throw new UnknownPromotionDiscountTypeException($discount);
+            throw PromotionException::unknownPromotionDiscountType($discount);
         }
 
         // build our discount line item
@@ -211,13 +221,13 @@ class PromotionItemBuilder
         $payload['value'] = (string) $discount->getValue();
 
         // specifies the type of the promotion code (fixed, individual, global)
-        $promotionCodeType = 'fixed';
+        $promotionCodeType = self::PROMOTION_TYPE_FIXED;
         if ($promotion->isUseIndividualCodes()) {
-            $promotionCodeType = 'individual';
+            $promotionCodeType = self::PROMOTION_TYPE_INDIVIDUAL;
         }
 
         if ($code === '') {
-            $promotionCodeType = 'global';
+            $promotionCodeType = self::PROMOTION_TYPE_GLOBAL;
         }
         $payload['promotionCodeType'] = $promotionCodeType;
 

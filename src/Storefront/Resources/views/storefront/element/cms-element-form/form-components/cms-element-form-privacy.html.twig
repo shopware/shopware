@@ -25,7 +25,7 @@
         {% endblock %}
 
         {% block cms_form_privacy_opt_in_label %}
-            <label for="{{ identifierTemplate|format(_key) }}" class="form-check-label">
+            <label for="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}{{ identifierTemplate|format(_key) }}" class="form-check-label">
                 {% if requiresTermsOfService == true %}
                     {{ 'general.privacyNoticeText'|trans({
                         '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),

@@ -44,8 +44,8 @@ class PaymentRefundProcessorTest extends TestCase
     {
         $this->ids = new IdsCollection();
 
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->paymentRefundProcessor = $this->getContainer()->get(PaymentRefundProcessor::class);
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->paymentRefundProcessor = static::getContainer()->get(PaymentRefundProcessor::class);
     }
 
     public function testItThrowsIfRefundNotFound(): void
@@ -167,10 +167,10 @@ class PaymentRefundProcessorTest extends TestCase
             ->willReturn($handlerMock);
 
         $processor = new PaymentRefundProcessor(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(OrderTransactionCaptureRefundStateHandler::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderTransactionCaptureRefundStateHandler::class),
             $handlerRegistryMock,
-            $this->getContainer()->get(PaymentTransactionStructFactory::class),
+            static::getContainer()->get(PaymentTransactionStructFactory::class),
         );
 
         $refund = (new OrderTransactionCaptureRefundBuilder(
@@ -230,10 +230,10 @@ class PaymentRefundProcessorTest extends TestCase
             ->willReturn($handlerMock);
 
         $processor = new PaymentRefundProcessor(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(OrderTransactionCaptureRefundStateHandler::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderTransactionCaptureRefundStateHandler::class),
             $handlerRegistryMock,
-            $this->getContainer()->get(PaymentTransactionStructFactory::class),
+            static::getContainer()->get(PaymentTransactionStructFactory::class),
         );
 
         $refund = (new OrderTransactionCaptureRefundBuilder(

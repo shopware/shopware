@@ -28,7 +28,6 @@ export default {
                 'core.mailerSettings.username': null,
                 'core.mailerSettings.password': null,
                 'core.mailerSettings.encryption': 'null',
-                'core.mailerSettings.authenticationMethod': 'null',
                 'core.mailerSettings.senderAddress': null,
                 'core.mailerSettings.deliveryAddress': null,
                 'core.mailerSettings.disableDelivery': false,

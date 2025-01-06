@@ -13,6 +13,10 @@
       "theme": {
         "async": "Theme Kompilierung im Hintergrund ausführen",
         "asyncTooltip": "Steuert ob die Kompilierung des Themes über die message queue oder direkt erfolgt."
+      },
+      "speculationRules": {
+        "title": "Speculation rules API (Experimentell)",
+        "description": "Aktivieren Sie pre-rendering im Modus „moderat“ für die Storefront. Achtung, dies kann Ihre Analysedaten beeinflussen."
       }
     },
     "helpText": "Für weitere Informationen schaue bitte in die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"

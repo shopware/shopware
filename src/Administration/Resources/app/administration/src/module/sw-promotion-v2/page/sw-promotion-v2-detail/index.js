@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package checkout
  */
 import template from './sw-promotion-v2-detail.html.twig';
 import errorConfig from './error-config.json';
@@ -84,7 +84,7 @@ export default {
 
             criteria.getAssociation('discounts').addSorting(Criteria.sort('createdAt', 'ASC'));
 
-            criteria.getAssociation('individualCodes');
+            criteria.getAssociation('individualCodes').setLimit(25);
 
             return criteria;
         },
@@ -93,7 +93,6 @@ export default {
             if (!this.acl.can('promotion.editor')) {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
-                    disabled: this.acl.can('category.editor'),
                     showOnDisabledElements: true,
                 };
             }
@@ -188,7 +187,7 @@ export default {
 
         onSave() {
             if (!this.promotionId) {
-                this.createPromotion();
+                this.savePromotion();
 
                 return;
             }
@@ -216,13 +215,11 @@ export default {
             this.showCodeTypeChangeModal = false;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed. Use `savePromotion` instead
+         */
         createPromotion() {
-            return this.savePromotion().then(() => {
-                this.$router.push({
-                    name: 'sw.promotion.v2.detail',
-                    params: { id: this.promotion.id },
-                });
-            });
+            return this.savePromotion();
         },
 
         async savePromotion() {
@@ -255,6 +252,13 @@ export default {
                 Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
                 this.isSaveSuccessful = true;
                 await this.loadEntityData();
+
+                if (this.isCreateMode) {
+                    this.$router.push({
+                        name: 'sw.promotion.v2.detail',
+                        params: { id: this.promotion.id },
+                    });
+                }
             } catch (e) {
                 this.isLoading = false;
                 this.createNotificationError({

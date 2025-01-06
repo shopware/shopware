@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -303,6 +304,7 @@ class PaymentProcessorTest extends TestCase
     /**
      * @deprecated tag:v6.7.0 - remove
      */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testPayWithOldProcessor(): void
     {
         $orderTransaction = new OrderTransactionEntity();
@@ -423,6 +425,10 @@ class PaymentProcessorTest extends TestCase
         static::assertSame($tokenStruct, $response);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - remove
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testFinalizeWithOldHandler(): void
     {
         $orderTransaction = new OrderTransactionEntity();

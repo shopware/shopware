@@ -51,7 +51,7 @@
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     'data': postedData ?? address,
                                     'prefix': 'address',
-                                    'idPrefix': typePrefix,
+                                    'idPrefix': typePrefix ~ (address ? "edit-" : "new-"),
                                     'scope': 'parent',
                                     'parentSelector': 'form'
                                 } %}
@@ -59,7 +59,7 @@
                                 {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
                                     'data': postedData ?? address,
                                     'prefix': 'address',
-                                    'idPrefix': typePrefix,
+                                    'idPrefix': typePrefix ~ (address ? "edit-" : "new-"),
                                     'scope': 'parent',
                                     'parentSelector': 'form',
                                     'showFormCompany': true,

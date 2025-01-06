@@ -11,6 +11,8 @@ class CancelOrderRouteResponse extends StoreApiResponse
 {
     /**
      * @var StateMachineStateEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

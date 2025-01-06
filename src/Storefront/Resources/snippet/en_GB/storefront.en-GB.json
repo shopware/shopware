@@ -56,6 +56,9 @@
     "formSubmit": "Submit",
     "listPricePreviously": "previously %price%",
     "skipToContentLink": "Skip to main content",
+    "skipToNavigation": "Skip to main navigation",
+    "skipToSearch": "Skip to search",
+    "skipThisElement": "Skip this element",
     "scrollUpBtn": "Go back to the top of the page",
     "pagination": {
       "first": "First page",
@@ -149,6 +152,7 @@
     "loginPasswordLabel": "Your password",
     "loginPasswordPlaceholder": "Enter password...",
     "loginPasswordRecover": "I have forgotten my password.",
+    "loginRegistrationHeader": "Log in or create account",
     "loginSubmit": "Log in",
     "loginBadCredentials": "Could not find an account that matches the given credentials.",
     "loginThrottled": "Too many login attempts. Please wait %seconds% seconds before trying to log in again.",
@@ -432,8 +436,8 @@
     "cartHeaderTaxIncludeVat": "incl. VAT",
     "cartHeaderTaxExcludeVat": "excl. VAT",
     "cartItemInfoId": "Product number:",
-    "addPromotionLabel": "Discount code",
-    "addPromotionPlaceholder": "Enter discount code...",
+    "addPromotionLabel": "Promo code",
+    "addPromotionPlaceholder": "Enter promo code...",
     "addProductLabel": "Product number",
     "addProductPlaceholder": "Enter product number...",
     "summaryPositionPrice": "Total",
@@ -479,9 +483,9 @@
     "finishButtonBackToShop": "Back to shop",
     "finishChangePayment": "Change payment method",
     "finishPaymentFailed": "Unfortunately, the payment process went wrong. Please change your payment method to finish your order. <a href=\"%editOrderUrl%\">Change payment method</a>",
-    "codeAddedSuccessful": "Gift code added successfully.",
+    "codeAddedSuccessful": "Promo code added successfully.",
     "addToCartSuccess": "{1} 1 product added to your shopping cart.|]1,Inf[ %count% products added to your shopping cart.",
-    "shippingCosts": "Shipping details",
+    "shippingCosts": "Open shipping details",
     "shippingCountry": "Shipping country",
     "paymentMethod": "Payment method",
     "shippingMethod": "Shipping method",
@@ -497,7 +501,7 @@
     "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%",
     "promotion-discount-deleted": "Discount \"%name%\" has been removed",
     "promotion-discount-added": "Discount \"%name%\" has been added",
-    "promotion-not-found": "Promotion with code \"%code%\" could not be found.",
+    "promotion-not-found": "Promo code \"%code%\" could not be found.",
     "auto-promotion-not-found": "Promotion \"%name%\" no longer valid!",
     "promotion-not-eligible": "Promotion code valid - however, not all conditions were met and the discount was not applied. Once all conditions are met, the discount will be applied automatically.",
     "promotion-excluded": "One or more discounts have been removed from the shopping cart, due to conflicts with other discounts. Once the conditions are met again, the discounts will be applied automatically.",
@@ -522,7 +526,7 @@
     "checkout-gateway-error": "%reason%"
   },
   "listing": {
-    "filterTitleText": "Filter",
+    "filterTitleText": "Filter products",
     "showResults": "Show results",
     "boxUnitLabel": "Content:",
     "boxLabelTopseller": "Tip",
@@ -604,7 +608,7 @@
   },
   "search": {
     "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | ]1,Inf[ %count% products found for \"%searchTerm%\"",
-    "metaTitle": "Searchresult"
+    "metaTitle": "Search results"
   },
   "detail": {
     "ordernumberLabel": "Product number:",
@@ -677,8 +681,10 @@
     "arSupportDevices": "iOS11+, Android 8.0+ with ARCore 1.9 support",
     "moveTheDeviceToStart": "Move the device to start",
     "tapToPlaceTheObject": "Tap to place the object",
-    "openAugmentedRealityView": "Open Augmented Reality View",
-    "openArView": "Open AR View"
+    "openAugmentedRealityView": "Open Augmented Reality view",
+    "augmentedRealityView": "Augmented Reality view",
+    "openArView": "Open AR view",
+    "openArViewDescription": "Open Augmented Reality view"
   },
   "wishlist": {
     "cartTitle": "Your wishlist",
@@ -763,20 +769,32 @@
         }
       },
       "quantitySelect": {
+        "legend": "Product Quantity: Enter the desired amount or use the buttons to increase or decrease the quantity.",
+        "areaLiveText": "Quantity of %product% set to %quantity%.",
         "label": "Quantity",
+        "labelWithProduct": "Quantity of %product%",
         "increase": "Increase quantity",
-        "decrease": "Decrease quantity"
+        "increaseOfProduct": "Increase quantity of %product%",
+        "decrease": "Decrease quantity",
+        "decreaseOfProduct": "Decrease quantity of %product%"
       }
     },
     "cms": {
       "vimeo": {
         "privacyNoticeText": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
-        "acceptButtonLabel": "Accept"
+        "acceptButtonLabel": "Accept",
+        "watchUrlLabel": "Watch on Vimeo"
       },
       "imageGallery": {
+        "ariaLabel": "Image gallery containing %total% items",
         "touchMove": "Touch and drag",
         "clickMove": "Click and move",
-        "sliderDotLabel": "Show image %index% of %total%"
+        "sliderDotLabel": "Show image %index% of %total%",
+        "skipImageGallery": "Skip image gallery"
+      },
+      "productGallery": {
+        "ariaLabel": "Product gallery containing %total% items",
+        "skipProductGallery": "Skip product gallery"
       },
       "defaultMedia": {
         "preview_camera_large": {

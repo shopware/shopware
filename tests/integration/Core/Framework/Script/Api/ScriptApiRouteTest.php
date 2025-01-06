@@ -100,7 +100,7 @@ class ScriptApiRouteTest extends TestCase
             (new ProductBuilder($ids, 'p2'))->price(200)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $criteria = [
             'filter' => [
@@ -184,7 +184,7 @@ class ScriptApiRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'api-endpoint-cases'));
         /** @var AppEntity $app */
-        $app = $this->getContainer()->get('app.repository')->search($criteria, Context::createDefaultContext())->first();
+        $app = static::getContainer()->get('app.repository')->search($criteria, Context::createDefaultContext())->first();
 
         $browser = $this->getBrowserAuthenticatedWithIntegration($app->getIntegrationId());
         $browser->request('POST', '/api/script/simple-script');
@@ -204,7 +204,7 @@ class ScriptApiRouteTest extends TestCase
             (new ProductBuilder($ids, 'p1'))->price(100)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $json = \json_encode(['productId' => $ids->get('p1')], \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
@@ -230,7 +230,7 @@ class ScriptApiRouteTest extends TestCase
             (new ProductBuilder($ids, 'p1'))->price(100)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $json = \json_encode(['productId' => $ids->get('p1')], \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);

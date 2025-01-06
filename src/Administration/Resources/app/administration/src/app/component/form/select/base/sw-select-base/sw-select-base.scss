@@ -78,6 +78,12 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
             padding-right: 3px;
             padding-bottom: 4px;
             padding-left: 3px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        &.sw-select__select-indicator-expand--rotated {
+            transition: all 0.3s ease-in-out;
+            transform: rotate(180deg);
         }
     }
 

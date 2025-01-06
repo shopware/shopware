@@ -1603,6 +1603,7 @@
     "availabilityRuleId",
     "mediaId",
     "salesChannels",
+    "technicalName",
     "createdAt",
     "updatedAt"
   ],
@@ -2045,6 +2046,22 @@
     "sceneId",
     "mediaId",
     "name",
+    "position",
+    "rotation",
+    "scale"
+  ],
+  "spatial_scene_material": [
+    "id",
+    "color",
+    "metalness",
+    "roughness"
+  ],
+  "spatial_scene_primitive": [
+    "id",
+    "materialId",
+    "name",
+    "visible",
+    "geometry",
     "position",
     "rotation",
     "scale"

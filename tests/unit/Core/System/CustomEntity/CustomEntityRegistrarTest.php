@@ -24,27 +24,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(CustomEntityRegistrar::class)]
 class CustomEntityRegistrarTest extends TestCase
 {
-    public function testSkipsRegistrationIfDbalIsNotConnected(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('isConnected')
-            ->willReturn(false);
-        $connection->expects(static::never())
-            ->method('fetchAllAssociative');
-
-        $container = new Container();
-        $container->set(Connection::class, $connection);
-
-        $registrar = new CustomEntityRegistrar($container);
-
-        $registrar->register();
-    }
-
     public function testSkipsRegistrationIfFetchingCustomEntitiesFailWithException(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('isConnected')
-            ->willReturn(true);
         $connection->expects(static::once())
             ->method('fetchAllAssociative')
             ->willThrowException(new Exception());
@@ -75,8 +57,6 @@ class CustomEntityRegistrarTest extends TestCase
         ];
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('isConnected')
-            ->willReturn(true);
         $connection->expects(static::once())
             ->method('fetchAllAssociative')
             ->willReturn([
@@ -125,8 +105,6 @@ class CustomEntityRegistrarTest extends TestCase
         ];
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('isConnected')
-            ->willReturn(true);
         $connection->expects(static::once())
             ->method('fetchAllAssociative')
             ->willReturn([

@@ -34,10 +34,10 @@ class OrderAddressServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->customerAddressRepository = $this->getContainer()->get('customer_address.repository');
-        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
-        $orderAddressRepository = $this->getContainer()->get('order_address.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->customerAddressRepository = static::getContainer()->get('customer_address.repository');
+        $orderDeliveryRepository = static::getContainer()->get('order_delivery.repository');
+        $orderAddressRepository = static::getContainer()->get('order_address.repository');
 
         $this->orderAddressService = new OrderAddressService(
             $this->orderRepository,

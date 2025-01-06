@@ -44,7 +44,7 @@ class CustomFieldsSerializerTest extends TestCase
     {
         $this->setupCustomFields();
 
-        $fieldSerializer = $this->getContainer()->get(CustomFieldsSerializer::class);
+        $fieldSerializer = static::getContainer()->get(CustomFieldsSerializer::class);
         static::assertInstanceOf(CustomFieldsSerializer::class, $fieldSerializer);
 
         $config = new Config(
@@ -154,7 +154,7 @@ class CustomFieldsSerializerTest extends TestCase
     {
         $this->setupCustomFields();
 
-        $fieldSerializer = $this->getContainer()->get(CustomFieldsSerializer::class);
+        $fieldSerializer = static::getContainer()->get(CustomFieldsSerializer::class);
         static::assertInstanceOf(CustomFieldsSerializer::class, $fieldSerializer);
 
         $config = new Config(
@@ -269,7 +269,7 @@ class CustomFieldsSerializerTest extends TestCase
     private function setupCustomFields(): void
     {
         /** @var EntityRepository<CustomFieldSetCollection> $customFieldSetRepo */
-        $customFieldSetRepo = $this->getContainer()->get('custom_field_set.repository');
+        $customFieldSetRepo = static::getContainer()->get('custom_field_set.repository');
         static::assertInstanceOf(EntityRepository::class, $customFieldSetRepo);
 
         $customFieldSetRepo->create([

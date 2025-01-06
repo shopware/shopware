@@ -13,11 +13,15 @@ class WishlistMergedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $products;
 
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 

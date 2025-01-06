@@ -29,7 +29,7 @@ class FeatureFlagExtensionTest extends TestCase
     }
 
     /**
-     * @psalm-param class-string<\Throwable> $exceptionClass
+     * @param class-string<\Throwable> $exceptionClass
      */
     #[DataProvider('invalidNamespaceDataProvider')]
     public function testAddingInvalidNamespaceWillThrowException(

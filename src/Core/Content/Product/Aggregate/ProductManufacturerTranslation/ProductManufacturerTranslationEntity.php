@@ -14,26 +14,36 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productManufacturerId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productManufacturerVersionId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $description;
 
     /**
      * @var ProductManufacturerEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productManufacturer;
 

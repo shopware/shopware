@@ -1,17 +1,20 @@
 {% block element_image_slider %}
     {% set sliderConfig = element.fieldConfig.elements %}
+    {% set visibleValues = ['inside', 'outside'] %}
+    {% set blockId = block.id %}
 
     <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
         {% set baseSliderOptions = {
             slider: {
+                controls: sliderConfig.navigationArrows.value in visibleValues,
+                nav: sliderConfig.navigationDots.value in visibleValues,
                 navPosition: 'bottom',
-                speed: sliderConfig.speed.value,
-                autoplayTimeout: sliderConfig.autoplayTimeout.value,
+                mouseDrag: true,
                 autoplay: sliderConfig.autoSlide.value,
-                ariaLive: sliderConfig.autoSlide.value ? false : true,
                 autoplayButtonOutput: false,
-                nav: sliderConfig.navigationDots.value ? true : false,
-                controls: sliderConfig.navigationArrows.value ? true : false,
+                autoplayTimeout: sliderConfig.autoplayTimeout.value,
+                speed: sliderConfig.speed.value,
+                ariaLive: sliderConfig.autoSlide.value ? false : true,
                 autoHeight: (sliderConfig.displayMode.value == "standard") ? true : false
             }
         } %}
@@ -22,9 +25,20 @@
             {% endif %}
                 <div class="base-slider image-slider{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationDots.value == "outside" %} has-dots-outside{% endif %}"
                      data-base-slider="true"
-                     data-base-slider-options='{{ baseSliderOptions|json_encode }}'>
+                     data-base-slider-options='{{ baseSliderOptions|json_encode }}'
+                     role="region"
+                     aria-label="{{ 'component.cms.imageGallery.ariaLabel'|trans({ '%total%': element.data.sliderItems|length })|sw_sanitize }}"
+                     tabindex="0"
+                >
 
                     {% block element_image_slider_inner %}
+                        {% block element_image_slider_skip_slider %}
+                            {% sw_include '@Storefront/storefront/component/skip-target.html.twig' with {
+                                targetId: blockId,
+                                snippet: 'component.cms.imageGallery.skipImageGallery',
+                            } %}
+                        {% endblock %}
+
                         <div class="image-slider-container"
                              data-base-slider-container="true">
                             {% for image in element.data.sliderItems %}
@@ -53,7 +67,8 @@
                                         {% if image.url %}
                                             <a href="{{ image.url }}"
                                                class="image-slider-link"
-                                               {% if image.newTab %}target="_blank" rel="noopener"{% endif %}>
+                                               {% if image.newTab %}target="_blank" rel="noopener"{% endif %}
+                                            >
                                                 {{ imageElement }}
                                             </a>
                                         {% else %}
@@ -65,7 +80,7 @@
                         </div>
 
                         {% block element_image_slider_controls %}
-                            {% if sliderConfig.navigationArrows.value %}
+                            {% if sliderConfig.navigationArrows.value !== 'none' %}
                                 <div class="image-slider-controls-container">
                                     <div class="base-slider-controls"
                                         data-base-slider-controls="true">
@@ -100,4 +115,8 @@
             {% endif %}
         {% endblock %}
     </div>
+
+    {% block element_image_slider_target_after_slider %}
+        <div id="content-after-target-{{ blockId }}"></div>
+    {% endblock %}
 {% endblock %}

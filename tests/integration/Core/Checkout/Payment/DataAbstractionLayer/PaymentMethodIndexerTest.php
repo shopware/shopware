@@ -32,7 +32,7 @@ class PaymentMethodIndexerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->indexer = $this->getContainer()->get(PaymentMethodIndexer::class);
+        $this->indexer = static::getContainer()->get(PaymentMethodIndexer::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -46,7 +46,7 @@ class PaymentMethodIndexerTest extends TestCase
 
     public function testGeneratesDistinguishablePaymentNameIfPaymentIsProvidedByExtension(): void
     {
-        $paymentRepository = $this->getContainer()->get('payment_method.repository');
+        $paymentRepository = static::getContainer()->get('payment_method.repository');
 
         $paymentRepository->create(
             [
@@ -189,7 +189,7 @@ class PaymentMethodIndexerTest extends TestCase
     {
         // Setup payment method(s)
         /** @var EntityRepository $paymentRepository */
-        $paymentRepository = $this->getContainer()->get('payment_method.repository');
+        $paymentRepository = static::getContainer()->get('payment_method.repository');
         $context = Context::createFrom($this->context);
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE);
         $paymentMethodId = Uuid::randomHex();
@@ -219,7 +219,7 @@ class PaymentMethodIndexerTest extends TestCase
         );
 
         // Run indexer
-        $messageBus = $this->getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.bus.shopware');
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
         $messageBus->reset();
         $ids = [$paymentMethodId];

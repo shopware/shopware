@@ -26,16 +26,22 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
     /**
      * @var DeliveryBuilder
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $builder;
 
     /**
      * @var DeliveryCalculator
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $deliveryCalculator;
 
     /**
      * @var EntityRepository
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethodRepository;
 

@@ -23,4 +23,9 @@ class IntegrationExtension extends EntityExtension
     {
         return IntegrationDefinition::class;
     }
+
+    public function getEntityName(): string
+    {
+        return IntegrationDefinition::ENTITY_NAME;
+    }
 }

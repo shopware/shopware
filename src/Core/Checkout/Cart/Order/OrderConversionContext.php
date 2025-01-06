@@ -10,21 +10,29 @@ class OrderConversionContext extends Struct
 {
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $includeCustomer = true;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $includeBillingAddress = true;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $includeDeliveries = true;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $includeTransactions = true;
 

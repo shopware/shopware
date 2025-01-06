@@ -97,6 +97,12 @@ Component.register('sw-checkbox-field-deprecated', {
             required: false,
             default: false,
         },
+
+        ariaLabel: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {

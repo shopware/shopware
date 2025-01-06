@@ -250,7 +250,7 @@ class ServiceClientTest extends TestCase
     public function testDownloadAppZipForVersionThrowsExceptionWhenRequestFails(): void
     {
         $response = static::createMock(ResponseInterface::class);
-        $response->expects(static::once())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+        $response->expects(static::any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
 
         static::expectExceptionObject(ServiceException::requestFailed($response));
 

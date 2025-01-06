@@ -13,6 +13,8 @@ class CustomFields extends XmlElement
 {
     /**
      * @var list<CustomFieldSet>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customFieldSets = [];
 

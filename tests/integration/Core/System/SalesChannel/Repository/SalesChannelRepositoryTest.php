@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\Repository;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -12,7 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Currency\CurrencyCollection;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
@@ -26,43 +32,43 @@ class SalesChannelRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<SalesChannelCollection>
      */
-    private $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CurrencyCollection>
      */
-    private $currencyRepository;
+    private EntityRepository $currencyRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<LanguageCollection>
      */
-    private $languageRepository;
+    private EntityRepository $languageRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<PaymentMethodCollection>
      */
-    private $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CountryCollection>
      */
-    private $countryRepository;
+    private EntityRepository $countryRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ShippingMethodCollection>
      */
-    private $shippingMethodRepository;
+    private EntityRepository $shippingMethodRepository;
 
     protected function setUp(): void
     {
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $this->currencyRepository = $this->getContainer()->get('currency.repository');
-        $this->languageRepository = $this->getContainer()->get('language.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->countryRepository = $this->getContainer()->get('country.repository');
-        $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+        $this->currencyRepository = static::getContainer()->get('currency.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+        $this->countryRepository = static::getContainer()->get('country.repository');
+        $this->shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
     }
 
     public function testCreateSalesChannelTest(): void

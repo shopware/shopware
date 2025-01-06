@@ -124,7 +124,7 @@ class MediaService
 
         return [
             'content' => $fileBlob,
-            'fileName' => $media->getFilename() . '.' . $media->getFileExtension(),
+            'fileName' => $media->getFileName() . '.' . $media->getFileExtension(),
             'mimeType' => $media->getMimeType(),
         ];
     }

@@ -24,14 +24,14 @@ class UpdateSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM `theme`');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM `theme`');
     }
 
     public function testCompilesAllThemes(): void
     {
         $themeService = $this->createMock(ThemeService::class);
         $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();
 
@@ -76,7 +76,7 @@ class UpdateSubscriberTest extends TestCase
         $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
 
         /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();
 
@@ -99,8 +99,8 @@ class UpdateSubscriberTest extends TestCase
     private function setupThemes(Context $context): array
     {
         /** @var EntityRepository $themeRepository */
-        $themeRepository = $this->getContainer()->get('theme.repository');
-        $themeSalesChannelRepository = $this->getContainer()->get('theme_sales_channel.repository');
+        $themeRepository = static::getContainer()->get('theme.repository');
+        $themeSalesChannelRepository = static::getContainer()->get('theme_sales_channel.repository');
 
         $parentThemeId = Uuid::randomHex();
         $otherThemeId = Uuid::randomHex();

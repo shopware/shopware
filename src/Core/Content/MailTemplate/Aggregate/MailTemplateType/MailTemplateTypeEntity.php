@@ -17,26 +17,36 @@ class MailTemplateTypeEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $technicalName;
 
     /**
      * @var array|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $availableEntities;
 
     /**
      * @var MailTemplateTypeTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var MailTemplateCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mailTemplates;
 

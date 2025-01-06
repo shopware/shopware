@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Script\Api;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
@@ -20,7 +21,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('core')]
 class ScriptStoreApiRoute
 {
-    final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, use HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER instead
+     */
+    final public const INVALIDATION_STATES_HEADER = HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER;
 
     public function __construct(
         private readonly ScriptExecutor $executor,
@@ -100,14 +104,14 @@ class ScriptStoreApiRoute
             return null;
         }
 
-        $invalidationStates = explode(',', (string) $response->headers->get(self::INVALIDATION_STATES_HEADER));
+        $invalidationStates = explode(',', (string) $response->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
         if ($context->hasState(...$invalidationStates)) {
             $this->logger->info('cache-miss: ' . $request->getPathInfo());
 
             return null;
         }
 
-        $response->headers->remove(self::INVALIDATION_STATES_HEADER);
+        $response->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
 
         $this->logger->info('cache-hit: ' . $request->getPathInfo());
 
@@ -119,9 +123,9 @@ class ScriptStoreApiRoute
         $item = $this->cache->getItem($cacheKey);
 
         // add the header only for the response in cache and remove the header before the response is sent
-        $symfonyResponse->headers->set(self::INVALIDATION_STATES_HEADER, implode(',', $cacheConfig->getInvalidationStates()));
+        $symfonyResponse->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, implode(',', $cacheConfig->getInvalidationStates()));
         $item = CacheCompressor::compress($item, $symfonyResponse);
-        $symfonyResponse->headers->remove(self::INVALIDATION_STATES_HEADER);
+        $symfonyResponse->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
 
         $item->tag($cacheConfig->getCacheTags());
         $item->expiresAfter($cacheConfig->getMaxAge());

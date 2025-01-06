@@ -17,36 +17,50 @@ class IntegrationEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $label;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $accessKey;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $secretAccessKey;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $admin;
 
     /**
      * @var \DateTimeInterface|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $lastUsageAt;
 
     /**
      * @var AppEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $app;
 
     /**
      * @var AclRoleCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $aclRoles;
 

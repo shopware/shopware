@@ -12,7 +12,6 @@
         :class="[displayModeClass, navDotsClass]"
         :style="styles"
     >
-        <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
         <video
             v-if="activeMedia?.mediaType?.name === 'VIDEO'"
             class="sw-cms-el-image-slider__video"
@@ -80,7 +79,7 @@
                     class="sw-cms-el-image-slider__navigation-button"
                     name="regular-chevron-right"
                     size="24"
-                    @click="setSliderArrowItem()"
+                    @click="setSliderArrowItem(1)"
                 />
             </div>
             {% endblock %}

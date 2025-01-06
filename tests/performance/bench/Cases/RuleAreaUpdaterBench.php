@@ -39,12 +39,12 @@ class RuleAreaUpdaterBench extends AbstractBenchCase
         $context = $this->context->getContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
-        $this->getContainer()->get('rule.repository')->create($rulePayload, $context);
+        static::getContainer()->get('rule.repository')->create($rulePayload, $context);
     }
 
     #[Bench\Assert('mode(variant.time.avg) < 50ms +/- 10ms')]
     public function bench_updating_areas_with_100_rules(): void
     {
-        $this->getContainer()->get(RuleAreaUpdater::class)->update(array_values($this->ids->prefixed('rule-')));
+        static::getContainer()->get(RuleAreaUpdater::class)->update(array_values($this->ids->prefixed('rule-')));
     }
 }

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class SalutationEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -21,46 +21,64 @@ class SalutationEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salutationKey;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $displayName;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $letterName;
 
     /**
      * @var SalutationTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var CustomerCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customers;
 
     /**
      * @var CustomerAddressCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customerAddresses;
 
     /**
      * @var OrderCustomerCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderCustomers;
 
     /**
      * @var OrderAddressCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderAddresses;
 
     /**
      * @var NewsletterRecipientCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $newsletterRecipients;
 

@@ -203,7 +203,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
             $resolverContext->getSalesChannelContext()->getContext()
         ));
 
-        $buyBoxResolver = $this->getContainer()->get(BuyBoxCmsElementResolver::class);
+        $buyBoxResolver = static::getContainer()->get(BuyBoxCmsElementResolver::class);
         $buyBoxResolver->enrich($slot, $resolverContext, $result);
 
         $buyBoxStruct = $slot->getData();
@@ -253,7 +253,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
 
         $result = new ElementDataCollection();
 
-        $buyBoxResolver = $this->getContainer()->get(BuyBoxCmsElementResolver::class);
+        $buyBoxResolver = static::getContainer()->get(BuyBoxCmsElementResolver::class);
         $buyBoxResolver->enrich($slot, $resolverContext, $result);
 
         $buyBoxStruct = $slot->getData();
@@ -315,7 +315,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
             ],
         ], $additionalData);
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
     }
 
@@ -334,13 +334,13 @@ class BuyBoxTypeDataResolverTest extends TestCase
             ];
         }
 
-        $this->getContainer()->get('product_review.repository')
+        static::getContainer()->get('product_review.repository')
             ->create($reviews, Context::createDefaultContext());
     }
 
     private function createSalesChannelContext(): SalesChannelContext
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }

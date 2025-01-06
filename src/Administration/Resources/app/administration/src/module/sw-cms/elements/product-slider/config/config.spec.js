@@ -133,13 +133,15 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     it('should render product assignment type select', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-cms-el-config-product-slider__product-assignment-type-select').exists()).toBeTruthy();
+        expect(
+            wrapper.find('.sw-cms-el-config-product-slider__tab-content-product-assignment-type-select').exists(),
+        ).toBeTruthy();
     });
 
     it('should render manual product assignment by default', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-cms-el-config-product-slider__products').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-config-product-slider__tab-content-products').exists()).toBeTruthy();
     });
 
     it('should fetch product stream when assignment type is "product_stream"', async () => {
@@ -186,14 +188,16 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         await wrapper.vm.$nextTick();
 
         // Product stream select should exist
-        expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-select').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-config-product-slider__tab-content-product-stream-select').exists()).toBeTruthy();
 
         // Performance hint should exist
-        expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-performance-hint').exists()).toBeTruthy();
+        expect(
+            wrapper.find('.sw-cms-el-config-product-slider__tab-content-product-stream-performance-hint').exists(),
+        ).toBeTruthy();
 
         // Sorting fields should exist
-        expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-sorting').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-limit').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-config-product-slider__tab-content-product-stream-sorting').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-config-product-slider__tab-content-product-stream-limit').exists()).toBeTruthy();
     });
 
     it('should store the productIds after changing the assignment type to "product_stream"', async () => {

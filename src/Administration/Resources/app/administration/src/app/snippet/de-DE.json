@@ -61,6 +61,9 @@
     "sw-desktop": {
       "stagingBarText": "Der Shop befindet sich im Staging-Modus."
     },
+    "sw-skip-link": {
+      "label": "Navigation überspringen"
+    },
     "notification-center": {
       "title": "Mitteilungen",
       "emptyText": "Nicht viel los hier.",
@@ -150,6 +153,7 @@
       "textProjectName": "Administration",
       "administrator": "Administrator",
       "navigation": {
+        "label": "Hauptnavigation",
         "mainMenuItemCatalogue": "Kataloge",
         "mainMenuItemContent": "Inhalte",
         "mainMenuItemMarketing": "Marketing"
@@ -165,6 +169,9 @@
         "emptyMessageNoProducts": "Keine Produkte gefunden",
         "emptyMessageNoSearchResults": "Keine Produkte gefunden für \"{term}\""
       }
+    },
+    "accessibility": {
+      "optionWarning": "Im Interesse der Barrierefreiheit ist es nicht empfehlenswert, diese Option zu aktivieren."
     },
     "sw-field": {
       "notification": {
@@ -201,7 +208,8 @@
     },
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",
-      "labelPriceNet": "Preis (Netto)"
+      "labelPriceNet": "Preis (Netto)",
+      "toggleLinkedCurrency": "Verknüpfung von Brutto- und Nettopreis umschalten"
     },
     "sw-list-price-field": {
       "labelListPriceGross": "Streichpreis (Brutto)",
@@ -237,10 +245,17 @@
       "labelColumnHide": "Spalte ausblenden",
       "labelSelectionCount": "Ausgewählt:",
       "labelDeSelectAll": "Alle abwählen",
-      "maximumSelectionExceed": "Maximale Anzahl Einträge ausgewählt"
+      "maximumSelectionExceed": "Maximale Anzahl Einträge ausgewählt",
+      "columnsActions": "Spaltenaktionen",
+      "actionsMenu": "Aktionsmenü öffnen",
+      "labelSelectAll": "Alles auswählen",
+      "labelSelected": "Ausgewählt"
     },
     "sw-pagination": {
-      "labelItemsPerPage": "Einträge pro Seite:"
+      "labelItemsPerPage": "Einträge pro Seite:",
+      "previousPage": "Zur vorherigen Seite gehen",
+      "nextPage": "Zur nächsten Seite gehen",
+      "page": "Gehe zu Seite {page}"
     },
     "sw-modal": {
       "labelClose": "Schließen"
@@ -448,6 +463,7 @@
       "caption": "Dateien zum Hochladen hierhin ziehen"
     },
     "sw-media-upload-v2": {
+      "switchMode": "Upload-Modus wechseln",
       "buttonFileUpload": "Dateien hochladen",
       "buttonFilesUpload": "Dateien hochladen",
       "buttonUrlUpload": "Über URL hochladen",
@@ -524,6 +540,9 @@
     },
     "sw-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
+    },
+    "sw-select-base": {
+      "buttonClear": "Alle Elemente löschen"
     },
     "sw-select-result-list": {
       "messageNoResults": "Es wurden keine Ergebnisse gefunden."
@@ -661,6 +680,7 @@
         "billingStateRule": "Rechnungsadresse: Bundesland",
         "billingZipCodeRule": "Rechnungsadresse: Postleitzahl",
         "customerGroupRule": "Kundengruppe",
+        "customerRequestedGroupRule": "Angefragte Kundengruppe",
         "customerTagRule": "Kunde mit Tag",
         "customerNumberRule": "Kundennummer",
         "differentAddressesRule": "Kunde mit abweichender Lieferadresse",
@@ -710,14 +730,13 @@
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
         "orderDeliveryStatusRule": "Lieferstatus",
-        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt (Flow)",
+        "adminSalesChannelSourceRule": "In Administration verwendbar",
         "orderTransactionStatusRule": "Zahlungsstatus",
         "orderStatusRule": "Bestellstatus",
         "orderCustomFieldRule": "Bestellung mit Zusatzfeld",
         "orderDocumentTypeRule": "Bestellung mit Dokument",
         "orderDocumentTypeSentRule": "Bestellung mit gesendetem Dokument",
-        "yes": "Ja",
-        "no": "Nein",
         "withTime": "Mit Zeitabfrage",
         "withoutTime": "Ohne Zeitabfrage",
         "and": "Und",
@@ -957,6 +976,11 @@
           "placeholder": "Condition auswählen ..."
         }
       },
+      "adminSalesChannelSource": {
+        "hasAdminSalesChannelSource": {
+          "placeholder": "Bedingung auswählen ..."
+        }
+      },
       "orderTransactionStatus": {
         "stateIds": {
           "placeholder": "State auswählen ..."
@@ -1172,6 +1196,9 @@
         "linkText": "Supportanfrage erstellen",
         "linkUrl": "https://account.shopware.com/shops/support"
       }
+    },
+    "sw-page": {
+      "backButton": "Zurückgehen"
     }
   },
   "sw-text-editor-toolbar": {
@@ -1254,6 +1281,14 @@
       "textDeleteMultipleConfirm": "Möchtest Du die \"{count}\" gewählten Elemente wirklich löschen?",
       "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht."
     }
+  },
+  "sw-tree-item": {
+    "toggleTreeItem": "Baumstruktur umschalten \"{name}\"",
+    "toggleItem": "\"{name}\" Checkbox umschalten ",
+    "childrenLabel": "Unterelemente für \"{name}\""
+  },
+  "sw-sidebar-collapse": {
+    "collapseIndicator": "Seitenleiste verbergen"
   },
   "sw-category-tree-field": {
     "emptySearchResults": "Keine Kategorien gefunden."
@@ -1510,7 +1545,6 @@
         "explanationHeader": "Deine Shop-Domain hat sich geändert.",
         "explanation": "Die installierten Apps sind immer noch mit der alten Domain verbunden und funktionieren mit der neuen Domain noch nicht. Du hast drei Optionen um fortzufahren:",
         "confirmation": "Bestätigen",
-        "cancellation": "Abbrechen",
         "success": "Domain Änderung erfolgreich durchgeführt.",
         "error": "Keine Änderung durchgeführt."
       },
@@ -1597,6 +1631,9 @@
   "sw-ai-copilot-warning": {
     "text": "AI-Antworten können ungenau oder irreführend sein."
   },
+  "sw-in-app-purchase-checkout": {
+    "exsTitle": "Shopware Extension Store aktivieren"
+  },
   "help-center": {
     "sidebar": {
       "title": "Hilfe",
@@ -1626,5 +1663,8 @@
     "datetime": {
       "placeholder": "Datum und Zeit auswählen ..."
     }
+  },
+  "sw-context-button": {
+    "ariaLabel": "Kontextmenü öffnen"
   }
 }

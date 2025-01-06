@@ -36,11 +36,11 @@ class ReferenceInvoiceLoaderTest extends TestCase
     {
         parent::setUp();
 
-        $this->referenceInvoiceLoader = $this->getContainer()->get(ReferenceInvoiceLoader::class);
+        $this->referenceInvoiceLoader = static::getContainer()->get(ReferenceInvoiceLoader::class);
         $this->context = Context::createDefaultContext();
         $customerId = $this->createCustomer();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -48,12 +48,12 @@ class ReferenceInvoiceLoaderTest extends TestCase
             ]
         );
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testLoadWithoutDocument(): void
     {
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM `document`');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM `document`');
 
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);

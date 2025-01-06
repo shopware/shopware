@@ -71,15 +71,17 @@
             name="input"
             v-bind="{ placeholder, searchTerm, onSearchTermChange, onKeyDownDelete }"
         >
-            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+            <!-- eslint-disable-next-line vuejs-accessibility/role-has-required-aria-props -->
             <input
                 ref="swSelectInput"
                 class="sw-select-selection-list__input"
                 type="text"
+                role="combobox"
                 :disabled="disabled"
                 :readonly="!enableSearch"
                 :placeholder="showPlaceholder"
                 :value="searchTerm"
+                :aria-label="inputLabel"
                 @input="onSearchTermChange"
                 @keydown.delete="onKeyDownDelete"
                 @keydown.enter="onKeyDownEnter"

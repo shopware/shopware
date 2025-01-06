@@ -3,11 +3,11 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
-use PhpParser\Node\Name\FullyQualified;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
@@ -22,7 +22,7 @@ class PackageAnnotationRule implements Rule
     /**
      * @internal
      */
-    public const PRODUCT_AREA_MAPPING = [
+    private const PRODUCT_AREA_MAPPING = [
         'inventory' => [
             '/Shopware\\\\Core\\\\Content\\\\(Product|ProductExport|Property)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Currency|Unit)\\\\/',
@@ -124,7 +124,11 @@ class PackageAnnotationRule implements Rule
             return [];
         }
 
-        return [\sprintf('This class is missing the "#[Package(...)]" attribute (recommendation: %s)', $area ?? 'unknown')];
+        return [
+            RuleErrorBuilder::message(\sprintf('This class is missing the "#[Package(...)]" attribute (recommendation: %s)', $area ?? 'unknown'))
+                ->identifier('shopware.missingPackageAttribute')
+                ->build(),
+        ];
     }
 
     private function getProductArea(InClassNode $node): ?string
@@ -145,10 +149,7 @@ class PackageAnnotationRule implements Rule
     private function hasPackageAnnotation(InClassNode $class): bool
     {
         foreach ($class->getOriginalNode()->attrGroups as $group) {
-            $attribute = $group->attrs[0];
-
-            /** @var FullyQualified $name */
-            $name = $attribute->name;
+            $name = $group->attrs[0]->name;
 
             if ($name->toString() === Package::class) {
                 return true;

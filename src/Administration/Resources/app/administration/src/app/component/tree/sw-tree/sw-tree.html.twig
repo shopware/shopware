@@ -1,6 +1,10 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tree %}
-<div class="sw-tree">
+<div
+    class="sw-tree"
+    role="tree"
+    :aria-label="$tc(`${translationContext}.general.treeHeadline`)"
+>
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tree_search %}
     <slot name="search">

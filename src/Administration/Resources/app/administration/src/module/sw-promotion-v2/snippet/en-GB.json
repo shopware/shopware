@@ -16,7 +16,8 @@
             "descriptionEmpty": "Boost your sales by discounting your products and services.",
             "placeholderSearchBar": "Search promotions...",
             "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
-            "titleSidebarItemRefresh": "Refresh"
+            "titleSidebarItemRefresh": "Refresh",
+            "duplicatePromotionInfo": "Promotion codes are not duplicated and need to be generated again."
         },
         "detail": {
             "header": {
@@ -38,6 +39,7 @@
                     "nameLabel": "Name",
                     "namePlaceholder": "Enter name...",
                     "priorityLabel": "Priority",
+                    "helpTextPriority": "The priority determines the order in which the promotions are applied. Promotions with higher priority are applied before promotions with lower priority.",
                     "validFromLabel": "Valid from",
                     "validFromPlaceholder": "Select start date...",
                     "validUntilLabel": "Valid until",
@@ -69,6 +71,7 @@
                         "columnCode": "Code",
                         "columnRedeemed": "Redeemed",
                         "columnCustomer": "Customer",
+                        "columnCreatedAt": "Generated at",
                         "textDeleteConfirm": "Are you sure you want to delete the code \"{code}\"? | Are you sure cou want to delete these {count} codes?",
                         "openCustomer": "Open customer",
                         "routingError": "The customer \"{name}\" has not been found.",
@@ -271,7 +274,6 @@
                     "delete": {
                         "confirmTitle": "Delete discount",
                         "confirmText": "Do you really want to delete this discount from the promotion?",
-                        "buttonCancel": "Cancel",
                         "buttonDelete": "Delete discount"
                     },
                     "labelSorting": "Sort by",

@@ -49,10 +49,10 @@ class ProductStreamBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->service = $this->getContainer()->get(ProductStreamBuilder::class);
-        $this->productRepository = $this->getContainer()->get('sales_channel.product.repository');
+        $this->service = static::getContainer()->get(ProductStreamBuilder::class);
+        $this->productRepository = static::getContainer()->get('sales_channel.product.repository');
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
@@ -108,10 +108,10 @@ class ProductStreamBuilderTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product_stream.repository')
+        static::getContainer()->get('product_stream.repository')
             ->create([$stream], Context::createDefaultContext());
 
-        $filters = $this->getContainer()->get(ProductStreamBuilder::class)
+        $filters = static::getContainer()->get(ProductStreamBuilder::class)
             ->buildFilters($ids->get('stream'), Context::createDefaultContext());
 
         $expected = new MultiFilter(MultiFilter::CONNECTION_OR, [
@@ -161,7 +161,7 @@ class ProductStreamBuilderTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product_stream.repository')
+        static::getContainer()->get('product_stream.repository')
             ->create([$stream], Context::createDefaultContext());
 
         $this->createProducts($releaseDates);
@@ -204,7 +204,7 @@ class ProductStreamBuilderTest extends TestCase
 
     private function createTestEntity(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
@@ -235,7 +235,7 @@ class ProductStreamBuilderTest extends TestCase
 
     private function createTestEntityWithoutFilters(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $connection->executeStatement(
             '
@@ -274,7 +274,7 @@ class ProductStreamBuilderTest extends TestCase
             ];
         }
 
-        $this->getContainer()->get('product.repository')->create($products, $this->context);
+        static::getContainer()->get('product.repository')->create($products, $this->context);
         $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
 
         return $products;

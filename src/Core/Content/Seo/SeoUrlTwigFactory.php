@@ -8,21 +8,34 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Filesystem\Path;
+use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Extension\ExtensionInterface;
 use Twig\Loader\ArrayLoader;
 use Twig\Runtime\EscaperRuntime;
 
+/**
+ * @deprecated tag:v6.7.0 - this class will be internal - reason:becomes-internal
+ */
 #[Package('buyers-experience')]
 class SeoUrlTwigFactory
 {
     /**
      * @param ExtensionInterface[] $twigExtensions
+     *
+     * @deprecated tag:v6.7.0 - the parameter twigExtensions and cacheDir will be required - reason:becomes-internal
      */
-    public function createTwigEnvironment(SlugifyInterface $slugify, iterable $twigExtensions = []): Environment
+    public function createTwigEnvironment(SlugifyInterface $slugify, iterable $twigExtensions = [], ?string $cacheDir = null): Environment
     {
         $twig = new TwigEnvironment(new ArrayLoader());
-        $twig->setCache(false);
+
+        if ($cacheDir) {
+            $twig->setCache(new FilesystemCache(Path::join($cacheDir, 'twig', 'seo-cache')));
+        } else {
+            $twig->setCache(false);
+        }
+
         $twig->enableStrictVariables();
         $twig->addExtension(new SlugifyExtension($slugify));
         $twig->addExtension(new PhpSyntaxExtension());

@@ -41,13 +41,13 @@ class EntityReaderTest extends TestCase
         parent::setUp();
 
         $this->entityReader = new EntityReader(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(EntityHydrator::class),
-            $this->getContainer()->get(EntityDefinitionQueryHelper::class),
-            $this->getContainer()->get(SqlQueryParser::class),
-            $this->getContainer()->get(CriteriaQueryBuilder::class),
-            $this->getContainer()->get('logger'),
-            $this->getContainer()->get(CriteriaFieldsResolver::class)
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(EntityHydrator::class),
+            static::getContainer()->get(EntityDefinitionQueryHelper::class),
+            static::getContainer()->get(SqlQueryParser::class),
+            static::getContainer()->get(CriteriaQueryBuilder::class),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get(CriteriaFieldsResolver::class)
         );
     }
 
@@ -55,7 +55,7 @@ class EntityReaderTest extends TestCase
     {
         parent::tearDown();
 
-        $this->getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=1;');
+        static::getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     public function testReadLoadsTranslationsAssociations(): void
@@ -69,7 +69,7 @@ class EntityReaderTest extends TestCase
         $criteria->addAssociations(['translations']);
 
         $products = $this->entityReader->read(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             Context::createDefaultContext(),
         );
@@ -94,7 +94,7 @@ class EntityReaderTest extends TestCase
         $criteria->addFields(['translations.name']);
 
         $products = $this->entityReader->read(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             Context::createDefaultContext(),
         );
@@ -116,7 +116,7 @@ class EntityReaderTest extends TestCase
         );
 
         $products = $this->entityReader->read(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             new Criteria(),
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -141,7 +141,7 @@ class EntityReaderTest extends TestCase
         $criteria->addFields(['name']);
 
         $products = $this->entityReader->read(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -167,7 +167,7 @@ class EntityReaderTest extends TestCase
         $criteria->addFields(['name']);
 
         $products = $this->entityReader->read(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -208,7 +208,7 @@ class EntityReaderTest extends TestCase
         $context->setConsiderInheritance(true);
 
         $products = $this->entityReader->read(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             $context,
         );
@@ -246,7 +246,7 @@ class EntityReaderTest extends TestCase
         $context->setConsiderInheritance(true);
 
         $products = $this->entityReader->read(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             $context,
         );
@@ -273,7 +273,7 @@ class EntityReaderTest extends TestCase
             );
 
         /** @var EntityRepository<ProductCollection> $entityRepository */
-        $entityRepository = $this->getContainer()->get('product.repository');
+        $entityRepository = static::getContainer()->get('product.repository');
         $entityRepository->create(
             [$productBuilder->build()],
             Context::createDefaultContext()
@@ -313,7 +313,7 @@ class EntityReaderTest extends TestCase
             $productBuilder->parent($parentProductNumber);
         }
 
-        $this->getContainer()->get('product.repository')->create(
+        static::getContainer()->get('product.repository')->create(
             [$productBuilder->build()],
             Context::createDefaultContext()
         );

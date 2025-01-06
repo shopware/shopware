@@ -12,11 +12,15 @@ class AccountLoginPage extends Page
 {
     /**
      * @var CountryCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $countries;
 
     /**
      * @var SalutationCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salutations;
 

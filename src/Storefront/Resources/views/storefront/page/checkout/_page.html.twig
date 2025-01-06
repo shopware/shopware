@@ -1,5 +1,9 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
 
+{% block base_body_skip_to_content %}
+    {% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' %}
+{% endblock %}
+
 {% block base_flashbags %}{% endblock %}
 
 {% block base_content %}

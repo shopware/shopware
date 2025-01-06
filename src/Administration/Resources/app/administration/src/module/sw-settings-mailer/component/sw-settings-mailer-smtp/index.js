@@ -33,6 +33,10 @@ export default {
     },
 
     computed: {
+        isOauth() {
+            return this.mailerSettings['core.mailerSettings.emailAgent'] === 'smtp+oauth';
+        },
+
         encryptionOptions() {
             return [
                 {

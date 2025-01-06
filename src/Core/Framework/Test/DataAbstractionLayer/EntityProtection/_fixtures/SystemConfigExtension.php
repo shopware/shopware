@@ -25,4 +25,9 @@ class SystemConfigExtension extends EntityExtension
     {
         $protections->add(new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE));
     }
+
+    public function getEntityName(): string
+    {
+        return SystemConfigDefinition::ENTITY_NAME;
+    }
 }

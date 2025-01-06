@@ -23,14 +23,14 @@ export default function initializeWindow(): void {
         }
     });
 
-    Shopware.ExtensionAPI.handle('windowRouterPush', ({ name, params, path, replace }) => {
+    Shopware.ExtensionAPI.handle('windowRouterPush', async ({ name, params, path, replace }) => {
         const $router = Shopware.Application.view?.router as unknown as Router;
 
         if (!$router) {
             return;
         }
 
-        void $router.push({
+        await $router.push({
             name: name && name.length > 0 ? name : undefined,
             params,
             path: path && path.length > 0 ? path : '',

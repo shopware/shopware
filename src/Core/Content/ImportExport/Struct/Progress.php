@@ -16,31 +16,43 @@ class Progress extends Struct
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $logId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $invalidRecordsLogId;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $offset = 0;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $total;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $processedRecords = 0;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $state;
 

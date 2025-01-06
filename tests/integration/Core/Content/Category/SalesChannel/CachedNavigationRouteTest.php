@@ -38,7 +38,7 @@ class CachedNavigationRouteTest extends TestCase
         Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
-        $this->context = $this->getContainer()
+        $this->context = static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
@@ -49,23 +49,23 @@ class CachedNavigationRouteTest extends TestCase
         // to improve performance, we generate the required data one time and test different case with same data set
         $this->initData($ids);
 
-        $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
+        static::getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             NavigationRouteCacheTagsEvent::class,
             static function (NavigationRouteCacheTagsEvent $event): void {
                 $event->addTags([self::ALL_TAG]);
             }
         );
 
-        $route = $this->getContainer()->get(NavigationRoute::class);
+        $route = static::getContainer()->get(NavigationRoute::class);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             NavigationRouteCacheTagsEvent::class,
             $listener
         );
@@ -73,12 +73,12 @@ class CachedNavigationRouteTest extends TestCase
         $context = $this->context;
         $root = $context->getSalesChannel()->getNavigationCategoryId();
 
-        $id = $before($ids, $context, $this->getContainer());
+        $id = $before($ids, $context, static::getContainer());
 
         $route->load($id, $root, self::request($depth), $context, new Criteria());
         $route->load($id, $root, self::request($depth), $context, new Criteria());
 
-        $after($ids, $context, $this->getContainer());
+        $after($ids, $context, static::getContainer());
 
         $route->load($id, $root, self::request($depth), $context, new Criteria());
         $response = $route->load($id, $root, self::request($depth), $context, new Criteria());
@@ -187,6 +187,6 @@ class CachedNavigationRouteTest extends TestCase
             ]],
         ];
 
-        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
     }
 }

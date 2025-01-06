@@ -350,7 +350,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
-     * @param array{quantity?: int, stackable?: bool, removable?: bool} $defaultValues
+     * @param ?array{quantity: int, stackable: bool, removable: bool} $defaultValues
      *
      * @return array<string|int, mixed>
      */
@@ -365,31 +365,29 @@ class CartLineItemController extends StorefrontController
 
             $lineItemData->set('payload', json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
         }
+
         $lineItemArray = $lineItemData->all();
+        if ($defaultValues !== null) {
+            $lineItemArray = array_replace($defaultValues, $lineItemArray);
+        }
 
         if (isset($lineItemArray['quantity'])) {
             $lineItemArray['quantity'] = (int) $lineItemArray['quantity'];
-        } elseif (isset($defaultValues['quantity'])) {
-            $lineItemArray['quantity'] = $defaultValues['quantity'];
         }
 
         if (isset($lineItemArray['stackable'])) {
             $lineItemArray['stackable'] = (bool) $lineItemArray['stackable'];
-        } elseif (isset($defaultValues['stackable'])) {
-            $lineItemArray['stackable'] = $defaultValues['stackable'];
         }
 
         if (isset($lineItemArray['removable'])) {
             $lineItemArray['removable'] = (bool) $lineItemArray['removable'];
-        } elseif (isset($defaultValues['removable'])) {
-            $lineItemArray['removable'] = $defaultValues['removable'];
         }
 
-        if (isset($lineItemArray['priceDefinition']) && isset($lineItemArray['priceDefinition']['quantity'])) {
+        if (isset($lineItemArray['priceDefinition']['quantity'])) {
             $lineItemArray['priceDefinition']['quantity'] = (int) $lineItemArray['priceDefinition']['quantity'];
         }
 
-        if (isset($lineItemArray['priceDefinition']) && isset($lineItemArray['priceDefinition']['isCalculated'])) {
+        if (isset($lineItemArray['priceDefinition']['isCalculated'])) {
             $lineItemArray['priceDefinition']['isCalculated'] = (int) $lineItemArray['priceDefinition']['isCalculated'];
         }
 

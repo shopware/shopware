@@ -53,6 +53,7 @@ export default {
             sortBy: 'url',
             sortDirection: 'ASC',
             error: null,
+            isEditingDomain: false,
         };
     },
 
@@ -62,7 +63,7 @@ export default {
         },
 
         currentDomainModalTitle() {
-            if (this.currentDomain?.isNew()) {
+            if (!this.isEditingDomain) {
                 return this.$t('sw-sales-channel.detail.titleCreateDomain');
             }
 
@@ -72,7 +73,7 @@ export default {
         },
 
         currentDomainModalButtonText() {
-            if (this.currentDomain?.isNew()) {
+            if (!this.isEditingDomain) {
                 return this.$t('sw-sales-channel.detail.buttonAddDomain');
             }
             return this.$t('sw-sales-channel.detail.buttonEditDomain');
@@ -263,6 +264,7 @@ export default {
             }
 
             this.currentDomain = domain;
+            this.isEditingDomain = false;
         },
 
         async onClickAddNewDomain() {
@@ -279,21 +281,24 @@ export default {
                 return;
             }
 
-            if (this.currentDomain.isNew()) {
+            if (!this.isEditingDomain) {
                 this.salesChannel.domains.add(this.currentDomain);
             }
 
             this.currentDomain = null;
+            this.isEditingDomain = false;
         },
 
         onClickEditDomain(domain) {
             this.currentDomain = domain;
             this.setCurrentDomainBackup(this.currentDomain);
+            this.isEditingDomain = true;
         },
 
         onCloseCreateDomainModal() {
             this.resetCurrentDomainToBackup();
             this.currentDomain = null;
+            this.isEditingDomain = false;
         },
 
         onClickDeleteDomain(domain) {

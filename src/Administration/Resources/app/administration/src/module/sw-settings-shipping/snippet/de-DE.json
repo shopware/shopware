@@ -8,7 +8,6 @@
     "list": {
       "textHeadline": "Versand",
       "buttonAddShippingMethod": "Versandart anlegen",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "columnName": "Name",
       "columnDescription": "Beschreibung",
@@ -44,7 +43,6 @@
       "placeholderTechnicalName": "Technischen Namen eingeben ...",
       "placeholderPosition": "Position eingeben ...",
       "placeholderDescription": "Beschreibung eingeben ...",
-      "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "labelSetRules": "Regel auswählen",
       "labelBasicInfo": "Basisinformation",
@@ -77,9 +75,7 @@
       "addNewShippingPrice": "Neue Preisregel hinzufügen",
       "duplicateMatrixContextLabel": "Preismatrix duplizieren",
       "deleteMatrixContextLabel": "Preismatrix löschen",
-      "contextMenuDuplicatePrice": "Preisregel duplizieren",
       "contextMenuDeletePrice": "Preisregel löschen",
-      "contextMenuModifyPrice": "Preisregel ändern",
       "selectProperty": "Warenkorb-Eigenschaft wählen ...",
       "useRules": "Erstelle eine Regel",
       "emptyText": "Möchtest Du die Preismatrix auf vorgegebenen Warenkorbeigenschaften oder individuell erstellten Regeln basieren lassen? Bitte auswählen:",
@@ -100,18 +96,18 @@
       "columnCalculationRule": "Regel",
       "buttonAddAdditionalPriceMatrix": "Preismatrix hinzufügen",
       "any": "∞",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "textDeleteConfirm": "Möchtest Du die Preismatrix \"{name}\" wirklich löschen? | Möchtest Du die Preismatrix wirklich löschen?",
       "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
       "labelGrossNet": "(Brutto / Netto)",
-      "ruleAlreadyUsed": "Diese Regel wird bereits für eine Preismatrix genutzt.",
+      "ruleAlreadyUsedOrRestricted": "Diese Regel wird bereits verwendet oder enthält Bedingungen, die nicht auf erweiterte Preise angewendet werden können.",
       "ruleAlreadyUsedInMatrix": "Diese Regel wird bereits in dieser Preismatrix genutzt.",
       "textOr": "oder",
       "chooseOrCreateRule": "Wähle oder erstelle eine Regel",
       "unrestrictedRuleAlreadyExistsMessage": "Es gibt bereits eine Preismatrix ohne Einschränkungen.",
       "newMatrixAlreadyExists": "Es existiert bereits eine neue Preismatrix ohne zugewiesene Regel.",
-      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden."
+      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden.",
+      "buttonLoadAllPrices": "Alle Preise laden"
     },
     "sidebar": {
       "labelUseAsLogo": "Als Logo verwenden"

@@ -29,7 +29,7 @@ class ProductDetailRouteBench extends AbstractBenchCase
             throw new \Exception('Customer not logged in for bench tests which require it!');
         }
 
-        $this->getContainer()->get(Connection::class)->beginTransaction();
+        static::getContainer()->get(Connection::class)->beginTransaction();
     }
 
     #[Bench\BeforeMethods(['setup'])]
@@ -37,7 +37,7 @@ class ProductDetailRouteBench extends AbstractBenchCase
     #[Bench\Assert('mean(variant.time.avg) < 30ms +/- 5ms')]
     public function bench_load_product_detail_route_with_logged_out_user(): void
     {
-        $this->getContainer()->get(ProductDetailRoute::class)
+        static::getContainer()->get(ProductDetailRoute::class)
             ->load($this->ids->get(self::PRODUCT_KEY), new Request(), $this->context, new Criteria());
     }
 
@@ -46,7 +46,7 @@ class ProductDetailRouteBench extends AbstractBenchCase
     #[Bench\Assert('mean(variant.time.avg) < 30ms +/- 5ms')]
     public function bench_load_product_detail_route_with_logged_in_user(): void
     {
-        $this->getContainer()->get(ProductDetailRoute::class)
+        static::getContainer()->get(ProductDetailRoute::class)
             ->load($this->ids->get(self::PRODUCT_KEY), new Request(), $this->context, new Criteria());
     }
 }

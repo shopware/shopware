@@ -25,7 +25,7 @@
                         {% endblock %}
 
                         {% block component_product_wishlist_remove_submit %}
-                            <button type="submit" class="btn btn-light product-wishlist-btn product-wishlist-btn-remove" aria-label="{{ 'wishlist.remove'|trans({ '%product_name%': product.translated.name })|striptags }}">
+                            <button type="submit" class="btn btn-light product-wishlist-btn product-wishlist-btn-remove" aria-label="{{ 'wishlist.remove'|trans({ '%product_name%': product.translated.name })|striptags }}" title="{{ 'listing.removeFromWishlist'|trans|sw_sanitize }}">
                                 {% sw_icon 'x' style { class: 'icon-wishlist icon-wishlist-remove', size: size, pack: 'solid', ariaHidden: true } %}
                             </button>
                         {% endblock %}

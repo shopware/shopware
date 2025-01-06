@@ -24,7 +24,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 {
     public function testImportExportHandlerDispatchesMessage(): void
     {
-        $messageBus = $this->getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.bus.shopware');
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
 
         $importExportMessageCount = \count(
@@ -33,15 +33,15 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
             })
         );
 
-        $factory = $this->getContainer()->get(ImportExportFactory::class);
+        $factory = static::getContainer()->get(ImportExportFactory::class);
 
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $context = Context::createDefaultContext();
 
         $importExportHandler = new ImportExportHandler($messageBus, $factory, $eventDispatcher);
 
-        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $importExportService = static::getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(PropertyGroupOptionDefinition::ENTITY_NAME);
 
@@ -81,7 +81,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
     public function testImportExportHandlerOnError(): void
     {
-        $messageBus = $this->getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.bus.shopware');
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
 
         $importExportMessageCount
@@ -91,12 +91,12 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
                 })
             );
 
-        $factory = $this->getContainer()->get(ImportExportFactory::class);
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $factory = static::getContainer()->get(ImportExportFactory::class);
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
         $context = Context::createDefaultContext();
 
         $importExportHandler = new ImportExportHandler($messageBus, $factory, $eventDispatcher);
-        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $importExportService = static::getContainer()->get(ImportExportService::class);
         $profileId = $this->getDefaultProfileId(PropertyGroupOptionDefinition::ENTITY_NAME);
 
         $expireDate = new \DateTimeImmutable('2099-01-01');

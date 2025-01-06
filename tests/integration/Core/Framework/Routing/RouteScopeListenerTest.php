@@ -28,7 +28,7 @@ class RouteScopeListenerTest extends TestCase
 
     public function testRouteScopeListenerFailsHardWithoutMasterRequest(): void
     {
-        $listener = $this->getContainer()->get(RouteScopeListener::class);
+        $listener = static::getContainer()->get(RouteScopeListener::class);
 
         $request = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
 
@@ -41,13 +41,13 @@ class RouteScopeListenerTest extends TestCase
 
     public function testRouteScopeListenerIgnoresSymfonyControllers(): void
     {
-        $listener = $this->getContainer()->get(RouteScopeListener::class);
+        $listener = static::getContainer()->get(RouteScopeListener::class);
 
         $request = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
 
         $event = $this->createEvent($request);
         /** @var ProfilerController $profilerController */
-        $profilerController = $this->getContainer()->get('web_profiler.controller.profiler');
+        $profilerController = static::getContainer()->get('web_profiler.controller.profiler');
         $event->setController($profilerController->panelAction(...));
 
         $listener->checkScope($event);
@@ -55,7 +55,7 @@ class RouteScopeListenerTest extends TestCase
 
     public function testRouteScopeListenerFailsHardWithoutAnnotation(): void
     {
-        $listener = $this->getContainer()->get(RouteScopeListener::class);
+        $listener = static::getContainer()->get(RouteScopeListener::class);
 
         $request = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
         $request->attributes->remove(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
@@ -68,8 +68,8 @@ class RouteScopeListenerTest extends TestCase
 
     public function testRouteScopeListenerHandlesValidAdminRequests(): void
     {
-        $stack = $this->getContainer()->get(RequestStack::class);
-        $listener = $this->getContainer()->get(RouteScopeListener::class);
+        $stack = static::getContainer()->get(RequestStack::class);
+        $listener = static::getContainer()->get(RouteScopeListener::class);
 
         $request = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
 
@@ -81,8 +81,8 @@ class RouteScopeListenerTest extends TestCase
 
     public function testRouteScopeListenerDeniesInvalidAdminRequest(): void
     {
-        $stack = $this->getContainer()->get(RequestStack::class);
-        $listener = $this->getContainer()->get(RouteScopeListener::class);
+        $stack = static::getContainer()->get(RequestStack::class);
+        $listener = static::getContainer()->get(RouteScopeListener::class);
 
         $request = $this->createRequest('/api', 'api', new SalesChannelApiSource(Uuid::randomHex()));
 
@@ -95,8 +95,8 @@ class RouteScopeListenerTest extends TestCase
 
     public function testSubrequestsAreValidatedAgainstTheMasterScope(): void
     {
-        $stack = $this->getContainer()->get(RequestStack::class);
-        $listener = $this->getContainer()->get(RouteScopeListener::class);
+        $stack = static::getContainer()->get(RequestStack::class);
+        $listener = static::getContainer()->get(RouteScopeListener::class);
 
         $requestMaster = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
         $requestSub = $this->createRequest('/api', 'api', new SalesChannelApiSource(Uuid::randomHex()));
@@ -111,10 +111,10 @@ class RouteScopeListenerTest extends TestCase
 
     private function createEvent(Request $request): ControllerEvent
     {
-        $controller = $this->getContainer()->get(ApiController::class);
+        $controller = static::getContainer()->get(ApiController::class);
 
         return new ControllerEvent(
-            $this->getContainer()->get('kernel'),
+            static::getContainer()->get('kernel'),
             $controller->clone(...),
             $request,
             HttpKernelInterface::SUB_REQUEST

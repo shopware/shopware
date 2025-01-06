@@ -23,11 +23,11 @@ trait CustomFieldTypeTestBehaviour
         $manifest = Manifest::createFromXmlFile($manifestPath);
 
         $context = Context::createDefaultContext();
-        $appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $appLifecycle->install($manifest, true, $context);
 
         /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $criteria = new Criteria();
         $criteria->addAssociation('customFieldSets.customFields');
 

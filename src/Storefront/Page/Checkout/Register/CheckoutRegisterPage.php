@@ -14,21 +14,29 @@ class CheckoutRegisterPage extends Page
 {
     /**
      * @var CountryCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $countries;
 
     /**
      * @var CustomerAddressEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $address;
 
     /**
      * @var SalutationCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salutations;
 
     /**
      * @var Cart
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cart;
 

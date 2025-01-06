@@ -35,13 +35,13 @@ class AppLifecycleSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
 
-        $userId = $this->getContainer()->get('user.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $userId = static::getContainer()->get('user.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
         $source = new AdminApiSource($userId);
         $source->setIsAdmin(true);
 
-        $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
 
@@ -60,7 +60,7 @@ class AppLifecycleSubscriberTest extends TestCase
             'roleId' => $apps->first()->getAclRoleId(),
         ];
 
-        $themeRepo = $this->getContainer()->get('theme.repository');
+        $themeRepo = static::getContainer()->get('theme.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $app['name']));

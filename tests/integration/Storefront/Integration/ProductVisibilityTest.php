@@ -65,14 +65,14 @@ class ProductVisibilityTest extends TestCase
     {
         parent::setUp();
 
-        $this->searchPageLoader = $this->getContainer()->get(SearchPageLoader::class);
-        $this->suggestPageLoader = $this->getContainer()->get(SuggestPageLoader::class);
-        $this->productPageLoader = $this->getContainer()->get(ProductPageLoader::class);
+        $this->searchPageLoader = static::getContainer()->get(SearchPageLoader::class);
+        $this->suggestPageLoader = static::getContainer()->get(SuggestPageLoader::class);
+        $this->productPageLoader = static::getContainer()->get(ProductPageLoader::class);
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
-        $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
+        $this->searchKeywordUpdater = static::getContainer()->get(SearchKeywordUpdater::class);
         $this->resetSearchKeywordUpdaterConfig();
 
         $this->ids = new IdsCollection();
@@ -86,7 +86,7 @@ class ProductVisibilityTest extends TestCase
         $request = new Request();
         $request->attributes->set('_route_params', ['navigationId' => $this->categoryId]);
 
-        $data = $this->getContainer()
+        $data = static::getContainer()
             ->get(ProductListingRoute::class)
             ->load($this->categoryId, $request, $salesChannelContext, new Criteria())
             ->getResult();
@@ -96,7 +96,7 @@ class ProductVisibilityTest extends TestCase
 
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
 
-        $data = $this->getContainer()
+        $data = static::getContainer()
             ->get(ProductListingRoute::class)
             ->load($this->categoryId, $request, $salesChannelContext, new Criteria())
             ->getResult();
@@ -246,7 +246,7 @@ class ProductVisibilityTest extends TestCase
     {
         $id = $this->ids->create($key);
 
-        $snippetSetId = (string) $this->getContainer()->get(Connection::class)
+        $snippetSetId = (string) static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT id FROM snippet_set LIMIT 1');
 
         $data = [
@@ -282,7 +282,7 @@ class ProductVisibilityTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
+        static::getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
 
         return $id;
     }

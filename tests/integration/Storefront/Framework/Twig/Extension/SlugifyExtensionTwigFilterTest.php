@@ -37,7 +37,7 @@ class SlugifyExtensionTwigFilterTest extends TestCase
 
     private function renderTestTemplate(?string $input): string
     {
-        $twig = $this->getContainer()->get('twig');
+        $twig = static::getContainer()->get('twig');
 
         $originalLoader = $twig->getLoader();
         $twig->setLoader(new ArrayLoader([

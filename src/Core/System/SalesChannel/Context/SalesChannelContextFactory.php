@@ -194,8 +194,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $id = $customer->getLastPaymentMethodId();
 
-        if (!Feature::isActive('v6.7.0.0') && $id === null) {
-            $id = $customer->getDefaultPaymentMethodId();
+        if ($id === null) {
+            Feature::callSilentIfInactive('v6.7.0.0', function () use ($customer, &$id): void {
+                $id = $customer->getDefaultPaymentMethodId();
+            });
         }
 
         if ($id === null || $id === $context->getPaymentMethod()->getId()) {
@@ -205,6 +207,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('media');
+        $criteria->addAssociation('appPaymentMethod');
         $criteria->setTitle('context-factory::payment-method');
         $criteria->addFilter(new EqualsFilter('active', 1));
         $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannel()->getId()));

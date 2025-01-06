@@ -77,8 +77,8 @@ class SearchControllerTest extends TestCase
         $this->container->set(RequestTransformerInterface::class, $this->createMock(RequestTransformerInterface::class));
         $this->container->set('http_kernel', $this->createMock(HttpKernelInterface::class));
         $this->container->set('router', static::createMock(RouterInterface::class));
+        $this->container->set('twig', static::createMock(Environment::class));
 
-        $this->searchController->setTwig(static::createMock(Environment::class));
         $this->searchController->setContainer($this->container);
     }
 
@@ -145,7 +145,7 @@ class SearchControllerTest extends TestCase
             ->with('@Storefront/storefront/page/search/index.html.twig', $parameters)
             ->willReturn('foo');
 
-        $this->searchController->setTwig($twig);
+        $this->container->set('twig', $twig);
 
         $this->container->set('router', $this->createMock(RouterInterface::class));
 
@@ -210,7 +210,7 @@ class SearchControllerTest extends TestCase
             ->with('@Storefront/storefront/page/search/index.html.twig', $parameters)
             ->willReturn('foo');
 
-        $this->searchController->setTwig($twig);
+        $this->container->set('twig', $twig);
 
         $this->container->set('router', $this->createMock(RouterInterface::class));
 
@@ -238,7 +238,7 @@ class SearchControllerTest extends TestCase
         $this->container->set('request_stack', $requestStack);
 
         $twig = static::createMock(Environment::class);
-        $this->searchController->setTwig($twig);
+        $this->container->set('twig', $twig);
 
         $router = static::createMock(RouterInterface::class);
         $router->expects(static::once())

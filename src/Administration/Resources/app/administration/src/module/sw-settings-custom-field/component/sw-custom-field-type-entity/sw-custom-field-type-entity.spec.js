@@ -14,7 +14,7 @@ responses.addResponse({
     },
 });
 
-async function createWrapper(privileges = [], isNew = true) {
+async function createWrapper(privileges = [], isNew = true, currentCustomField = {}) {
     return mount(
         await wrapTestComponent('sw-custom-field-type-entity', {
             sync: true,
@@ -63,6 +63,7 @@ async function createWrapper(privileges = [], isNew = true) {
                         options: [],
                     },
                     _isNew: isNew,
+                    ...currentCustomField,
                 },
                 set: {
                     config: {},
@@ -110,5 +111,16 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-ent
         await flushPromises();
 
         expect(wrapper.find('sw-switch-field-stub').attributes('disabled')).toBe(expected);
+    });
+
+    it('should only allow valid component names', async () => {
+        const wrapper = await createWrapper([], true, {
+            config: {
+                componentName: 'foo',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.config.componentName).toBe('sw-entity-single-select');
     });
 });

@@ -12,6 +12,14 @@
     />
     {% endblock %}
 
+    {% block sw_cms_element_youtube_video_config_title %}
+    <sw-text-field
+        v-model:value="element.config.iframeTitle.value"
+        :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoTitle')"
+        :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoTitle')"
+    />
+    {% endblock %}
+
     <div class="sw-cms-el-config-youtube-video__switches">
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

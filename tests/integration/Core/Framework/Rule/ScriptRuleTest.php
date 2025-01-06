@@ -69,11 +69,11 @@ class ScriptRuleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
-        $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->appStateService = $this->getContainer()->get(AppStateService::class);
-        $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $this->ruleRepository = static::getContainer()->get('rule.repository');
+        $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->appStateService = static::getContainer()->get(AppStateService::class);
+        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -91,7 +91,7 @@ class ScriptRuleTest extends TestCase
             'values' => $values,
             'script' => $script,
             'debug' => false,
-            'cacheDir' => $this->getContainer()->getParameter('kernel.cache_dir'),
+            'cacheDir' => static::getContainer()->getParameter('kernel.cache_dir'),
         ]);
 
         if ($expectedTrue) {
@@ -119,7 +119,7 @@ class ScriptRuleTest extends TestCase
             'values' => [],
             'lastModified' => (new \DateTimeImmutable())->sub(new \DateInterval('P1D')),
             'debug' => false,
-            'cacheDir' => $this->getContainer()->getParameter('kernel.cache_dir'),
+            'cacheDir' => static::getContainer()->getParameter('kernel.cache_dir'),
         ]);
 
         static::assertFalse($rule->match($scope));
@@ -136,7 +136,7 @@ class ScriptRuleTest extends TestCase
             'script' => '{% return true %}',
             'values' => [],
             'debug' => false,
-            'cacheDir' => $this->getContainer()->getParameter('kernel.cache_dir'),
+            'cacheDir' => static::getContainer()->getParameter('kernel.cache_dir'),
         ]);
 
         static::assertTrue($rule->match($scope));
@@ -388,7 +388,7 @@ class ScriptRuleTest extends TestCase
 
     private function createSalesChannelContext(): SalesChannelContext
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }

@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Extension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class CartExtension extends Struct
 {
     /**
@@ -16,11 +16,15 @@ class CartExtension extends Struct
 
     /**
      * @var array<string>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $addedCodes = [];
 
     /**
      * @var array<string>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $blockedPromotionIds = [];
 

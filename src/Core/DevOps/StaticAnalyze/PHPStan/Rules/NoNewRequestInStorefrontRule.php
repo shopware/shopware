@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('core')]
 class NoNewRequestInStorefrontRule implements Rule
 {
-    public const SHOPWARE_STOREFRONT_CONTROLLER = 'Shopware\\Storefront\\Controller';
+    private const SHOPWARE_STOREFRONT_CONTROLLER = 'Shopware\\Storefront\\Controller';
 
     public function getNodeType(): string
     {

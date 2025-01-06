@@ -57,9 +57,9 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->customFieldService = $this->getContainer()->get(CustomFieldService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->customFieldService = static::getContainer()->get(CustomFieldService::class);
     }
 
     protected function tearDown(): void
@@ -89,8 +89,6 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     public function testIndexing(): IdsCollection
     {
-        static::expectNotToPerformAssertions();
-
         $this->connection->executeStatement('DELETE FROM product');
 
         $this->clearElasticsearch();
@@ -302,7 +300,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     /**
@@ -444,14 +442,14 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     private function registerCustomFieldsMapping(): void
     {
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
             $event->setMapping('evolvesTo', CustomFieldTypes::SELECT);
             $event->setMapping('evolvesText', CustomFieldTypes::TEXT);
         });
 
-        $definition = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
+        $definition = static::getContainer()->get(ElasticsearchIndexingUtils::class);
         $class = new \ReflectionClass($definition);
         $reflectionProperty = $class->getProperty('customFieldsTypes');
         $reflectionProperty->setAccessible(true);

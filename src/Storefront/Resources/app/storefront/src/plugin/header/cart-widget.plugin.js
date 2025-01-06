@@ -56,7 +56,9 @@ export default class CartWidgetPlugin extends Plugin {
             }
 
             Storage.setItem(this.options.cartWidgetStorageKey, content);
-            this.el.innerHTML = content;
+            if (content.length) {
+                this.el.innerHTML = content;
+            }
 
             this.$emitter.publish('fetch', { content });
         });

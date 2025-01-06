@@ -225,6 +225,7 @@
                 size="small"
                 :min="getMinItemPrice(item.id)"
                 :digits="order.itemRounding.decimals"
+                number-align-end
                 @update:value="checkItemPrice($event, item)"
             />
             {% endblock %}
@@ -265,6 +266,7 @@
                 :min="1"
                 size="small"
                 placeholder="0"
+                number-align-end
                 @update:value="updateItemQuantity(item)"
             />
             {% endblock %}
@@ -293,6 +295,7 @@
                 name="sw-field--item-priceDefinition-taxRules[0]-taxRate"
                 size="small"
                 placeholder="0"
+                number-align-end
             />
             {% endblock %}
 

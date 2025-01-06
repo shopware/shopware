@@ -42,6 +42,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.setReady(false);
         // @ts-ignore
         this.canvas = this.el as HTMLCanvasElement;
+        this.canvas.tabIndex = 0;
         if (this.camera == undefined || force) {
             // eslint-disable-next-line
             this.camera = new window.threeJs.PerspectiveCamera( 70, this.canvas.clientWidth / this.canvas.clientHeight, 0.01, 10 );

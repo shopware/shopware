@@ -15,6 +15,8 @@ class PaymentMethodRouteResponse extends StoreApiResponse
 {
     /**
      * @var EntitySearchResult<PaymentMethodCollection>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

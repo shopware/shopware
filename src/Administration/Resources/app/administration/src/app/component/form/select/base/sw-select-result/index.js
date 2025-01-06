@@ -57,6 +57,11 @@ Component.register('sw-select-result', {
                 ].includes(value);
             },
         },
+        ariaLabel: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {
@@ -121,8 +126,12 @@ Component.register('sw-select-result', {
             if (selectedItemIndex === this.index) this.onClickResult({});
         },
 
-        checkIfActive(activeItemIndex) {
+        checkIfActive(activeItemIndex, { shouldFocus } = { shouldFocus: false }) {
             this.active = this.index === activeItemIndex;
+
+            if (this.active && shouldFocus) {
+                this.$el.focus();
+            }
         },
 
         onClickResult() {

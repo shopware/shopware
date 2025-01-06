@@ -8,29 +8,41 @@
         {% set videoUrl = 'https://www.youtube.com/embed/' %}
     {% endif %}
 
-    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' ~ 'rel=0' ~ '&' %}
+    {% set locale = app.request.locale | split('-')[0] | default('en') %}
+
+    {# initialize with default values #}
+    {% set queryParams = {
+        rel: '0',
+        cc_load_policy: '1',
+        cc_lang_pref: locale,
+        hl: locale,
+        disablekb: '1'
+    } %}
 
     {% if config.autoPlay.value %}
-       {% set videoUrl = videoUrl ~ 'autoplay=1' ~ '&' %}
+        {% set queryParams = queryParams | merge({ autoplay: '1' }) %}
     {% endif %}
 
     {% if config.loop.value %}
-        {% set videoUrl = videoUrl ~ 'loop=1' ~ '&' ~ 'playlist=' ~ config.videoID.value ~ '&' %}
+        {% set queryParams = queryParams | merge({
+            loop: '1',
+            playlist: config.videoID.value
+        }) %}
     {% endif %}
 
     {% if config.showControls.value == false %}
-        {% set videoUrl = videoUrl ~ 'controls=0' ~ '&' %}
+        {% set queryParams = queryParams | merge({ controls: '0' }) %}
     {% endif %}
 
     {% if config.start.value > 0 %}
-        {% set videoUrl = videoUrl ~ 'start=' ~ config.start.value ~ '&' %}
+        {% set queryParams = queryParams | merge({ start: config.start.value }) %}
     {% endif %}
 
     {% if config.end.value == not null %}
-        {% set videoUrl = videoUrl ~ 'end=' ~ config.end.value ~ '&' %}
+        {% set queryParams = queryParams | merge({ end: config.end.value }) %}
     {% endif %}
 
-    {% set videoUrl = videoUrl ~ 'disablekb=1' %}
+    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' ~ (queryParams | url_encode) %}
 
     {% if config.displayMode.value == 'standard' or config.displayMode.value == null %}
         {% set displayMode = '' %}
@@ -45,6 +57,7 @@
             {% if config.needsConfirmation.value == false %}
                 <iframe class="{{ iframeClass }}"
                         src="{{ videoUrl }}"
+                        title="{{ config.iframeTitle.value }}"
                         allowfullscreen="allowfullscreen">
                 </iframe>
             {% else %}

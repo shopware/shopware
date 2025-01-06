@@ -17,7 +17,7 @@ trait ShippingMethodPricesTestBehaviour
     /**
      * @var array<mixed>
      */
-    private $oldValues = [];
+    private array $oldValues = [];
 
     /**
      * read all shipping method prices from db, store them in oldValues variable

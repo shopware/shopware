@@ -17,46 +17,64 @@ class SalesChannelTypeEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $manufacturer;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $description;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $descriptionLong;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $coverUrl;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $iconName;
 
     /**
      * @var array|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $screenshotUrls;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannels;
 
     /**
      * @var SalesChannelTypeTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 

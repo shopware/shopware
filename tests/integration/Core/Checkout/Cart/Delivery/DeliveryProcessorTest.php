@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,15 +43,20 @@ class DeliveryProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+        $shippingMethodCriteria = new Criteria([$this->salesChannelContext->getShippingMethod()->getId()]);
+        $shippingMethodCriteria->addAssociation('media');
+        $shippingMethodCriteria->addAssociation('deliveryTime');
+
+        $this->salesChannelContext->assign([
+            'shippingMethod' => static::getContainer()->get('shipping_method.repository')->search($shippingMethodCriteria, $this->salesChannelContext->getContext())->first(),
+        ]);
 
         $shippingMethodPriceEntity = new ShippingMethodPriceEntity();
         $shippingMethodPriceEntity->setUniqueIdentifier('test');
@@ -61,7 +67,7 @@ class DeliveryProcessorTest extends TestCase
 
     public function testProcessShouldRecalculateAll(): void
     {
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        $deliveryProcessor = static::getContainer()->get(DeliveryProcessor::class);
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(
@@ -104,7 +110,7 @@ class DeliveryProcessorTest extends TestCase
     {
         $factor = 1.1;
         $this->salesChannelContext->getContext()->assign(['currencyFactor' => $factor]);
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        $deliveryProcessor = static::getContainer()->get(DeliveryProcessor::class);
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(
@@ -157,7 +163,7 @@ class DeliveryProcessorTest extends TestCase
 
     public function testDeliveriesContainDiscountButSkipRecalculation(): void
     {
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        $deliveryProcessor = static::getContainer()->get(DeliveryProcessor::class);
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(

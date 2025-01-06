@@ -11,16 +11,22 @@ class ImageSliderItemStruct extends Struct
 {
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $url;
 
     /**
      * @var bool|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $newTab;
 
     /**
      * @var MediaEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $media;
 

@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\BillingStateRule;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,21 +27,21 @@ class BillingStateRuleTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<RuleCollection>
      */
-    private $ruleRepository;
+    private EntityRepository $ruleRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<RuleConditionCollection>
      */
-    private $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
-        $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
+        $this->ruleRepository = static::getContainer()->get('rule.repository');
+        $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
     }
 

@@ -201,7 +201,7 @@
         }
 
         function setLastActivity() {
-            document.cookie = 'lastActivity='+Math.round(Date.now() / 1000)+';path=/admin';
+            localStorage.setItem('lastActivity', `${Date.now()}`);
         }
     </script>
 {% endblock %}

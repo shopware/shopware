@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,20 +27,17 @@ class CustomerRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('customer.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('customer.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testGetNoDuplicateMappingTableException(): void
@@ -57,10 +55,10 @@ class CustomerRepositoryTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('customer.repository')
+        static::getContainer()->get('customer.repository')
             ->update([$update], Context::createDefaultContext());
 
-        $this->getContainer()->get('customer.repository')
+        static::getContainer()->get('customer.repository')
             ->update([$update], Context::createDefaultContext());
 
         $count = $this->connection->fetchOne('SELECT COUNT(*) FROM customer_tag WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
@@ -151,9 +149,9 @@ class CustomerRepositoryTest extends TestCase
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
-        $definition = $this->getContainer()->get(CustomerDefinition::class);
-        $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm);
+        $definition = static::getContainer()->get(CustomerDefinition::class);
+        $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm);
         $queries = $builder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
         $criteria->addQuery(...$queries);
 
@@ -244,7 +242,7 @@ class CustomerRepositoryTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$customer], Context::createDefaultContext());
 

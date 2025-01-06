@@ -20,7 +20,7 @@ class ProductFeatureSetPropertyTest extends TestCase
     #[TestWith(['featureSet'])]
     public function testDefinitionFieldsAreComplete(string $field): void
     {
-        $definition = $this->getContainer()->get(ProductDefinition::class);
+        $definition = static::getContainer()->get(ProductDefinition::class);
 
         static::assertTrue($definition->getFields()->has($field));
     }

@@ -14,16 +14,22 @@ class NumberRangeStateEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $numberRangeId;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $lastValue;
 
     /**
      * @var NumberRangeEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $numberRange;
 

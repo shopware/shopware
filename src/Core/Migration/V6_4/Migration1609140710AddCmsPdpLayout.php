@@ -201,7 +201,7 @@ class Migration1609140710AddCmsPdpLayout extends MigrationStep
                     'boxLayout' => ['source' => 'static', 'value' => 'standard'],
                     'elMinWidth' => ['value' => '200px', 'source' => 'static'],
                     'displayMode' => ['source' => 'static', 'value' => 'standard'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
             ],
             [
                 'cms_slot_id' => $slots[1]['id'],
@@ -209,7 +209,7 @@ class Migration1609140710AddCmsPdpLayout extends MigrationStep
                 'config' => json_encode([
                     'product' => ['value' => null, 'source' => 'static'],
                     'alignment' => ['value' => null, 'source' => 'static'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
             ],
             [
                 'cms_slot_id' => $slots[2]['id'],
@@ -224,7 +224,7 @@ class Migration1609140710AddCmsPdpLayout extends MigrationStep
                     'navigationDots' => ['value' => null, 'source' => 'static'],
                     'galleryPosition' => ['value' => 'left', 'source' => 'static'],
                     'navigationArrows' => ['value' => 'inside', 'source' => 'static'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
             ],
             [
                 'cms_slot_id' => $slots[3]['id'],
@@ -232,7 +232,7 @@ class Migration1609140710AddCmsPdpLayout extends MigrationStep
                 'config' => json_encode([
                     'product' => ['value' => null, 'source' => 'static'],
                     'alignment' => ['value' => null, 'source' => 'static'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
             ],
             [
                 'cms_slot_id' => $slots[4]['id'],
@@ -240,7 +240,7 @@ class Migration1609140710AddCmsPdpLayout extends MigrationStep
                 'config' => json_encode([
                     'content' => ['source' => 'mapped', 'value' => 'product.name'],
                     'verticalAlign' => ['value' => null, 'source' => 'static'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
             ],
             [
                 'cms_slot_id' => $slots[5]['id'],
@@ -252,7 +252,7 @@ class Migration1609140710AddCmsPdpLayout extends MigrationStep
                     'minHeight' => ['source' => 'static', 'value' => null],
                     'displayMode' => ['source' => 'static', 'value' => 'cover'],
                     'verticalAlign' => ['source' => 'static', 'value' => null],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
             ],
         ];
 

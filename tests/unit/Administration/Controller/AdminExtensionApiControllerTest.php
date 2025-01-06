@@ -11,6 +11,8 @@ use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Administration\Controller\Exception\MissingAppSecretException;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -60,14 +63,24 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsAppByNameNotFoundExceptionWhenAppIsNotFound(): void
     {
-        $this->expectExceptionObject(new AppByNameNotFoundException('test-app'));
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->expectExceptionObject(new AppByNameNotFoundException('test-app'));
+        } else {
+            $this->expectException(AppNotFoundException::class);
+        }
 
         $this->controller->runAction(new RequestDataBag(['appName' => 'test-app']), $this->context);
     }
 
     public function testRunActionThrowsAppByNameNotFoundExceptionWhenAppSecretIsNull(): void
     {
-        $this->expectExceptionObject(new MissingAppSecretException());
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->expectException(MissingAppSecretException::class);
+            $this->expectExceptionMessage('Failed to retrieve app secret.');
+        } else {
+            $this->expectException(AppException::class);
+            $this->expectExceptionMessage(AppException::appSecretMissing('test-app')->getMessage());
+        }
 
         $entity = $this->buildAppEntity('test-app', null, []);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -77,7 +90,12 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsEmpty(): void
     {
-        $this->expectExceptionObject(new UnallowedHostException('', [], 'test-app'));
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->expectExceptionObject(new UnallowedHostException('', [], 'test-app'));
+        } else {
+            $this->expectException(AppException::class);
+            $this->expectExceptionMessage(AppException::hostNotAllowed('', 'test-app')->getMessage());
+        }
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', []);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -87,7 +105,12 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsNotAllowed(): void
     {
-        $this->expectExceptionObject(new UnallowedHostException('test-host', ['shopware'], 'test-app'));
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->expectExceptionObject(new UnallowedHostException('test-host', ['shopware'], 'test-app'));
+        } else {
+            $this->expectException(AppException::class);
+            $this->expectExceptionMessage(AppException::hostNotAllowed('test-host', 'test-app')->getMessage());
+        }
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['shopware']);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -100,7 +123,12 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsInvalidArgumentExceptionWhenNoIdInRequestBag(): void
     {
-        $this->expectExceptionObject(new \InvalidArgumentException('Ids must be an array'));
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->expectExceptionObject(new \InvalidArgumentException('Ids must be an array'));
+        } else {
+            $this->expectException(AppException::class);
+            $this->expectExceptionMessage(AppException::invalidArgument('Ids must be an array')->getMessage());
+        }
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -116,7 +144,7 @@ class AdminExtensionApiControllerTest extends TestCase
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
         $this->assertEntityRepositoryWithEntity($entity);
 
-        $this->appPayloadServiceHelper->expects(static::once())->method('buildSource')->with($entity);
+        $this->appPayloadServiceHelper->expects(static::once())->method('buildSource')->with('1.0.0', $entity->getName());
         $this->executor->expects(static::once())->method('execute');
 
         $this->controller->runAction(
@@ -133,7 +161,11 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testSignUriThrowsAppByNameNotFoundExceptionWhenAppIsNotFound(): void
     {
-        $this->expectExceptionObject(new AppByNameNotFoundException('test-app'));
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->expectExceptionObject(new AppByNameNotFoundException('test-app'));
+        } else {
+            $this->expectException(AppNotFoundException::class);
+        }
 
         $this->controller->signUri(new RequestDataBag(['appName' => 'test-app']), $this->context);
     }
@@ -180,8 +212,10 @@ class AdminExtensionApiControllerTest extends TestCase
     protected function buildAppEntity(string $name, ?string $appSecret, ?array $allowedHosts): AppEntity
     {
         $entity = new AppEntity();
+        $entity->setId(Uuid::randomHex());
         $entity->setUniqueIdentifier(Uuid::randomHex());
         $entity->setName($name);
+        $entity->setVersion('1.0.0');
         $entity->setAppSecret($appSecret);
         $entity->setAllowedHosts($allowedHosts);
 

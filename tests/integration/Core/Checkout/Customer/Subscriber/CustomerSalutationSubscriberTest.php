@@ -37,7 +37,7 @@ class CustomerSalutationSubscriberTest extends TestCase
 
         $this->connection = KernelLifecycleManager::getConnection();
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testSetDefaultSalutationWithExistingNotSpecifiedSalutation(): void

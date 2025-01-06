@@ -8,11 +8,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Log\Package;
@@ -29,18 +31,12 @@ class SetCustomerCustomFieldActionTest extends TestCase
 
     private MockObject&EntityRepository $repository;
 
-    /**
-     * @var MockObject&EntitySearchResult<CustomerCollection>
-     */
-    private MockObject&EntitySearchResult $entitySearchResult;
-
     private SetCustomerCustomFieldAction $action;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->repository = $this->createMock(EntityRepository::class);
-        $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
 
         $this->action = new SetCustomerCustomFieldAction($this->connection, $this->repository);
     }
@@ -66,21 +62,28 @@ class SetCustomerCustomFieldActionTest extends TestCase
     #[DataProvider('actionExecutedProvider')]
     public function testExecutedAction(array $config, array $existsData, array $expected): void
     {
+        $customerId = Uuid::randomHex();
         $customer = new CustomerEntity();
+        $customer->setId($customerId);
+        $customer->setUniqueIdentifier($customerId);
         $customer->setCustomFields($existsData);
 
         $context = Context::createDefaultContext();
-        $customerId = Uuid::randomHex();
         $flow = new StorableFlow('', $context, [], [CustomerAware::CUSTOMER_ID => $customerId]);
         $flow->setConfig($config);
 
-        $this->entitySearchResult->expects(static::once())
-            ->method('first')
-            ->willReturn($customer);
+        $entitySearchResult = new EntitySearchResult(
+            CustomerDefinition::ENTITY_NAME,
+            1,
+            new CustomerCollection([$customer]),
+            null,
+            new Criteria(),
+            $context
+        );
 
         $this->repository->expects(static::once())
             ->method('search')
-            ->willReturn($this->entitySearchResult);
+            ->willReturn($entitySearchResult);
 
         $this->connection->expects(static::once())
             ->method('fetchOne')

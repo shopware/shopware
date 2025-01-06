@@ -111,10 +111,10 @@ class CartPersisterTest extends TestCase
             )
         );
 
-        $this->getContainer()->get(CartPersister::class)
+        static::getContainer()->get(CartPersister::class)
             ->save($cart, $this->getSalesChannelContext($cart->getToken()));
 
-        $token = $this->getContainer()->get(Connection::class)
+        $token = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertNotEmpty($token);
@@ -125,10 +125,10 @@ class CartPersisterTest extends TestCase
         $cart = new Cart('existing');
         $cart->setCustomerComment('Foo');
 
-        $this->getContainer()->get(CartPersister::class)
+        static::getContainer()->get(CartPersister::class)
             ->save($cart, $this->getSalesChannelContext($cart->getToken()));
 
-        $token = $this->getContainer()->get(Connection::class)
+        $token = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertNotEmpty($token);
@@ -143,10 +143,10 @@ class CartPersisterTest extends TestCase
                 ->setLabel('test')
         );
 
-        $this->getContainer()->get(CartPersister::class)
+        static::getContainer()->get(CartPersister::class)
             ->save($cart, $this->getSalesChannelContext($cart->getToken()));
 
-        $token = $this->getContainer()->get(Connection::class)
+        $token = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertNotEmpty($token);
@@ -164,10 +164,10 @@ class CartPersisterTest extends TestCase
                 ->setLabel('test')
         );
 
-        $this->getContainer()->get(CartPersister::class)
+        static::getContainer()->get(CartPersister::class)
             ->save($cart, $this->getSalesChannelContext($cart->getToken()));
 
-        $token = $this->getContainer()->get(Connection::class)
+        $token = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertFalse($token);
@@ -175,7 +175,7 @@ class CartPersisterTest extends TestCase
 
     public function testCartSavedEventIsFired(): void
     {
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $caughtEvent = null;
         $this->addEventListener($eventDispatcher, CartSavedEvent::class, static function (CartSavedEvent $event) use (&$caughtEvent): void {
@@ -189,10 +189,10 @@ class CartPersisterTest extends TestCase
                 ->setLabel('test')
         );
 
-        $this->getContainer()->get(CartPersister::class)
+        static::getContainer()->get(CartPersister::class)
             ->save($cart, $this->getSalesChannelContext($cart->getToken()));
 
-        $token = $this->getContainer()->get(Connection::class)
+        $token = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertNotEmpty($token);
@@ -240,7 +240,7 @@ class CartPersisterTest extends TestCase
     public function testCartVerifyPersistEventIsFiredAndPersisted(): void
     {
         $caughtEvent = null;
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -249,10 +249,10 @@ class CartPersisterTest extends TestCase
             new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
         ]));
 
-        $this->getContainer()->get(CartPersister::class)
+        static::getContainer()->get(CartPersister::class)
             ->save($cart, $this->getSalesChannelContext($cart->getToken()));
 
-        $token = $this->getContainer()->get(Connection::class)
+        $token = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertNotEmpty($token);
@@ -265,7 +265,7 @@ class CartPersisterTest extends TestCase
     public function testCartVerifyPersistEventIsFiredAndModified(): void
     {
         $caughtEvent = null;
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
             $event->setShouldPersist(false);
         });
@@ -275,10 +275,10 @@ class CartPersisterTest extends TestCase
             new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
         ]));
 
-        $this->getContainer()->get(CartPersister::class)
+        static::getContainer()->get(CartPersister::class)
             ->save($cart, $this->getSalesChannelContext($cart->getToken()));
 
-        $token = $this->getContainer()->get(Connection::class)
+        $token = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertEmpty($token);
@@ -290,7 +290,7 @@ class CartPersisterTest extends TestCase
 
     public function testPrune(): void
     {
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
         $ids = new IdsCollection();
 
@@ -306,9 +306,9 @@ class CartPersisterTest extends TestCase
         $expiredDate2 = $now->modify(\sprintf('-%d day', 122));
         $this->createCart($ids->create('cart-4'), $expiredDate2, $expiredDate1);
 
-        $this->getContainer()->get(CartPersister::class)->prune(30);
+        static::getContainer()->get(CartPersister::class)->prune(30);
 
-        $carts = $this->getContainer()->get(Connection::class)
+        $carts = static::getContainer()->get(Connection::class)
             ->fetchFirstColumn('SELECT token FROM cart');
 
         static::assertCount(2, $carts);
@@ -318,7 +318,7 @@ class CartPersisterTest extends TestCase
 
     private function getSalesChannelContext(string $token): SalesChannelContext
     {
-        return $this->getContainer()
+        return static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create($token, TestDefaults::SALES_CHANNEL);
     }
@@ -330,7 +330,7 @@ class CartPersisterTest extends TestCase
             ->with(
                 static::callback(fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))
             )
-            ->willReturnCallback(fn (string $sql): Statement => $this->getContainer()->get(Connection::class)->prepare($sql));
+            ->willReturnCallback(fn (string $sql): Statement => static::getContainer()->get(Connection::class)->prepare($sql));
     }
 
     private function createCart(string $token, \DateTimeImmutable $date, ?\DateTimeImmutable $updatedAt = null): void
@@ -342,7 +342,7 @@ class CartPersisterTest extends TestCase
             'created_at' => $updatedAt?->format(Defaults::STORAGE_DATE_TIME_FORMAT) ?? $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->insert('cart', $cart);
     }
 }

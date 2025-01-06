@@ -56,7 +56,10 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_v2_tab_content_library %}
-                    <template v-if="active === tabNameLibrary">
+                    <div
+                        v-show="active === tabNameLibrary"
+                        class="sw-media-modal-v2__library-content"
+                    >
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_modal_v2_navigation_and_search %}
@@ -97,13 +100,13 @@
                             @media-folder-change="folderId = $event"
                         />
                         {% endblock %}
-                    </template>
+                    </div>
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_v2_tab_content_upload %}
                     <div
-                        v-if="active === tabNameUpload"
+                        v-show="active === tabNameUpload"
                         class="sw-media-modal-v2__uploads-content"
                     >
 
@@ -177,7 +180,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_modal_v2_button_cancel %}
         <sw-button @click="onEmitModalClosed">
-            {{ $tc('sw-media.sw-media-modal-v2.labelButtonCancel') }}
+            {{ $tc('global.default.cancel') }}
         </sw-button>
         {% endblock %}
 

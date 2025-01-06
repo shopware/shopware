@@ -10,41 +10,57 @@ class DeliveryInformation extends Struct
 {
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stock;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $weight;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $freeDelivery;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $restockTime;
 
     /**
      * @var DeliveryTime|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $deliveryTime;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $height;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $width;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $length;
 

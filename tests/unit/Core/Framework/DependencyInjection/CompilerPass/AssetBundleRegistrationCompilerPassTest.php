@@ -42,12 +42,12 @@ class AssetBundleRegistrationCompilerPassTest extends TestCase
 
         $container->set('shopware.asset.asset_without_versioning', $this->createMock(Package::class));
 
-        /** @var Packages $assetService */
         $assetService = $container->get('assets.packages');
 
         $assetService->getPackage('@Framework');
 
-        static::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('There is no "@FrameworkBundle" asset package.');
         $assetService->getPackage('@FrameworkBundle');
     }
 }

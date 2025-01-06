@@ -23,71 +23,99 @@ class CmsPageEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $entity;
 
     /**
      * @var CmsSectionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $sections;
 
     /**
      * @var EntityCollection<CmsPageTranslationEntity>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var CategoryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $categories;
 
     /**
      * @var ProductCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $products;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cssClass;
 
     /**
      * @var array<string, array<string, mixed>>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $config;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $previewMediaId;
 
     /**
      * @var MediaEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $previewMedia;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $locked;
 
     /**
      * @var LandingPageCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $landingPages;
 
     /**
      * @var CmsPageCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $homeSalesChannels;
 

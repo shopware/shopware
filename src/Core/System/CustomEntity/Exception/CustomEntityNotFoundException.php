@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.7.0 - use CustomEntityException::notFound instead - reason:remove-exception
+ */
 #[Package('core')]
 class CustomEntityNotFoundException extends ShopwareHttpException
 {

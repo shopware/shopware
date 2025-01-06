@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchema;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -112,11 +113,11 @@ class CustomerDefinition extends EntityDefinition
             (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new ApiAware()),
             (new StringField('first_name', 'firstName', self::MAX_LENGTH_FIRST_NAME))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName', self::MAX_LENGTH_LAST_NAME))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('company', 'company'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('company', 'company'))->addFlags(new ApiAware(), new IgnoreInOpenapiSchema(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new PasswordField('password', 'password', \PASSWORD_DEFAULT, [], PasswordField::FOR_CUSTOMER))->removeFlag(ApiAware::class),
             (new EmailField('email', 'email'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
             (new StringField('title', 'title', self::MAX_LENGTH_TITLE))->addFlags(new ApiAware()),
-            (new ListField('vat_ids', 'vatIds', StringField::class))->addFlags(new ApiAware()),
+            (new ListField('vat_ids', 'vatIds', StringField::class))->addFlags(new ApiAware(), new IgnoreInOpenapiSchema()),
             (new StringField('affiliate_code', 'affiliateCode'))->addFlags(new ApiAware()),
             (new StringField('campaign_code', 'campaignCode'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
@@ -156,7 +157,7 @@ class CustomerDefinition extends EntityDefinition
             new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class),
             new ManyToOneAssociationField('requestedGroup', 'requested_customer_group_id', CustomerGroupDefinition::class, 'id', false),
             new FkField('bound_sales_channel_id', 'boundSalesChannelId', SalesChannelDefinition::class),
-            (new StringField('account_type', 'accountType'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('account_type', 'accountType'))->addFlags(new ApiAware(), new Required(), new IgnoreInOpenapiSchema()),
             new ManyToOneAssociationField('boundSalesChannel', 'bound_sales_channel_id', SalesChannelDefinition::class, 'id', false),
             (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'customer_id'))->addFlags(new CascadeDelete()),
             (new CreatedByField([Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE]))->addFlags(new ApiAware()),

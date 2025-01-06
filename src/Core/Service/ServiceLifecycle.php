@@ -50,7 +50,7 @@ class ServiceLifecycle
         try {
             $appInfo = $this->serviceClientFactory->newFor($serviceEntry)->latestAppInfo();
         } catch (ServiceException $e) {
-            $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            // noop - errors will be recorded in the service
 
             return false;
         }
@@ -58,7 +58,7 @@ class ServiceLifecycle
         try {
             $fs = $this->sourceResolver->filesystemForVersion($appInfo);
         } catch (AppException $e) {
-            $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -71,7 +71,7 @@ class ServiceLifecycle
 
             return true;
         } catch (\Exception $e) {
-            $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -90,7 +90,7 @@ class ServiceLifecycle
         try {
             $latestAppInfo = $this->serviceClientFactory->newFor($serviceEntry)->latestAppInfo();
         } catch (ServiceException $e) {
-            $this->logger->error(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -103,7 +103,7 @@ class ServiceLifecycle
         try {
             $fs = $this->sourceResolver->filesystemForVersion($latestAppInfo);
         } catch (AppException $e) {
-            $this->logger->error(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -123,7 +123,7 @@ class ServiceLifecycle
 
             return true;
         } catch (\Exception $e) {
-            $this->logger->error(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }

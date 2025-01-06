@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.7.0 - Will be removed, use Shopware\Core\Maintenance\MaintenanceException instead
+ *
+ * @phpstan-ignore shopware.internalClass
  */
 #[Package('core')]
 class SystemException extends HttpException

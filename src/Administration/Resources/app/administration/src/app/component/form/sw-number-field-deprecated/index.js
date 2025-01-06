@@ -94,6 +94,12 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
             required: false,
             default: false,
         },
+
+        numberAlignEnd: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

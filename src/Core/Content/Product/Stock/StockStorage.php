@@ -46,6 +46,10 @@ class StockStorage extends AbstractStockStorage
             return;
         }
 
+        if (\count($changes) === 0) {
+            return;
+        }
+
         $sql = <<<'SQL'
             UPDATE product
             SET stock = stock + :quantity, sales = sales - :quantity, available_stock = stock
@@ -102,9 +106,9 @@ class StockStorage extends AbstractStockStorage
                 AND parent.version_id = product.version_id
 
             SET product.available = IFNULL((
-                IFNULL(product.is_closeout, parent.is_closeout) * product.stock
+                COALESCE(product.is_closeout, parent.is_closeout, 0) * product.stock
                 >=
-                IFNULL(product.is_closeout, parent.is_closeout) * IFNULL(product.min_purchase, parent.min_purchase)
+                COALESCE(product.is_closeout, parent.is_closeout, 0) * IFNULL(product.min_purchase, parent.min_purchase)
             ), 0)
             WHERE product.id IN (:ids)
             AND product.version_id = :version

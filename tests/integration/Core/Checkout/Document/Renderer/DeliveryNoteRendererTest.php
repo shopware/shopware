@@ -46,7 +46,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -55,8 +55,8 @@ class DeliveryNoteRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->deliveryNoteRenderer = $this->getContainer()->get(DeliveryNoteRenderer::class);
-        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->deliveryNoteRenderer = static::getContainer()->get(DeliveryNoteRenderer::class);
+        $this->cartService = static::getContainer()->get(CartService::class);
     }
 
     #[DataProvider('deliveryNoteRendererDataProvider')]
@@ -73,7 +73,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(DeliveryNoteOrdersEvent::class, function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });

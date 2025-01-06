@@ -27,4 +27,9 @@ class UserAccessKeyExtension extends EntityExtension
         $protections->add(new ReadProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE));
         $protections->add(new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE));
     }
+
+    public function getEntityName(): string
+    {
+        return UserAccessKeyDefinition::ENTITY_NAME;
+    }
 }

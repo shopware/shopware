@@ -58,6 +58,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
                 ->addAssociation('unit')
                 ->addAssociation('deliveryTime')
                 ->addAssociation('cover.media')
+                ->addAssociation('tax')
             ;
         }
 
@@ -100,10 +101,6 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         $fields->add(
             (new ObjectField('cheapest_price_container', 'cheapestPriceContainer'))->addFlags(new Runtime())
         );
-        $fields->add(
-            (new ObjectField('sortedProperties', 'sortedProperties'))->addFlags(new Runtime(), new ApiAware())
-        );
-
         $fields->add(
             (new ObjectField('sortedProperties', 'sortedProperties'))->addFlags(new Runtime(), new ApiAware())
         );

@@ -20,7 +20,7 @@ class CategoryBench extends AbstractBenchCase
     #[Bench\Assert('mode(variant.time.avg) < 10ms')]
     public function bench_load_navigation(): void
     {
-        $route = $this->getContainer()->get(NavigationRoute::class);
+        $route = static::getContainer()->get(NavigationRoute::class);
 
         $route->load(
             $this->ids->get('navigation'),

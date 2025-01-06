@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -64,20 +66,20 @@ class CartOrderRouteTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->taxProviderRepository = $this->getContainer()->get('tax_provider.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->taxProviderRepository = static::getContainer()->get('tax_provider.repository');
         $this->validSalutationId = $this->getValidSalutationId();
         $this->validCountryId = $this->getValidCountryId($this->ids->get('sales-channel'));
 
-        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
         $shippingMethodRepository->create([
             [
                 'id' => $this->ids->get('shipping-method'),
                 'name' => 'test',
                 'technicalName' => 'test',
                 'active' => true,
-                'deliveryTimeId' => $this->getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
+                'deliveryTimeId' => static::getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
                 'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -119,7 +121,11 @@ class CartOrderRouteTest extends TestCase
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
+        if (Feature::isActive('v6.7.0.0')) {
+            static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
+        } else {
+            static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
+        }
     }
 
     public function testOrderEmptyCart(): void
@@ -388,7 +394,7 @@ class CartOrderRouteTest extends TestCase
          * - check for new context token
          * - cart should contain both products
          */
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $this->productRepository->create([
             [
                 'id' => $this->ids->create('p2'),
@@ -431,8 +437,8 @@ class CartOrderRouteTest extends TestCase
         $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $data['lineItems']);
 
-        $interval = new \DateInterval($this->getContainer()->getParameter('shopware.api.store.context_lifetime'));
-        $intervalInSeconds = (new \DateTime())->setTimeStamp(0)->add($interval)->getTimeStamp();
+        $interval = new \DateInterval(static::getContainer()->getParameter('shopware.api.store.context_lifetime'));
+        $intervalInSeconds = (new \DateTime())->setTimestamp(0)->add($interval)->getTimestamp();
         $intervalInDays = $intervalInSeconds / 86400 + 1;
 
         // expire $originalToken context
@@ -556,7 +562,7 @@ class CartOrderRouteTest extends TestCase
         $criteria->setLimit(1);
 
         /** @var EntityRepository<OrderTransactionCollection> $transactionRepo */
-        $transactionRepo = $this->getContainer()->get('order_transaction.repository');
+        $transactionRepo = static::getContainer()->get('order_transaction.repository');
         $transaction = $transactionRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($transaction);
@@ -674,7 +680,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testOrderToNotSpecifiedWithoutExistingSalutation(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
@@ -725,7 +731,7 @@ class CartOrderRouteTest extends TestCase
 
     protected function catchEvent(string $eventName, ?Event &$eventResult): void
     {
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }

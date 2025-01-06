@@ -61,14 +61,19 @@ class InstallController extends AbstractController
         );
 
         $finish = function (Process $process) use ($request): void {
-            echo json_encode([
+            $data = [
                 'success' => $process->isSuccessful(),
-                'newLocation' => $request->getBasePath() . '/public/',
-            ]);
+            ];
+
+            if ($process->isSuccessful()) {
+                $data['newLocation'] = $request->getBasePath() . '/public/';
+            }
+
+            echo json_encode($data);
         };
 
         return $this->streamedCommandResponseGenerator->run([
-            $this->recoveryManager->getPhpBinary($request),
+            $this->recoveryManager->getPHPBinary($request),
             '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
             'install',

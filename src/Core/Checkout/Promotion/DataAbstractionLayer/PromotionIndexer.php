@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionIndexer extends EntityIndexer
 {
     final public const EXCLUSION_UPDATER = 'promotion.exclusion';
@@ -72,8 +72,11 @@ class PromotionIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
-        $ids = array_unique(array_filter($ids));
+        if (!\is_array($ids)) {
+            return;
+        }
 
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }

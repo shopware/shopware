@@ -18,56 +18,78 @@ class DocumentBaseConfigEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filenamePrefix;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filenameSuffix;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentNumber;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $global = false;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentTypeId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $logoId;
 
     /**
      * @var array<string, string|bool|array<int, string>>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $config;
 
     /**
      * @var DocumentBaseConfigSalesChannelCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannels;
 
     /**
      * @var DocumentTypeEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentType;
 
     /**
      * @var MediaEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $logo;
 

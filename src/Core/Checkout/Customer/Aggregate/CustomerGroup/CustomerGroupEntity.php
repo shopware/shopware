@@ -18,56 +18,78 @@ class CustomerGroupEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $displayGross;
 
     /**
      * @var CustomerGroupTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var CustomerCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customers;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannels;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $registrationActive;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $registrationTitle;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $registrationIntroduction;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $registrationOnlyCompanyRegistration;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $registrationSeoMetaDescription;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $registrationSalesChannels;
 

@@ -2,24 +2,30 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-class CustomerRemoteAddressSubscriber implements EventSubscriberInterface
+readonly class CustomerRemoteAddressSubscriber implements EventSubscriberInterface
 {
+    private const STORE_PLAIN_IP_ADDRESS = 'core.loginRegistration.customerIpAddressesNotAnonymously';
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly EntityRepository $customerRepository,
-        private readonly RequestStack $requestStack
+        private Connection $connection,
+        private RequestStack $requestStack,
+        private SystemConfigService $configService
     ) {
     }
 
@@ -39,11 +45,20 @@ class CustomerRemoteAddressSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->customerRepository->update([
-            [
-                'id' => $event->getCustomer()->getId(),
-                'remoteAddress' => $request->getClientIp(),
-            ],
-        ], $event->getContext());
+        $clientIp = $request->getClientIp();
+
+        if ($clientIp === null) {
+            return;
+        }
+
+        if (!$this->configService->getBool(self::STORE_PLAIN_IP_ADDRESS)) {
+            $clientIp = IpUtils::anonymize($clientIp);
+        }
+
+        $this->connection->update('customer', [
+            'remote_address' => $clientIp,
+        ], [
+            'id' => Uuid::fromHexToBytes($event->getCustomer()->getId()),
+        ]);
     }
 }

@@ -33,7 +33,7 @@ class ImportEntityCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->importEntityCommand = $this->getContainer()->get(ImportEntityCommand::class);
+        $this->importEntityCommand = static::getContainer()->get(ImportEntityCommand::class);
     }
 
     public function testImportCustomersNoInputFile(): void
@@ -69,7 +69,7 @@ class ImportEntityCommandTest extends TestCase
         $firstId = '017de84fb11a4e318fd3231317d7def4';
         $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
 
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
         $result = $repository->searchIds(new Criteria([$firstId, $lastId]), Context::createDefaultContext());
 
         static::assertCount(2, $result->getIds());
@@ -95,7 +95,7 @@ class ImportEntityCommandTest extends TestCase
         $firstId = '017de84fb11a4e318fd3231317d7def4';
         $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
 
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
         $result = $repository->searchIds(new Criteria([$firstId, $lastId]), Context::createDefaultContext());
 
         static::assertCount(2, $result->getIds());
@@ -119,7 +119,7 @@ class ImportEntityCommandTest extends TestCase
         $firstId = '017de84fb11a4e318fd3231317d7def4';
         $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
 
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
         $result = $repository->searchIds(new Criteria([$firstId, $lastId]), Context::createDefaultContext());
 
         static::assertCount(2, $result->getIds());
@@ -141,7 +141,7 @@ class ImportEntityCommandTest extends TestCase
         static::assertStringContainsString('[WARNING] Not all records could be imported due to errors', $message);
         static::assertMatchesRegularExpression(\sprintf('/\[OK\] Successfully imported %d records in \d+ seconds/', $num), $message);
 
-        $repository = $this->getContainer()->get('product.repository');
+        $repository = static::getContainer()->get('product.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
 
         static::assertCount(8, $result->getIds());
@@ -167,7 +167,7 @@ class ImportEntityCommandTest extends TestCase
         static::assertStringContainsString(\sprintf('[ERROR] Errors on import. Rolling back transactions for %d records.', $num), $message);
         static::assertStringContainsString('Integrity constraint violation', $message);
 
-        $repository = $this->getContainer()->get('product.repository');
+        $repository = static::getContainer()->get('product.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
 
         static::assertCount(0, $result->getIds());

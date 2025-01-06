@@ -15,41 +15,57 @@ class CustomFieldEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var array<string, mixed>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $config;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $active;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customFieldSetId;
 
     /**
      * @var CustomFieldSetEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customFieldSet;
 
     /**
      * @var ProductSearchConfigFieldCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productSearchConfigFields;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $allowCustomerWrite = false;
 

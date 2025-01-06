@@ -55,7 +55,7 @@ class MailActionControllerTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer');
-        $order = $this->getContainer()->get('order.repository')->search($criteria, $context)->get($orderId);
+        $order = static::getContainer()->get('order.repository')->search($criteria, $context)->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
 
         $documentId = $this->createDocumentWithFile($orderId, $context);
@@ -64,7 +64,7 @@ class MailActionControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
         /** @var ?MailTemplateEntity $mailTemplate */
-        $mailTemplate = $this->getContainer()
+        $mailTemplate = static::getContainer()
             ->get('mail_template.repository')
             ->search($criteria, $context)
             ->first();
@@ -72,7 +72,7 @@ class MailActionControllerTest extends TestCase
 
         $criteria = new Criteria([TestDefaults::SALES_CHANNEL]);
         $criteria->setLimit(1);
-        $salesChannel = $this->getContainer()
+        $salesChannel = static::getContainer()
             ->get('sales_channel.repository')
             ->search($criteria, $context)
             ->first();
@@ -81,7 +81,7 @@ class MailActionControllerTest extends TestCase
         $entityEncoder = new JsonEntityEncoder(
             new Serializer([new StructNormalizer()], [new JsonEncoder()])
         );
-        $orderDefinition = $this->getContainer()->get(OrderDefinition::class);
+        $orderDefinition = static::getContainer()->get(OrderDefinition::class);
         $orderDecode = $entityEncoder->encode(new Criteria(), $orderDefinition, $order, '/api');
         array_walk_recursive($orderDecode, static function (&$value): void {
             if ($value instanceof \stdClass) {
@@ -89,7 +89,7 @@ class MailActionControllerTest extends TestCase
             }
         });
 
-        $salesChannelDefinition = $this->getContainer()->get(SalesChannelDefinition::class);
+        $salesChannelDefinition = static::getContainer()->get(SalesChannelDefinition::class);
         $salesChannelDecode = $entityEncoder->encode(new Criteria(), $salesChannelDefinition, $salesChannel, '/api');
         array_walk_recursive($salesChannelDecode, static function (&$value): void {
             if ($value instanceof \stdClass) {
@@ -157,7 +157,7 @@ class MailActionControllerTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()
+        static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], $context);
 
@@ -167,7 +167,7 @@ class MailActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -217,7 +217,7 @@ class MailActionControllerTest extends TestCase
             'payload' => '{}',
         ];
 
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
 
         $orderRepository->upsert([$order], $context);
 
@@ -226,7 +226,7 @@ class MailActionControllerTest extends TestCase
 
     private function createDocumentWithFile(string $orderId, Context $context, string $documentType = InvoiceRenderer::TYPE): string
     {
-        $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $documentGenerator = static::getContainer()->get(DocumentGenerator::class);
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
         $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->getSuccess()->first();

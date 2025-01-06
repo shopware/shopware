@@ -34,8 +34,8 @@ class SyncServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = $this->getContainer()->get(SyncService::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->service = static::getContainer()->get(SyncService::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testDeleteViaCriteria(): void
@@ -53,7 +53,7 @@ class SyncServiceTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $operations = [
             new SyncOperation(
@@ -104,7 +104,7 @@ class SyncServiceTest extends TestCase
             ->media('media-3')
             ->build();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
         $operations = [
@@ -128,7 +128,7 @@ class SyncServiceTest extends TestCase
             'shortName' => 'TEST',
         ];
 
-        $this->getContainer()->get('currency.repository')->create(
+        static::getContainer()->get('currency.repository')->create(
             [
                 array_merge($currency, ['id' => $ids->get('currency-1'), 'isoCode' => 'xx']),
                 array_merge($currency, ['id' => $ids->get('currency-2'), 'isoCode' => 'xy']),
@@ -167,7 +167,7 @@ class SyncServiceTest extends TestCase
 
         $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $createListener = $this
             ->getMockBuilder(CallableClass::class)
@@ -231,7 +231,7 @@ class SyncServiceTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this
             ->getMockBuilder(CallableClass::class)
@@ -316,7 +316,7 @@ class SyncServiceTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $operations = [
             new SyncOperation('delete-mapping', 'product_category', SyncOperation::ACTION_DELETE, [], [
@@ -357,14 +357,14 @@ class SyncServiceTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $categories = [
             ['id' => $ids->create('c1'), 'name' => 'c1'],
             ['id' => $ids->create('c2'), 'name' => 'c2'],
         ];
 
-        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
 
         $operations = [
             new SyncOperation(
@@ -406,7 +406,7 @@ class SyncServiceTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $operations = [
             new SyncOperation('delete', 'product', SyncOperation::ACTION_DELETE, [

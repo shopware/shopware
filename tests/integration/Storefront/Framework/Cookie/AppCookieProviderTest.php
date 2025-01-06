@@ -26,7 +26,7 @@ class AppCookieProviderTest extends TestCase
         $this->baseProvider = $this->createMock(CookieProviderInterface::class);
         $this->appCookieProvider = new AppCookieProvider(
             $this->baseProvider,
-            $this->getContainer()->get('app.repository')
+            static::getContainer()->get('app.repository')
         );
     }
 

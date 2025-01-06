@@ -49,8 +49,6 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\WebhookCollection;
-use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
@@ -256,9 +254,10 @@ class AppLifecycleTest extends TestCase
         static::assertNotNull($appEntity);
         static::assertCount(0, $appEntity->getModules());
 
-        $webhookCollection = $appEntity->getWebhooks();
-        static::assertInstanceOf(WebhookCollection::class, $webhookCollection);
-        static::assertCount(0, $webhookCollection);
+        static::assertSame(
+            0,
+            (int) $this->connection->fetchOne('SELECT COUNT(*) FROM webhook WHERE app_id = ?', [$appEntity->getId()])
+        );
     }
 
     public function testInstallWithSystemDefaultLanguageNotProvidedByApp(): void
@@ -1241,7 +1240,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(0, $apps);
 
         /** @var EntityRepository<AclRoleCollection> $aclRoleRepository */
-        $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
+        $aclRoleRepository = static::getContainer()->get('acl_role.repository');
         $aclRole = $aclRoleRepository->search(new Criteria([$aclRoleId]), $this->context)->getEntities()->first();
         static::assertNotNull($aclRole);
 
@@ -1896,28 +1895,22 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultWebhooks(string $appId): void
     {
-        /** @var EntityRepository<WebhookCollection> $webhookRepository */
-        $webhookRepository = static::getContainer()->get('webhook.repository');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
-
-        $webhooks = $webhookRepository->search($criteria, $this->context)->getEntities()->getElements();
+        $webhooks = $this->connection->fetchAllAssociative('SELECT url, event_name FROM webhook WHERE app_id = ?', [Uuid::fromHexToBytes($appId)]);
 
         static::assertCount(3, $webhooks);
-        \usort($webhooks, static fn (WebhookEntity $a, WebhookEntity $b) => $a->getUrl() <=> $b->getUrl());
+        \usort($webhooks, static fn (array $a, array $b) => $a['url'] <=> $b['url']);
 
         $firstWebhook = $webhooks[0];
-        static::assertSame('https://test-flow.com', $firstWebhook->getUrl());
-        static::assertSame('telegram.send.message', $firstWebhook->getEventName());
+        static::assertSame('https://test-flow.com', $firstWebhook['url']);
+        static::assertSame('telegram.send.message', $firstWebhook['event_name']);
 
         $secondWebhook = $webhooks[1];
-        static::assertSame('https://test.com/hook', $secondWebhook->getUrl());
-        static::assertSame('checkout.customer.before.login', $secondWebhook->getEventName());
+        static::assertSame('https://test.com/hook', $secondWebhook['url']);
+        static::assertSame('checkout.customer.before.login', $secondWebhook['event_name']);
 
         $thirdWebhook = $webhooks[2];
-        static::assertSame('https://test.com/hook2', $thirdWebhook->getUrl());
-        static::assertSame('checkout.order.placed', $thirdWebhook->getEventName());
+        static::assertSame('https://test.com/hook2', $thirdWebhook['url']);
+        static::assertSame('checkout.order.placed', $thirdWebhook['event_name']);
     }
 
     private function assertDefaultTemplate(string $appId, bool $active = true): void

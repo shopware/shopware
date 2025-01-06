@@ -11,21 +11,29 @@ class DeliveryTime extends Struct
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $min;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $max;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $unit;
 

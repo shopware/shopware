@@ -48,6 +48,7 @@ readonly class ExtensionListingLoader
                 $localExtension = $localCollection->get($storeExtension->getName());
                 $localExtension->setId($storeExtension->getId());
                 $localExtension->setIsTheme($storeExtension->isTheme());
+                $localExtension->setInAppFeaturesAvailable($storeExtension->isInAppFeaturesAvailable());
                 $localExtension->setStoreExtension($storeExtension);
 
                 $localExtension->setStoreLicense($storeExtension->getStoreLicense());

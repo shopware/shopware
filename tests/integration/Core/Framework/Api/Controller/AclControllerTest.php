@@ -50,7 +50,7 @@ class AclControllerTest extends TestCase
             $privileges[] = 'my_custom_privilege';
             $event->setPrivileges($privileges);
         };
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), AclGetAdditionalPrivilegesEvent::class, $getAdditionalPrivileges);
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), AclGetAdditionalPrivilegesEvent::class, $getAdditionalPrivileges);
 
         $this->getBrowser()->request('GET', '/api/_action/acl/additional_privileges');
         $response = $this->getBrowser()->getResponse();

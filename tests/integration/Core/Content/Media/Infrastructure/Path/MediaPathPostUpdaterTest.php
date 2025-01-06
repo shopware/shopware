@@ -32,15 +32,15 @@ class MediaPathPostUpdaterTest extends TestCase
     public function testIterate(): void
     {
         $updater = new MediaPathPostUpdater(
-            $this->getContainer()->get(IteratorFactory::class),
-            $this->getContainer()->get(MediaPathUpdater::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(EntityIndexerRegistry::class),
+            static::getContainer()->get(IteratorFactory::class),
+            static::getContainer()->get(MediaPathUpdater::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(EntityIndexerRegistry::class),
         );
 
         $ids = new IdsCollection();
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class), 250);
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class), 250);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-1'), 'file_name' => 'test', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-2'), 'file_name' => 'test', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-3'), 'file_name' => 'test', 'path' => 'foo', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
@@ -51,10 +51,12 @@ class MediaPathPostUpdaterTest extends TestCase
 
         static::assertNotNull($message);
         // There are some medias, like dummy theme images etc. that are created by the system and can not be cleaned up because of FKs
-        static::assertNotEmpty($message->getData());
-        static::assertContains($ids->get('media-1'), $message->getData());
-        static::assertContains($ids->get('media-2'), $message->getData());
-        static::assertContains($ids->get('media-3'), $message->getData());
+        $data = $message->getData();
+        static::assertIsArray($data);
+        static::assertNotEmpty($data);
+        static::assertContains($ids->get('media-1'), $data);
+        static::assertContains($ids->get('media-2'), $data);
+        static::assertContains($ids->get('media-3'), $data);
         static::assertGreaterThanOrEqual(3, $message->getOffset());
     }
 
@@ -62,8 +64,8 @@ class MediaPathPostUpdaterTest extends TestCase
     {
         $internal = new MediaPathUpdater(
             new PlainPathStrategy(),
-            $this->getContainer()->get(MediaLocationBuilder::class),
-            $this->getContainer()->get(MediaPathStorage::class)
+            static::getContainer()->get(MediaLocationBuilder::class),
+            static::getContainer()->get(MediaPathStorage::class)
         );
 
         $ids = new IdsCollection();
@@ -81,13 +83,13 @@ class MediaPathPostUpdaterTest extends TestCase
             }));
 
         $updater = new MediaPathPostUpdater(
-            $this->getContainer()->get(IteratorFactory::class),
+            static::getContainer()->get(IteratorFactory::class),
             $internal,
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             $indexerRegistry
         );
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class), 250);
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class), 250);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-1'), 'file_name' => 'media-1', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-2'), 'file_name' => 'media-2', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-3'), 'file_name' => 'media-3', 'path' => 'already/generated.png', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
@@ -95,7 +97,7 @@ class MediaPathPostUpdaterTest extends TestCase
 
         $updater->handle($message);
 
-        $paths = $this->getContainer()
+        $paths = static::getContainer()
             ->get(Connection::class)
             ->fetchFirstColumn(
                 'SELECT path FROM media WHERE id IN (:ids)',

@@ -54,7 +54,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $taskHandler->run();
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('newsletter_recipient.repository');
+        $repository = static::getContainer()->get('newsletter_recipient.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
 
         $expectedResult = [
@@ -71,20 +71,20 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
     {
         $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
         static::assertIsString($salutationSql);
-        $this->getContainer()->get(Connection::class)->executeStatement($salutationSql);
+        static::getContainer()->get(Connection::class)->executeStatement($salutationSql);
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
         static::assertIsString($recipientSql);
         $recipientSql = str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
-        $this->getContainer()->get(Connection::class)->executeStatement($recipientSql);
+        static::getContainer()->get(Connection::class)->executeStatement($recipientSql);
     }
 
     private function getTaskHandler(): NewsletterRecipientTaskHandler
     {
         return new NewsletterRecipientTaskHandler(
-            $this->getContainer()->get('scheduled_task.repository'),
+            static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
-            $this->getContainer()->get('newsletter_recipient.repository')
+            static::getContainer()->get('newsletter_recipient.repository')
         );
     }
 }

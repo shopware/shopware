@@ -5,25 +5,6 @@ import flowState from 'src/module/sw-flow/state/flow.state';
  * @package services-settings
  */
 
-Shopware.Service().register('flowBuilderService', () => {
-    return {
-        mapActionType: () => {},
-
-        getAvailableEntities: () => {
-            return [
-                {
-                    label: 'Order',
-                    value: 'order',
-                },
-                {
-                    label: 'Customer',
-                    value: 'customer',
-                },
-            ];
-        },
-    };
-});
-
 Shopware.State.registerModule('swFlowState', {
     ...flowState,
     state: {
@@ -70,6 +51,24 @@ async function createWrapper() {
                             return {
                                 search: () => Promise.resolve(),
                             };
+                        },
+                    },
+                    flowBuilderService: {
+                        mapActionType: () => {},
+
+                        getEntityNameByAction: () => 'customer',
+
+                        getAvailableEntities: () => {
+                            return [
+                                {
+                                    label: 'Order',
+                                    value: 'order',
+                                },
+                                {
+                                    label: 'Customer',
+                                    value: 'customer',
+                                },
+                            ];
                         },
                     },
                 },
@@ -138,6 +137,13 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', () => {
+    it('should preselect entity', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.entity).toBe('customer');
+    });
+
     it('should show these fields on modal', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

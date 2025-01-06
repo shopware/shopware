@@ -2,39 +2,12 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
-use GuzzleHttp\Client;
-use GuzzleHttp\Pool;
-use GuzzleHttp\Psr7\Request;
-use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\App\AppLocaleProvider;
-use Shopware\Core\Framework\App\Event\AppChangedEvent;
-use Shopware\Core\Framework\App\Event\AppDeletedEvent;
-use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Hmac\RequestSigner;
-use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
-use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Profiling\Profiler;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -42,26 +15,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('core')]
 class WebhookDispatcher implements EventDispatcherInterface
 {
-    private ?WebhookCollection $webhooks = null;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private array $privileges = [];
-
     /**
      * @internal
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly Connection $connection,
-        private readonly Client $guzzle,
-        private readonly string $shopUrl,
-        private readonly ContainerInterface $container,
-        private readonly HookableEventFactory $eventFactory,
-        private readonly string $shopwareVersion,
-        private readonly MessageBusInterface $bus,
-        private readonly bool $isAdminWorkerEnabled,
+        private readonly WebhookManager $webhookManager,
     ) {
     }
 
@@ -69,20 +28,13 @@ class WebhookDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
-        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
+        // @deprecated tag:v6.7.0 - remove DISABLE_EXTENSIONS from if condition
+        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false) || !HookableEventFactory::isHookable($event)) {
             return $event;
         }
 
-        $context = Context::createDefaultContext();
+        $this->webhookManager->dispatch($event);
 
-        foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
-            $useEventContext = $event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent;
-
-            $this->callWebhooks($hookable, $useEventContext ? $event->getContext() : $context);
-        }
-
-        // always return the original event and never our wrapped events
-        // this would lead to problems in the `BusinessEventDispatcher` from core
         return $event;
     }
 
@@ -128,328 +80,5 @@ class WebhookDispatcher implements EventDispatcherInterface
     public function hasListeners(?string $eventName = null): bool
     {
         return $this->dispatcher->hasListeners($eventName);
-    }
-
-    public function clearInternalWebhookCache(): void
-    {
-        $this->webhooks = null;
-    }
-
-    public function clearInternalPrivilegesCache(): void
-    {
-        $this->privileges = [];
-    }
-
-    private function callWebhooks(Hookable $event, Context $context): void
-    {
-        /** @var WebhookCollection $webhooksForEvent */
-        $webhooksForEvent = $this->getWebhooks()->filterForEvent($event->getName());
-
-        $webhooksForEvent = $this->filterWebhooksByLiveVersion($webhooksForEvent, $event);
-
-        if ($webhooksForEvent->count() === 0) {
-            return;
-        }
-
-        $affectedRoleIds = $webhooksForEvent->getAclRoleIdsAsBinary();
-        $languageId = $context->getLanguageId();
-        $userLocale = $this->getAppLocaleProvider()->getLocaleFromContext($context);
-
-        // If the admin worker is enabled we send all events synchronously, as we can't guarantee timely delivery otherwise.
-        // Additionally, all app lifecycle events are sent synchronously as those can lead to nasty race conditions otherwise.
-        if ($this->isAdminWorkerEnabled || $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent) {
-            Profiler::trace('webhook::dispatch-sync', function () use ($userLocale, $languageId, $affectedRoleIds, $event, $webhooksForEvent): void {
-                $this->callWebhooksSynchronous($webhooksForEvent, $event, $affectedRoleIds, $languageId, $userLocale);
-            });
-
-            return;
-        }
-
-        Profiler::trace('webhook::dispatch-async', function () use ($userLocale, $languageId, $affectedRoleIds, $event, $webhooksForEvent): void {
-            $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $affectedRoleIds, $languageId, $userLocale);
-        });
-    }
-
-    private function filterWebhooksByLiveVersion(WebhookCollection $webhooksForEvent, Hookable $event): WebhookCollection
-    {
-        if (!$event instanceof HookableEntityWrittenEvent) {
-            return $webhooksForEvent;
-        }
-
-        return $webhooksForEvent->filter(
-            static function (Entity $struct) use ($event): bool {
-                $onlyLiveVersion = $struct->get('onlyLiveVersion');
-
-                if (!$onlyLiveVersion) {
-                    return true;
-                }
-
-                foreach ($event->getWebhookPayload() as $writeResult) {
-                    if (isset($writeResult['versionId']) && $writeResult['versionId'] === Defaults::LIVE_VERSION) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        );
-    }
-
-    private function getWebhooks(): WebhookCollection
-    {
-        if ($this->webhooks) {
-            return $this->webhooks;
-        }
-
-        $criteria = new Criteria();
-        $criteria->setTitle('apps::webhooks');
-        $criteria->addFilter(new EqualsFilter('active', true));
-        $criteria->addAssociation('app');
-
-        /** @var WebhookCollection $webhooks */
-        $webhooks = $this->container->get('webhook.repository')->search($criteria, Context::createDefaultContext())->getEntities();
-
-        return $this->webhooks = $webhooks->allowedForDispatching();
-    }
-
-    /**
-     * @param array<string> $affectedRoles
-     */
-    private function isEventDispatchingAllowed(WebhookEntity $webhook, Hookable $event, array $affectedRoles): bool
-    {
-        $app = $webhook->getApp();
-
-        if ($app === null) {
-            return true;
-        }
-
-        // Only app lifecycle hooks can be received if app is deactivated
-        if (!$app->isActive() && !($event instanceof AppChangedEvent || $event instanceof AppDeletedEvent)) {
-            return false;
-        }
-
-        if (!($this->privileges[$event->getName()] ?? null)) {
-            $this->loadPrivileges($event->getName(), $affectedRoles);
-        }
-
-        $privileges = $this->privileges[$event->getName()][$app->getAclRoleId()]
-            ?? new AclPrivilegeCollection([]);
-
-        if (!$event->isAllowed($app->getId(), $privileges)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param array<string> $affectedRoleIds
-     */
-    private function callWebhooksSynchronous(
-        WebhookCollection $webhooksForEvent,
-        Hookable $event,
-        array $affectedRoleIds,
-        string $languageId,
-        string $userLocale
-    ): void {
-        $requests = [];
-
-        foreach ($webhooksForEvent as $webhook) {
-            if (!$this->isEventDispatchingAllowed($webhook, $event, $affectedRoleIds)) {
-                continue;
-            }
-
-            try {
-                $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException) {
-                // don't dispatch webhooks for apps if url changed
-                continue;
-            }
-
-            $timestamp = time();
-            $webhookData['timestamp'] = $timestamp;
-
-            $jsonPayload = json_encode($webhookData, \JSON_THROW_ON_ERROR);
-
-            $headers = [
-                'Content-Type' => 'application/json',
-                'sw-version' => $this->shopwareVersion,
-                AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $languageId,
-                AuthMiddleware::SHOPWARE_USER_LANGUAGE => $userLocale,
-            ];
-
-            if ($event instanceof AppFlowActionEvent) {
-                $headers = array_merge($headers, $event->getWebhookHeaders());
-            }
-
-            $request = new Request(
-                'POST',
-                $webhook->getUrl(),
-                $headers,
-                $jsonPayload
-            );
-
-            if ($webhook->getApp() !== null && $webhook->getApp()->getAppSecret() !== null) {
-                $request = $request->withHeader(
-                    RequestSigner::SHOPWARE_SHOP_SIGNATURE,
-                    (new RequestSigner())->signPayload($jsonPayload, $webhook->getApp()->getAppSecret())
-                );
-            }
-
-            $requests[] = $request;
-        }
-
-        if (\count($requests) > 0) {
-            $pool = new Pool($this->guzzle, $requests);
-            $pool->promise()->wait();
-        }
-    }
-
-    /**
-     * @param array<string> $affectedRoleIds
-     */
-    private function dispatchWebhooksToQueue(
-        WebhookCollection $webhooksForEvent,
-        Hookable $event,
-        array $affectedRoleIds,
-        string $languageId,
-        string $userLocale
-    ): void {
-        foreach ($webhooksForEvent as $webhook) {
-            if (!$this->isEventDispatchingAllowed($webhook, $event, $affectedRoleIds)) {
-                continue;
-            }
-
-            try {
-                $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException) {
-                // don't dispatch webhooks for apps if url changed
-                continue;
-            }
-
-            $webhookEventId = $webhookData['source']['eventId'];
-
-            $appId = $webhook->getApp() !== null ? $webhook->getApp()->getId() : null;
-            $secret = $webhook->getApp() !== null ? $webhook->getApp()->getAppSecret() : null;
-
-            $webhookEventMessage = new WebhookEventMessage(
-                $webhookEventId,
-                $webhookData,
-                $appId,
-                $webhook->getId(),
-                $this->shopwareVersion,
-                $webhook->getUrl(),
-                $secret,
-                $languageId,
-                $userLocale
-            );
-
-            $this->logWebhookWithEvent($webhook, $webhookEventMessage);
-
-            $this->bus->dispatch($webhookEventMessage);
-        }
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function getPayloadForWebhook(WebhookEntity $webhook, Hookable $event): array
-    {
-        $source = [
-            'url' => $this->shopUrl,
-            'eventId' => Uuid::randomHex(),
-        ];
-
-        if ($webhook->getApp() !== null) {
-            $source = \array_merge(
-                $source,
-                $this->getAppPayloadServiceHelper()->buildSource($webhook->getApp())->jsonSerialize()
-            );
-        }
-
-        if ($event instanceof AppFlowActionEvent) {
-            $source['action'] = $event->getName();
-            $payload = $event->getWebhookPayload();
-            $payload['source'] = $source;
-
-            return $payload;
-        }
-
-        $data = [
-            'payload' => $this->filterPayloadByLiveVersion($event->getWebhookPayload(), $webhook, $event),
-            'event' => $event->getName(),
-        ];
-
-        return [
-            'data' => $data,
-            'source' => $source,
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     *
-     * @return array<string, mixed>
-     */
-    private function filterPayloadByLiveVersion(array $payload, WebhookEntity $webhook, Hookable $event): array
-    {
-        if (!$event instanceof HookableEntityWrittenEvent || !$webhook->getOnlyLiveVersion()) {
-            return $payload;
-        }
-
-        return array_filter($payload, function ($writeResult) {
-            return isset($writeResult['versionId']) && $writeResult['versionId'] === Defaults::LIVE_VERSION;
-        });
-    }
-
-    private function logWebhookWithEvent(WebhookEntity $webhook, WebhookEventMessage $webhookEventMessage): void
-    {
-        /** @var EntityRepository $webhookEventLogRepository */
-        $webhookEventLogRepository = $this->container->get('webhook_event_log.repository');
-
-        $webhookEventLogRepository->create([
-            [
-                'id' => $webhookEventMessage->getWebhookEventId(),
-                'appName' => $webhook->getApp()?->getName(),
-                'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
-                'webhookName' => $webhook->getName(),
-                'eventName' => $webhook->getEventName(),
-                'appVersion' => $webhook->getApp()?->getVersion(),
-                'url' => $webhook->getUrl(),
-                'onlyLiveVersion' => $webhook->getOnlyLiveVersion(),
-                'serializedWebhookMessage' => serialize($webhookEventMessage),
-            ],
-        ], Context::createDefaultContext());
-    }
-
-    /**
-     * @param array<string> $affectedRoleIds
-     */
-    private function loadPrivileges(string $eventName, array $affectedRoleIds): void
-    {
-        $roles = $this->connection->fetchAllAssociative('
-            SELECT `id`, `privileges`
-            FROM `acl_role`
-            WHERE `id` IN (:aclRoleIds)
-        ', ['aclRoleIds' => $affectedRoleIds], ['aclRoleIds' => ArrayParameterType::BINARY]);
-
-        if (!$roles) {
-            $this->privileges[$eventName] = [];
-        }
-
-        foreach ($roles as $privilege) {
-            $this->privileges[$eventName][Uuid::fromBytesToHex($privilege['id'])]
-                = new AclPrivilegeCollection(json_decode((string) $privilege['privileges'], true, 512, \JSON_THROW_ON_ERROR));
-        }
-    }
-
-    private function getAppPayloadServiceHelper(): AppPayloadServiceHelper
-    {
-        return $this->container->get(AppPayloadServiceHelper::class);
-    }
-
-    private function getAppLocaleProvider(): AppLocaleProvider
-    {
-        return $this->container->get(AppLocaleProvider::class);
     }
 }

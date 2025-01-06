@@ -12,6 +12,8 @@ class CountryRouteResponse extends StoreApiResponse
 {
     /**
      * @var EntitySearchResult<CountryCollection>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

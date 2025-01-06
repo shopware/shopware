@@ -20,7 +20,8 @@ class Source implements \JsonSerializable
     public function __construct(
         protected string $url,
         protected string $shopId,
-        protected string $appVersion
+        protected string $appVersion,
+        protected ?string $inAppPurchases = null,
     ) {
     }
 
@@ -37,5 +38,10 @@ class Source implements \JsonSerializable
     public function getAppVersion(): string
     {
         return $this->appVersion;
+    }
+
+    public function getInAppPurchases(): ?string
+    {
+        return $this->inAppPurchases;
     }
 }

@@ -85,6 +85,7 @@ To display a dismissible button set the value of "dismissible" to true.
 
 {% block utilities_alert %}
     <div role="alert"
+         aria-live="polite"
          {# @deprecated tag:v6.7.0 - Class `alert-has-icon` will be removed. Use helper classes `d-flex align-items-center` directly in the template like documented by Bootstrap. #}
          class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != 'error' %} {% if feature('ACCESSIBILITY_TWEAKS') %}d-flex align-items-center{% else %}alert-has-icon{% endif %}{% endif %}">
         {% block utilities_alert_icon %}

@@ -146,6 +146,7 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
 
         handleEmptyUrl() {
             this.currentUrlValue = '';
+            this.$emit('update:value', this.url);
         },
 
         validateCurrentValue(value) {

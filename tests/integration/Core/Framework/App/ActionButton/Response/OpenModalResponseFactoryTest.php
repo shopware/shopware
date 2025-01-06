@@ -30,8 +30,9 @@ class OpenModalResponseFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->factory = $this->getContainer()->get(OpenModalResponseFactory::class);
+        $this->factory = static::getContainer()->get(OpenModalResponseFactory::class);
         $app = new AppEntity();
+        $app->setName('TestApp');
         $app->setId(Uuid::randomHex());
         $app->setAppSecret('app-secret');
         $this->action = new AppAction(

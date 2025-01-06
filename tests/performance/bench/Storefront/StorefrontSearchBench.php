@@ -40,11 +40,11 @@ class StorefrontSearchBench extends AbstractBenchCase
             ];
         }
 
-        $this->getContainer()->get('rule.repository')
+        static::getContainer()->get('rule.repository')
             ->create($rulePayload, $this->context->getContext());
 
         // this will update the rule ids inside the context
-        $this->getContainer()->get(CartRuleLoader::class)->loadByToken($this->context, 'bench');
+        static::getContainer()->get(CartRuleLoader::class)->loadByToken($this->context, 'bench');
     }
 
     #[BeforeMethods(['setup'])]
@@ -56,9 +56,9 @@ class StorefrontSearchBench extends AbstractBenchCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->context);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'localhost');
 
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
-        $this->getContainer()->get(SearchPageLoader::class)
+        static::getContainer()->get(SearchPageLoader::class)
             ->load($request, $this->context);
     }
 }

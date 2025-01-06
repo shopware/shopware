@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchema;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
@@ -257,6 +258,11 @@ class OpenApiDefinitionSchemaBuilder
         if ($field->getPropertyName() === 'translations'
             || preg_match('#translations$#i', $field->getPropertyName())
         ) {
+            return false;
+        }
+
+        $ignoreOpenApiSchemaFlag = $field->getFlag(IgnoreInOpenapiSchema::class);
+        if ($ignoreOpenApiSchemaFlag !== null) {
             return false;
         }
 

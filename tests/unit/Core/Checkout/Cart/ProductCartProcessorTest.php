@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
@@ -312,5 +313,45 @@ class ProductCartProcessorTest extends TestCase
 
         static::assertTrue($toCalculateCart->get('A')->isShippingCostAware());
         static::assertFalse($toCalculateCart->get('B')->isShippingCostAware());
+    }
+
+    public function testCoverIsRemovedIfProductMediaIsMissing(): void
+    {
+        $cart = new Cart('test');
+        $lineItem = new LineItem('A', 'product', 'A');
+        $lineItem->setCover(new MediaEntity());
+
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $product = (new SalesChannelProductEntity())->assign([
+            'id' => 'A',
+            'calculatedPrice' => new EmptyPrice(),
+            'calculatedPrices' => new PriceCollection(),
+            'calculatedMaxPurchase' => 1,
+            'productNumber' => 'A',
+            'stock' => 1,
+        ]);
+
+        $processor = new ProductCartProcessor(
+            $this->createMock(ProductGateway::class),
+            $this->createMock(QuantityPriceCalculator::class),
+            $this->createMock(ProductFeatureBuilder::class),
+            $this->createMock(ProductPriceCalculator::class),
+            $this->createMock(EntityCacheKeyGenerator::class),
+            $this->createMock(Connection::class)
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $data = new CartDataCollection();
+        $data->set('product-A', $product);
+
+        static::assertInstanceOf(MediaEntity::class, $cart->getLineItems()->get('A')?->getCover());
+
+        $processor->collect($data, $cart, $context, new CartBehavior());
+
+        $lineItem = $cart->getLineItems()->get('A');
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertNull($lineItem->getCover());
     }
 }

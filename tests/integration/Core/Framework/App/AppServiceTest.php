@@ -36,15 +36,15 @@ class AppServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->actionButtonRepository = static::getContainer()->get('app_action_button.repository');
 
         $this->appService = new AppService(
             new AppLifecycleIterator(
                 $this->appRepository,
                 $this->getAppLoader(__DIR__ . '/Manifest/_fixtures/test')
             ),
-            $this->getContainer()->get(AppLifecycle::class)
+            static::getContainer()->get(AppLifecycle::class)
         );
 
         $this->context = Context::createDefaultContext();
@@ -236,7 +236,7 @@ class AppServiceTest extends TestCase
                 $this->appRepository,
                 $this->getAppLoader(__DIR__ . '/Manifest/_fixtures')
             ),
-            $this->getContainer()->get(AppLifecycle::class)
+            static::getContainer()->get(AppLifecycle::class)
         );
         $refreshableApps = $appService->getRefreshableAppInfo($this->context);
 
@@ -267,7 +267,7 @@ class AppServiceTest extends TestCase
                 $this->appRepository,
                 $this->getAppLoader($appDir)
             ),
-            $this->getContainer()->get(AppLifecycle::class)
+            static::getContainer()->get(AppLifecycle::class)
         );
 
         $fails = $appService->doRefreshApps(true, $this->context);

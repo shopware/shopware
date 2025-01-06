@@ -58,6 +58,8 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
         });
 
         jest.clearAllMocks();
+
+        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
     });
 
     afterEach(() => {

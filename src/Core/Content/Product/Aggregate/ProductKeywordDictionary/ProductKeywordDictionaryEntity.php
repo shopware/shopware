@@ -14,26 +14,36 @@ class ProductKeywordDictionaryEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $id;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $languageId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $keyword;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $reversed;
 
     /**
      * @var LanguageEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $language;
 

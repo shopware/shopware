@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Message;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
@@ -23,33 +25,30 @@ class GenerateThumbnailsHandlerTest extends TestCase
     use MediaFixtures;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaCollection>
      */
-    private $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaThumbnailCollection>
      */
-    private $thumbnailRepository;
+    private EntityRepository $thumbnailRepository;
 
     private Context $context;
 
-    /**
-     * @var GenerateThumbnailsHandler
-     */
-    private $handler;
+    private GenerateThumbnailsHandler $handler;
 
     private bool $remoteThumbnailsEnable = false;
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->thumbnailRepository = static::getContainer()->get('media_thumbnail.repository');
         $this->context = Context::createDefaultContext();
 
-        $this->handler = $this->getContainer()->get(GenerateThumbnailsHandler::class);
+        $this->handler = static::getContainer()->get(GenerateThumbnailsHandler::class);
 
-        $this->remoteThumbnailsEnable = $this->getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
+        $this->remoteThumbnailsEnable = static::getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
     }
 
     public function testGenerateThumbnails(): void

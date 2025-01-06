@@ -22,7 +22,7 @@ class DocsAppEventCommandTest extends TestCase
         // Always check if the docs are up-to-date for the current minor branch
         Feature::skipTestIfActive('v6.7.0.0', $this);
 
-        $docsAppEventCommand = $this->getContainer()->get(DocsAppEventCommand::class);
+        $docsAppEventCommand = static::getContainer()->get(DocsAppEventCommand::class);
 
         $savedContents = @file_get_contents($docsAppEventCommand->getListEventPath()) ?: '';
 

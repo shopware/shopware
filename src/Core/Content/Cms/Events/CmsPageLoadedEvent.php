@@ -16,16 +16,22 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
 {
     /**
      * @var Request
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $request;
 
     /**
      * @var CmsPageCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $result;
 
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelContext;
 

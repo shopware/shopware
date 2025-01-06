@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -31,7 +32,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 /**
  * @internal
  */
-#[Entity('attribute_entity', since: '6.6.3.0')]
+#[Entity('attribute_entity', since: '6.6.3.0', collectionClass: AttributeEntityCollection::class)]
 class AttributeEntity extends EntityStruct
 {
     use EntityCustomFieldsTrait;
@@ -78,6 +79,9 @@ class AttributeEntity extends EntityStruct
 
     #[Serialized(serializer: PriceFieldSerializer::class, api: true)]
     public ?PriceCollection $serialized = null;
+
+    #[Field(type: PriceField::class)]
+    public ?PriceCollection $price = null;
 
     #[Required]
     #[Field(type: FieldType::STRING, translated: true)]

@@ -42,7 +42,7 @@ class CustomerGroupRegistrationTest extends TestCase
 
     public function testGetConfiguration(): void
     {
-        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupRepository = static::getContainer()->get('customer_group.repository');
         $customerGroupRepository->create([
             [
                 'id' => $this->ids->create('group'),
@@ -63,6 +63,6 @@ class CustomerGroupRegistrationTest extends TestCase
 
     protected function getPageLoader(): CustomerGroupRegistrationPageLoader
     {
-        return $this->getContainer()->get(CustomerGroupRegistrationPageLoader::class);
+        return static::getContainer()->get(CustomerGroupRegistrationPageLoader::class);
     }
 }

@@ -15,7 +15,7 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                i18n: true,
+                'i18n-t': true,
                 'sw-icon': true,
                 'sw-label': true,
                 'router-link': true,

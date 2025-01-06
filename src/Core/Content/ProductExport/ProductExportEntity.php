@@ -22,116 +22,162 @@ class ProductExportEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productStreamId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $storefrontSalesChannelId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelDomainId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currencyId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fileName;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $accessKey;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $encoding;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fileFormat;
 
     /**
      * @var ProductStreamEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productStream;
 
     /**
      * @var SalesChannelEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $storefrontSalesChannel;
 
     /**
      * @var SalesChannelEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannel;
 
     /**
      * @var SalesChannelDomainEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelDomain;
 
     /**
      * @var CurrencyEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currency;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $includeVariants;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $generateByCronjob;
 
     /**
      * @var \DateTimeInterface|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $generatedAt;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $interval;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $headerTemplate;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $bodyTemplate;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $footerTemplate;
 
     /**
      * @var bool|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $pausedSchedule;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $isRunning;
 

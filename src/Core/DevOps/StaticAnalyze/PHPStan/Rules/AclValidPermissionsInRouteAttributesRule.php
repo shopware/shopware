@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * @internal
  *
- * @implements \PHPStan\Rules\Rule<InClassNode>
+ * @implements Rule<InClassNode>
  */
 #[Package('core')]
 class AclValidPermissionsInRouteAttributesRule implements Rule

@@ -102,6 +102,7 @@ class ExtensionDataProviderTest extends TestCase
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context);
         $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
+
         static::assertCount(7, $installedExtensions);
     }
 
@@ -159,7 +160,7 @@ class ExtensionDataProviderTest extends TestCase
         ], $context);
 
         // update apps and set managed = true
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $ids = $appRepository->searchIds(new Criteria(), $context);
 
         $appRepository->update(

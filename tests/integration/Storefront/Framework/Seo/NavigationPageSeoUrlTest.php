@@ -38,9 +38,9 @@ class NavigationPageSeoUrlTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
     }
 
     public function testGenerateForNewCategories(): void

@@ -237,7 +237,8 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <tag name="shopware.cms.data_resolver"/>
         </service>
 
@@ -405,7 +406,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -413,7 +414,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="product.repository"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <tag name="shopware.entity_indexer"/>
         </service>
@@ -487,6 +488,12 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.product_detail_route%</argument>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" public="true">

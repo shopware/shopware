@@ -1,7 +1,7 @@
 import template from './sw-flow-set-entity-custom-field-modal.html.twig';
 import './sw-flow-set-entity-custom-field-modal.scss';
 
-const { Component, Mixin, Service } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
@@ -15,7 +15,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'flowBuilderService',
+    ],
 
     emits: [
         'modal-close',
@@ -304,15 +307,14 @@ export default {
 
             const allowedAware = this.triggerEvent.aware ?? [];
             // eslint-disable-next-line max-len
-            const options = Service('flowBuilderService').getAvailableEntities(
-                this.action,
-                this.triggerActions,
-                allowedAware,
-                ['customFields'],
-            );
+            const options = this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, [
+                'customFields',
+            ]);
+
+            const entityName = this.flowBuilderService.getEntityNameByAction(this.action);
 
             if (options.length) {
-                this.entity = options[0].value;
+                this.entity = options.find((option) => option.value === entityName)?.value || options[0].value;
             }
 
             this.entityOptions = options;

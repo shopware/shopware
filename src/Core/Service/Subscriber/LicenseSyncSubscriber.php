@@ -29,6 +29,8 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
 {
     public const CONFIG_STORE_LICENSE_KEY = 'core.store.licenseKey';
 
+    public const CONFIG_STORE_LICENSE_HOST = 'core.store.licenseHost';
+
     public function __construct(
         private readonly SystemConfigService $config,
         private readonly ServiceRegistryClient $serviceRegistryClient,
@@ -49,17 +51,23 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
 
     public function syncLicense(SystemConfigChangedEvent $event): void
     {
-        if ($event->getKey() !== self::CONFIG_STORE_LICENSE_KEY || $event->getValue() === null) {
+        $key = $event->getKey();
+        $value = $event->getValue();
+
+        if (!\in_array($key, [self::CONFIG_STORE_LICENSE_KEY, self::CONFIG_STORE_LICENSE_HOST], true) || !\is_string($value)) {
             return;
         }
 
         $context = Context::createDefaultContext();
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('active', true));
-        $criteria->addFilter(new EqualsFilter('selfManaged', true));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('selfManaged', true));
 
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
+
+        $licenseKey = $key === self::CONFIG_STORE_LICENSE_KEY ? $value : null;
+        $licenseHost = $key === self::CONFIG_STORE_LICENSE_HOST ? $value : null;
 
         /** @var AppEntity $app */
         foreach ($apps as $app) {
@@ -68,8 +76,8 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
             }
 
             $serviceEntry = $this->serviceRegistryClient->get($app->getName());
-            $licenseKey = \is_scalar($event->getValue()) ? (string) $event->getValue() : null;
-            $this->syncLicenseByService($serviceEntry, $app, $context, $licenseKey);
+
+            $this->syncLicenseByService($serviceEntry, $app, $context, $licenseKey, $licenseHost);
         }
     }
 
@@ -95,23 +103,24 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function syncLicenseByService(ServiceRegistryEntry $serviceEntry, AppEntity $app, Context $context, ?string $licenseKey = null): void
+    private function syncLicenseByService(ServiceRegistryEntry $serviceEntry, AppEntity $app, Context $context, ?string $licenseKey = null, ?string $licenseHost = null): void
     {
         if ($serviceEntry->licenseSyncEndPoint === null) {
             return;
         }
 
-        if (!$licenseKey) {
+        if ($licenseKey === null) {
             $licenseKey = $this->config->getString(self::CONFIG_STORE_LICENSE_KEY);
         }
 
-        if ($licenseKey === '') {
-            return;
+        if ($licenseHost === null) {
+            $licenseHost = $this->config->getString(self::CONFIG_STORE_LICENSE_HOST);
         }
 
         try {
             $client = $this->clientFactory->newAuthenticatedFor($serviceEntry, $app, $context);
-            $client->syncLicense($licenseKey);
+
+            $client->syncLicense($licenseKey, $licenseHost);
         } catch (ServiceException|AppUrlChangeDetectedException $e) {
             $this->logger->warning('Could not sync license', ['exception' => $e->getMessage()]);
         }

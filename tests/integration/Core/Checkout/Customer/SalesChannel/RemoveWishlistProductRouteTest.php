@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -46,7 +48,7 @@ class RemoveWishlistProductRouteTest extends TestCase
         ]);
         $this->assignSalesChannelContext($this->browser);
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 
         $email = Uuid::randomHex() . '@example.com';
@@ -74,7 +76,7 @@ class RemoveWishlistProductRouteTest extends TestCase
     public function testDeleteProductShouldReturnSuccess(): void
     {
         $productId = $this->createProduct($this->context);
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $eventWasThrown = false;
 
         $this->createCustomerWishlist($this->context, $this->customerId, $productId);
@@ -132,7 +134,11 @@ class RemoveWishlistProductRouteTest extends TestCase
 
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $errors['code']);
+        if (Feature::isActive('v6.7.0.0')) {
+            static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $errors['code']);
+        } else {
+            static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $errors['code']);
+        }
         static::assertSame('Forbidden', $errors['title']);
         static::assertSame('Customer is not logged in.', $errors['detail']);
     }
@@ -194,7 +200,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 ],
             ],
         ];
-        $this->getContainer()->get('product.repository')->create([$data], $context);
+        static::getContainer()->get('product.repository')->create([$data], $context);
 
         return $productId;
     }
@@ -202,7 +208,7 @@ class RemoveWishlistProductRouteTest extends TestCase
     private function createCustomerWishlist(Context $context, string $customerId, string $productId): string
     {
         $customerWishlistId = Uuid::randomHex();
-        $customerWishlistRepository = $this->getContainer()->get('customer_wishlist.repository');
+        $customerWishlistRepository = static::getContainer()->get('customer_wishlist.repository');
 
         $customerWishlistRepository->create([
             [

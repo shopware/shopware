@@ -7,12 +7,11 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @deprecated tag:v6.7.0 - reason:remove-phpstan-rule - Will be removed. Configure Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessageHandlerFinalRule instead
- *
  * @implements Rule<InClassNode>
  *
  * @internal
@@ -37,7 +36,11 @@ class FinalClassRule implements Rule
         }
 
         if ($this->isMessageHandler($node)) {
-            return ['MessageHandlers must be final, so they cannot be extended/overwritten.'];
+            return [
+                RuleErrorBuilder::message('MessageHandlers must be final, so they cannot be extended/overwritten.')
+                ->identifier('shopware.finalMessageHandlers')
+                ->build(),
+            ];
         }
 
         return [];

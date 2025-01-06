@@ -380,7 +380,7 @@ trait PromotionTestFixtureBehaviour
             $scope,
             $fixedPrice,
             null,
-            $this->getContainer(),
+            static::getContainer(),
             $context,
             $considerAdvancedRules
         );
@@ -410,7 +410,7 @@ trait PromotionTestFixtureBehaviour
             $scope,
             $fixedPrice,
             null,
-            $this->getContainer(),
+            static::getContainer(),
             $context,
             false
         );

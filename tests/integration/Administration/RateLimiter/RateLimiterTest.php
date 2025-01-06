@@ -37,7 +37,7 @@ class RateLimiterTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
     }
 
     protected function tearDown(): void

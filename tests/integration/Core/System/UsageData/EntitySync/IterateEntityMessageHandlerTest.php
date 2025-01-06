@@ -45,7 +45,7 @@ class IterateEntityMessageHandlerTest extends TestCase
     protected function setUp(): void
     {
         /** @var MockHttpClient $client */
-        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client = static::getContainer()->get('shopware.usage_data.gateway.client');
         $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
@@ -61,10 +61,10 @@ class IterateEntityMessageHandlerTest extends TestCase
     public function testItFetchesEverythingIfLastRunIsNotSet(): void
     {
         /** @var SystemConfigService $systemConfigService */
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::any())
@@ -80,12 +80,12 @@ class IterateEntityMessageHandlerTest extends TestCase
             $messageBus,
             new IterateEntitiesQueryBuilder(
                 $entityDefinitionService,
-                $this->getContainer()->get(Connection::class),
-                $this->getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
+                static::getContainer()->get(Connection::class),
+                static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            $this->getContainer()->get(ConsentService::class),
+            static::getContainer()->get(ConsentService::class),
             $entityDefinitionService,
-            $this->getContainer()->get(LoggerInterface::class),
+            static::getContainer()->get(LoggerInterface::class),
         );
 
         $messageHandler(new IterateEntityMessage(
@@ -115,10 +115,10 @@ class IterateEntityMessageHandlerTest extends TestCase
     public function testItFetchesOnlyNewChangesIfLastRunIsSet(): void
     {
         /** @var SystemConfigService $systemConfigService */
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::any())
@@ -134,12 +134,12 @@ class IterateEntityMessageHandlerTest extends TestCase
             $messageBus,
             new IterateEntitiesQueryBuilder(
                 $entityDefinitionService,
-                $this->getContainer()->get(Connection::class),
-                $this->getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
+                static::getContainer()->get(Connection::class),
+                static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            $this->getContainer()->get(ConsentService::class),
+            static::getContainer()->get(ConsentService::class),
             $entityDefinitionService,
-            $this->getContainer()->get(LoggerInterface::class),
+            static::getContainer()->get(LoggerInterface::class),
         );
 
         $messageHandler(new IterateEntityMessage(
@@ -167,12 +167,12 @@ class IterateEntityMessageHandlerTest extends TestCase
     public function testItFetchesOnlyDeletionsUpToTheCurrentRunDate(): void
     {
         /** @var SystemConfigService $systemConfigService */
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
         // trigger an update
         $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::any())
@@ -191,12 +191,12 @@ class IterateEntityMessageHandlerTest extends TestCase
             $messageBus,
             new IterateEntitiesQueryBuilder(
                 $entityDefinitionService,
-                $this->getContainer()->get(Connection::class),
-                $this->getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
+                static::getContainer()->get(Connection::class),
+                static::getContainer()->getParameter('shopware.usage_data.gateway.batch_size'),
             ),
-            $this->getContainer()->get(ConsentService::class),
+            static::getContainer()->get(ConsentService::class),
             $entityDefinitionService,
-            $this->getContainer()->get(LoggerInterface::class),
+            static::getContainer()->get(LoggerInterface::class),
         );
 
         $messageHandler(new IterateEntityMessage(
@@ -239,14 +239,14 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $messageHandler = new IterateEntityMessageHandler(
             new CollectingMessageBus(),
-            $this->getContainer()->get(IterateEntitiesQueryBuilder::class),
+            static::getContainer()->get(IterateEntitiesQueryBuilder::class),
             $consentService,
             $entityDefinitionService,
             $logger,
         );
 
         /** @var DefinitionInstanceRegistry $registry */
-        $registry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         $registry->register(new TestEntityDefinition());
 
         $messageHandler(new IterateEntityMessage(
@@ -276,9 +276,9 @@ class IterateEntityMessageHandlerTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->upsert($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->upsert($products, Context::createDefaultContext());
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         static::assertEquals(1, $connection->update(
             '`product`',
@@ -310,7 +310,7 @@ class IterateEntityMessageHandlerTest extends TestCase
     private function insertProductDeletion(string $id, \DateTimeImmutable $deletedAt): void
     {
         /** @var Connection $connection */
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $qb = $connection->createQueryBuilder();
         $qb->insert('usage_data_entity_deletion');
         $qb->values([

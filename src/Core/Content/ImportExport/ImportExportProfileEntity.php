@@ -32,61 +32,85 @@ class ImportExportProfileEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $label;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $systemDefault;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $sourceEntity;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fileType;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $delimiter;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $enclosure;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var list<array{key: string, mappedKey: string}>|array<Mapping>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mapping;
 
     /**
      * @var array<string, mixed>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $updateBy;
 
     /**
      * @var ImportExportLogCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $importExportLogs;
 
     /**
      * @var array<string, mixed>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $config;
 
     /**
      * @var ImportExportProfileTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 

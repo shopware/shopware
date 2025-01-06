@@ -441,4 +441,27 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         expect(wrapper.vm.orderService.updateOrderAddress).not.toHaveBeenCalled();
     });
+
+    it('should notification error when order line items are empty', async () => {
+        const createNotificationErrorMock = jest.fn();
+        const createNewVersionIdMock = jest.fn().mockResolvedValue();
+
+        wrapper = await createWrapper({
+            lineItems: [],
+        });
+
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+        wrapper.vm.createNewVersionId = createNewVersionIdMock;
+
+        await wrapper.vm.onSaveEdits({
+            lineItems: [],
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: 'sw-order.detail.messageEmptyLineItems',
+        });
+
+        expect(createNewVersionIdMock).toHaveBeenCalled();
+        expect(Shopware.State.getters['swOrderDetail/isLoading']).toBe(false);
+    });
 });

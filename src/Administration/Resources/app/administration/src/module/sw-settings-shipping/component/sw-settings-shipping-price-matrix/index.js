@@ -69,6 +69,7 @@ export default {
             showDeleteModal: false,
             isLoading: false,
             ruleColumns: [],
+            showAllPrices: true,
         };
     },
 
@@ -76,10 +77,12 @@ export default {
         ...mapState('swShippingDetail', [
             'shippingMethod',
             'currencies',
+            'restrictedRuleIds',
         ]),
 
         ...mapGetters('swShippingDetail', [
             'defaultCurrency',
+            /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
             'usedRules',
             'unrestrictedPriceMatrixExists',
             'newPriceMatrixExists',
@@ -162,14 +165,16 @@ export default {
 
         ruleFilterCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(
+            criteria.addSorting(Criteria.sort('name', 'ASC', false)).addFilter(
                 Criteria.multi('OR', [
                     Criteria.contains('rule.moduleTypes.types', 'price'),
                     Criteria.equals('rule.moduleTypes', null),
                 ]),
             );
 
-            criteria.addAssociation('conditions').addSorting(Criteria.sort('name', 'ASC', false));
+            if (!Shopware.Feature.isActive('v6.7.0.0')) {
+                criteria.addAssociation('conditions');
+            }
 
             return criteria;
         },
@@ -183,7 +188,9 @@ export default {
                 ]),
             );
 
-            criteria.addAssociation('conditions');
+            if (!Shopware.Feature.isActive('v6.7.0.0')) {
+                criteria.addAssociation('conditions');
+            }
 
             return criteria;
         },
@@ -222,6 +229,10 @@ export default {
 
             return this.priceGroup.rule ? this.priceGroup.rule.name : this.$tc('sw-settings-shipping.priceMatrix.titleCard');
         },
+
+        prices() {
+            return this.showAllPrices ? this.priceGroup.prices : [this.priceGroup.prices[0]];
+        },
     },
 
     watch: {
@@ -237,6 +248,7 @@ export default {
     methods: {
         createdComponent() {
             this.ruleColumns = [];
+            this.showAllPrices = this.priceGroup.prices.length <= 1;
 
             if (this.isRuleMatrix) {
                 this.ruleColumns.push({
@@ -270,6 +282,7 @@ export default {
         },
 
         onAddNewShippingPrice() {
+            this.updateShowAllPrices();
             const refPrice = this.priceGroup.prices[this.priceGroup.prices.length - 1];
 
             const newShippingPrice = this.shippingPriceRepository.create(Context.api);
@@ -475,6 +488,10 @@ export default {
             }
 
             this.onAddNewShippingPrice();
+        },
+
+        updateShowAllPrices() {
+            this.showAllPrices = true;
         },
     },
 };

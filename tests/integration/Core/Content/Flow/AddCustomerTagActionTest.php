@@ -43,11 +43,11 @@ class AddCustomerTagActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $this->ids = new IdsCollection();
 
@@ -188,7 +188,7 @@ class AddCustomerTagActionTest extends TestCase
 
     private function createDataTest(): void
     {
-        $this->getContainer()->get('tag.repository')->create([
+        static::getContainer()->get('tag.repository')->create([
             [
                 'id' => $this->ids->create('tag_id'),
                 'name' => 'test tag',

@@ -37,7 +37,7 @@ export default (isProd: boolean, adminDir: string) => {
     // Copy over all static assets for production
     if (isProd) {
         return {
-            name: 'copy-static-assets',
+            name: 'shopware-copy-static-assets',
             // Hook into the build process after it's done
             closeBundle: async () => {
                 const staticDir = path.resolve(adminDir, 'static');
@@ -53,7 +53,7 @@ export default (isProd: boolean, adminDir: string) => {
     }
 
     return {
-        name: 'serve-multiple-static',
+        name: 'shopware-serve-multiple-static',
 
         configureServer(server) {
             const staticMappings = [

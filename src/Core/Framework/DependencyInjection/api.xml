@@ -63,7 +63,7 @@
 
         <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -171,6 +171,7 @@
             <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -208,7 +209,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\OAuth\ScopeRepository">
-            <argument type="tagged" tag="shopware.oauth.scope"/>
+            <argument type="tagged_iterator" tag="shopware.oauth.scope"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 

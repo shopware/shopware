@@ -47,7 +47,7 @@ class MaintenanceControllerTest extends TestCase
 
         static::assertEquals(503, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MaintenancePageLoadedHook::HOOK_NAME, $traces);
     }
@@ -57,7 +57,7 @@ class MaintenanceControllerTest extends TestCase
         $response = $this->request('GET', '/maintenance/singlepage/' . $this->ids->get('page'), []);
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MaintenancePageLoadedHook::HOOK_NAME, $traces);
     }
@@ -102,13 +102,13 @@ class MaintenanceControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('cms_page.repository')->create([$page], Context::createDefaultContext());
+        static::getContainer()->get('cms_page.repository')->create([$page], Context::createDefaultContext());
     }
 
     private function setMaintenanceMode(): void
     {
         /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
@@ -126,6 +126,6 @@ class MaintenanceControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->getContainer()->get(SystemConfigService::class)->set('core.basicInformation.maintenancePage', $this->ids->get('page'));
+        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.maintenancePage', $this->ids->get('page'));
     }
 }

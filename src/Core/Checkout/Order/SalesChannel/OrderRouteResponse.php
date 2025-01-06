@@ -14,11 +14,15 @@ class OrderRouteResponse extends StoreApiResponse
 {
     /**
      * @var EntitySearchResult<OrderCollection>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 
     /**
      * @var array<string, bool>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentChangeable = [];
 

@@ -73,6 +73,8 @@
       "save": "Save",
       "saveClean": "Clean Save",
       "saveCleanToolTip": "The current values will be rewritten completely. Use this to make a clean entry after fields were deleted or changed its types.",
+      "validate": "Validate",
+      "validateToolTip": "Validate the whole configuration. Changes will stay unsaved!",
       "rename": "Rename",
       "delete": "Delete",
       "duplicate": "Create duplicate",
@@ -88,6 +90,12 @@
       "inheritanceInfo": "This theme is derived from the \"{parentThemeName}\" theme.",
       "showFullError": "Show full error",
       "salesChannelHelpText": "It is not possible to remove these assignments here. If you want to change a Sales Channel's theme, visit the respective Sales Channel's settings.",
+      "validate": {
+        "success": "Validation successful",
+        "successMessage": "The configuration was successfully validated. You can save the changes now.",
+        "failed": "Validation failed",
+        "failedMessage": "The configuration is faulty. The changes can not be saved."
+      },
       "label": {
         "media": "Media",
         "colors": "Colours",

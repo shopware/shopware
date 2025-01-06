@@ -23,7 +23,7 @@ export default class DatePickerPlugin extends Plugin {
         enableTime: true,
         noCalendar: false,
         weekNumbers: true,
-        allowInput: true,
+        allowInput: false,
         minDate: null,
         maxDate: null,
         locale: 'default',
@@ -58,7 +58,22 @@ export default class DatePickerPlugin extends Plugin {
             ...this.generateFlatpickrOptions(),
         });
 
+        this.setAttributes();
         this.registerEventListeners();
+    }
+
+    /**
+     * Set attributes for the input element
+     *
+     * @returns {void}
+     */
+    setAttributes() {
+        const label = this.el.getAttribute('aria-label');
+        const generatedInput = this.el.nextElementSibling;
+
+        if (generatedInput && label) {
+            generatedInput.setAttribute('aria-label', label);
+        }
     }
 
     /**

@@ -26,10 +26,10 @@ class ScheduledTaskControllerTest extends TestCase
 
     public function testRunScheduledTasks(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM scheduled_task');
 
-        $repo = $this->getContainer()->get('scheduled_task.repository');
+        $repo = static::getContainer()->get('scheduled_task.repository');
         $taskId = Uuid::randomHex();
         $repo->create([
             [
@@ -57,10 +57,10 @@ class ScheduledTaskControllerTest extends TestCase
 
     public function testRunSkippedTasks(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM scheduled_task');
 
-        $repo = $this->getContainer()->get('scheduled_task.repository');
+        $repo = static::getContainer()->get('scheduled_task.repository');
         $taskId = Uuid::randomHex();
         $repo->create([
             [
@@ -88,10 +88,10 @@ class ScheduledTaskControllerTest extends TestCase
 
     public function testGetMinRunInterval(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM scheduled_task');
 
-        $repo = $this->getContainer()->get('scheduled_task.repository');
+        $repo = static::getContainer()->get('scheduled_task.repository');
         $nextExecutionTime = new \DateTime();
         $repo->create([
             [

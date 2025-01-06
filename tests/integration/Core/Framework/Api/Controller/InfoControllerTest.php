@@ -20,10 +20,12 @@ use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -46,29 +48,75 @@ use Symfony\Component\HttpFoundation\Request;
 class InfoControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+
     use AppSystemTestBehaviour;
+
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->connection = static::getContainer()->get(Connection::class);
+    }
 
     public function testGetConfig(): void
     {
         $expected = [
-            'version' => $this->getContainer()->getParameter('kernel.shopware_version'),
+            'version' => '6.6.9999999.9999999-dev',
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
-                'enableAdminWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_admin_worker'),
-                'enableQueueStatsWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_queue_stats_worker'),
-                'enableNotificationWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_notification_worker'),
-                'transports' => $this->getContainer()->getParameter('shopware.admin_worker.transports'),
+                'enableAdminWorker' => true,
+                'enableQueueStatsWorker' => true,
+                'enableNotificationWorker' => true,
+                'transports' => ['async', 'low_priority'],
             ],
             'bundles' => [],
             'settings' => [
                 'enableUrlFeature' => true,
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
-                'private_allowed_extensions' => $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions'),
-                'enableHtmlSanitizer' => $this->getContainer()->getParameter('shopware.html_sanitizer.enabled'),
+                'private_allowed_extensions' => [
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'webp',
+                    'avif',
+                    'gif',
+                    'svg',
+                    'bmp',
+                    'tiff',
+                    'tif',
+                    'eps',
+                    'webm',
+                    'mkv',
+                    'flv',
+                    'ogv',
+                    'ogg',
+                    'mov',
+                    'mp4',
+                    'avi',
+                    'wmv',
+                    'pdf',
+                    'aac',
+                    'mp3',
+                    'wav',
+                    'flac',
+                    'oga',
+                    'wma',
+                    'txt',
+                    'doc',
+                    'ico',
+                    'glb',
+                    'zip',
+                    'rar',
+                    'csv',
+                    'xls',
+                    'xlsx',
+                ],
+                'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,
                 'disableExtensionManagement' => false,
             ],
+            'inAppPurchases' => [],
         ];
 
         $url = '/api/_info/config';
@@ -87,13 +135,13 @@ class InfoControllerTest extends TestCase
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
 
-        static::assertEquals($decodedResponse, $expected);
+        static::assertEquals($expected, $decodedResponse);
     }
 
     public function testGetConfigWithPermissions(): void
     {
         $ids = new IdsCollection();
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $appRepository->create([
             [
                 'name' => 'PHPUnit',
@@ -145,13 +193,13 @@ class InfoControllerTest extends TestCase
             'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
-                'enableAdminWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_admin_worker'),
-                'transports' => $this->getContainer()->getParameter('shopware.admin_worker.transports'),
+                'enableAdminWorker' => true,
+                'transports' => [],
             ],
             'bundles' => $bundle,
             'settings' => [
                 'enableUrlFeature' => true,
-                'enableHtmlSanitizer' => $this->getContainer()->getParameter('shopware.html_sanitizer.enabled'),
+                'enableHtmlSanitizer' => true,
             ],
         ];
 
@@ -181,7 +229,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersion(): void
     {
         $expected = [
-            'version' => $this->getContainer()->getParameter('kernel.shopware_version'),
+            'version' => '6.6.9999999.9999999-dev',
         ];
 
         $url = '/api/_info/version';
@@ -201,7 +249,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersionOldVersion(): void
     {
         $expected = [
-            'version' => $this->getContainer()->getParameter('kernel.shopware_version'),
+            'version' => '6.6.9999999.9999999-dev',
         ];
 
         $url = '/api/v1/_info/version';
@@ -272,6 +320,8 @@ class InfoControllerTest extends TestCase
                 'aware' => [
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
+                    CustomerGroupAware::class,
+                    lcfirst((new \ReflectionClass(CustomerGroupAware::class))->getShortName()),
                     MailAware::class,
                     lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     SalesChannelAware::class,
@@ -337,13 +387,14 @@ class InfoControllerTest extends TestCase
             $kernelMock,
             $packagesMock,
             $this->createMock(BusinessEventCollector::class),
-            $this->getContainer()->get('shopware.increment.gateway.registry'),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppUrlVerifier::class),
-            $this->getContainer()->get('router'),
+            static::getContainer()->get('shopware.increment.gateway.registry'),
+            $this->connection,
+            static::getContainer()->get(AppUrlVerifier::class),
+            static::getContainer()->get('router'),
             $eventCollector,
-            $this->getContainer()->get(SystemConfigService::class),
-            $this->getContainer()->get(ApiRouteInfoResolver::class),
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(ApiRouteInfoResolver::class),
+            static::getContainer()->get(InAppPurchase::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -401,13 +452,14 @@ class InfoControllerTest extends TestCase
             $kernelMock,
             $packagesMock,
             $this->createMock(BusinessEventCollector::class),
-            $this->getContainer()->get('shopware.increment.gateway.registry'),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppUrlVerifier::class),
-            $this->getContainer()->get('router'),
+            static::getContainer()->get('shopware.increment.gateway.registry'),
+            $this->connection,
+            static::getContainer()->get(AppUrlVerifier::class),
+            static::getContainer()->get('router'),
             $eventCollector,
-            $this->getContainer()->get(SystemConfigService::class),
-            $this->getContainer()->get(ApiRouteInfoResolver::class),
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(ApiRouteInfoResolver::class),
+            static::getContainer()->get(InAppPurchase::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -479,13 +531,14 @@ class InfoControllerTest extends TestCase
             $kernelMock,
             $assets,
             $this->createMock(BusinessEventCollector::class),
-            $this->getContainer()->get('shopware.increment.gateway.registry'),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppUrlVerifier::class),
-            $this->getContainer()->get('router'),
+            static::getContainer()->get('shopware.increment.gateway.registry'),
+            $this->connection,
+            static::getContainer()->get(AppUrlVerifier::class),
+            static::getContainer()->get('router'),
             $eventCollector,
-            $this->getContainer()->get(SystemConfigService::class),
-            $this->getContainer()->get(ApiRouteInfoResolver::class),
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(ApiRouteInfoResolver::class),
+            static::getContainer()->get(InAppPurchase::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -682,7 +735,7 @@ class InfoControllerTest extends TestCase
 
     private function createApp(string $appId, string $aclRoleId): void
     {
-        $this->getContainer()->get(Connection::class)->insert('app', [
+        $this->connection->insert('app', [
             'id' => Uuid::fromHexToBytes($appId),
             'name' => 'flowbuilderactionapp',
             'active' => 1,
@@ -698,7 +751,7 @@ class InfoControllerTest extends TestCase
 
     private function createAppFlowAction(string $flowAppId, string $appId): void
     {
-        $this->getContainer()->get(Connection::class)->insert('app_flow_action', [
+        $this->connection->insert('app_flow_action', [
             'id' => Uuid::fromHexToBytes($flowAppId),
             'app_id' => Uuid::fromHexToBytes($appId),
             'name' => 'telegram.send.message',
@@ -712,7 +765,7 @@ class InfoControllerTest extends TestCase
 
     private function createAppFlowEvent(string $flowAppId, string $appId): void
     {
-        $this->getContainer()->get(Connection::class)->insert('app_flow_event', [
+        $this->connection->insert('app_flow_event', [
             'id' => Uuid::fromHexToBytes($flowAppId),
             'app_id' => Uuid::fromHexToBytes($appId),
             'name' => 'customer.wishlist',
@@ -725,7 +778,7 @@ class InfoControllerTest extends TestCase
     {
         $integrationId = Uuid::randomBytes();
 
-        $this->getContainer()->get(Connection::class)->insert('integration', [
+        $this->connection->insert('integration', [
             'id' => $integrationId,
             'access_key' => 'test',
             'secret_access_key' => 'test',
@@ -738,7 +791,7 @@ class InfoControllerTest extends TestCase
 
     private function createAclRole(string $aclRoleId): void
     {
-        $this->getContainer()->get(Connection::class)->insert('acl_role', [
+        $this->connection->insert('acl_role', [
             'id' => Uuid::fromHexToBytes($aclRoleId),
             'name' => 'aclTest',
             'privileges' => json_encode(['users_and_permissions.viewer']),

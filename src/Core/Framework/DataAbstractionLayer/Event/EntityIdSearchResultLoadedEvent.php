@@ -14,16 +14,22 @@ class EntityIdSearchResultLoadedEvent extends NestedEvent implements GenericEven
 {
     /**
      * @var IdSearchResult
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $result;
 
     /**
      * @var EntityDefinition
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $definition;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 

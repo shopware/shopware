@@ -9,7 +9,7 @@ import Iterator from 'src/helper/iterator.helper';
 /**
  * @package checkout
  *
- * this plugins opens a modal
+ * This plugin opens a modal
  * where an address can be edited or created
  */
 export default class AddressEditorPlugin extends Plugin {

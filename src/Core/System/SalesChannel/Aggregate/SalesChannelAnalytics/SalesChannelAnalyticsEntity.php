@@ -14,26 +14,36 @@ class SalesChannelAnalyticsEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $trackingId;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $active;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $trackOrders;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $anonymizeIp;
 
     /**
      * @var SalesChannelEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannel;
 

@@ -144,7 +144,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry" public="true">
-            <argument type="tagged" tag="storefront.media.upload.validator"/>
+            <argument type="tagged_iterator" tag="storefront.media.upload.validator"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Media\Validator\StorefrontMediaImageValidator">
@@ -158,12 +158,17 @@
         <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface"/>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\TemplateDataSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -440,7 +445,7 @@
             <argument type="service" id="assets.packages"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cache\CacheTracer" decorates="Shopware\Core\Framework\Adapter\Cache\CacheTracer">
+        <service id="Shopware\Storefront\Framework\Cache\CacheTracer" decorates="Shopware\Core\Framework\Adapter\Cache\CacheTracer" lazy="true">
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTracer.inner"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
         </service>
@@ -460,9 +465,9 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
-            <argument type="tagged" tag="shopware.storefront.captcha"/>
-            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
+            <argument type="tagged_iterator" tag="shopware.storefront.captcha"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="service_container" />
 
             <tag name="kernel.event_subscriber"/>
         </service>

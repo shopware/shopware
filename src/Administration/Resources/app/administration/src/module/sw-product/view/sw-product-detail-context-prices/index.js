@@ -392,7 +392,7 @@ export default {
         onInheritanceRestore(rule, currency) {
             // remove price from rule.price with the currency id
             const indexOfPrice = rule.price.findIndex((price) => price.currencyId === currency.id);
-            this.$delete(rule.price, indexOfPrice);
+            rule.price.splice(indexOfPrice, 1);
         },
 
         onInheritanceRemove(rule, currency) {

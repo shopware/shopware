@@ -48,7 +48,7 @@ class ContactFormRouteTest extends TestCase
     public function testContactFormSendMail(): void
     {
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
         $eventDidRun = false;
@@ -95,7 +95,7 @@ class ContactFormRouteTest extends TestCase
         };
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
         $eventDidRun = false;
@@ -152,7 +152,7 @@ class ContactFormRouteTest extends TestCase
         $this->createCmsFormData($formSlotId);
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
         $eventDidRun = false;
@@ -289,7 +289,7 @@ class ContactFormRouteTest extends TestCase
                 ],
             ],
         ];
-        $this->getContainer()->get('category.repository')->create($data, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($data, Context::createDefaultContext());
 
         return [$contactCategoryId, $slotId];
     }
@@ -334,7 +334,7 @@ class ContactFormRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('cms_page.repository')->create($cmsData, Context::createDefaultContext());
+        static::getContainer()->get('cms_page.repository')->create($cmsData, Context::createDefaultContext());
     }
 
     /**
@@ -369,7 +369,7 @@ class ContactFormRouteTest extends TestCase
                 'slotConfig' => $slotConfig,
             ],
         ];
-        $this->getContainer()->get('landing_page.repository')->create($data, Context::createDefaultContext());
+        static::getContainer()->get('landing_page.repository')->create($data, Context::createDefaultContext());
 
         return [$landingPageId, $slotId];
     }
@@ -408,7 +408,7 @@ class ContactFormRouteTest extends TestCase
                 'slotConfig' => $slotConfig,
             ],
         ];
-        $this->getContainer()->get('product.repository')->create($data, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($data, Context::createDefaultContext());
 
         return [$productId, $slotId];
     }

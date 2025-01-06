@@ -19,7 +19,9 @@
         "terminal.integrated.defaultProfile.linux": "bash"
       },
       "extensions": [
-        "DEVSENSE.phptools-vscode"
+        "DEVSENSE.phptools-vscode",
+        "redhat.vscode-yaml",
+        "redhat.vscode-xml"
       ]
     }
   }

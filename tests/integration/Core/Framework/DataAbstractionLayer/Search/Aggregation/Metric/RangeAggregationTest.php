@@ -29,7 +29,7 @@ class RangeAggregationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->repository = static::getContainer()->get('product.repository');
         $this->context = Context::createDefaultContext();
     }
 

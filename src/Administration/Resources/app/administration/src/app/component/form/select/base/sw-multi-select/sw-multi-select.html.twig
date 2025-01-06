@@ -4,6 +4,7 @@
     class="sw-multi-select"
     :is-loading="isLoading"
     v-bind="$attrs"
+    :label="label"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
     v-on="listeners"
@@ -19,7 +20,8 @@
             ref="selectionList"
             :selections="visibleValues"
             :invisible-count="invisibleValueCount"
-            v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm, disabled }"
+            v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm, disabled: disabled || undefined }"
+            :input-label="label"
             @total-count-click="expandValueLimit"
             @item-remove="remove"
             @last-item-delete="removeLastItem"
@@ -81,6 +83,7 @@
                         :selected="isSelected(item)"
                         :class="'sw-select-option--' + item.value"
                         v-bind="{ item, index }"
+                        :aria-label="getKey(item, labelProperty)"
                         @item-select="addItem"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

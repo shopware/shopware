@@ -6,6 +6,7 @@
     <parameters>
         <parameter key="env(INSTANCE_ID)"/>
         <parameter key="instance_id">%env(INSTANCE_ID)%</parameter>
+        <parameter key="in_app_purchases.active_purchases">/swplatform/inappfeatures/purchases</parameter>
         <parameter key="shopware.store_endpoints" type="collection">
             <parameter key="my_extensions">/swplatform/licenseenvironment</parameter>
             <parameter key="my_plugin_updates">/swplatform/pluginupdates</parameter>
@@ -210,6 +211,7 @@
         <service id="Shopware\Core\Framework\Store\Subscriber\LicenseHostChangedSubscriber">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -232,5 +234,63 @@
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseProvider"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseProvider">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\JWT\JWTDecoder"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Api\InAppPurchasesController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
+            <argument type="service" id="app.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater" public="true">
+            <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="string">%in_app_purchases.active_purchases%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Handler\InAppPurchaseUpdateHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\InAppPurchaseUpdateTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Shopware\Core\Framework\App\InAppPurchases\Payload\InAppPurchasesPayloadService">
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\InAppPurchases\Gateway\InAppPurchasesGateway">
+            <argument type="service" id="Shopware\Core\Framework\App\InAppPurchases\Payload\InAppPurchasesPayloadService"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher">
+            <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\JWT\JWTDecoder"/>
     </services>
 </container>

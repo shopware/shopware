@@ -76,7 +76,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => false,
         ];
 
-        $this->getContainer()->get('integration.repository')
+        static::getContainer()->get('integration.repository')
             ->create([$integration], $context);
 
         $client = $this->getBrowser();
@@ -98,7 +98,7 @@ class IntegrationControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
         /** @var IntegrationCollection|IntegrationEntity[] $assigned */
-        $assigned = $this->getContainer()->get('integration.repository')
+        $assigned = static::getContainer()->get('integration.repository')
             ->search(new Criteria([$ids->get('integration')]), $context);
 
         static::assertNotNull($assigned);
@@ -175,7 +175,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => false,
         ];
 
-        $this->getContainer()->get('integration.repository')
+        static::getContainer()->get('integration.repository')
             ->create([$integration], $context);
 
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:update']);
@@ -209,7 +209,7 @@ class IntegrationControllerTest extends TestCase
         $criteria->addAssociation('aclRoles');
 
         /** @var IntegrationCollection|IntegrationEntity[] $assigned */
-        $assigned = $this->getContainer()->get('integration.repository')
+        $assigned = static::getContainer()->get('integration.repository')
             ->search($criteria, $context);
 
         static::assertNotNull($assigned->first());
@@ -235,7 +235,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => false,
         ];
 
-        $this->getContainer()->get('integration.repository')
+        static::getContainer()->get('integration.repository')
             ->create([$integration], $context);
 
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:create']);
@@ -258,7 +258,7 @@ class IntegrationControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
         /** @var IntegrationCollection|IntegrationEntity[] $assigned */
-        $assigned = $this->getContainer()->get('integration.repository')
+        $assigned = static::getContainer()->get('integration.repository')
             ->search(new Criteria([$ids->get('integration')]), $context);
 
         static::assertEquals(1, $assigned->count());

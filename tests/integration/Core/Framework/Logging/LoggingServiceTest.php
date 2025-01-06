@@ -24,10 +24,7 @@ class LoggingServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    protected $context;
+    protected Context $context;
 
     protected function setUp(): void
     {
@@ -42,7 +39,7 @@ class LoggingServiceTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM `log_entry`');
     }
 

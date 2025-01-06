@@ -29,10 +29,10 @@ trait AppSystemTestBehaviour
     {
         $appService = new AppService(
             new AppLifecycleIterator(
-                $this->getContainer()->get('app.repository'),
+                static::getContainer()->get('app.repository'),
                 $this->getAppLoader($appDir),
             ),
-            $this->getContainer()->get(AppLifecycle::class)
+            static::getContainer()->get(AppLifecycle::class)
         );
 
         $fails = $appService->doRefreshApps($activateApps, Context::createDefaultContext());
@@ -48,9 +48,9 @@ trait AppSystemTestBehaviour
 
     protected function reloadAppSnippets(): void
     {
-        $collection = $this->getContainer()->get(SnippetFileCollection::class);
+        $collection = static::getContainer()->get(SnippetFileCollection::class);
         $collection->clear();
-        $this->getContainer()->get(SnippetFileLoader::class)->loadSnippetFilesIntoCollection($collection);
+        static::getContainer()->get(SnippetFileLoader::class)->loadSnippetFilesIntoCollection($collection);
     }
 
     /**
@@ -58,7 +58,7 @@ trait AppSystemTestBehaviour
      */
     protected function getScriptTraces(): array
     {
-        return $this->getContainer()
+        return static::getContainer()
             ->get(ScriptTraces::class)
             ->getTraces();
     }

@@ -43,12 +43,12 @@ class AppStateServiceThemeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->themeService = $this->getContainer()->get(ThemeService::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
-        $this->appRepo = $this->getContainer()->get('app.repository');
-        $this->themeRepo = $this->getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
-        $this->templateRepo = $this->getContainer()->get('app_template.repository');
-        $this->appStateService = $this->getContainer()->get(AppStateService::class);
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->themeService = static::getContainer()->get(ThemeService::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        $this->appRepo = static::getContainer()->get('app.repository');
+        $this->themeRepo = static::getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        $this->templateRepo = static::getContainer()->get('app_template.repository');
+        $this->appStateService = static::getContainer()->get(AppStateService::class);
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
     }
 
     public function testAppWithAThemeInUseCannotBeDeactivated(): void
@@ -173,7 +173,7 @@ class AppStateServiceThemeTest extends TestCase
 
     private function createSalesChannel(): string
     {
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $id = Uuid::randomHex();
         $payload = [[

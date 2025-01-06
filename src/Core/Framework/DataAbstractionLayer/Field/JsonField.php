@@ -11,16 +11,22 @@ class JsonField extends Field implements StorageAware
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $storageName;
 
     /**
      * @var list<Field>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $propertyMapping;
 
     /**
      * @var array<mixed>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $default;
 

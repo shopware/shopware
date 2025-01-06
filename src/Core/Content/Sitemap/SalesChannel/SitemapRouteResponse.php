@@ -11,6 +11,8 @@ class SitemapRouteResponse extends StoreApiResponse
 {
     /**
      * @var SitemapCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

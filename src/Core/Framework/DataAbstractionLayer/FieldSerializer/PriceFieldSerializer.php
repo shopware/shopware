@@ -37,7 +37,8 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         if (!$field instanceof StorageAware) {
             throw DataAbstractionLayerException::invalidSerializerField(self::class, $field);
         }
-        $value = $data->getValue();
+
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($this->requiresValidation($field, $existence, $value, $parameters)) {
             if ($value !== null) {

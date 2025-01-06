@@ -64,6 +64,10 @@ export async function loadThreeJs(): Promise<void> {
         window.threeJsAddons.DRACOLibPath = 'three/examples/jsm/libs/draco/';
     }
 
+    if (!window.threeJsAddons?.MathUtils) {
+        window.threeJsAddons.MathUtils = await import('three/src/math/MathUtils.js');
+    }
+
     window.loadThreeJsUtil.promiseResolve();
     window.loadThreeJsUtil.isLoaded = true;
     /* eslint-enable */

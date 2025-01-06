@@ -120,7 +120,7 @@
                 <button type="button"
                         class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn mt-3"
                         data-bs-toggle="modal"
-                        data-bs-target="#cancelOrderModal">
+                        data-bs-target="#cancelOrderModal-{{ page.order.id }}">
                     {{ 'account.editOrderCancelOrderButton'|trans|sw_sanitize }}
                 </button>
             {% endif %}

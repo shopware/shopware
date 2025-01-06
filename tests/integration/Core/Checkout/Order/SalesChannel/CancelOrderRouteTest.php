@@ -14,7 +14,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -94,7 +96,7 @@ class CancelOrderRouteTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = $this->getContainer()->get('order.repository')->search($criteria, Context::createDefaultContext())->first();
+        $order = static::getContainer()->get('order.repository')->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($order->getStateMachineState());
         static::assertSame('cancelled', $order->getStateMachineState()->getTechnicalName());
@@ -152,14 +154,18 @@ class CancelOrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
+        if (Feature::isActive('v6.7.0.0')) {
+            static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
+        } else {
+            static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
+        }
     }
 
     private function createOrder(IdsCollection $ids, string $customerId): string
     {
         $id = Uuid::randomHex();
 
-        $this->getContainer()->get('order.repository')->create(
+        static::getContainer()->get('order.repository')->create(
             [[
                 'id' => $id,
                 'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),

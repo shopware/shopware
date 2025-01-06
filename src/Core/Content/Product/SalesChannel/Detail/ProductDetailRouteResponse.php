@@ -13,6 +13,8 @@ class ProductDetailRouteResponse extends StoreApiResponse
 {
     /**
      * @var ArrayStruct<string, mixed>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

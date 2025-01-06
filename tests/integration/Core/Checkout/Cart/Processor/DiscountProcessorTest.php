@@ -44,9 +44,9 @@ class DiscountProcessorTest extends TestCase
     #[DataProvider('processorProvider')]
     public function testProcessor(array $items, ?CalculatedPrice $expected): void
     {
-        $processor = $this->getContainer()->get(DiscountCartProcessor::class);
+        $processor = static::getContainer()->get(DiscountCartProcessor::class);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $cart = new Cart('test');

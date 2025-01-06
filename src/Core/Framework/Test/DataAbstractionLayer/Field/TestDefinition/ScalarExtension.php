@@ -22,4 +22,9 @@ class ScalarExtension extends EntityExtension
     {
         return ExtendableDefinition::class;
     }
+
+    public function getEntityName(): string
+    {
+        return 'extendable';
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -27,6 +28,7 @@ class CartRestorer
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly CartService $cartService,
         private readonly CartRuleLoader $cartRuleLoader,
+        private readonly AbstractCartPersister $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly RequestStack $requestStack,
     ) {
@@ -55,7 +57,7 @@ class CartRestorer
             $customerContext = $this->replaceContextToken($customerId, $customerContext, $token);
         }
 
-        return $this->enrichCustomerContext($customerContext, $currentContext, $token, $customerId);
+        return $this->enrichCustomerContext($customerContext, $currentContext, $currentContext->getToken(), $customerId);
     }
 
     /**
@@ -117,6 +119,10 @@ class CartRestorer
         $originalToken = $newToken;
         if ($newToken === null) {
             $newToken = $this->contextPersister->replace($currentContext->getToken(), $currentContext);
+        } else {
+            // Prevent duplicate key RDBMS errors in case the new token exists and has permissions attached.
+            $this->cartPersister->delete($newToken, $currentContext);
+            $this->cartPersister->replace($currentContext->getToken(), $newToken, $currentContext);
         }
 
         $currentContext->assign([
@@ -175,8 +181,9 @@ class CartRestorer
 
         $guestCart = $this->cartService->getCart($token, $currentContext);
         $customerCart = $this->cartService->getCart($customerContext->getToken(), $customerContext);
+        $cartsAreIdentical = $token === $customerContext->getToken();
 
-        if ($guestCart->getLineItems()->count() > 0) {
+        if ($guestCart->getLineItems()->count() > 0 && !$cartsAreIdentical) {
             $restoredCart = $this->mergeCart($customerCart, $guestCart, $customerContext);
         } else {
             $restoredCart = $this->cartService->recalculate($customerCart, $customerContext);

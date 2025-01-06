@@ -70,6 +70,7 @@
                     firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
                     systemCurrencyId: '{{ systemCurrencyId }}',
                     systemCurrencyISOCode: '{{ systemCurrencyISOCode }}',
+                    // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
                     disableExtensions: {{ disableExtensions ? 'true' : 'false' }},
                     adminEsEnable: {{ adminEsEnable ? 'true' : 'false' }},
                     storefrontEsEnable: {{ storefrontEsEnable ? 'true' : 'false' }},
@@ -89,13 +90,15 @@
                 liveVersionId: '{{ liveVersionId }}',
                 systemLanguageId: '{{ systemLanguageId }}',
                 apiVersion: {{ apiVersion }},
-                assetPath: '{{ asset('', 'asset') }}'
+                assetPath: '{{ asset('', 'asset') }}',
+                refreshTokenTtl: {{ refreshTokenTtl }},
             },
             appContext: {
                 features: window._features_,
                 firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
                 systemCurrencyId: '{{ systemCurrencyId }}',
                 systemCurrencyISOCode: '{{ systemCurrencyISOCode }}',
+                // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
                 disableExtensions: {{ disableExtensions ? 'true' : 'false' }},
                 adminEsEnable: {{ adminEsEnable ? 'true' : 'false' }},
                 storefrontEsEnable: {{ storefrontEsEnable ? 'true' : 'false' }},

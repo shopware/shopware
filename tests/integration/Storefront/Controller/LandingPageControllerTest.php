@@ -39,7 +39,7 @@ class LandingPageControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(LandingPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -47,7 +47,7 @@ class LandingPageControllerTest extends TestCase
     private function createData(): void
     {
         /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
+        $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
             (
                 new Criteria())->addFilter(
                     new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
@@ -87,7 +87,7 @@ class LandingPageControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('landing_page.repository')
+        static::getContainer()->get('landing_page.repository')
             ->create([$data], Context::createDefaultContext());
     }
 }

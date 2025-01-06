@@ -38,9 +38,9 @@ class SalesChannelContextPersisterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, $this->getContainer()->get(CartPersister::class));
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class));
     }
 
     public function testLoad(): void
@@ -279,12 +279,12 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $token = Random::getAlphanumericString(32);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create($token, TestDefaults::SALES_CHANNEL);
 
         $cart = new Cart($token);
         $cart->addLineItems(new LineItemCollection([new LineItem('test', 'test', Uuid::randomHex(), 10)]));
-        $this->getContainer()->get(CartPersister::class)->save($cart, $context);
+        static::getContainer()->get(CartPersister::class)->save($cart, $context);
 
         static::assertTrue($this->cartExists($token));
 
@@ -323,11 +323,11 @@ class SalesChannelContextPersisterTest extends TestCase
     #[DataProvider('tokenExpiringDataProvider')]
     public function testTokenExpiring(int $tokenAgeInDays, string $lifeTimeInterval, bool $expectedExpired): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $persister = new SalesChannelContextPersister(
             $connection,
             $this->createMock(EventDispatcher::class),
-            $this->getContainer()->get(CartPersister::class),
+            static::getContainer()->get(CartPersister::class),
             $lifeTimeInterval
         );
         $token = Uuid::randomHex();

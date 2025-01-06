@@ -14,16 +14,22 @@ class MinimalQuickViewPageCriteriaEvent extends Event implements ShopwareSalesCh
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
     /**
      * @var Criteria
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $criteria;
 
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 

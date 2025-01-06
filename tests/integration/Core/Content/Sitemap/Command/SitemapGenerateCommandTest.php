@@ -35,16 +35,16 @@ class SitemapGenerateCommandTest extends TestCase
         $this->exporter = $this->createMock(SitemapExporter::class);
 
         $this->command = new SitemapGenerateCommand(
-            $this->getContainer()->get('sales_channel.repository'),
+            static::getContainer()->get('sales_channel.repository'),
             $this->exporter,
-            $this->getContainer()->get(SalesChannelContextFactory::class),
+            static::getContainer()->get(SalesChannelContextFactory::class),
             $this->createMock(EventDispatcher::class)
         );
     }
 
     public function testSkipNonStorefrontSalesChannels(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM sales_channel');
 
         $storefrontId = Uuid::randomHex();

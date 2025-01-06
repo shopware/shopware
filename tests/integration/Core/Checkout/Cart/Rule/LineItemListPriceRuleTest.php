@@ -304,7 +304,7 @@ class LineItemListPriceRuleTest extends TestCase
             'totalRounding' => json_decode($totalRounding, true, 512, \JSON_THROW_ON_ERROR),
         ];
 
-        $this->getContainer()->get('currency.repository')
+        static::getContainer()->get('currency.repository')
             ->create([$currency], Context::createDefaultContext());
 
         // create product with two different currency prices
@@ -339,17 +339,17 @@ class LineItemListPriceRuleTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create('test', TestDefaults::SALES_CHANNEL);
 
-        $service = $this->getContainer()->get(CartService::class);
+        $service = static::getContainer()->get(CartService::class);
 
         // create cart and product line item
         $cart = $service->getCart('test', $context);
-        $lineItem = $this->getContainer()
+        $lineItem = static::getContainer()
             ->get(ProductLineItemFactory::class)
             ->create(['id' => $ids->get('product'), 'referencedId' => $ids->get('product')], $context);
 
@@ -380,7 +380,7 @@ class LineItemListPriceRuleTest extends TestCase
         }
 
         // create new context for other currency
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create('test', TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
 
         // fetch cart for recalculation

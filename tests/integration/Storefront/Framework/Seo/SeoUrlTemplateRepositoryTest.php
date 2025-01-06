@@ -31,13 +31,13 @@ class SeoUrlTemplateRepositoryTest extends TestCase
             'id' => $id,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
-            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
         ];
 
         $context = Context::createDefaultContext();
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('seo_url_template.repository');
+        $repo = static::getContainer()->get('seo_url_template.repository');
         $events = $repo->create([$template], $context);
         static::assertNotNull($events->getEvents());
         static::assertCount(1, $events->getEvents());
@@ -55,7 +55,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
     {
         $context = Context::createDefaultContext();
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('seo_url_template.repository');
+        $repo = static::getContainer()->get('seo_url_template.repository');
         $repo->create([$template], $context);
 
         $update = [
@@ -80,13 +80,13 @@ class SeoUrlTemplateRepositoryTest extends TestCase
             'id' => $id,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
-            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
         ];
 
         $context = Context::createDefaultContext();
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('seo_url_template.repository');
+        $repo = static::getContainer()->get('seo_url_template.repository');
         $repo->create([$template], $context);
 
         $result = $repo->delete([['id' => $id]], $context);

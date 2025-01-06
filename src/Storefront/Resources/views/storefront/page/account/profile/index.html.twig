@@ -350,7 +350,7 @@
                                                         {% block page_account_profile_current_password_input %}
                                                             <input type="password"
                                                                    class="form-control{% if formViolations.getViolations('/password') is not empty and passwordFormViolation %} is-invalid{% endif %}"
-                                                                   autocomplete="new-password"
+                                                                   autocomplete="current-password"
                                                                    id="password"
                                                                    placeholder="{{ 'account.profilePasswordCurrentPlaceholder'|trans|striptags }}"
                                                                    name="password[password]"
@@ -408,15 +408,17 @@
                         <div class="modal fade confirm-delete-account-modal"
                              id="confirmDeleteAccountModal"
                              tabindex="1"
-                             role="dialog">
-                            <div class="modal-dialog modal-dialog-centered"
-                                 role="document">
+                             role="dialog"
+                             aria-modal="true"
+                             aria-hidden="true"
+                             aria-labelledby="modal-delete-profile-title">
+                            <div class="modal-dialog modal-dialog-centered">
                                 {% block page_account_delete_account_confirm_modal_content %}
                                     <div class="modal-content">
                                         {% block page_account_delete_account_confirm_modal_header %}
                                             <div class="modal-header">
                                                 {% block page_account_delete_account_confirm_modal_header_title %}
-                                                    <div class="modal-title h3">
+                                                    <div id="modal-delete-profile-title" class="modal-title h5">
                                                         {{ 'account.profileDeleteModalTitle'|trans|sw_sanitize }}
                                                     </div>
                                                 {% endblock %}

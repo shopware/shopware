@@ -32,7 +32,7 @@ class CategoryUrlProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
             static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
         }
 
@@ -92,11 +92,11 @@ class CategoryUrlProviderTest extends TestCase
     private function getCategoryUrlProvider(): CategoryUrlProvider
     {
         return new CategoryUrlProvider(
-            $this->getContainer()->get(ConfigHandler::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(CategoryDefinition::class),
-            $this->getContainer()->get(IteratorFactory::class),
-            $this->getContainer()->get(RouterInterface::class),
+            static::getContainer()->get(ConfigHandler::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(CategoryDefinition::class),
+            static::getContainer()->get(IteratorFactory::class),
+            static::getContainer()->get(RouterInterface::class),
         );
     }
 
@@ -110,14 +110,14 @@ class CategoryUrlProviderTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
 
         return $id;
     }
 
     private function createCategoryTree(string $rootId): void
     {
-        $this->getContainer()->get('category.repository')->upsert([
+        static::getContainer()->get('category.repository')->upsert([
             [
                 'id' => $rootId,
                 'children' => [

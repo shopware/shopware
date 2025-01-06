@@ -12,6 +12,8 @@ class AllowHtml extends Flag
 {
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $sanitized;
 

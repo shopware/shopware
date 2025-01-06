@@ -52,22 +52,22 @@ class CustomerValueResolverTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->currencyRepository = $this->getContainer()->get('currency.repository');
+        $this->currencyRepository = static::getContainer()->get('currency.repository');
 
         $this->createTestSalesChannel();
 
-        $this->accountService = $this->getContainer()->get(AccountService::class);
+        $this->accountService = static::getContainer()->get(AccountService::class);
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     #[DataProvider('loginRequiredAnnotationData')]
     public function testCustomerResolver(bool $loginRequired, bool $context, bool $pass): void
     {
-        $resolver = $this->getContainer()->get(CustomerValueResolver::class);
+        $resolver = static::getContainer()->get(CustomerValueResolver::class);
 
-        $salesChannelResolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $salesChannelResolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $currencyId = $this->getCurrencyId('USD');
 

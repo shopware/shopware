@@ -118,6 +118,15 @@ $sw-tree-item-color-text: $color-darkgray-200;
         }
     }
 
+    &:focus {
+        outline: 0;
+
+        > .sw-tree-item__element {
+            box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+            outline: 0;
+        }
+    }
+
     &.is--highlighted > .sw-tree-item__element {
         .sw-tree-item__label {
             background-color: $color-gray-100;
@@ -272,6 +281,11 @@ $sw-tree-item-color-text: $color-darkgray-200;
             text-decoration: inherit;
             padding: 12px 0;
             display: block;
+
+            &:focus {
+                box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+                outline: none;
+            }
         }
     }
 

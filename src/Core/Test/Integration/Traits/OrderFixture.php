@@ -48,7 +48,7 @@ trait OrderFixture
         $deliveryId = Uuid::randomHex();
 
         /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
@@ -67,7 +67,7 @@ trait OrderFixture
                 'orderNumber' => $orderNumber,
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
+                'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
                 'versionId' => Defaults::LIVE_VERSION,
                 'paymentMethodId' => $paymentMethodId,
                 'currencyId' => Defaults::CURRENCY,
@@ -79,7 +79,7 @@ trait OrderFixture
                 'deliveries' => [
                     [
                         'id' => $deliveryId,
-                        'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                        'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $shippingMethodId,
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),

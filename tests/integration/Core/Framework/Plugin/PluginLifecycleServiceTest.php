@@ -84,12 +84,12 @@ class PluginLifecycleServiceTest extends TestCase
         // force kernel boot
         KernelLifecycleManager::bootKernel();
 
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->beginTransaction();
 
         $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
-        $this->container = $this->getContainer();
+        $this->container = static::getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
             $this->fixturePath . 'plugins',
@@ -119,7 +119,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->rollBack();
 
@@ -476,7 +476,7 @@ class PluginLifecycleServiceTest extends TestCase
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
         /** @var EntityRepository<PluginCollection> $pluginRepository */
-        $pluginRepository = $this->getContainer()->get('plugin.repository');
+        $pluginRepository = static::getContainer()->get('plugin.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
         $result = $pluginRepository->search($criteria, $this->context);
@@ -718,7 +718,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
         $localeId = $this->getIsoId($iso);
         $languageRepository->create(
             [

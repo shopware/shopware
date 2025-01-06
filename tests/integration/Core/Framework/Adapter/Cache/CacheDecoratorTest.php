@@ -22,12 +22,12 @@ class CacheDecoratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->cache = $this->getContainer()->get('cache.object');
+        $this->cache = static::getContainer()->get('cache.object');
     }
 
     public function testTraceSave(): void
     {
-        $collection = $this->getContainer()->get(CacheTagCollection::class);
+        $collection = static::getContainer()->get(CacheTagCollection::class);
 
         $this->cache->deleteItem('some-key');
 
@@ -40,7 +40,7 @@ class CacheDecoratorTest extends TestCase
 
     public function testTraceRead(): void
     {
-        $collection = $this->getContainer()->get(CacheTagCollection::class);
+        $collection = static::getContainer()->get(CacheTagCollection::class);
 
         $this->writeItem('some-key', ['tag-a', 'tag-b']);
 
@@ -52,7 +52,7 @@ class CacheDecoratorTest extends TestCase
 
     public function testTraceReadAndWrite(): void
     {
-        $collection = $this->getContainer()->get(CacheTagCollection::class);
+        $collection = static::getContainer()->get(CacheTagCollection::class);
 
         $this->writeItem('some-key-1', ['tag-a', 'tag-b']);
         $this->writeItem('some-key-2', ['tag-c', 'tag-b']);

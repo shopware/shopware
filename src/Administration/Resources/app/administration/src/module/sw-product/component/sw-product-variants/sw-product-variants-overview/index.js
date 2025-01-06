@@ -300,6 +300,7 @@ export default {
                     .addFilter(Criteria.multi('AND', productStatesFilter));
 
                 searchCriteria.getAssociation('media').addSorting(Criteria.sort('position'));
+                searchCriteria.addAssociation('media.media');
 
                 searchCriteria
                     .getAssociation('options')

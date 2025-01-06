@@ -14,16 +14,22 @@ class MailTemplateTypeTranslationEntity extends TranslationEntity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mailTemplateTypeId;
 
     /**
      * @var MailTemplateTypeEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mailTemplateType;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 

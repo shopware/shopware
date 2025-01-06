@@ -415,6 +415,10 @@ Component.register('sw-tree-item', {
         this.mountedComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         updatedComponent() {
             if (this.item.children.length > 0 || this.item.childCount <= 0) {
@@ -423,6 +427,8 @@ Component.register('sw-tree-item', {
         },
 
         mountedComponent() {
+            this.$el.addEventListener('keydown', this.handleKeyDown);
+
             if (this.item.active) {
                 if (this.$el.querySelector('.sw-tree-item.is--active input')) {
                     this.$el.querySelector('.sw-tree-item.is--active input').focus();
@@ -435,6 +441,54 @@ Component.register('sw-tree-item', {
             }
 
             this.updatedComponent();
+        },
+
+        beforeUnmountComponent() {
+            this.$el.removeEventListener('keydown', this.handleKeyDown);
+        },
+
+        handleKeyDown(event) {
+            // Check if the event is fired inside the tree item
+            if (event.target !== this.$el) {
+                return;
+            }
+
+            switch (event.key) {
+                case 'ArrowRight': {
+                    // When the tree item is already open, do nothing
+                    if (this.opened) {
+                        break;
+                    }
+
+                    // Open the tree item
+                    this.openTreeItem();
+                    this.getTreeItemChildren(this.item);
+
+                    event.stopPropagation();
+                    event.preventDefault();
+
+                    break;
+                }
+
+                case 'ArrowLeft': {
+                    // Check if the tree is open
+                    if (!this.opened) {
+                        break;
+                    }
+
+                    // Close the tree item
+                    this.openTreeItem(false);
+
+                    event.stopPropagation();
+                    event.preventDefault();
+
+                    break;
+                }
+
+                default: {
+                    break;
+                }
+            }
         },
 
         openTreeItem(open = !this.opened) {

@@ -111,7 +111,7 @@ async function createWrapper(extension) {
                 'sw-base-field': true,
                 'sw-field-error': true,
                 'sw-loader-deprecated': true,
-                i18n: true,
+                'i18n-t': true,
                 'sw-label': true,
             },
             provide: {

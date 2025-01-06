@@ -22,6 +22,8 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $percentage;
 
@@ -29,6 +31,8 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
      * Allows to define a filter rule which line items should be considered for percentage discount/surcharge
      *
      * @var Rule|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filter;
 

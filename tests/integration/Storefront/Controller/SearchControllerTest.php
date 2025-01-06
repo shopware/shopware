@@ -54,7 +54,7 @@ class SearchControllerTest extends TestCase
         $response = $this->request('GET', '/search', ['search' => 'test']);
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SearchPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -64,7 +64,7 @@ class SearchControllerTest extends TestCase
         $response = $this->request('GET', '/suggest', ['search' => 'test']);
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SuggestPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -74,7 +74,7 @@ class SearchControllerTest extends TestCase
         $response = $this->request('GET', '/widgets/search', ['search' => 'test']);
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SearchWidgetLoadedHook::HOOK_NAME, $traces);
     }

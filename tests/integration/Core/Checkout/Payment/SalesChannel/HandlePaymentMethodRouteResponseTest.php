@@ -50,9 +50,9 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
 
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
     }
 
     public function testRequestNotLoggedIn(): void
@@ -122,7 +122,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
+            'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -139,7 +139,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
     ): string {
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
 
         $order = [
             'id' => $orderId,

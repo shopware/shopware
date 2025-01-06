@@ -10,16 +10,22 @@ class QuantityInformation extends Struct
 {
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $minPurchase = 1;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $maxPurchase;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $purchaseSteps = 1;
 

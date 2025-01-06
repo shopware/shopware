@@ -12,6 +12,8 @@ class AdminSalesChannelApiSource extends SalesChannelApiSource
 
     /**
      * @var Context
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $originalContext;
 

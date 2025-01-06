@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -288,6 +289,13 @@ class ElasticsearchIndexer
 
         foreach ($toRemove as $id) {
             $documents[] = ['delete' => ['_id' => $id]];
+        }
+
+        if ($documents === []) {
+            if (Feature::isActive('v6.7.0.0')) {
+                throw ElasticsearchException::emptyIndexingRequest();
+            }
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Since v6.7.0.0 ElasticsearchException will be thrown if no documents are provided for indexing.');
         }
 
         $arguments = [

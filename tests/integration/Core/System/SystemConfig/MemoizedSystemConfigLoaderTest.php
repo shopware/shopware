@@ -20,7 +20,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
 
     public function testServiceDecorationChainPriority(): void
     {
-        $service = $this->getContainer()->get(SystemConfigLoader::class);
+        $service = static::getContainer()->get(SystemConfigLoader::class);
 
         static::assertInstanceOf(MemoizedSystemConfigLoader::class, $service);
         static::assertInstanceOf(ConfiguredSystemConfigLoader::class, $service->getDecorated());

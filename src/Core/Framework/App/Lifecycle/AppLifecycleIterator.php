@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
-use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -12,13 +11,12 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-type RegisteredApps = array<string, array{id: string, version: string, roleId: string}>
  */
 #[Package('core')]
 class AppLifecycleIterator
 {
-    /**
-     * @param EntityRepository<AppCollection> $appRepository
-     */
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly AppLoader $appLoader
@@ -63,25 +61,38 @@ class AppLifecycleIterator
             }
         }
 
-        $this->deleteNotFoundAndFailedInstallApps($successfulUpdates, $appLifecycle, $context);
+        if (empty($installAppNames)) {
+            $this->deleteNotFoundAndFailedInstallApps($this->getRegisteredApps($context), $successfulUpdates, $appLifecycle, $context);
+        }
 
         return $fails;
     }
 
     /**
-     * @return array<string, array{id: string, version: string, roleId: string}>
+     * @return RegisteredApps
      */
     private function getRegisteredApps(Context $context): array
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('selfManaged', false));
+        $criteria->addFields(['id', 'name', 'aclRoleId', 'version']);
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
         $appData = [];
         foreach ($apps as $app) {
-            $appData[$app->getName()] = [
-                'id' => $app->getId(),
-                'version' => $app->getVersion(),
-                'roleId' => $app->getAclRoleId(),
+            $id = $app->get('id');
+            $version = $app->get('version');
+            $roleId = $app->get('aclRoleId');
+            $name = $app->get('name');
+
+            \assert(\is_string($name));
+            \assert(\is_string($id));
+            \assert(\is_string($version));
+            \assert(\is_string($roleId));
+
+            $appData[$name] = [
+                'id' => $id,
+                'version' => $version,
+                'roleId' => $roleId,
             ];
         }
 
@@ -89,15 +100,16 @@ class AppLifecycleIterator
     }
 
     /**
+     * @param RegisteredApps $appsFromDb
      * @param list<string> $successfulUpdates
      */
     private function deleteNotFoundAndFailedInstallApps(
+        array $appsFromDb,
         array $successfulUpdates,
         AbstractAppLifecycle $appLifecycle,
         Context $context
     ): void {
         // re-fetch registered apps, so we can remove apps where the installation failed
-        $appsFromDb = $this->getRegisteredApps($context);
         foreach ($successfulUpdates as $app) {
             unset($appsFromDb[$app]);
         }

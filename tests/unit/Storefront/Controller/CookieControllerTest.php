@@ -22,6 +22,8 @@ class CookieControllerTest extends TestCase
     public function testResponseDoesNotIncludeGoogleAnalyticsCookieByDefault(): void
     {
         $salesChannelContext = Generator::createSalesChannelContext();
+
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
 
         $controller = new CookieControllerTestClass(
@@ -44,6 +46,8 @@ class CookieControllerTest extends TestCase
         $analytics = new SalesChannelAnalyticsEntity();
         $analytics->setId($analyticsId);
         $analytics->setActive(true);
+
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
 
         $controller = new CookieControllerTestClass(
@@ -66,6 +70,8 @@ class CookieControllerTest extends TestCase
         $analytics = new SalesChannelAnalyticsEntity();
         $analytics->setId($analyticsId);
         $analytics->setActive(false);
+
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
 
         $controller = new CookieControllerTestClass(
@@ -87,12 +93,13 @@ class CookieControllerTest extends TestCase
     {
         $googleAnalyticsCookie = array_filter($cookieGroups, static function (array $cookieGroup) {
             return \count(array_filter($cookieGroup['entries'], static function (array $cookie) {
-                return $cookie['cookie'] === 'google-analytics-enabled';
+                return \in_array($cookie['cookie'], ['google-analytics-enabled', 'google-ads-enabled'], true);
             })) > 0;
         });
 
         if ($expected) {
             static::assertNotEmpty($googleAnalyticsCookie);
+            static::assertCount(2, $googleAnalyticsCookie);
         } else {
             static::assertEmpty($googleAnalyticsCookie);
         }

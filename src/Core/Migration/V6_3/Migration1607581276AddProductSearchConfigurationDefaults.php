@@ -55,14 +55,14 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
         $translations = new Translations(
             [
                 'id' => $searchConfigDeId,
-                'and_logic' => 1,
-                'min_search_length' => 2,
+                'and_logic' => '1',
+                'min_search_length' => '2',
                 'excluded_terms' => json_encode($deStopwords, \JSON_THROW_ON_ERROR),
             ],
             [
                 'id' => $searchConfigEnId,
-                'and_logic' => 1,
-                'min_search_length' => 2,
+                'and_logic' => '1',
+                'min_search_length' => '2',
                 'excluded_terms' => $enLanguageId ? json_encode($enStopwords, \JSON_THROW_ON_ERROR) : null,
             ]
         );

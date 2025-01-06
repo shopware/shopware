@@ -56,7 +56,6 @@ shopware:
             - 'utm_medium'
             - 'utm_campaign'
             - 'utm_content'
-            - 'gad_source'
             - 'cx'
             - 'ie'
             - 'cof'
@@ -94,7 +93,7 @@ shopware:
             - 'gdffi'
             - '_ke'  # Klaviyo
             - '_kx'
-            - 'redirect_log_mongo_id'
+            - 'redirect_log_mongo_id' # MongoDB
             - 'redirect_mongo_id'
             - 'sb_referer_host'
             - 'mkwid' # Marin
@@ -573,3 +572,6 @@ shopware:
 
     messenger:
         routing_overwrite:
+
+    product_stream:
+        indexing: true

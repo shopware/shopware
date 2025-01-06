@@ -47,7 +47,7 @@ class ScriptLoader implements EventSubscriberInterface
     public function get(string $hook): array
     {
         $cacheItem = $this->cache->getItem(self::CACHE_KEY);
-        if ($cacheItem->isHit() && $cacheItem->get() && !$this->debug) {
+        if ($cacheItem->isHit() && $cacheItem->get()) {
             return CacheCompressor::uncompress($cacheItem)[$hook] ?? [];
         }
 

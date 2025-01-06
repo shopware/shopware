@@ -6,8 +6,7 @@ on:
 
 jobs:
   replace-strings-with-regex:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-24.04
     steps:
       - name: Replace multiple strings using regex in issue description
         uses: actions/github-script@v7

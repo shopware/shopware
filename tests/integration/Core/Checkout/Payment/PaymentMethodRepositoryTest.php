@@ -33,7 +33,7 @@ class PaymentMethodRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->paymentRepository = $this->getContainer()->get('payment_method.repository');
+        $this->paymentRepository = static::getContainer()->get('payment_method.repository');
         $this->paymentMethodId = Uuid::randomHex();
     }
 
@@ -276,7 +276,7 @@ class PaymentMethodRepositoryTest extends TestCase
     {
         $pluginId = Uuid::randomHex();
 
-        $pluginRepo = $this->getContainer()->get('plugin.repository');
+        $pluginRepo = static::getContainer()->get('plugin.repository');
         $pluginRepo->create([[
             'id' => $pluginId,
             'label' => 'testPlugin',

@@ -9,6 +9,7 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,7 +23,8 @@ class AppJWTGenerateRoute
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly ShopIdProvider $shopIdProvider
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly InAppPurchase $inAppPurchase,
     ) {
     }
 
@@ -52,6 +54,8 @@ class AppJWTGenerateRoute
             ->issuedAt(new \DateTimeImmutable())
             ->canOnlyBeUsedAfter(new \DateTimeImmutable())
             ->expiresAt($expiration);
+
+        $builder = $builder->withClaim('inAppPurchases', $this->inAppPurchase->getJWTByExtension($name));
 
         if (\in_array('sales_channel:read', $privileges, true)) {
             $builder = $builder->withClaim('salesChannelId', $context->getSalesChannel()->getId());

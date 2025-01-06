@@ -11,6 +11,7 @@ async function createWrapper(privileges = [], props = {}) {
     shippingMethod.isNew = () => false;
     shippingMethod.prices = {
         add: () => {},
+        forEach: () => [],
     };
 
     return mount(
@@ -22,7 +23,9 @@ async function createWrapper(privileges = [], props = {}) {
             global: {
                 renderStubDefaultSlot: true,
                 provide: {
-                    ruleConditionDataProviderService: {},
+                    ruleConditionDataProviderService: {
+                        getRestrictedRules: () => Promise.resolve([]),
+                    },
                     repositoryFactory: {
                         create: () => ({
                             create: () => {

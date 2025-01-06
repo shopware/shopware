@@ -27,7 +27,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -42,18 +41,18 @@ abstract class StorefrontController extends AbstractController
     public const INFO = 'info';
     public const WARNING = 'warning';
 
-    private ?Environment $twig = null;
-
-    #[Required]
+    /**
+     * @deprecated tag:v6.7.0 - setTwig is not necessary, setContainer is enough reason:decoration-will-be-removed
+     */
     public function setTwig(Environment $twig): void
     {
-        $this->twig = $twig;
     }
 
     public static function getSubscribedServices(): array
     {
         $services = parent::getSubscribedServices();
 
+        $services['twig'] = Environment::class;
         $services['event_dispatcher'] = EventDispatcherInterface::class;
         $services[SystemConfigService::class] = SystemConfigService::class;
         $services[TemplateFinder::class] = TemplateFinder::class;
@@ -272,15 +271,11 @@ abstract class StorefrontController extends AbstractController
     {
         $view = $this->getTemplateFinder()->find($view);
 
-        if ($this->twig !== null) {
-            try {
-                return $this->twig->render($view, $parameters);
-            } catch (LoaderError|RuntimeError|SyntaxError $e) {
-                throw StorefrontException::renderViewException($view, $e, $parameters);
-            }
+        try {
+            return $this->container->get('twig')->render($view, $parameters);
+        } catch (LoaderError|RuntimeError|SyntaxError $e) {
+            throw StorefrontException::renderViewException($view, $e, $parameters);
         }
-
-        throw StorefrontException::dontHaveTwigInjected(static::class);
     }
 
     /**

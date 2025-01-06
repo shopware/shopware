@@ -13,17 +13,18 @@ use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Asset\PackageInterface;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -54,11 +55,17 @@ class InfoController extends AbstractController
         private readonly RouterInterface $router,
         private readonly FlowActionCollector $flowActionCollector,
         private readonly SystemConfigService $systemConfigService,
-        private readonly ApiRouteInfoResolver $apiRouteInfoResolver
+        private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
+        private readonly InAppPurchase $inAppPurchase,
     ) {
     }
 
-    #[Route(path: '/api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.openapi3', methods: ['GET'])]
+    #[Route(
+        path: '/api/_info/openapi3.json',
+        name: 'api.info.openapi3',
+        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
+        methods: ['GET']
+    )]
     public function info(Request $request): JsonResponse
     {
         $type = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
@@ -86,16 +93,21 @@ class InfoController extends AbstractController
         // Fetch unlimited message_queue_stats
         $entries = $gateway->list('message_queue_stats', -1);
 
-        return new JsonResponse(array_map(fn (array $entry) => [
+        return new JsonResponse(array_map(static fn (array $entry) => [
             'name' => $entry['key'],
             'size' => (int) $entry['count'],
         ], array_values($entries)));
     }
 
-    #[Route(path: '/api/_info/open-api-schema.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.open-api-schema', methods: ['GET'])]
+    #[Route(
+        path: '/api/_info/open-api-schema.json',
+        name: 'api.info.open-api-schema',
+        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
+        methods: ['GET']
+    )]
     public function openApiSchema(): JsonResponse
     {
-        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::API);
+        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT);
 
         return new JsonResponse($data);
     }
@@ -103,7 +115,7 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/entity-schema.json', name: 'api.info.entity-schema', methods: ['GET'])]
     public function entitySchema(): JsonResponse
     {
-        $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API);
+        $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT);
 
         return new JsonResponse($data);
     }
@@ -116,12 +128,22 @@ class InfoController extends AbstractController
         return new JsonResponse($events);
     }
 
-    #[Route(path: '/api/_info/swagger.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.swagger', methods: ['GET'])]
     /**
      * @deprecated tag:v6.7.0 - Will be removed in v6.7.0. Use api.info.stoplightio instead
      */
+    #[Route(
+        path: '/api/_info/swagger.html',
+        name: 'api.info.swagger',
+        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
+        methods: ['GET']
+    )]
     public function infoHtml(Request $request): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'Route "/api/_info/swagger.html" is deprecated. Use "/api/_info/stoplightio.html" instead.'
+        );
+
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
         $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON);
         $response = $this->render(
@@ -133,18 +155,21 @@ class InfoController extends AbstractController
             ]
         );
 
-        $cspTemplate = $this->params->get('shopware.security.csp_templates')['administration'] ?? '';
-        $cspTemplate = trim($cspTemplate);
+        $cspTemplate = trim($this->params->get('shopware.security.csp_templates')['administration'] ?? '');
         if ($cspTemplate !== '') {
-            $csp = str_replace('%nonce%', $nonce, $cspTemplate);
-            $csp = str_replace(["\n", "\r"], ' ', $csp);
+            $csp = str_replace(['%nonce%', "\n", "\r"], [$nonce, ' ', ' '], $cspTemplate);
             $response->headers->set('Content-Security-Policy', $csp);
         }
 
         return $response;
     }
 
-    #[Route(path: '/api/_info/stoplightio.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.stoplightio', methods: ['GET'])]
+    #[Route(
+        path: '/api/_info/stoplightio.html',
+        name: 'api.info.stoplightio',
+        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
+        methods: ['GET']
+    )]
     public function stoplightIoInfoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
@@ -158,11 +183,9 @@ class InfoController extends AbstractController
             ]
         );
 
-        $cspTemplate = $this->params->get('shopware.security.csp_templates')['administration'] ?? '';
-        $cspTemplate = trim($cspTemplate);
+        $cspTemplate = trim($this->params->get('shopware.security.csp_templates')['administration'] ?? '');
         if ($cspTemplate !== '') {
-            $csp = str_replace('%nonce%', $nonce, $cspTemplate);
-            $csp = str_replace(["\n", "\r"], ' ', $csp);
+            $csp = str_replace(['%nonce%', "\n", "\r"], [$nonce, ' ', ' '], $cspTemplate);
             $response->headers->set('Content-Security-Policy', $csp);
         }
 
@@ -173,7 +196,7 @@ class InfoController extends AbstractController
     public function config(Context $context, Request $request): JsonResponse
     {
         return new JsonResponse([
-            'version' => $this->params->get('kernel.shopware_version'),
+            'version' => $this->getShopwareVersion(),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
@@ -191,6 +214,7 @@ class InfoController extends AbstractController
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
             ],
+            'inAppPurchases' => $this->inAppPurchase->all(),
         ]);
     }
 
@@ -199,7 +223,7 @@ class InfoController extends AbstractController
     public function infoShopwareVersion(): JsonResponse
     {
         return new JsonResponse([
-            'version' => $this->params->get('kernel.shopware_version'),
+            'version' => $this->getShopwareVersion(),
         ]);
     }
 
@@ -209,11 +233,16 @@ class InfoController extends AbstractController
         return new JsonResponse($this->flowActionCollector->collect($context));
     }
 
-    #[Route(path: '/api/_info/routes', name: 'api.info.routes', methods: ['GET'], defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'])]
+    #[Route(
+        path: '/api/_info/routes',
+        name: 'api.info.routes',
+        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
+        methods: ['GET']
+    )]
     public function getRoutes(): JsonResponse
     {
         $endpoints = array_map(
-            fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
+            static fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
             $this->apiRouteInfoResolver->getApiRoutes(self::API_SCOPE_ADMIN)
         );
 
@@ -221,7 +250,20 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @return array<string, array{type: 'plugin', css: string[], js: string[], baseUrl: ?string }|array{type: 'app', name: string, active: bool, integrationId: string, baseUrl: string, version: string, permissions: array<string, string[]>}>
+     * @return array<string, array{
+     *     type: 'plugin',
+     *     css: list<string>,
+     *     js: list<string>,
+     *     baseUrl: ?string
+     * }|array{
+     *     type: 'app',
+     *     name: string,
+     *     active: bool,
+     *     integrationId: string,
+     *     baseUrl: string,
+     *     version: string,
+     *     permissions: array<string, list<string>>
+     * }>
      */
     private function getBundles(): array
     {
@@ -250,12 +292,10 @@ class InfoController extends AbstractController
                 return $package->getUrl($url);
             }, $this->getAdministrationScripts($bundle));
 
-            $baseUrl = $this->getBaseUrl($bundle, $package, $bundleDirectoryName);
+            $baseUrl = $this->getBaseUrl($bundle);
 
-            if (empty($styles) && empty($scripts)) {
-                if ($baseUrl === null) {
-                    continue;
-                }
+            if (empty($styles) && empty($scripts) && $baseUrl === null) {
+                continue;
             }
 
             $assets[$bundle->getName()] = [
@@ -286,7 +326,7 @@ class InfoController extends AbstractController
      */
     private function getAdministrationStyles(Bundle $bundle): array
     {
-        $path = 'administration/css/' . str_replace('_', '-', (string) $bundle->getContainerPrefix()) . '.css';
+        $path = 'administration/css/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.css';
         $bundlePath = $bundle->getPath();
 
         if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-css')) {
@@ -301,7 +341,7 @@ class InfoController extends AbstractController
      */
     private function getAdministrationScripts(Bundle $bundle): array
     {
-        $path = 'administration/js/' . str_replace('_', '-', (string) $bundle->getContainerPrefix()) . '.js';
+        $path = 'administration/js/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
         $bundlePath = $bundle->getPath();
 
         if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-js')) {
@@ -311,7 +351,7 @@ class InfoController extends AbstractController
         return [$path];
     }
 
-    private function getBaseUrl(Bundle $bundle, PackageInterface $package, string $bundleDirectoryName): ?string
+    private function getBaseUrl(Bundle $bundle): ?string
     {
         if (!$bundle instanceof Plugin) {
             return null;
@@ -337,7 +377,7 @@ class InfoController extends AbstractController
                 ],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable) {
             return null;
         }
     }
@@ -377,5 +417,15 @@ WHERE app.active = 1 AND app.base_app_url is not null');
 
             return $item;
         }, $apps);
+    }
+
+    private function getShopwareVersion(): string
+    {
+        $shopwareVersion = $this->params->get('kernel.shopware_version');
+        if ($shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
+            $shopwareVersion = str_replace('.9999999-dev', '.9999999.9999999-dev', $shopwareVersion);
+        }
+
+        return $shopwareVersion;
     }
 }

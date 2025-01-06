@@ -17,13 +17,16 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AllServiceInstaller
 {
+    public const AUTO_ENABLED = 'auto';
+
     /**
      * @internal
      *
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly bool $enabled,
+        private readonly string $enabled,
+        private readonly string $appEnv,
         private readonly ServiceRegistryClient $serviceRegistryClient,
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly EntityRepository $appRepository,
@@ -35,7 +38,14 @@ class AllServiceInstaller
      */
     public function install(Context $context): array
     {
-        if (!$this->enabled) {
+        // auto means not explicitly enabled, then we enable it based on the app environment
+        if ($this->enabled === self::AUTO_ENABLED) {
+            $enabled = $this->appEnv === 'prod';
+        } else {
+            $enabled = filter_var($this->enabled, \FILTER_VALIDATE_BOOLEAN);
+        }
+
+        if (!$enabled) {
             return [];
         }
 

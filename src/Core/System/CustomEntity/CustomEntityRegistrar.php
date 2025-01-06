@@ -27,10 +27,6 @@ class CustomEntityRegistrar
 
     public function register(): void
     {
-        if (!$this->container->get(Connection::class)->isConnected()) {
-            return;
-        }
-
         try {
             $entities = $this->container->get(Connection::class)->fetchAllAssociative('
                 SELECT custom_entity.name, custom_entity.fields, custom_entity.flags

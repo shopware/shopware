@@ -14,21 +14,29 @@ class CurrencyTranslationEntity extends TranslationEntity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currencyId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shortName;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var CurrencyEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currency;
 

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\System\CustomEntity\Api\CustomEntityApiController;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -172,7 +173,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
     {
         $controllerClass = strtok($route->getDefault('_controller'), ':');
 
-        return $controllerClass === ApiController::class;
+        return $controllerClass === ApiController::class || $controllerClass === CustomEntityApiController::class;
     }
 
     private function isCoreRoute(Route $route): bool

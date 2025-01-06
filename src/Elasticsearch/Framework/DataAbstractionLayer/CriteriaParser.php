@@ -909,6 +909,7 @@ class CriteriaParser
     private function parseValue(EntityDefinition $definition, SingleFieldFilter $filter, mixed $value): mixed
     {
         $field = $this->getField($definition, $filter->getField());
+        $definition = EntityDefinitionQueryHelper::getAssociatedDefinition($definition, $filter->getField());
 
         if ($field instanceof TranslatedField) {
             $field = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);

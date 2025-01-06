@@ -33,28 +33,19 @@ class DeliveryBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var DeliveryBuilder
-     */
-    private $builder;
+    private DeliveryBuilder $builder;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
-    /**
-     * @var DeliveryProcessor
-     */
-    private $processor;
+    private DeliveryProcessor $processor;
 
     protected function setUp(): void
     {
-        $this->builder = $this->getContainer()->get(DeliveryBuilder::class);
+        $this->builder = static::getContainer()->get(DeliveryBuilder::class);
 
-        $this->processor = $this->getContainer()->get(DeliveryProcessor::class);
+        $this->processor = static::getContainer()->get(DeliveryProcessor::class);
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 

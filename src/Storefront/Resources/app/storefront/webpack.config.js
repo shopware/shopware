@@ -9,6 +9,7 @@ const webpack = require('webpack');
 const fs = require('fs');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
 
@@ -67,7 +68,7 @@ const pluginEntries = (() => {
     return Object.entries(pluginDefinition)
         .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !process.env.hasOwnProperty('SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
         .map(([name, definition]) => {
-            console.log(chalk.green(`# Plugin "${name}": Injected successfully`));
+            console.log(chalk.bgGreenBright.black(`# Plugin "${name}": Injected successfully`));
 
             const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
             const htmlFilePath = path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.path, '..', 'index.html');
@@ -86,6 +87,7 @@ const pluginEntries = (() => {
                 basePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath),
                 path: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.path),
                 filePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.entryFilePath),
+                isTheme: definition.isTheme,
                 hasHtmlFile,
                 webpackConfig: definition.storefront.webpack ? path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.webpack) : null,
             };
@@ -278,6 +280,26 @@ const coreConfig = {
 
             return [];
         })(),
+        ...(() => {
+            if (fs.existsSync(path.resolve(__dirname, 'static'))) {
+                // copy custom static assets
+                return [
+                    new CopyWebpackPlugin({
+                        patterns: [
+                            {
+                                from: path.resolve(__dirname, 'static'),
+                                to: path.resolve(__dirname, '../../../Resources/public/assets'),
+                                globOptions: {
+                                    ignore: ['.*'],
+                                },
+                            },
+                        ],
+                    }),
+                ];
+            }
+
+            return [];
+        })(),
     ],
     resolve: {
         extensions: [ '.ts', '.tsx', '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
@@ -317,6 +339,25 @@ const pluginConfigs = pluginEntries.map((plugin) => {
             technicalFolderName: plugin.technicalFolderName,
             plugin,
         });
+    }
+
+    if (isHotMode) {
+        const scriptAssetNames = themeFiles.script.map(script => script.assetName);
+        const pluginNameDashes = plugin.name
+            .replace(/[A-Z]/g, m => '-' + m.toLowerCase())
+            .replace(/^-/, '');
+
+        if (plugin.isTheme && scriptAssetNames.includes(pluginNameDashes)) {
+            console.log(chalk.bgYellowBright.black(`# Compiling Theme "${plugin.name}" in HotMode`));
+        }
+        if (plugin.isTheme && !scriptAssetNames.includes(pluginNameDashes)) {
+            console.log(chalk.bgHex('#fbbc39').black(`# Skipping "${plugin.name}" Theme in HotMode`));
+            return merge([
+                coreConfig,
+                {},
+                customPluginConfig,
+            ]);
+        }
     }
 
     return merge([
@@ -381,11 +422,26 @@ if (isHotMode) {
      * Adds all entry points from the theme-variables.json "style" array as imports to one string.
      */
     const scssEntryFilePath = path.resolve(projectRootPath, 'var/theme-entry.scss');
-    const scssDumpedVariables = path.resolve(projectRootPath, 'var/theme-variables.scss');
-    const scssEntryFileContent = (() => {
-        const themeConfig = JSON.parse(fs.readFileSync(path.resolve(projectRootPath, 'files/theme-config/index.json'), {encoding: 'utf8'}));
-        const themeId = Object.values(themeConfig)[0];
+    const themeConfig = JSON.parse(fs.readFileSync(path.resolve(projectRootPath, 'files/theme-config/index.json'), {encoding: 'utf8'}));
+    const themeId = themeFiles.themeId ?? Object.values(themeConfig)[0];
 
+    const scssDumpedFallbackVariables = path.resolve(projectRootPath, 'var/theme-variables.scss');
+    const scssDumpedThemeVariables = path.resolve(projectRootPath, `var/theme-variables/${themeId}.scss`);
+    const scssDumpedVariables = (fs.existsSync(scssDumpedThemeVariables)) ? scssDumpedThemeVariables : scssDumpedFallbackVariables;
+
+    if (fs.existsSync(scssDumpedThemeVariables)) {
+        console.log(chalk.bgCyanBright.black(`# Theme variable file: ${scssDumpedVariables}`));
+    }
+    if (!fs.existsSync(scssDumpedThemeVariables)) {
+        console.log(chalk.bgHex('#b30000').white(
+            '\n# No custom theme-variables found. Execute ' +
+            chalk.bold('bin/console theme:compile') +
+            ' to create these files'
+        ));
+        console.log(chalk.bgHex('#b30000').white('# Styling can be wrong in HotMode. Falling back to default var/theme-variables.scss\n'));
+    }
+
+    const scssEntryFileContent = (() => {
         const fileComment = '// ATTENTION! This file is auto generated by webpack.hot.config.js and should not be edited.\n\n';
         const dumpedVariablesImport = `@import "${scssDumpedVariables}";\n`;
         const assetOverrides = `

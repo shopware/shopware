@@ -1,6 +1,4 @@
 # -------------------------------
-# Config generated with Ludtwig v0.8.0
-# -------------------------------
 # Ludtwig documentation
 # -------------------------------
 
@@ -29,6 +27,8 @@
 # -------------------------------
 # Ludtwig configuration
 # -------------------------------
+version = "0.9.0"
+# -------------------------------
 [general]
 active-rules = [
     "ludtwig-ignore-file-not-on-top",
@@ -44,11 +44,10 @@ active-rules = [
     "html-string-quotation",
     "twig-hash-key-no-quotes",
     "twig-prefer-shopware-extends",
+    "twig-block-duplicate",
 # maybe activate in the future? these are okay because shopware extends the twig syntax
 #    "twig-use-is-same-as",
 #    "twig-use-is-not-same-as",
-# not needed by shopware
-#    "unknown-token",
 ]
 
 [format]

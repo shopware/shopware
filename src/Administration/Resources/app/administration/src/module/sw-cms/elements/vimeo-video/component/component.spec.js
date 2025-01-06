@@ -21,6 +21,9 @@ const defaultElement = {
         videoID: {
             value: 'foo-bar',
         },
+        iframeTitle: {
+            value: 'foo-bar',
+        },
         showControls: {
             value: true,
         },

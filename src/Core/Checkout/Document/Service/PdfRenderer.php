@@ -5,7 +5,9 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -20,8 +22,10 @@ final class PdfRenderer
      *
      * @param array<string, mixed> $dompdfOptions
      */
-    public function __construct(private readonly array $dompdfOptions)
-    {
+    public function __construct(
+        private readonly array $dompdfOptions,
+        private readonly ExtensionDispatcher $extensions
+    ) {
     }
 
     public function getContentType(): string
@@ -30,6 +34,15 @@ final class PdfRenderer
     }
 
     public function render(RenderedDocument $document): string
+    {
+        return $this->extensions->publish(
+            name: PdfRendererExtension::NAME,
+            extension: new PdfRendererExtension($document),
+            function: $this->_render(...)
+        );
+    }
+
+    private function _render(RenderedDocument $document): string
     {
         $dompdf = new Dompdf();
 

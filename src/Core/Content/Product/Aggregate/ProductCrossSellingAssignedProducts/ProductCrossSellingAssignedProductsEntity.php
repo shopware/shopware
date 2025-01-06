@@ -15,26 +15,36 @@ class ProductCrossSellingAssignedProductsEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $crossSellingId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
     /**
      * @var ProductEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $product;
 
     /**
      * @var ProductCrossSellingEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $crossSelling;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $position;
 

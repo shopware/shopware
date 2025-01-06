@@ -8,6 +8,7 @@ import 'src/app/component/base/sw-empty-state';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
+import Criteria from 'src/core/data/criteria.data';
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-variants', { sync: true }), {
@@ -15,9 +16,14 @@ async function createWrapper(privileges = []) {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => {
-                            return Promise.resolve([]);
-                        },
+                        search: jest.fn(() =>
+                            Promise.resolve([
+                                {
+                                    id: '1',
+                                    name: 'group-1',
+                                },
+                            ]),
+                        ),
                         delete: () => {
                             return Promise.resolve();
                         },
@@ -270,6 +276,39 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         expect(wrapper.vm.selectedGroups).toEqual([
             {
                 id: 'second-group',
+            },
+        ]);
+    });
+
+    it('should be able to load configuration setting with group ids', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            groups: [
+                {
+                    id: 'group-1',
+                },
+            ],
+            productEntity: {
+                configuratorSettings: [
+                    { option: { groupId: 'id-1' } },
+                    { option: { groupId: 'id-2' } },
+                ],
+            },
+        });
+        await flushPromises();
+        const criteria = new Criteria(1, null);
+        criteria.addFilter(
+            Criteria.equalsAny('id', [
+                'id-1',
+                'id-2',
+            ]),
+        );
+
+        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledWith(criteria);
+        expect(wrapper.vm.configSettingGroups).toEqual([
+            {
+                id: '1',
+                name: 'group-1',
             },
         ]);
     });

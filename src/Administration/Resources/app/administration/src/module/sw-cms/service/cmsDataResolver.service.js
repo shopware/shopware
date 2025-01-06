@@ -31,6 +31,9 @@ async function resolve(page) {
         section.blocks.forEach((block) => {
             initVisibility(block);
 
+            initBlockConfig(block);
+            initBlockDefaultData(block);
+
             block.slots.forEach((slot) => {
                 slots[slot.id] = slot;
                 const cmsElement = cmsElements[slot.type];
@@ -139,6 +142,55 @@ function initSlotDefaultData(slot) {
     const defaultData = slotConfig.defaultData || {};
 
     slot.data = merge(cloneDeep(defaultData), slot.data || {});
+}
+
+/**
+ * @private
+ * @package buyers-experience
+ */
+function initBlockConfig(block) {
+    const blockRegistry = cmsService.getCmsBlockRegistry();
+    const blockConfig = blockRegistry[block.type];
+
+    if (!blockConfig) {
+        warn(`Missing registration for block type "${block.type}".
+            Block "${block.id}", Section "${block.sectionId}"`);
+        return;
+    }
+
+    const defaultConfig = blockConfig.defaultConfig || {};
+
+    Object.entries(defaultConfig).forEach(
+        ([
+            key,
+            value,
+        ]) => {
+            if (!block[key]) {
+                block[key] = cloneDeep(value);
+            }
+        },
+    );
+}
+
+/**
+ * @private
+ * @package buyers-experience
+ */
+function initBlockDefaultData(block) {
+    const blockRegistry = cmsService.getCmsBlockRegistry();
+    const blockConfig = blockRegistry[block.type];
+
+    if (!blockConfig) {
+        return;
+    }
+
+    const defaultData = blockConfig.defaultData || {};
+
+    if (!block.data) {
+        block.data = {};
+    }
+
+    block.data = merge(cloneDeep(defaultData), block.data || {});
 }
 
 /**

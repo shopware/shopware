@@ -35,8 +35,8 @@ class DefaultAppUpdaterTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->updater = $this->getContainer()->get(AbstractAppUpdater::class);
-        $this->appRepo = $this->getContainer()->get('app.repository');
+        $this->updater = static::getContainer()->get(AbstractAppUpdater::class);
+        $this->appRepo = static::getContainer()->get('app.repository');
         // simulate that a user was logged in
         $this->createAdminStoreContext();
     }
@@ -56,7 +56,7 @@ class DefaultAppUpdaterTest extends TestCase
         $this->getStoreRequestHandler()->append(new Response(200, [], $licensesJson));
         $this->getStoreRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
         $this->getStoreRequestHandler()->append(new Response(200, [], $swagAppJson));
-        $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/SwagApp';
+        $expectedLocation = static::getContainer()->getParameter('kernel.app_dir') . '/SwagApp';
 
         try {
             $this->updater->updateApps($this->context);
@@ -86,7 +86,7 @@ class DefaultAppUpdaterTest extends TestCase
         $this->getStoreRequestHandler()->append(new Response(200, [], $licensesJson));
         $this->getStoreRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
         $this->getStoreRequestHandler()->append(new Response(200, [], $swagAppJson));
-        $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/SwagApp';
+        $expectedLocation = static::getContainer()->getParameter('kernel.app_dir') . '/SwagApp';
 
         try {
             $this->updater->updateApps($this->context);

@@ -10,6 +10,8 @@ class ProductCrossSellingRouteResponse extends StoreApiResponse
 {
     /**
      * @var CrossSellingElementCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

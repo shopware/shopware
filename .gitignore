@@ -12,15 +12,23 @@ Thumbs.db
 
 # PhpStorm-Project
 /.idea/
+!/.idea/icon.svg
 /.fleet/
 *.http
 /.run/
+
+# VSCode-Project
+/.vscode/
+!/.vscode/settings.json
 
 # Composer
 /composer.phar
 /auth.json
 /vendor/*
 /composer.lock
+
+# Generated database schema files
+/schema
 
 # Symfony-CLI
 php.ini

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -34,8 +35,8 @@ class EntityLoadedEventFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->entityLoadedEventFactory = $this->getContainer()->get(EntityLoadedEventFactory::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->entityLoadedEventFactory = static::getContainer()->get(EntityLoadedEventFactory::class);
         $this->ids = new IdsCollection();
     }
 
@@ -70,14 +71,24 @@ class EntityLoadedEventFactoryTest extends TestCase
         $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
-        static::assertEquals([
-            'category.loaded',
-            'language.loaded',
-            'product.loaded',
-            'product_manufacturer.loaded',
-            'product_price.loaded',
-            'tax.loaded',
-        ], $createdEvents);
+        if (Feature::isActive('v6.7.0.0')) {
+            static::assertEquals([
+                'category.loaded',
+                'language.loaded',
+                'product.loaded',
+                'product_manufacturer.loaded',
+                'product_price.loaded',
+            ], $createdEvents);
+        } else {
+            static::assertEquals([
+                'category.loaded',
+                'language.loaded',
+                'product.loaded',
+                'product_manufacturer.loaded',
+                'product_price.loaded',
+                'tax.loaded',
+            ], $createdEvents);
+        }
     }
 
     public function testCollectionWithEntitiesMixed(): void

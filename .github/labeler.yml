@@ -32,8 +32,6 @@ labels:
     body: "Extension:Showroom-Theme"
   - label: "Extension:Social-Shopping"
     body: "Extension:Social-Shopping"
-  - label: "Triage required" # add triage required Label to every pull request
-    type: "pull_request"
   - label: "Bug" # add bug Label to every issue but to no PR
     negate: True
     type: "pull_request"

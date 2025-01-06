@@ -17,7 +17,7 @@
             <meta itemprop="name" content="{{ review.title }}">
 
             {% if review.language %}
-                <meta itemprop="language" content="{{ review.language.translationCode.code }}">
+                <meta itemprop="inLanguage" content="{{ review.language.translationCode.code }}">
             {% endif %}
         {% endblock %}
 

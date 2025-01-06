@@ -28,7 +28,7 @@ class SeoUrlRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
+        $this->seoUrlRepository = static::getContainer()->get('seo_url.repository');
     }
 
     public function testCreate(): void

@@ -39,7 +39,7 @@ class PriceFieldTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $nullableTable = <<<EOF
 DROP TABLE IF EXISTS _test_nullable;
@@ -90,11 +90,11 @@ EOF;
         ];
 
         $definition = $this->registerDefinition(PriceFieldDefinition::class);
-        $this->getContainer()
+        static::getContainer()
             ->get(EntityWriter::class)
             ->insert($definition, $data, $context);
 
-        $entity = $this->getContainer()->get(EntityReaderInterface::class)
+        $entity = static::getContainer()->get(EntityReaderInterface::class)
             ->read($definition, new Criteria([$ids->get('with-was')]), Context::createDefaultContext())
             ->get($ids->get('with-was'));
 
@@ -153,14 +153,14 @@ EOF;
         ];
 
         $definition = $this->registerDefinition(PriceFieldDefinition::class);
-        $this->getContainer()
+        static::getContainer()
             ->get(EntityWriter::class)
             ->insert($definition, $data, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data.listPrice', 2));
 
-        $result = $this->getContainer()
+        $result = static::getContainer()
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, Context::createDefaultContext());
 
@@ -170,7 +170,7 @@ EOF;
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data.listPrice', 3));
 
-        $result = $this->getContainer()
+        $result = static::getContainer()
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, Context::createDefaultContext());
 
@@ -179,7 +179,7 @@ EOF;
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('data.listPrice', FieldSorting::DESCENDING));
 
-        $result = $this->getContainer()
+        $result = static::getContainer()
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, Context::createDefaultContext());
 
@@ -265,13 +265,13 @@ EOF;
             'totalRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
         ];
 
-        $this->getContainer()
+        static::getContainer()
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
 
         $ids = new IdsCollection();
 
-        $this->getContainer()
+        static::getContainer()
             ->get(EntityWriter::class)
             ->insert($definition, $records, WriteContext::createFromContext(Context::createDefaultContext()));
 
@@ -291,7 +291,7 @@ EOF;
         ]);
 
         // test ascending sorting
-        $result = $this->getContainer()
+        $result = static::getContainer()
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, $context);
 
@@ -301,7 +301,7 @@ EOF;
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('data', FieldSorting::DESCENDING));
 
-        $result = $this->getContainer()
+        $result = static::getContainer()
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, $context);
 
@@ -499,13 +499,13 @@ EOF;
             'totalRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
         ];
 
-        $this->getContainer()
+        static::getContainer()
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
 
         $ids = new IdsCollection();
 
-        $this->getContainer()
+        static::getContainer()
             ->get(EntityWriter::class)
             ->insert($definition, $records, WriteContext::createFromContext(Context::createDefaultContext()));
 
@@ -526,7 +526,7 @@ EOF;
         $criteria->addFilter($filter);
 
         // test ascending sorting
-        $result = $this->getContainer()
+        $result = static::getContainer()
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, $context);
 

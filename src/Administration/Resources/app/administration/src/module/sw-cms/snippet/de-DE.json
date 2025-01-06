@@ -78,7 +78,6 @@
       "chooseSectionHelpText": "Sektionen teilen Deine Arbeitsbühne in Bereiche, in denen Du kreativ sein kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
       "chooseNameTitle": "Wie soll Dein Layout heißen?",
       "createLayout": "Layout erstellen",
-      "abortCreation": "Abbrechen",
       "stepBack": "Zurück"
     },
     "detail": {
@@ -118,7 +117,6 @@
         "blockCategoryApp": "Apps",
         "blockCategoryHtml": "HTML",
         "buttonElementSettingsConfirm": "Fertig",
-        "buttonElementChangeAbort": "Abbrechen",
         "blockNameField": "Block-Name",
         "blockNameFieldPlaceholder": "Gib einen Namen ein ...",
         "blockSizingField": "Größenmodus",
@@ -209,7 +207,7 @@
             "displayModeCover": "Zugeschnitten",
             "displayModeStretch": "Skaliert",
             "displayModeContain": "Feste Höhe",
-            "autoSlide": "Automatischer Wechsel",
+            "autoSlide": "Automatischer Bildwechsel",
             "autoplayTimeout": "Verzögerung",
             "speed": "Animationsverzögerung",
             "horizontalAlign": "Horizontale Ausrichtung",
@@ -279,11 +277,11 @@
         "label": "Bild-Slider",
         "config": {
           "label": {
-            "navigationArrows": "Pfeile-Navigation",
+            "navigationArrows": "Pfeil-Navigation",
             "navigationPositionNone": "Keine",
             "navigationPositionInside": "Innen",
             "navigationPositionOutside": "Außen",
-            "navigationDots": "Punkte-Navigation"
+            "navigationDots": "Punkt-Navigation"
           },
           "helpText": {
             "displayMode": "<strong>Original:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.<br><br><strong>Feste Höhe:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Bildes bei.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten."
@@ -362,9 +360,12 @@
             "title": "Slider-Titel",
             "selection": "Produkte",
             "navigation": "Navigation",
-            "rotate": "Automatischer Wechsel",
             "border": "Rahmen",
-            "minWidth": "Minimale Weite",
+            "minWidth": "Minimale Breite",
+            "navigationArrows": "Pfeil-Navigation",
+            "navigationPositionNone": "Keine",
+            "navigationPositionInside": "Innen",
+            "navigationPositionOutside": "Außen",
             "productAssignmentType": "Produkt-Zuweisung",
             "productStreamSorting": "Sortierung",
             "productStreamLimit": "Maximale Produktanzahl",
@@ -376,6 +377,10 @@
             "minWidth": "Minimale Breite",
             "productStreamChoice": "Wähle eine dynamische Produktgruppe ...",
             "productStreamSorting": "Wähle eine Sortierung ..."
+          },
+          "helpText": {
+            "minWidth": "Gib die minimale Breite in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "displayMode": "<strong>Original:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder werden nie hochskaliert.<br><br><strong>Feste Höhe:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder können hochskaliert werden.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die Höhe oder Breite der Produktbox skaliert. Jeglicher Überlauf wird entsprechend zugeschnitten."
           },
           "productAssignmentTypeOptions": {
             "manual": "Manuelle Zuweisung",
@@ -440,10 +445,12 @@
             "start": "Video starten ab",
             "end": "Video abspielen bis",
             "needsConfirmation": "Video erst nach Bestätigung durch den User laden",
-            "previewImage": "Vorschau-Bild"
+            "previewImage": "Vorschau-Bild",
+            "videoTitle" : "Videotitel"
           },
           "placeholder": {
-            "videoId": "Video-Link eingeben ..."
+            "videoId": "Video-Link eingeben ...",
+            "videoTitle": "Einen beschreibenden Titel eingeben ..."
           },
           "helpText": {
             "autoPlay": "Achtung, einige Browser verhindern das automatische Abspielen von Videos.",
@@ -732,7 +739,6 @@
         "infoText": "Bitte beachte, dass alle Produkte, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Produkte diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden? | Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
       },
       "cmsLayoutModal": {
-        "actionCancel": "Abbrechen",
         "actionConfirm": "Layout übernehmen",
         "modalTitle": "Layout auswählen",
         "headline": "Landingpage / Produktlisting"
@@ -749,9 +755,6 @@
         "resetOptionSalesChannel": "Alle Verkaufskanäle",
         "helpTextSalesChannel": "Layouts, die spezifischen Verkaufskanälen zugewiesen sind, überschreiben Layout-Zuweisungen in \"Alle Verkaufskanäle\".",
         "labelShopPages": "Shopseiten",
-        "confirmChanges": "Übernehmen",
-        "confirmChangesConfirm": "Übernehmen",
-        "confirmChangesRestorePrev": "Verwerfen",
         "confirmChangesTextCategories": "Du hast Layout-Zuweisungen von Kategorie entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Kategorien kein Layout mehr zugewiesen.",
         "confirmChangesTextCategoriesAssignedLayouts": "Einigen der ausgewählten Kategorien ist bereits ein Layout zugewiesen. Wenn Du fortfährst, werden die bestehenden Zuweisungen durch das aktuelle Layout ersetzt.",
         "confirmChangesTextProducts": "Sie haben Layoutzuweisungen aus Produkten entfernt. Wenn Sie diese Änderungen bestätigen, ist diesen Produkten kein Layout mehr zugewiesen.",
@@ -813,7 +816,6 @@
           "textRenameConfirm": "Wähle einen neuen Namen für \"{pageName}\":",
           "textDeleteConfirm": "Möchtest Du das Layout \"{pageName}\" wirklich löschen?",
           "buttonRename": "Umbenennen",
-          "buttonCancel": "Abbrechen",
           "buttonDelete": "Löschen"
         }
       }

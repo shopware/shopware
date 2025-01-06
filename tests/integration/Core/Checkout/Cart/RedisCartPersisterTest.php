@@ -24,10 +24,7 @@ class RedisCartPersisterTest extends TestCase
 {
     private RedisCartPersister $persister;
 
-    /**
-     * @var \Redis
-     */
-    private $redis;
+    private \Redis $redis;
 
     protected function setUp(): void
     {

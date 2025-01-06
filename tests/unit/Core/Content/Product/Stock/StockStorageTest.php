@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockLoadRequest;
 use Shopware\Core\Content\Product\Stock\StockStorage;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -33,5 +34,16 @@ class StockStorageTest extends TestCase
             [],
             $stockStorage->load(new StockLoadRequest(array_values($productIds)), $salesChannelContext)->all()
         );
+    }
+
+    public function testEmptyChangesDoNotDispatchEvent(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+
+        $dispatcher->expects(static::never())->method('dispatch');
+
+        $stockStorage = new StockStorage($connection, $dispatcher);
+        $stockStorage->alter([], Context::createDefaultContext());
     }
 }

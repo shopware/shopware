@@ -81,8 +81,9 @@
                             v-for="(settingsItems, settingsGroup) in settingsGroups"
                             :key="settingsGroup"
                             :name="settingsGroup"
+                            :aria-label="$tc('sw-settings.index.title')"
                         >
-                            <div
+                            <nav
                                 v-show="active === settingsGroup"
                                 :id="`sw-settings__content-grid-${settingsGroup}`"
                                 class="sw-settings__content-grid"
@@ -106,7 +107,7 @@
                                         />
                                     </template>
                                 </sw-settings-item>
-                            </div>
+                            </nav>
                         </slot>
                         {% endblock %}
                     </sw-card>

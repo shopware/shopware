@@ -65,7 +65,34 @@ Component.register('sw-select-base', {
         },
     },
 
+    mounted() {
+        this.onMounted();
+    },
+
+    beforeUnmount() {
+        this.onBeforeUnmount();
+    },
+
     methods: {
+        onMounted() {
+            document.addEventListener('keydown', this.handleKeydown);
+        },
+
+        onBeforeUnmount() {
+            document.removeEventListener('keydown', this.handleKeydown);
+        },
+
+        handleKeydown(event) {
+            if (!this.expanded) {
+                return;
+            }
+
+            // Handle escape key
+            if (event.key === 'Escape' || event.key === 'Esc') {
+                this.collapse();
+            }
+        },
+
         toggleExpand() {
             if (!this.expanded) {
                 this.expand();

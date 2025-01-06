@@ -28,7 +28,7 @@ class OverviewPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
-        $this->getContainer()->get('order_transaction.repository')->create([
+        static::getContainer()->get('order_transaction.repository')->create([
             [
                 // this id would result in being the first transaction with wrong sorting
                 'id' => self::LAST_TRANSACTION_ID,
@@ -62,7 +62,7 @@ class OverviewPageTest extends TestCase
         $testContext = $this->createSalesChannelContext();
 
         $order = $this->placeRandomOrder($context);
-        $this->getContainer()->get('order.repository')->update([
+        static::getContainer()->get('order.repository')->update([
             [
                 'id' => $order,
                 'salesChannelId' => $testContext->getSalesChannel()->getId(),
@@ -80,6 +80,6 @@ class OverviewPageTest extends TestCase
 
     protected function getPageLoader(): AccountOverviewPageLoader
     {
-        return $this->getContainer()->get(AccountOverviewPageLoader::class);
+        return static::getContainer()->get(AccountOverviewPageLoader::class);
     }
 }

@@ -65,6 +65,8 @@
                     <router-link
                         v-if="parentRoute"
                         class="smart-bar__back-btn"
+                        :aria-label="$tc('global.sw-page.backButton')"
+                        :title="$tc('global.sw-page.backButton')"
                         :to="{ name: parentRoute }"
                         :style="{ 'color': pageColor }"
                     >
@@ -152,7 +154,12 @@
                 </slot>
             </div>
         </div>
-        <div class="sw-page__main-content">
+
+        <main
+            id="main"
+            class="sw-page__main-content"
+            tabindex="-1"
+        >
             <div
                 class="sw-page__main-content-inner"
                 v-bind="$attrs"
@@ -163,7 +170,7 @@
                     {% block sw_page_slot_content %}{% endblock %}
                 </slot>
             </div>
-        </div>
+        </main>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_page_content_sidebar %}

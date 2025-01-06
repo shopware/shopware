@@ -2,14 +2,16 @@
     <div class="js-pseudo-modal-template">
         <div class="modal modal-lg fade"
              tabindex="-1"
-             role="dialog">
-            <div class="modal-dialog"
-                 role="document">
-                <div class="modal-content">
+             role="dialog"
+             aria-modal="true"
+             aria-hidden="true"
+             aria-labelledby="pseudo-modal-title">
+            <div class="modal-dialog">
+                <div class="modal-content js-pseudo-modal-template-root-element">
                     {% block component_pseudo_modal_header %}
                         <div class="modal-header only-close">
                             {% block component_pseudo_modal_title %}
-                                <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
+                                <div id="pseudo-modal-title" class="modal-title js-pseudo-modal-template-title-element h5"></div>
                             {% endblock %}
 
                             {% block component_pseudo_modal_close_btn %}

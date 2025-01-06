@@ -9,6 +9,17 @@ $box-image-height-img: 332px;
 
 .product-box {
     height: 100%;
+
+    // Do not expand the Bootstrap `stretched-link` pseudo element over the entire product card.
+    // By giving it the image height, only the image itself is linked and the remaining content is still selectable.
+    &.box-standard .stretched-link::after,
+    &.box-minimal .stretched-link::after {
+        height: calc(#{$box-standard-height-img} + var(--#{$prefix}card-spacer-y));
+    }
+
+    &.box-image .stretched-link::after {
+        height: calc(#{$box-image-height-img} + var(--#{$prefix}card-spacer-y));
+    }
 }
 
 .product-variant-characteristics {

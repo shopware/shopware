@@ -48,7 +48,7 @@ class CachedSitemapRouteTest extends TestCase
     protected function setUp(): void
     {
         Feature::skipTestIfActive('cache_rework', $this);
-        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
             static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
         }
         parent::setUp();
@@ -57,19 +57,19 @@ class CachedSitemapRouteTest extends TestCase
     #[AfterClass]
     public function cleanup(): void
     {
-        $this->getContainer()->get('cache.object')
+        static::getContainer()->get('cache.object')
             ->invalidateTags([CachedSitemapRoute::ALL_TAG]);
     }
 
     #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls, int $strategy = SitemapExporterInterface::STRATEGY_SCHEDULED_TASK): void
     {
-        $this->getContainer()->get('cache.object')
+        static::getContainer()->get('cache.object')
             ->invalidateTags([CachedSitemapRoute::ALL_TAG]);
 
         $ids = new IdsCollection();
 
-        $snippetSetId = $this->getContainer()->get(Connection::class)
+        $snippetSetId = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
 
         $domain = [
@@ -80,10 +80,10 @@ class CachedSitemapRouteTest extends TestCase
             'snippetSetId' => $snippetSetId,
         ];
 
-        $this->getContainer()->get('sales_channel_domain.repository')
+        static::getContainer()->get('sales_channel_domain.repository')
             ->create([$domain], Context::createDefaultContext());
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $products = [
@@ -97,11 +97,11 @@ class CachedSitemapRouteTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
         $counter = new SitemapRouteCounter(
-            $this->getContainer()->get('Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute.inner')
+            static::getContainer()->get('Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute.inner')
         );
 
         $config = $this->createMock(SystemConfigService::class);
@@ -112,20 +112,20 @@ class CachedSitemapRouteTest extends TestCase
 
         $route = new CachedSitemapRoute(
             $counter,
-            $this->getContainer()->get('cache.object'),
-            $this->getContainer()->get(EntityCacheKeyGenerator::class),
-            $this->getContainer()->get(CacheTracer::class),
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('cache.object'),
+            static::getContainer()->get(EntityCacheKeyGenerator::class),
+            static::getContainer()->get(CacheTracer::class),
+            static::getContainer()->get('event_dispatcher'),
             [],
             $config
         );
 
-        $before($this->context, $this->getContainer());
+        $before($this->context, static::getContainer());
 
         $route->load(new Request(), $this->context);
         $route->load(new Request(), $this->context);
 
-        $after($this->context, $this->getContainer());
+        $after($this->context, static::getContainer());
 
         $route->load(new Request(), $this->context);
         $route->load(new Request(), $this->context);

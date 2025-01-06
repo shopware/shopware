@@ -24,5 +24,6 @@ class GatewaysTest extends TestCase
         $gateways = $manifest->getGateways();
 
         static::assertNotNull($gateways->getCheckout());
+        static::assertNotNull($gateways->getInAppPurchasesGateway());
     }
 }

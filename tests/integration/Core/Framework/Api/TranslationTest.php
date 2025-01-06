@@ -120,7 +120,7 @@ class TranslationTest extends TestCase
 
     public function testOnlySystemLocaleIdentifier(): void
     {
-        $localeRepo = $this->getContainer()->get('locale.repository');
+        $localeRepo = static::getContainer()->get('locale.repository');
         /** @var LocaleEntity $locale */
         $locale = $localeRepo->search(new Criteria([$this->getLocaleIdOfSystemLanguage()]), Context::createDefaultContext())->first();
 

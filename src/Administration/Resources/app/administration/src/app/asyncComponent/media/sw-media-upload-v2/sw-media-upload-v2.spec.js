@@ -386,7 +386,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         fileInput = wrapper.find('.sw-media-upload-v2__file-input');
         expect(fileInput.exists()).toBeTruthy();
 
-        let contextButton = wrapper.find('.sw-media-upload-v2__switch-mode button');
+        let contextButton = wrapper.find('.sw-media-upload-v2__switch-mode');
         await contextButton.trigger('click');
         await flushPromises();
 
@@ -398,7 +398,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         await switchToUrlModeBtn.trigger('click');
 
-        contextButton = wrapper.find('.sw-media-upload-v2__switch-mode button');
+        contextButton = wrapper.find('.sw-media-upload-v2__switch-mode');
         await contextButton.trigger('click');
 
         switchToFileModeBtn = switchModeButton.find('.sw-media-upload-v2__button-file-upload');
@@ -421,7 +421,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         expect(wrapper.vm.inputType).toBe('file-upload');
 
-        const contextButton = wrapper.find('.sw-media-upload-v2__switch-mode button');
+        const contextButton = wrapper.find('.sw-media-upload-v2__switch-mode');
         await contextButton.trigger('click');
         await flushPromises();
 

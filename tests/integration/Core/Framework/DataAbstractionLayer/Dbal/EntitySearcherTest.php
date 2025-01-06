@@ -36,9 +36,9 @@ class EntitySearcherTest extends TestCase
         parent::setUp();
 
         $this->entitySearcher = new EntitySearcher(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(EntityDefinitionQueryHelper::class),
-            $this->getContainer()->get(CriteriaQueryBuilder::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(EntityDefinitionQueryHelper::class),
+            static::getContainer()->get(CriteriaQueryBuilder::class),
         );
     }
 
@@ -46,7 +46,7 @@ class EntitySearcherTest extends TestCase
     {
         parent::tearDown();
 
-        $this->getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=1;');
+        static::getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     public function testSearchFiltersByTranslatedFieldsInAssociations(): void
@@ -82,7 +82,7 @@ class EntitySearcherTest extends TestCase
         $criteria->addFilter(new EqualsFilter('categories.name', 'Category 1'));
 
         $productIds = $this->entitySearcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -124,7 +124,7 @@ class EntitySearcherTest extends TestCase
         $criteria->addFilter(new EqualsFilter('categories.name', 'Kategorie 1'));
 
         $productIds = $this->entitySearcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -163,7 +163,7 @@ class EntitySearcherTest extends TestCase
         $criteria->addFilter(new ContainsFilter('name', 'Deutscher Name'));
 
         $productIds = $this->entitySearcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -197,7 +197,7 @@ class EntitySearcherTest extends TestCase
         $criteria->setTerm('German name');
 
         $productIds = $this->entitySearcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -225,7 +225,7 @@ class EntitySearcherTest extends TestCase
         $criteria->setTerm('Deutscher Name');
 
         $productIds = $this->entitySearcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -253,7 +253,7 @@ class EntitySearcherTest extends TestCase
         $criteria->addQuery(new ScoreQuery(new EqualsFilter('name', 'German name'), score: 100));
 
         $productIds = $this->entitySearcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -281,7 +281,7 @@ class EntitySearcherTest extends TestCase
         $criteria->addQuery(new ScoreQuery(new EqualsFilter('name', 'Deutscher Name'), score: 100));
 
         $productIds = $this->entitySearcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -306,7 +306,7 @@ class EntitySearcherTest extends TestCase
             productNumber: 'product-2',
             ids: $ids,
         );
-        $this->getContainer()->get('product.repository')->create(
+        static::getContainer()->get('product.repository')->create(
             [
                 $productBuilder1->build(),
                 $productBuilder2->build(),
@@ -320,7 +320,7 @@ class EntitySearcherTest extends TestCase
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Deutsch'), score: 100));
 
         $productIds = $this->entitySearcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             self::createLocalizedContext([
                 $this->getDeDeLanguageId(),
@@ -352,7 +352,7 @@ class EntitySearcherTest extends TestCase
         );
         $productBuilder->categories($categories);
 
-        $this->getContainer()->get('product.repository')->create(
+        static::getContainer()->get('product.repository')->create(
             [$productBuilder->build()],
             Context::createDefaultContext()
         );
@@ -396,7 +396,7 @@ class EntitySearcherTest extends TestCase
             $categoryBuilder->translation($this->getDeDeLanguageId(), 'name', $deDeTranslation);
         }
 
-        $this->getContainer()->get('category.repository')->create(
+        static::getContainer()->get('category.repository')->create(
             [$categoryBuilder->build()],
             Context::createDefaultContext(),
         );

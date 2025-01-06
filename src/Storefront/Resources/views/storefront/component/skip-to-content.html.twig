@@ -1,0 +1,45 @@
+{% block component_skip_to_content %}
+    {% if skipToMainContent is not defined %}
+        {% set skipToMainContent = true %}
+    {% endif %}
+
+    {% if skipToSearch is not defined %}
+        {% set skipToSearch = false %}
+    {% endif %}
+
+    {% if skipToMainNav is not defined %}
+        {% set skipToMainNav = false %}
+    {% endif %}
+
+    {% block component_skip_to_content_element %}
+        <div class="skip-to-content bg-primary-subtle text-primary-emphasis visually-hidden-focusable overflow-hidden">
+            <div class="container d-flex justify-content-center">
+                {% block component_skip_to_content_inner %}
+                    {% block component_skip_to_content_main_content %}
+                        {% if skipToMainContent %}
+                            <a href="#content-main" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2">
+                                {{ 'general.skipToContentLink'|trans|sw_sanitize }}
+                            </a>
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block component_skip_to_content_search %}
+                        {% if skipToSearch %}
+                            <a href="#header-main-search-input" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2 d-none d-sm-block">
+                                {{ 'general.skipToSearch'|trans|sw_sanitize }}
+                            </a>
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block component_skip_to_content_main_nav %}
+                        {% if skipToMainNav %}
+                            <a href="#main-navigation-menu" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2 d-none d-lg-block">
+                                {{ 'general.skipToNavigation'|trans|sw_sanitize }}
+                            </a>
+                        {% endif %}
+                    {% endblock %}
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}

@@ -31,9 +31,7 @@
             {% endblock %}
         </template>
 
-        <template
-            #content="{ active }"
-        >
+        <template #content="{ active }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_slider_config_content %}
             <sw-container
@@ -44,6 +42,7 @@
                 {% block sw_cms_element_product_slider_config_content_title %}
                 <sw-text-field
                     v-model:value="element.config.title.value"
+                    class="sw-cms-el-config-product-slider__tab-content-title"
                     :label="$tc('sw-cms.elements.productSlider.config.label.title')"
                     :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.title')"
                 />
@@ -53,7 +52,7 @@
                 {% block sw_cms_element_product_slider_config_content_product_assignment_type %}
                 <sw-single-select
                     v-model:value="element.config.products.source"
-                    class="sw-cms-el-config-product-slider__product-assignment-type-select"
+                    class="sw-cms-el-config-product-slider__tab-content-product-assignment-type-select"
                     :label="$tc('sw-cms.elements.productSlider.config.label.productAssignmentType')"
                     :options="productAssignmentTypes"
                     show-clearable-button
@@ -67,7 +66,7 @@
                     <sw-entity-single-select
                         v-model:value="element.config.products.value"
                         entity="product_stream"
-                        class="sw-cms-el-config-product-slider__product-stream-select"
+                        class="sw-cms-el-config-product-slider__tab-content-product-stream-select"
                         :label="$tc('sw-cms.elements.productSlider.config.label.productStreamChoice')"
                         :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
                         show-clearable-button
@@ -78,7 +77,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_content_product_stream_performance_hint %}
                     <sw-alert
-                        class="sw-cms-el-config-product-slider__product-stream-performance-hint"
+                        class="sw-cms-el-config-product-slider__tab-content-product-stream-performance-hint"
                         variant="info"
                     >
                         {{ $tc('sw-cms.elements.productSlider.config.textProductStreamPerformanceHint') }}
@@ -93,19 +92,16 @@
                         @modal-close="onCloseProductStreamModal"
                     />
 
-                    <sw-container
-                        columns="1fr 1fr"
-                        gap="30px"
-                    >
+                    <sw-container columns="1fr 1fr" gap="30px">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_product_slider_config_content_product_stream_sorting %}
                         <sw-single-select
                             v-model:value="element.config.productStreamSorting.value"
-                            :label="$tc('sw-cms.elements.productSlider.config.label.productStreamSorting')"
-                            class="sw-cms-el-config-product-slider__product-stream-sorting"
-                            :disabled="!productStream"
-                            :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamSorting')"
+                            class="sw-cms-el-config-product-slider__tab-content-product-stream-sorting"
                             :options="productStreamSortingOptions"
+                            :label="$tc('sw-cms.elements.productSlider.config.label.productStreamSorting')"
+                            :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamSorting')"
+                            :disabled="!productStream"
                             show-clearable-button
                         />
                         {% endblock %}
@@ -114,8 +110,8 @@
                         {% block sw_cms_element_product_slider_config_content_product_stream_limit %}
                         <sw-number-field
                             v-model:value="element.config.productStreamLimit.value"
+                            class="sw-cms-el-config-product-slider__tab-content-product-stream-limit"
                             :label="$tc('sw-cms.elements.productSlider.config.label.productStreamLimit')"
-                            class="sw-cms-el-config-product-slider__product-stream-limit"
                             :disabled="!productStream"
                             :min="1"
                         />
@@ -146,7 +142,7 @@
                 <sw-entity-multi-select
                     v-else
                     v-model:entityCollection="productCollection"
-                    class="sw-cms-el-config-product-slider__products"
+                    class="sw-cms-el-config-product-slider__tab-content-products"
                     :label="$tc('sw-cms.elements.productSlider.config.label.selection')"
                     :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.selection')"
                     :context="productMultiSelectContext"
@@ -154,26 +150,17 @@
                     @update:entity-collection="onProductsChange"
                 >
                     <template #selection-label-property="{ item }">
-                        <sw-product-variant-info
-                            :variations="item.variation"
-                        >
+                        <sw-product-variant-info :variations="item.variation">
                             {{ item.translated.name || item.name }}
                         </sw-product-variant-info>
                     </template>
                     <template #result-item="{ item, index }">
-                        <slot
-                            name="result-item"
-                            v-bind="{ item, index }"
-                        >
-                            <sw-select-result
-                                v-bind="{ item, index, selected: isSelected(item.id)}"
-                            >
+                        <slot name="result-item" v-bind="{ item, index }">
+                            <sw-select-result v-bind="{ item, index, selected: isSelected(item.id)}">
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_entity_single_select_base_results_list_result_label %}
                                 <span class="sw-select-result__result-item-text">
-                                    <sw-product-variant-info
-                                        :variations="item.variation"
-                                    >
+                                    <sw-product-variant-info :variations="item.variation">
                                         {{ item.translated.name || item.name }}
                                     </sw-product-variant-info>
                                 </span>
@@ -192,97 +179,162 @@
                 v-if="active === 'settings'"
                 class="sw-cms-el-config-product-slider__tab-settings"
             >
+                <div class="sw-cms-el-config-product-slider__tab-settings-display">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_element_product_slider_config_settings_display_mode %}
+                    <sw-select-field
+                        v-model:value="element.config.displayMode.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-display-mode"
+                        :label="$tc('sw-cms.elements.general.config.label.displayMode')"
+                        :help-text="$tc('sw-cms.elements.productSlider.config.helpText.displayMode')"
+                    >
+                        <option value="standard">
+                            {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
+                        </option>
+                        <option value="contain">
+                            {{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}
+                        </option>
+                        <option value="cover">
+                            {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
+                        </option>
+                    </sw-select-field>
+                    {% endblock %}
+                </div>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_element_product_slider_config_settings_display_mode %}
-                <sw-select-field
-                    v-model:value="element.config.displayMode.value"
-                    :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-                >
-                    <option value="standard">
-                        {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
-                    </option>
-                    <option value="cover">
-                        {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
-                    </option>
-                    <option value="contain">
-                        {{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}
-                    </option>
-                </sw-select-field>
-                {% endblock %}
+                <div class="sw-cms-el-config-product-slider__tab-settings-alignment has--two-elements">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_element_product_slider_config_settings_min_width %}
+                    <sw-text-field
+                        v-model:value="element.config.elMinWidth.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-alignment-min-width"
+                        :label="$tc('sw-cms.elements.productSlider.config.label.minWidth')"
+                        :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.minWidth')"
+                        :help-text="$tc('sw-cms.elements.productSlider.config.helpText.minWidth')"
+                    />
+                    {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_element_product_slider_config_settings_vertical_align %}
-                <sw-select-field
-                    v-model:value="element.config.verticalAlign.value"
-                    :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                    :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                >
-                    <option value="flex-start">
-                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
-                    </option>
-                    <option value="center">
-                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
-                    </option>
-                    <option value="flex-end">
-                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
-                    </option>
-                </sw-select-field>
-                {% endblock %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_element_product_slider_config_settings_vertical_align %}
+                    <sw-select-field
+                        v-model:value="element.config.verticalAlign.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-alignment-vertical"
+                        :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
+                        :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
+                    >
+                        <option value="flex-start">
+                            {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
+                        </option>
+                        <option value="center">
+                            {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
+                        </option>
+                        <option value="flex-end">
+                            {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
+                        </option>
+                    </sw-select-field>
+                    {% endblock %}
+                </div>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_element_product_slider_config_settings_box_layout %}
-                <sw-select-field
-                    v-model:value="element.config.boxLayout.value"
-                    :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
-                >
-                    <option value="standard">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}
-                    </option>
-                    <option value="image">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}
-                    </option>
-                    <option value="minimal">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}
-                    </option>
-                </sw-select-field>
-                {% endblock %}
+                <div class="sw-cms-el-config-product-slider__tab-settings-layout has--two-elements">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_element_product_slider_config_settings_box_layout %}
+                    <sw-select-field
+                        v-model:value="element.config.boxLayout.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-layout-type"
+                        :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
+                    >
+                        <option value="standard">
+                            {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}
+                        </option>
+                        <option value="image">
+                            {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}
+                        </option>
+                        <option value="minimal">
+                            {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}
+                        </option>
+                    </sw-select-field>
+                    {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_element_product_slider_config_settings_navigation %}
-                <sw-switch-field
-                    v-model:value="element.config.navigation.value"
-                    bordered
-                    :label="$tc('sw-cms.elements.productSlider.config.label.navigation')"
-                />
-                {% endblock %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_element_product_slider_config_settings_border %}
+                    <sw-switch-field
+                        v-model:value="element.config.border.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-layout-border"
+                        :label="$tc('sw-cms.elements.productSlider.config.label.border')"
+                        bordered
+                    />
+                    {% endblock %}
+                </div>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_element_product_slider_config_settings_rotate %}
-                <sw-switch-field
-                    v-model:value="element.config.rotate.value"
-                    bordered
-                    :label="$tc('sw-cms.elements.productSlider.config.label.rotate')"
-                />
-                {% endblock %}
+                <div class="sw-cms-el-config-product-slider__tab-settings-navigation">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_element_product_slider_config_settings_navigation_arrows %}
+                    <sw-select-field
+                        v-model:value="element.config.navigationArrows.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-navigation-arrows"
+                        :label="$tc('sw-cms.elements.productSlider.config.label.navigationArrows')"
+                        @update:value="emitUpdateEl"
+                    >
+                        <option value="none">
+                            {{ $tc('sw-cms.elements.productSlider.config.label.navigationPositionNone') }}
+                        </option>
+                        <option value="inside">
+                            {{ $tc('sw-cms.elements.productSlider.config.label.navigationPositionInside') }}
+                        </option>
+                        <option value="outside">
+                            {{ $tc('sw-cms.elements.productSlider.config.label.navigationPositionOutside') }}
+                        </option>
+                    </sw-select-field>
+                    {% endblock %}
+                </div>
 
+                {# @deprecated tag:v6.7.0 - Will be removed #}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_element_product_slider_config_settings_border %}
-                <sw-switch-field
-                    v-model:value="element.config.border.value"
-                    bordered
-                    :label="$tc('sw-cms.elements.productSlider.config.label.border')"
-                />
-                {% endblock %}
+                {% block sw_cms_element_product_slider_config_settings_navigation %}{% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_element_product_slider_config_settings_min_width %}
-                <sw-text-field
-                    v-model:value="element.config.elMinWidth.value"
-                    :label="$tc('sw-cms.elements.productSlider.config.label.minWidth')"
-                    :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.minWidth')"
-                />
-                {% endblock %}
+                <div class="sw-cms-el-config-product-slider__tab-settings-rotate">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_element_product_slider_config_settings_rotate %}
+                    <sw-switch-field
+                        v-model:value="element.config.rotate.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
+                        :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
+                        :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
+                        bordered
+                    />
+                    {% endblock %}
+                </div>
+
+                <div class="sw-cms-el-config-product-slider__tab-settings-rotate-config has--two-elements">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
+                    <sw-number-field
+                        v-model:value="element.config.autoplayTimeout.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-rotate-autoplay"
+                        number-type="int"
+                        :min="0"
+                        :max="3600000"
+                        :disabled="!element.config.rotate.value"
+                        :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                        :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                        :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
+                    />
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
+                    <sw-number-field
+                        v-model:value="element.config.speed.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-rotate-speed"
+                        number-type="int"
+                        :min="0"
+                        :max="3600000"
+                        :disabled="!element.config.rotate.value"
+                        :label="$tc('sw-cms.elements.general.config.label.speed')"
+                        :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
+                        :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
+                    />
+                    {% endblock %}
+                </div>
             </sw-container>
             {% endblock %}
         </template>

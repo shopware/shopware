@@ -42,11 +42,11 @@ class CustomerSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->customerGroupRepository = $this->getContainer()->get('customer_group.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $this->customerGroupRepository = static::getContainer()->get('customer_group.repository');
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
 
         $this->serializer = new CustomerSerializer(
             $this->customerGroupRepository,
@@ -116,7 +116,7 @@ class CustomerSerializerTest extends TestCase
             $this->salesChannelRepository
         );
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
 

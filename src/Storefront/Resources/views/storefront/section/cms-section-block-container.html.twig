@@ -49,17 +49,29 @@
         {% set blockClasses = ['hidden-desktop']|merge(blockClasses) %}
     {% endif %}
 
-    <div class="cms-block {{ blockClasses|join(' ') }}"
-         style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %}">
+    <div class="cms-block {{ blockClasses|join(' ') }} position-relative"
+         style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %};">
+
         {% block section_content_block_background_image %}
+            {% set backgroundImageUrl = null %}
+
             {% if block.backgroundMedia %}
-                {% sw_thumbnails 'cms-block-background' with {
-                    media: block.backgroundMedia,
-                    autoColumnSizes: false,
-                    attributes: {
-                        class: 'cms-block-background media-mode--' ~ block.backgroundMediaMode
-                    }
-                } %}
+                {% set backgroundImageUrl = block.backgroundMedia.url %}
+            {% else %}
+                {% set defaultMediaUrl = null %}
+
+                {% for slot in block.slots.elements %}
+                    {% if slot.slot == 'content' and slot.config.media and slot.config.media.value %}
+                        {% set defaultMediaUrl = slot.config.media.value %}
+                        {% set backgroundImageUrl = asset(defaultMediaUrl) %}
+                        {% break %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            {% if backgroundImageUrl %}
+                <img src="{{ backgroundImageUrl }}"
+                     class="cms-block-background media-mode--{{ block.backgroundMediaMode|default('cover') }}">
             {% endif %}
         {% endblock %}
 

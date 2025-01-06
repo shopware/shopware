@@ -28,7 +28,7 @@ class KernelTest extends TestCase
             static::markTestSkipped('Database does not support timezones');
         }
 
-        $c = $this->getContainer()->get(Connection::class);
+        $c = static::getContainer()->get(Connection::class);
 
         static::assertSame($c->fetchOne('SELECT @@session.time_zone'), '+00:00');
     }
@@ -37,7 +37,7 @@ class KernelTest extends TestCase
     {
         Feature::skipTestIfInActive('v6.7.0.0', $this);
 
-        $c = $this->getContainer()->get(Connection::class);
+        $c = static::getContainer()->get(Connection::class);
 
         static::assertSame($c->fetchOne('SELECT @@session.time_zone'), '+00:00');
     }

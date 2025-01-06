@@ -1,0 +1,41 @@
+includes:
+    - ../../../../../vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - extension.neon
+    - rules.neon
+
+parameters:
+    phpVersion: 80200
+    level: 8
+    treatPhpDocTypesAsCertain: false
+    inferPrivatePropertyTypeFromConstructor: true
+    reportUnmatchedIgnoredErrors: true
+    checkFunctionNameCase: true
+    checkInternalClassCaseSensitivity: true
+
+    type_perfect:
+        no_mixed_property: true
+        no_mixed_caller: true
+        null_over_false: true
+
+services:
+    - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
+        class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
+
+rules:
+    # rules from https://github.com/symplify/phpstan-rules
+    # domain
+    - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
+    - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
+
+    # explicit naming
+    - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
+
+    - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
+
+    # complexity rules
+    - Symplify\PHPStanRules\Rules\NoDynamicNameRule
+
+    # naming rules
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
+    - Symplify\PHPStanRules\Rules\UppercaseConstantRule
+    - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule

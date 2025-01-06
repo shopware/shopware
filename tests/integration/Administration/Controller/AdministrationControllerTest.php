@@ -29,11 +29,11 @@ class AdministrationControllerTest extends TestCase
 
     protected function setup(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $newLanguageId = $this->insertOtherLanguage();
         $this->createSearchConfigFieldForNewLanguage($newLanguageId);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testSnippetRoute(): void
@@ -312,7 +312,7 @@ class AdministrationControllerTest extends TestCase
 
     private function setCustomerBoundToSalesChannels(bool $value): void
     {
-        $this->getContainer()
+        static::getContainer()
             ->get(SystemConfigService::class)
             ->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $value);
     }
@@ -325,7 +325,7 @@ class AdministrationControllerTest extends TestCase
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
         /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
 
         $criteria = new Criteria();

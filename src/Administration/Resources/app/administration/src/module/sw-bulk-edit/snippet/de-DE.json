@@ -7,9 +7,7 @@
     },
     "changeTypes": {
       "overwrite": "Überschreiben",
-      "clear": "Leeren",
-      "add": "Hinzufügen",
-      "remove": "Entfernen"
+      "clear": "Leeren"
     },
     "product": {
       "textTitle": "Mehrfachänderung: {productTotal} Produkt | Mehrfachänderung: {productTotal} Produkte",
@@ -251,10 +249,7 @@
       "process": {
         "title": "Mehrfachänderung - Prozess gestartet",
         "description": "Abhängig von der Anzahl der vergenommenen Änderungen, kann dieser Vorgang einige Zeit in Anspruch nehmen.",
-        "helpText": "Bitte beachte, dass Du während des Mehrfachänderungsvorgangs keine manuellen Änderungen an den ausgewählten Elementen vornimmst, da dies unvorhergesehene Effekte haben kann.",
-        "buttons": {
-          "cancel": "Abbrechen"
-        }
+        "helpText": "Bitte beachte, dass Du während des Mehrfachänderungsvorgangs keine manuellen Änderungen an den ausgewählten Elementen vornimmst, da dies unvorhergesehene Effekte haben kann."
       },
       "success": {
         "title": "Mehrfachänderung - Erfolg",

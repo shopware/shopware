@@ -16,6 +16,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
@@ -28,7 +29,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
-use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer\MediaDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**

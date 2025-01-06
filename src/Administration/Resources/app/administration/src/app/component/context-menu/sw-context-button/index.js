@@ -106,6 +106,12 @@ Component.register('sw-context-button', {
             required: false,
             default: 1100,
         },
+
+        ariaLabel: {
+            type: String,
+            required: false,
+            default: 'sw-context-button.ariaLabel',
+        },
     },
 
     data() {

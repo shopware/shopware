@@ -157,6 +157,11 @@ Component.register('sw-entity-multi-select', {
             required: false,
             default: false,
         },
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {

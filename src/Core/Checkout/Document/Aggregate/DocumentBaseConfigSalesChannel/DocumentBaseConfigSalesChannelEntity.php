@@ -16,31 +16,43 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentBaseConfigId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentTypeId;
 
     /**
      * @var DocumentTypeEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentType;
 
     /**
      * @var DocumentBaseConfigEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentBaseConfig;
 
     /**
      * @var SalesChannelEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannel;
 

@@ -26,6 +26,7 @@ class CartRedisCompilerPass implements CompilerPassInterface
             );
 
             $container->setParameter('shopware.cart.storage.config.dsn', $container->getParameter('shopware.cart.redis_url'));
+            $container->setParameter('shopware.cart.storage.config.connection', null);
 
             $container->removeDefinition(CartPersister::class);
             $container->setAlias(CartPersister::class, RedisCartPersister::class);

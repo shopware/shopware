@@ -39,7 +39,7 @@ class OrderPageTest extends TestCase
 
         $this->placeRandomOrder($context);
         $order = $this->placeRandomOrder($context);
-        $this->getContainer()->get('order.repository')->update([
+        static::getContainer()->get('order.repository')->update([
             [
                 'id' => $order,
                 'salesChannelId' => $testContext->getSalesChannel()->getId(),
@@ -57,6 +57,6 @@ class OrderPageTest extends TestCase
 
     protected function getPageLoader(): AccountOrderPageLoader
     {
-        return $this->getContainer()->get(AccountOrderPageLoader::class);
+        return static::getContainer()->get(AccountOrderPageLoader::class);
     }
 }

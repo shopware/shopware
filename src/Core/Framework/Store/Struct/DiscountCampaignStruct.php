@@ -12,31 +12,43 @@ class DiscountCampaignStruct extends StoreStruct
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var \DateTimeImmutable
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $startDate;
 
     /**
      * @var \DateTimeImmutable
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $endDate;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $discount;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $discountedPrice;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $discountAppliesForMonths;
 

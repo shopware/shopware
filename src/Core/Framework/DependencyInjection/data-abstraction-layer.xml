@@ -5,10 +5,10 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="env(SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)">0</parameter>
+        <parameter key="env(SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)" type="string">0</parameter>
         <parameter key="shopware.dbal.time_zone_support_enabled">%env(bool:SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)%</parameter>
 
-        <parameter key="env(SHOPWARE_DBAL_TOKEN_MINIMUM_LENGTH)">3</parameter>
+        <parameter key="env(SHOPWARE_DBAL_TOKEN_MINIMUM_LENGTH)" type="string">3</parameter>
         <parameter key="shopware.dbal.token_minimum_length">%env(int:SHOPWARE_DBAL_TOKEN_MINIMUM_LENGTH)%</parameter>
     </parameters>
 
@@ -129,7 +129,8 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry" public="true">
-            <argument type="tagged" tag="shopware.entity.extension"/>
+            <argument type="tagged_iterator" tag="shopware.entity.extension"/>
+            <argument type="tagged_iterator" tag="shopware.bulk.entity.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory" public="true">
@@ -303,7 +304,7 @@
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
@@ -666,11 +667,11 @@
 
         <service id="Shopware\Core\Framework\Api\Sync\SyncFkResolver">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="tagged" tag="shopware.sync.fk_resolver"/>
+            <argument type="tagged_iterator" tag="shopware.sync.fk_resolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry">
-            <argument type="tagged" tag="shopware.dal.exception_handler"/>
+            <argument type="tagged_iterator" tag="shopware.dal.exception_handler"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\TechnicalNameExceptionHandler">
@@ -683,8 +684,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry" public="true">
-            <argument type="tagged" tag="shopware.entity_indexer"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="tagged_iterator" tag="shopware.entity_indexer"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="messenger.message_handler" />
         </service>

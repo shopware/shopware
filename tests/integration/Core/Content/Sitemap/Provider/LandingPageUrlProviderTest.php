@@ -44,11 +44,11 @@ class LandingPageUrlProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
             static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
         }
 
-        $this->landingPageRepository = $this->getContainer()->get('landing_page.repository');
+        $this->landingPageRepository = static::getContainer()->get('landing_page.repository');
 
         $this->salesChannelContext = $this->createStorefrontSalesChannelContext(
             Uuid::randomHex(),
@@ -56,9 +56,9 @@ class LandingPageUrlProviderTest extends TestCase
         );
 
         $this->landingPageUrlProvider = new LandingPageUrlProvider(
-            $this->getContainer()->get(ConfigHandler::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(RouterInterface::class),
+            static::getContainer()->get(ConfigHandler::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(RouterInterface::class),
         );
     }
 
@@ -125,8 +125,8 @@ class LandingPageUrlProviderTest extends TestCase
 
         $landingPageUrlProvider = new LandingPageUrlProvider(
             $configHandler,
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(RouterInterface::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(RouterInterface::class),
         );
 
         $urlResult = $landingPageUrlProvider->getUrls($this->salesChannelContext, 20);
@@ -157,7 +157,7 @@ class LandingPageUrlProviderTest extends TestCase
         $criteria->addFilter(new EqualsFilter('foreignKey', $id));
 
         /** @var EntityRepository<SeoUrlCollection> $seuUrlRepository */
-        $seuUrlRepository = $this->getContainer()->get('seo_url.repository');
+        $seuUrlRepository = static::getContainer()->get('seo_url.repository');
 
         /** @var SeoUrlEntity|null $seoUrl */
         $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->first();

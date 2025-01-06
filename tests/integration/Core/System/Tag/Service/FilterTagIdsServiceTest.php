@@ -37,7 +37,7 @@ class FilterTagIdsServiceTest extends TestCase
     protected function setup(): void
     {
         $this->ids = new IdsCollection();
-        $this->filterTagIdsService = $this->getContainer()->get(FilterTagIdsService::class);
+        $this->filterTagIdsService = static::getContainer()->get(FilterTagIdsService::class);
     }
 
     public function testFilterIdsWithDuplicateFilter(): void
@@ -237,7 +237,7 @@ class FilterTagIdsServiceTest extends TestCase
         ];
 
         Context::createDefaultContext()->addState(EntityIndexerRegistry::DISABLE_INDEXING);
-        $this->getContainer()->get('tag.repository')->create($tags, Context::createDefaultContext());
+        static::getContainer()->get('tag.repository')->create($tags, Context::createDefaultContext());
     }
 
     /**
@@ -283,7 +283,7 @@ class FilterTagIdsServiceTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, $context);
 
         $tags = [
@@ -304,13 +304,13 @@ class FilterTagIdsServiceTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('tag.repository')->create($tags, $context);
+        static::getContainer()->get('tag.repository')->create($tags, $context);
 
         $order = $this->getOrderFixture($this->ids->get('o1'), $context->getVersionId());
 
-        $this->getContainer()->get('order.repository')->create([$order], $context);
+        static::getContainer()->get('order.repository')->create([$order], $context);
 
-        $versionId = $this->getContainer()->get('order.repository')->createVersion(
+        $versionId = static::getContainer()->get('order.repository')->createVersion(
             $this->ids->get('o1'),
             $context,
             Uuid::randomHex(),
@@ -328,7 +328,7 @@ class FilterTagIdsServiceTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('order.repository')->update($orders, $versionContext);
+        static::getContainer()->get('order.repository')->update($orders, $versionContext);
 
         return $versionContext;
     }
@@ -338,7 +338,7 @@ class FilterTagIdsServiceTest extends TestCase
      */
     private function getOrderFixture(string $orderId, string $orderVersionId): array
     {
-        $stateId = $this->getContainer()->get('state_machine_state.repository')
+        $stateId = static::getContainer()->get('state_machine_state.repository')
             ->searchIds((new Criteria())->addFilter(new EqualsFilter('stateMachine.technicalName', OrderStates::STATE_MACHINE)), Context::createDefaultContext())
             ->firstId();
         static::assertIsString($stateId);

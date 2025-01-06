@@ -147,6 +147,9 @@
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', 0, { version: extension.latestVersion }) }}
         </sw-context-menu-item>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_extension_card_base_context_menu_actions_additional %}{% endblock %}
+
         <sw-context-menu-item
             v-if="!extensionManagementDisabled && extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null"
             class="sw-extension-card-base__cancel-and-remove-link"

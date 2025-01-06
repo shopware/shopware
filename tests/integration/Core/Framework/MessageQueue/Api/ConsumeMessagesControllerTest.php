@@ -24,23 +24,20 @@ class ConsumeMessagesControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
     use QueueTestBehaviour;
 
-    /**
-     * @var AbstractIncrementer
-     */
-    private $gateway;
+    private AbstractIncrementer $incrementer;
 
     protected function setUp(): void
     {
-        $this->gateway = $this->getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        $this->incrementer = static::getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
     }
 
     public function testConsumeMessages(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM scheduled_task');
 
         // queue a task
-        $repo = $this->getContainer()->get('scheduled_task.repository');
+        $repo = static::getContainer()->get('scheduled_task.repository');
         $taskId = Uuid::randomHex();
         $repo->create([
             [
@@ -72,11 +69,11 @@ class ConsumeMessagesControllerTest extends TestCase
 
     public function testMessageStatsDecrement(): void
     {
-        $messageBus = $this->getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.bus.shopware');
         $message = new ProductIndexingMessage([Uuid::randomHex()]);
         $messageBus->dispatch($message);
 
-        $gateway = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $gateway = static::getContainer()->get('shopware.increment.gateway.registry');
         $entries = $gateway->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL)->list('message_queue_stats');
 
         static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
@@ -86,7 +83,7 @@ class ConsumeMessagesControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'async']);
 
-        $entries = $this->gateway->list('message_queue_stats');
+        $entries = $this->incrementer->list('message_queue_stats');
 
         static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
         static::assertEquals(0, $entries[ProductIndexingMessage::class]['count']);

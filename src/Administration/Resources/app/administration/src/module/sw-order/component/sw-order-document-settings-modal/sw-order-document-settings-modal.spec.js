@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import FileValidationService from 'src/app/service/file-validation.service';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const orderFixture = {

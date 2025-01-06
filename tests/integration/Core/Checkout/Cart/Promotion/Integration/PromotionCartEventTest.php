@@ -30,7 +30,7 @@ class PromotionCartEventTest extends TestCase
     {
         parent::setUp();
 
-        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->cartService = static::getContainer()->get(CartService::class);
     }
 
     /**
@@ -46,12 +46,12 @@ class PromotionCartEventTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->getContext());
+        $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $this->getContext());
 
         $codes = [100, 1, 42, 13, 19];
         $this->createBulkPromotions($codes);
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $addListener = $this->getMockBuilder(CallableClass::class)->getMock();
         $addListener->expects(static::exactly(1 + \count($codes)))->method('__invoke');
@@ -78,12 +78,12 @@ class PromotionCartEventTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->getContext());
+        $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $this->getContext());
 
         $codes = [100, 1, 42, 13, 19];
         $this->createBulkPromotions($codes);
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $removeListener = $this->getMockBuilder(CallableClass::class)->getMock();
         $removeListener->expects(static::once())->method('__invoke');
@@ -112,7 +112,7 @@ class PromotionCartEventTest extends TestCase
                 (string) $percentage,
                 $percentage,
                 null,
-                $this->getContainer()
+                static::getContainer()
             );
         }
     }

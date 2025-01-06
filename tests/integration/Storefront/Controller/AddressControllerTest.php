@@ -45,7 +45,7 @@ class AddressControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $this->addressId = Uuid::randomHex();
     }
@@ -54,25 +54,25 @@ class AddressControllerTest extends TestCase
     {
         [$id1, $id2] = $this->createCustomers();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $id1]);
 
         $customer = $context->getCustomer();
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame($id1, $customer->getId());
 
-        $controller = $this->getContainer()->get(AddressController::class);
+        $controller = static::getContainer()->get(AddressController::class);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $controller->deleteAddress($id2, $context, $customer);
 
         $criteria = new Criteria([$id2]);
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('customer_address.repository');
+        $repository = static::getContainer()->get('customer_address.repository');
         $address = $repository->search($criteria, $context->getContext())
             ->get($id2);
 
@@ -83,7 +83,7 @@ class AddressControllerTest extends TestCase
         $criteria = new Criteria([$id1]);
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('customer_address.repository');
+        $repository = static::getContainer()->get('customer_address.repository');
         $exists = $repository
             ->search($criteria, $context->getContext())
             ->has($id2);
@@ -95,7 +95,7 @@ class AddressControllerTest extends TestCase
     {
         [$customerId] = $this->createCustomers();
 
-        $context = $this->getContainer()
+        $context = static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
@@ -105,14 +105,14 @@ class AddressControllerTest extends TestCase
                 ]
             );
 
-        $controller = $this->getContainer()->get(AddressController::class);
+        $controller = static::getContainer()->get(AddressController::class);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
         $request->setSession($this->getSession());
 
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $customer1 = $context->getCustomer();
         static::assertNotNull($customer1);
@@ -132,7 +132,7 @@ class AddressControllerTest extends TestCase
     {
         [$customerId] = $this->createCustomers();
 
-        $context = $this->getContainer()
+        $context = static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
@@ -142,14 +142,14 @@ class AddressControllerTest extends TestCase
                 ]
             );
 
-        $controller = $this->getContainer()->get(AddressController::class);
+        $controller = static::getContainer()->get(AddressController::class);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
         $request->setSession($this->getSession());
 
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $customer = $context->getCustomer();
         static::assertNotNull($customer);
@@ -202,18 +202,18 @@ class AddressControllerTest extends TestCase
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
 
         static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
         static::assertSame($customerId, $context->getCustomer()->getId());
 
-        $controller = $this->getContainer()->get(AddressController::class);
+        $controller = static::getContainer()->get(AddressController::class);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $vatIds = ['DE123456789'];
         $requestDataBag = new RequestDataBag(['vatIds' => $vatIds]);
@@ -271,15 +271,15 @@ class AddressControllerTest extends TestCase
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
 
-        $controller = $this->getContainer()->get(AddressController::class);
+        $controller = static::getContainer()->get(AddressController::class);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $requestDataBag = new RequestDataBag([
             'changeableAddresses' => new RequestDataBag([
@@ -305,7 +305,7 @@ class AddressControllerTest extends TestCase
         $customer = $context->getCustomer();
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
             function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
@@ -324,15 +324,15 @@ class AddressControllerTest extends TestCase
     {
         $customer = $this->createCustomer();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customer->getId()]);
 
-        $controller = $this->getContainer()->get(AddressController::class);
+        $controller = static::getContainer()->get(AddressController::class);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $requestDataBag = new RequestDataBag([
             'selectAddress' => new RequestDataBag([
@@ -345,7 +345,7 @@ class AddressControllerTest extends TestCase
         $customer = $context->getCustomer();
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
             function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
@@ -372,7 +372,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('address-listing-page-loaded', $traces);
     }
@@ -386,7 +386,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('address-detail-page-loaded', $traces);
     }
@@ -400,7 +400,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('address-detail-page-loaded', $traces);
     }
@@ -458,7 +458,7 @@ class AddressControllerTest extends TestCase
         $context = Context::createDefaultContext();
 
         /** @var EntityRepository<CustomerCollection> $repo */
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$customer], $context);
 
@@ -566,7 +566,7 @@ class AddressControllerTest extends TestCase
     private function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('country.repository');
+        $repository = static::getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(1)
             ->addFilter(new EqualsFilter('active', true))
@@ -581,7 +581,7 @@ class AddressControllerTest extends TestCase
 
     private function setPostalCodeOfTheCountryToBeRequired(): void
     {
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->executeStatement('UPDATE `country` SET `postal_code_required` = 1
                  WHERE id = :id', [
                 'id' => Uuid::fromHexToBytes($this->getValidCountryId()),

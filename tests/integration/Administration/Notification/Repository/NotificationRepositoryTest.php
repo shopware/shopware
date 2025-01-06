@@ -25,7 +25,7 @@ class NotificationRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->notificationRepository = $this->getContainer()->get('notification.repository');
+        $this->notificationRepository = static::getContainer()->get('notification.repository');
         $this->context = Context::createDefaultContext();
     }
 

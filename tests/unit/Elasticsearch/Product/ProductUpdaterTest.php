@@ -21,7 +21,7 @@ class ProductUpdaterTest extends TestCase
     {
         static::assertSame([
             ProductIndexerEvent::class => 'update',
-            ProductStockAlteredEvent::class => 'stockUpdate',
+            ProductStockAlteredEvent::class => 'update',
         ], ProductUpdater::getSubscribedEvents());
     }
 
@@ -48,6 +48,6 @@ class ProductUpdaterTest extends TestCase
         $event = new ProductStockAlteredEvent(['id1', 'id2'], Context::createDefaultContext());
 
         $updater = new ProductUpdater($indexer, $definition);
-        $updater->stockUpdate($event);
+        $updater->update($event);
     }
 }

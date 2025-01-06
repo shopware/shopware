@@ -102,32 +102,32 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
 
     protected function setUp(): void
     {
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
-        $this->orderTransactionCaptureRepository = $this->getContainer()->get('order_transaction_capture.repository');
-        $this->orderTransactionCaptureRefundRepository = $this->getContainer()->get('order_transaction_capture_refund.repository');
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
-        $this->initialStateIdLoader = $this->getContainer()->get(InitialStateIdLoader::class);
-        $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+        $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
+        $this->orderTransactionCaptureRepository = static::getContainer()->get('order_transaction_capture.repository');
+        $this->orderTransactionCaptureRefundRepository = static::getContainer()->get('order_transaction_capture_refund.repository');
+        $this->stateMachineRegistry = static::getContainer()->get(StateMachineRegistry::class);
+        $this->initialStateIdLoader = static::getContainer()->get(InitialStateIdLoader::class);
+        $this->salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->shopUrl = $_SERVER['APP_URL'];
-        $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
-        $this->paymentService = $this->getContainer()->get(PaymentService::class);
-        $this->paymentProcessor = $this->getContainer()->get(PaymentProcessor::class);
-        $this->preparedPaymentService = $this->getContainer()->get(PreparedPaymentService::class);
-        $this->paymentRefundProcessor = $this->getContainer()->get(PaymentRefundProcessor::class);
+        $this->shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
+        $this->paymentService = static::getContainer()->get(PaymentService::class);
+        $this->paymentProcessor = static::getContainer()->get(PaymentProcessor::class);
+        $this->preparedPaymentService = static::getContainer()->get(PreparedPaymentService::class);
+        $this->paymentRefundProcessor = static::getContainer()->get(PaymentRefundProcessor::class);
         $this->context = Context::createDefaultContext();
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/testPayments/manifest.xml');
 
-        $appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $appLifecycle->install($manifest, true, $this->context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'testPayments'));
         /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $app = $appRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($app);
@@ -179,7 +179,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
 
         $this->ids->set(
             'state',
-            $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE)
+            static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE)
         );
 
         $stateId = $this->ids->get('state');

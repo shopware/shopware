@@ -12,11 +12,15 @@ class StoreApiException extends ShopwareHttpException
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $title;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentationLink;
 

@@ -42,28 +42,28 @@ class SetNullOnDeleteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->writer = $this->getContainer()->get(EntityWriter::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->writer = static::getContainer()->get(EntityWriter::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $registry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $registry->register(new SetNullOnDeleteParentDefinition());
         $registry->register(new SetNullOnDeleteManyToOneDefinition());
         $registry->register(new SetNullOnDeleteChildDefinition());
 
-        $definition = $this->getContainer()->get(SetNullOnDeleteParentDefinition::class);
+        $definition = static::getContainer()->get(SetNullOnDeleteParentDefinition::class);
         static::assertInstanceOf(SetNullOnDeleteParentDefinition::class, $definition);
 
         $this->setNullOnDeleteParentDefinition = $definition;
 
         $this->repository = new EntityRepository(
             $this->setNullOnDeleteParentDefinition,
-            $this->getContainer()->get(EntityReaderInterface::class),
-            $this->getContainer()->get(VersionManager::class),
-            $this->getContainer()->get(EntitySearcherInterface::class),
-            $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(EntityLoadedEventFactory::class)
+            static::getContainer()->get(EntityReaderInterface::class),
+            static::getContainer()->get(VersionManager::class),
+            static::getContainer()->get(EntitySearcherInterface::class),
+            static::getContainer()->get(EntityAggregatorInterface::class),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(EntityLoadedEventFactory::class)
         );
 
         $this->connection->rollBack();
@@ -222,7 +222,7 @@ class SetNullOnDeleteTest extends TestCase
         $manyToOne = $this->connection->fetchAllAssociative('SELECT * FROM set_null_on_delete_many_to_one');
         static::assertCount(1, $manyToOne);
 
-        $definition = $this->getContainer()->get(SetNullOnDeleteManyToOneDefinition::class);
+        $definition = static::getContainer()->get(SetNullOnDeleteManyToOneDefinition::class);
         static::assertInstanceOf(SetNullOnDeleteManyToOneDefinition::class, $definition);
 
         $result = $this->writer->delete(
@@ -284,7 +284,7 @@ class SetNullOnDeleteTest extends TestCase
         $eventWasThrown = false;
 
         /** @var EventDispatcherInterface $eventDispatcher */
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
         $eventDispatcher->addListener(
             SetNullOnDeleteChildDefinition::ENTITY_NAME . '.written',
             static function (EntityWrittenEvent $event) use ($childId, &$eventWasThrown): void {

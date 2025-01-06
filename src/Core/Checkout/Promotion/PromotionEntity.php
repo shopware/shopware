@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -31,31 +31,43 @@ class PromotionEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $active;
 
     /**
      * @var \DateTimeInterface|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $validFrom;
 
     /**
      * @var \DateTimeInterface|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $validUntil;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $maxRedemptionsGlobal;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $maxRedemptionsPerCustomer;
 
@@ -63,16 +75,22 @@ class PromotionEntity extends Entity
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $exclusive;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $useCodes = false;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $useSetGroups = false;
 
@@ -81,6 +99,8 @@ class PromotionEntity extends Entity
      * Default mode is "use rules".
      *
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customerRestriction = false;
 
@@ -88,6 +108,8 @@ class PromotionEntity extends Entity
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $useIndividualCodes;
 
@@ -100,46 +122,64 @@ class PromotionEntity extends Entity
 
     /**
      * @var PromotionSalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannels;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $code;
 
     /**
      * @var PromotionDiscountCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $discounts;
 
     /**
      * @var PromotionIndividualCodeCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $individualCodes;
 
     /**
      * @var PromotionSetGroupCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $setgroups;
 
     /**
      * @var RuleCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderRules;
 
     /**
      * @var RuleCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $personaRules;
 
     /**
      * @var CustomerCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $personaCustomers;
 
     /**
      * @var RuleCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cartRules;
 
@@ -147,21 +187,29 @@ class PromotionEntity extends Entity
 
     /**
      * @var PromotionTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderCount;
 
     /**
      * @var array<string, int>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ordersPerCustomerCount;
 
     /**
      * @var array<string>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $exclusionIds;
 

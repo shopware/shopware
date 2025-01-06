@@ -129,6 +129,17 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns_actions %}
+                <template #more-actions="{ item }">
+                    {% block sw_promotion_v2_list_grid_columns_actions_duplicate %}
+                    <sw-context-menu-item
+                        :disabled="!acl.can('promotion.creator')"
+                        @click="onDuplicatePromotion(item)"
+                    >
+                        {{ $tc('global.default.duplicate') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns_actions_delete %}
                 <template #delete-action="{ item, showDelete }">

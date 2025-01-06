@@ -35,7 +35,7 @@ class CaptchaControllerTest extends TestCase
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->setServerParameter('HTTP_X-Requested-With', 'XMLHttpRequest');
 
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
             BasicCaptcha::CAPTCHA_NAME => [

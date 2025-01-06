@@ -18,61 +18,85 @@ class MediaFolderEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parentId;
 
     /**
      * @var MediaFolderEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parent;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $childCount;
 
     /**
      * @var MediaCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $media;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $configurationId;
 
     /**
      * @var MediaFolderConfigurationEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $configuration;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $useParentConfiguration;
 
     /**
      * @var MediaFolderCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $children;
 
     /**
      * @var MediaDefaultFolderEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $defaultFolder;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $defaultFolderId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $path;
 

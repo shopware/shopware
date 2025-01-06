@@ -31,13 +31,13 @@ class AuthMiddlewareTest extends TestCase
     protected function setUp(): void
     {
         $this->resetHistory();
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testSetDefaultHeaderWithAdminApiSource(): void
     {
-        $middleware = new AuthMiddleware('6.4', $this->getContainer()->get(AppLocaleProvider::class));
+        $middleware = new AuthMiddleware('6.4', static::getContainer()->get(AppLocaleProvider::class));
         $request = new Request('POST', 'https://example.local');
 
         $request = $middleware->getDefaultHeaderRequest($request, [AuthMiddleware::APP_REQUEST_CONTEXT => Context::createDefaultContext()]);
@@ -50,7 +50,7 @@ class AuthMiddlewareTest extends TestCase
 
     public function testSetDefaultHeaderWithSaleChannelApiSource(): void
     {
-        $middleware = new AuthMiddleware('6.4', $this->getContainer()->get(AppLocaleProvider::class));
+        $middleware = new AuthMiddleware('6.4', static::getContainer()->get(AppLocaleProvider::class));
         $request = new Request('POST', 'https://example.local');
 
         $request = $middleware->getDefaultHeaderRequest($request, [AuthMiddleware::APP_REQUEST_CONTEXT => $this->salesChannelContext->getContext()]);
@@ -63,7 +63,7 @@ class AuthMiddlewareTest extends TestCase
 
     public function testSetDefaultHeaderExist(): void
     {
-        $middleware = new AuthMiddleware('6.4', $this->getContainer()->get(AppLocaleProvider::class));
+        $middleware = new AuthMiddleware('6.4', static::getContainer()->get(AppLocaleProvider::class));
         $request = new Request('POST', 'https://example.local', ['sw-version' => '6.5']);
 
         $request = $middleware->getDefaultHeaderRequest($request, []);
@@ -82,7 +82,7 @@ class AuthMiddlewareTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        $client = $this->getContainer()->get('shopware.app_system.guzzle');
+        $client = static::getContainer()->get('shopware.app_system.guzzle');
         $client->post(new Uri('https://example.local'), $optionsRequest);
 
         $request = $this->getLastRequest();
@@ -95,7 +95,7 @@ class AuthMiddlewareTest extends TestCase
     {
         $this->appendNewResponse(new Response(200));
 
-        $client = $this->getContainer()->get('shopware.app_system.guzzle');
+        $client = static::getContainer()->get('shopware.app_system.guzzle');
         $client->post(new Uri('\'https://example.local\''));
 
         $request = $this->getLastRequest();
@@ -111,7 +111,7 @@ class AuthMiddlewareTest extends TestCase
         $optionsRequest = [AuthMiddleware::APP_REQUEST_TYPE => new Response()];
         $this->appendNewResponse(new Response(200));
 
-        $client = $this->getContainer()->get('shopware.app_system.guzzle');
+        $client = static::getContainer()->get('shopware.app_system.guzzle');
         $client->post(new Uri('\'https://example.local\''), $optionsRequest);
     }
 
@@ -122,7 +122,7 @@ class AuthMiddlewareTest extends TestCase
         $optionsRequest = [AuthMiddleware::APP_REQUEST_CONTEXT => new Response()];
         $this->appendNewResponse(new Response(200));
 
-        $client = $this->getContainer()->get('shopware.app_system.guzzle');
+        $client = static::getContainer()->get('shopware.app_system.guzzle');
         $client->post(new Uri('\'https://example.local\''), $optionsRequest);
     }
 
@@ -139,7 +139,7 @@ class AuthMiddlewareTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        $client = $this->getContainer()->get('shopware.app_system.guzzle');
+        $client = static::getContainer()->get('shopware.app_system.guzzle');
 
         $client->post(new Uri('https://example.local'), $optionsRequest);
     }
@@ -150,7 +150,7 @@ class AuthMiddlewareTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        $client = $this->getContainer()->get('shopware.app_system.guzzle');
+        $client = static::getContainer()->get('shopware.app_system.guzzle');
 
         $optionsRequest
             = [AuthMiddleware::APP_REQUEST_TYPE => 'Not Array',
@@ -165,7 +165,7 @@ class AuthMiddlewareTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        $client = $this->getContainer()->get('shopware.app_system.guzzle');
+        $client = static::getContainer()->get('shopware.app_system.guzzle');
 
         $optionsRequest
             = [AuthMiddleware::APP_REQUEST_TYPE => [

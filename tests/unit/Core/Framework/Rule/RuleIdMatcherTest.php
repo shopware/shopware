@@ -15,7 +15,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  *
- * @psalm-import-type Option from RuleIdMatcher
+ * @phpstan-import-type Option from RuleIdMatcher
  */
 #[CoversClass(RuleIdMatcher::class)]
 #[Package('core')]

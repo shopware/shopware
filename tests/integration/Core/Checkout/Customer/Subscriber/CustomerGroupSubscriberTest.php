@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -26,19 +27,19 @@ class CustomerGroupSubscriberTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $customerGroupRepository;
+    private EntityRepository $customerGroupRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<SeoUrlCollection>
      */
-    private $seoRepository;
+    private EntityRepository $seoRepository;
 
     protected function setUp(): void
     {
-        $this->customerGroupRepository = $this->getContainer()->get('customer_group.repository');
-        $this->seoRepository = $this->getContainer()->get('seo_url.repository');
+        $this->customerGroupRepository = static::getContainer()->get('customer_group.repository');
+        $this->seoRepository = static::getContainer()->get('seo_url.repository');
     }
 
     public function testUrlsAreNotWritten(): void
@@ -132,7 +133,7 @@ class CustomerGroupSubscriberTest extends TestCase
     {
         $s1 = $this->createSalesChannel()['id'];
 
-        $languageIds = array_values($this->getContainer()->get('language.repository')->search(new Criteria(), Context::createDefaultContext())->getIds());
+        $languageIds = array_values(static::getContainer()->get('language.repository')->search(new Criteria(), Context::createDefaultContext())->getIds());
 
         $upsertLanguages = [];
         foreach ($languageIds as $id) {
@@ -143,7 +144,7 @@ class CustomerGroupSubscriberTest extends TestCase
             $upsertLanguages[] = ['id' => $id];
         }
 
-        $this->getContainer()->get('sales_channel.repository')->upsert([
+        static::getContainer()->get('sales_channel.repository')->upsert([
             [
                 'id' => $s1,
                 'languages' => $upsertLanguages,
@@ -258,7 +259,7 @@ class CustomerGroupSubscriberTest extends TestCase
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
         /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
         $salesChannel = array_merge([
             'id' => Uuid::randomHex(),

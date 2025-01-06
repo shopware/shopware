@@ -49,21 +49,21 @@ class HreflangLoaderTest extends TestCase
         parent::setUp();
         $this->cleanDefaultSalesChannelDomain();
 
-        $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
-        $this->salesChannelDomainRepository = $this->getContainer()->get('sales_channel_domain.repository');
-        $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->seoUrlRepository = static::getContainer()->get('seo_url.repository');
+        $this->salesChannelDomainRepository = static::getContainer()->get('sales_channel_domain.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
 
-        $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create('', TestDefaults::SALES_CHANNEL);
 
-        $this->hreflangLoader = $this->getContainer()->get(HreflangLoaderInterface::class);
+        $this->hreflangLoader = static::getContainer()->get(HreflangLoaderInterface::class);
 
         $this->createProducts();
     }
 
     public function testDisable(): void
     {
-        $randomProduct = $this->getContainer()->get('product.repository')->searchIds(new Criteria(), $this->salesChannelContext->getContext());
+        $randomProduct = static::getContainer()->get('product.repository')->searchIds(new Criteria(), $this->salesChannelContext->getContext());
         $this->salesChannelContext->getSalesChannel()->setHreflangActive(false);
 
         $randomId = $randomProduct->firstId();
@@ -453,7 +453,7 @@ class HreflangLoaderTest extends TestCase
 
     private function cleanDefaultSalesChannelDomain(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $connection->delete(SalesChannelDomainDefinition::ENTITY_NAME, [
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
@@ -464,7 +464,7 @@ class HreflangLoaderTest extends TestCase
     {
         $products = $this->getProductTestData($this->salesChannelContext);
 
-        $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
+        static::getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
     }
 
     /**

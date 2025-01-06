@@ -28,11 +28,11 @@ class EntityPipeTest extends TestCase
     public function testEntityPipe(): void
     {
         $entityPipe = new EntityPipe(
-            $this->getContainer()->get(DefinitionInstanceRegistry::class),
-            $this->getContainer()->get(SerializerRegistry::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            static::getContainer()->get(SerializerRegistry::class),
             null,
             null,
-            $this->getContainer()->get(PrimaryKeyResolver::class)
+            static::getContainer()->get(PrimaryKeyResolver::class)
         );
 
         $sourceEntity = ProductDefinition::ENTITY_NAME;

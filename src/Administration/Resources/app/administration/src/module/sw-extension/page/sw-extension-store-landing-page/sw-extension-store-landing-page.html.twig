@@ -74,7 +74,7 @@
                 alt=""
             >
 
-            <span class="sw-extension-store-landing-page__wrapper-label">
+            <span v-if="!insideModal" class="sw-extension-store-landing-page__wrapper-label">
                 {{ $tc('sw-extension-store.landing-page.label') }}
             </span>
 

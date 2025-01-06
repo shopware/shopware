@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartContextHasher;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -44,6 +46,8 @@ class CartOrderRouteTest extends TestCase
 
     private OrderPersister&MockObject $orderPersister;
 
+    private EventDispatcherInterface&MockObject $eventDispatcher;
+
     private CartContextHasher $cartContextHasher;
 
     private SalesChannelContext $context;
@@ -55,6 +59,7 @@ class CartOrderRouteTest extends TestCase
         $this->cartCalculator = $this->createMock(CartCalculator::class);
         $this->orderRepository = $this->createMock(EntityRepository::class);
         $this->orderPersister = $this->createMock(OrderPersister::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->cartContextHasher = new CartContextHasher(new EventDispatcher());
 
         $this->route = new CartOrderRoute(
@@ -62,7 +67,7 @@ class CartOrderRouteTest extends TestCase
             $this->orderRepository,
             $this->orderPersister,
             $this->createMock(AbstractCartPersister::class),
-            $this->createMock(EventDispatcherInterface::class),
+            $this->eventDispatcher,
             $this->createMock(PreparedPaymentService::class),
             $this->createMock(PaymentProcessor::class),
             $this->createMock(TaxProviderProcessor::class),
@@ -115,6 +120,68 @@ class CartOrderRouteTest extends TestCase
         $orderEntityMock->expects(static::once())
             ->method('first')
             ->willReturn($orderEntity);
+
+        $response = $this->route->order($cart, $this->context, $data);
+
+        static::assertInstanceOf(OrderEntity::class, $response->getObject());
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testCheckoutOrderPlacedEventsDispatched(): void
+    {
+        $cartPrice = new CartPrice(
+            15,
+            20,
+            1,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+            CartPrice::TAX_STATE_FREE
+        );
+
+        $cart = new Cart('token');
+        $cart->setPrice($cartPrice);
+        $cart->add(new LineItem('id', 'type'));
+
+        $data = new RequestDataBag();
+
+        $calculatedCart = new Cart('calculated');
+
+        $this->cartCalculator->expects(static::once())
+            ->method('calculate')
+            ->with($cart, $this->context)
+            ->willReturn($calculatedCart);
+
+        $orderID = 'oder-ID';
+
+        $this->orderPersister->expects(static::once())
+            ->method('persist')
+            ->with($calculatedCart, $this->context)
+            ->willReturn($orderID);
+
+        $orderEntityMock = $this->createMock(EntitySearchResult::class);
+
+        $orderEntity = new OrderEntity();
+
+        $this->orderRepository->expects(static::once())
+            ->method('search')
+            ->willReturn($orderEntityMock);
+
+        $orderEntityMock->expects(static::once())
+            ->method('first')
+            ->willReturn($orderEntity);
+
+        $this->eventDispatcher->expects(static::exactly(2))
+            ->method('dispatch')
+            ->with(static::callback(static function ($event) use ($orderID, $orderEntity) {
+                if ($event instanceof CheckoutOrderPlacedCriteriaEvent) {
+                    return $event->getCriteria()->getIds() === [$orderID];
+                }
+                if ($event instanceof CheckoutOrderPlacedEvent) {
+                    return $event->getOrder() === $orderEntity;
+                }
+
+                return false;
+            }));
 
         $response = $this->route->order($cart, $this->context, $data);
 

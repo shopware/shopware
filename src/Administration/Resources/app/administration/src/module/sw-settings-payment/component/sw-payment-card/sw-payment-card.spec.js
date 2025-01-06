@@ -72,4 +72,27 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         const activeToggle = wrapper.find('sw-switch-field-stub');
         expect(activeToggle.attributes().disabled).toBeFalsy();
     });
+
+    it('should correctly emit set-payment-active event', async () => {
+        const wrapper = await createWrapper(['payment.editor']);
+        await wrapper.vm.$nextTick();
+
+        const activeToggle = wrapper.findComponent('sw-switch-field-stub');
+        await activeToggle.vm.$emit('update:value', false);
+
+        const expectedPaymentMethod = {
+            id: '5e6f7g8h',
+            translated: {
+                name: 'Test settings-payment 2',
+            },
+            active: false,
+        };
+
+        expect(wrapper.emitted('set-payment-active')).toHaveLength(1);
+        expect(wrapper.emitted('set-payment-active')[0]).toEqual([expectedPaymentMethod]);
+
+        await activeToggle.vm.$emit('update:value', false);
+
+        expect(wrapper.emitted('set-payment-active')).toHaveLength(1);
+    });
 });

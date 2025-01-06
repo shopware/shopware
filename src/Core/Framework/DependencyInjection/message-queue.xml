@@ -8,7 +8,6 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator"/>
-            <argument type="service" id="logger"/>
             <argument>%shopware.messenger.enforce_message_size%</argument>
 
             <tag name="kernel.event_listener" event="Symfony\Component\Messenger\Event\SendMessageToTransportsEvent"/>
@@ -30,7 +29,7 @@
         <!--Controller-->
         <service id="Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController" public="true">
             <argument type="service" id="messenger.receiver_locator"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="messenger.listener.stop_worker_on_restart_signal_listener"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber"/>
@@ -54,6 +53,11 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator">
             <argument type="service" id="messenger.default_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware">
+            <argument>%shopware.messenger.routing_overwrite%</argument>
+            <argument type="collection"></argument>
         </service>
     </services>
 </container>

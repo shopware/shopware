@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
-use Shopware\Storefront\Framework\Captcha\Exception\CaptchaInvalidException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  */
 #[Package('storefront')]
-class CaptchaRouteListener implements EventSubscriberInterface
+readonly class CaptchaRouteListener implements EventSubscriberInterface
 {
     /**
      * @internal
@@ -25,9 +25,9 @@ class CaptchaRouteListener implements EventSubscriberInterface
      * @param iterable<AbstractCaptcha> $captchas
      */
     public function __construct(
-        private readonly iterable $captchas,
-        private readonly ErrorController $errorController,
-        private readonly SystemConfigService $systemConfigService
+        private iterable $captchas,
+        private SystemConfigService $systemConfigService,
+        private ContainerInterface $container
     ) {
     }
 
@@ -66,12 +66,12 @@ class CaptchaRouteListener implements EventSubscriberInterface
                 $captcha->supports($request, $captchaConfig) && !$captcha->isValid($request, $captchaConfig)
             ) {
                 if ($captcha->shouldBreak()) {
-                    throw new CaptchaInvalidException($captcha);
+                    throw CaptchaException::invalid($captcha);
                 }
 
                 $violations = $captcha->getViolations();
 
-                $event->setController(fn () => $this->errorController->onCaptchaFailure($violations, $request));
+                $event->setController(fn () => $this->container->get(ErrorController::class)->onCaptchaFailure($violations, $request));
 
                 // Return on first invalid captcha
                 return;

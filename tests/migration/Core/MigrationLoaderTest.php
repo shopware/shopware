@@ -27,7 +27,7 @@ class MigrationLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
 
         $this->connection = $container->get(Connection::class);
         $this->loader = $container->get(MigrationCollectionLoader::class);

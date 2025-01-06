@@ -34,7 +34,7 @@ class ConfigJsonFieldTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $nullableTable = <<<EOF
 DROP TABLE IF EXISTS _test_nullable;
@@ -111,11 +111,11 @@ EOF;
 
     private function getWriter(): EntityWriterInterface
     {
-        return $this->getContainer()->get(EntityWriter::class);
+        return static::getContainer()->get(EntityWriter::class);
     }
 
     private function getSearcher(): EntitySearcherInterface
     {
-        return $this->getContainer()->get(EntitySearcherInterface::class);
+        return static::getContainer()->get(EntitySearcherInterface::class);
     }
 }

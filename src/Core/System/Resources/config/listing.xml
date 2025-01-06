@@ -38,6 +38,16 @@
             <helpText lang="de-DE">Aktivieren um Bewertungen anzuzeigen</helpText>
         </input-field>
 
+        <input-field type="int">
+            <name>reviewsPerPage</name>
+            <defaultValue>10</defaultValue>
+            <label>Number of reviews per page</label>
+            <label lang="de-DE">Anzahl der Bewertungen pro Seite</label>
+            <helpText>The number of reviews displayed on a product page in the storefront.</helpText>
+            <helpText lang="de-DE">Die Anzahl der Bewertungen die auf einer Produktseite in der Storefront angezeigt werden.</helpText>
+            <min>1</min>
+        </input-field>
+
         <input-field type="bool">
             <name>disableEmptyFilterOptions</name>
             <label>Disable filter options without results</label>

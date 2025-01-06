@@ -46,7 +46,7 @@ class EntityExtensionReadTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->registerDefinition(ExtendedProductDefinition::class);
         $this->registerDefinition(ManyToOneProductDefinition::class);
@@ -59,7 +59,7 @@ class EntityExtensionReadTest extends TestCase
             OneToOneInheritedProductExtension::class
         );
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
         $this->connection->rollBack();
 
@@ -209,7 +209,7 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria([$extendableId]);
         $criteria->addAssociation('products');
 
-        $manyToOneRepo = $this->getContainer()->get('many_to_one_product.repository');
+        $manyToOneRepo = static::getContainer()->get('many_to_one_product.repository');
         static::assertInstanceOf(EntityRepository::class, $manyToOneRepo);
         $manyToOne = $manyToOneRepo->search($criteria, Context::createDefaultContext())->first();
 

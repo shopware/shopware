@@ -34,7 +34,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
             ],
         ]);
 
-        $list = $this->getContainer()->get(DatabaseAvailableThemeProvider::class)->load(Context::createDefaultContext(), false);
+        $list = static::getContainer()->get(DatabaseAvailableThemeProvider::class)->load(Context::createDefaultContext(), false);
 
         static::assertArrayNotHasKey($firstSc['id'], $list, 'sc has no theme assigned');
         static::assertArrayHasKey($secondSc['id'], $list, 'sc has no theme assigned');
@@ -54,14 +54,14 @@ class DatabaseAvailableThemeProviderTest extends TestCase
             ],
         ]);
 
-        $list = $this->getContainer()->get(DatabaseAvailableThemeProvider::class)->load(Context::createDefaultContext(), true);
+        $list = static::getContainer()->get(DatabaseAvailableThemeProvider::class)->load(Context::createDefaultContext(), true);
 
         static::assertArrayNotHasKey($inactive['id'], $list, 'inactive sales channel was returned but shouldn\'t');
     }
 
     private function getThemeId(): string
     {
-        $id = $this->getContainer()->get('theme.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $id = static::getContainer()->get('theme.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
 
         static::assertIsString($id);
 

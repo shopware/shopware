@@ -4,9 +4,8 @@ namespace Shopware\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -84,12 +83,12 @@ class UserConfigController extends AbstractController
     private function getUserId(Context $context): string
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
+            throw ApiException::invalidAdminSource($context->getSource()::class);
         }
 
         $userId = $context->getSource()->getUserId();
         if (!$userId) {
-            throw new ExpectedUserHttpException();
+            throw ApiException::userNotLoggedIn();
         }
 
         return $userId;

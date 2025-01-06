@@ -15,26 +15,36 @@ class TaxRuleTypeEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $typeName;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $technicalName;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $position;
 
     /**
      * @var TaxRuleCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $rules;
 
     /**
      * @var TaxRuleTypeTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 

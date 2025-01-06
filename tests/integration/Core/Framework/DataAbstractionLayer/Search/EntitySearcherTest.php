@@ -39,15 +39,15 @@ class EntitySearcherTest extends TestCase
     {
         parent::setUp();
 
-        $this->groupRepository = $this->getContainer()->get('property_group.repository');
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->groupRepository = static::getContainer()->get('property_group.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
     }
 
     public function testScoringWithToManyAssociation(): void
     {
         $ids = new IdsCollection();
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
 
         $products = [
             (new ProductBuilder($ids, 'john'))
@@ -68,7 +68,7 @@ class EntitySearcherTest extends TestCase
                 ->price(100)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria();
@@ -77,7 +77,7 @@ class EntitySearcherTest extends TestCase
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('tags.name', 'Doe'), 100));
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('categories.name', 'Doe'), 100));
 
-        $result = $this->getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
+        $result = static::getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(100, $result->getScore($ids->get('john')));
         static::assertEquals(200, $result->getScore($ids->get('john.doe')));
@@ -88,7 +88,7 @@ class EntitySearcherTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
 
         $products = [
             (new ProductBuilder($ids, 'john'))->price(100)->build(),
@@ -97,12 +97,12 @@ class EntitySearcherTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, $context);
 
         $criteria = new Criteria($ids->getList(['john', 'john.doe', 'doe']));
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, $context);
 
         $exception = null;
@@ -131,12 +131,12 @@ class EntitySearcherTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria($ids->getList(['p1', 'p2']));
-        $result = $this->getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
+        $result = static::getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
 
-        $increments = $this->getContainer()->get(Connection::class)->fetchAllKeyValue(
+        $increments = static::getContainer()->get(Connection::class)->fetchAllKeyValue(
             'SELECT LOWER(HEX(id)) as id, auto_increment FROM product WHERE id IN (:ids)',
             ['ids' => $ids->getByteList(['p1', 'p2'])],
             ['ids' => ArrayParameterType::BINARY]
@@ -459,13 +459,13 @@ class EntitySearcherTest extends TestCase
             ['id' => $ids->create('t4'), 'name' => 'tax 4', 'taxRate' => 10],
         ];
 
-        $this->getContainer()->get('tax.repository')
+        static::getContainer()->get('tax.repository')
             ->create($data, Context::createDefaultContext());
 
         $searcher = new EntitySearcher(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(EntityDefinitionQueryHelper::class),
-            $this->getContainer()->get(CriteriaQueryBuilder::class)
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(EntityDefinitionQueryHelper::class),
+            static::getContainer()->get(CriteriaQueryBuilder::class)
         );
 
         $expected = [
@@ -478,7 +478,7 @@ class EntitySearcherTest extends TestCase
         $criteria = new Criteria($expected);
         $criteria->addFilter(new EqualsFilter('taxRate', 10));
 
-        $result = $searcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, Context::createDefaultContext());
+        $result = $searcher->search(static::getContainer()->get(TaxDefinition::class), $criteria, Context::createDefaultContext());
 
         static::assertEquals($expected, $result->getIds());
     }
@@ -514,14 +514,14 @@ class EntitySearcherTest extends TestCase
             ]),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($data, Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->setIds($ids->getList(['product-1', 'product-2']));
         $criteria->addSorting(new FieldSorting('categories.name', FieldSorting::ASCENDING));
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(
@@ -561,14 +561,14 @@ class EntitySearcherTest extends TestCase
             ]),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($data, Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('productId', array_values($ids->getList(['product-1', 'product-2']))));
 
         /** @var EntityRepository $productCategoryRepository */
-        $productCategoryRepository = $this->getContainer()->get('product_category.repository');
+        $productCategoryRepository = static::getContainer()->get('product_category.repository');
         $result = $productCategoryRepository
             ->searchIds($criteria, Context::createDefaultContext());
 
@@ -588,7 +588,7 @@ class EntitySearcherTest extends TestCase
         $product = (new ProductBuilder($ids, 'p1'))
             ->price(100);
 
-        $repository = $this->getContainer()->get('product.repository');
+        $repository = static::getContainer()->get('product.repository');
 
         $repository->create([$product->build()], Context::createDefaultContext());
 
@@ -604,12 +604,12 @@ class EntitySearcherTest extends TestCase
 
         $searcher = new EntitySearcher(
             $connection,
-            $this->getContainer()->get(EntityDefinitionQueryHelper::class),
-            $this->getContainer()->get(CriteriaQueryBuilder::class),
+            static::getContainer()->get(EntityDefinitionQueryHelper::class),
+            static::getContainer()->get(CriteriaQueryBuilder::class),
         );
 
         $result = $searcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $criteria,
             Context::createDefaultContext()
         );

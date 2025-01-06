@@ -13,7 +13,8 @@
             ref="selectWrapper"
             class="sw-select__selection"
             tabindex="0"
-            @click="expand"
+            :aria-expanded="expanded ? 'true' : 'false'"
+            @click.stop="expand"
             @focus="expand"
             @keydown.tab="collapse"
             @keydown.esc="collapse"
@@ -22,33 +23,36 @@
                 name="sw-select-selection"
                 v-bind="{ identification, error, disabled, size, expand, collapse }"
             ></slot>
-            <div class="sw-select__selection-indicators">
-                <sw-loader
-                    v-if="isLoading"
-                    class="sw-select__select-indicator"
-                    size="16px"
-                />
+        </div>
+        <div class="sw-select__selection-indicators">
+            <sw-loader
+                v-if="isLoading"
+                class="sw-select__select-indicator"
+                size="16px"
+            />
 
-                <button
-                    v-if="!disabled && showClearableButton"
-                    class="sw-select__select-indicator-hitbox"
-                    data-clearable-button
-                    @click.prevent.stop="emitClear"
-                    @keydown.tab.stop="focusParentSelect"
-                >
-                    <sw-icon
-                        class="sw-select__select-indicator sw-select__select-indicator-clear"
-                        name="regular-times-s"
-                        small
-                    />
-                </button>
-
+            <button
+                v-if="!disabled && showClearableButton"
+                class="sw-select__select-indicator-hitbox"
+                data-clearable-button
+                :aria-label="$tc('global.sw-select-base.buttonClear')"
+                @click.prevent.stop="emitClear"
+                @keydown.tab.stop="focusParentSelect"
+            >
                 <sw-icon
-                    class="sw-select__select-indicator sw-select__select-indicator-expand"
-                    name="regular-chevron-down-xs"
+                    class="sw-select__select-indicator sw-select__select-indicator-clear"
+                    name="regular-times-s"
                     small
                 />
-            </div>
+            </button>
+
+            <sw-icon
+                class="sw-select__select-indicator sw-select__select-indicator-expand"
+                :class="{ 'sw-select__select-indicator-expand--rotated': !expanded }"
+                name="regular-chevron-up-xs"
+                small
+                @click.stop="toggleExpand"
+            />
         </div>
 
         <template v-if="expanded">

@@ -33,7 +33,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         try {
             $connection->fetchOne('SELECT JSON_OVERLAPS(JSON_ARRAY(1), JSON_ARRAY(1));');
@@ -43,8 +43,8 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         parent::setUp();
 
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->customFieldSetRepository = $this->getContainer()->get('custom_field_set.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
     }
 
     public function testMediaIdsAreNotRemovedWhenMediaIsNotReferenced(): void
@@ -53,8 +53,8 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         $event = new UnusedMediaSearchEvent($mediaIds);
         $listener = new CustomFieldsUnusedMediaSubscriber(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class)
         );
 
         $listener->removeUsedMedia($event);
@@ -67,8 +67,8 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
         $mediaIds = $this->createContent();
         $event = new UnusedMediaSearchEvent($mediaIds);
         $listener = new CustomFieldsUnusedMediaSubscriber(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class)
         );
         $listener->removeUsedMedia($event);
 
@@ -83,8 +83,8 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         $event = new UnusedMediaSearchEvent([...$mediaIds, ...$unusedMediaIds]);
         $listener = new CustomFieldsUnusedMediaSubscriber(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class)
         );
         $listener->removeUsedMedia($event);
 
@@ -131,7 +131,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
         $product->customField('custom_field_media_multi_select_product', [$ids->get('media-2'), $ids->get('media-3'), $ids->get('media-4')]);
         $products = [$product->build()];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $category = new CategoryBuilder($ids, 'Category');
         $category->customField('custom_field_media_category', $ids->get('media-5'));
@@ -140,7 +140,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         $categories = [$category->build()];
 
-        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
 
         return array_values($mediaIds);
     }

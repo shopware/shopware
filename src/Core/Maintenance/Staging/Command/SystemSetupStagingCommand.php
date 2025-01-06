@@ -11,6 +11,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -30,11 +31,16 @@ class SystemSetupStagingCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->addOption('force', 'f', InputOption::VALUE_NONE, 'Force setup of staging system');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
 
-        if (!$io->confirm('This command will install the Shopware 6 system in staging mode. It will overwrite existing data in this database, make sure you use a staging database and have a backup', false)) {
+        if (!$input->getOption('force') && !$io->confirm('This command will install the Shopware 6 system in staging mode. It will overwrite existing data in this database, make sure you use a staging database and have a backup', false)) {
             return self::FAILURE;
         }
 

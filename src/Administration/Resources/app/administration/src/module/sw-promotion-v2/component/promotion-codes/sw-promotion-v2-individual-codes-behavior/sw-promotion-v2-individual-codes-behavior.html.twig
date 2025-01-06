@@ -62,7 +62,6 @@
                 class="sw-promotion-v2-individual-codes-behavior__grid"
                 :is-loading="isGridLoading"
                 :collection="promotion.individualCodes"
-                :data-source="promotion.individualCodes"
                 :columns="codeColumns"
                 :local-mode="false"
                 sort-by="code"
@@ -119,6 +118,12 @@
                     </a>
                     {% endblock %}
 
+                </template>
+                {% endblock %}
+
+                {% block sw_promotion_v2_individual_codes_behavior_grid_created_at %}
+                <template #column-createdAt="{ item }">
+                    {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                 </template>
                 {% endblock %}
 

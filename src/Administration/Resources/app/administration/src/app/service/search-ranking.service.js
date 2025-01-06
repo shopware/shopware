@@ -52,6 +52,7 @@ export default function createSearchRankingService() {
         getUserSearchPreference,
         buildGlobalSearchQueries,
         clearCacheUserSearchConfiguration,
+        searchRankingPoint,
     };
 
     /**

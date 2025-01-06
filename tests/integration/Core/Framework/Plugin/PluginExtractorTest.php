@@ -21,16 +21,13 @@ class PluginExtractorTest extends TestCase
 
     protected ContainerInterface $container;
 
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     private PluginExtractor $extractor;
 
     protected function setUp(): void
     {
-        $this->container = $this->getContainer();
+        $this->container = static::getContainer();
         $this->filesystem = $this->container->get(Filesystem::class);
         $this->extractor = new PluginExtractor(
             [

@@ -49,7 +49,7 @@ export default {
             };
         },
         listingCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(this.page, this.limit);
 
             if (this.term) {
                 criteria.setTerm(this.term);

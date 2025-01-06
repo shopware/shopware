@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
@@ -92,7 +93,7 @@ class ProductPriceCalculatorTest extends TestCase
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         $context->method('getTaxState')->willReturn($state);
         $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(10)]));
-        $context->method('getItemRounding')->willreturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $this->calculator->calculate([$product], $context);
 
@@ -121,9 +122,7 @@ class ProductPriceCalculatorTest extends TestCase
 
     public function testEnsureUnitCaching(): void
     {
-        $reflection = new \ReflectionClass($this->calculator);
-        $property = $reflection->getProperty('units');
-        $property->setAccessible(true);
+        $property = ReflectionHelper::getProperty(ProductPriceCalculator::class, 'units');
 
         static::assertNull($property->getValue($this->calculator));
 

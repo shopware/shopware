@@ -46,7 +46,7 @@ class UserRecoveryServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $this->userRepo = $container->get('user.repository');
         $this->userRecoveryRepo = $container->get('user_recovery.repository');
         $this->userRecoveryService = $container->get(UserRecoveryService::class);
@@ -62,7 +62,7 @@ class UserRecoveryServiceTest extends TestCase
         ]);
 
         $eventDispatched = false;
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->addEventListener($dispatcher, UserRecoveryRequestEvent::EVENT_NAME, function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
             $eventDispatched = true;
         });
@@ -193,7 +193,7 @@ class UserRecoveryServiceTest extends TestCase
     public function testReEvaluateRules(): void
     {
         $validator = new RuleValidator();
-        $this->getContainer()
+        static::getContainer()
             ->get('event_dispatcher')
             ->addListener(UserRecoveryRequestEvent::EVENT_NAME, $validator);
 

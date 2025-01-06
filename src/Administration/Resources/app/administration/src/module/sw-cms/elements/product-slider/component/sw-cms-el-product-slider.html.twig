@@ -21,8 +21,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_slider_arrow_left %}
         <div
-            v-if="hasNavigation"
-            class="sw-cms-el-product-slider__navigation"
+            v-if="hasNavigationArrows"
+            class="sw-cms-el-product-slider__navigation is--left-arrow"
+            :class="navArrowsClasses"
         >
             <sw-icon
                 class="sw-cms-el-product-slider__navigation-button"
@@ -70,8 +71,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_slider_arrow_right %}
         <div
-            v-if="hasNavigation"
-            class="sw-cms-el-product-slider__navigation"
+            v-if="hasNavigationArrows"
+            class="sw-cms-el-product-slider__navigation is--right-arrow"
+            :class="navArrowsClasses"
         >
             <sw-icon
                 class="sw-cms-el-product-slider__navigation-button"

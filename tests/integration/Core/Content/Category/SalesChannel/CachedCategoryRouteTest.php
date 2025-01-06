@@ -43,7 +43,7 @@ class CachedCategoryRouteTest extends TestCase
         Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
-        $this->context = $this->getContainer()
+        $this->context = static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
@@ -74,20 +74,20 @@ class CachedCategoryRouteTest extends TestCase
             $this->initData($ids);
         }
 
-        $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
+        static::getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(CategoryRouteCacheTagsEvent::class, static function (CategoryRouteCacheTagsEvent $event): void {
                 $event->addTags([self::ALL_TAG]);
             });
 
-        $route = $this->getContainer()->get(CategoryRoute::class);
+        $route = static::getContainer()->get(CategoryRoute::class);
         static::assertInstanceOf(CachedCategoryRoute::class, $route);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
 
-        $this->getContainer()
+        static::getContainer()
             ->get('event_dispatcher')
             ->addListener(CategoryRouteCacheTagsEvent::class, $listener);
 
@@ -97,12 +97,12 @@ class CachedCategoryRouteTest extends TestCase
         $route->load($id, new Request(), $context);
         $route->load($id, new Request(), $context);
 
-        $after($ids, $context, $this->getContainer());
+        $after($ids, $context, static::getContainer());
 
         $route->load($id, new Request(), $context);
         $route->load($id, new Request(), $context);
 
-        $this->getContainer()
+        static::getContainer()
             ->get('event_dispatcher')
             ->removeListener(CategoryRouteCacheTagsEvent::class, $listener);
     }
@@ -277,13 +277,13 @@ class CachedCategoryRouteTest extends TestCase
 
     private function initData(IdsCollection $ids): void
     {
-        $context = $this->getContainer()
+        $context = static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $ids->set('navigation', $context->getSalesChannel()->getNavigationCategoryId());
 
-        $this->getContainer()->get('product_stream.repository')->create([
+        static::getContainer()->get('product_stream.repository')->create([
             [
                 'id' => $ids->get('stream'),
                 'filters' => [
@@ -338,9 +338,9 @@ class CachedCategoryRouteTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, $context->getContext());
+        static::getContainer()->get('product.repository')->create($products, $context->getContext());
 
-        $this->context = $this->getContainer()
+        $this->context = static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
@@ -353,7 +353,7 @@ class CachedCategoryRouteTest extends TestCase
         ;
 
         // generate layout with product boxes, listing and slider
-        $this->getContainer()->get('cms_page.repository')->create([$builder->build()], $context->getContext());
+        static::getContainer()->get('cms_page.repository')->create([$builder->build()], $context->getContext());
 
         $update = [
             'id' => $context->getSalesChannel()->getNavigationCategoryId(),
@@ -361,7 +361,7 @@ class CachedCategoryRouteTest extends TestCase
         ];
 
         // assign other layout for testing
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->update([$update], $context->getContext());
     }
 }

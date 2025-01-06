@@ -12,6 +12,8 @@ class AccountRecoverPasswordPageLoadedEvent extends PageLoadedEvent
 {
     /**
      * @var AccountRecoverPasswordPage
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $page;
 

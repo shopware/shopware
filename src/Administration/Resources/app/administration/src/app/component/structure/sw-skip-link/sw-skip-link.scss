@@ -1,0 +1,32 @@
+@import "~scss/variables";
+
+.sw-skip-link {
+    position: fixed;
+    left: 24px;
+    top: 21px;
+    height: 40px;
+    width: auto;
+    z-index: $z-index-help-sidebar;
+    text-align: center;
+    background-color: var(--color-interaction-secondary-default);
+    border-radius: var(--border-radius-round);
+    border: 1px solid var(--color-border-primary-default);
+    outline-offset: 2px;
+    outline: 2px solid var(--color-border-brand-selected);
+    padding: 0 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    color: var(--color-text-primary-default);
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-xs);
+    font-style: normal;
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--font-line-height-xs);
+    transition: transform 0.3s cubic-bezier(0.5, 0, 0, 1);
+    transform: translateY(-200%);
+
+    &__focussed {
+        transform: translateY(0);
+    }
+}

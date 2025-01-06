@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
@@ -20,16 +20,15 @@ class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableA
 {
     use CustomFieldActionTrait;
 
-    private readonly Connection $connection;
-
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      */
     public function __construct(
-        Connection $connection,
+        private readonly Connection $connection,
         private readonly EntityRepository $customerGroupRepository
     ) {
-        $this->connection = $connection;
     }
 
     public static function getName(): string
@@ -59,11 +58,9 @@ class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableA
      */
     private function update(Context $context, array $config, string $customerGroupId): void
     {
-        /** @var CustomerGroupEntity $customerGroup */
-        $customerGroup = $this->customerGroupRepository->search(new Criteria([$customerGroupId]), $context)->first();
+        $customerGroup = $this->customerGroupRepository->search(new Criteria([$customerGroupId]), $context)->getEntities()->first();
 
-        $customFields = $this->getCustomFieldForUpdating($customerGroup->getCustomfields(), $config);
-
+        $customFields = $this->getCustomFieldForUpdating($customerGroup?->getCustomFields(), $config);
         if ($customFields === null) {
             return;
         }

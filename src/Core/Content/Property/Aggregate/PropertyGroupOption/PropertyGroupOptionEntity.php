@@ -21,56 +21,78 @@ class PropertyGroupOptionEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $groupId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $position;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $colorHexCode;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mediaId;
 
     /**
      * @var PropertyGroupEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $group;
 
     /**
      * @var PropertyGroupOptionTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var ProductConfiguratorSettingCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productConfiguratorSettings;
 
     /**
      * @var ProductCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productProperties;
 
     /**
      * @var ProductCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productOptions;
 
     /**
      * @var MediaEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $media;
 

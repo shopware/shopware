@@ -47,7 +47,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
 
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -71,7 +71,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(StreamedCommandResponseGenerator::class),
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -95,7 +95,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(StreamedCommandResponseGenerator::class),
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -141,7 +141,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
 
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $response = $controller->migrateTemplate();
 
@@ -176,7 +176,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -213,7 +213,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -268,7 +268,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->query->set('shopwareVersion', '6.4.15.0');
@@ -323,7 +323,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->query->set('shopwareVersion', '6.5.0.0-rc1');
@@ -394,7 +394,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -446,7 +446,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -470,7 +470,7 @@ class UpdateControllerTest extends TestCase
         return $releaseInfoProvider;
     }
 
-    private function getContainer(): ContainerInterface
+    private function buildContainer(): ContainerInterface
     {
         $container = new Container();
 

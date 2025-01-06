@@ -36,7 +36,7 @@ class UnusedMediaPurgerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaRepo = $this->getContainer()->get('media.repository');
+        $this->mediaRepo = static::getContainer()->get('media.repository');
 
         $this->context = Context::createDefaultContext();
 

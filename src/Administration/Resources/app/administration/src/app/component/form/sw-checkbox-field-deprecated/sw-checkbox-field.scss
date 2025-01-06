@@ -61,6 +61,11 @@ $sw-field-color-inherited: $color-module-purple-900;
             cursor: pointer;
             z-index: 2;
 
+            &:focus-visible {
+                outline: revert;
+                opacity: 1;
+            }
+
             &:disabled {
                 cursor: not-allowed;
             }
@@ -92,6 +97,11 @@ $sw-field-color-inherited: $color-module-purple-900;
                     display: inline-block;
                     color: lighten($sw-field-color-text, 40%);
                 }
+            }
+
+            &:focus ~ .sw-field__checkbox-state {
+                outline: 2px solid $sw-field-color-focus;
+                outline-offset: 2px;
             }
         }
 

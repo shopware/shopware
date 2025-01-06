@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  *
- * @implements \PHPStan\Rules\Rule<Node>
+ * @implements Rule<Node>
  */
 #[Package('core')]
 class AclValidPermissionsInMethodRule implements Rule

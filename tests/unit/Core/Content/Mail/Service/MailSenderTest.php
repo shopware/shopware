@@ -2,13 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailException;
+use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Content\Mail\Service\MailSender;
-use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Transport\TransportInterface;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\Email;
 
 /**
@@ -19,56 +23,67 @@ class MailSenderTest extends TestCase
 {
     public function testSendMail(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
+        $transportInterface = $this->createMock(TransportInterface::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $configService, 0);
+        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender($transportInterface, $fileSystem, $configService, 0, $messageBus);
         $mail = new Email();
 
-        $mailer->expects(static::once())->method('send')->with($mail);
+        $testStruct = new ArrayStruct();
+
+        $fileSystem
+            ->expects(static::once())
+            ->method('write')
+            ->willReturnCallback(function ($path, $content) use ($mail, $testStruct): void {
+                static::assertStringStartsWith('mail-data/', $path);
+                static::assertSame(serialize($mail), $content);
+                $testStruct->set('mailDataPath', $path);
+            });
+
+        $messageBus
+            ->expects(static::once())
+            ->method('dispatch')
+            ->willReturnCallback(function ($message) use ($testStruct): Envelope {
+                static::assertInstanceOf(SendMailMessage::class, $message);
+                static::assertSame($testStruct->get('mailDataPath'), $message->mailDataPath);
+
+                return new Envelope($message);
+            });
 
         $mailSender->send($mail);
     }
 
     public function testSendMailWithDisabledDelivery(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
+        $transportInterface = $this->createMock(TransportInterface::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
-        $mailSender = new MailSender($mailer, $configService, 0);
+        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
+        $mailSender = new MailSender($transportInterface, $fileSystem, $configService, 0, $messageBus);
         $mail = new Email();
 
-        $mailer->expects(static::never())->method('send');
+        $fileSystem
+            ->expects(static::never())
+            ->method('write');
+
+        $messageBus
+            ->expects(static::never())
+            ->method('dispatch');
 
         $mailSender->send($mail);
-    }
-
-    public function testSendMailWithDeliveryAddress(): void
-    {
-        $mailer = $this->createMock(MailerInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $configService->method('getString')->with('core.mailerSettings.deliveryAddress')->willReturn('test@example.com');
-        $mailSender = new MailSender($mailer, $configService, 0);
-        $mail = new Email();
-
-        $mailer->expects(static::once())->method('send');
-
-        $mailSender->send($mail);
-
-        $bcc = $mail->getBcc();
-        static::assertCount(1, $bcc);
-
-        $address = $bcc[0]->getAddress();
-        static::assertEquals($address, 'test@example.com');
     }
 
     public function testSendMailWithToMuchContent(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
+        $transportInterface = $this->createMock(TransportInterface::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $configService, 5);
+        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender($transportInterface, $fileSystem, $configService, 5, $messageBus);
 
         $mail = new Email();
         $mail->text('foobar');
@@ -79,18 +94,28 @@ class MailSenderTest extends TestCase
         $mailSender->send($mail);
     }
 
-    public function testSendMailerThrowsException(): void
+    public function testSendMailWithoutMessageBus(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
-        $mailer->method('send')->willThrowException(new \Exception('test'));
-
+        $transportInterface = $this->createMock(TransportInterface::class);
+        $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $configService, 0);
-
+        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender($transportInterface, $fileSystem, $configService, 0, null);
         $mail = new Email();
 
-        static::expectException(MailTransportFailedException::class);
+        $transportInterface
+            ->expects(static::once())
+            ->method('send')
+            ->with($mail);
+
+        $fileSystem
+            ->expects(static::never())
+            ->method('write');
+
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus
+            ->expects(static::never())
+            ->method('dispatch');
 
         $mailSender->send($mail);
     }

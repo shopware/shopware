@@ -39,7 +39,7 @@ class UpdatePathTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
 
         $media['id'] = $ids->getBytes('media');
         $queue->addInsert('media', $media);
@@ -53,15 +53,15 @@ class UpdatePathTest extends TestCase
         $command = new UpdatePathCommand(
             new MediaPathUpdater(
                 new PlainPathStrategy(),
-                $this->getContainer()->get(MediaLocationBuilder::class),
-                $this->getContainer()->get(MediaPathStorage::class)
+                static::getContainer()->get(MediaLocationBuilder::class),
+                static::getContainer()->get(MediaPathStorage::class)
             ),
-            $this->getContainer()->get(Connection::class)
+            static::getContainer()->get(Connection::class)
         );
 
         $command->run($input, new NullOutput());
 
-        $paths = $this->getContainer()
+        $paths = static::getContainer()
             ->get(Connection::class)
             ->fetchAllKeyValue(
                 'SELECT LOWER(HEX(id)), path FROM media WHERE id IN (:ids)',
@@ -72,7 +72,7 @@ class UpdatePathTest extends TestCase
         static::assertArrayHasKey($ids->get('media'), $paths);
         static::assertSame($expected['media'], $paths[$ids->get('media')]);
 
-        $paths = $this->getContainer()
+        $paths = static::getContainer()
             ->get(Connection::class)
             ->fetchAllKeyValue(
                 'SELECT LOWER(HEX(id)), path FROM media_thumbnail WHERE id IN (:ids)',

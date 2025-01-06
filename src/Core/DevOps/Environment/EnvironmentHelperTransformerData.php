@@ -13,7 +13,9 @@ class EnvironmentHelperTransformerData
      */
     public function __construct(
         private readonly string $key,
+        /** @deprecated tag:v6.7.0 - Will be natively typed */
         private $value,
+        /** @deprecated tag:v6.7.0 - Will be natively typed */
         private $default
     ) {
     }
@@ -24,6 +26,8 @@ class EnvironmentHelperTransformerData
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will return native type
+     *
      * @return bool|float|int|string|null
      */
     public function getValue()
@@ -32,6 +36,8 @@ class EnvironmentHelperTransformerData
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:parameter-name-change - Parameter will be natively typed
+     *
      * @param bool|float|int|string|null $value
      */
     public function setValue($value): void
@@ -40,6 +46,8 @@ class EnvironmentHelperTransformerData
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will return native type
+     *
      * @return bool|float|int|string|null
      */
     public function getDefault()
@@ -48,6 +56,8 @@ class EnvironmentHelperTransformerData
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:parameter-name-change - Parameter will be natively typed
+     *
      * @param bool|float|int|string|null $default
      */
     public function setDefault($default): void

@@ -49,6 +49,7 @@ const isProd = process.env.mode !== 'development';
 const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
 const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
 const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+const disableAdminImportsFromPlugins = process.env.DISABLE_ADMIN_IMPORTS_FROM_PLUGINS === '1' || process.env.DISABLE_ADMIN_IMPORTS_FROM_PLUGINS === 'true';
 
 if (isDev) {
     console.log(chalk.yellow('# Development mode is activated \u{1F6E0}'));
@@ -815,7 +816,9 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 return {
                     resolve: {
                         alias: {
-                            '@administration': path.join(__dirname, 'src'),
+                            ...disableAdminImportsFromPlugins ? {} : {
+                                '@administration': path.join(__dirname, 'src'),
+                            }
                         },
                     },
                 };
@@ -832,7 +835,8 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 filename: isDev ? 'js/[name].js' : 'static/js/[name].js',
                 chunkFilename: isDev ? 'js/[chunkhash].js' : 'static/js/[chunkhash].js',
                 globalObject: 'window',
-                chunkLoadingGlobal: `webpackJsonpPlugin${plugin.technicalName}`
+                chunkLoadingGlobal: `webpackJsonpPlugin${plugin.technicalName}`,
+                uniqueName: plugin.technicalName,
             },
 
             plugins: [

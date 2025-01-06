@@ -41,9 +41,9 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         $appId = Uuid::randomHex();
         $webhookEventId = Uuid::randomHex();
 
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         /** @var EntityRepository<WebhookEventLogCollection> $webhookEventLogRepository */
-        $webhookEventLogRepository = $this->getContainer()->get('webhook_event_log.repository');
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
 
         $appRepository->create([[
             'id' => $appId,
@@ -90,7 +90,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
         );
 
-        $this->getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
+        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
             ->failed($event);
 
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), $this->context)

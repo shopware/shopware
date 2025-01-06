@@ -87,11 +87,11 @@ class EntityReaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->languageRepository = $this->getContainer()->get('language.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->deLanguageId = $this->getDeDeLanguageId();
 
         $this->registerDefinition(NonIdPrimaryKeyTestDefinition::class);
@@ -179,13 +179,13 @@ class EntityReaderTest extends TestCase
             ->visibility()
             ->manufacturer('m1');
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFields(['id', 'productNumber', 'name', 'manufacturer.id', 'manufacturer.name']);
 
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -225,7 +225,7 @@ class EntityReaderTest extends TestCase
         $criteria->addAssociation('seoUrls');
         $criteria->addFields(['name', 'seoUrls.routeName']);
 
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('category.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -243,7 +243,7 @@ class EntityReaderTest extends TestCase
 
         $criteria->setLimit(50);
         $criteria->getAssociation('seoUrls')->setLimit(50);
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('category.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -271,7 +271,7 @@ class EntityReaderTest extends TestCase
             ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$ids->get('p1')]);
@@ -280,7 +280,7 @@ class EntityReaderTest extends TestCase
         $criteria->getAssociation('categories')->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         $criteria->addFields(['name', 'categories.name', 'manufacturer.name']);
 
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -300,7 +300,7 @@ class EntityReaderTest extends TestCase
         $criteria->getAssociation('categories')->setLimit(50);
         $criteria->getAssociation('manufacturer')->setLimit(50);
 
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -525,6 +525,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$parentId, $greenId, $redId]);
+        $criteria->addAssociation('tax');
         $context = Context::createDefaultContext();
         $context->setConsiderInheritance(false);
         $products = $this->productRepository
@@ -556,6 +557,7 @@ class EntityReaderTest extends TestCase
         static::assertEquals(100, $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         $criteria = new Criteria([$parentId, $greenId, $redId]);
+        $criteria->addAssociation('tax');
         $context = Context::createDefaultContext();
         $context->setConsiderInheritance(true);
         $products = $this->productRepository
@@ -592,7 +594,7 @@ class EntityReaderTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -680,7 +682,7 @@ class EntityReaderTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -1592,7 +1594,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $manufacturerRepo = $this->getContainer()->get('product_manufacturer.repository');
+        $manufacturerRepo = static::getContainer()->get('product_manufacturer.repository');
         $context = Context::createDefaultContext();
         $manufacturerRepo->upsert([$manufacturer], $context);
 
@@ -2023,7 +2025,7 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create([$data], $context);
         $criteria = new Criteria([$data['id']]);
-        $criteria->addAssociation('cover');
+        $criteria->addAssociation('cover.media');
         $results = $this->productRepository
             ->search($criteria, $context)
             ->getEntities();
@@ -2142,13 +2144,13 @@ class EntityReaderTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $exception = null;
 
         try {
-            $this->getContainer()->get('product.repository')
+            static::getContainer()->get('product.repository')
                 ->search($criteria, Context::createDefaultContext());
         } catch (ParentAssociationCanNotBeFetched $e) {
             $exception = $e;
@@ -2217,7 +2219,7 @@ class EntityReaderTest extends TestCase
         ];
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
+        $repository = static::getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());
 
@@ -2244,7 +2246,7 @@ class EntityReaderTest extends TestCase
         ];
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
+        $repository = static::getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());
 
@@ -2275,7 +2277,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'system'));
 
-        $result = $this->getContainer()->get('category_translation.repository')->search($criteria, Context::createDefaultContext());
+        $result = static::getContainer()->get('category_translation.repository')->search($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
         static::assertEquals(1, $result->count());
@@ -2497,7 +2499,7 @@ class EntityReaderTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create([
             $product->build(),
         ], $context);
@@ -2506,6 +2508,7 @@ class EntityReaderTest extends TestCase
         $media = $criteria->getAssociation('media');
         $media->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
         $media->assign($criteriaConfig);
+        $media->addAssociation('media');
 
         $context->setConsiderInheritance(true);
 
@@ -2533,9 +2536,9 @@ class EntityReaderTest extends TestCase
         ))
             ->addFlags(new ApiAware(), new Extension());
 
-        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $ids = new IdsCollection();
 
@@ -2552,14 +2555,14 @@ class EntityReaderTest extends TestCase
             ->active(false)
             ->price(50, 50);
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create([
             $product->build(),
             $product2->build(),
             $product3->build(),
         ], Context::createDefaultContext());
 
-        $repository = $this->getContainer()->get('acme_consists_of_mapping.repository');
+        $repository = static::getContainer()->get('acme_consists_of_mapping.repository');
         static::assertInstanceOf(EntityRepository::class, $repository);
 
         $repository
@@ -2579,7 +2582,7 @@ class EntityReaderTest extends TestCase
 
         $criteria->getAssociation('consistsOf')->addFilter(new EqualsFilter('active', true));
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
         static::assertCount(1, $result->getEntities());

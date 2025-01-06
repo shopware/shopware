@@ -100,7 +100,7 @@ class LandingPageLoaderTest extends TestCase
      */
     protected function getPageLoader()
     {
-        return $this->getContainer()->get(LandingPageLoader::class);
+        return static::getContainer()->get(LandingPageLoader::class);
     }
 
     private function createData(bool $isActive = true, bool $withCmsPage = true): void
@@ -140,7 +140,7 @@ class LandingPageLoaderTest extends TestCase
             unset($data['cmsPage']);
         }
 
-        $this->getContainer()->get('landing_page.repository')
+        static::getContainer()->get('landing_page.repository')
             ->create([$data], Context::createDefaultContext());
     }
 }

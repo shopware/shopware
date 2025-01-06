@@ -23,4 +23,9 @@ class UserExtension extends EntityExtension
     {
         return UserDefinition::class;
     }
+
+    public function getEntityName(): string
+    {
+        return UserDefinition::ENTITY_NAME;
+    }
 }

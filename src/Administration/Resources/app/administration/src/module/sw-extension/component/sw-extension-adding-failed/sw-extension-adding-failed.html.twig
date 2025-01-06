@@ -32,9 +32,9 @@
             {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense') }}
         </p>
 
-        <i18n
+        <i18n-t
             tag="p"
-            path="sw-extension-store.component.sw-extension-adding-failed.installationFailed.textSupport"
+            keypath="sw-extension-store.component.sw-extension-adding-failed.installationFailed.textSupport"
         >
             <template #mail>
                 <a :href="`mailto:${$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportEmail')}`">
@@ -47,7 +47,7 @@
                     {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportPhone') }}
                 </a>
             </template>
-        </i18n>
+        </i18n-t>
     </template>
     {% endblock %}
 

@@ -120,6 +120,12 @@ frame-ancestors 'none';
             <tag name="shopware.migration_source"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_8"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">core.V6_8</argument>
+            <tag name="shopware.migration_source"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\MigrationSource.null"
                  class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">null</argument>
@@ -136,7 +142,7 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
-            <argument type="tagged" tag="shopware.migration_source"/>
+            <argument type="tagged_iterator" tag="shopware.migration_source"/>
             <argument type="service" id="logger"/>
         </service>
 
@@ -206,7 +212,7 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Routing\RouteScopeListener">
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
             <argument type="service" id="request_stack"/>
-            <argument type="tagged" tag="shopware.route_scope_whitelist"/>
+            <argument type="tagged_iterator" tag="shopware.route_scope_whitelist"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -301,7 +307,7 @@ frame-ancestors 'none';
         </service>
 
         <service id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory" public="true">
-            <argument type="tagged" tag="shopware.snippet.filter"/>
+            <argument type="tagged_iterator" tag="shopware.snippet.filter"/>
         </service>
 
         <!--SnippetFilters-->
@@ -346,7 +352,7 @@ frame-ancestors 'none';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder">
-            <argument type="tagged" tag="shopware.twig.hierarchy_builder"/>
+            <argument type="tagged_iterator" tag="shopware.twig.hierarchy_builder"/>
         </service>
 
 
@@ -414,6 +420,11 @@ frame-ancestors 'none';
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\InAppPurchaseExtension">
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer">
             <argument type="service" id="twig"/>
             <argument>%twig.cache%</argument>
@@ -467,7 +478,6 @@ frame-ancestors 'none';
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\ApiOrderCartService"/>
@@ -493,7 +503,7 @@ frame-ancestors 'none';
         </service>
 
         <service id="Shopware\Core\Framework\Routing\RouteScopeRegistry">
-            <argument type="tagged" tag="shopware.route_scope"/>
+            <argument type="tagged_iterator" tag="shopware.route_scope"/>
         </service>
 
         <!-- Logging -->
@@ -670,10 +680,8 @@ frame-ancestors 'none';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="messenger.bus.shopware" class="Shopware\Core\Framework\Adapter\Messenger\MessageBus" decorates="messenger.default_bus">
-            <argument type="service" id=".inner"/>
-            <argument type="collection"></argument>
-            <argument>%shopware.messenger.routing_overwrite%</argument>
+        <service id="messenger.bus.shopware" alias="messenger.default_bus">
+            <deprecated package="shopware/core" version="6.7.0.0">tag:v6.7.0 - The %alias_id% service will be removed in v6.7.0.0 use messenger.default_bus instead</deprecated>
         </service>
 
         <service id="http_kernel" class="Shopware\Core\Framework\Adapter\Kernel\HttpKernel" public="true">

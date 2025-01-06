@@ -14,21 +14,29 @@ class SystemConfigEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $configurationKey;
 
     /**
      * @var array|bool|float|int|string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $configurationValue;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelId;
 
     /**
      * @var SalesChannelEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannel;
 

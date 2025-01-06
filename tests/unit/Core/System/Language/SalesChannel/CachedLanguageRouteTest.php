@@ -5,24 +5,16 @@ namespace Shopware\Tests\Unit\Core\System\Language\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\Event\LanguageRouteCacheKeyEvent;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
@@ -30,7 +22,7 @@ use Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute;
 use Shopware\Core\System\Language\SalesChannel\LanguageRouteResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -64,20 +56,9 @@ class CachedLanguageRouteTest extends TestCase
         $this->eventDispatcher = new EventDispatcher();
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
-        $this->context = new SalesChannelContext(
-            new Context(new SalesChannelApiSource(Uuid::randomHex())),
-            Uuid::randomHex(),
-            null,
-            $salesChannel,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(1, 1.1, true),
-            new CashRoundingConfig(1, 1.1, true)
+        $this->context = Generator::createSalesChannelContext(
+            baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
+            salesChannel: $salesChannel
         );
         $this->response = new LanguageRouteResponse(
             new EntitySearchResult(

@@ -36,8 +36,6 @@ class AssetBundleRegistrationCompilerPass implements CompilerPassInterface
         array_unshift($arguments, new Reference('shopware.asset.asset_without_versioning'));
         array_unshift($arguments, $bundleMap);
 
-        $assetService->setArguments(
-            $arguments
-        );
+        $assetService->setArguments($arguments);
     }
 }

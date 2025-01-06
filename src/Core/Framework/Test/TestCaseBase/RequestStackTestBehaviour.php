@@ -18,7 +18,7 @@ trait RequestStackTestBehaviour
     #[After]
     public function clearRequestStack(): array
     {
-        $stack = $this->getContainer()
+        $stack = static::getContainer()
             ->get(RequestStack::class);
 
         $requests = [];
@@ -35,7 +35,7 @@ trait RequestStackTestBehaviour
     #[After]
     public function resetRequestContext(): void
     {
-        $router = $this->getContainer()
+        $router = static::getContainer()
             ->get('router');
 
         $context = $router->getContext();

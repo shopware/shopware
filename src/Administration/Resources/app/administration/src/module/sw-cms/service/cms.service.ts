@@ -212,9 +212,33 @@ class CmsService {
         if (typeof this.mappingTypesCache[entityName] === 'undefined') {
             this.mappingTypesCache[entityName] = {};
             this.handlePropertyMappings(schema.properties, this.mappingTypesCache[entityName], entityName);
+            void this.addCustomFieldsToMappingTypes(entityName, this.mappingTypesCache[entityName]!);
         }
 
         return this.mappingTypesCache[entityName];
+    }
+
+    private async addCustomFieldsToMappingTypes(entityName: string, mappings: EntityMappings): Promise<void> {
+        const customFieldRepository = Shopware.Service('repositoryFactory').create('custom_field');
+        const criteria = new Shopware.Data.Criteria(1, 50);
+        criteria.addFilter(Shopware.Data.Criteria.equals('customFieldSet.relations.entityName', entityName));
+        criteria.addFilter(Shopware.Data.Criteria.equals('active', 1));
+        criteria.addFilter(
+            Shopware.Data.Criteria.multi('OR', [
+                Shopware.Data.Criteria.equals('type', 'text'),
+                Shopware.Data.Criteria.equals('type', 'datetime'),
+                Shopware.Data.Criteria.equals('type', 'html'),
+            ]),
+        );
+
+        const customFields = await customFieldRepository.search(criteria, Shopware.Context.api);
+        customFields.forEach((customField: Entity<'custom_field'>) => {
+            const propSchema: Property = {
+                type: customField.type,
+            };
+
+            this.handlePrimitivesMapping(propSchema, mappings, `${entityName}.customFields`, customField.name);
+        });
     }
 
     public getPropertyByMappingPath(entity: unknown, propertyPath: string): unknown {
@@ -358,6 +382,8 @@ class CmsService {
             case 'uuid':
             case 'text':
             case 'date':
+            case 'html':
+            case 'datetime':
                 type = 'string';
                 break;
             case 'float':

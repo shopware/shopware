@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
+use Shopware\Core\Framework\Store\InAppPurchase;
 
 /**
  * @internal only for use by the app-system
@@ -22,7 +23,8 @@ class QuerySigner
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
         private readonly LocaleProvider $localeProvider,
-        private readonly ShopIdProvider $shopIdProvider
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly InAppPurchase $inAppPurchase,
     ) {
     }
 
@@ -38,6 +40,7 @@ class QuerySigner
             'shop-url' => $this->shopUrl,
             'timestamp' => (string) (new \DateTime())->getTimestamp(),
             'sw-version' => $this->shopwareVersion,
+            'in-app-purchases' => \urlencode($this->inAppPurchase->getJWTByExtension($app->getName()) ?? ''),
             AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $context->getLanguageId(),
             AuthMiddleware::SHOPWARE_USER_LANGUAGE => $this->localeProvider->getLocaleFromContext($context),
         ]);

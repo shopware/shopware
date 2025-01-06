@@ -25,7 +25,7 @@ class MediaPathStorageTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $inserts = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $inserts = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
 
         $inserts->addInsert('media', [
             'id' => $ids->getBytes('media'),
@@ -36,13 +36,13 @@ class MediaPathStorageTest extends TestCase
 
         $inserts->execute();
 
-        $storage = new SqlMediaPathStorage($this->getContainer()->get(Connection::class));
+        $storage = new SqlMediaPathStorage(static::getContainer()->get(Connection::class));
 
         $storage->media([
             $ids->get('media') => 'test.jpg',
         ]);
 
-        $path = $this->getContainer()
+        $path = static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT path FROM media WHERE id = :id', ['id' => $ids->getBytes('media')]);
 
@@ -53,7 +53,7 @@ class MediaPathStorageTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $inserts = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $inserts = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
 
         $inserts->addInsert('media', [
             'id' => $ids->getBytes('media'),
@@ -72,13 +72,13 @@ class MediaPathStorageTest extends TestCase
 
         $inserts->execute();
 
-        $storage = new SqlMediaPathStorage($this->getContainer()->get(Connection::class));
+        $storage = new SqlMediaPathStorage(static::getContainer()->get(Connection::class));
 
         $storage->thumbnails([
             $ids->get('media_thumbnail') => 'test.jpg',
         ]);
 
-        $path = $this->getContainer()
+        $path = static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT path FROM media_thumbnail WHERE id = :id', ['id' => $ids->getBytes('media_thumbnail')]);
 
@@ -93,7 +93,7 @@ class MediaPathStorageTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('prepare')->willReturn($statement);
 
-        $storage = new SqlMediaPathStorage($this->getContainer()->get(Connection::class));
+        $storage = new SqlMediaPathStorage(static::getContainer()->get(Connection::class));
 
         $storage->media([]);
         $storage->thumbnails([]);

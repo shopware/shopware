@@ -13,41 +13,57 @@ class CartPositionStruct extends Struct
 {
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $netPrice;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxValue;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $grossPrice;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $pseudoPrice;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $firstMonthFree;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $discountAppliesForMonths;
 
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $extension;
 
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $variant;
 

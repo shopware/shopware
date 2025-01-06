@@ -160,6 +160,11 @@ Component.register('sw-entity-single-select', {
             // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {

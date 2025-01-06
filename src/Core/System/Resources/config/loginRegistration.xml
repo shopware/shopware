@@ -37,6 +37,7 @@
             <label lang="de-DE">E-Mail-Adresse muss zweimal eingegeben werden</label>
             <helpText>Email address has to be filled in twice to avoid errors.</helpText>
             <helpText lang="de-DE">Die E-Mail-Adresse wird zweimal abgefragt, um Fehler bei der Eingabe zu vermeiden.</helpText>
+            <hint>global.accessibility.optionWarning</hint>
         </input-field>
 
         <input-field type="bool">
@@ -124,6 +125,12 @@
             <name>additionalAddressField2Required</name>
             <label>Additional address 2 field required</label>
             <label lang="de-DE">Adresszusatzzeile 2 ist Pflichtfeld</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showZipcodeInFrontOfCity</name>
+            <label>Show ZIP code before city</label>
+            <label lang="de-DE">Zeige PLZ vor Stadt</label>
         </input-field>
 
         <input-field type="bool">

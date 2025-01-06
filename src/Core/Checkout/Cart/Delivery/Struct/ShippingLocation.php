@@ -13,16 +13,22 @@ class ShippingLocation extends Struct
 {
     /**
      * @var CountryEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $country;
 
     /**
      * @var CountryStateEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $state;
 
     /**
      * @var CustomerAddressEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $address;
 

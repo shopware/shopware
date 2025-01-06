@@ -11,11 +11,8 @@ use Shopware\Core\Content\LandingPage\LandingPageEvents;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -33,22 +30,8 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
      */
     public function __construct(
         private readonly SeoUrlUpdater $seoUrlUpdater,
-        private readonly Connection $connection,
-        private readonly EntityIndexerRegistry $indexerRegistry
+        private readonly Connection $connection
     ) {
-    }
-
-    public function detectSalesChannelEntryPoints(EntityWrittenContainerEvent $event): void
-    {
-        $properties = ['navigationCategoryId', 'footerCategoryId', 'serviceCategoryId'];
-
-        $salesChannelIds = $event->getPrimaryKeysWithPropertyChange(SalesChannelDefinition::ENTITY_NAME, $properties);
-
-        if (empty($salesChannelIds)) {
-            return;
-        }
-
-        $this->indexerRegistry->sendIndexingMessage(['category.indexer', 'product.indexer']);
     }
 
     /**
@@ -60,7 +43,6 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             ProductEvents::PRODUCT_INDEXER_EVENT => 'updateProductUrls',
             CategoryEvents::CATEGORY_INDEXER_EVENT => 'updateCategoryUrls',
             LandingPageEvents::LANDING_PAGE_INDEXER_EVENT => 'updateLandingPageUrls',
-            EntityWrittenContainerEvent::class => 'detectSalesChannelEntryPoints',
         ];
     }
 

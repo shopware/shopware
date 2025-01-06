@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -258,6 +260,19 @@ class ApiController extends AbstractController
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): EntitySearchResult => $repository->search($criteria, $context));
+
+        $definition = $this->getDefinitionOfPath($entityName, $path, $context);
+
+        return $responseFactory->createListingResponse($criteria, $result, $definition, $request, $context);
+    }
+
+    public function aggregate(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
+
+        $aggregations = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): AggregationResultCollection => $repository->aggregate($criteria, $context));
+
+        $result = new EntitySearchResult($entityName, 0, new EntityCollection(), $aggregations, $criteria, $context);
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $context);
 

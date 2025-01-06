@@ -53,7 +53,29 @@ const mailTemplateMediaMock = {
     fileSize: 792866,
 };
 
-const repositoryMockFactory = () => {
+const repositoryMockFactory = (entity) => {
+    if (entity === 'sales_channel') {
+        return {
+            search: () => Promise.resolve({}),
+            get: () =>
+                Promise.resolve({
+                    id: '1a2b3c',
+                    name: 'Storefront',
+                    languages: new EntityCollection(
+                        '/language',
+                        'language',
+                        null,
+                        {},
+                        [
+                            {
+                                id: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                            },
+                        ],
+                        1,
+                    ),
+                }),
+        };
+    }
     return {
         search: () => Promise.resolve({}),
         get: (resolve = null) => {
@@ -91,7 +113,7 @@ async function createWrapper(privileges = []) {
         global: {
             provide: {
                 repositoryFactory: {
-                    create: () => repositoryMockFactory(),
+                    create: repositoryMockFactory,
                 },
                 mailService: {
                     testMailTemplate: jest.fn(() => Promise.resolve()),
@@ -144,6 +166,7 @@ async function createWrapper(privileges = []) {
                 'sw-modal': true,
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
+                'sw-alert': true,
                 'sw-code-editor': {
                     props: [
                         'disabled',
@@ -840,5 +863,39 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         });
 
         wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should display an notification if content language is not assigned to selected sales channel', async () => {
+        wrapper = await createWrapper(['api_send_email']);
+
+        await wrapper.setData({
+            mailTemplate: {
+                ...mailTemplateTypeMock,
+                subject: 'Your order with {{ salesChannel.name }} is partially paid',
+                contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                // eslint-disable-next-line max-len
+                contentHtml:
+                    '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
+                senderName: '{{ salesChannel.name }}',
+            },
+            testerMail: 'foo@bar.com',
+            isLoading: false,
+            testMailSalesChannelId: '1a2b3c',
+        });
+
+        const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
+
+        expect(sendTestMail.attributes().disabled).toBeUndefined();
+
+        await sendTestMail.trigger('click');
+
+        expect(wrapper.vm.showLanguageNotAssignedToSalesChannelWarning).toBeFalsy();
+
+        Shopware.Context.api.languageId = 'foo';
+        await sendTestMail.trigger('click');
+
+        await flushPromises();
+
+        expect(wrapper.vm.showLanguageNotAssignedToSalesChannelWarning).toBeTruthy();
     });
 });

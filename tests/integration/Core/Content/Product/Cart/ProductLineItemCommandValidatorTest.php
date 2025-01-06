@@ -57,10 +57,10 @@ class ProductLineItemCommandValidatorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = $this->getContainer()->get('product.repository');
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->lineItemRepository = $this->getContainer()->get('order_line_item.repository');
+        $this->repository = static::getContainer()->get('product.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
+        $this->contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
+        $this->lineItemRepository = static::getContainer()->get('order_line_item.repository');
         $this->addCountriesToSalesChannel();
 
         $this->context = $this->contextFactory->create(
@@ -242,7 +242,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()
+        static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], Context::createDefaultContext());
 

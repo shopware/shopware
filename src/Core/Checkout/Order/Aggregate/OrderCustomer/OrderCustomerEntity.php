@@ -18,76 +18,106 @@ class OrderCustomerEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $email;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salutationId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $firstName;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $lastName;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $title;
 
     /**
      * @var array|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $vatIds;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $company;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customerNumber;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customerId;
 
     /**
      * @var CustomerEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customer;
 
     /**
      * @var SalutationEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salutation;
 
     /**
      * @var OrderEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $order;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $remoteAddress;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderVersionId;
 

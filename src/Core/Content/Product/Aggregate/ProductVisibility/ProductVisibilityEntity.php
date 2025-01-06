@@ -15,26 +15,36 @@ class ProductVisibilityEntity extends Entity
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $visibility;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelId;
 
     /**
      * @var ProductEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $product;
 
     /**
      * @var SalesChannelEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannel;
 

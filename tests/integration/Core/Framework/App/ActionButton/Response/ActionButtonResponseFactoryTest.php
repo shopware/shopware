@@ -30,8 +30,9 @@ class ActionButtonResponseFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->actionButtonResponseFactory = $this->getContainer()->get(ActionButtonResponseFactory::class);
+        $this->actionButtonResponseFactory = static::getContainer()->get(ActionButtonResponseFactory::class);
         $app = new AppEntity();
+        $app->setName('TestApp');
         $app->setId(Uuid::randomHex());
         $app->setAppSecret('app-secret');
         $this->action = new AppAction(

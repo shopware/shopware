@@ -30,8 +30,8 @@ class LanguageSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->languageRepository = $this->getContainer()->get('language.repository');
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $this->languageRepository = static::getContainer()->get('language.repository');
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
 
         $this->serializer = new LanguageSerializer($this->languageRepository);
         $this->serializer->setRegistry($serializerRegistry);
@@ -57,9 +57,9 @@ class LanguageSerializerTest extends TestCase
 
     public function testSupportsOnlyCountry(): void
     {
-        $serializer = new LanguageSerializer($this->getContainer()->get('language.repository'));
+        $serializer = new LanguageSerializer(static::getContainer()->get('language.repository'));
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
 

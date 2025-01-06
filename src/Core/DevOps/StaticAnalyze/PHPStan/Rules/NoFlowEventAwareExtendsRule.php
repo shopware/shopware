@@ -9,12 +9,11 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.7.0 - reason:remove-phpstan-rule - Will be removed. Configure Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NotExtendFlowEventAwareRule instead
- *
  * @implements Rule<InClassNode>
  *
  * @internal
@@ -45,7 +44,12 @@ class NoFlowEventAwareExtendsRule implements Rule
         }
 
         return [
-            \sprintf('Class %s should not extend FlowEventAware. Flow events should not be derived from each other to make them easier to test', $reflection->getName()),
+            RuleErrorBuilder::message(\sprintf(
+                'Class %s should not extend FlowEventAware. Flow events should not be derived from each other to make them easier to test',
+                $reflection->getName()
+            ))
+                ->identifier('shopware.flowEventAwareExtend')
+                ->build(),
         ];
     }
 }

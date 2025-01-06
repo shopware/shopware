@@ -29,8 +29,8 @@ class FileServiceTest extends TestCase
     public function testDetectType(array $fileData): void
     {
         $fileService = new FileService(
-            $this->getContainer()->get('shopware.filesystem.private'),
-            $this->getContainer()->get('import_export_file.repository')
+            static::getContainer()->get('shopware.filesystem.private'),
+            static::getContainer()->get('import_export_file.repository')
         );
 
         $filePath = $fileData['file'];
@@ -50,9 +50,9 @@ class FileServiceTest extends TestCase
     public function testStoreFile(): void
     {
         /** @var EntityRepository $fileRepository */
-        $fileRepository = $this->getContainer()->get('import_export_file.repository');
+        $fileRepository = static::getContainer()->get('import_export_file.repository');
         $fileService = new FileService(
-            $this->getContainer()->get('shopware.filesystem.private'),
+            static::getContainer()->get('shopware.filesystem.private'),
             $fileRepository
         );
 

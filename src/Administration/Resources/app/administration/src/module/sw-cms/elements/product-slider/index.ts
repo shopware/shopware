@@ -46,13 +46,26 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: 'standard',
         },
+        /** @deprecated tag:v6.7.0 - Will be removed. Use `navigationArrows` instead */
         navigation: {
             source: 'static',
             value: true,
         },
+        navigationArrows: {
+            source: 'static',
+            value: 'outside',
+        },
         rotate: {
             source: 'static',
             value: false,
+        },
+        autoplayTimeout: {
+            source: 'static',
+            value: 5000,
+        },
+        speed: {
+            source: 'static',
+            value: 300,
         },
         border: {
             source: 'static',

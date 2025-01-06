@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Framework\Media\Validator;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorInterface;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[Package('buyers-experience')]
@@ -26,14 +26,14 @@ class StorefrontMediaImageValidator implements StorefrontMediaValidatorInterface
         ]);
 
         if (!$valid) {
-            throw new FileTypeNotAllowedException($file->getMimeType() ?? '', $this->getType());
+            throw StorefrontFrameworkException::fileTypeNotAllowed($file->getMimeType() ?? '', $this->getType());
         }
 
         // additional mime type validation
         // we detect the mime type over the `getimagesize` extension
-        $imageSize = getimagesize($file->getPath() . '/' . $file->getFileName());
+        $imageSize = getimagesize($file->getPath() . '/' . $file->getFilename());
         if (!isset($imageSize['mime']) || $imageSize['mime'] !== $file->getMimeType()) {
-            throw new FileTypeNotAllowedException($file->getMimeType() ?? '', $this->getType());
+            throw StorefrontFrameworkException::fileTypeNotAllowed($file->getMimeType() ?? '', $this->getType());
         }
     }
 }

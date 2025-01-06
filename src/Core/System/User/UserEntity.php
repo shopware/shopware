@@ -26,16 +26,22 @@ class UserEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $localeId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $avatarId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $username;
 
@@ -43,81 +49,113 @@ class UserEntity extends Entity
      * @internal
      *
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $password;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $firstName;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $lastName;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $title;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $email;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $active;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $admin;
 
     /**
      * @var AclRoleCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $aclRoles;
 
     /**
      * @var LocaleEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $locale;
 
     /**
      * @var MediaEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $avatarMedia;
 
     /**
      * @var MediaCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $media;
 
     /**
      * @var UserAccessKeyCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $accessKeys;
 
     /**
      * @var UserConfigCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $configs;
 
     /**
      * @var StateMachineHistoryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachineHistoryEntries;
 
     /**
      * @var ImportExportLogCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $importExportLogEntries;
 
     /**
      * @var UserRecoveryEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $recoveryUser;
 
@@ -125,31 +163,43 @@ class UserEntity extends Entity
      * @internal
      *
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $storeToken;
 
     /**
      * @var \DateTimeInterface|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $lastUpdatedPasswordAt;
 
     /**
      * @var OrderCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $createdOrders;
 
     /**
      * @var OrderCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $updatedOrders;
 
     /**
      * @var CustomerCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $createdCustomers;
 
     /**
      * @var CustomerCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $updatedCustomers;
 

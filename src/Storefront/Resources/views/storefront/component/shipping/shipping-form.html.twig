@@ -1,8 +1,12 @@
+{% block component_shipping_form %}
+{# @deprecated tag:v6.7.0 - Block `page_checkout_change_shipping_form` will be renamed to `component_shipping_form` #}
 {% block page_checkout_change_shipping_form %}
     {% set formAjaxSubmitOptions = {
         changeTriggerSelectors: ['.shipping-method-input']
     } %}
 
+    {% block component_shipping_form_element %}
+    {# @deprecated tag:v6.7.0 - Block `page_checkout_change_shipping_form_element` will be renamed to `component_shipping_form_element` #}
     {% block page_checkout_change_shipping_form_element %}
         <form id="changeShippingForm"
               name="changeShippingForm"
@@ -10,16 +14,34 @@
               data-form-auto-submit="true"
               data-form-auto-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
               method="post">
+            {% block component_shipping_form_redirect %}
+            {# @deprecated tag:v6.7.0 - Block `page_checkout_change_shipping_form_redirect` will be renamed to `component_shipping_form_redirect` #}
             {% block page_checkout_change_shipping_form_redirect %}
                 <input type="hidden" name="redirectTo" value="{{ redirect }}">
                 <input type="hidden" name="redirectParameters" value="{{ redirectParameters }}">
             {% endblock %}
-
-            {% block page_checkout_change_shipping_form_fields %}
-                {% sw_include '@Storefront/storefront/component/shipping/shipping-fields.html.twig' with {
-                    visibleShippingMethodsLimit: 5
-                } %}
             {% endblock %}
+
+            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                {% block component_shipping_form_list %}
+                    <div class="shipping-methods">
+                        {% for shipping in page.shippingMethods %}
+                            {% block component_shipping_form_method %}
+                                {% sw_include '@Storefront/storefront/component/shipping/shipping-method.html.twig' %}
+                            {% endblock %}
+                        {% endfor %}
+                    </div>
+                {% endblock %}
+            {% else %}
+                {# @deprecated tag:v6.7.0 - Block `page_checkout_change_shipping_form_fields` will be replaced with `component_payment_form_list` #}
+                {% block page_checkout_change_shipping_form_fields %}
+                    {% sw_include '@Storefront/storefront/component/shipping/shipping-fields.html.twig' with {
+                        visibleShippingMethodsLimit: 5
+                    } %}
+                {% endblock %}
+            {% endif %}
         </form>
     {% endblock %}
+    {% endblock %}
+{% endblock %}
 {% endblock %}

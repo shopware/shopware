@@ -120,7 +120,7 @@ class CurrencyRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('currency.repository')
+        static::getContainer()->get('currency.repository')
             ->create($data, Context::createDefaultContext());
     }
 

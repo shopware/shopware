@@ -58,16 +58,16 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->configurationRegistryMock = $this->createMock(StorefrontPluginRegistryInterface::class);
 
         $this->themeLifecycleHandler = new ThemeLifecycleHandler(
-            $this->getContainer()->get(ThemeLifecycleService::class),
+            static::getContainer()->get(ThemeLifecycleService::class),
             $this->themeServiceMock,
-            $this->getContainer()->get('theme.repository'),
+            static::getContainer()->get('theme.repository'),
             $this->configurationRegistryMock,
-            $this->getContainer()->get(Connection::class)
+            static::getContainer()->get(Connection::class)
         );
 
-        $this->configFactory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
+        $this->configFactory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM `theme_sales_channel`');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM `theme_sales_channel`');
         $this->assignThemeToDefaultSalesChannel();
     }
 
@@ -125,7 +125,7 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate($installConfig, $configs, Context::createDefaultContext());
 
         /** @var EntityRepository $themeRepository */
-        $themeRepository = $this->getContainer()->get('theme.repository');
+        $themeRepository = static::getContainer()->get('theme.repository');
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'ThemeWithMultiInheritance'));
@@ -244,7 +244,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     private function assignThemeToDefaultSalesChannel(?string $themeName = null): void
     {
-        $themeRepository = $this->getContainer()->get('theme.repository');
+        $themeRepository = static::getContainer()->get('theme.repository');
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
@@ -270,7 +270,7 @@ class ThemeLifecycleHandlerTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $repository = $this->getContainer()->get('theme.repository');
+        $repository = static::getContainer()->get('theme.repository');
 
         $repository->create([
             [
@@ -292,7 +292,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     private function createSalesChannel(): string
     {
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $id = Uuid::randomHex();
         $payload = [[

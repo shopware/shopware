@@ -44,13 +44,77 @@ class AuthenticatedServiceClientTest extends TestCase
             '1.0.1',
         );
         $serviceAuthedClient = new AuthenticatedServiceClient($this->client, $entry, $source);
+        $serviceAuthedClient->syncLicense('license_key', 'license_host');
+
+        $lastRequest = $this->mockHandler->getLastRequest();
+        static::assertNotNull($lastRequest);
+        static::assertSame('POST', $lastRequest->getMethod());
+        static::assertSame('https://example.com/sync', (string) $lastRequest->getUri());
+        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1","inAppPurchases":null},"licenseKey":"license_key","licenseHost":"license_host"}', (string) $lastRequest->getBody());
+    }
+
+    public function testSyncLicenseServicesSendsPostRequestWithLicenseHostNull(): void
+    {
+        $this->mockHandler->append(new GuzzleResponse(200, []));
+
+        $entry = new ServiceRegistryEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
+        $id = Uuid::randomHex();
+        $source = new Source(
+            'http:foo',
+            $id,
+            '1.0.1',
+        );
+        $serviceAuthedClient = new AuthenticatedServiceClient($this->client, $entry, $source);
         $serviceAuthedClient->syncLicense('license_key');
 
         $lastRequest = $this->mockHandler->getLastRequest();
         static::assertNotNull($lastRequest);
-        static::assertEquals('POST', $lastRequest->getMethod());
-        static::assertEquals('https://example.com/sync', (string) $lastRequest->getUri());
-        static::assertEquals('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1"},"licenseKey":"license_key"}', (string) $lastRequest->getBody());
+        static::assertSame('POST', $lastRequest->getMethod());
+        static::assertSame('https://example.com/sync', (string) $lastRequest->getUri());
+        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1","inAppPurchases":null},"licenseKey":"license_key","licenseHost":""}', (string) $lastRequest->getBody());
+    }
+
+    public function testSyncLicenseServicesSendsPostRequestWithLicenseKeyEmpty(): void
+    {
+        $this->mockHandler->append(new GuzzleResponse(200, []));
+
+        $entry = new ServiceRegistryEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
+        $id = Uuid::randomHex();
+        $source = new Source(
+            'http:foo',
+            $id,
+            '1.0.1',
+        );
+        $serviceAuthedClient = new AuthenticatedServiceClient($this->client, $entry, $source);
+        $serviceAuthedClient->syncLicense('', 'license_host');
+
+        $lastRequest = $this->mockHandler->getLastRequest();
+        static::assertNotNull($lastRequest);
+        static::assertSame('POST', $lastRequest->getMethod());
+        static::assertSame('https://example.com/sync', (string) $lastRequest->getUri());
+        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1","inAppPurchases":null},"licenseKey":"","licenseHost":"license_host"}', (string) $lastRequest->getBody());
+    }
+
+    public function testSyncLicenseServicesDoesNotSendRequestWhenKeyAndHostIsEmpty(): void
+    {
+        $this->mockHandler->append(new GuzzleResponse(200, []));
+
+        $entry = new ServiceRegistryEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
+        $id = Uuid::randomHex();
+        $source = new Source(
+            'http:foo',
+            $id,
+            '1.0.1',
+        );
+
+        $serviceAuthedClient = new AuthenticatedServiceClient($this->client, $entry, $source);
+        $serviceAuthedClient->syncLicense();
+
+        $lastRequest = $this->mockHandler->getLastRequest();
+        static::assertNotNull($lastRequest);
+        static::assertSame('POST', $lastRequest->getMethod());
+        static::assertSame('https://example.com/sync', (string) $lastRequest->getUri());
+        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1","inAppPurchases":null},"licenseKey":"","licenseHost":""}', (string) $lastRequest->getBody());
     }
 
     public function testSyncLicenseServicesDoesNotSendRequestWhenLicenseSyncEndPointIsNull(): void

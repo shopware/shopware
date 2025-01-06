@@ -34,13 +34,13 @@ class ReinstallAppsStrategyTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
+        $this->shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
         $this->context = Context::createDefaultContext();
     }
 
     public function testGetName(): void
     {
-        $reinstallAppsResolver = $this->getContainer()->get(ReinstallAppsStrategy::class);
+        $reinstallAppsResolver = static::getContainer()->get(ReinstallAppsStrategy::class);
 
         static::assertSame(
             ReinstallAppsStrategy::STRATEGY_NAME,
@@ -75,7 +75,7 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
             $this->getAppLoader($appDir),
-            $this->getContainer()->get('app.repository'),
+            static::getContainer()->get('app.repository'),
             $registrationsService,
             $this->shopIdProvider,
             $eventDispatcher
@@ -113,7 +113,7 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
             $this->getAppLoader($appDir),
-            $this->getContainer()->get('app.repository'),
+            static::getContainer()->get('app.repository'),
             $registrationsService,
             $this->shopIdProvider,
             $eventDispatcher
@@ -144,7 +144,7 @@ class ReinstallAppsStrategyTest extends TestCase
     private function getInstalledApp(Context $context): AppEntity
     {
         /** @var EntityRepository<AppCollection> $appRepo */
-        $appRepo = $this->getContainer()->get('app.repository');
+        $appRepo = static::getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('integration');

@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
-use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\Event\CustomerAware;
@@ -93,7 +93,7 @@ class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware,
         $customer = $this->getOrder()->getOrderCustomer();
 
         if ($customer === null || $customer->getCustomerId() === null) {
-            throw new CustomerDeletedException($this->getOrderId());
+            throw OrderException::orderCustomerDeleted($this->getOrderId());
         }
 
         return $customer->getCustomerId();

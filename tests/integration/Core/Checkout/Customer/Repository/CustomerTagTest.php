@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Repository;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,15 +24,15 @@ class CustomerTagTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->repository = $this->getContainer()->get('customer.repository');
+        $this->repository = static::getContainer()->get('customer.repository');
     }
 
     public function testEqualsAnyFilter(): void

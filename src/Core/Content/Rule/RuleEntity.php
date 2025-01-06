@@ -27,16 +27,22 @@ class RuleEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $description;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $priority;
 
@@ -44,36 +50,50 @@ class RuleEntity extends Entity
      * @internal
      *
      * @var string|Rule|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $payload;
 
     /**
      * @var string[]|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $moduleTypes;
 
     /**
      * @var ProductPriceCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productPrices;
 
     /**
      * @var ShippingMethodCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethods;
 
     /**
      * @var PaymentMethodCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethods;
 
     /**
      * @var RuleConditionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $conditions;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $invalid;
 
@@ -84,46 +104,64 @@ class RuleEntity extends Entity
 
     /**
      * @var ShippingMethodPriceCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethodPrices;
 
     /**
      * @var PromotionDiscountCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotionDiscounts;
 
     /**
      * @var PromotionSetGroupCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotionSetGroups;
 
     /**
      * @var ShippingMethodPriceCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethodPriceCalculations;
 
     /**
      * @var PromotionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $personaPromotions;
 
     /**
      * @var FlowSequenceCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $flowSequences;
 
     /**
      * @var TagCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $tags;
 
     /**
      * @var PromotionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderPromotions;
 
     /**
      * @var PromotionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cartPromotions;
 

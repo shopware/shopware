@@ -27,7 +27,7 @@ class IncrementApiControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $gatewayRegistry = static::getContainer()->get('shopware.increment.gateway.registry');
 
         $gateway = $gatewayRegistry->get(IncrementGatewayRegistry::USER_ACTIVITY_POOL);
 

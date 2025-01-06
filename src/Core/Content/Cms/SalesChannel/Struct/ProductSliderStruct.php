@@ -11,6 +11,8 @@ class ProductSliderStruct extends Struct
 {
     /**
      * @var ProductCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $products;
 

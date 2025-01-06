@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\HttpCacheConfigCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
@@ -107,6 +107,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new EntityCompilerPass());
         $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass());
         $container->addCompilerPass(new DefaultTransportCompilerPass());
+        $container->addCompilerPass(new MessengerMiddlewareCompilerPass());
         $container->addCompilerPass(new TwigLoaderConfigCompilerPass());
         $container->addCompilerPass(new TwigEnvironmentCompilerPass());
         $container->addCompilerPass(new RouteScopeCompilerPass());
@@ -148,45 +149,14 @@ class Framework extends Bundle
         // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
         MeterProvider::bindMeter($this->container);
 
-        $this->registerEntityExtensions(
-            $this->container->get(DefinitionInstanceRegistry::class),
-            $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
-            $this->container->get(ExtensionRegistry::class)
-        );
-
-        \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
+        $this->container
+            ->get(ExtensionRegistry::class)
+            ->configureExtensions(
+                $this->container->get(DefinitionInstanceRegistry::class),
+                $this->container->get(SalesChannelDefinitionInstanceRegistry::class)
+            );
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
-    }
-
-    private function registerEntityExtensions(
-        DefinitionInstanceRegistry $definitionRegistry,
-        SalesChannelDefinitionInstanceRegistry $salesChannelRegistry,
-        ExtensionRegistry $registry
-    ): void {
-        foreach ($registry->getExtensions() as $extension) {
-            /** @var string $class */
-            $class = $extension->getDefinitionClass();
-
-            try {
-                $definition = $definitionRegistry->get($class);
-            } catch (DefinitionNotFoundException) {
-                continue;
-            }
-
-            $definition->addExtension($extension);
-
-            try {
-                $salesChannelDefinition = $salesChannelRegistry->get($class);
-            } catch (DefinitionNotFoundException) {
-                continue;
-            }
-
-            // same definition? do not added extension
-            if ($salesChannelDefinition !== $definition) {
-                $salesChannelDefinition->addExtension($extension);
-            }
-        }
     }
 }

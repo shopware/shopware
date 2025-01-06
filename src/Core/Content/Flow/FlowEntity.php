@@ -34,6 +34,8 @@ class FlowEntity extends Entity
      * @internal
      *
      * @var string|Flow|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $payload;
 

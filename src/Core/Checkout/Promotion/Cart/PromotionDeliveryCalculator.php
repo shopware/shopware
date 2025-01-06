@@ -36,7 +36,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Absolute discount is 10 => Shippingcosts = 90
  * Percentage discount is 30 => Shippingcosts = 60 (Shippingcosts = 100 - (10 + 100 * 0.3))
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionDeliveryCalculator
 {
     use PromotionCartInformationTrait;
@@ -62,12 +62,16 @@ class PromotionDeliveryCalculator
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $toCalculate, SalesChannelContext $context): void
     {
+        $discountLineItems->sort(function (LineItem $a, LineItem $b) {
+            return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
+        });
+
         $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->sum()->getTotalPrice();
 
         // reduce discount lineItems if fixed price discounts are in collection
         $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
 
-        $exclusions = $this->buildExclusions($checkedDiscountLineItems);
+        $exclusions = $this->buildExclusions($checkedDiscountLineItems, $toCalculate, $context);
 
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -123,7 +127,7 @@ class PromotionDeliveryCalculator
      *
      * @return array<mixed, bool>
      */
-    private function buildExclusions(LineItemCollection $discountLineItems): array
+    private function buildExclusions(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): array
     {
         // array that holds all excluded promotion ids.
         // if a promotion has exclusions they are added on the stack
@@ -149,7 +153,10 @@ class PromotionDeliveryCalculator
 
             // add all exclusions to the stack
             foreach ($discountItem->getPayloadValue('exclusions') as $id) {
-                $exclusions[$id] = true;
+                // check if the promotion is active by its conditions
+                if ($this->isRequirementValid($discountItem, $toCalculate, $context)) {
+                    $exclusions[$id] = true;
+                }
             }
         }
 

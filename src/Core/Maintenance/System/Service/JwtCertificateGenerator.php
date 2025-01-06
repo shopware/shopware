@@ -8,6 +8,8 @@ use Shopware\Core\Maintenance\MaintenanceException;
 
 /**
  * @deprecated tag:v6.7.0 - will be removed without a replacement
+ *
+ * @phpstan-ignore shopware.internalClass
  */
 #[Package('core')]
 class JwtCertificateGenerator

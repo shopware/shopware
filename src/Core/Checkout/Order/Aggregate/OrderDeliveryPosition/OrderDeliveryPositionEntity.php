@@ -18,51 +18,71 @@ class OrderDeliveryPositionEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderDeliveryId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderLineItemId;
 
     /**
      * @var CalculatedPrice|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $price;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $unitPrice;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $totalPrice;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $quantity;
 
     /**
      * @var OrderLineItemEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderLineItem;
 
     /**
      * @var OrderDeliveryEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderDelivery;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderDeliveryVersionId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderLineItemVersionId;
 

@@ -149,8 +149,7 @@
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationArrows')"
                                 @update:value="emitUpdateEl"
                             >
-
-                                <option :value="null">
+                                <option value="none">
                                     {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
                                 </option>
                                 <option value="inside">
@@ -172,8 +171,7 @@
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationDots')"
                                 @update:value="emitUpdateEl"
                             >
-
-                                <option :value="null">
+                                <option value="none">
                                     {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
                                 </option>
                                 <option value="inside">
@@ -206,7 +204,7 @@
                                 class="sw-cms-el-config-image-slider__setting-delay-slide"
                                 number-type="int"
                                 :min="0"
-                                :max="9999999"
+                                :max="3600000"
                                 :disabled="!showSlideConfig || undefined"
                                 :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
                                 :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
@@ -219,7 +217,7 @@
                                 class="sw-cms-el-config-image-slider__setting-speed-slide"
                                 number-type="int"
                                 :min="0"
-                                :max="9999999"
+                                :max="3600000"
                                 :disabled="!showSlideConfig || undefined"
                                 :label="$tc('sw-cms.elements.general.config.label.speed')"
                                 :placeholder="$tc('sw-cms.elements.general.config.label.speed')"

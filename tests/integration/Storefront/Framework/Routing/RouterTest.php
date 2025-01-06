@@ -24,7 +24,7 @@ class RouterTest extends TestCase
         $request = new Request();
         $request->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, $case->baseUrl);
 
-        $stack = $this->getContainer()->get('request_stack');
+        $stack = static::getContainer()->get('request_stack');
 
         // remove all request from stack
         while ($stack->pop()) {
@@ -32,7 +32,7 @@ class RouterTest extends TestCase
 
         $stack->push($request);
 
-        $router = $this->getContainer()->get('router');
+        $router = static::getContainer()->get('router');
         $context = $router->getContext();
         $router->setContext(new RequestContext('', 'GET', $case->host));
 
@@ -173,53 +173,15 @@ class RouterTest extends TestCase
 class UrlCase
 {
     /**
-     * @var string
-     */
-    public $host;
-
-    /**
-     * @var string
-     */
-    public $route;
-
-    /**
-     * @var array<string, string>
-     */
-    public $params = [];
-
-    /**
-     * @var string
-     */
-    public $expected;
-
-    /**
-     * @see UrlGeneratorInterface
-     *
-     * @var int
-     */
-    public $type;
-
-    /**
-     * @var string|null
-     */
-    public $baseUrl;
-
-    /**
      * @param array<string, string> $params
      */
     public function __construct(
-        int $type,
-        string $expected,
-        ?string $baseUrl,
-        string $route,
-        array $params = [],
-        string $host = 'test.de'
+        public int $type,
+        public string $expected,
+        public ?string $baseUrl,
+        public string $route,
+        public array $params = [],
+        public string $host = 'test.de'
     ) {
-        $this->route = $route;
-        $this->params = $params;
-        $this->expected = $expected;
-        $this->type = $type;
-        $this->baseUrl = $baseUrl;
-        $this->host = $host;
     }
 }

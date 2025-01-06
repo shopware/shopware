@@ -13,6 +13,8 @@ const allowUrlList = [
     '/search/product-search-config',
     '/search/product-search-config-field',
     '/app-system/action-button/product/list',
+    '_action/system-config',
+    '/_action/system-config',
     'app-system/action-button/product/list',
     '/search/currency',
     '/search/order',
@@ -28,6 +30,8 @@ const allowUrlList = [
 const flushCacheUrls = [
     '/user-config',
     'user-config',
+    '_action/system-config/batch',
+    '/_action/system-config/batch',
     '/_action/sync',
     '_action/sync',
     '/product-visibility',

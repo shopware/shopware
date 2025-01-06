@@ -62,7 +62,7 @@ class StornoRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -71,10 +71,10 @@ class StornoRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->stornoRenderer = $this->getContainer()->get(StornoRenderer::class);
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->stornoRenderer = static::getContainer()->get(StornoRenderer::class);
+        $this->cartService = static::getContainer()->get(CartService::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
     }
 
     /**
@@ -115,7 +115,7 @@ class StornoRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(StornoOrdersEvent::class, function (StornoOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });

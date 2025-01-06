@@ -4,7 +4,8 @@
           method="post"
           data-form-validation="true"
           data-form-preserver="true"
-          id="{{ formPrefix }}">
+          id="{{ formPrefix }}"
+          aria-label="{{ element.config.title.value ? element.config.title.value : 'contact.headline'|trans }}">
         <div class="form-content">
         <div class="row g-2">
             {% block cms_form_contact_select_salutation %}

@@ -43,17 +43,17 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $this->messageBusMock = $this->createMock(MessageBusInterface::class);
         $this->sitemapHandler = new SitemapGenerateTaskHandler(
-            $this->getContainer()->get('scheduled_task.repository'),
+            static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
             $this->salesChannelRepository,
-            $this->getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(SystemConfigService::class),
             $this->messageBusMock,
-            $this->getContainer()->get('event_dispatcher')
+            static::getContainer()->get('event_dispatcher')
         );
-        $this->salesChannelDomainRepository = $this->getContainer()->get('sales_channel_domain.repository');
+        $this->salesChannelDomainRepository = static::getContainer()->get('sales_channel_domain.repository');
     }
 
     public function testNotHandelDuplicateWithSameLanguage(): void
@@ -176,7 +176,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     public function testSkipNonStorefrontSalesChannels(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM sales_channel');
 
         $storefrontId = Uuid::randomHex();

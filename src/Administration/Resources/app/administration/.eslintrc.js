@@ -215,6 +215,7 @@ module.exports = {
                 'vue/no-deprecated-dollar-listeners-api': 'error',
                 'vue/no-deprecated-dollar-scopedslots-api': 'error',
                 'vue/no-deprecated-v-on-native-modifier': 'error',
+                'vuejs-accessibility/media-has-caption': 'off',
             },
         }, {
             files: ['**/*.spec.js', '**/*.spec.ts', '**/*.spec.vue3.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],

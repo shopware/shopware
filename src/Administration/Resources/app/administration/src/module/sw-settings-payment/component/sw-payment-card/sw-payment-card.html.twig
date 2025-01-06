@@ -42,7 +42,7 @@
             :value="paymentMethod.active"
             :disabled="!acl.can('payment.editor') || undefined"
             :label="$tc('sw-settings-payment.overview.activeToggle')"
-            @update:value="setPaymentMethodActive(!paymentMethod.active)"
+            @update:value="setPaymentMethodActive"
         />
         {% endblock %}
 

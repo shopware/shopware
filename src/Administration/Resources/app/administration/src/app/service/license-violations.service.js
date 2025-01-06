@@ -34,7 +34,17 @@ export default function createLicenseViolationsService(storeService) {
     };
 
     function checkForLicenseViolations() {
-        const topLevelDomain = window.location.hostname.split('.').pop();
+        const hostname = window.location.hostname;
+
+        if (hostname === '[::1]' || hostname === '127.0.0.1') {
+            return Promise.resolve({
+                warnings: [],
+                violations: [],
+                other: [],
+            });
+        }
+
+        const hostnameParts = hostname.split('.').pop();
         const allowlistDomains = [
             'localhost',
             'test',
@@ -47,7 +57,7 @@ export default function createLicenseViolationsService(storeService) {
         ];
 
         // if the user is on a allowlisted domain
-        if (allowlistDomains.includes(topLevelDomain)) {
+        if (allowlistDomains.includes(hostnameParts)) {
             return Promise.resolve({
                 warnings: [],
                 violations: [],

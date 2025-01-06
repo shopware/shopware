@@ -18,10 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 trait EntityFixturesBase
 {
-    /**
-     * @var Context
-     */
-    private $entityFixtureContext;
+    private Context $entityFixtureContext;
 
     #[Before]
     public function initializeFixtureContext(): void

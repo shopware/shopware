@@ -267,6 +267,21 @@ export default {
                 );
             }
 
+            if (this.order.lineItems.length === 0) {
+                this.createNotificationError({
+                    message: this.$tc('sw-order.detail.messageEmptyLineItems'),
+                });
+
+                this.createNewVersionId().then(() => {
+                    State.commit('swOrderDetail/setLoading', [
+                        'order',
+                        false,
+                    ]);
+                });
+
+                return;
+            }
+
             if (this.deliveryDiscountsToDelete.length > 0) {
                 this.order.deliveries = this.order.deliveries.filter(
                     (delivery) => !this.deliveryDiscountsToDelete.includes(delivery.id),

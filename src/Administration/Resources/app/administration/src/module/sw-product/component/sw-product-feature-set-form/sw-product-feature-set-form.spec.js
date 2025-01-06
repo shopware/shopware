@@ -93,7 +93,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-field-error': true,
                         'sw-label': true,
-                        i18n: {
+                        'i18n-t': {
                             template: '<div class="i18n-stub"><slot></slot></div>',
                         },
                         'sw-help-text': true,
@@ -161,7 +161,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
 
         expect(description.text()).toEqual(text.descriptionBody);
 
-        expect(configInformation.attributes().path).toEqual(text.descriptionConfigInformation);
+        expect(configInformation.attributes().keypath).toEqual(text.descriptionConfigInformation);
     });
 
     it('has a link to the feature set config module', async () => {

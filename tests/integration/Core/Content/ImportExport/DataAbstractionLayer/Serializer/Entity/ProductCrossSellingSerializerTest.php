@@ -32,13 +32,13 @@ class ProductCrossSellingSerializerTest extends TestCase
     public function testOnlySupportsProductCrossSelling(): void
     {
         /** @var EntityRepository $assignedProductsRepository */
-        $assignedProductsRepository = $this->getContainer()->get('product_cross_selling_assigned_products.repository');
+        $assignedProductsRepository = static::getContainer()->get('product_cross_selling_assigned_products.repository');
 
         $serializer = new ProductCrossSellingSerializer($assignedProductsRepository);
 
         static::assertTrue($serializer->supports(ProductCrossSellingDefinition::ENTITY_NAME), 'should support product cross selling');
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
             if ($entity !== ProductCrossSellingDefinition::ENTITY_NAME) {
@@ -54,11 +54,11 @@ class ProductCrossSellingSerializerTest extends TestCase
     {
         $crossSelling = $this->getProductCrossSelling();
 
-        $assignedProductsRepository = $this->getContainer()->get('product_cross_selling_assigned_products.repository');
-        $productCrossSellingDefinition = $this->getContainer()->get(ProductCrossSellingDefinition::class);
+        $assignedProductsRepository = static::getContainer()->get('product_cross_selling_assigned_products.repository');
+        $productCrossSellingDefinition = static::getContainer()->get(ProductCrossSellingDefinition::class);
 
         $serializer = new ProductCrossSellingSerializer($assignedProductsRepository);
-        $serializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+        $serializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
         $serialized = iterator_to_array($serializer->serialize(new Config([], [], []), $productCrossSellingDefinition, $crossSelling));
 
@@ -93,7 +93,7 @@ class ProductCrossSellingSerializerTest extends TestCase
             (new ProductBuilder($ids, 'e'))->price(15, 10)->visibility()->build(),
         ];
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create($data, Context::createDefaultContext());
 
         $crossSellingId = Uuid::randomHex();
@@ -121,7 +121,7 @@ class ProductCrossSellingSerializerTest extends TestCase
         ];
 
         /** @var EntityRepository<ProductCrossSellingCollection> $crossSellingRepository */
-        $crossSellingRepository = $this->getContainer()->get('product_cross_selling.repository');
+        $crossSellingRepository = static::getContainer()->get('product_cross_selling.repository');
         $crossSellingRepository->create([$crossSelling], Context::createDefaultContext());
 
         $criteria = new Criteria([$crossSellingId]);

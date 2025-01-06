@@ -12,37 +12,49 @@ class Filter extends Struct
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filtered;
 
     /**
-     * @var Aggregation[]
+     * @var list<Aggregation>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $aggregations;
 
     /**
      * @var DALFilter
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filter;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $exclude;
 
     /**
-     * @param int|float|string|bool|array|null $values
+     * @param list<Aggregation> $aggregations
+     * @param int|float|string|bool|array<mixed>|null $values
      */
     public function __construct(
         string $name,
         bool $filtered,
         array $aggregations,
         DALFilter $filter,
+        /** @deprecated tag:v6.7.0 - Will be natively typed */
         protected $values,
         bool $exclude = true
     ) {
@@ -64,7 +76,7 @@ class Filter extends Struct
     }
 
     /**
-     * @return Aggregation[]
+     * @return list<Aggregation>
      */
     public function getAggregations(): array
     {
@@ -77,7 +89,9 @@ class Filter extends Struct
     }
 
     /**
-     * @return int|float|string|bool|array|null
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will return native type
+     *
+     * @return int|float|string|bool|array<mixed>|null
      */
     public function getValues()
     {

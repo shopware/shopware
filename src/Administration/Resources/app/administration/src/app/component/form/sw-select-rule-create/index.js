@@ -149,14 +149,10 @@ Component.register('sw-select-rule-create', {
         },
 
         isRuleRestricted(rule) {
-            const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
-
-            const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
-                rule.conditions,
-                this.ruleAwareGroupKey,
+            return (
+                this.restrictedRuleIds.includes(rule.id) ||
+                this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey)
             );
-
-            return isRuleRestricted || insideRestrictedRuleIds;
         },
 
         getAdvancedSelectionParameters() {

@@ -23,10 +23,14 @@
                                 {% set displayMode = 'cover' %}
                             {% endif %}
 
+                            {# @deprecated tag:v6.7.0 - Product image will no longer be a link. Use inner block `component_product_box_image_link_inner` instead. #}
                             {% block component_product_box_image_link %}
-                                <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
-                                   title="{{ name }}"
-                                   class="product-image-link is-{{ displayMode }}">
+                                {# @deprecated tag:v6.7.0 - Product image will no longer be a link. The product name will be used as primary link and its click surface will be streched over the image. #}
+                                {% if not feature('ACCESSIBILITY_TWEAKS') %}
+                                    <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
+                                       title="{{ name }}"
+                                       class="product-image-link is-{{ displayMode }}">
+                                {% endif %}
                                     {% block component_product_box_image_link_inner %}
                                         {% if cover.url and cover.isSpatialObject() == false %}
                                             {% set attributes = {
@@ -77,7 +81,10 @@
                                             {% endblock %}
                                         {% endif %}
                                     {% endblock %}
-                                </a>
+                                {# @deprecated tag:v6.7.0 - Product image will no longer be a link. The product name will be used as primary link and its click surface will be streched over the image. #}
+                                {% if not feature('ACCESSIBILITY_TWEAKS') %}
+                                    </a>
+                                {% endif %}
                             {% endblock %}
 
                             {% if config('core.cart.wishlistEnabled') %}
@@ -107,9 +114,9 @@
                             {% endblock %}
 
                             {% block component_product_box_name %}
-                                <a href="{{ seoUrl('frontend.detail.page', {productId: id}) }}"
-                                   class="product-name"
-                                   title="{{ name }}">
+                                {# @deprecated tag:v6.7.0 - Product name will have class `stretched-link` and will be streched over the product image. #}
+                                <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
+                                   class="product-name{% if feature('ACCESSIBILITY_TWEAKS') %} stretched-link{% endif %}">
                                     {{ name }}
                                 </a>
                             {% endblock %}

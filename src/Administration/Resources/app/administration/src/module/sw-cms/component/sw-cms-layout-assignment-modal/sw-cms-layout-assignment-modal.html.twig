@@ -362,7 +362,7 @@
                     size="small"
                     @click="onDiscardChanges"
                 >
-                    {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesRestorePrev') }}
+                    {{ $tc('global.default.discard') }}
                 </sw-button>
                 {% endblock %}
 
@@ -374,7 +374,7 @@
                     size="small"
                     @click="onConfirmChanges"
                 >
-                    {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesConfirm') }}
+                    {{ $tc('global.default.confirm') }}
                 </sw-button>
                 {% endblock %}
             </div>
@@ -406,7 +406,7 @@
             variant="primary"
             @click="onConfirm"
         >
-            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChanges') }}
+            {{ $tc('global.default.apply') }}
         </sw-button>
         {% endblock %}
     </template>

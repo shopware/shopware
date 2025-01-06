@@ -34,9 +34,9 @@ class ProductCategoryDenormalizerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
     }
 
     public function testUpdateWithProductAddedCategoriesWillVariantGetSameCategories(): void
@@ -68,7 +68,7 @@ class ProductCategoryDenormalizerTest extends TestCase
      */
     private function getProductCategoryList(string $productId): ?array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         /** @var ProductEntity $testableProduct */
         $testableProduct = $productRepository->search(new Criteria([$productId]), $this->context)->first();
 
@@ -108,7 +108,7 @@ class ProductCategoryDenormalizerTest extends TestCase
         $builder = new ProductBuilder($ids, $name);
         $builder->price(200)
             ->categories(['cat1', 'cat2'])
-            ->write($this->getContainer());
+            ->write(static::getContainer());
         /** @var array{id: string, children: array<int, array{id: string}>, categories: array<int, array{id: string, name:string}>} $product */
         $product = $builder->build();
         $products[$name] = $product['id'];
@@ -123,7 +123,7 @@ class ProductCategoryDenormalizerTest extends TestCase
                 (new ProductBuilder($ids, 'variant-testable-product'))
                 ->price(100)->build()
             )
-            ->write($this->getContainer());
+            ->write(static::getContainer());
 
         $product = $builder->build();
         $products[$name] = $product['id'];

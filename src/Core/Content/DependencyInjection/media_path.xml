@@ -42,7 +42,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Core\Strategy\PathStrategyFactory">
-            <argument type="tagged" tag="shopware.path.strategy"/>
+            <argument type="tagged_iterator" tag="shopware.path.strategy"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy">

@@ -44,10 +44,10 @@ class ProductStreamUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
-        $this->salesChannel = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $this->productStreamUpdater = $this->getContainer()->get(ProductStreamUpdater::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->productStreamRepository = static::getContainer()->get('product_stream.repository');
+        $this->salesChannel = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->productStreamUpdater = static::getContainer()->get(ProductStreamUpdater::class);
     }
 
     /**
@@ -65,7 +65,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
-        $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
+        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
         $message = $productStreamIndexer->update($writtenEvent);
         static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
         $productStreamIndexer->handle($message);
@@ -158,7 +158,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
-        $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
+        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
         $message = $productStreamIndexer->update($writtenEvent);
         static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
         $productStreamIndexer->handle($message);
@@ -200,7 +200,7 @@ class ProductStreamUpdaterTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
+        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
         $update = $productStreamIndexer->update($writtenEvent);
         static::assertInstanceOf(EntityIndexingMessage::class, $update);
 

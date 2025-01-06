@@ -22,7 +22,7 @@ class ProductStreamSyncTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testSyncProductStream(): void
@@ -33,7 +33,7 @@ class ProductStreamSyncTest extends TestCase
             [
                 'key' => 'test',
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductStreamDefinition::class)->getEntityName(),
+                'entity' => static::getContainer()->get(ProductStreamDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $id1,

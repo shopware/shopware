@@ -13,11 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Shopware\Storefront\Framework\Captcha\CaptchaRouteListener;
-use Shopware\Storefront\Framework\Captcha\Exception\CaptchaInvalidException;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -49,18 +47,18 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $event = $this->getControllerEventMock();
 
-        $this->expectException(CaptchaInvalidException::class);
+        $this->expectExceptionMessage('The provided value for captcha');
 
         (new CaptchaRouteListener(
             $this->getCaptchas(true, false),
-            $this->getContainer()->get(ErrorController::class),
-            $this->getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()
         ))->validateCaptcha($event);
     }
 
     public function testJsonResponseWhenCaptchaValidationFails(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
             BasicCaptcha::CAPTCHA_NAME => [
@@ -70,7 +68,7 @@ class CaptchaRouteListenerTest extends TestCase
         ]);
 
         /** @var EntityRepository<SalutationCollection> $repo */
-        $repo = $this->getContainer()->get('salutation.repository');
+        $repo = static::getContainer()->get('salutation.repository');
         $salutation = $repo->search(
             (new Criteria())->setLimit(1),
             Context::createDefaultContext()
@@ -116,7 +114,7 @@ class CaptchaRouteListenerTest extends TestCase
 
     public function testResponseWhenCaptchaValidationFails(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
             BasicCaptcha::CAPTCHA_NAME => [

@@ -26,9 +26,9 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
-use Shopware\Core\Content\Mail\Service\MailerTransportDecorator;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Content\Mail\Transport\MailerTransportDecorator;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -49,6 +49,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
@@ -81,10 +82,10 @@ class SendMailActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->documentRepository = $this->getContainer()->get('document.repository');
-        $this->mailTemplateRepository = $this->getContainer()->get('mail_template.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->documentRepository = static::getContainer()->get('document.repository');
+        $this->mailTemplateRepository = static::getContainer()->get('mail_template.repository');
     }
 
     /**
@@ -94,16 +95,16 @@ class SendMailActionTest extends TestCase
     #[DataProvider('sendMailProvider')]
     public function testEmailSend(array $recipients, ?array $documentTypeIds = [], ?bool $hasOrderSettingAttachment = true): void
     {
-        $documentRepository = $this->getContainer()->get('document.repository');
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $documentRepository = static::getContainer()->get('document.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
 
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $context = Context::createDefaultContext();
+        $context = Generator::createSalesChannelContext();
 
-        $customerId = $this->createCustomer($context);
-        $orderId = $this->createOrder($customerId, $context);
+        $customerId = $this->createCustomer($context->getContext());
+        $orderId = $this->createOrder($customerId, $context->getContext());
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
@@ -116,16 +117,16 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
         /** @var OrderEntity $order */
-        $order = $orderRepository->search($criteria, $context)->first();
-        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+        $order = $orderRepository->search($criteria, $context->getContext())->first();
+        $event = new CheckoutOrderPlacedEvent($context, $order);
 
         $documentIdOlder = null;
         $documentIdNewer = null;
         $documentIds = [];
 
         if ($documentTypeIds !== null && $documentTypeIds !== [] || $hasOrderSettingAttachment) {
-            $documentIdOlder = $this->createDocumentWithFile($orderId, $context);
-            $documentIdNewer = $this->createDocumentWithFile($orderId, $context);
+            $documentIdOlder = $this->createDocumentWithFile($orderId, $context->getContext());
+            $documentIdNewer = $this->createDocumentWithFile($orderId, $context->getContext());
             $documentIds[] = $documentIdNewer;
         }
 
@@ -141,32 +142,32 @@ class SendMailActionTest extends TestCase
 
         $transportDecorator = new MailerTransportDecorator(
             $this->createMock(TransportInterface::class),
-            $this->getContainer()->get(MailAttachmentsBuilder::class),
-            $this->getContainer()->get('shopware.filesystem.public'),
-            $this->getContainer()->get('document.repository')
+            static::getContainer()->get(MailAttachmentsBuilder::class),
+            static::getContainer()->get('shopware.filesystem.public'),
+            static::getContainer()->get('document.repository')
         );
-        $mailService = new TestEmailService($this->getContainer()->get(MailFactory::class), $transportDecorator);
+        $mailService = new TestEmailService(static::getContainer()->get(MailFactory::class), $transportDecorator);
         $subscriber = new SendMailAction(
             $mailService,
-            $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get('logger'),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get('mail_template_type.repository'),
-            $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get('mail_template.repository'),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             true
         );
 
         $mailFilterEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
         static::assertIsString($documentIdNewer);
         static::assertIsString($documentIdOlder);
         $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-        $documents = $documentRepository->search($criteria, $context);
+        $documents = $documentRepository->search($criteria, $context->getContext());
 
         $newDocument = $documents->get($documentIdNewer);
         static::assertNotNull($newDocument);
@@ -183,7 +184,7 @@ class SendMailActionTest extends TestCase
         static::assertNotEquals($newDocumentOrderVersionId, Defaults::LIVE_VERSION);
         static::assertNotEquals($oldDocumentOrderVersionId, Defaults::LIVE_VERSION);
 
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -196,7 +197,7 @@ class SendMailActionTest extends TestCase
 
         switch ($recipients['type']) {
             case 'admin':
-                $admin = $this->getContainer()->get(Connection::class)->fetchAssociative(
+                $admin = static::getContainer()->get(Connection::class)->fetchAssociative(
                     'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1'
                 );
                 static::assertIsArray($admin);
@@ -213,7 +214,7 @@ class SendMailActionTest extends TestCase
 
         if ($documentTypeIds !== null && $documentTypeIds !== []) {
             $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-            $documents = $documentRepository->search($criteria, $context);
+            $documents = $documentRepository->search($criteria, $context->getContext());
 
             $newDocument = $documents->get($documentIdNewer);
             static::assertNotNull($newDocument);
@@ -264,7 +265,7 @@ class SendMailActionTest extends TestCase
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
-        $this->getContainer()->get(Connection::class)->executeStatement(
+        static::getContainer()->get(Connection::class)->executeStatement(
             'UPDATE mail_template SET mail_template_type_id = null WHERE id =:id',
             [
                 'id' => Uuid::fromHexToBytes($mailTemplateId),
@@ -289,22 +290,22 @@ class SendMailActionTest extends TestCase
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
             $mailService,
-            $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get('logger'),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get('mail_template_type.repository'),
-            $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get('mail_template.repository'),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             true
         );
 
         $mailFilterEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -326,7 +327,7 @@ class SendMailActionTest extends TestCase
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
-        $this->getContainer()->get(Connection::class)->executeStatement(
+        static::getContainer()->get(Connection::class)->executeStatement(
             'UPDATE mail_template SET mail_template_type_id = null WHERE id =:id',
             [
                 'id' => Uuid::fromHexToBytes($mailTemplateId),
@@ -356,22 +357,22 @@ class SendMailActionTest extends TestCase
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
             $mailService,
-            $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get('logger'),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get('mail_template_type.repository'),
-            $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get('mail_template.repository'),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             true
         );
 
         $mailFilterEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -394,13 +395,13 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $context = Context::createDefaultContext();
+        $context = Generator::createSalesChannelContext();
 
         $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
-        $this->getContainer()->get(Connection::class)->executeStatement(
+        static::getContainer()->get(Connection::class)->executeStatement(
             'UPDATE mail_template SET mail_template_type_id = null WHERE id =:id',
             [
                 'id' => Uuid::fromHexToBytes($mailTemplateId),
@@ -416,34 +417,34 @@ class SendMailActionTest extends TestCase
             ],
         ];
 
-        $customerId = $this->createCustomer($context);
-        $orderId = $this->createOrder($customerId, $context);
+        $customerId = $this->createCustomer($context->getContext());
+        $orderId = $this->createOrder($customerId, $context->getContext());
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer');
 
-        $order = $this->getContainer()->get('order.repository')->search($criteria, $context)->get($orderId);
+        $order = static::getContainer()->get('order.repository')->search($criteria, $context->getContext())->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
-        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order);
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
             $mailService,
-            $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get('logger'),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get('mail_template_type.repository'),
-            $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get('mail_template.repository'),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             true
         );
 
         $mailFilterEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -485,25 +486,25 @@ class SendMailActionTest extends TestCase
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
             $mailService,
-            $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get('logger'),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get('mail_template_type.repository'),
-            $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get('mail_template.repository'),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             true
         );
 
         $mailFilterEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
         static::expectException(MailEventConfigurationException::class);
         static::expectExceptionMessage('The recipient value in the flow action configuration is missing.');
 
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -521,12 +522,12 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $mailTemplate = $this->getContainer()
+        $mailTemplate = static::getContainer()
             ->get('mail_template.repository')
             ->search($criteria, $context)
             ->first();
 
-        $this->getContainer()->get(Connection::class)->executeStatement('UPDATE mail_template_type SET template_data = NULL');
+        static::getContainer()->get(Connection::class)->executeStatement('UPDATE mail_template_type SET template_data = NULL');
 
         static::assertInstanceOf(MailTemplateEntity::class, $mailTemplate);
 
@@ -547,22 +548,22 @@ class SendMailActionTest extends TestCase
 
         $subscriber = new SendMailAction(
             $mailService,
-            $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get('logger'),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get('mail_template_type.repository'),
-            $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get('mail_template.repository'),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             $shouldUpdate
         );
 
         $mailFilterEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -571,7 +572,7 @@ class SendMailActionTest extends TestCase
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
         static::assertNotNull($mailTemplate->getMailTemplateTypeId());
-        $data = $this->getContainer()->get(Connection::class)->fetchOne(
+        $data = static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT template_data FROM mail_template_type WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($mailTemplate->getMailTemplateTypeId())]
         );
@@ -612,18 +613,18 @@ class SendMailActionTest extends TestCase
         ]);
 
         $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
-        $translator = $this->getContainer()->get(Translator::class);
+        $translator = static::getContainer()->get(Translator::class);
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
             $mailService,
-            $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get('logger'),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get('mail_template.repository'),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
             $translator,
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             true
         );
 
@@ -634,9 +635,9 @@ class SendMailActionTest extends TestCase
             $snippetSetId = $translator->getSnippetSetId();
         };
 
-        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, $function);
+        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, $function);
 
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -690,7 +691,7 @@ class SendMailActionTest extends TestCase
         );
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
 
         $sequencesConfig = $this->createFlowSequencesConfig($mailTemplateId, $documentTypes);
@@ -700,22 +701,22 @@ class SendMailActionTest extends TestCase
 
             $transportDecorator = new MailerTransportDecorator(
                 $this->createMock(TransportInterface::class),
-                $this->getContainer()->get(MailAttachmentsBuilder::class),
-                $this->getContainer()->get('shopware.filesystem.public'),
+                static::getContainer()->get(MailAttachmentsBuilder::class),
+                static::getContainer()->get('shopware.filesystem.public'),
                 $this->documentRepository
             );
 
-            $mailService = new TestEmailService($this->getContainer()->get(MailFactory::class), $transportDecorator);
+            $mailService = new TestEmailService(static::getContainer()->get(MailFactory::class), $transportDecorator);
 
             $sendMailAction = new SendMailAction(
                 $mailService,
                 $this->mailTemplateRepository,
-                $this->getContainer()->get('logger'),
-                $this->getContainer()->get('event_dispatcher'),
-                $this->getContainer()->get('mail_template_type.repository'),
-                $this->getContainer()->get(Translator::class),
+                static::getContainer()->get('logger'),
+                static::getContainer()->get('event_dispatcher'),
+                static::getContainer()->get('mail_template_type.repository'),
+                static::getContainer()->get(Translator::class),
                 $this->connection,
-                $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+                static::getContainer()->get(LanguageLocaleCodeProvider::class),
                 true
             );
 
@@ -776,7 +777,7 @@ class SendMailActionTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()
+        static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], $context);
 
@@ -786,7 +787,7 @@ class SendMailActionTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -843,7 +844,7 @@ class SendMailActionTest extends TestCase
 
     private function createDocumentWithFile(string $orderId, Context $context, string $documentType = InvoiceRenderer::TYPE): string
     {
-        $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $documentGenerator = static::getContainer()->get(DocumentGenerator::class);
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
         /** @var DocumentEntity $document */

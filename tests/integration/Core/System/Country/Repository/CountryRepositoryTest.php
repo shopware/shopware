@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
 
 /**
  * @internal
@@ -23,13 +24,13 @@ class CountryRepositoryTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CountryCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('country.repository');
+        $this->repository = static::getContainer()->get('country.repository');
     }
 
     public function testSearchRanking(): void
@@ -47,8 +48,8 @@ class CountryRepositoryTest extends TestCase
         $criteria = new Criteria();
 
         $context = Context::createDefaultContext();
-        $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
+        $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match');
         $queries = $builder->buildScoreQueries(
             $pattern,
             $this->repository->getDefinition(),

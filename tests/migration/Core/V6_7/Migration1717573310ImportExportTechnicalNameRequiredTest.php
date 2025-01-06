@@ -26,7 +26,7 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     {
         Feature::skipTestIfInActive('v6.7.0.0', $this);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testMigrate(): void

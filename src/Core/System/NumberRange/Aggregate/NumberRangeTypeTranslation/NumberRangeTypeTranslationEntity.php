@@ -14,16 +14,22 @@ class NumberRangeTypeTranslationEntity extends TranslationEntity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $numberRangeTypeId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $typeName;
 
     /**
      * @var NumberRangeTypeEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $numberRangeType;
 

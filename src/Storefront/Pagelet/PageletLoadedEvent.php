@@ -14,11 +14,15 @@ abstract class PageletLoadedEvent extends NestedEvent implements ShopwareSalesCh
 {
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelContext;
 
     /**
      * @var Request
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $request;
 

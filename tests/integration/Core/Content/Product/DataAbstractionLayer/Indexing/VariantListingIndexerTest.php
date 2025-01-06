@@ -40,15 +40,12 @@ class VariantListingIndexerTest extends TestCase
      */
     private array $variantIds = [];
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('product.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
 
         parent::setUp();
     }

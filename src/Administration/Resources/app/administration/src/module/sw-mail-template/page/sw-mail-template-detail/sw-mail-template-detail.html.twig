@@ -30,7 +30,7 @@
             :disabled="isLoading"
             @click="onCancel"
         >
-            {{ $tc('sw-mail-template.detail.buttonCancel') }}
+            {{ $tc('global.default.cancel') }}
         </sw-button>
         {% endblock %}
 
@@ -335,6 +335,13 @@
                 class="sw-mail-template-detail__test-mail-sidebar"
             >
                 <div class="sw-mail-template-detail__test-mail-sidebar-container">
+                    <sw-alert
+                        v-if="showLanguageNotAssignedToSalesChannelWarning"
+                        variant="warning"
+                    >
+                        {{ $tc('sw-mail-template.detail.sidebar.languageNotAssignedToSalesChannel') }}
+                    </sw-alert>
+
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_test_mail_field %}
                     <sw-text-field

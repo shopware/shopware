@@ -22,26 +22,36 @@ class CmsSlotEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $slot;
 
     /**
      * @var CmsBlockEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $block;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $blockId;
 
     /**
      * @var array<mixed>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $config;
 
@@ -49,26 +59,36 @@ class CmsSlotEntity extends Entity
      * @var FieldConfigCollection|null
      *
      * @internal
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fieldConfig;
 
     /**
      * @var EntityCollection<CmsSlotTranslationEntity>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var Struct|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $data;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $locked;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsBlockVersionId;
 

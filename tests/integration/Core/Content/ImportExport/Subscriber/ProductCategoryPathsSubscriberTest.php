@@ -27,7 +27,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
     }
 
     /**
@@ -277,7 +277,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
 
         $event = new ImportExportBeforeImportRecordEvent($record, $row, new Config([], ['sourceEntity' => ProductDefinition::ENTITY_NAME], []), $context);
 
-        $subscriber = new ProductCategoryPathsSubscriber($this->categoryRepository, $this->getContainer()->get(SyncService::class));
+        $subscriber = new ProductCategoryPathsSubscriber($this->categoryRepository, static::getContainer()->get(SyncService::class));
 
         $subscriber->categoryPathsToAssignment($event);
 

@@ -26,18 +26,26 @@ This filter item should only be used inside a filter panel.
 .filter-property-select-preview-checkmark {
     width: 20px;
     height: 20px;
-    background-color: $gray-600;
     position: absolute;
-    border: 1px solid $white;
     border-radius: 50%;
-    top: -4px;
-    right: -4px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.15s ease-in-out;
     opacity: 0;
     transform: translateY(-5px);
+
+    @if feature('ACCESSIBILITY_TWEAKS') {
+        background-color: $primary;
+        border: 0.125rem solid $body-bg;
+        top: -0.375rem;
+        right: -0.375rem;
+    } @else {
+        background-color: $gray-600;
+        border: 1px solid $white;
+        top: -4px;
+        right: -4px;
+    }
 
     .icon {
         width: 10px;

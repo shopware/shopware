@@ -32,11 +32,11 @@ class AddOrderTagActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $this->ids = new IdsCollection();
 
@@ -221,7 +221,7 @@ class AddOrderTagActionTest extends TestCase
 
         $this->prepareProductTest();
 
-        $this->getContainer()->get('tag.repository')->create([
+        static::getContainer()->get('tag.repository')->create([
             [
                 'id' => $this->ids->create('tag_id'),
                 'name' => 'test tag',
@@ -236,14 +236,14 @@ class AddOrderTagActionTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
         $shippingMethodRepository->create([
             [
                 'id' => $this->ids->get('shipping-method'),
                 'name' => 'test',
                 'technicalName' => 'test',
                 'active' => true,
-                'deliveryTimeId' => $this->getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
+                'deliveryTimeId' => static::getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
                 'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,

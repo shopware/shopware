@@ -15,41 +15,57 @@ class ProductSearchConfigFieldEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $searchConfigId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customFieldId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $field;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $tokenize;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $searchable;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ranking;
 
     /**
      * @var ProductSearchConfigEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $searchConfig;
 
     /**
      * @var CustomFieldEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customField;
 

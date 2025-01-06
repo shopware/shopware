@@ -3,31 +3,40 @@
     {% set elementData = element.data %}
 
     {% set videoUrl = 'https://player.vimeo.com/video/' %}
-    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' %}
+
+    {% set locale = app.request.locale ?? 'en-GB' %}
+
+    {# initialize with default values #}
+    {% set queryParams = {
+        color: config.color.value | replace({'#': ''}),
+        dnt: config.doNotTrack.value,
+        loop: config.loop.value,
+        keyboard: 'false',
+        texttrack: locale,
+        fullscreen: 'true'
+    } %}
 
     {% if config.autoplay.value == true %}
-        {% set videoUrl = videoUrl ~ 'autoplay=true' ~ '&' %}
+        {% set queryParams = queryParams | merge({ autoplay: 'true' }) %}
     {% endif %}
 
     {% if config.byLine.value == false %}
-        {% set videoUrl = videoUrl ~ 'byline=false' ~ '&' %}
+        {% set queryParams = queryParams | merge({ byline: 'false' }) %}
     {% endif %}
 
-    {% set videoUrl = videoUrl ~ 'color=' ~ config.color.value|replace({'#': ''}) ~ '&' %}
-    {% set videoUrl = videoUrl ~ 'dnt=' ~ config.doNotTrack.value ~ '&' %}
-    {% set videoUrl = videoUrl ~ 'loop=' ~ config.loop.value ~ '&' %}
-
     {% if config.title.value == false %}
-        {% set videoUrl = videoUrl ~ 'title=false' ~ '&' %}
+        {% set queryParams = queryParams | merge({ title: 'false' }) %}
     {% endif %}
 
     {% if config.portrait.value == false %}
-        {% set videoUrl = videoUrl ~ 'portrait=false' ~ '&' %}
+        {% set queryParams = queryParams | merge({ portrait: 'false' }) %}
     {% endif %}
 
     {% if config.controls.value == false %}
-        {% set videoUrl = videoUrl ~ 'controls=false' ~ '&' %}
+        {% set queryParams = queryParams | merge({ controls: 'false' }) %}
     {% endif %}
+
+    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' ~ (queryParams | url_encode) %}
 
     <div class="cms-element-vimeo-video">
         {% block element_vimeo_video_inner %}
@@ -35,9 +44,23 @@
             {% set iframeClass = 'cms-element-vimeo-video__video' %}
 
             {% if config.needsConfirmation.value == false %}
-                <iframe class="{{ iframeClass }}"
-                        src="{{ videoUrl }}">
-                </iframe>
+                <div class="cms-element-vimeo-video__container">
+                    <iframe
+                        class="{{ iframeClass }}"
+                        src="{{ videoUrl }}"
+                        title="{{ config.videoTitle.value }}"
+                        allowfullscreen
+                    ></iframe>
+                    <div class="position-absolute top-0 end-0 m-3 js-vimeo-link d-none">
+                        <a
+                            href="https://vimeo.com/{{ config.videoID.value }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-dark btn-sm">
+                            {{ 'component.cms.vimeo.watchUrlLabel'|trans|sw_sanitize }}
+                        </a>
+                    </div>
+                </div>
             {% else %}
                 {% set pluginConfiguration = {
                     videoUrl: videoUrl,
@@ -64,7 +87,6 @@
                     </div>
                 {% endblock %}
             {% endif %}
-
 
         {% endblock %}
     </div>

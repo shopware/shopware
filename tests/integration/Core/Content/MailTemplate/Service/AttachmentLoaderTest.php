@@ -47,11 +47,11 @@ class AttachmentLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
 
         $this->attachmentLoader = new AttachmentLoader(
-            $this->getContainer()->get('document.repository'),
+            static::getContainer()->get('document.repository'),
             $this->documentGenerator,
             $this->eventDispatcherMock
         );
@@ -60,7 +60,7 @@ class AttachmentLoaderTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -102,13 +102,13 @@ class AttachmentLoaderTest extends TestCase
         $criteria->addAssociation('documentMediaFile');
 
         /** @var DocumentEntity $actualDocument */
-        $actualDocument = $this->getContainer()->get('document.repository')->search($criteria, $this->context)->first();
+        $actualDocument = static::getContainer()->get('document.repository')->search($criteria, $this->context)->first();
 
         static::assertNotNull($actualDocument);
         static::assertNotNull($actualDocument->getDocumentMediaFileId());
         static::assertNotNull($actualDocument->getDocumentMediaFile());
 
-        $content = $this->getContainer()->get(MediaService::class)->loadFile($actualDocument->getDocumentMediaFileId(), $this->context);
+        $content = static::getContainer()->get(MediaService::class)->loadFile($actualDocument->getDocumentMediaFileId(), $this->context);
 
         $fileName = $actualDocument->getDocumentMediaFile()->getFileName() . '.' . $actualDocument->getDocumentMediaFile()->getFileExtension();
         static::assertNotNull($content);

@@ -32,6 +32,7 @@
                 v-model:value="promotion.priority"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.general.priorityLabel')"
+                :help-text="$tc('sw-promotion-v2.detail.base.general.helpTextPriority')"
             />
         </sw-container>
         {% endblock %}

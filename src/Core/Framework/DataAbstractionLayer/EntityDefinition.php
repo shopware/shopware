@@ -54,10 +54,7 @@ abstract class EntityDefinition
      */
     protected array $extensionFields = [];
 
-    /**
-     * @var EntityDefinition|false|null
-     */
-    private $parentDefinition = false;
+    private EntityDefinition|false|null $parentDefinition = false;
 
     private string $className;
 

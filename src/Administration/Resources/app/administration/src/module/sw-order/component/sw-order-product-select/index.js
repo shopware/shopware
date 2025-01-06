@@ -69,6 +69,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('options.group');
+            criteria.addAssociation('tax');
 
             criteria.addFilter(
                 Criteria.multi('OR', [
@@ -86,7 +87,10 @@ export default {
 
     methods: {
         onItemChanged(newProductId) {
-            this.productRepository.get(newProductId, this.contextWithInheritance).then((newProduct) => {
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('tax');
+
+            this.productRepository.get(newProductId, this.contextWithInheritance, criteria).then((newProduct) => {
                 this.item.identifier = newProduct.id;
                 this.item.label = newProduct.name;
                 this.item.priceDefinition.price =

@@ -54,10 +54,10 @@ class CartLoadRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->cartPersister = $this->getContainer()->get(CartPersister::class);
-        $this->salesChannelFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+        $this->cartPersister = static::getContainer()->get(CartPersister::class);
+        $this->salesChannelFactory = static::getContainer()->get(SalesChannelContextFactory::class);
     }
 
     public function testEmptyCart(): void

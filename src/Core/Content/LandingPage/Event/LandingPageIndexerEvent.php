@@ -11,11 +11,15 @@ class LandingPageIndexerEvent extends NestedEvent
 {
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ids;
 
     /**
      * @var Context
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 

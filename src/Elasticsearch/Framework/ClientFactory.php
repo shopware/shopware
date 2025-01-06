@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Framework;
 
 use AsyncAws\Core\Configuration;
+use AsyncAws\Core\Credentials\ChainProvider;
 use OpenSearch\Client;
 use OpenSearch\ClientBuilder;
 use Psr\Log\LoggerInterface;
@@ -51,7 +52,9 @@ class ClientFactory
                 'accessKeySecret' => $credentials['secret_key'] ?? null,
             ]);
 
-            $signer = new AsyncAwsSigner($configuration, $logger, $service, $region);
+            $credentialProvider = ChainProvider::createDefaultChain(null, $logger);
+
+            $signer = new AsyncAwsSigner($configuration, $logger, $service, $region, $credentialProvider);
             $clientBuilder->setHandler($signer);
         }
 

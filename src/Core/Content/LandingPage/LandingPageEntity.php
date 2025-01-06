@@ -20,71 +20,99 @@ class LandingPageEntity extends Entity
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $active;
 
     /**
      * @var LandingPageTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var TagCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $tags;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsPageId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsPageVersionId;
 
     /**
      * @var CmsPageEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsPage;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannels;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $metaTitle;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $metaDescription;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $keywords;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $url;
 
     /**
      * @var array|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $slotConfig;
 
     /**
      * @var SeoUrlCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $seoUrls;
 

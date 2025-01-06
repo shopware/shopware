@@ -31,8 +31,8 @@ class FrwRequestOptionsProviderTest extends TestCase
     protected function setUp(): void
     {
         $this->context = $this->createAdminStoreContext();
-        $this->optionsProvider = $this->getContainer()->get(FrwRequestOptionsProvider::class);
-        $this->userConfigRepository = $this->getContainer()->get('user_config.repository');
+        $this->optionsProvider = static::getContainer()->get(FrwRequestOptionsProvider::class);
+        $this->userConfigRepository = static::getContainer()->get('user_config.repository');
     }
 
     public function testSetsFrwUserTokenIfPresentInUserConfig(): void

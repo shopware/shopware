@@ -55,7 +55,7 @@ class UpsertAddressRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->addressRepository = $this->getContainer()->get('customer_address.repository');
+        $this->addressRepository = static::getContainer()->get('customer_address.repository');
 
         $email = Uuid::randomHex() . '@example.com';
         $this->createCustomer($email);

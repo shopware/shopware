@@ -23,6 +23,9 @@ class AttributeEntityDefinition extends EntityDefinition
         return $this->meta['since'] ?? null;
     }
 
+    /**
+     * @return class-string<Entity>
+     */
     public function getEntityClass(): string
     {
         return $this->meta['entity_class'];
@@ -31,6 +34,14 @@ class AttributeEntityDefinition extends EntityDefinition
     public function getEntityName(): string
     {
         return $this->meta['entity_name'];
+    }
+
+    /**
+     * @return class-string<EntityCollection<Entity>>
+     */
+    public function getCollectionClass(): string
+    {
+        return $this->meta['collection_class'];
     }
 
     protected function getParentDefinitionClass(): ?string

@@ -13,61 +13,85 @@ class StoreLicenseStruct extends Struct
 {
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $id;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $producerName;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $technicalPluginName;
 
     /**
      * @var \DateTimeInterface
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $creationDate;
 
     /**
      * @var \DateTimeInterface
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $expirationDate;
 
     /**
      * @var StoreLicenseSubscriptionStruct|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $subscription;
 
     /**
      * @var StoreLicenseTypeStruct
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $availableVersion;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $installed;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $iconPath;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $updateAvailable;
 

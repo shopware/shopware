@@ -20,41 +20,57 @@ class OrderTransactionEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderVersionId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethodId;
 
     /**
      * @var CalculatedPrice
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $amount;
 
     /**
      * @var PaymentMethodEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethod;
 
     /**
      * @var OrderEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $order;
 
     /**
      * @var StateMachineStateEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachineState;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateId;
 

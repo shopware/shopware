@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionDiscountEntity extends Entity
 {
     use EntityIdTrait;
@@ -66,66 +66,92 @@ class PromotionDiscountEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotionId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $scope;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $value;
 
     /**
      * @var PromotionEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotion;
 
     /**
      * @var RuleCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $discountRules;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $considerAdvancedRules;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $maxValue;
 
     /**
      * @var PromotionDiscountPriceCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotionDiscountPrices;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $sorterKey;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $applierKey;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $usageKey;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $pickerKey;
 

@@ -37,7 +37,7 @@ class UserConfigControllerTest extends TestCase
     {
         $configKey = 'me.read';
 
-        $this->getContainer()->get('user_config.repository')
+        static::getContainer()->get('user_config.repository')
             ->create([[
                 'userId' => $this->getUserId(),
                 'key' => $configKey,
@@ -57,7 +57,7 @@ class UserConfigControllerTest extends TestCase
     {
         $configKey = 'me.read';
 
-        $this->getContainer()->get('user_config.repository')
+        static::getContainer()->get('user_config.repository')
             ->create([[
                 'userId' => $this->getUserId(),
                 'key' => $configKey,
@@ -86,13 +86,13 @@ class UserConfigControllerTest extends TestCase
             'lastName' => 'Lastname',
             'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [],
         ];
 
-        $this->getContainer()->get('user.repository')->create([$user], Context::createDefaultContext());
+        static::getContainer()->get('user.repository')->create([$user], Context::createDefaultContext());
 
-        $this->getContainer()->get('user_config.repository')
+        static::getContainer()->get('user_config.repository')
             ->create([[
                 'userId' => $ids->get('user'),
                 'key' => $configKey,
@@ -110,7 +110,7 @@ class UserConfigControllerTest extends TestCase
         // Different Key
         $userId = $this->getUserId();
 
-        $this->getContainer()->get('user_config.repository')
+        static::getContainer()->get('user_config.repository')
             ->create([[
                 'userId' => $userId,
                 'key' => $configKey,
@@ -131,7 +131,7 @@ class UserConfigControllerTest extends TestCase
         $anotherConfigKey = 'random.key';
         $anotherValue = 'random.value';
 
-        $this->getContainer()->get('user_config.repository')
+        static::getContainer()->get('user_config.repository')
             ->create([[
                 'userId' => $this->getUserId(),
                 'key' => $configKey,

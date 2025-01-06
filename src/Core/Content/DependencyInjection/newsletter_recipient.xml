@@ -67,7 +67,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\Event\Subscriber\NewsletterRecipientDeletedSubscriber">
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

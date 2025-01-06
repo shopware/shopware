@@ -31,6 +31,7 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
 const BaseTestClasses = [
     'RuleTestCase',
     'TestCase',
+    'MiddlewareTestCase',
 ];
 
 return (new Config())
@@ -394,7 +395,10 @@ return (new Config())
         }
     })
     ->useRule(function (Context $context): void {
-        $addedUnitTests = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('tests/unit/**/*Test.php');
+        $addedUnitTests = $context->platform->pullRequest->getFiles()
+            ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED], true))
+            ->matches('tests/unit/**/*Test.php');
+
         $addedSrcFiles = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('src/**/*.php');
         $missingUnitTests = [];
         $unitTestsName = [];
@@ -424,6 +428,7 @@ return (new Config())
         } else {
             $context->warning(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));
         }
+
 
         foreach ($addedUnitTests as $file) {
             $content = $file->getContent();

@@ -37,8 +37,8 @@ class StateMachineSateFieldSerializerTest extends TestCase
     {
         parent::setUp();
 
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 

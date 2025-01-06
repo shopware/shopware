@@ -39,7 +39,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->factory = $this->getContainer()->get(RepositoryWriterFacadeHookFactory::class);
+        $this->factory = static::getContainer()->get(RepositoryWriterFacadeHookFactory::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -60,7 +60,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
         $facade->$method('product', $payload); /* @phpstan-ignore-line */
 
-        $expectation($this->context, $this->getContainer());
+        $expectation($this->context, static::getContainer());
     }
 
     /**
@@ -157,7 +157,7 @@ class RepositoryWriterFacadeTest extends TestCase
             ],
         ]);
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $createdProduct = $productRepository->search(new Criteria([$this->ids->get('p4')]), $this->context)->first();
         static::assertInstanceOf(ProductEntity::class, $createdProduct);
@@ -237,9 +237,9 @@ class RepositoryWriterFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $taxRepository = $this->getContainer()->get('tax.repository');
+        $taxRepository = static::getContainer()->get('tax.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'new tax'));
 
@@ -265,9 +265,9 @@ class RepositoryWriterFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $updated = $productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
         static::assertInstanceOf(ProductEntity::class, $updated);
@@ -292,9 +292,9 @@ class RepositoryWriterFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $deleted = $productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
         static::assertNull($deleted);
@@ -319,9 +319,9 @@ class RepositoryWriterFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $updated = $productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
         static::assertInstanceOf(ProductEntity::class, $updated);
@@ -354,7 +354,7 @@ class RepositoryWriterFacadeTest extends TestCase
             ->visibility()
             ->price(300);
 
-        $this->getContainer()->get('product.repository')->create([
+        static::getContainer()->get('product.repository')->create([
             $product1->build(),
             $product2->build(),
             $product3->build(),
@@ -366,7 +366,7 @@ class RepositoryWriterFacadeTest extends TestCase
         $this->loadAppsFromDir($appDir);
 
         /** @var EntityRepository<AppCollection> $repository */
-        $repository = $this->getContainer()->get('app.repository');
+        $repository = static::getContainer()->get('app.repository');
         $app = $repository
             ->search(new Criteria(), Context::createDefaultContext())
             ->getEntities()
@@ -384,7 +384,7 @@ class RepositoryWriterFacadeTest extends TestCase
     private function getExistingTaxId(): string
     {
         /** @var EntityRepository $taxRepository */
-        $taxRepository = $this->getContainer()->get('tax.repository');
+        $taxRepository = static::getContainer()->get('tax.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Standard rate'));

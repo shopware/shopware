@@ -4,6 +4,9 @@
 <li
     class="sw-select-result"
     :class="resultClasses"
+    :aria-selected="active ? 'true' : 'false'"
+    :aria-label="ariaLabel"
+    tabindex="0"
     @mouseenter="onMouseEnter"
     @click.stop="onClickResult"
 >

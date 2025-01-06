@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use AsyncAws\Core\Configuration;
+use AsyncAws\Core\Credentials\CredentialProvider;
+use AsyncAws\Core\Credentials\Credentials;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AsyncAwsSigner;
 
@@ -16,7 +18,16 @@ use Shopware\Elasticsearch\Framework\AsyncAwsSigner;
 #[CoversClass(AsyncAwsSigner::class)]
 class AsyncAwsSignerTest extends TestCase
 {
-    use EnvTestBehaviour;
+    private MockObject&LoggerInterface $logger;
+
+    private MockObject&CredentialProvider $credentialProvider;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->credentialProvider = $this->createMock(CredentialProvider::class);
+    }
 
     public function testInvokeSignsRequestSuccessfully(): void
     {
@@ -25,7 +36,10 @@ class AsyncAwsSignerTest extends TestCase
             'accessKeyId' => 'key',
             'accessKeySecret' => 'secret',
         ]);
-        $signer = new AsyncAwsSigner($configuration, $this->createMock(LoggerInterface::class), 'es', 'us-east-1');
+
+        $credentialProvider = $this->createMock(CredentialProvider::class);
+        $credentialProvider->method('getCredentials')->willReturn(new Credentials('key', 'secret'));
+        $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'us-east-1', $credentialProvider);
 
         $request = [
             'http_method' => 'GET',
@@ -44,20 +58,13 @@ class AsyncAwsSignerTest extends TestCase
 
     public function testInvokeLogsErrorOnFailure(): void
     {
-        $this->setEnvVars([
-            'AWS_ACCESS_KEY' => null,
-            'AWS_SECRET_KEY' => null,
-            'AWS_SECRET_ACCESS_KEY' => null,
-            'AWS_ACCESS_KEY_ID' => null,
-        ]);
-
         $configuration = Configuration::create([
             'region' => 'test',
         ]);
-        $logger = $this->createMock(LoggerInterface::class);
-        $signer = new AsyncAwsSigner($configuration, $logger, 'es', 'test');
 
-        $logger->expects(static::once())
+        $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'test', $this->credentialProvider);
+
+        $this->logger->expects(static::once())
             ->method('error')
             ->with(static::stringContains('Error signing request'));
 

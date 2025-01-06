@@ -75,7 +75,7 @@ class FormControllerTest extends TestCase
 
     public function testHandleNewsletterUsesProperSalesChannelUrl(): void
     {
-        $formController = $this->getContainer()->get(FormController::class);
+        $formController = static::getContainer()->get(FormController::class);
 
         $request = new Request();
         $request->attributes->set('sw-sales-channel-absolute-base-url', 'wrong.test');
@@ -92,7 +92,7 @@ class FormControllerTest extends TestCase
     public function testSendContactForm(): void
     {
         /** @var EntityRepository<SalutationCollection> $salutation */
-        $salutation = $this->getContainer()->get('salutation.repository');
+        $salutation = static::getContainer()->get('salutation.repository');
 
         $salutation = $salutation->search(
             (new Criteria())->setLimit(1),
@@ -112,10 +112,10 @@ class FormControllerTest extends TestCase
 
         $request = new Request();
         $request->setSession($this->getSession());
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $token = $this->tokenize('frontend.form.contact.send', $data);
-        $this->getContainer()->get('request_stack')->pop();
+        static::getContainer()->get('request_stack')->pop();
 
         $response = $this->request(
             'POST',

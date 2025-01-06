@@ -8,7 +8,6 @@
         "list": {
             "textHeadline": "Shipping",
             "buttonAddShippingMethod": "Add shipping method",
-            "buttonCancel": "Cancel",
             "buttonDelete": "Delete",
             "columnName": "Name",
             "columnDescription": "Description",
@@ -44,7 +43,6 @@
             "placeholderPosition": "Enter position...",
             "placeholderDescription": "Enter description...",
             "labelDescription": "Description",
-            "buttonCancel": "Cancel",
             "buttonSave": "Save",
             "labelSetRules": "Select rules",
             "labelBasicInfo": "Basic information",
@@ -77,7 +75,6 @@
             "addNewShippingPrice": "Add pricing level",
             "duplicateMatrixContextLabel": "Duplicate price matrix",
             "deleteMatrixContextLabel": "Delete price matrix",
-            "contextMenuDuplicatePrice": "Duplicate pricing level",
             "contextMenuDeletePrice": "Delete pricing level",
             "selectProperty": "Select cart property...",
             "useRules": "Build a rule",
@@ -99,19 +96,18 @@
             "columnCalculationRule": "Rule",
             "buttonAddAdditionalPriceMatrix": "Add price matrix",
             "any": "∞",
-            "buttonCancel": "Cancel",
             "buttonDelete": "Delete",
             "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete these price matrices?",
             "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
             "labelGrossNet": "(gross / net)",
-            "ruleAlreadyUsed": "This rule is already in use in a price matrix.",
+            "ruleAlreadyUsedOrRestricted": "This rule is already in use or contains conditions that can't be applied to advanced pricing.",
             "ruleAlreadyUsedInMatrix": "This rule is already in use in this price matrix.",
             "textOr": "or",
             "chooseOrCreateRule": "Choose or create a rule",
             "unrestrictedRuleAlreadyExistsMessage": "There is already an unrestricted price matrix.",
             "newMatrixAlreadyExists": "There is already a new price matrix without a rule assigned.",
             "newMatrixAlertMessage": "A rule has to be assigned to save this price matrix.",
-            "contextMenuModifyPrice": "Change price rule"
+            "buttonLoadAllPrices": "Load all prices"
         },
         "sidebar": {
             "labelUseAsLogo": "Use as logo"

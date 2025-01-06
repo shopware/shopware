@@ -29,14 +29,16 @@
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver" />
-            <argument type="tagged" tag="shopware.asset"/>
+            <argument type="tagged_iterator" tag="shopware.asset"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument>%storefront.theme.file_delete_delay%</argument>
             <argument>%storefront.theme.auto_prefix_css%</argument>
+            <argument>%storefront.theme.allowed_scss_values%</argument>
+            <argument>%storefront.theme.validate_on_compile%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeLifecycleService">
@@ -64,6 +66,7 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeService">
@@ -75,7 +78,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
         </service>
 
@@ -159,6 +162,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader"/>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider"/>
             <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="shopware.filesystem.temp"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -209,6 +213,8 @@
         <!-- Controller -->
         <service id="Shopware\Storefront\Theme\Controller\ThemeController" public="true">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
+            <argument>%storefront.theme.allowed_scss_values%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

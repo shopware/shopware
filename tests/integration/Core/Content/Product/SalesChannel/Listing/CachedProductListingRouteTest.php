@@ -59,7 +59,7 @@ class CachedProductListingRouteTest extends TestCase
         Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
@@ -78,10 +78,10 @@ class CachedProductListingRouteTest extends TestCase
 
         $route = new CachedProductListingRoute(
             $core,
-            $this->getContainer()->get('cache.object'),
-            $this->getContainer()->get(EntityCacheKeyGenerator::class),
-            $this->getContainer()->get(CacheTracer::class),
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('cache.object'),
+            static::getContainer()->get(EntityCacheKeyGenerator::class),
+            static::getContainer()->get(CacheTracer::class),
+            static::getContainer()->get('event_dispatcher'),
             []
         );
 
@@ -138,10 +138,10 @@ class CachedProductListingRouteTest extends TestCase
 
         $route = new CachedProductListingRoute(
             $core,
-            $this->getContainer()->get('cache.object'),
-            $this->getContainer()->get(EntityCacheKeyGenerator::class),
-            $this->getContainer()->get(CacheTracer::class),
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('cache.object'),
+            static::getContainer()->get(EntityCacheKeyGenerator::class),
+            static::getContainer()->get(CacheTracer::class),
+            static::getContainer()->get('event_dispatcher'),
             $config
         );
 
@@ -161,9 +161,9 @@ class CachedProductListingRouteTest extends TestCase
     #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
-        $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
+        static::getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(ProductListingRouteCacheTagsEvent::class, static function (ProductListingRouteCacheTagsEvent $event): void {
                 $event->addTags([self::ALL_TAG]);
             });
@@ -171,7 +171,7 @@ class CachedProductListingRouteTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
 
-        $this->getContainer()
+        static::getContainer()
             ->get('event_dispatcher')
             ->addListener(ProductListingRouteCacheTagsEvent::class, $listener);
 
@@ -183,15 +183,15 @@ class CachedProductListingRouteTest extends TestCase
             'parentId' => $this->context->getSalesChannel()->getNavigationCategoryId(),
         ];
 
-        $this->getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
 
-        $before($categoryId, $this->getContainer());
+        $before($categoryId, static::getContainer());
 
-        $route = $this->getContainer()->get(ProductListingRoute::class);
+        $route = static::getContainer()->get(ProductListingRoute::class);
         $route->load($categoryId, new Request(), $this->context, new Criteria());
         $route->load($categoryId, new Request(), $this->context, new Criteria());
 
-        $after($categoryId, $this->getContainer());
+        $after($categoryId, static::getContainer());
 
         $route->load($categoryId, new Request(), $this->context, new Criteria());
         $route->load($categoryId, new Request(), $this->context, new Criteria());

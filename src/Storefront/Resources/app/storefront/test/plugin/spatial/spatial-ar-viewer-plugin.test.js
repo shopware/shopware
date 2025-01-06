@@ -61,6 +61,13 @@ describe('SpatialArViewerPlugin', () => {
         SpatialArViewerPluginObject.model = "1";
         const modalShowSpy = jest.spyOn(window.bootstrap.Modal.prototype, 'show')
             .mockReturnValue({});
+
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
+
+        window.PluginManager.initializePlugin = jest.fn(() => Promise.resolve());
     });
 
     afterEach(() => {
@@ -149,15 +156,18 @@ describe('SpatialArViewerPlugin', () => {
             await SpatialArViewerPluginObject.startARView();
 
             expect(modalShowSpy).toHaveBeenCalled();
+            expect(window.focusHandler.saveFocusState).toHaveBeenCalled();
 
             SpatialArViewerPluginObject = await new SpatialArViewerPlugin(document.querySelector('[data-spatial-ar-viewer]'), {
                 spatialArId: "1"
             });
 
-            modalShowSpy.mockClear()
+            modalShowSpy.mockClear();
+            window.focusHandler.saveFocusState.mockClear();
 
             await SpatialArViewerPluginObject.startARView();
             expect(modalShowSpy).toHaveBeenCalled();
+            expect(window.focusHandler.saveFocusState).toHaveBeenCalled();
         });
     });
 });

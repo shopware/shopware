@@ -23,6 +23,10 @@ $sw-button-transition: all 0.15s ease-out;
     margin: 0;
     position: relative;
 
+    &:focus-visible {
+        outline: revert;
+    }
+
     .sw-button__content {
         display: grid;
         grid-auto-flow: column;

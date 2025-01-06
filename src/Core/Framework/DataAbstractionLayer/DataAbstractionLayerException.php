@@ -29,6 +29,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 #[Package('core')]
 class DataAbstractionLayerException extends HttpException
@@ -80,6 +81,7 @@ class DataAbstractionLayerException extends HttpException
     public const PARENT_FIELD_NOT_FOUND_EXCEPTION = 'FRAMEWORK__PARENT_FIELD_NOT_FOUND_EXCEPTION';
     public const PRIMARY_KEY_NOT_PROVIDED = 'FRAMEWORK__PRIMARY_KEY_NOT_PROVIDED';
     public const NO_GENERATOR_FOR_FIELD_TYPE = 'FRAMEWORK__NO_GENERATOR_FOR_FIELD_TYPE';
+    public const FOREIGN_KEY_NOT_FOUND_IN_DEFINITION = 'FRAMEWORK__FOREIGN_KEY_NOT_FOUND_IN_DEFINITION';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -746,7 +748,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function invalidWriteConstraintViolation(\Symfony\Component\Validator\ConstraintViolationList $violationList, string $getPath): WriteConstraintViolationException
+    public static function invalidWriteConstraintViolation(ConstraintViolationList $violationList, string $getPath): WriteConstraintViolationException
     {
         return new WriteConstraintViolationException($violationList, $getPath);
     }
@@ -759,5 +761,15 @@ class DataAbstractionLayerException extends HttpException
     public static function entityRepositoryNotFound(string $entity): EntityRepositoryNotFoundException
     {
         return new EntityRepositoryNotFoundException($entity);
+    }
+
+    public static function foreignKeyNotFoundInDefinition(string $association, string $entityDefinition): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FOREIGN_KEY_NOT_FOUND_IN_DEFINITION,
+            'Foreign key for association "{{ association }}" not found. Please add one to "{{ entityDefinition }}"',
+            ['association' => $association, 'entityDefinition' => $entityDefinition]
+        );
     }
 }

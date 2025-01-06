@@ -19,36 +19,50 @@ class StateMachineEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $technicalName;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var StateMachineTransitionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $transitions;
 
     /**
      * @var StateMachineStateCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $states;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $initialStateId;
 
     /**
      * @var StateMachineTranslationCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var StateMachineHistoryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $historyEntries;
 

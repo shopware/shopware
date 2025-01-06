@@ -51,7 +51,7 @@
         </service>
 
         <service id="Shopware\Core\System\UsageData\EntitySync\IterateEntityMessageHandler">
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\System\UsageData\EntitySync\IterateEntitiesQueryBuilder"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDefinitionService"/>
@@ -97,7 +97,7 @@
         <service id="Shopware\Core\System\UsageData\Services\EntityDispatchService" lazy="true">
             <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDefinitionService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\GatewayStatusService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>

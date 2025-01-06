@@ -2,16 +2,19 @@
 
 namespace Shopware\Core\Checkout\Promotion;
 
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
+use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
+use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionException extends HttpException
 {
     public const PROMOTION_CODE_ALREADY_REDEEMED = 'CHECKOUT__CODE_ALREADY_REDEEMED';
@@ -30,12 +33,16 @@ class PromotionException extends HttpException
 
     public const PROMOTION_INVALID_PRICE_DEFINITION = 'CHECKOUT__INVALID_DISCOUNT_PRICE_DEFINITION';
 
+    public const CHECKOUT_UNKNOWN_PROMOTION_DISCOUNT_TYPE = 'CHECKOUT__UNKNOWN_PROMOTION_DISCOUNT_TYPE';
+
+    public const PROMOTION_SET_GROUP_NOT_FOUND = 'CHECKOUT__PROMOTION_SETGROUP_NOT_FOUND';
+
     public static function codeAlreadyRedeemed(string $code): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PROMOTION_CODE_ALREADY_REDEEMED,
-            'Promotion with code "{{ code }}" has already been marked as redeemed!',
+            'Promo code "{{ code }}" has already been marked as redeemed!',
             ['code' => $code]
         );
     }
@@ -129,6 +136,40 @@ class PromotionException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::PROMOTION_INVALID_PRICE_DEFINITION,
             ...$messages,
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function unknownPromotionDiscountType(PromotionDiscountEntity $discount): self|UnknownPromotionDiscountTypeException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new UnknownPromotionDiscountTypeException($discount);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CHECKOUT_UNKNOWN_PROMOTION_DISCOUNT_TYPE,
+            'Unknown promotion discount type detected: {{ type }}',
+            ['type' => $discount->getType()]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function promotionSetGroupNotFound(string $groupId): self|ShopwareHttpException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new SetGroupNotFoundException($groupId);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROMOTION_SET_GROUP_NOT_FOUND,
+            'Promotion SetGroup "{{ id }}" has not been found!',
+            ['id' => $groupId],
         );
     }
 }

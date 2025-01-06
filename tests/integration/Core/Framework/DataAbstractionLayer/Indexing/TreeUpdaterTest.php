@@ -34,7 +34,7 @@ class TreeUpdaterTest extends TestCase
     {
         $this->stopTransactionAfter();
 
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->executeStatement(
                 'CREATE TABLE IF NOT EXISTS `test_tree` (
@@ -50,7 +50,7 @@ class TreeUpdaterTest extends TestCase
                 )'
             );
 
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->executeStatement(
                 'CREATE TABLE IF NOT EXISTS `test_tree_without_version` (
@@ -71,7 +71,7 @@ class TreeUpdaterTest extends TestCase
     protected function tearDown(): void
     {
         $this->stopTransactionAfter();
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->executeStatement('DROP TABLE IF EXISTS `test_tree`, `test_tree_without_version`');
 
@@ -80,7 +80,7 @@ class TreeUpdaterTest extends TestCase
 
     public function testTreeUpdate(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $ids = new IdsCollection();
         $data = [
             ['id' => $ids->getBytes('r')],
@@ -101,13 +101,13 @@ class TreeUpdaterTest extends TestCase
         }
 
         $definition = new TestTreeDefinition();
-        $this->getContainer()
+        static::getContainer()
             ->get(DefinitionInstanceRegistry::class)
             ->register($definition);
 
         $treeUpdater = new TreeUpdater(
-            $this->getContainer()->get(DefinitionInstanceRegistry::class),
-            $this->getContainer()->get(Connection::class)
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            static::getContainer()->get(Connection::class)
         );
 
         $context = Context::createDefaultContext();
@@ -137,7 +137,7 @@ class TreeUpdaterTest extends TestCase
 
     public function testTreeUpdateWithoutVersion(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $ids = new IdsCollection();
         $data = [
             ['id' => $ids->getBytes('r')],
@@ -161,7 +161,7 @@ class TreeUpdaterTest extends TestCase
         $registry->method('getByEntityName')->willReturn($definition);
         $definition->compile($registry);
 
-        $treeUpdater = new TreeUpdater($registry, $this->getContainer()->get(Connection::class));
+        $treeUpdater = new TreeUpdater($registry, static::getContainer()->get(Connection::class));
         $context = Context::createDefaultContext();
 
         $treeUpdater->batchUpdate($ids->getList(['r', 'a', 'b', 'aa', 'ab']), 'test_tree_without_version', $context, true);
@@ -193,7 +193,7 @@ class TreeUpdaterTest extends TestCase
     private function fetch(string $id, string $table): array
     {
         /** @var array<string, string|null> $data */
-        $data = $this->getContainer()->get(Connection::class)->fetchAssociative(
+        $data = static::getContainer()->get(Connection::class)->fetchAssociative(
             'SELECT test_level, test_path FROM ' . $table . ' WHERE id = :id',
             ['id' => $id]
         );

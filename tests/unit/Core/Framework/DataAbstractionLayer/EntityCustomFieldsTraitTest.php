@@ -62,11 +62,6 @@ class EntityCustomFieldsTraitTest extends TestCase
 
         $entity->changeCustomFields(['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz']);
         static::assertEquals(['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz'], $entity->getCustomFields());
-
-        static::assertEquals(
-            ['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz'],
-            $entity->getCustomFields()
-        );
     }
 }
 
@@ -82,7 +77,9 @@ class MyTraitEntity extends Entity
      * @param array<string, mixed>|null $customFields
      */
     public function __construct(
+        /** @deprecated tag:v6.7.0 - Will be natively typed */
         protected $_uniqueIdentifier,
+        /** @deprecated tag:v6.7.0 - Will be natively typed */
         protected $customFields = []
     ) {
     }

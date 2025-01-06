@@ -13,6 +13,8 @@ class NavigationPage extends Page
 {
     /**
      * @var CmsPageEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsPage;
 

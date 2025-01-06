@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -32,7 +33,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $services = $container->findTaggedServiceIds('shopware.entity');
 
         foreach ($services as $class => $_) {
-            /** @var class-string<object> $class */
+            /** @var class-string<Entity> $class */
             $definitions = $this->compiler->compile($class);
 
             foreach ($definitions as $definition) {

@@ -25,7 +25,7 @@ class HeaderPageletLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
     }
 
     /**
@@ -134,7 +134,7 @@ class HeaderPageletLoaderTest extends TestCase
 
     protected function getPageLoader(): HeaderPageletLoader
     {
-        return $this->getContainer()->get(HeaderPageletLoader::class);
+        return static::getContainer()->get(HeaderPageletLoader::class);
     }
 
     /**

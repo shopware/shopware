@@ -26,15 +26,12 @@ class AclCriteriaValidatorTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var AclCriteriaValidator
-     */
-    private $validator;
+    private AclCriteriaValidator $validator;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->validator = $this->getContainer()->get(AclCriteriaValidator::class);
+        $this->validator = static::getContainer()->get(AclCriteriaValidator::class);
     }
 
     /**

@@ -17,36 +17,50 @@ class SalesChannelProductEntity extends ProductEntity
 {
     /**
      * @var PriceCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $calculatedPrices;
 
     /**
      * @var CalculatedPrice
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $calculatedPrice;
 
     /**
      * @var PropertyGroupCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $sortedProperties;
 
     /**
      * @var CalculatedCheapestPrice
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $calculatedCheapestPrice;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $isNew = false;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $calculatedMaxPurchase;
 
     /**
      * @var CategoryEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $seoCategory;
 
@@ -55,11 +69,15 @@ class SalesChannelProductEntity extends ProductEntity
      * the detected cheapest price will be set for the current context rules
      *
      * @var CheapestPrice|CheapestPriceContainer|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cheapestPrice;
 
     /**
      * @var CheapestPriceContainer|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cheapestPriceContainer;
 

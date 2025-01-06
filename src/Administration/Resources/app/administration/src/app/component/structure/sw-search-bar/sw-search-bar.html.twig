@@ -1,14 +1,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_search_bar %}
-<div
-    class="sw-search-bar"
-    role="searchbox"
-    tabindex="0"
-    @keyup.esc="clearSearchTerm()"
-    @keyup.enter.prevent="onKeyUpEnter"
-    @keydown.up.prevent="navigateUpResults"
-    @keydown.down.prevent="navigateDownResults"
->
+<div class="sw-search-bar">
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_container %}
@@ -90,10 +82,16 @@
                     v-model="searchTerm"
                     class="sw-search-bar__input"
                     :placeholder="placeholderSearchInput"
+                    :aria-label="placeholderSearchInput"
+                    role="searchbox"
                     @input="onSearchTermChange"
                     @focus="onFocusInput"
                     @blur="onBlur"
                     @keydown.delete="resetSearchType"
+                    @keyup.esc="clearSearchTerm"
+                    @keyup.enter.prevent="onKeyUpEnter"
+                    @keydown.up.prevent="navigateUpResults"
+                    @keydown.down.prevent="navigateDownResults"
                 >
                 {% endblock %}
             </slot>

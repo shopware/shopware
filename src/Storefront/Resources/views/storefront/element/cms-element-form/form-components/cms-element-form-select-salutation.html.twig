@@ -1,7 +1,7 @@
 {% block cms_form_select_salutation_content %}
     <div class="form-group {{ additionalClass }}">
         {% block cms_form_select_salutation_content_label %}
-            <label class="form-label" for="form-Salutation">
+            <label class="form-label" for="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}form-Salutation">
                 {{- 'account.personalSalutationLabel'|trans -}}{% if required %} {{- 'general.required'|trans -}}{% endif %}
             </label>
         {% endblock %}

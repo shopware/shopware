@@ -23,7 +23,7 @@ class DownloadServiceTest extends TestCase
     public function testUtf8Filename(): void
     {
         $filesystem = $this->getPrivateFilesystem();
-        $fileRepository = $this->getContainer()->get('import_export_file.repository');
+        $fileRepository = static::getContainer()->get('import_export_file.repository');
 
         $asciiName = 'Name with non-ascii chars';
 
@@ -51,7 +51,7 @@ class DownloadServiceTest extends TestCase
     public function testSlashFilename(): void
     {
         $filesystem = $this->getPrivateFilesystem();
-        $fileRepository = $this->getContainer()->get('import_export_file.repository');
+        $fileRepository = static::getContainer()->get('import_export_file.repository');
 
         $nameWithSlash = 'Name with /\/\/\ slashes';
 
@@ -77,7 +77,7 @@ class DownloadServiceTest extends TestCase
     public function testDownloadWithInvalidAccessToken(): void
     {
         $filesystem = $this->getPrivateFilesystem();
-        $fileRepository = $this->getContainer()->get('import_export_file.repository');
+        $fileRepository = static::getContainer()->get('import_export_file.repository');
 
         $asciiName = 'Name with non-ascii chars';
 
@@ -102,7 +102,7 @@ class DownloadServiceTest extends TestCase
     public function testDownloadWithExpiredAccessToken(): void
     {
         $filesystem = $this->getPrivateFilesystem();
-        $fileRepository = $this->getContainer()->get('import_export_file.repository');
+        $fileRepository = static::getContainer()->get('import_export_file.repository');
 
         $asciiName = 'Name with non-ascii chars';
 
@@ -122,7 +122,7 @@ class DownloadServiceTest extends TestCase
         $validToken = $downloadService->regenerateToken($context, $fileData['id']);
 
         // Expire it
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->update(
             'import_export_file',
             [

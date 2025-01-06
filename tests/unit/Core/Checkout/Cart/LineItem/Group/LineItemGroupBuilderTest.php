@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemGroupTestFixtureBehaviour;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
@@ -77,6 +78,103 @@ class LineItemGroupBuilderTest extends TestCase
             new LineItemQuantitySplitter($quantityPriceCalculator),
             new ProductLineItemProvider()
         );
+    }
+
+    public function testItemNotMatchRule(): void
+    {
+        $cart = $this->buildCart(0);
+
+        $item1 = $this->createProductItem(10, 10, 20);
+
+        $item1->setReferencedId($item1->getId());
+
+        $item1->setQuantity(3);
+        $item1->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([]), 3));
+
+        $cart->addLineItems(new LineItemCollection([$item1]));
+
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId(Uuid::randomHex());
+        $ruleEntity->setPayload(new AndRule([new FalseRule()]));
+
+        $group = $this->buildGroup(
+            self::KEY_PRICE_UNIT_GROSS,
+            50,
+            self::KEY_SORTER_PRICE_ASC,
+            new RuleCollection([$ruleEntity])
+        );
+
+        $result = $this->lineItemGroupBuilder->findGroupPackages([$group], $cart, $this->context);
+        $groupCount = $result->getGroupResult($group);
+
+        static::assertCount(0, $groupCount);
+    }
+
+    public function testNoItemMatchGroupDefinition(): void
+    {
+        $cart = $this->buildCart(0);
+
+        $item1 = $this->createProductItem(10, 10, 20);
+
+        $item1->setReferencedId($item1->getId());
+
+        $item1->setQuantity(3);
+        $item1->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([]), 3));
+
+        $cart->addLineItems(new LineItemCollection([$item1]));
+
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId(Uuid::randomHex());
+        $ruleEntity->setPayload(new AndRule());
+
+        $group = $this->buildGroup(
+            self::KEY_PRICE_UNIT_GROSS,
+            50,
+            self::KEY_SORTER_PRICE_ASC,
+            new RuleCollection([$ruleEntity])
+        );
+
+        $result = $this->lineItemGroupBuilder->findGroupPackages([$group], $cart, $this->context);
+        $groupCount = $result->getGroupResult($group);
+
+        static::assertCount(0, $groupCount);
+    }
+
+    public function testOneItemShouldGroupsCorrectly(): void
+    {
+        $cart = $this->buildCart(0);
+
+        $item1 = $this->createProductItem(10, 10, 20);
+
+        $item1->setReferencedId($item1->getId());
+
+        $item1->setQuantity(3);
+        $item1->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([]), 3));
+
+        $cart->addLineItems(new LineItemCollection([$item1]));
+
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId(Uuid::randomHex());
+        $ruleEntity->setPayload(new AndRule());
+
+        $group = $this->buildGroup(
+            self::KEY_PRICE_UNIT_GROSS,
+            30,
+            self::KEY_SORTER_PRICE_ASC,
+            new RuleCollection([$ruleEntity])
+        );
+
+        $result = $this->lineItemGroupBuilder->findGroupPackages([$group], $cart, $this->context);
+        $groupCount = $result->getGroupResult($group);
+
+        static::assertCount(1, $groupCount);
+
+        static::assertInstanceOf(LineItemGroup::class, $groupCount[0]);
+        $items = $groupCount[0]->getItems();
+        static::assertCount(1, $items);
+        static::assertInstanceOf(LineItemQuantity::class, $items[0]);
+        static::assertSame($item1->getId(), $items[0]->getLineItemId());
+        static::assertEquals(3, $items[0]->getQuantity());
     }
 
     public function testShouldGroupsCorrectly(): void
@@ -149,6 +247,46 @@ class LineItemGroupBuilderTest extends TestCase
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
         static::assertEquals($item3->getId(), $items[0]->getLineItemId());
         static::assertEquals(2, $items[0]->getQuantity());
+    }
+
+    public function testBuildGroupCacheShouldWork(): void
+    {
+        $cart = $this->buildCart(0);
+
+        $item1 = $this->createProductItem(10, 10, 20);
+
+        $item1->setReferencedId($item1->getId());
+
+        $item1->setQuantity(3);
+        $item1->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([]), 3));
+        $cart->addLineItems(new LineItemCollection([$item1]));
+
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId(Uuid::randomHex());
+        $ruleEntity->setPayload(new AndRule());
+
+        $group = $this->buildGroup(
+            self::KEY_PRICE_UNIT_GROSS,
+            30,
+            self::KEY_SORTER_PRICE_ASC,
+            new RuleCollection([$ruleEntity])
+        );
+
+        $result = $this->lineItemGroupBuilder->findGroupPackages([$group], $cart, $this->context);
+        $groupCount = $result->getGroupResult($group);
+
+        static::assertCount(1, $groupCount);
+
+        static::assertInstanceOf(LineItemGroup::class, $groupCount[0]);
+        $items = $groupCount[0]->getItems();
+        static::assertCount(1, $items);
+        static::assertInstanceOf(LineItemQuantity::class, $items[0]);
+        static::assertEquals($item1->getId(), $items[0]->getLineItemId());
+        static::assertEquals(3, $items[0]->getQuantity());
+
+        $cachedResult = $this->lineItemGroupBuilder->findGroupPackages([$group], $cart, $this->context);
+
+        static::assertEquals($result, $cachedResult);
     }
 
     private function buildCart(int $productCount): Cart

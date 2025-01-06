@@ -58,7 +58,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
     public function testValidateWithInvalidValue(): void
     {
         try {
-            $this->getContainer()->get('rule_condition.repository')->create([
+            static::getContainer()->get('rule_condition.repository')->create([
                 [
                     'type' => $this->rule->getName(),
                     'ruleId' => Uuid::randomHex(),

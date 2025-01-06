@@ -12,26 +12,36 @@ class StateMachineTransitionEvent extends NestedEvent
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $entityName;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $entityId;
 
     /**
      * @var StateMachineStateEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fromPlace;
 
     /**
      * @var StateMachineStateEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $toPlace;
 
     /**
      * @var Context
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 

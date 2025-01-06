@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
 /**
@@ -26,16 +27,16 @@ class SalutationSerializerTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<SalutationCollection>
      */
-    private $salutationRepository;
+    private EntityRepository $salutationRepository;
 
     private SalutationSerializer $serializer;
 
     protected function setUp(): void
     {
-        $this->salutationRepository = $this->getContainer()->get('salutation.repository');
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $this->salutationRepository = static::getContainer()->get('salutation.repository');
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
 
         $this->serializer = new SalutationSerializer($this->salutationRepository);
         $this->serializer->setRegistry($serializerRegistry);
@@ -108,9 +109,9 @@ class SalutationSerializerTest extends TestCase
 
     public function testSupportsOnlySalutation(): void
     {
-        $serializer = new SalutationSerializer($this->getContainer()->get('salutation.repository'));
+        $serializer = new SalutationSerializer(static::getContainer()->get('salutation.repository'));
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
 

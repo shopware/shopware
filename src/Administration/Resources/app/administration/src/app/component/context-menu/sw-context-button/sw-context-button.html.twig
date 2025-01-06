@@ -1,26 +1,26 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_context_button %}
-<div
+<button
     ref="swContextButton"
     class="sw-context-button"
     :class="contextClass"
-    role="button"
-    tabindex="0"
+    :aria-label="ariaLabel && $tc(ariaLabel)"
     @click="onClickButton"
     @keydown.enter="onClickButton"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_context_button_button %}
     <slot name="button">
-        <button
+        <div
             class="sw-context-button__button"
             :class="contextButtonClass"
+            tabindex="-1"
         >
             <sw-icon
                 :name="icon"
                 decorative
             />
-        </button>
+        </div>
     </slot>
     {% endblock %}
 
@@ -44,5 +44,5 @@
         </sw-context-menu>
     </sw-popover>
     {% endblock %}
-</div>
+</button>
 {% endblock %}

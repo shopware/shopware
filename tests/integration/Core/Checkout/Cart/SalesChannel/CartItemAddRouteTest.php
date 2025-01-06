@@ -50,7 +50,7 @@ class CartItemAddRouteTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
         $this->createTestData();
     }
@@ -277,18 +277,18 @@ class CartItemAddRouteTest extends TestCase
         $productId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), $this->ids->get('sales-channel'));
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), $this->ids->get('sales-channel'));
 
-        $this->createTestFixtureProduct($productId, 800, 19, $this->getContainer(), $context);
+        $this->createTestFixtureProduct($productId, 800, 19, static::getContainer(), $context);
 
         $this->createPromotion(
             $promotionId,
             $code,
-            $this->getContainer()->get('promotion.repository'),
+            static::getContainer()->get('promotion.repository'),
             $context
         );
 
-        $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_ABSOLUTE, PromotionDiscountEntity::SCOPE_CART, 10, null, $this->getContainer(), $context);
+        $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_ABSOLUTE, PromotionDiscountEntity::SCOPE_CART, 10, null, static::getContainer(), $context);
 
         // Add product
         $this->browser
@@ -388,10 +388,10 @@ class CartItemAddRouteTest extends TestCase
     private function enableAdminAccess(): void
     {
         $token = $this->browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
-        $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token, $this->ids->get('sales-channel'));
+        $payload = static::getContainer()->get(SalesChannelContextPersister::class)->load($token, $this->ids->get('sales-channel'));
 
         $payload[SalesChannelContextService::PERMISSIONS] = [ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true];
 
-        $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload, $this->ids->get('sales-channel'));
+        static::getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload, $this->ids->get('sales-channel'));
     }
 }

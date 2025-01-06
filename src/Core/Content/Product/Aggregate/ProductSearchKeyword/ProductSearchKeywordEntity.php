@@ -15,31 +15,43 @@ class ProductSearchKeywordEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $languageId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $keyword;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ranking;
 
     /**
      * @var ProductEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $product;
 
     /**
      * @var LanguageEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $language;
 

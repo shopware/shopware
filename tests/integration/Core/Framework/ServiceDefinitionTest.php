@@ -87,7 +87,7 @@ class ServiceDefinitionTest extends TestCase
 
     public function testContainerLintCommand(): void
     {
-        $command = $this->getContainer()->get('console.command.container_lint');
+        $command = static::getContainer()->get('console.command.container_lint');
         $command->setApplication(new Application(KernelLifecycleManager::getKernel()));
         $commandTester = new CommandTester($command);
 

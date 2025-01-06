@@ -19,7 +19,7 @@ class ConfigValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->configValidator = $this->getContainer()->get(ConfigValidator::class);
+        $this->configValidator = static::getContainer()->get(ConfigValidator::class);
     }
 
     public function testValidate(): void

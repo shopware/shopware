@@ -49,7 +49,7 @@ class FinishPageTest extends TestCase
         $criteria = new Criteria([$orderId]);
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             CheckoutFinishPageOrderCriteriaEvent::class,
             static function (CheckoutFinishPageOrderCriteriaEvent $event) use ($criteria, &$eventWasThrown): void {
                 static::assertSame($criteria->getIds(), $event->getCriteria()->getIds());
@@ -75,6 +75,6 @@ class FinishPageTest extends TestCase
      */
     protected function getPageLoader()
     {
-        return $this->getContainer()->get(CheckoutFinishPageLoader::class);
+        return static::getContainer()->get(CheckoutFinishPageLoader::class);
     }
 }

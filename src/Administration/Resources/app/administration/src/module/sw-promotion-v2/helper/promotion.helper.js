@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package checkout
  */
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 

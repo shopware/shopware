@@ -42,9 +42,9 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
             });
 
         $this->seoUrlPlaceholderHandler = new SeoUrlPlaceholderHandler(
-            $this->getContainer()->get('request_stack'),
+            static::getContainer()->get('request_stack'),
             $router,
-            $this->getContainer()->get(Connection::class)
+            static::getContainer()->get(Connection::class)
         );
     }
 
@@ -184,7 +184,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         ];
 
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('seo_url.repository');
+        $repo = static::getContainer()->get('seo_url.repository');
         $repo->create($seoUrls, Context::createDefaultContext());
 
         $host = 'http://foo.text:8000/de';

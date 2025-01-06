@@ -6,6 +6,7 @@ jest.mock('three/examples/jsm/exporters/USDZExporter.js', () => {return { USDZEx
 jest.mock('three/examples/jsm/webxr/XREstimatedLight.js', () => {return { XREstimatedLight: {}}});
 jest.mock('three/examples/jsm/loaders/GLTFLoader.js', () => {return { GLTFLoader: {}}});
 jest.mock('three/examples/jsm/loaders/DRACOLoader.js', () => {return { DRACOLoader: {}}});
+jest.mock('three/src/math/MathUtils.js', () => {return { MathUtils: {}}});
 
 /**
  * @package innovation
@@ -32,6 +33,7 @@ describe('loadThreeJs', () => {
         expect(typeof window.threeJsAddons.XREstimatedLight).toBe('object');
         expect(typeof window.threeJsAddons.GLTFLoader).toBe('object');
         expect(typeof window.threeJsAddons.DRACOLoader).toBe('object');
+        expect(typeof window.threeJsAddons.MathUtils).toBe('object');
         expect(typeof window.loadThreeJsUtil.promise).toBe('object');
         expect(window.loadThreeJsUtil.isLoaded).toBe(true);
     });

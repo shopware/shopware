@@ -2,7 +2,7 @@ import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -58,6 +58,7 @@ export default {
             testMailSalesChannelId: null,
             availableVariables: {},
             entitySchema: Object.fromEntries(Shopware.EntityDefinition.getDefinitionRegistry()),
+            showLanguageNotAssignedToSalesChannelWarning: false,
         };
     },
 
@@ -99,6 +100,10 @@ export default {
 
         mailTemplateMediaRepository() {
             return this.repositoryFactory.create('mail_template_media');
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
         },
 
         outerCompleterFunction() {
@@ -356,6 +361,19 @@ export default {
                 this.createNotificationError(notificationTestMailErrorSalesChannel);
                 return;
             }
+
+            const criteria = new Criteria();
+            criteria.addAssociation('languages');
+
+            this.salesChannelRepository.get(this.testMailSalesChannelId, Context.api, criteria).then((salesChannel) => {
+                if (!salesChannel.languages.has(Shopware.Context.api.languageId)) {
+                    this.showLanguageNotAssignedToSalesChannelWarning = true;
+
+                    return;
+                }
+
+                this.showLanguageNotAssignedToSalesChannelWarning = false;
+            });
 
             this.mailService
                 .testMailTemplate(

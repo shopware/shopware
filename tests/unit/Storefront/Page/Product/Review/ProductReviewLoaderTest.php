@@ -3,20 +3,15 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Product\Review;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader as CoreProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -26,28 +21,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @deprecated tag:v6.7.0 - Remove the `RunClassInSeparateProcess` attribute.
- * It is only need as long as the class `Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` is loaded based on a feature flag.
- * Removing the attribute before 6.7 will cause flaky tests, as the class will be loaded with or without deprecations depending on which test is executed first.
- *
  * @internal
  */
 #[CoversClass(ProductReviewLoader::class)]
-#[RunClassInSeparateProcess]
 class ProductReviewLoaderTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+    }
+
     public function testExceptionWithoutProductId(): void
     {
         $request = new Request([], [], []);
@@ -246,8 +241,14 @@ class ProductReviewLoaderTest extends TestCase
     private function getProductReviewLoader(
         ProductReviewRoute $productReviewRouteMock
     ): ProductReviewLoader {
-        return new ProductReviewLoader(
+        $coreProductReviewLoader = new CoreProductReviewLoader(
             $productReviewRouteMock,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(EventDispatcherInterface::class)
+        );
+
+        return new ProductReviewLoader(
+            $coreProductReviewLoader,
             $this->createMock(EventDispatcherInterface::class)
         );
     }
@@ -288,21 +289,10 @@ class ProductReviewLoaderTest extends TestCase
             $customer->setId(Uuid::randomHex());
         }
 
-        return new SalesChannelContext(
-            Context::createDefaultContext(),
-            'foo',
-            'bar',
-            $salesChannelEntity,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            $customer,
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            []
+        return Generator::createSalesChannelContext(
+            salesChannel: $salesChannelEntity,
+            customer: $customer,
+            createCustomer: $setCustomer
         );
     }
 

@@ -45,7 +45,7 @@ EOF
         try {
             $io->comment(\sprintf('Clearing the caches and pools for the <info>%s</info> environment with debug <info>%s</info>', $this->env, var_export($this->debug, true)));
 
-            $this->cacheClearer->clear();
+            $this->cacheClearer->clear(clearHttp: true);
 
             $io->success(\sprintf('Caches and pools for the "%s" environment (debug=%s) was successfully cleared.', $this->env, var_export($this->debug, true)));
 

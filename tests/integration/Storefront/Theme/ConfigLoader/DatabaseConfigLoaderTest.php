@@ -37,9 +37,9 @@ class DatabaseConfigLoaderTest extends TestCase
         parent::setUp();
         $this->ids = new IdsCollection();
 
-        $this->themeRepository = $this->getContainer()->get('theme.repository');
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->mediaPathUpdater = $this->getContainer()->get(MediaPathUpdater::class);
+        $this->themeRepository = static::getContainer()->get('theme.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->mediaPathUpdater = static::getContainer()->get(MediaPathUpdater::class);
     }
 
     public function setUpMedia(): void

@@ -25,7 +25,7 @@ class DefaultMediaResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $packages = $this->getContainer()->get('assets.packages');
+        $packages = static::getContainer()->get('assets.packages');
 
         $translator = $this->createConfiguredMock(
             Translator::class,

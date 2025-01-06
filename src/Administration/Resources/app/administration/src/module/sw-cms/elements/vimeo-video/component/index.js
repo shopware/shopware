@@ -96,6 +96,10 @@ export default {
             ${this.title}\
             ${this.portrait}`.replace(/ /g, '');
         },
+
+        iframeTitle() {
+            return this.element.config.iframeTitle.value;
+        },
     },
 
     created() {

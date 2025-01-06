@@ -12,6 +12,8 @@ class ProductListingStruct extends Struct
 {
     /**
      * @var EntitySearchResult<ProductCollection>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $listing;
 

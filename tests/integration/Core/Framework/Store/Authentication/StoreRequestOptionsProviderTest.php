@@ -29,7 +29,7 @@ class StoreRequestOptionsProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->storeRequestOptionsProvider = $this->getContainer()->get(StoreRequestOptionsProvider::class);
+        $this->storeRequestOptionsProvider = static::getContainer()->get(StoreRequestOptionsProvider::class);
         $this->storeContext = $this->createAdminStoreContext();
     }
 

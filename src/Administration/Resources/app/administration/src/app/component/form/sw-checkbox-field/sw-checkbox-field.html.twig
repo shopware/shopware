@@ -3,7 +3,9 @@
 <mt-checkbox
     v-if="useMeteorComponent"
     v-bind="$attrs"
+    :checked="compatValue"
     v-on="listeners"
+    @update:checked="handleUpdateChecked"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -23,6 +25,7 @@
 <sw-checkbox-field-deprecated
     v-else
     v-bind="$attrs"
+    :value="value"
     v-on="listeners"
 >
     <template

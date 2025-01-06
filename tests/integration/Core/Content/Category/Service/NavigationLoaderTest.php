@@ -35,11 +35,11 @@ class NavigationLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('category.repository');
+        $this->repository = static::getContainer()->get('category.repository');
 
         $this->ids = new IdsCollection();
 
-        $this->navigationLoader = $this->getContainer()->get(NavigationLoader::class);
+        $this->navigationLoader = static::getContainer()->get(NavigationLoader::class);
     }
 
     public function testTreeBuilderWithSimpleTree(): void
@@ -159,7 +159,7 @@ class NavigationLoaderTest extends TestCase
             ]],
         ];
 
-        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
 
         $context = Generator::createSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($ids->get('root'));

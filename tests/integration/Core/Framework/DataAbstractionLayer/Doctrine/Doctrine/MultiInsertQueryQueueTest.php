@@ -19,7 +19,7 @@ class MultiInsertQueryQueueTest extends TestCase
 
     public function testNullableDatetime(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $query = new MultiInsertQueryQueue($connection);
 
         $date = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -63,7 +63,7 @@ class MultiInsertQueryQueueTest extends TestCase
 
     public function testAddUpdateFieldOnDuplicateKey(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $query = new MultiInsertQueryQueue($connection);
 
         $date = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);

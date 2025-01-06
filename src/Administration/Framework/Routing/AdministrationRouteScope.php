@@ -14,6 +14,8 @@ class AdministrationRouteScope extends AbstractRouteScope implements ApiContextR
 
     /**
      * @var string[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $allowedPaths;
 

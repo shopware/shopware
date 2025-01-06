@@ -17,7 +17,6 @@
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "messageDeleteSuccess": "Currency \"{name}\" has been deleted.",
-      "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
     "detail": {
@@ -36,7 +35,6 @@
       "placeholderShortName": "Enter short name...",
       "placeholderSymbol": "Enter currency symbol...",
       "placeholderFactor": "Enter conversion factor...",
-      "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "notificationErrorMessage": "An error occurred while saving your currency.",
       "titleRoundingCard": "Price rounding",

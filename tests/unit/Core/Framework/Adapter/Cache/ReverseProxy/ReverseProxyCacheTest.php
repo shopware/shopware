@@ -5,10 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\ReverseProxy;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
+use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
@@ -76,15 +77,15 @@ class ReverseProxyCacheTest extends TestCase
 
     public function testWriteAddsGlobalStates(): void
     {
-        $store = new ReverseProxyCache($this->createMock(AbstractReverseProxyGateway::class), $this->createMock(CacheTracer::class), [CacheResponseSubscriber::STATE_LOGGED_IN], new CacheTagCollector($this->createMock(RequestStack::class)));
+        $store = new ReverseProxyCache($this->createMock(AbstractReverseProxyGateway::class), $this->createMock(CacheTracer::class), [CacheStateSubscriber::STATE_LOGGED_IN], new CacheTagCollector($this->createMock(RequestStack::class)));
 
         $request = new Request();
         $request->attributes->set(RequestTransformer::ORIGINAL_REQUEST_URI, '/foo');
         $response = new Response();
         $store->write($request, $response);
 
-        static::assertTrue($response->headers->has(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
-        static::assertSame($response->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER), CacheResponseSubscriber::STATE_LOGGED_IN);
+        static::assertTrue($response->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+        static::assertSame($response->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER), CacheStateSubscriber::STATE_LOGGED_IN);
     }
 
     public function testPurge(): void

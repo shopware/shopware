@@ -130,7 +130,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await flushPromises();
 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').exists()).toBe(true);
-            await wrapper.find('.sw-select__selection-indicators').trigger('click');
+            await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
             await wrapper.find('.sw-select-result').trigger('click');
@@ -154,7 +154,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await flushPromises();
 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').exists()).toBe(true);
-            await wrapper.find('.sw-select__selection-indicators').trigger('click');
+            await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
             await wrapper.find('.sw-select-result').trigger('click');

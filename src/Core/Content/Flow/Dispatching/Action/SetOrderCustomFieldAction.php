@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
@@ -20,16 +20,15 @@ class SetOrderCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private readonly Connection $connection;
-
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
-        Connection $connection,
+        private readonly Connection $connection,
         private readonly EntityRepository $orderRepository
     ) {
-        $this->connection = $connection;
     }
 
     public static function getName(): string
@@ -59,11 +58,9 @@ class SetOrderCustomFieldAction extends FlowAction implements DelayableAction
      */
     private function update(Context $context, array $config, string $orderId): void
     {
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
 
-        $customFields = $this->getCustomFieldForUpdating($order->getCustomfields(), $config);
-
+        $customFields = $this->getCustomFieldForUpdating($order?->getCustomFields(), $config);
         if ($customFields === null) {
             return;
         }

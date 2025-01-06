@@ -43,7 +43,7 @@ class CartSerializationCleanerTest extends TestCase
     #[DataProvider('cleanupCustomFieldsProvider')]
     public function testLineItemCustomFields(Cart $cart, array $payloads = [], array $allowed = []): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');

@@ -33,7 +33,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
     {
         $this->browser = $this->createCustomSalesChannelBrowser();
 
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
         static::assertNotNull($systemConfig);
         $systemConfig->set('core.newsletter.doubleOptIn', false);
     }
@@ -51,13 +51,13 @@ class NewsletterUnsubscribeRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
+        $count = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
         static::assertSame(1, $count);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->addEventListener($dispatcher, NewsletterUnsubscribeEvent::class, $listener);
 
         $this->browser
@@ -69,7 +69,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
+        $count = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
         static::assertSame(0, $count);
     }
 
@@ -86,7 +86,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
+        $count = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
         static::assertSame(1, $count);
 
         $this->browser

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -47,16 +48,13 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     private ContainerInterface $container;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<PluginCollection>
      */
-    private $pluginRepo;
+    private EntityRepository $pluginRepo;
 
     private PluginService $pluginService;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private PluginLifecycleService $pluginLifecycleService;
 
@@ -79,7 +77,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         // force kernel boot
         KernelLifecycleManager::bootKernel();
 
-        $this->container = $this->getContainer();
+        $this->container = static::getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->connection = $this->container->get(Connection::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
@@ -159,7 +157,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
 
     private function assertMigrationCount(MigrationCollection $migrationCollection, int $expectedCount): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         /** @var MigrationSource $migrationSource */
         $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');

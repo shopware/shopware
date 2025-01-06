@@ -15,16 +15,22 @@ class ProductListingResultEvent extends NestedEvent implements ShopwareSalesChan
 {
     /**
      * @var Request
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $request;
 
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 
     /**
      * @var ProductListingResult
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $result;
 

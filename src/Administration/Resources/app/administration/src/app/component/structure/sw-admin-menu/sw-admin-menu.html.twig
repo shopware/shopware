@@ -40,26 +40,25 @@
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_admin_menu_navigation_main %}
-            <nav class="sw-admin-menu__navigation">
+            <nav class="sw-admin-menu__navigation" aria-labelledby="mainmenulabel">
+                <h2 id="mainmenulabel" class="visually-hidden">{{ $tc('global.sw-admin-menu.navigation.label') }}</h2>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_admin_menu_navigation_main_list %}
                 <ul class="sw-admin-menu__navigation-list">
                     <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_admin_menu_navigation_main_items %}
-                    <template
+                    <sw-admin-menu-item
                         v-for="(entry, index) in mainMenuEntries"
                         :key="`${entry.id || entry.path}-${entry.children.length}`"
-                    >
-                        <sw-admin-menu-item
-                            :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
-                            :sidebar-expanded="isExpanded"
-                            :entry="entry"
-                            @menu-item-click="onMenuItemClick"
-                            @menu-item-enter="onMenuItemEnter"
-                            @sub-menu-item-enter="onSubMenuItemEnter"
-                        />
-                    </template>
+                        :tabindex="0"
+                        :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
+                        :sidebar-expanded="isExpanded"
+                        :entry="entry"
+                        @menu-item-click="onMenuItemClick"
+                        @menu-item-enter="onMenuItemEnter"
+                        @sub-menu-item-enter="onSubMenuItemEnter"
+                    />
                     {% endblock %}
                 </ul>
                 {% endblock %}

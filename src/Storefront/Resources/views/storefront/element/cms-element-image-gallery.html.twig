@@ -144,7 +144,11 @@
                     {% if imageCount > 1 %}
                         data-gallery-slider="true"
                         data-gallery-slider-options='{{ gallerySliderOptions|json_encode }}'
-                    {% endif %}>
+                    {% endif %}
+                     role="region"
+                     aria-label="{{ 'component.cms.imageGallery.ariaLabel'|trans({ '%total%': imageCount })|sw_sanitize }}"
+                     tabindex="0"
+                >
                     {% block element_image_gallery_inner_col %}
                         <div class="gallery-slider-col{% if galleryPosition == "left" %} col order-1 order-md-2{% elseif galleryPosition == "underneath" %} col-12 order-1{% endif %}"
                              {% if zoomModal %}data-zoom-modal="true"{% endif %}>
@@ -182,6 +186,7 @@
                                                                                         modelUrl: image.url,
                                                                                         lightIntensity: config('core.media.defaultLightIntensity'),
                                                                                         sliderPosition: loop.index0,
+                                                                                        dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
                                                                                     } %}
                                                                                     <canvas
                                                                                         data-spatial-gallery-slider-viewer
@@ -195,16 +200,18 @@
                                                                                         {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                                     </span>
                                                                                     {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
-                                                                                        <div class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
+                                                                                        <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
+                                                                                             aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
                                                                                              data-spatial-ar-viewer
-                                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'>
+                                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'
+                                                                                             tabIndex="0">
 
                                                                                                 {% sw_icon 'augmented' style {
                                                                                                     'size': 'fluid'
                                                                                                 } %}
                                                                                                 <span>{{ 'spatial.openArView'|trans|striptags }}</span>
 
-                                                                                        </div>
+                                                                                        </button>
                                                                                         {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                                     {% endif %}
                                                                                 </div>
@@ -317,6 +324,7 @@
                                                                         modelUrl: image.url,
                                                                         lightIntensity: config('core.media.defaultLightIntensity'),
                                                                         sliderPosition: loop.index0,
+                                                                        dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
                                                                     } %}
                                                                     <canvas
                                                                             data-spatial-gallery-slider-viewer
@@ -330,16 +338,18 @@
                                                                     {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                     </span>
                                                                     {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
-                                                                        <div class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
+                                                                        <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
+                                                                             aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
                                                                              data-spatial-ar-viewer
-                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'>
+                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'
+                                                                             tabIndex="0">
 
                                                                                 {% sw_icon 'augmented' style {
                                                                                     'size': 'fluid'
                                                                                 } %}
                                                                                 <span>{{ 'spatial.openArView'|trans|striptags }}</span>
 
-                                                                        </div>
+                                                                        </button>
                                                                         {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                     {% endif %}
                                                                 </div>
@@ -534,10 +544,12 @@
                                          data-bs-backdrop="false"
                                          data-image-zoom-modal="true"
                                          tabindex="-1"
-                                         role="dialog">
+                                         role="dialog"
+                                         aria-modal="true"
+                                         aria-hidden="true"
+                                         aria-label="{{ 'component.cms.imageGallery.ariaLabel'|trans|striptags }}">
                                         {% block element_image_gallery_inner_zoom_modal_dialog %}
-                                            <div class="modal-dialog"
-                                                 role="document">
+                                            <div class="modal-dialog">
                                                 {% block element_image_gallery_inner_zoom_modal_content %}
                                                     <div class="modal-content"{% if imageCount > 1 %} data-modal-gallery-slider="true" data-gallery-slider-options='{{ galleryZoomSliderOptions|json_encode }}' {% endif %}>
                                                         {% block element_image_gallery_inner_zoom_modal_close_button %}
@@ -652,6 +664,7 @@
                                                                                                             modelUrl: image.url,
                                                                                                             lightIntensity: config('core.media.defaultLightIntensity'),
                                                                                                             sliderPosition: loop.index0,
+                                                                                                            dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
                                                                                                         } %}
                                                                                                         <canvas
                                                                                                                 data-spatial-zoom-gallery-slider-viewer
@@ -665,16 +678,18 @@
                                                                                                         {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                                                         </span>
                                                                                                         {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
-                                                                                                            <div class="ar-button button mb-2 position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
+                                                                                                            <button class="ar-button button mb-2 position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
+                                                                                                                 aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
                                                                                                                  data-spatial-ar-viewer
-                                                                                                                 data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'>
+                                                                                                                 data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'
+                                                                                                                 tabIndex="0">
 
                                                                                                                     {% sw_icon 'augmented' style {
                                                                                                                         'size': 'fluid'
                                                                                                                     } %}
                                                                                                                     <span>{{ 'spatial.openArView'|trans|striptags }}</span>
 
-                                                                                                            </div>
+                                                                                                            </button>
                                                                                                             {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                                                         {% endif %}
                                                                                                     </div>

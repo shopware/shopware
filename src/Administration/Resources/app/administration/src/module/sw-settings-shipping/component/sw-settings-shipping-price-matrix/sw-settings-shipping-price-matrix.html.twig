@@ -21,7 +21,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_price_matrix_topbar %}
     <sw-container
-        columns="1fr 160px 35px"
+        columns="1fr auto 35px"
         gap="0px 24px"
         class="sw-settings-shipping-price-matrix__top-container"
     >
@@ -35,8 +35,8 @@
             :disabled="disabled || undefined"
             :placeholder="mainRulePlaceholder"
             rule-aware-group-key="shippingMethodPrices"
-            :restricted-rule-ids="usedRules"
-            :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsed')"
+            :restricted-rule-ids="restrictedRuleIds"
+            :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedOrRestricted')"
             @save-rule="onSaveMainRule"
         />
         {% endblock %}
@@ -100,7 +100,7 @@
     {% block sw_settings_shipping_price_matrix_price_grid %}
     <sw-data-grid
         v-if="showDataGrid"
-        :data-source="priceGroup.prices"
+        :data-source="prices"
         :columns="ruleColumns"
         :show-selection="false"
         :show-settings="true"
@@ -232,6 +232,17 @@
         </template>
         {% endblock %}
     </sw-data-grid>
+    <div v-if="showDataGrid && !showAllPrices"
+         class="sw-settings-shipping-price-matrix__price-load-all"
+    >
+        <sw-button variant="ghost"
+                   size="small"
+                   class="sw-settings-shipping-price-matrix__price-load-all-button"
+                   @click="updateShowAllPrices"
+        >
+            {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
+        </sw-button>
+    </div>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -317,7 +328,7 @@
                 size="small"
                 @click="onCloseDeleteModal"
             >
-                {{ $tc('sw-settings-shipping.priceMatrix.buttonCancel') }}
+                {{ $tc('global.default.cancel') }}
             </sw-button>
             {% endblock %}
 

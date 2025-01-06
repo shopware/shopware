@@ -2,99 +2,112 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
-use Shopware\Core\Framework\App\Manifest\Manifest;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\WebhookCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\App\Lifecycle\WebhookPersisterTest
+ *
  * @internal only for use by the app-system
+ *
+ * @phpstan-type WebhookRecord array{name: string, event_name: string, url: string, only_live_version: int, app_id: string, active: int, error_count: int}
  */
 #[Package('core')]
 class WebhookPersister
 {
-    /**
-     * @param EntityRepository<WebhookCollection> $webhookRepository
-     */
-    public function __construct(private readonly EntityRepository $webhookRepository)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
-    public function updateWebhooks(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
-    {
-        $existingWebhooks = $this->getExistingWebhooks($appId, $context);
-
-        $webhooks = $manifest->getWebhooks() ? $manifest->getWebhooks()->getWebhooks() : [];
-        $upserts = [];
-
-        foreach ($webhooks as $webhook) {
-            $payload = $webhook->toArray($defaultLocale);
-            $payload['appId'] = $appId;
-            $payload['eventName'] = $webhook->getEvent();
-
-            $existing = $existingWebhooks->filterByProperty('name', $webhook->getName())->first();
-            if ($existing) {
-                $payload['id'] = $existing->getId();
-                $existingWebhooks->remove($existing->getId());
-            }
-
-            $upserts[] = $payload;
-        }
-
-        if (!empty($upserts)) {
-            $this->webhookRepository->upsert($upserts, $context);
-        }
-
-        $this->deleteOldWebhooks($existingWebhooks, $context);
-    }
-
     /**
-     * @param array<array{name: string}> $webhooks
+     * @param array<array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int}> $webhooks
      */
     public function updateWebhooksFromArray(array $webhooks, string $appId, Context $context): void
     {
-        $existingWebhooks = $this->getExistingWebhooks($appId, $context);
-        $upserts = [];
+        $existingWebhooks = $this->getExistingWebhooks($appId);
+        $updates = [];
+        $inserts = [];
 
         foreach ($webhooks as $webhook) {
-            $existing = $existingWebhooks->filterByProperty('name', $webhook['name'])->first();
+            $payload = $this->toRecord($webhook, $appId);
 
-            if ($existing) {
-                $webhook['id'] = $existing->getId();
-                $existingWebhooks->remove($existing->getId());
+            if ($id = array_search($webhook['name'], $existingWebhooks, true)) {
+                unset($existingWebhooks[$id]);
+                $updates[$id] = $payload;
+                continue;
             }
 
-            $upserts[] = $webhook;
+            $payload['id'] = Uuid::randomBytes();
+            $payload['created_at'] = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $inserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
-            $this->webhookRepository->upsert($upserts, $context);
+        foreach ($updates as $id => $update) {
+            $this->connection->update('webhook', $update, ['id' => Uuid::fromHexToBytes($id)]);
+        }
+
+        foreach ($inserts as $insert) {
+            $this->connection->insert('webhook', $insert);
         }
 
         $this->deleteOldWebhooks($existingWebhooks, $context);
     }
 
-    private function deleteOldWebhooks(WebhookCollection $toBeRemoved, Context $context): void
+    /**
+     * @param array<string, string> $toBeRemoved
+     */
+    private function deleteOldWebhooks(array $toBeRemoved, Context $context): void
     {
-        $ids = $toBeRemoved->getIds();
-
-        if (empty($ids)) {
-            return;
-        }
-
-        $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
-
-        $this->webhookRepository->delete($ids, $context);
+        $this->connection->executeQuery(
+            'DELETE FROM webhook WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList(array_keys($toBeRemoved))],
+            ['ids' => ArrayParameterType::STRING],
+        );
     }
 
-    private function getExistingWebhooks(string $appId, Context $context): WebhookCollection
+    /**
+     * @return array<string, string>
+     */
+    private function getExistingWebhooks(string $appId): array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $sql = <<<'SQL'
+            SELECT
+                LOWER(HEX(w.id)) as webhookId,
+                w.name as webhookName
+            FROM webhook w
+            LEFT JOIN app a ON (a.id = w.app_id)
+            WHERE LOWER(HEX(a.id)) = :appId
 
-        return $this->webhookRepository->search($criteria, $context)->getEntities();
+        SQL;
+
+        /** @var array<string, string> $webhooks */
+        $webhooks = $this->connection->fetchAllKeyValue(
+            $sql,
+            ['appId' => $appId]
+        );
+
+        return $webhooks;
+    }
+
+    /**
+     * @param array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int} $webhook
+     *
+     * @return WebhookRecord
+     */
+    private function toRecord(array $webhook, string $appId): array
+    {
+        return [
+            'name' => $webhook['name'],
+            'event_name' => $webhook['eventName'],
+            'url' => $webhook['url'],
+            'only_live_version' => \array_key_exists('onlyLiveVersion', $webhook) ? (int) $webhook['onlyLiveVersion'] : 0,
+            'error_count' => \array_key_exists('errorCount', $webhook) ? (int) $webhook['errorCount'] : 0,
+            'active' => 1,
+            'app_id' => Uuid::fromHexToBytes($appId),
+        ];
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Media;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -22,15 +23,15 @@ class MediaEntityTest extends TestCase
     use MediaFixtures;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('media.repository');
+        $this->repository = static::getContainer()->get('media.repository');
         $this->context = Context::createDefaultContext();
     }
 

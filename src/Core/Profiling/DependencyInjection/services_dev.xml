@@ -15,5 +15,37 @@
         <service id="Shopware\Core\Profiling\Routing\ProfilerWhitelist">
             <tag name="shopware.route_scope_whitelist"/>
         </service>
+
+        <service id="Shopware\Core\Profiling\Doctrine\ConnectionProfiler">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <tag name="data_collector"
+                 template="@Profiling/Collector/db.html.twig"
+                 id="app.connection_collector"
+                 priority="200"
+            />
+        </service>
+
+        <service id="Shopware\Core\Profiling\Twig\DoctrineExtension" public="false">
+            <tag name="twig.extension" />
+        </service>
+
+        <service id="Shopware\Core\Profiling\Subscriber\ActiveRulesDataCollectorSubscriber">
+            <argument type="service" id="rule.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="data_collector"/>
+        </service>
+
+        <service id="Shopware\Core\Profiling\FeatureFlag\FeatureFlagProfiler">
+            <argument type="service" id="Shopware\Core\Framework\Feature\FeatureFlagRegistry"/>
+
+            <tag name="data_collector" template="@Profiling/Collector/flags.html.twig" id="feature_flag" priority="-5" />
+        </service>
+
+        <service id="Shopware\Core\Profiling\Subscriber\HttpCacheTagDataCollectorSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <tag name="data_collector"/>
+            <argument type="service" id="request_stack"/>
+        </service>
     </services>
 </container>

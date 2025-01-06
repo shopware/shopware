@@ -13,16 +13,22 @@ class ProductSortingTranslationEntity extends TranslationEntity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productSortingId;
 
     /**
      * @var ProductSortingEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productSorting;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $label;
 

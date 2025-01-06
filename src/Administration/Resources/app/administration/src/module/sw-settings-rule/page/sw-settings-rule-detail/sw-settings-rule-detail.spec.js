@@ -542,7 +542,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const apiLanguageId = Shopware.State.get('context').api.languageId;
         expect(Shopware.State.get('context').api.languageId).not.toBe('uuid1');
 
-        await wrapper.find('.sw-select__select-indicator').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-select-result').trigger('click');
@@ -561,7 +561,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-select__select-indicator').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-select-result').trigger('click');
@@ -956,5 +956,126 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await saveButton.trigger('click');
 
         expect(wrapper.vm.getChildrenConditions).toHaveBeenCalledTimes(0);
+    });
+
+    it('should return conditions including nested conditions', async () => {
+        const conditionTree = [
+            { id: 1, children: [{ id: 2, children: [] }] },
+            { id: 3, children: [{ id: 4, children: [{ id: 5, children: [] }] }] },
+        ];
+        const expectedFlatConditions = [
+            { id: 1, children: [{ id: 2, children: [] }] },
+            { id: 2, children: [] },
+            { id: 3, children: [{ id: 4, children: [{ id: 5, children: [] }] }] },
+            { id: 4, children: [{ id: 5, children: [] }] },
+            { id: 5, children: [] },
+        ];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({ conditionTree });
+        expect(wrapper.vm.conditionTreeFlat).toEqual(expectedFlatConditions);
+    });
+
+    it('should validate date ranges successfully', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const conditionTreeWithDateRanges = {
+            conditionTree: [
+                {
+                    id: 'date-range-condition',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-01-01', toDate: '2023-12-31' },
+                    children: [],
+                },
+            ],
+        };
+        await wrapper.setData(conditionTreeWithDateRanges);
+        const isValid = wrapper.vm.validateDateRange();
+
+        expect(isValid).toBe(true);
+    });
+
+    it('should invalidate incorrect date ranges', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const conditionTreeWithInvalidDateRanges = {
+            conditionTree: [
+                {
+                    id: 'date-range-condition',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-12-31', toDate: '2023-01-01' },
+                    children: [],
+                },
+            ],
+        };
+        await wrapper.setData(conditionTreeWithInvalidDateRanges);
+        const isValid = wrapper.vm.validateDateRange();
+
+        expect(isValid).toBe(false);
+    });
+
+    it('should save rule with valid date ranges', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const conditionTreeWithDateRanges = {
+            conditionTree: [
+                {
+                    id: 'date-range-condition',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-01-01', toDate: '2023-12-31' },
+                    children: [],
+                },
+            ],
+        };
+        await wrapper.setData(conditionTreeWithDateRanges);
+        wrapper.vm.createNotificationError = jest.fn();
+
+        expect(wrapper.find('.sw-settings-rule-detail__save-action').exists()).toBe(true);
+        await wrapper.find('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not save rule with invalid date ranges', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const conditionTreeWithInvalidDateRanges = {
+            conditionTree: [
+                {
+                    id: 'date-range-condition',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-12-31', toDate: '2023-01-01' },
+                    children: [],
+                },
+            ],
+        };
+        await wrapper.setData({
+            ...conditionTreeWithInvalidDateRanges,
+            conditions: [
+                { id: 'some-id' },
+                { id: 'another-id' },
+                { id: 'date-range-condition' },
+            ],
+        });
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(0);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
     });
 });

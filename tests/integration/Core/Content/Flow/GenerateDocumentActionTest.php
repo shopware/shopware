@@ -71,10 +71,10 @@ class GenerateDocumentActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->logger = $this->getContainer()->get('logger');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->logger = static::getContainer()->get('logger');
     }
 
     #[DataProvider('genDocumentProvider')]
@@ -122,7 +122,7 @@ class GenerateDocumentActionTest extends TestCase
         }
 
         /** @var FlowFactory $flowFactory */
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -162,7 +162,7 @@ class GenerateDocumentActionTest extends TestCase
         $this->logger->pushHandler($handler);
 
         /** @var FlowFactory $flowFactory */
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -200,7 +200,7 @@ class GenerateDocumentActionTest extends TestCase
         $this->insertCustomDocument();
         $this->insertRange();
 
-        $registry = $this->getContainer()->get(DocumentRendererRegistry::class);
+        $registry = static::getContainer()->get(DocumentRendererRegistry::class);
         $customDocGenerator = new CustomDocRenderer();
         $class = new \ReflectionClass($registry);
         $property = $class->getProperty('documentRenderers');
@@ -215,7 +215,7 @@ class GenerateDocumentActionTest extends TestCase
         static::assertEmpty($before);
 
         /** @var FlowFactory $flowFactory */
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
@@ -355,7 +355,7 @@ class GenerateDocumentActionTest extends TestCase
     private function createOrder(string $customerId, Context $context): OrderEntity
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [

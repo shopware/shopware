@@ -7,8 +7,7 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
-use Predis\ClientInterface;
-use Relay\Relay;
+use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -18,6 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @deprecated tag:v6.7.0 - Will be removed in 6.7.0. Use the `Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway` instead
+ *
+ * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
  */
 #[Package('core')]
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
@@ -43,8 +44,8 @@ return final
 LUA;
 
     /**
-     * @param string[] $hosts
-     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay $redis Cannot be natively typed, as symfony might change the type in the future
+     * @param list<string> $hosts
+     * @param RedisTypeHint $redis
      * @param array{'method': string, 'headers': array<string, string>} $singlePurge
      * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge
      */
@@ -53,13 +54,14 @@ LUA;
         protected array $singlePurge,
         protected array $entirePurge,
         private readonly int $concurrency,
+        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
         private $redis,
         private readonly Client $client
     ) {
     }
 
     /**
-     * @param string[] $tags
+     * @param list<string> $tags
      */
     public function tag(array $tags, string $url, Response $response): void
     {
@@ -71,7 +73,7 @@ LUA;
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function invalidate(array $tags): void
     {

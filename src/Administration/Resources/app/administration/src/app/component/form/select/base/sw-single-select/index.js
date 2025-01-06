@@ -96,6 +96,12 @@ Component.register('sw-single-select', {
             required: false,
             default: false,
         },
+
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {

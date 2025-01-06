@@ -130,12 +130,12 @@ class LongTextFieldSerializerTest extends TestCase
         ];
 
         yield 'Long text with empty value' => [
-            'text' => '',
+            'value' => '',
             'expectResult' => '',
         ];
 
         yield 'Long text with string' => [
-            'text' => 'Some text',
+            'value' => 'Some text',
             'expectResult' => 'Some text',
         ];
     }

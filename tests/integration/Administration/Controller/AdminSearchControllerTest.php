@@ -286,8 +286,8 @@ class AdminSearchControllerTest extends TestCase
         $fancyManufacturer = Uuid::randomHex();
         $cheapestManufacturer = Uuid::randomHex();
 
-        $productRepository = $this->getContainer()->get('product.repository');
-        $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
+        $productRepository = static::getContainer()->get('product.repository');
+        $manufacturerRepository = static::getContainer()->get('product_manufacturer.repository');
 
         $manufacturerRepository->upsert([
             ['id' => $fancyManufacturer, 'name' => 'Fancy Manufacturer'],

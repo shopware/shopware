@@ -25,13 +25,13 @@ abstract class AbstractBenchCase
 
         $this->context = clone Fixtures::context();
 
-        $this->getContainer()->get(Connection::class)->setNestTransactionsWithSavepoints(true);
-        $this->getContainer()->get(Connection::class)->beginTransaction();
+        static::getContainer()->get(Connection::class)->setNestTransactionsWithSavepoints(true);
+        static::getContainer()->get(Connection::class)->beginTransaction();
     }
 
     public function tearDown(): void
     {
-        $this->getContainer()->get(Connection::class)->rollBack();
+        static::getContainer()->get(Connection::class)->rollBack();
     }
 
     public static function getContainer(): ContainerInterface

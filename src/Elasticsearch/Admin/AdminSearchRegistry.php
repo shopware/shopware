@@ -160,9 +160,9 @@ class AdminSearchRegistry implements EventSubscriberInterface
             if (empty($ids)) {
                 continue;
             }
-            $documents = $indexer->fetch($ids);
 
-            $this->push($indexer, $indices, $documents, $ids);
+            $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids);
+            $this->queue->dispatch($msg);
         }
     }
 

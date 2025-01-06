@@ -220,6 +220,7 @@ class ThemeCompilerTest extends TestCase
 
     public static function configForDumpVariables(): \Generator
     {
+        // The resulting color values will be #ffffff00 because the scsscompiler is just a mock and the fallback will replace the real values
         yield 'finds config fields and returns string with scss variables' => [
             [
                 'fields' => [
@@ -405,6 +406,9 @@ $sw-asset-theme-url: \'http://localhost\';
 
 \$theme-id: themeId;
 \$sw-zero-margin: 0;
+\$sw-null-margin: 0;
+\$sw-unset-margin: 0;
+\$sw-empty-margin: 0;
 \$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL,

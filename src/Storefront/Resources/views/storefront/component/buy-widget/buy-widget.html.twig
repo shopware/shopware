@@ -52,8 +52,10 @@
             {% endblock %}
 
             {% block buy_widget_rich_snippets_release_date %}
-                <meta itemprop="releaseDate"
-                      content="{{ product.releaseDate|format_date(pattern='Y-MM-dd') }}">
+                {% if product.releaseDate %}
+                    <meta itemprop="releaseDate"
+                          content="{{ product.releaseDate|format_date(pattern='Y-MM-dd') }}">
+                {% endif %}
             {% endblock %}
         {% endblock %}
 

@@ -26,8 +26,8 @@ class MailHeaderFooterApiTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('mail_header_footer.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('mail_header_footer.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
 
         try {

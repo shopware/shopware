@@ -119,6 +119,9 @@
                 },
                 "feature_toggle": {
                     "$ref": "#/definitions/feature_toggle"
+                },
+                "product_stream": {
+                    "$ref": "#/definitions/product_stream"
                 }
             },
             "title": "Shopware"
@@ -153,7 +156,7 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
-                        "enable_dispatch": {
+                        "dispatch_enabled": {
                             "type": "boolean"
                         },
                         "base_uri": {
@@ -248,6 +251,16 @@
                 }
             },
             "title": "Feature toggle"
+        },
+        "product_stream": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "indexing": {
+                    "type": "boolean"
+                }
+            },
+            "title": "Product Stream"
         },
         "twig": {
             "type": "object",

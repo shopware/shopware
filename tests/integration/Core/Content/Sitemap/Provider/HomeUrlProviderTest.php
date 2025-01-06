@@ -34,8 +34,8 @@ class HomeUrlProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->languageRepository = $this->getContainer()->get('language.repository');
-        $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->languageRepository = static::getContainer()->get('language.repository');
+        $contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create('', TestDefaults::SALES_CHANNEL);
     }
 

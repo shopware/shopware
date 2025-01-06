@@ -1,18 +1,28 @@
 {% block page_checkout_aside_cancel_order_modal %}
+    {% if order is not defined %}
+        {% set order = page.order %}
+    {% endif %}
+
+    {% if modalId is not defined %}
+        {% set modalId = 'cancelOrderModal-' ~ order.id %}
+    {% endif %}
+
     <div class="modal fade"
-         id="cancelOrderModal"
+         id="{{ modalId }}"
          data-backdrop="static"
          tabindex="-1"
          role="dialog"
-         aria-hidden="true">
+         aria-modal="true"
+         aria-hidden="true"
+         aria-labelledby="cancel-order-modal-header">
         {% block page_checkout_aside_cancel_order_modal_dialog %}
-            <div class="modal-dialog" role="dialog">
+            <div class="modal-dialog">
                 {% block page_checkout_aside_cancel_order_modal_content %}
                     <div class="modal-content">
                         {% block page_checkout_aside_cancel_order_modal_header %}
                             <div class="modal-header">
                                 {% block page_checkout_aside_cancel_order_modal_header_title %}
-                                    <h5 class="modal-title">{{ 'account.editOrderCancelOrderModalHeader'|trans|sw_sanitize }}</h5>
+                                    <h5 id="cancel-order-modal-header" class="modal-title">{{ 'account.editOrderCancelOrderModalHeader'|trans|sw_sanitize }}</h5>
                                 {% endblock %}
 
                                 {% block page_checkout_aside_cancel_order_modal_header_close_button %}
@@ -46,13 +56,13 @@
                                         {% block page_checkout_aside_cancel_order_modal_footer_form_deeplinkcode %}
                                             <input type="hidden"
                                                    name="deepLinkCode"
-                                                   value="{{ page.order.deepLinkCode }}">
+                                                   value="{{ order.deepLinkCode }}">
                                         {% endblock %}
 
                                         {% block page_checkout_aside_cancel_order_modal_footer_form_order_id %}
                                             <input type="hidden"
                                                    name="orderId"
-                                                   value="{{ page.order.id }}">
+                                                   value="{{ order.id }}">
                                         {% endblock %}
 
                                         {% block page_checkout_aside_cancel_order_modal_footer_form_redirect %}

@@ -10,31 +10,43 @@ class TokenStruct extends Struct
 {
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $id;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $token;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethodId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $transactionId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $finishUrl;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $errorUrl;
 
@@ -47,6 +59,8 @@ class TokenStruct extends Struct
 
     /**
      * @var int Unix Timestamp
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $expires;
 

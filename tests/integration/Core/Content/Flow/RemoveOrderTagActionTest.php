@@ -37,11 +37,11 @@ class RemoveOrderTagActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $this->ids = new IdsCollection();
 
@@ -136,7 +136,7 @@ class RemoveOrderTagActionTest extends TestCase
 
         $this->prepareProductTest();
 
-        $this->getContainer()->get('tag.repository')->create([
+        static::getContainer()->get('tag.repository')->create([
             [
                 'id' => $this->ids->create('tag_id'),
                 'name' => 'test tag',
@@ -155,7 +155,7 @@ class RemoveOrderTagActionTest extends TestCase
     private function createOrder(Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -202,7 +202,7 @@ class RemoveOrderTagActionTest extends TestCase
             ],
         ];
 
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
 
         $orderRepository->upsert([$order], $context);
 

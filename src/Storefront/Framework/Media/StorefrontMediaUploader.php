@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[Package('buyers-experience')]
@@ -26,7 +26,7 @@ class StorefrontMediaUploader
     }
 
     /**
-     * @throws FileTypeNotAllowedException
+     * @throws StorefrontFrameworkException
      * @throws MediaException
      */
     public function upload(UploadedFile $file, string $folder, string $type, Context $context, bool $isPrivate = false): string

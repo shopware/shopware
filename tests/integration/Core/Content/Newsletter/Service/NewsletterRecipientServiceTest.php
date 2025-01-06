@@ -43,10 +43,10 @@ class NewsletterRecipientServiceTest extends TestCase
 
         self::expectException(ConstraintViolationException::class);
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->getContainer()->get(NewsletterSubscribeRoute::class)
+        static::getContainer()->get(NewsletterSubscribeRoute::class)
             ->subscribe($dataBag, $context, false);
     }
 
@@ -131,17 +131,17 @@ class NewsletterRecipientServiceTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('sales_channel.repository')
+        static::getContainer()->get('sales_channel.repository')
             ->create([$salesChannel], Context::createDefaultContext());
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), $id);
-        $this->getContainer()
+        static::getContainer()
             ->get(NewsletterSubscribeRoute::class)
             ->subscribe($dataBag, $context, false);
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('newsletter_recipient.repository');
+        $repository = static::getContainer()->get('newsletter_recipient.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
 
@@ -159,9 +159,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         self::expectException(NewsletterException::class);
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $this->getContainer()
+        static::getContainer()
             ->get(NewsletterConfirmRoute::class)
             ->confirm($dataBag, $context);
     }
@@ -174,9 +174,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         self::expectException(ConstraintViolationException::class);
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $this->getContainer()
+        static::getContainer()
             ->get(NewsletterConfirmRoute::class)
             ->confirm($dataBag, $context);
     }
@@ -191,15 +191,15 @@ class NewsletterRecipientServiceTest extends TestCase
             'hash' => 'b4b45f58088d41289490db956ca19af7',
         ]);
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->getContainer()
+        static::getContainer()
             ->get(NewsletterConfirmRoute::class)
             ->confirm($dataBag, $context);
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('newsletter_recipient.repository');
+        $repository = static::getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
@@ -225,9 +225,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         self::expectException(NewsletterException::class);
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $this->getContainer()
+        static::getContainer()
             ->get(NewsletterUnsubscribeRoute::class)
             ->unsubscribe($dataBag, $context);
     }
@@ -243,14 +243,14 @@ class NewsletterRecipientServiceTest extends TestCase
             'option' => 'unsubscribe',
         ]);
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $this->getContainer()
+        static::getContainer()
             ->get(NewsletterUnsubscribeRoute::class)
             ->unsubscribe($dataBag, $context);
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('newsletter_recipient.repository');
+        $repository = static::getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
@@ -267,7 +267,7 @@ class NewsletterRecipientServiceTest extends TestCase
     private function getRandomId(string $table): string
     {
         /** @var string $id */
-        $id = $this->getContainer()->get(Connection::class)
+        $id = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM ' . $table);
 
         return $id;
@@ -277,11 +277,11 @@ class NewsletterRecipientServiceTest extends TestCase
     {
         $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
         static::assertIsString($salutationSql);
-        $this->getContainer()->get(Connection::class)->executeStatement($salutationSql);
+        static::getContainer()->get(Connection::class)->executeStatement($salutationSql);
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
         static::assertIsString($recipientSql);
         $recipientSql = str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
-        $this->getContainer()->get(Connection::class)->executeStatement($recipientSql);
+        static::getContainer()->get(Connection::class)->executeStatement($recipientSql);
     }
 }

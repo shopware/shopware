@@ -4,7 +4,7 @@ import './sw-settings-shipping-detail.scss';
 import swShippingDetailState from './state';
 
 const { Mixin, Context } = Shopware;
-const { mapState } = Shopware.Component.getComponentHelper();
+const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
@@ -65,7 +65,13 @@ export default {
         ...mapState('swShippingDetail', [
             'shippingMethod',
             'currencies',
+            'restrictedRuleIds',
         ]),
+
+        ...mapGetters('swShippingDetail', [
+            'usedRules',
+        ]),
+
         ...mapPropertyErrors('shippingMethod', [
             'name',
             'technicalName',
@@ -140,10 +146,13 @@ export default {
 
         shippingMethodCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addAssociation('prices');
             criteria.addAssociation('tags');
-            criteria.getAssociation('prices').addAssociation('calculationRule');
-            criteria.getAssociation('prices').addAssociation('rule');
+
+            criteria.getAssociation('prices').addAssociation('rule').addSorting(Criteria.sort('quantityStart'));
+
+            if (!Shopware.Feature.isActive('v6.7.0.0')) {
+                criteria.getAssociation('prices').addAssociation('calculationRule');
+            }
 
             return criteria;
         },
@@ -220,6 +229,11 @@ export default {
                 .get(this.shippingMethodId, Shopware.Context.api, this.shippingMethodCriteria)
                 .then((res) => {
                     Shopware.State.commit('swShippingDetail/setShippingMethod', res);
+
+                    this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices').then((result) => {
+                        Shopware.State.commit('swShippingDetail/setRestrictedRuleIds', this.usedRules.concat(result));
+                    });
+
                     this.loadCustomFieldSets().then(() => {
                         this.isLoading = false;
                     });

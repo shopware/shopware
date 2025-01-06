@@ -135,7 +135,7 @@
             ref="generatedVariants"
             :product-states="currentProductStates"
             :groups="groups"
-            :selected-groups="selectedGroups"
+            :selected-groups="configSettingGroups"
             :product-entity="productEntity"
             @variants-finish-update="updateVariantListHasContent"
             @generator-open="openModal('variantGeneration')"
@@ -153,7 +153,7 @@
         :product="productEntity"
         :groups="groups"
         :actual-status="activeTab"
-        :selected-groups="selectedGroups"
+        :selected-groups="configSettingGroups"
         @modal-close="activeModal = ''"
         @variations-finish-generate="updateVariations"
     />
@@ -164,7 +164,7 @@
     <sw-product-modal-delivery
         v-if="activeModal === 'deliveryModal'"
         :product="productEntity"
-        :selected-groups="selectedGroups"
+        :selected-groups="configSettingGroups"
         @configuration-close="onConfigurationClosed"
         @modal-close="activeModal = ''"
     />

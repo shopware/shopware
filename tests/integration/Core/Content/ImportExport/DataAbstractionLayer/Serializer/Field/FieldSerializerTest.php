@@ -33,7 +33,7 @@ class FieldSerializerTest extends TestCase
         $config = new Config([], [], []);
 
         $field = new OneToManyAssociationField('deliveries', OrderDeliveryEntity::class, 'order_delivery');
-        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderDeliveryEntity::class => OrderDeliveryDefinition::class], []);
+        $registry = new DefinitionInstanceRegistry(static::getContainer(), [OrderDeliveryEntity::class => OrderDeliveryDefinition::class], []);
         $field->compile($registry);
 
         $result = \iterator_to_array($fieldSerializer->serialize($config, $field, []));
@@ -47,7 +47,7 @@ class FieldSerializerTest extends TestCase
         $config = new Config([], [], []);
 
         $field = new OneToManyAssociationField('deliveries', OrderDeliveryEntity::class, 'order_delivery');
-        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderDeliveryEntity::class => OrderDeliveryDefinition::class], []);
+        $registry = new DefinitionInstanceRegistry(static::getContainer(), [OrderDeliveryEntity::class => OrderDeliveryDefinition::class], []);
         $field->compile($registry);
 
         $delivery = new OrderDeliveryEntity();
@@ -81,7 +81,7 @@ class FieldSerializerTest extends TestCase
         $config = new Config([], [], []);
 
         $field = new OneToManyAssociationField('deliveries', OrderEntity::class, 'order_delivery');
-        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderEntity::class => OrderDefinition::class], []);
+        $registry = new DefinitionInstanceRegistry(static::getContainer(), [OrderEntity::class => OrderDefinition::class], []);
         $field->compile($registry);
 
         $delivery = new OrderDeliveryEntity();
@@ -99,7 +99,7 @@ class FieldSerializerTest extends TestCase
         $config = new Config([], [], []);
 
         $field = new OneToManyAssociationField('foo', OrderEntity::class, 'order_delivery');
-        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderEntity::class => OrderDefinition::class], []);
+        $registry = new DefinitionInstanceRegistry(static::getContainer(), [OrderEntity::class => OrderDefinition::class], []);
         $field->compile($registry);
 
         $delivery = new OrderDeliveryEntity();
@@ -117,7 +117,7 @@ class FieldSerializerTest extends TestCase
         $config = new Config([], [], []);
 
         $field = new OneToManyAssociationField('deliveries', OrderEntity::class, 'order_delivery');
-        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderEntity::class => OrderDefinition::class], []);
+        $registry = new DefinitionInstanceRegistry(static::getContainer(), [OrderEntity::class => OrderDefinition::class], []);
         $field->compile($registry);
 
         $result = \iterator_to_array($fieldSerializer->serialize($config, $field, null));

@@ -22,6 +22,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryT
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
@@ -45,6 +46,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
@@ -308,9 +310,10 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.categories.id', $category->getUniqueIdentifier()));
-        $criteria->addAssociation('cover');
-        $criteria->addAssociation('options.group');
-        $criteria->addAssociation('manufacturer');
+        if (!Feature::isActive('v6.7.0.0')) {
+            $criteria->addAssociation('options.group');
+            $criteria->addAssociation('manufacturer');
+        }
 
         static::assertNotNull($collection);
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
@@ -348,9 +351,10 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.parent.id', $product->getUniqueIdentifier()));
-        $criteria->addAssociation('cover');
-        $criteria->addAssociation('options.group');
-        $criteria->addAssociation('manufacturer');
+        if (!Feature::isActive('v6.7.0.0')) {
+            $criteria->addAssociation('options.group');
+            $criteria->addAssociation('manufacturer');
+        }
 
         static::assertNotNull($collection);
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
@@ -449,9 +453,17 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $resolverContext = new EntityResolverContext($salesChannelContext, new Request(), new ProductDefinition(), new SalesChannelProductEntity());
 
         $streamResult = new ProductCollection($streamProducts);
+        $criteria = new Criteria();
+        $criteria->addAssociation('options.group');
+        $criteria->addAssociation('manufacturer');
+
+        if (!empty($expectedProductIds)) {
+            $criteria->setIds($expectedProductIds);
+        }
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->method('getEntities')->willReturn($streamResult);
+        $entitySearchResult->method('getCriteria')->willReturn($criteria);
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'streamId'));
@@ -480,6 +492,11 @@ class ProductSliderCmsElementResolverTest extends TestCase
         static::assertCount(\count($expectedProductIds), $products);
         foreach ($expectedProductIds as $expectedProductId) {
             static::assertTrue($products->has($expectedProductId), "Expected product ID $expectedProductId to be included in the slider.");
+
+            $product = $products->get($expectedProductId);
+            if ($product->getManufacturerId() && $product->getManufacturer() === null) {
+                static::fail('Manufacturer association is not loaded.');
+            }
         }
     }
 
@@ -489,6 +506,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $mainVariantId = Uuid::randomHex();
         $otherVariantId = Uuid::randomHex();
         $nonExistentId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
 
         yield 'Display main product' => [
             'expectedProductIds' => [$parentId],
@@ -527,15 +545,32 @@ class ProductSliderCmsElementResolverTest extends TestCase
                 self::createProduct($parentId, null, new VariantListingConfig(null, null, [])),
             ],
         ];
+
+        yield 'Product with manufacturer' => [
+            'expectedProductIds' => [$parentId],
+            'streamProducts' => [
+                self::createProduct($parentId, null, new VariantListingConfig(null, null, []), $manufacturerId),
+            ],
+        ];
     }
 
-    private static function createProduct(string $id, ?string $parentId, ?VariantListingConfig $config = null): SalesChannelProductEntity
+    private static function createManufacturer(string $id, string $name): ProductManufacturerEntity
+    {
+        $manufacturer = new ProductManufacturerEntity();
+        $manufacturer->setId($id);
+        $manufacturer->setName($name);
+
+        return $manufacturer;
+    }
+
+    private static function createProduct(string $id, ?string $parentId, ?VariantListingConfig $config = null, ?string $manufacturerId = null): SalesChannelProductEntity
     {
         $product = new SalesChannelProductEntity();
         $product->setId($id);
         $product->setUniqueIdentifier($id);
         $product->setParentId($parentId);
         $product->setVariantListingConfig($config);
+        $product->setManufacturerId($manufacturerId);
 
         return $product;
     }
@@ -552,6 +587,16 @@ class ProductSliderCmsElementResolverTest extends TestCase
                 $filteredProducts = array_filter($productCollection->getElements(), function ($product) use ($criteria) {
                     return \in_array($product->getId(), $criteria->getIds(), true);
                 });
+
+                $filteredProducts = array_map(function (ProductEntity $product) use ($criteria) {
+                    if ($product->getManufacturerId() && $criteria->hasAssociation('manufacturer')) {
+                        $manufacturer = self::createManufacturer($product->getManufacturerId(), 'Shopware AG');
+
+                        $product->setManufacturer($manufacturer);
+                    }
+
+                    return $product;
+                }, $filteredProducts);
 
                 return new EntitySearchResult(
                     ProductDefinition::class,

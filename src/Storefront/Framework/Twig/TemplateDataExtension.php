@@ -41,7 +41,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             return [];
         }
 
-        $controllerInfo = $this->getControllerInfo($request);
+        [$controllerName, $controllerAction] = $this->getControllerInfo($request);
 
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
 
@@ -50,8 +50,8 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'dateFormat' => \DATE_ATOM,
             ],
             'themeId' => $themeId,
-            'controllerName' => (string) $controllerInfo->getName(),
-            'controllerAction' => (string) $controllerInfo->getAction(),
+            'controllerName' => $controllerName,
+            'controllerAction' => $controllerAction,
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
             'formViolations' => $request->attributes->get('formViolations'),
@@ -59,23 +59,24 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         ];
     }
 
-    private function getControllerInfo(Request $request): ControllerInfo
+    /**
+     * @return array{0: string, 1: string}
+     */
+    private function getControllerInfo(Request $request): array
     {
-        $controllerInfo = new ControllerInfo();
         $controller = $request->attributes->get('_controller');
 
         if (!$controller) {
-            return $controllerInfo;
+            return ['', ''];
         }
 
         $matches = [];
         preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/', (string) $controller, $matches);
 
         if ($matches) {
-            $controllerInfo->setName($matches[1]);
-            $controllerInfo->setAction($matches[2]);
+            return [$matches[1], $matches[2]];
         }
 
-        return $controllerInfo;
+        return ['', ''];
     }
 }

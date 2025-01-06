@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -16,7 +17,6 @@ use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
-use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -96,7 +96,7 @@ class DeliveryCalculator
         $key = DeliveryProcessor::buildKey($delivery->getShippingMethod()->getId());
 
         if (!$data->has($key)) {
-            throw ShippingException::shippingMethodNotFound($delivery->getShippingMethod()->getId());
+            throw CartException::shippingMethodNotFound($delivery->getShippingMethod()->getId());
         }
 
         /** @var ShippingMethodEntity $shippingMethod */
@@ -171,10 +171,10 @@ class DeliveryCalculator
                 break;
 
             case ShippingMethodEntity::TAX_TYPE_FIXED:
-                $tax = $shippingMethod->getTax();
+                $taxId = $shippingMethod->getTaxId();
 
-                if ($tax !== null) {
-                    $rules = $context->buildTaxRules($tax->getId());
+                if ($taxId !== null) {
+                    $rules = $context->buildTaxRules($taxId);
 
                     break;
                 }

@@ -48,10 +48,10 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
-        $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
+        $this->ruleRepository = static::getContainer()->get('rule.repository');
+        $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
+        $this->stateMachineRegistry = static::getContainer()->get(StateMachineRegistry::class);
     }
 
     public function testValidateWithMissingValues(): void
@@ -139,9 +139,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public function testCustomerMetaFieldSubscriber(): void
     {
         /** @var EntityRepository $orderRepository */
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
         /** @var EntityRepository $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
+        $customerRepository = static::getContainer()->get('customer.repository');
         $defaultContext = Context::createDefaultContext();
         $orderId = Uuid::randomHex();
         $orderData = $this->getOrderData($orderId, $defaultContext);
@@ -193,8 +193,8 @@ class DaysSinceLastOrderRuleTest extends TestCase
     private function createTestOrderAndReturnCustomer(): CustomerEntity
     {
         /** @var EntityRepository $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $customerRepository = static::getContainer()->get('customer.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
 
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();

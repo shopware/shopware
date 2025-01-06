@@ -61,7 +61,7 @@ class DocumentMergerTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -69,11 +69,11 @@ class DocumentMergerTest extends TestCase
             ]
         );
 
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-        $this->documentRepository = $this->getContainer()->get('document.repository');
-        $this->documentMerger = $this->getContainer()->get(DocumentMerger::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        $this->documentRepository = static::getContainer()->get('document.repository');
+        $this->documentMerger = static::getContainer()->get(DocumentMerger::class);
 
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $this->documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
             Context::createDefaultContext()
@@ -99,7 +99,7 @@ class DocumentMergerTest extends TestCase
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
-            $this->getContainer()->get(MediaService::class),
+            static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
         );
@@ -140,9 +140,9 @@ class DocumentMergerTest extends TestCase
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
-            $this->getContainer()->get(MediaService::class),
+            static::getContainer()->get(MediaService::class),
             $mockGenerator,
-            $this->getContainer()->get('pdf.merger'),
+            static::getContainer()->get('pdf.merger'),
         );
 
         $documentId = Uuid::randomHex();
@@ -205,7 +205,7 @@ class DocumentMergerTest extends TestCase
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
-            $this->getContainer()->get(MediaService::class),
+            static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
         );

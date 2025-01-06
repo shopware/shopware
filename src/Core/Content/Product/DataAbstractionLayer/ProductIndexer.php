@@ -146,8 +146,12 @@ class ProductIndexer extends EntityIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
-        $ids = array_values(array_unique(array_filter($message->getData())));
+        $ids = $message->getData();
+        if (!\is_array($ids)) {
+            return;
+        }
 
+        $ids = array_values(array_unique(array_filter($ids)));
         if (empty($ids)) {
             return;
         }
@@ -234,7 +238,7 @@ class ProductIndexer extends EntityIndexer
             $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip()));
         });
 
-        $this->eventDispatcher->dispatch(new InvalidateProductCache(ids: $ids, force: false));
+        $this->eventDispatcher->dispatch(new InvalidateProductCache($ids, false));
     }
 
     public function getOptions(): array

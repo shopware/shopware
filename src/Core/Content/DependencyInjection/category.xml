@@ -73,7 +73,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdater"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <tag name="shopware.entity_indexer"/>
         </service>
 
@@ -105,6 +105,12 @@
 
         <service id="Shopware\Core\Content\Category\Subscriber\CategorySubscriber">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\Subscriber\CategoryTreeMovedSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 

@@ -4,7 +4,7 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
-        <parameter key="env(APP_URL_CHECK_DISABLED)">false</parameter>
+        <parameter key="env(APP_URL_CHECK_DISABLED)" type="string">false</parameter>
     </parameters>
     <services>
         <service id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
@@ -82,6 +82,7 @@
 
         <service id="Shopware\Core\Maintenance\System\Service\ShopConfigurator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand">

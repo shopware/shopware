@@ -42,7 +42,7 @@ class ProductListingCmsElementResolverTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->productListingCMSElementResolver = $this->getContainer()->get(ProductListingCmsElementResolver::class);
+        $this->productListingCMSElementResolver = static::getContainer()->get(ProductListingCmsElementResolver::class);
         $this->salesChannelContext = $this->createSalesChannelContext();
 
         $this->connection = KernelLifecycleManager::getConnection();
@@ -747,7 +747,7 @@ class ProductListingCmsElementResolverTest extends TestCase
 
     private function createSalesChannelContext(): SalesChannelContext
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }

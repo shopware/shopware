@@ -72,11 +72,17 @@ class MessagesShouldNotUsePHPStanTypes implements Rule
             }
 
             if ($tag->name === '@phpstan-type') {
-                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-type annotations')->line($classDocComment->getStartLine() + $line + 1)->build();
+                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-type annotations')
+                    ->identifier('shopware.messagePHPStanAnnotation')
+                    ->line($classDocComment->getStartLine() + $line + 1)
+                    ->build();
             }
 
             if ($tag->name === '@phpstan-import-type') {
-                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-import-type annotations')->line($classDocComment->getStartLine() + $line + 1)->build();
+                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-import-type annotations')
+                    ->identifier('shopware.messagePHPStanAnnotation')
+                    ->line($classDocComment->getStartLine() + $line + 1)
+                    ->build();
             }
         }
 
@@ -90,8 +96,8 @@ class MessagesShouldNotUsePHPStanTypes implements Rule
         $typeParser = new TypeParser($constExprParser);
         $phpDocParser = new PhpDocParser($typeParser, $constExprParser);
 
-        $tokens = new TokenIterator($lexer->tokenize($tokens));
+        $tokenIterator = new TokenIterator($lexer->tokenize($tokens));
 
-        return $phpDocParser->parse($tokens);
+        return $phpDocParser->parse($tokenIterator);
     }
 }

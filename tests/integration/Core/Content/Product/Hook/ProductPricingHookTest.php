@@ -56,17 +56,17 @@ class ProductPricingHookTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $salesChannelContext->getContext()->setRuleIds([$ids->get('rule-A')]);
 
-        $products = $this->getContainer()->get('sales_channel.product.repository')
+        $products = static::getContainer()->get('sales_channel.product.repository')
             ->search(new Criteria($ids->getList(['p1', 'p2', 'p3.1'])), $salesChannelContext);
 
-        $stubs = $this->getContainer()->get(ScriptPriceStubs::class);
+        $stubs = static::getContainer()->get(ScriptPriceStubs::class);
 
         $p1 = $products->get($ids->get('p1'));
         $p2 = $products->get($ids->get('p2'));
@@ -93,7 +93,7 @@ class ProductPricingHookTest extends TestCase
             new Script('foo', (string) \file_get_contents(__DIR__ . '/_fixtures/pricing-cases/product-pricing.twig'), new \DateTimeImmutable()),
         ]);
 
-        $executor = new ScriptExecutor($loader, $traces, $this->getContainer(), $this->getContainer()->get('twig.extension.trans'), 'v6.5.0.0');
+        $executor = new ScriptExecutor($loader, $traces, static::getContainer(), static::getContainer()->get('twig.extension.trans'), 'v6.5.0.0');
 
         $executor->execute($hook);
 

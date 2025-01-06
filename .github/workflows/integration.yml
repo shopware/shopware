@@ -7,88 +7,134 @@ on:
 
 jobs:
   acceptance:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        project:
-          - name: Platform
-          - name: Install
+        name:
+          - 'Platform'
+          - 'Install'
+        major:
+          - ''
+        include:
+          - name: 'Platform'
+            major: 'major'
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"
       BLUE_GREEN_DEPLOYMENT: 1
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+    services:
+      database:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: shopware
+        ports:
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping"
+      redis: # Redis is required since cache rework
+        image: ${{ matrix.major == 'major' && 'redis:alpine' || '' }}
+        ports:
+          - "6379:6379"
     steps:
+      - name: Define environment for major testing
+        shell: bash
+        if: ${{ matrix.major == 'major' }}
+        run: |
+          echo "Workflow Ref: ${{ github.workflow_ref }}"
+          echo "V6_7_0_0=1" >> $GITHUB_ENV
+          echo "FEATURE_ALL=major" >> $GITHUB_ENV
+          echo "DISABLE_VUE_COMPAT=0" >> $GITHUB_ENV
+          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+          echo "ADMIN_VITE=1" >> $GITHUB_ENV
+
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          mysql-version: 'skip'
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-          install: ${{ matrix.project.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
-          install-admin: ${{ matrix.project.name != 'Install' }}
-          install-storefront: ${{ matrix.project.name != 'Install' }}
+          install: ${{ matrix.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
+          install-admin: ${{ matrix.name != 'Install' }}
+          install-storefront: ${{ matrix.name != 'Install' }}
           env: prod
+          composer-root-version: ${{ matrix.major == 'major' && '6.7.9999999-dev' || '.auto' }}
 
       - name: Build js
+        if: ${{ matrix.name == 'Install' }}
         run: |
           mkdir -p config/jwt
           composer run build:js:admin
           composer npm:storefront run production # we cannot use build:js because it requires a db
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
-      - name: Start web server
-        run: symfony server:start -d
+
+      - name: Start Webserver
+        if: ${{ matrix.name == 'Install' }}
+        shell: bash
+        working-directory: ${{ inputs.path }}
+        env:
+          SYMFONY_DAEMON: "1"
+          SYMFONY_NO_TLS: "1"
+          SYMFONY_ALLOW_HTTP: "1"
+          SYMFONY_PORT: "8000"
+          SYMFONY_ALLOW_ALL_IP: "1"
+        run: symfony server:start
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - name: Install dependencies
         working-directory: tests/acceptance
         run: npm ci
+
       - name: Install Playwright Browsers
         working-directory: tests/acceptance
         run: npx playwright install --with-deps chromium
+
       - name: Run your tests with reporting
         if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
-        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project ${{ matrix.project.name }} --trace=on
+        run: |-
+          npx pwc \
+            --ci-build-id "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major }}" \
+            --project-id ${{ secrets.CURRENTS_PROJECT_ID }} \
+            --key ${{ secrets.CURRENTS_RECORD_KEY }} \
+            -- --project ${{ matrix.name }} --trace=on
+
       - name: Run your tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
-        run: npx playwright test --project=${{ matrix.project.name }} ${{ matrix.project.name == 'Install' && '--trace=on' || '' }}
+        run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.project.name }}
+          name: playwright-report-${{ matrix.name }}${{ matrix.major == 'major' && '-major' || '' }}
           path: tests/acceptance/test-results/
           retention-days: 3
 
   phpunit:
-    name: "${{ matrix.suite.name }} ${{matrix.suite.path }}"
-    continue-on-error: ${{ !matrix.stable }}
-    runs-on: ubuntu-latest
+    name: "${{ matrix.tests.testsuite }}${{ matrix.tests.path }} ${{ matrix.db }}"
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        suite:
-          - name: integration
-            path: tests/integration/Administration
-          - name: integration
-            path: tests/integration/Core/Checkout
-          - name: integration
-            path: tests/integration/Core/Content
-          - name: integration
-            path: tests/integration/Core/Framework
-          - name: integration
-            path: tests/integration/Core/Installer
-          - name: integration
-            path: tests/integration/Core/Maintenance
-          - name: integration
-            path: tests/integration/Core/System
-          - name: integration
-            path: tests/integration/Elasticsearch
-          - name: integration
-            path: tests/integration/Storefront
-          - name: migration,devops
+        tests:
+          - path: Administration
+          - path: Core/Checkout
+          - path: Core/Content
+          - path: Core/Framework
+          - path: Core/Installer
+          - path: Core/Maintenance
+          - path: Core/System
+          - path: Elasticsearch
+          - path: Storefront
+          - testsuite: devops,migration
+        db:
+          - mysql:8.0
+          - mariadb:11
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
@@ -96,22 +142,31 @@ jobs:
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
 
     services:
       elasticsearch:
-        image: ${{ matrix.suite.name == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        image: ${{ matrix.tests.path != '' && 'opensearchproject/opensearch:1' || 'alpine' }}
         env:
           discovery.type: single-node
-          plugins.security.disabled: 'true'
+          plugins.security.disabled: "true"
         ports:
           - "9200:9200"
+      database:
+        image: ${{ matrix.db }}
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: shopware
+        ports:
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping || mariadb-admin ping"
 
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          mysql-version: 'skip'
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
@@ -121,8 +176,13 @@ jobs:
       - name: Install Shopware
         run: php src/Core/TestBootstrap.php
 
-      - name: Run PHPUnit
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite.name }}" -- ${{ matrix.suite.path || '' }}
+      - name: Run PHPUnit testsuite
+        if: ${{ matrix.tests.testsuite != '' }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.tests.testsuite }}"
+
+      - name: Run PHPUnit path
+        if: ${{ matrix.tests.path != '' }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit -- tests/integration/${{ matrix.tests.path }}
 
   win-checkout:
     runs-on: windows-latest
@@ -135,7 +195,7 @@ jobs:
       - name: Clone platform
         uses: actions/checkout@v4
   php-security:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: "Composer dependencies"
     env:
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
@@ -146,7 +206,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: "8.2"
 
       - name: Install Composer
         run: |
@@ -160,12 +220,12 @@ jobs:
         run: ./local-php-security-checker
   code-ql:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript' ]
+        language: ["javascript"]
 
     steps:
       - name: Checkout repository
@@ -185,13 +245,12 @@ jobs:
         uses: github/codeql-action/analyze@v3
 
   docker:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ github.repository == 'shopware/shopware' && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
     permissions:
       packages: write
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
-      DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
     steps:
       - name: Setup Shopware
@@ -233,7 +292,7 @@ jobs:
 
   tested-update-versions:
     name: tested-versions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
@@ -246,7 +305,7 @@ jobs:
 
   acceptance-update:
     needs: tested-update-versions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -273,14 +332,13 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install-admin: true
-          install-storefront: true
           env: dev
           path: new-shopware
 
       - name: Build new shopware
         working-directory: new-shopware
         run: |
-          composer run build:js:admin
+          composer run npm:storefront ci
           composer run npm:storefront run production
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
 
@@ -350,21 +408,21 @@ jobs:
 
   blue-green-66-67:
     name: "PHP blue green 6.6 -> 6.7 -> 6.6"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       APP_ENV: test
       APP_URL: http://localhost:8000
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     services:
       elasticsearch:
-        image: 'opensearchproject/opensearch:1'
+        image: "opensearchproject/opensearch:1"
         env:
           discovery.type: single-node
-          plugins.security.disabled: 'true'
+          plugins.security.disabled: "true"
         ports:
           - "9200:9200"
 
@@ -372,7 +430,7 @@ jobs:
       - name: Setup previous major version
         uses: shopware/setup-shopware@main
         with:
-          install: 'false'
+          install: "false"
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
@@ -402,3 +460,24 @@ jobs:
       - name: Run blue-green check
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         run: php .gitlab/bin/blue-green-check.php # TODO: Move script to .github after migration
+
+  # this allows us to specifiy just one required job/check
+  # this is not practical with matrix jobs directly, because you've to specify all permutations
+  check:
+    if: always()
+    needs:
+    - acceptance
+    - phpunit
+    - win-checkout
+    - code-ql
+    - acceptance-update
+    - blue-green-66-67
+
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        # allowed-failures: docs, linters
+        # allowed-skips: non-voting-flaky-job
+        jobs: ${{ toJSON(needs) }}

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -26,6 +27,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
+use Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook as ProductReviewsWidgetLoadedHookDeprecated;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -350,7 +352,11 @@ class ProductControllerTest extends TestCase
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey('product-reviews-loaded', $traces);
+        if (Feature::isActive('v6.7.0.0')) {
+            static::assertArrayHasKey(ProductReviewsWidgetLoadedHook::HOOK_NAME, $traces);
+        } else {
+            static::assertArrayHasKey(ProductReviewsWidgetLoadedHookDeprecated::HOOK_NAME, $traces);
+        }
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertStringContainsString('<p class="product-detail-review-item-content" itemprop="description" lang="en-GB">', $content);

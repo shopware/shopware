@@ -160,9 +160,9 @@ class ConfigurationServiceTest extends TestCase
 
         $actualConfig = $this->getConfiguration($config);
 
-        static::assertTrue(array_is_list($actualConfig));
+        static::assertIsList($actualConfig);
         static::assertCount(1, $actualConfig);
-        static::assertTrue(array_is_list($actualConfig[0]['elements']));
+        static::assertIsList($actualConfig[0]['elements']);
         static::assertCount(1, $actualConfig[0]['elements']);
     }
 

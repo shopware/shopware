@@ -29,4 +29,9 @@ class ProductManufacturerExtension extends EntityExtension
     {
         return ProductManufacturerDefinition::class;
     }
+
+    public function getEntityName(): string
+    {
+        return ProductManufacturerDefinition::ENTITY_NAME;
+    }
 }

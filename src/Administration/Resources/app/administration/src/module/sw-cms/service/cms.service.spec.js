@@ -585,6 +585,58 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
 
     describe('getEntityMappingTypes', () => {
         const entityDefinition = Shopware.EntityDefinition;
+        let mockCustomFields;
+
+        beforeEach(async () => {
+            mockCustomFields = [
+                {
+                    id: '16a2beeb80f041c29390efa3432760aa',
+                    name: 'custom_text_field',
+                    type: 'text',
+                    config: {
+                        customFieldType: 'text',
+                    },
+                },
+                {
+                    id: '16a2beeb80f041c29390efa3432760bb',
+                    name: 'custom_textarea_field',
+                    type: 'html',
+                    config: {
+                        customFieldType: 'html',
+                    },
+                },
+                {
+                    id: '16a2beeb80f041c29390efa3432760cc',
+                    name: 'custom_datetime_field',
+                    type: 'datetime',
+                    config: {
+                        customFieldType: 'datetime',
+                    },
+                },
+            ];
+
+            const mockResponses = global.repositoryFactoryMock.responses;
+            mockResponses.addResponse({
+                method: 'Post',
+                url: '/search/custom-field',
+                status: 200,
+                response: {
+                    data: mockCustomFields.map((field) => ({
+                        id: field.id,
+                        type: 'custom_field',
+                        attributes: field,
+                        relationships: {
+                            customFieldSet: {
+                                data: {
+                                    entityName: 'product',
+                                },
+                            },
+                        },
+                    })),
+                    included: [],
+                },
+            });
+        });
 
         it('does not return entity mapping types if entity name is null', async () => {
             const result = cmsService.getEntityMappingTypes();
@@ -756,6 +808,33 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 },
                 string: ['testTypeObjectWithSchema.id.mediaProperty'],
             });
+        });
+
+        it('should add custom fields to mapping types for an entity', async () => {
+            const mappings = {};
+            await cmsService.addCustomFieldsToMappingTypes('product', mappings);
+
+            expect(mappings).toEqual({
+                string: [
+                    'product.customFields.custom_text_field',
+                    'product.customFields.custom_textarea_field',
+                    'product.customFields.custom_datetime_field',
+                ],
+            });
+        });
+
+        it('should not add custom fields if no fields are found for the entity', async () => {
+            global.repositoryFactoryMock.responses.addResponse({
+                method: 'Post',
+                url: '/search/custom-field',
+                status: 200,
+                response: { data: [] },
+            });
+
+            const mappings = {};
+            await cmsService.addCustomFieldsToMappingTypes('nonexistent_entity', mappings);
+
+            expect(mappings).toEqual({});
         });
     });
 

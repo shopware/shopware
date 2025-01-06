@@ -8,15 +8,23 @@ use Shopware\Core\Framework\Log\Package;
 class Translations
 {
     /**
-     * @var array
+     * @var array<string, string|null>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $german;
 
     /**
-     * @var array
+     * @var array<string, string|null>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $english;
 
+    /**
+     * @param array<string, string|null> $german
+     * @param array<string, string|null> $english
+     */
     public function __construct(
         array $german,
         array $english
@@ -25,16 +33,25 @@ class Translations
         $this->english = $english;
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     public function getGerman(): array
     {
         return $this->german;
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     public function getEnglish(): array
     {
         return $this->english;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getColumns(): array
     {
         return array_keys($this->english);

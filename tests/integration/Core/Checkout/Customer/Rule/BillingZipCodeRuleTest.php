@@ -41,8 +41,8 @@ class BillingZipCodeRuleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
-        $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
+        $this->ruleRepository = static::getContainer()->get('rule.repository');
+        $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
         $this->rule = new BillingZipCodeRule();
     }
@@ -50,7 +50,7 @@ class BillingZipCodeRuleTest extends TestCase
     public function testValidateWithMissingZipCodes(): void
     {
         // reset from previous tests
-        $this->getContainer()->get(BillingZipCodeRule::class)->assign(['operator' => Rule::OPERATOR_EQ, 'zipCodes' => null]);
+        static::getContainer()->get(BillingZipCodeRule::class)->assign(['operator' => Rule::OPERATOR_EQ, 'zipCodes' => null]);
 
         $conditionId = Uuid::randomHex();
 

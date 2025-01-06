@@ -22,16 +22,16 @@ class ChangelogValidator extends ChangelogProcessor
         $entries = !empty($path) ? [new SplFileInfo($path, $rootDir, $rootDir)] : $this->getUnreleasedChangelogFiles();
         foreach ($entries as $entry) {
             if (preg_match('/^([-.\w\/]+)$/', $entry->getFilename()) === 0) {
-                $errors[$entry->getFileName()][] = 'Changelog has invalid filename, please use only alphanumeric characters, dots, dashes and underscores.';
+                $errors[$entry->getFilename()][] = 'Changelog has invalid filename, please use only alphanumeric characters, dots, dashes and underscores.';
             }
 
             $changelog = $this->parser->parse($entry, $rootDir);
             $violations = $this->validator->validate($changelog);
 
             if (\count($violations)) {
-                $errors[$entry->getFileName()] = [];
+                $errors[$entry->getFilename()] = [];
                 foreach ($violations as $violation) {
-                    $errors[$entry->getFileName()][] = $violation->getMessage();
+                    $errors[$entry->getFilename()][] = $violation->getMessage();
                 }
             }
         }

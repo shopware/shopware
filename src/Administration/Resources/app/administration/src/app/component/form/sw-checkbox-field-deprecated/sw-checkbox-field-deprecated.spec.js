@@ -18,7 +18,7 @@ const createWrapper = async (data = defaultData) => {
         template: `
             <div>
                 <sw-checkbox-field v-model:value="checkOne" label="CheckOne"  bordered :partly-checked="indeterminateOne" name="sw-field--checkOne" />
-                <sw-checkbox-field v-model:value="checkTwo" label="CheckTwo" padded name="sw-field--checkTwo" />
+                <sw-checkbox-field v-model:value="checkTwo" label="CheckTwo" aria-label="Check Two" padded name="sw-field--checkTwo" />
                 <sw-checkbox-field v-model:value="checkThree" label="CheckThree" bordered padded name="sw-field--checkThree" />
             </div>
         `,
@@ -239,5 +239,16 @@ describe('app/component/form/sw-checkbox-field', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-field--checkbox').classes()).toContain('is--partly-checked');
+    });
+
+    it('should add the ariaLabel prop to the input element', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const firstCheckbox = wrapper.find('.sw-field--checkbox');
+        expect(firstCheckbox.find('input').attributes('aria-label')).toBe('CheckOne');
+
+        const secondCheckbox = wrapper.findAll('.sw-field--checkbox').at(1);
+        expect(secondCheckbox.find('input').attributes('aria-label')).toBe('Check Two');
     });
 });

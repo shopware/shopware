@@ -6,8 +6,6 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -22,7 +20,6 @@ use Shopware\Core\System\User\UserDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
@@ -45,12 +42,12 @@ class UserController extends AbstractController
     public function me(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
+            throw ApiException::invalidAdminSource($context->getSource()::class);
         }
 
         $userId = $context->getSource()->getUserId();
         if (!$userId) {
-            throw new ExpectedUserHttpException();
+            throw ApiException::userNotLoggedIn();
         }
         $criteria = new Criteria([$userId]);
         $criteria->addAssociations(['aclRoles', 'avatarMedia']);
@@ -67,12 +64,12 @@ class UserController extends AbstractController
     public function updateMe(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
+            throw ApiException::invalidAdminSource($context->getSource()::class);
         }
 
         $userId = $context->getSource()->getUserId();
         if (!$userId) {
-            throw new ExpectedUserHttpException();
+            throw ApiException::userNotLoggedIn();
         }
 
         $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
@@ -88,12 +85,12 @@ class UserController extends AbstractController
     public function status(Context $context): Response
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
+            throw ApiException::invalidAdminSource($context->getSource()::class);
         }
 
         $userId = $context->getSource()->getUserId();
         if (!$userId) {
-            throw new ExpectedUserHttpException();
+            throw ApiException::userNotLoggedIn();
         }
         $result = $this->userRepository->searchIds(new Criteria([$userId]), $context);
 
@@ -239,7 +236,7 @@ class UserController extends AbstractController
         }
 
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+            throw ApiException::invalidScopeAccessToken(UserVerifiedScope::IDENTIFIER);
         }
     }
 

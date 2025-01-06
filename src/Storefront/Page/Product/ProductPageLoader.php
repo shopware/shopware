@@ -189,14 +189,18 @@ class ProductPageLoader
         if ($descriptionReviewsStruct instanceof ProductDescriptionReviewsStruct) {
             $productReviewResult = $descriptionReviewsStruct->getReviews();
             if ($productReviewResult !== null) {
-                $page->setReviews(ReviewLoaderResult::createFrom($productReviewResult));
+                Feature::silent('v6.7.0.0', static function () use ($page, $productReviewResult): void {
+                    $page->setReviews(ReviewLoaderResult::createFrom($productReviewResult));
+                });
             }
         }
 
         $crossSellingStruct = $blocks->filterByProperty('type', CrossSellingCmsElementResolver::TYPE)->first()?->getSlots()?->first()?->getData();
         if ($crossSellingStruct instanceof CrossSellingStruct) {
             $crossSelling = $crossSellingStruct->getCrossSellings();
-            $page->setCrossSellings($crossSelling ?? new CrossSellingElementCollection());
+            Feature::silent('v6.7.0.0', static function () use ($page, $crossSelling): void {
+                $page->setCrossSellings($crossSelling ?? new CrossSellingElementCollection());
+            });
         }
     }
 }

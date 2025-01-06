@@ -1,0 +1,12 @@
+<a
+    href="#main"
+    tabindex="0"
+    class="sw-skip-link"
+    :class="{ 'sw-skip-link__focussed': focussed }"
+    @click.prevent="focusElement"
+    @focus="setFocus(true)"
+    @blur="setFocus(false)"
+>
+    {{ $t('global.sw-skip-link.label') }}
+</a>
+

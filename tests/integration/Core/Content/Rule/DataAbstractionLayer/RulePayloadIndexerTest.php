@@ -64,11 +64,11 @@ class RulePayloadIndexerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
-        $this->indexer = $this->getContainer()->get(RuleIndexer::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->ruleRepository = static::getContainer()->get('rule.repository');
+        $this->indexer = static::getContainer()->get(RuleIndexer::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
     }
 
     public function testIndex(): void

@@ -69,6 +69,7 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
+        private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
         $this->esAdministrationEnabled = $params->has('elasticsearch.administration.enabled')
@@ -87,11 +88,15 @@ class AdministrationController extends AbstractController
         /** @var CurrencyEntity $defaultCurrency */
         $defaultCurrency = $this->currencyRepository->search(new Criteria([Defaults::CURRENCY]), $context)->first();
 
+        $refreshTokenInterval = new \DateInterval($this->refreshTokenTtl);
+        $refreshTokenTtl = $refreshTokenInterval->s + $refreshTokenInterval->i * 60 + $refreshTokenInterval->h * 3600 + $refreshTokenInterval->d * 86400;
+
         return $this->render($template, [
             'features' => Feature::getAll(),
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
             'systemCurrencyId' => Defaults::CURRENCY,
+            // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
             'disableExtensions' => EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false),
             'systemCurrencyISOCode' => $defaultCurrency->getIsoCode(),
             'liveVersionId' => Defaults::LIVE_VERSION,
@@ -100,6 +105,7 @@ class AdministrationController extends AbstractController
             'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
             'adminEsEnable' => $this->esAdministrationEnabled,
             'storefrontEsEnable' => $this->esStorefrontEnabled,
+            'refreshTokenTtl' => $refreshTokenTtl * 1000,
         ]);
     }
 

@@ -3,7 +3,8 @@
     <form action="{{ path(action) }}"
           method="post"
           data-form-validation="true"
-          id="{{ formPrefix }}">
+          id="{{ formPrefix }}"
+          aria-label="{{ element.config.title.value ? element.config.title.value : 'newsletter.headline'|trans }}">
 
         <div class="form-content">
         <div class="row g-2">

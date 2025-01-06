@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -97,9 +98,9 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @param class-string<object> $class
+     * @param class-string<EntityStruct> $class
      *
-     * @return list<array{type: 'entity'|'mapping', since?: string|null, parent: string|null, entity_class: class-string<object>, entity_name: string, fields: list<FieldArray>}>
+     * @return list<array{type: 'entity'|'mapping', since?: string|null, parent: string|null, entity_class: class-string<EntityStruct>, entity_name: string, collection_class?: class-string<EntityCollection<EntityStruct>>, fields: list<FieldArray>, source?: string, reference?: string}>
      */
     public function compile(string $class): array
     {
@@ -136,6 +137,7 @@ class AttributeEntityCompiler
             'parent' => $instance->parent,
             'entity_class' => $class,
             'entity_name' => $instance->name,
+            'collection_class' => $instance->collectionClass,
             'fields' => $fields,
         ];
 
@@ -145,7 +147,7 @@ class AttributeEntityCompiler
     /**
      * @template TClassList of object
      *
-     * @param class-string<TClassList> $list
+     * @param class-string<TClassList> ...$list
      *
      * @return \ReflectionAttribute<TClassList>|null
      */
@@ -162,7 +164,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array{type: string, name: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}
+     * @return array{type: string, name: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}|null
      */
     private function parseField(string $entity, \ReflectionProperty $property): ?array
     {
@@ -190,6 +192,10 @@ class AttributeEntityCompiler
      */
     private function getFieldClass(Field $field): string
     {
+        if (is_a($field->type, DalField::class, true)) {
+            return $field->type;
+        }
+
         return match ($field->type) {
             FieldType::INT => IntField::class,
             FieldType::TEXT => LongTextField::class,
@@ -254,7 +260,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array<string, array<string, array<bool|string>|string>|null>
+     * @return array<string, array{class: string, args?: array<bool|string>}>
      */
     private function getFlags(Field $field, \ReflectionProperty $property): array
     {
@@ -335,7 +341,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array{type: 'mapping', parent: null, entity_class: class-string<ArrayEntity>, entity_name: string, fields: list<FieldArray>}
+     * @return array{type: 'mapping', parent: null, entity_class: class-string<ArrayEntity>, entity_name: string, fields: list<FieldArray>, source: string, reference: string}
      */
     private function mapping(string $entity, \ReflectionProperty $property): array
     {

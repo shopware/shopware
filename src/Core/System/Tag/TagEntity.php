@@ -22,51 +22,71 @@ class TagEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var ProductCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $products;
 
     /**
      * @var MediaCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $media;
 
     /**
      * @var CategoryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $categories;
 
     /**
      * @var CustomerCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customers;
 
     /**
      * @var OrderCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orders;
 
     /**
      * @var ShippingMethodCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethods;
 
     /**
      * @var NewsletterRecipientCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $newsletterRecipients;
 
     /**
      * @var LandingPageCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $landingPages;
 
     /**
      * @var RuleCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $rules;
 

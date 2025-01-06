@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\ProductStream;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,23 +23,23 @@ class ProductStreamFilterRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductStreamFilterCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     private string $streamId;
 
     private Context $context;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductStreamCollection>
      */
-    private $productStreamRepository;
+    private EntityRepository $productStreamRepository;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product_stream_filter.repository');
-        $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
+        $this->repository = static::getContainer()->get('product_stream_filter.repository');
+        $this->productStreamRepository = static::getContainer()->get('product_stream.repository');
         $this->streamId = Uuid::randomHex();
         $this->context = Context::createDefaultContext();
         $this->productStreamRepository->upsert([['id' => $this->streamId, 'name' => 'Test stream']], $this->context);

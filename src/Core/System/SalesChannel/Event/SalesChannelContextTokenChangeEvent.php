@@ -13,16 +13,22 @@ class SalesChannelContextTokenChangeEvent extends Event implements ShopwareSales
 {
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelContext;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $previousToken;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currentToken;
 

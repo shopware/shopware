@@ -31,10 +31,10 @@ trait DatabaseTransactionBehaviour
             Previous Test case: ' . (new \ReflectionClass($this))->getName() . '::' . static::$lastTestCase
         );
 
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->setNestTransactionsWithSavepoints(self::$nextNestTransactionsWithSavepoints);
 
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->beginTransaction();
 
@@ -44,7 +44,7 @@ trait DatabaseTransactionBehaviour
     #[After]
     public function stopTransactionAfter(): void
     {
-        $connection = $this->getContainer()
+        $connection = static::getContainer()
             ->get(Connection::class);
 
         self::assertEquals(

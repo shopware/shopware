@@ -67,20 +67,20 @@ class SeoUrlGeneratorTest extends TestCase
             'navigationCategoryId' => $this->ids->get('rootCategory'),
         ]);
 
-        $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create('', $salesChannel['id']);
         $this->salesChannelId = $salesChannel['id'];
 
         $this->seoUrlGenerator = new SeoUrlGenerator(
-            $this->getContainer()->get(DefinitionInstanceRegistry::class),
-            $this->getContainer()->get('router.default'),
-            $this->getContainer()->get('request_stack'),
-            $this->getContainer()->get('shopware.seo_url.twig'),
-            $this->getContainer()->get(TwigVariableParserFactory::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            static::getContainer()->get('router.default'),
+            static::getContainer()->get('request_stack'),
+            static::getContainer()->get('shopware.seo_url.twig'),
+            static::getContainer()->get(TwigVariableParserFactory::class),
             new NullLogger(),
         );
 
-        $this->seoUrlRouteRegistry = $this->getContainer()->get(SeoUrlRouteRegistry::class);
+        $this->seoUrlRouteRegistry = static::getContainer()->get(SeoUrlRouteRegistry::class);
     }
 
     /**
@@ -167,7 +167,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testVariantInheritance(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->insert('seo_url_template', [
             'id' => Uuid::randomBytes(),
             'route_name' => TestProductSeoUrlRoute::ROUTE_NAME,
@@ -192,10 +192,10 @@ class SeoUrlGeneratorTest extends TestCase
                     ->build()
             );
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $this->getContainer()->get(SeoUrlUpdater::class)->update(TestProductSeoUrlRoute::ROUTE_NAME, array_values($ids->getList(['parent', 'red', 'green'])));
+        static::getContainer()->get(SeoUrlUpdater::class)->update(TestProductSeoUrlRoute::ROUTE_NAME, array_values($ids->getList(['parent', 'red', 'green'])));
 
         $urls = $connection
             ->fetchAllAssociative(
@@ -246,7 +246,7 @@ class SeoUrlGeneratorTest extends TestCase
                     ->build()
             );
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
         $productIds = $ids->getList(['parent', 'redProduct', 'greenProduct']);
@@ -272,7 +272,7 @@ class SeoUrlGeneratorTest extends TestCase
             ->manufacturer('shopware')
             ->category('test category');
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
         $productIds = $ids->getList(['product']);
@@ -296,7 +296,7 @@ class SeoUrlGeneratorTest extends TestCase
             ->price(100)
             ->visibility($this->salesChannelId);
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
         $productIds = $ids->getList(['product']);
@@ -374,11 +374,11 @@ class SeoUrlGeneratorTest extends TestCase
             }
         };
         $seoUrlGenerator = new SeoUrlGenerator(
-            $this->getContainer()->get(DefinitionInstanceRegistry::class),
-            $this->getContainer()->get('router.default'),
-            $this->getContainer()->get('request_stack'),
-            $this->getContainer()->get('shopware.seo_url.twig'),
-            $this->getContainer()->get(TwigVariableParserFactory::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            static::getContainer()->get('router.default'),
+            static::getContainer()->get('request_stack'),
+            static::getContainer()->get('shopware.seo_url.twig'),
+            static::getContainer()->get(TwigVariableParserFactory::class),
             $logger,
         );
 
@@ -422,7 +422,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     private function createBreadcrumbData(): void
     {
-        $this->getContainer()->get('category.repository')->create([
+        static::getContainer()->get('category.repository')->create([
             [
                 'id' => $this->ids->create('rootCategory'),
                 'translations' => [
@@ -457,7 +457,7 @@ class SeoUrlGeneratorTest extends TestCase
     private function getCategoryIds(int $count): array
     {
         /** @var EntityRepository<CategoryCollection> $repository */
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
 
         $criteria = (new Criteria())->setLimit($count);
 

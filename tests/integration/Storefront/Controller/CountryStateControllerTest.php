@@ -41,15 +41,15 @@ class CountryStateControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->countryIdDE = Uuid::fromBytesToHex(
             $this->connection->fetchAllAssociative('SELECT id FROM country WHERE iso = \'DE\'')[0]['id']
         );
 
-        $this->countryStateController = $this->getContainer()->get(CountryStateController::class);
+        $this->countryStateController = static::getContainer()->get(CountryStateController::class);
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
@@ -69,7 +69,7 @@ class CountryStateControllerTest extends TestCase
 
     public function testCountryStateControllerEvents(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $testSubscriber = new CountryStateControllerTestSubscriber();
         $dispatcher->addSubscriber($testSubscriber);
@@ -88,7 +88,7 @@ class CountryStateControllerTest extends TestCase
         $roleId = Uuid::randomHex();
         $integrationId = Uuid::randomHex();
 
-        $this->getContainer()->get('app.repository')->create([[
+        static::getContainer()->get('app.repository')->create([[
             'id' => $appId,
             'name' => 'Test',
             'path' => __DIR__ . '/../Manifest/_fixtures/test',
@@ -125,11 +125,11 @@ class CountryStateControllerTest extends TestCase
         ]], Context::createDefaultContext());
 
         $request = new Request([], ['countryId' => $this->countryIdDE]);
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $this->countryStateController->getCountryData($request, $this->salesChannelContext);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CountryStateDataPageletLoadedHook::HOOK_NAME, $traces);
 

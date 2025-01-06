@@ -18,41 +18,57 @@ class StateMachineStateChangeEvent extends Event
 
     /**
      * @var Context
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelId;
 
     /**
      * @var StateMachineEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachine;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $transitionSide;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateName;
 
     /**
      * @var StateMachineStateEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $previousState;
 
     /**
      * @var StateMachineStateEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $nextState;
 
     /**
      * @var Transition
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $transition;
 

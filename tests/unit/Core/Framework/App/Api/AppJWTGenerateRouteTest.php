@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -20,7 +21,8 @@ class AppJWTGenerateRouteTest extends TestCase
     {
         $appJWTGenerateRoute = new AppJWTGenerateRoute(
             $this->createMock(Connection::class),
-            $this->createMock(ShopIdProvider::class)
+            $this->createMock(ShopIdProvider::class),
+            StaticInAppPurchaseFactory::createWithFeatures(),
         );
 
         $context = Generator::createSalesChannelContext();
@@ -35,7 +37,8 @@ class AppJWTGenerateRouteTest extends TestCase
     {
         $appJWTGenerateRoute = new AppJWTGenerateRoute(
             $this->createMock(Connection::class),
-            $this->createMock(ShopIdProvider::class)
+            $this->createMock(ShopIdProvider::class),
+            StaticInAppPurchaseFactory::createWithFeatures(),
         );
 
         $context = Generator::createSalesChannelContext();
@@ -47,6 +50,8 @@ class AppJWTGenerateRouteTest extends TestCase
 
     public function testGenerate(): void
     {
+        $inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['extension-1' => ['purchase-1', 'purchase-2'], 'extension-2' => ['purchase-3']]);
+
         $privileges = [
             'sales_channel:read',
             'customer:read',
@@ -59,16 +64,17 @@ class AppJWTGenerateRouteTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->method('fetchAssociative')
-            ->willReturn(['app_secret' => '454545454545454545454545454544545454545', 'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR)]);
+            ->willReturn(['id' => 'extension-1', 'app_secret' => '454545454545454545454545454544545454545', 'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR)]);
 
         $appJWTGenerateRoute = new AppJWTGenerateRoute(
             $connection,
-            $this->createMock(ShopIdProvider::class)
+            $this->createMock(ShopIdProvider::class),
+            $inAppPurchase,
         );
 
         $context = Generator::createSalesChannelContext();
 
-        $response = $appJWTGenerateRoute->generate('test', $context);
+        $response = $appJWTGenerateRoute->generate('extension-1', $context);
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('token', $data);
@@ -82,5 +88,11 @@ class AppJWTGenerateRouteTest extends TestCase
         static::assertArrayHasKey('salesChannelId', $payload);
         static::assertArrayHasKey('customerId', $payload);
         static::assertSame($context->getSalesChannel()->getId(), $payload['salesChannelId']);
+        static::assertSame($context->getCustomer()?->getId(), $payload['customerId']);
+        static::assertSame($context->getPaymentMethod()->getId(), $payload['paymentMethodId']);
+        static::assertSame($context->getShippingMethod()->getId(), $payload['shippingMethodId']);
+        static::assertSame($context->getCurrency()->getId(), $payload['currencyId']);
+        static::assertSame($context->getLanguageId(), $payload['languageId']);
+        static::assertSame('a6a4063ffda65516983ad40e8dc91db6', $payload['inAppPurchases']);
     }
 }

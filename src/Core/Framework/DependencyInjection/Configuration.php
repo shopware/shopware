@@ -52,6 +52,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createSearchSection())
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
+                ->append($this->createProductStreamSection())
             ->end();
 
         return $treeBuilder;
@@ -938,7 +939,6 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->scalarPrototype()->end()
                 ->end()
-                // @deprecated tag:v6.7.0 - Set `enforce_message_size` to default true. Also change the `config-schema.json` accordingly
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
             ->end();
 
@@ -1028,6 +1028,19 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductStreamSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product_stream');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+                ->booleanNode('indexing')->defaultTrue()->end()
             ->end();
 
         return $rootNode;

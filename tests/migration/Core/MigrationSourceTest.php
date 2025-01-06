@@ -37,7 +37,7 @@ class MigrationSourceTest extends TestCase
     #[DataProvider('provideCoreRegexDataV6_3')]
     public function testCoreRegexV63(string $subject, bool $shouldMatch): void
     {
-        $pattern = $this->getContainer()->get('Shopware\Core\Framework\Migration\MigrationSource.core.V6_3')->getNamespacePattern();
+        $pattern = static::getContainer()->get('Shopware\Core\Framework\Migration\MigrationSource.core.V6_3')->getNamespacePattern();
 
         static::assertSame($shouldMatch, (bool) preg_match("/$pattern/", $subject, $subject));
     }

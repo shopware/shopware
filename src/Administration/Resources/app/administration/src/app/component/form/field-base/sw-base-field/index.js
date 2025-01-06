@@ -39,6 +39,12 @@ Component.register('sw-base-field', {
             default: null,
         },
 
+        hint: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
         isInvalid: {
             type: Boolean,
             required: false,
@@ -114,7 +120,7 @@ Component.register('sw-base-field', {
         },
 
         hasHint() {
-            return this.$slots.hint?.()[0]?.children.length > 0;
+            return !!this.hint || this.$slots.hint?.()[0]?.children.length > 0;
         },
 
         swFieldClasses() {

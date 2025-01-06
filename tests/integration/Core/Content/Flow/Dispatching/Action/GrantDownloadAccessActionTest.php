@@ -80,18 +80,18 @@ class GrantDownloadAccessActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
         $this->customerId = $this->createCustomer();
         $this->salesChannelContext = $this->createDefaultSalesChannelContext();
-        $this->orderTransactionStateHandler = $this->getContainer()->get(OrderTransactionStateHandler::class);
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
-        $this->downloadRoute = $this->getContainer()->get(DownloadRoute::class);
-        $this->fileSaver = $this->getContainer()->get(FileSaver::class);
-        $this->fileFetcher = $this->getContainer()->get(FileFetcher::class);
+        $this->orderTransactionStateHandler = static::getContainer()->get(OrderTransactionStateHandler::class);
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $this->downloadRoute = static::getContainer()->get(DownloadRoute::class);
+        $this->fileSaver = static::getContainer()->get(FileSaver::class);
+        $this->fileFetcher = static::getContainer()->get(FileFetcher::class);
     }
 
     /**
@@ -211,7 +211,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mailTemplates.id', $data['templateId']));
 
-        $type = $this->getContainer()->get('mail_template_type.repository')->search($criteria, $event->getContext())->first();
+        $type = static::getContainer()->get('mail_template_type.repository')->search($criteria, $event->getContext())->first();
 
         if (!$type instanceof MailTemplateTypeEntity || $type->getTechnicalName() !== MailTemplateTypes::MAILTYPE_DOWNLOADS_DELIVERY) {
             return null;
@@ -448,7 +448,7 @@ class GrantDownloadAccessActionTest extends TestCase
 
     private function createDefaultSalesChannelContext(): SalesChannelContext
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $this->customerId]);
     }

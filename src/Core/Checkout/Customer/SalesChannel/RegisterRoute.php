@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
@@ -186,17 +187,23 @@ class RegisterRoute extends AbstractRegisterRoute
             return $value;
         }, $customer);
 
-        $this->customerRepository->create([$customer], $context->getContext());
+        $writeContext = clone $context->getContext();
+        $writeContext->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
+
+        $this->customerRepository->create([$customer], $writeContext);
 
         $criteria = new Criteria([$customer['id']]);
-        $criteria->addAssociation('addresses');
-        $criteria->addAssociation('salutation');
-        $criteria->addAssociation('defaultBillingAddress.country');
-        $criteria->addAssociation('defaultBillingAddress.countryState');
-        $criteria->addAssociation('defaultBillingAddress.salutation');
-        $criteria->addAssociation('defaultShippingAddress.country');
-        $criteria->addAssociation('defaultShippingAddress.countryState');
-        $criteria->addAssociation('defaultShippingAddress.salutation');
+
+        if (!Feature::isActive('v6.7.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
+            $criteria->addAssociation('addresses');
+            $criteria->addAssociation('salutation');
+            $criteria->addAssociation('defaultBillingAddress.country');
+            $criteria->addAssociation('defaultBillingAddress.countryState');
+            $criteria->addAssociation('defaultBillingAddress.salutation');
+            $criteria->addAssociation('defaultShippingAddress.country');
+            $criteria->addAssociation('defaultShippingAddress.countryState');
+            $criteria->addAssociation('defaultShippingAddress.salutation');
+        }
 
         /** @var CustomerEntity $customerEntity */
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
@@ -241,7 +248,7 @@ class RegisterRoute extends AbstractRegisterRoute
                 $context->getLanguageId(),
                 $context->getCurrencyId(),
                 $context->getDomainId(),
-                $context->getContext(),
+                null,
                 $customerEntity->getId()
             )
         );

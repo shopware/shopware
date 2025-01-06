@@ -32,7 +32,7 @@ class AccountServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->accountService = $this->getContainer()->get(AccountService::class);
+        $this->accountService = static::getContainer()->get(AccountService::class);
     }
 
     public function testLogin(): void
@@ -254,7 +254,7 @@ class AccountServiceTest extends TestCase
 
     private function getCustomerFromToken(string $contextToken, string $salesChannelId): CustomerEntity
     {
-        $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
+        $salesChannelContextService = static::getContainer()->get(SalesChannelContextService::class);
         $context = $salesChannelContextService->get(
             new SalesChannelContextServiceParameters($salesChannelId, $contextToken)
         );
@@ -315,7 +315,7 @@ class AccountServiceTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()
+        static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], Context::createDefaultContext());
 

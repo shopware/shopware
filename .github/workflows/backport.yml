@@ -1,0 +1,31 @@
+name: Backport
+
+on:
+  pull_request:
+    types:
+      - closed
+      - labeled
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  backport:
+    runs-on: ubuntu-24.04
+    if: >
+      github.event.pull_request.merged
+      && (
+        github.event.action == 'closed'
+          && contains(join(github.event.pull_request.labels.*.name, ','), 'backport-')
+        || (
+          github.event.action == 'labeled'
+          && contains(github.event.label.name, 'backport-')
+        )
+      )
+    steps:
+      - name: Backporting
+        uses: kiegroup/git-backporting@main
+        with:
+          target-branch-pattern: "^backport-(?<target>([^ ]+))$"
+          pull-request: ${{ github.event.pull_request.url }}

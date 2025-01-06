@@ -44,7 +44,9 @@ class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
 
     public function getWebhookPayload(?AppEntity $app = null): array
     {
-        return [];
+        return [
+            'keepUserData' => $this->keepUserData,
+        ];
     }
 
     public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool

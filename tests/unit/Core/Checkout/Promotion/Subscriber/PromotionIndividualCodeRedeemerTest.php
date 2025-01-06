@@ -14,19 +14,18 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\Promotion
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionIndividualCodeRedeemer::class)]
 class PromotionIndividualCodeRedeemerTest extends TestCase
 {
@@ -60,11 +59,11 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $lineItem->setType('test');
         $order = new OrderEntity();
         $order->setLineItems(new OrderLineItemCollection([$lineItem]));
-        $event = new CheckoutOrderPlacedEvent(
-            Context::createDefaultContext(),
-            $order,
-            TestDefaults::SALES_CHANNEL,
-        );
+
+        $context = Generator::createSalesChannelContext();
+
+        $event = new CheckoutOrderPlacedEvent($context, $order);
+
         $redeemer->onOrderPlaced($event);
     }
 
@@ -114,11 +113,11 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $lineItem2->setOrderId($order->getId());
 
         $order->setLineItems(new OrderLineItemCollection([$lineItem1, $lineItem2]));
-        $event = new CheckoutOrderPlacedEvent(
-            Context::createDefaultContext(),
-            $order,
-            TestDefaults::SALES_CHANNEL,
-        );
+
+        $context = Generator::createSalesChannelContext();
+
+        $event = new CheckoutOrderPlacedEvent($context, $order);
+
         $redeemer->onOrderPlaced($event);
 
         static::assertSame([[[

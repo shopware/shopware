@@ -22,4 +22,9 @@ class InvalidReferenceExtension extends EntityExtension
     {
         return ExtendableDefinition::class;
     }
+
+    public function getEntityName(): string
+    {
+        return 'extendable';
+    }
 }

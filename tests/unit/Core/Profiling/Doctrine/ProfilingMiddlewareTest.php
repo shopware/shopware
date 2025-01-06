@@ -18,6 +18,10 @@ class ProfilingMiddlewareTest extends TestCase
 {
     public function testData(): void
     {
+        if (!\extension_loaded('pdo_sqlite')) {
+            static::markTestSkipped('This test requires the pdo_sqlite extension');
+        }
+
         $configuration = new Configuration();
         $debugDataHolder = new BacktraceDebugDataHolder(['default']);
         $middleware = new ProfilingMiddleware($debugDataHolder);

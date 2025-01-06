@@ -223,6 +223,12 @@ Component.register('sw-tree', {
                 return false;
             },
         },
+
+        ariaLabel: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -314,8 +320,16 @@ Component.register('sw-tree', {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     unmounted() {
         this.$emit('checked-elements-count', 0);
+    },
+
+    beforeUnmount() {
+        this.beforeUnmountedComponent();
     },
 
     methods: {
@@ -324,6 +338,269 @@ Component.register('sw-tree', {
                 this.openTreeById();
             }
             this.$emit('checked-elements-count', this.checkedElementsCount);
+        },
+
+        mountedComponent() {
+            // Focus handling
+            this.$el.addEventListener('focusin', this.handleFocusIn);
+            this.$el.addEventListener('keydown', this.handleKeyDown);
+        },
+
+        beforeUnmountedComponent() {
+            this.$el.removeEventListener('focusin', this.handleFocusIn);
+            this.$el.removeEventListener('keydown', this.handleKeyDown);
+        },
+
+        handleFocusIn(event) {
+            // Check if focus in already in the tree on any tree item
+            if (event.target.classList.contains('sw-tree-item')) {
+                // If focus is already on a tree item, do nothing
+                return;
+            }
+
+            // Check if target is a input element
+            if (event.target.tagName === 'INPUT') {
+                // If focus is on an input element, do nothing
+                return;
+            }
+
+            /* Check recursively if any tree item is active, if yes, focus on it.
+             * If no tree item is active, focus on the first tree item
+             */
+            const activeTreeItem = this.$el.querySelector('.sw-tree-item[aria-current="page"]');
+
+            if (activeTreeItem) {
+                activeTreeItem.focus();
+            } else {
+                const firstTreeItem = this.$el.querySelector('.sw-tree-item');
+
+                if (firstTreeItem) {
+                    firstTreeItem.focus();
+                }
+            }
+        },
+
+        handleKeyDown(event) {
+            switch (event.key) {
+                case 'Tab': {
+                    // Tab out of the tree to the next focusable element
+
+                    // Add inert attribute to the tree
+                    this.$el.setAttribute('inert', '');
+
+                    // Remove inert attribute from the tree after normal tabbing behavior is done
+                    setTimeout(() => {
+                        this.$el.removeAttribute('inert');
+                    }, 0);
+
+                    break;
+                }
+
+                case 'ArrowDown': {
+                    const currentFocusedTreeItem = this.$el.querySelector('.sw-tree-item:focus');
+
+                    if (!currentFocusedTreeItem) {
+                        break;
+                    }
+
+                    // Check if current focused tree is open
+                    const isTreeItemOpen = currentFocusedTreeItem.getAttribute('aria-expanded') === 'true';
+
+                    // If tree item is open, focus on the first child tree item
+                    if (isTreeItemOpen) {
+                        const firstChildTreeItem = currentFocusedTreeItem.querySelector('.sw-tree-item');
+
+                        if (firstChildTreeItem) {
+                            firstChildTreeItem.focus();
+                            break;
+                        }
+                    }
+
+                    const nextTreeItem = currentFocusedTreeItem.nextElementSibling;
+
+                    if (nextTreeItem) {
+                        nextTreeItem.focus();
+                        break;
+                    }
+
+                    // If no next tree item is found, look at the parent tree item
+                    const parentTreeItem = currentFocusedTreeItem.parentElement.closest('.sw-tree-item');
+                    // Get the next sibling of the parent tree item
+                    const nextParentTreeItem = parentTreeItem.nextElementSibling;
+
+                    if (nextParentTreeItem) {
+                        nextParentTreeItem.focus();
+                        break;
+                    }
+
+                    break;
+                }
+
+                case 'ArrowUp': {
+                    const currentFocusedTreeItem = document.activeElement;
+
+                    // Check if current focused tree item is a tree item
+                    if (!currentFocusedTreeItem.classList.contains('sw-tree-item')) {
+                        break;
+                    }
+
+                    // Helper function to find the last visible child in an expanded tree
+                    const getLastVisibleChild = (treeItem) => {
+                        const isExpanded = treeItem?.getAttribute('aria-expanded') === 'true';
+                        if (isExpanded) {
+                            const children = treeItem.querySelectorAll('.sw-tree-item');
+                            return children[children.length - 1]; // Last child in expanded tree
+                        }
+                        return null;
+                    };
+
+                    // Step 1: Try to focus on the previous sibling
+                    let previousTreeItem = currentFocusedTreeItem.previousElementSibling;
+                    if (previousTreeItem) {
+                        // If previous sibling is expanded, go to its last child
+                        const lastChild = getLastVisibleChild(previousTreeItem);
+                        if (lastChild) {
+                            lastChild.focus();
+                        } else {
+                            previousTreeItem.focus();
+                        }
+                        break;
+                    }
+
+                    // Step 2: No previous sibling, try to go to the parent
+                    let parentTreeItem = currentFocusedTreeItem.parentElement.closest('.sw-tree-item');
+                    while (parentTreeItem) {
+                        if (parentTreeItem.previousElementSibling) {
+                            // Go to the last visible child of the parent's previous sibling
+                            previousTreeItem = parentTreeItem.previousElementSibling;
+                            const lastChild = getLastVisibleChild(previousTreeItem);
+                            if (lastChild) {
+                                lastChild.focus();
+                            } else {
+                                previousTreeItem.focus();
+                            }
+                            break;
+                        }
+                        // If no previous sibling, keep traversing up the tree
+                        parentTreeItem = parentTreeItem.parentElement.closest('.sw-tree-item');
+                    }
+
+                    // If no parent or sibling found, nothing more to focus on
+                    break;
+                }
+
+                // Space key
+                case ' ': {
+                    // Toggle the checkbox of the focused tree item
+                    const currentFocusedTreeItem = document.activeElement;
+
+                    // Check if active element is a tree item
+                    if (!currentFocusedTreeItem.classList.contains('sw-tree-item')) {
+                        break;
+                    }
+
+                    const itemId = currentFocusedTreeItem.getAttribute('data-item-id');
+
+                    if (!itemId) {
+                        break;
+                    }
+
+                    // Get tree item from the recursive this.treeItems array
+                    const treeItem = this.findById(itemId);
+
+                    if (!treeItem) {
+                        break;
+                    }
+
+                    // Toggle the tree item
+                    treeItem.checked = !treeItem.checked;
+                    this.checkItem(treeItem);
+
+                    break;
+                }
+
+                // Enter key
+                case 'Enter': {
+                    // Change route to the focused tree item
+                    const currentFocusedTreeItem = document.activeElement;
+
+                    // Check if active element is a tree item
+                    if (!currentFocusedTreeItem.classList.contains('sw-tree-item')) {
+                        break;
+                    }
+
+                    const itemId = currentFocusedTreeItem.getAttribute('data-item-id');
+
+                    if (!itemId) {
+                        break;
+                    }
+
+                    // Get tree item from the recursive this.treeItems array
+                    const treeItem = this.findById(itemId);
+
+                    if (!treeItem) {
+                        break;
+                    }
+
+                    this.onChangeRoute(treeItem);
+                    break;
+                }
+
+                case 'ArrowLeft': {
+                    /* Closing is handled by the tree item component.
+                     * This event just gets triggered when event is not handled by the tree item component.
+                     * Then we need to focus the parent tree item.
+                     */
+                    const currentFocusedTreeItem = document.activeElement;
+
+                    // Check if active element is a tree item
+                    if (!currentFocusedTreeItem.classList.contains('sw-tree-item')) {
+                        break;
+                    }
+
+                    const parentTreeItem = currentFocusedTreeItem.parentElement.closest('.sw-tree-item');
+
+                    if (parentTreeItem) {
+                        parentTreeItem.focus();
+                    }
+
+                    break;
+                }
+
+                case 'ArrowRight': {
+                    /* Opening is handled by the tree item component.
+                     * This event just gets triggered when event is not handled by the tree item component.
+                     * Then we need to focus the first child tree item.
+                     */
+                    const currentFocusedTreeItem = document.activeElement;
+
+                    // Check if active element is a tree item
+                    if (!currentFocusedTreeItem.classList.contains('sw-tree-item')) {
+                        break;
+                    }
+
+                    // Check if current focused tree is open
+                    const isTreeItemOpen = currentFocusedTreeItem.getAttribute('aria-expanded') === 'true';
+
+                    // If tree item is open, focus on the first child tree item
+                    if (!isTreeItemOpen) {
+                        break;
+                    }
+
+                    const firstChildTreeItem = currentFocusedTreeItem.querySelector('.sw-tree-item');
+
+                    if (firstChildTreeItem) {
+                        firstChildTreeItem.focus();
+                        break;
+                    }
+
+                    break;
+                }
+
+                default: {
+                    break;
+                }
+            }
         },
 
         getItems(parentId = this.rootParentId, searchTerm = null) {

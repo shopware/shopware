@@ -117,7 +117,7 @@
         </service>
 
         <service id="messenger.test_receiver_locator" alias="messenger.receiver_locator" public="true"/>
-        <service id="messenger.bus.test_shopware" class="Symfony\Component\Messenger\TraceableMessageBus" decorates="messenger.bus.shopware">
+        <service id="messenger.bus.test_shopware" class="Symfony\Component\Messenger\TraceableMessageBus" decorates="messenger.default_bus">
             <argument type="service" id=".inner"/>
         </service>
 

@@ -14,6 +14,20 @@ Component.register('sw-checkbox-field', {
 
     compatConfig: Shopware.compatConfig,
 
+    props: {
+        modelValue: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        value: {
+            type: Boolean,
+            required: false,
+            default: null,
+        },
+    },
+
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
@@ -39,6 +53,20 @@ Component.register('sw-checkbox-field', {
 
             return {};
         },
+
+        compatValue: {
+            get() {
+                if (this.value === null || this.value === undefined) {
+                    return this.modelValue;
+                }
+
+                return this.value;
+            },
+            set(value: string) {
+                this.$emit('update:value', value);
+                this.$emit('update:modelValue', value);
+            },
+        },
     },
 
     methods: {
@@ -52,6 +80,13 @@ Component.register('sw-checkbox-field', {
             }
 
             return this.$slots;
+        },
+
+        handleUpdateChecked(event: unknown) {
+            this.$emit('update:checked', event);
+
+            // Emit old event for backwards compatibility
+            this.$emit('update:value', event);
         },
     },
 });

@@ -9,7 +9,12 @@
 
             {% block page_checkout_summary_shipping_value %}
                 <dd class="col-5 checkout-aside-summary-value">
-                    {{ delivery.shippingCosts.totalPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
+                    {% set deliveryPrice = delivery.shippingCosts.totalPrice ?? 0 %}
+                    {% if deliveryPrice < 0 %}
+                        &minus;
+                    {% endif %}
+
+                    {{ deliveryPrice|abs|currency }}{{ 'general.star'|trans|sw_sanitize }}
                 </dd>
             {% endblock %}
         {% endblock %}

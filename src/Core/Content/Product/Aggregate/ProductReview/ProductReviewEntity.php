@@ -19,76 +19,106 @@ class ProductReviewEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customerId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $languageId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $externalUser;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $externalEmail;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $points;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $status;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $comment;
 
     /**
      * @var SalesChannelEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannel;
 
     /**
      * @var LanguageEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $language;
 
     /**
      * @var CustomerEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customer;
 
     /**
      * @var ProductEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $product;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $content;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $title;
 

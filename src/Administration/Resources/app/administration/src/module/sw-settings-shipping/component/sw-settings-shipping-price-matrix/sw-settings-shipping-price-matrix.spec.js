@@ -40,8 +40,28 @@ const createWrapper = async () => {
                     prices: [
                         {
                             _isNew: true,
+                            id: 'priceId1',
                             shippingMethodId: 'shippingMethodId',
                             quantityStart: 1,
+                            quantityEnds: 1,
+                            ruleId: 'ruleId',
+                            rule: {},
+                            calculation: 1,
+                            currencyPrice: [
+                                {
+                                    currencyId: 'euro',
+                                    gross: 0,
+                                    linked: false,
+                                    net: 0,
+                                },
+                            ],
+                        },
+                        {
+                            _isNew: true,
+                            id: 'priceId2',
+                            shippingMethodId: 'shippingMethodId',
+                            quantityStart: 2,
+                            quantityEnds: null,
                             ruleId: 'ruleId',
                             rule: {},
                             calculation: 1,
@@ -77,11 +97,53 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should add conditions association', async () => {
+        if (Shopware.Feature.isActive('v6.7.0.0')) {
+            return;
+        }
+
         const wrapper = await createWrapper();
         const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
 
-        expect(ruleFilterCriteria.associations[0].association).toBe('conditions');
-        expect(shippingRuleFilterCriteria.associations[0].association).toBe('conditions');
+        expect(ruleFilterCriteria.hasAssociation('conditions')).toBeTruthy();
+        expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeTruthy();
+    });
+
+    it('should not add conditions association', async () => {
+        global.activeFeatureFlags = ['v6.7.0.0'];
+
+        const wrapper = await createWrapper();
+        const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
+        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
+
+        expect(ruleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
+        expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
+    });
+
+    it('should show all prices', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.showAllPrices).toBeFalsy();
+        expect(wrapper.vm.prices).toHaveLength(1);
+
+        wrapper.vm.updateShowAllPrices();
+
+        expect(wrapper.vm.showAllPrices).toBeTruthy();
+        expect(wrapper.vm.prices).toHaveLength(2);
+    });
+
+    it('should add new price', async () => {
+        const wrapper = await createWrapper();
+
+        if (!wrapper.vm.shippingMethod.hasOwnProperty('prices')) {
+            wrapper.vm.shippingMethod.prices = [];
+        }
+
+        const length = wrapper.vm.shippingMethod.prices.length;
+
+        expect(wrapper.vm.showAllPrices).toBeFalsy();
+        wrapper.vm.onAddNewShippingPrice();
+        expect(wrapper.vm.showAllPrices).toBeTruthy();
+        expect(wrapper.vm.shippingMethod.prices).toHaveLength(length + 1);
     });
 });

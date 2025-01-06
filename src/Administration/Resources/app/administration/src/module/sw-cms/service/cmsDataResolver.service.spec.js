@@ -333,6 +333,32 @@ Shopware.Service().register('cmsService', () => {
         getCmsElementRegistry() {
             return cmsElements;
         },
+        getCmsBlockRegistry() {
+            return {
+                'text-on-image': {
+                    name: 'Text on Image',
+                    defaultConfig: {
+                        backgroundColor: '#FFFFFF',
+                        backgroundMedia: {
+                            url: '/bundles/administration/static/img/cms/preview_mountain_large.jpg',
+                        },
+                        marginTop: '20px',
+                        marginBottom: '20px',
+                        marginLeft: '20px',
+                        marginRight: '20px',
+                    },
+                },
+                text: {
+                    name: 'Text',
+                    defaultConfig: {
+                        marginTop: '10px',
+                        marginBottom: '10px',
+                        marginLeft: '10px',
+                        marginRight: '10px',
+                    },
+                },
+            };
+        },
     };
 });
 

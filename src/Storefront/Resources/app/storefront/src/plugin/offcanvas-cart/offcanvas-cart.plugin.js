@@ -264,7 +264,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('onAddPromotionToCart');
 
-        this._saveFocusState('#addPromotionOffcanvasCartInput');
+        this._saveFocusState('#addPromotionOffcanvasCart');
         this._fireRequest(form, selector);
     }
 

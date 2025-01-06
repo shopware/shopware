@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Increment;
 
-use Predis\ClientInterface;
-use Relay\Relay;
+use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
  */
 #[Package('core')]
 class RedisIncrementer extends AbstractIncrementer
@@ -15,10 +16,12 @@ class RedisIncrementer extends AbstractIncrementer
     /**
      * @internal
      *
-     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay $redis
+     * @param RedisTypeHint $redis
      */
-    public function __construct(private $redis)
-    {
+    public function __construct(
+        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
+        private $redis
+    ) {
     }
 
     public function increment(string $cluster, string $key): void

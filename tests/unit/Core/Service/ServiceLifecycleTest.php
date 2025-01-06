@@ -78,7 +78,7 @@ class ServiceLifecycleTest extends TestCase
         ]);
     }
 
-    public function testInstallLogsErrorIfAppCannotBeDownloaded(): void
+    public function testInstallDoesNotLogErrorIfAppCannotBeDownloaded(): void
     {
         $this->serviceClient->expects(static::once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInfo());
         $this->serviceClientFactory->expects(static::once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
@@ -88,7 +88,7 @@ class ServiceLifecycleTest extends TestCase
         $this->appLifecycle->expects(static::never())->method('install');
 
         $this->logger
-            ->expects(static::once())
+            ->expects(static::never())
             ->method('error')
             ->with('Cannot install service "MyCoolService" because of error: "Error downloading app. The version information was missing."');
 
@@ -133,7 +133,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->logger
             ->expects(static::once())
-            ->method('error')
+            ->method('debug')
             ->with('Cannot install service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
 
         $lifecycle = new ServiceLifecycle(
@@ -386,7 +386,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->logger
             ->expects(static::once())
-            ->method('error')
+            ->method('debug')
             ->with('Cannot update service "MyCoolService" because of error: "Error downloading app. The version information was missing."');
 
         $this->serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($this->entry);
@@ -460,7 +460,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->logger
             ->expects(static::once())
-            ->method('error')
+            ->method('debug')
             ->with('Cannot update service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
 
         $this->serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($this->entry);

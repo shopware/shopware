@@ -38,7 +38,7 @@ class AppExtractorTest extends TestCase
 
     public function testAppIsExtracted(): void
     {
-        $this->createZip(__DIR__ . '/_fixtures/App/TestApp', 'TestApp');
+        $this->createZip(__DIR__ . '/_fixtures/App/TestApp');
 
         $validator = $this->createMock(AppArchiveValidator::class);
         $validator->expects(static::once())
@@ -55,7 +55,7 @@ class AppExtractorTest extends TestCase
 
     public function testAppIsNotExtractedWhenValidationFails(): void
     {
-        $this->createZip(__DIR__ . '/_fixtures/App/TestApp', 'TestApp');
+        $this->createZip(__DIR__ . '/_fixtures/App/TestApp');
 
         $validator = $this->createMock(AppArchiveValidator::class);
         $validator->expects(static::once())
@@ -67,12 +67,12 @@ class AppExtractorTest extends TestCase
             $extractor = new AppExtractor($validator);
             $extractor->extract($this->temporaryFilePath, $this->extractPath, 'TestApp');
             static::fail(AppArchiveValidationFailure::class . ' exception should be thrown');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             static::assertFileDoesNotExist($this->extractPath . '/TestApp');
         }
     }
 
-    private function createZip(string $appDirectory, string $appName): void
+    private function createZip(string $appDirectory): void
     {
         $appDirectory = (string) realpath($appDirectory);
 
@@ -85,8 +85,8 @@ class AppExtractorTest extends TestCase
         );
 
         foreach ($files as $file) {
-            /** @var \SplFileInfo $file */
-            $zip->addFile($file->getRealPath(), Path::join($appName, $files->getSubPathName()));
+            static::assertInstanceOf(\SplFileInfo::class, $file);
+            $zip->addFile($file->getRealPath(), Path::join('TestApp', $files->getSubPathname()));
         }
 
         $zip->close();

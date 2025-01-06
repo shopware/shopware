@@ -13,31 +13,43 @@ class AccountEditOrderPage extends Page
 {
     /**
      * @var OrderEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $order;
 
     /**
      * @var PaymentMethodCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethods;
 
     /**
      * @var PromotionCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $activePromotions;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $deepLinkCode;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentChangeable = true;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $errorCode;
 

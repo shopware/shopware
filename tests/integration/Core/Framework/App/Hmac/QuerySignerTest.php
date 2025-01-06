@@ -31,11 +31,12 @@ class QuerySignerTest extends TestCase
     protected function setUp(): void
     {
         $this->app = new AppEntity();
+        $this->app->setName('TestApp');
         $this->app->setId('app-id');
         $this->app->setAppSecret('lksf#$osck$FSFDSF#$#F43jjidjsfisj-333');
 
-        $this->querySigner = $this->getContainer()->get(QuerySigner::class);
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->querySigner = static::getContainer()->get(QuerySigner::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
     }
 
     public function testSignUri(): void
@@ -60,7 +61,7 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('timestamp', $signedQuery);
 
         static::assertArrayHasKey('sw-version', $signedQuery);
-        static::assertSame($this->getContainer()->getParameter('kernel.shopware_version'), $signedQuery['sw-version']);
+        static::assertSame(static::getContainer()->getParameter('kernel.shopware_version'), $signedQuery['sw-version']);
 
         static::assertArrayHasKey('sw-context-language', $signedQuery);
         static::assertSame(Context::createDefaultContext()->getLanguageId(), $signedQuery['sw-context-language']);

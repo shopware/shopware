@@ -55,7 +55,7 @@ class NewsletterControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $repo = $this->getContainer()->get('newsletter_recipient.repository');
+        $repo = static::getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
@@ -68,7 +68,7 @@ class NewsletterControllerTest extends TestCase
 
     public function testRegisterNewsletterForCustomerDoi(): void
     {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         static::assertNotNull($systemConfigService);
         $systemConfigService->set('core.newsletter.doubleOptInRegistered', true);
 
@@ -89,7 +89,7 @@ class NewsletterControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $repo = $this->getContainer()->get('newsletter_recipient.repository');
+        $repo = static::getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
@@ -169,7 +169,7 @@ class NewsletterControllerTest extends TestCase
         }
 
         /** @var EntityRepository<CustomerCollection> $repo */
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$this->customerData], Context::createDefaultContext());
 

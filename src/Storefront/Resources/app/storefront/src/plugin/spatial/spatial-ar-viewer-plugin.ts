@@ -69,7 +69,22 @@ export default class SpatialArViewerPlugin extends Plugin {
 
             if (qrModalTemplate) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-                new bootstrap.Modal(qrModalTemplate).show();
+                window.focusHandler.saveFocusState('spatial-ar-viewer');
+
+
+                const refocusButton = () => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+                    window.focusHandler.resumeFocusState('spatial-ar-viewer');
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+                    modal._element.removeEventListener('hidden.bs.modal', refocusButton);
+                };
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+                const modal = new bootstrap.Modal(qrModalTemplate);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+                modal._element.addEventListener('hidden.bs.modal', refocusButton);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+                modal.show();
             }
             return;
         }

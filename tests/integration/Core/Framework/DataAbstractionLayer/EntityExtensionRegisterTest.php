@@ -42,7 +42,7 @@ class EntityExtensionRegisterTest extends TestCase
         $this->registerDefinition(ExtendedProductDefinition::class);
         $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
 
-        $fields = $this->getContainer()
+        $fields = static::getContainer()
             ->get(DefinitionInstanceRegistry::class)
             ->get(ProductDefinition::class)
             ->getFields();
@@ -53,7 +53,7 @@ class EntityExtensionRegisterTest extends TestCase
 
         $this->registerSalesChannelDefinition(ExtendedProductDefinition::class);
         $this->registerSalesChannelDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
-        $fields = $this->getContainer()
+        $fields = static::getContainer()
             ->get(SalesChannelDefinitionInstanceRegistry::class)
             ->get(ProductDefinition::class)
             ->getFields();
@@ -68,7 +68,7 @@ class EntityExtensionRegisterTest extends TestCase
         $this->registerDefinition(ExtendedProductManufacturerDefinition::class);
         $this->registerDefinitionWithExtensions(ProductManufacturerDefinition::class, ProductManufacturerExtension::class);
 
-        $fields = $this->getContainer()
+        $fields = static::getContainer()
             ->get(DefinitionInstanceRegistry::class)
             ->get(ProductManufacturerDefinition::class)
             ->getFields();
@@ -79,7 +79,7 @@ class EntityExtensionRegisterTest extends TestCase
 
         $this->registerSalesChannelDefinition(ExtendedProductManufacturerDefinition::class);
         $this->registerSalesChannelDefinitionWithExtensions(ProductManufacturerDefinition::class, ProductManufacturerExtension::class);
-        $fields = $this->getContainer()
+        $fields = static::getContainer()
             ->get(SalesChannelDefinitionInstanceRegistry::class)
             ->get(ProductManufacturerDefinition::class)
             ->getFields();

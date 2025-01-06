@@ -6,7 +6,10 @@ specific styling for elements dependent on their parent block
 */
 
 .cms-block {
-    overflow: hidden;
+    // @deprecated tag:v6.7.0 - The class `cms-block` will no longer have the `overflow: hidden` property because it blocks focus state visibility.
+    @if not feature('ACCESSIBILITY_TWEAKS') {
+        overflow: hidden;
+    }
 
     &.bg-image {
         position: relative;

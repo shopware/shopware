@@ -41,8 +41,8 @@ class EntityTemplateLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->templateRepository = $this->getContainer()->get('app_template.repository');
-        $this->templateLoader = $this->getContainer()->get(EntityTemplateLoader::class);
+        $this->templateRepository = static::getContainer()->get('app_template.repository');
+        $this->templateLoader = static::getContainer()->get(EntityTemplateLoader::class);
         $this->template1Id = Uuid::randomHex();
         $this->template2Id = Uuid::randomHex();
     }

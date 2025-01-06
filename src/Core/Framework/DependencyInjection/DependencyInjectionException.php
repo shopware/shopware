@@ -12,6 +12,7 @@ class DependencyInjectionException extends HttpException
     public const PROJECT_DIR_IS_NOT_A_STRING = 'FRAMEWORK__PROJECT_DIR_IS_NOT_A_STRING';
     public const BUNDLES_METADATA_IS_NOT_AN_ARRAY = 'FRAMEWORK__BUNDLES_METADATA_IS_NOT_AN_ARRAY';
     public const TAGGED_SERVICE_HAS_WRONG_TYPE = 'FRAMEWORK__TAGGED_SERVICE_HAS_WRONG_TYPE';
+    public const PARAMETER_HAS_WRONG_TYPE = 'FRAMEWORK__PARAMETER_HAS_WRONG_TYPE';
 
     public static function projectDirNotInContainer(): self
     {
@@ -37,6 +38,15 @@ class DependencyInjectionException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::TAGGED_SERVICE_HAS_WRONG_TYPE,
             \sprintf('Service "%s" is tagged as "%s" and must therefore be of type "%s".', $service, $tag, $type)
+        );
+    }
+
+    public static function parameterHasWrongType(string $parameter, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PARAMETER_HAS_WRONG_TYPE,
+            \sprintf('Parameter "%s" should be: "%s". Got: "%s"', $parameter, $expectedType, $actualType)
         );
     }
 }

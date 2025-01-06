@@ -3,6 +3,14 @@
 <div
     class="sw-tree-item"
     :class="styling"
+    role="treeitem"
+    :aria-label="getName(item)"
+    :tabindex="active ? 0 : -1"
+    :aria-current="active ? 'page' : undefined"
+    :aria-expanded="isOpened ? 'true' : 'false'"
+    :data-item-id="item.id"
+    :aria-owns="item.id"
+    :aria-selected="checked"
 >
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -28,6 +36,8 @@
             class="sw-tree-item__toggle"
             role="button"
             tabindex="0"
+            :aria-label="$t('sw-tree-item.toggleTreeItem', { name: getName(item) })"
+            :aria-expanded="opened ? 'true' : 'false'"
             @click="openTreeItem(); getTreeItemChildren(item)"
             @keydown.enter="openTreeItem(); getTreeItemChildren(item)"
         >
@@ -47,6 +57,7 @@
                 :disabled="currentEditElement === item.data.id"
                 :ghost-value="checkedGhost"
                 :value="checked"
+                :aria-label="$t('sw-tree-item.toggleItem', { name: getName(item) })"
                 @update:value="toggleItemCheck($event, item)"
             />
         </div>
@@ -258,7 +269,10 @@
         {% block sw_tree_item_children_content %}
         <div
             v-if="isOpened && item.children.length > 0"
+            :id="item.id"
             class="sw-tree-item__children"
+            role="group"
+            :aria-label="$tc(`sw-tree-item.childrenLabel`, { name: getName(item) })"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tree_item_children_items %}

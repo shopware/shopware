@@ -4,6 +4,8 @@
          bootstrap="src/Core/TestBootstrap.php"
          cacheResult="false"
          executionOrder="random"
+         displayDetailsOnPhpunitDeprecations="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
          cacheDirectory=".phpunit.cache">
     <coverage includeUncoveredFiles="true"/>
     <source>

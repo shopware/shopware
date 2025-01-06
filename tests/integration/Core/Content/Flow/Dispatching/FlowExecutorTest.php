@@ -63,13 +63,13 @@ class FlowExecutorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
-        $this->orderTransactionStateHandler = $this->getContainer()->get(OrderTransactionStateHandler::class);
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
-        $this->tagRepository = $this->getContainer()->get('tag.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
+        $this->orderTransactionStateHandler = static::getContainer()->get(OrderTransactionStateHandler::class);
+        $this->flowRepository = static::getContainer()->get('flow.repository');
+        $this->tagRepository = static::getContainer()->get('tag.repository');
         $this->customerId = $this->createCustomer();
         $this->salesChannelContext = $this->createDefaultSalesChannelContext();
     }
@@ -308,7 +308,7 @@ class FlowExecutorTest extends TestCase
 
     private function createDefaultSalesChannelContext(): SalesChannelContext
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $this->customerId]);
     }

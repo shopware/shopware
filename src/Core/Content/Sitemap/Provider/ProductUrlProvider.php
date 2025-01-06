@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -23,6 +24,8 @@ use Symfony\Component\Routing\RouterInterface;
 class ProductUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'hourly';
+
+    private const CONFIG_EXCLUDE_LINKED_PRODUCTS = 'core.sitemap.excludeLinkedProducts';
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
 
@@ -142,6 +145,12 @@ class ProductUrlProvider extends AbstractUrlProvider
         if (!empty($excludedProductIds)) {
             $query->andWhere('`product`.id NOT IN (:productIds)');
             $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::BINARY);
+        }
+
+        $excludeLinkedProducts = $this->systemConfigService->getBool(self::CONFIG_EXCLUDE_LINKED_PRODUCTS, $context->getSalesChannelId());
+        if ($excludeLinkedProducts) {
+            $query->andWhere('visibilities.visibility != :excludedVisibility');
+            $query->setParameter('excludedVisibility', ProductVisibilityDefinition::VISIBILITY_LINK);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));

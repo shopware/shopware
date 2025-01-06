@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -70,8 +71,8 @@ class ThemeCompilerTest extends TestCase
 
     protected function setUp(): void
     {
-        $themeFileResolver = $this->getContainer()->get(ThemeFileResolver::class);
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $themeFileResolver = static::getContainer()->get(ThemeFileResolver::class);
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         // Avoid filesystem operations
         $mockFilesystem = $this->createMock(Filesystem::class);
@@ -85,12 +86,12 @@ class ThemeCompilerTest extends TestCase
             $themeFileResolver,
             true,
             $this->eventDispatcher,
-            $this->getContainer()->get(ThemeFilesystemResolver::class),
+            static::getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            $this->getContainer()->get(CacheInvalidator::class),
+            static::getContainer()->get(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
-            $this->getContainer()->get(ScssPhpCompiler::class),
+            static::getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
             0,
             false
@@ -103,12 +104,12 @@ class ThemeCompilerTest extends TestCase
             $themeFileResolver,
             true,
             $this->eventDispatcher,
-            $this->getContainer()->get(ThemeFilesystemResolver::class),
+            static::getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            $this->getContainer()->get(CacheInvalidator::class),
+            static::getContainer()->get(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
-            $this->getContainer()->get(ScssPhpCompiler::class),
+            static::getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
             0,
             true
@@ -117,8 +118,8 @@ class ThemeCompilerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->getContainer()->get(SourceResolver::class)->reset();
-        $this->getContainer()->get(ActiveAppsLoader::class)->reset();
+        static::getContainer()->get(SourceResolver::class)->reset();
+        static::getContainer()->get(ActiveAppsLoader::class)->reset();
     }
 
     public function testVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
@@ -342,6 +343,9 @@ $sw-asset-theme-url: \'http://localhost\';
 
 \$theme-id: themeId;
 \$sw-zero-margin: 0;
+\$sw-null-margin: 0;
+\$sw-unset-margin: 0;
+\$sw-empty-margin: 0;
 \$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL;
@@ -351,7 +355,7 @@ PHP_EOL;
 
     public function testScssVariablesEventAddsNewVariablesToArray(): void
     {
-        $subscriber = new MockThemeVariablesSubscriber($this->getContainer()->get(SystemConfigService::class));
+        $subscriber = new MockThemeVariablesSubscriber(static::getContainer()->get(SystemConfigService::class));
 
         $variables = [
             'sw-color-brand-primary' => '#008490',
@@ -418,7 +422,7 @@ PHP_EOL;
         $this->stopTransactionAfter();
         $this->setEnvVars(['DATABASE_URL' => 'mysql://user:no@mysql:3306/test_db']);
         KernelLifecycleManager::bootKernel(false, 'noDB');
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
         $testFolder = $projectDir . '/bla';
 
         if (!file_exists($testFolder)) {
@@ -440,13 +444,13 @@ PHP_EOL;
             new CopyBatchInputFactory(),
             $resolver,
             true,
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             $this->createMock(ThemeFilesystemResolver::class),
             [],
             $this->createMock(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
-            $this->getContainer()->get(ScssPhpCompiler::class),
+            static::getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
             0,
             false
@@ -536,7 +540,7 @@ PHP_EOL;
         $this->eventDispatcher->addSubscriber($subscriber);
 
         /** @var SystemConfigService $sysConfService */
-        $sysConfService = $this->getContainer()->get(SystemConfigService::class);
+        $sysConfService = static::getContainer()->get(SystemConfigService::class);
         $sysConfService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#fff');
         $sysConfService->set('SwagNoThemeCustomCss.config.noThemeCustomCssBackGroundcolor', '#aaa');
 
@@ -561,8 +565,8 @@ PHP_EOL;
         $this->eventDispatcher->addSubscriber($subscriber);
 
         if (Feature::isActive('v6.7.0.0')) {
-            static::expectException(Feature\FeatureException::class);
-            static::expectExceptionMessage('Tried to access deprecated functionality: Autoprefixer is deprecated and will be removed without replacement, including the config storefront.theme.auto_prefix_css.');
+            $this->expectException(FeatureException::class);
+            $this->expectExceptionMessage('Tried to access deprecated functionality: Autoprefixer is deprecated and will be removed without replacement, including the config storefront.theme.auto_prefix_css.');
         }
 
         try {
@@ -704,9 +708,9 @@ PHP_EOL;
         return new ConfigurationService(
             $plugins,
             new ConfigReader(),
-            $this->getContainer()->get(AppConfigReader::class),
-            $this->getContainer()->get('app.repository'),
-            $this->getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(AppConfigReader::class),
+            static::getContainer()->get('app.repository'),
+            static::getContainer()->get(SystemConfigService::class)
         );
     }
 
@@ -718,9 +722,9 @@ PHP_EOL;
         return new ConfigurationServiceException(
             $plugins,
             new ConfigReader(),
-            $this->getContainer()->get(AppConfigReader::class),
-            $this->getContainer()->get('app.repository'),
-            $this->getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(AppConfigReader::class),
+            static::getContainer()->get('app.repository'),
+            static::getContainer()->get(SystemConfigService::class)
         );
     }
 
@@ -736,8 +740,8 @@ PHP_EOL;
 
         return new StorefrontPluginRegistry(
             $kernel,
-            $this->getContainer()->get(StorefrontPluginConfigurationFactory::class),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
+            static::getContainer()->get(ActiveAppsLoader::class)
         );
     }
 }

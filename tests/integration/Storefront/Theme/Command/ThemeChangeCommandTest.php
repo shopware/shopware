@@ -35,8 +35,8 @@ class ThemeChangeCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $this->themeRepository = $this->getContainer()->get('theme.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+        $this->themeRepository = static::getContainer()->get('theme.repository');
     }
 
     public function testThemeChangeCommandAllSalesChannels(): void

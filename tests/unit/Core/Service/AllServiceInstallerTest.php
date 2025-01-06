@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -26,7 +27,8 @@ class AllServiceInstallerTest extends TestCase
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
 
         $serviceInstaller = new AllServiceInstaller(
-            true,
+            '1',
+            'prod',
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository(),
@@ -55,6 +57,64 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller->install(Context::createDefaultContext());
     }
 
+    #[DataProvider('serviceTogglesProvider')]
+    public function testServicesCanBeEnabledOrDisabled(string $enabled, string $appEnv, bool $shouldBeActive): void
+    {
+        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
+        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+
+        $serviceInstaller = new AllServiceInstaller(
+            $enabled,
+            $appEnv,
+            $serviceRegistryClient,
+            $serviceLifeCycle,
+            $this->buildAppRepository(),
+        );
+
+        if ($shouldBeActive) {
+            $serviceRegistryClient->expects(static::once())
+            ->method('getAll')
+            ->willReturn([
+                new ServiceRegistryEntry('Service1', 'https://service-1.com', 'Service 1', ''),
+            ]);
+
+            $serviceLifeCycle->expects(static::once())
+                ->method('install')
+                ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry): bool {
+                    $this->assertEquals('Service1', $serviceRegistryEntry->name);
+
+                    return true;
+                });
+        } else {
+            $serviceRegistryClient->expects(static::never())
+                ->method('getAll');
+
+            $serviceLifeCycle->expects(static::never())
+                ->method('install');
+        }
+
+        $serviceInstaller->install(Context::createDefaultContext());
+    }
+
+    public static function serviceTogglesProvider(): \Generator
+    {
+        yield 'not explicitly configured on prod should default to enabled' => ['auto', 'prod', true];
+
+        yield 'not explicitly configured on non-prod should default to disabled' => ['auto', 'dev', false];
+
+        yield 'explicitly enabled on dev should override default and be enabled' => ['1', 'dev', true];
+
+        yield '"true" is treated as truthy' => ['true', 'dev', true];
+
+        yield '"on" is treated as truthy' => ['on', 'dev', true];
+
+        yield 'explicitly disabled on prod should override default and be disabled' => ['0', 'prod', false];
+
+        yield '"false" is treated as falsy' => ['false', 'prod', false];
+
+        yield '"off" is treated as falsy' => ['off', 'prod', false];
+    }
+
     public function testOnlyNewServicesAreInstalled(): void
     {
         $app1 = new AppEntity();
@@ -65,7 +125,8 @@ class AllServiceInstallerTest extends TestCase
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
 
         $serviceInstaller = new AllServiceInstaller(
-            true,
+            '1',
+            'prod',
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository([$app1]),
@@ -102,7 +163,8 @@ class AllServiceInstallerTest extends TestCase
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
 
         $serviceInstaller = new AllServiceInstaller(
-            true,
+            '1',
+            'prod',
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository([$app1, $app2]),
@@ -117,24 +179,6 @@ class AllServiceInstallerTest extends TestCase
 
         $serviceLifeCycle->expects(static::never())
             ->method('install');
-
-        $serviceInstaller->install(Context::createDefaultContext());
-    }
-
-    public function testNoServicesAreInstalledIfDisabled(): void
-    {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-
-        $serviceInstaller = new AllServiceInstaller(
-            false,
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository(),
-        );
-
-        $serviceRegistryClient->expects(static::never())->method('getAll');
-        $serviceLifeCycle->expects(static::never())->method('install');
 
         $serviceInstaller->install(Context::createDefaultContext());
     }

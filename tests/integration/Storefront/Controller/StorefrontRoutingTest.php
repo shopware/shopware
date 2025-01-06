@@ -22,7 +22,7 @@ class StorefrontRoutingTest extends TestCase
     public function testForwardFromAddPromotionToHomePage(): void
     {
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
             function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();

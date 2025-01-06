@@ -323,7 +323,7 @@ class SalesChannelValidatorTest extends TestCase
         $this->getSalesChannelRepository()
             ->create([$data], Context::createDefaultContext());
 
-        $count = (int) $this->getContainer()->get(Connection::class)
+        $count = (int) static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT COUNT(*) FROM sales_channel_language WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
         static::assertSame(0, $count);
@@ -378,11 +378,11 @@ class SalesChannelValidatorTest extends TestCase
 
     private function getSalesChannelRepository(): EntityRepository
     {
-        return $this->getContainer()->get('sales_channel.repository');
+        return static::getContainer()->get('sales_channel.repository');
     }
 
     private function getSalesChannelLanguageRepository(): EntityRepository
     {
-        return $this->getContainer()->get('sales_channel_language.repository');
+        return static::getContainer()->get('sales_channel_language.repository');
     }
 }

@@ -30,36 +30,50 @@ class StateMachineStateEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $technicalName;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachineId;
 
     /**
      * @var StateMachineEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachine;
 
     /**
      * @var StateMachineTransitionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fromStateMachineTransitions;
 
     /**
      * @var StateMachineTransitionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $toStateMachineTransitions;
 
     /**
      * @var StateMachineStateTranslationCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var OrderCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orders;
 
@@ -69,21 +83,29 @@ class StateMachineStateEntity extends Entity
 
     /**
      * @var OrderTransactionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderTransactions;
 
     /**
      * @var OrderDeliveryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderDeliveries;
 
     /**
      * @var StateMachineHistoryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fromStateMachineHistoryEntries;
 
     /**
      * @var StateMachineHistoryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $toStateMachineHistoryEntries;
 

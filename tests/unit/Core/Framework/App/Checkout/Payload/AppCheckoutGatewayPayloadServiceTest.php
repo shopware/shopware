@@ -11,11 +11,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGatewayResponse;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayload;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -35,17 +37,18 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
         $shippingMethods = ['shippingMethod-1', 'shippingMethod-2'];
 
         $app = new AppEntity();
+        $app->setVersion('1.0.0');
         $app->setAppSecret('devsecret');
 
         $payload = new AppCheckoutGatewayPayload($context, $cart, $paymentMethods, $shippingMethods);
-        $encodedPayload = $this->encodePayload($payload);
+        $encodedPayload = \json_encode($this->encodePayload($payload), \JSON_THROW_ON_ERROR);
 
         $helper = $this->createMock(AppPayloadServiceHelper::class);
         $helper
             ->expects(static::once())
-            ->method('encode')
-            ->with($payload)
-            ->willReturn($encodedPayload);
+            ->method('createRequestOptions')
+            ->with($payload, $app, $context->getContext())
+            ->willReturn($this->buildTestPayload($context->getContext(), $encodedPayload));
 
         $response = [
             [
@@ -79,6 +82,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
         $shippingMethods = ['shippingMethod-1', 'shippingMethod-2'];
 
         $app = new AppEntity();
+        $app->setVersion('1.0.0');
         $app->setAppSecret('devsecret');
 
         $payload = new AppCheckoutGatewayPayload($context, $cart, $paymentMethods, $shippingMethods);
@@ -107,38 +111,6 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
         static::assertNull($gatewayResponse);
     }
 
-    public function testRequestMissingAppSecret(): void
-    {
-        $context = Generator::createSalesChannelContext();
-        $cart = Generator::createCart();
-        $paymentMethods = ['paymentMethod-1', 'paymentMethod-2'];
-        $shippingMethods = ['shippingMethod-1', 'shippingMethod-2'];
-
-        $app = new AppEntity();
-        $app->setName('Foo');
-        $app->setAppSecret(null);
-
-        $payload = new AppCheckoutGatewayPayload($context, $cart, $paymentMethods, $shippingMethods);
-
-        $helper = $this->createMock(AppPayloadServiceHelper::class);
-        $helper
-            ->expects(static::once())
-            ->method('encode')
-            ->with($payload)
-            ->willReturn([]);
-
-        $service = new AppCheckoutGatewayPayloadService(
-            $helper,
-            new Client(),
-            $this->createMock(ExceptionLogger::class),
-        );
-
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App registration for "Foo" failed: App secret is missing');
-
-        $service->request('https://example.com', $payload, $app);
-    }
-
     /**
      * @return array<string, mixed>
      */
@@ -158,5 +130,20 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
     private function buildResponse(array $body): ResponseInterface
     {
         return new Response(200, [], \json_encode($body, \JSON_THROW_ON_ERROR));
+    }
+
+    private function buildTestPayload(Context $context, string $payload): AppPayloadStruct
+    {
+        return new AppPayloadStruct([
+            AuthMiddleware::APP_REQUEST_CONTEXT => $context,
+            AuthMiddleware::APP_REQUEST_TYPE => [
+                AuthMiddleware::APP_SECRET => 'some-secret',
+                AuthMiddleware::VALIDATED_RESPONSE => true,
+            ],
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'body' => $payload,
+        ]);
     }
 }

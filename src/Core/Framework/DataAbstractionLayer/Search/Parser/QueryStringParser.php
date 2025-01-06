@@ -141,7 +141,7 @@ class QueryStringParser
                 return self::getFilterByRelativeTime(self::buildFieldName($definition, $query['field']), $query, $path);
             case 'equalsAll':
                 if (empty($query['field'])) {
-                    throw DataAbstractionLayerException::invalidFilterQuery('Parameter "field" for equalsAny filter is missing.', $path . '/field');
+                    throw DataAbstractionLayerException::invalidFilterQuery('Parameter "field" for equalsAll filter is missing.', $path . '/field');
                 }
 
                 if (empty($query['value'])) {

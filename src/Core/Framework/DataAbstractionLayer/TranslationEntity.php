@@ -10,11 +10,15 @@ class TranslationEntity extends Entity
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $languageId;
 
     /**
      * @var LanguageEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $language;
 

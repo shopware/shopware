@@ -33,8 +33,8 @@ class CmsPageBeforeDeleteSubscriberTest extends TestCase
     {
         parent::setUp();
 
-        $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->cmsPageRepository = static::getContainer()->get('cms_page.repository');
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
     }
 
     public function testDeleteCmsPageDoesNotThrow(): void

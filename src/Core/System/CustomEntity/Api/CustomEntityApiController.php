@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,7 +27,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::detail($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -39,7 +39,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::detail($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -51,7 +51,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::searchIds($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -63,7 +63,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::searchIds($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -75,7 +75,19 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::search($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
+        }
+    }
+
+    #[Route(path: '/api/aggregate/custom-entity-{entityName}{path}', name: 'api.custom_entity_entity.aggregate', requirements: ['path' => '(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$'], methods: ['POST'])]
+    public function aggregate(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        $entity = 'custom-entity-' . $entityName;
+
+        try {
+            return parent::aggregate($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException) {
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -87,7 +99,19 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::search($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
+        }
+    }
+
+    #[Route(path: '/api/aggregate/ce-{entityName}{path}', name: 'api.ce_entity.aggregate', requirements: ['path' => '(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$'], methods: ['POST'])]
+    public function aggregateShorthand(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        $entity = 'ce-' . $entityName;
+
+        try {
+            return parent::aggregate($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException) {
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -99,7 +123,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::list($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -111,7 +135,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::list($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -123,7 +147,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::create($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -135,7 +159,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::create($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -147,7 +171,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::update($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -159,7 +183,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::update($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -171,7 +195,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::delete($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 
@@ -183,7 +207,7 @@ class CustomEntityApiController extends ApiController
         try {
             return parent::delete($request, $context, $responseFactory, $entity, $path);
         } catch (DefinitionNotFoundException) {
-            throw new CustomEntityNotFoundException($entityName);
+            throw CustomEntityException::notFound($entityName);
         }
     }
 }

@@ -35,7 +35,7 @@ class EntityWrittenEventSerializationTest extends TestCase
     private function writeTestProduct(): EntityWrittenContainerEvent
     {
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         return $productRepository->create(
             [[

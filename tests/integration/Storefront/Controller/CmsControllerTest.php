@@ -34,7 +34,7 @@ class CmsControllerTest extends TestCase
         $response = $this->request('GET', '/widgets/cms/' . $this->ids->get('page'), []);
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -44,7 +44,7 @@ class CmsControllerTest extends TestCase
         $response = $this->request('GET', '/widgets/cms/navigation/' . $this->ids->get('category'), []);
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -94,6 +94,6 @@ class CmsControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
     }
 }

@@ -52,10 +52,10 @@ class SeoUrlIndexerTest extends TestCase
     {
         parent::setUp();
 
-        $this->templateRepository = $this->getContainer()->get('seo_url_template.repository');
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->templateRepository = static::getContainer()->get('seo_url_template.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM `sales_channel`');
     }
 
@@ -593,8 +593,8 @@ class SeoUrlIndexerTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
-        $writer = $this->getContainer()->get(EntityWriter::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
+        $writer = static::getContainer()->get(EntityWriter::class);
 
         $id = Uuid::randomHex();
         $products = [
@@ -622,14 +622,14 @@ class SeoUrlIndexerTest extends TestCase
         $writer->insert($productDefinition, $products, WriteContext::createFromContext(Context::createDefaultContext()));
 
         // Builds the index for visibilities
-        $this->getContainer()->get(InheritanceUpdater::class)->update('product', [$id], Context::createDefaultContext());
+        static::getContainer()->get(InheritanceUpdater::class)->update('product', [$id], Context::createDefaultContext());
 
-        $this->getContainer()
+        static::getContainer()
             ->get(SeoUrlUpdater::class)
             ->update(ProductPageSeoUrlRoute::ROUTE_NAME, [$id]);
 
         /** @var EntityRepository $productRepo */
-        $productRepo = $this->getContainer()->get('product.repository');
+        $productRepo = static::getContainer()->get('product.repository');
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
@@ -645,7 +645,7 @@ class SeoUrlIndexerTest extends TestCase
 
     public function testIndexWithEmptySeoUrlTemplate(): void
     {
-        $templateRepository = $this->getContainer()->get('seo_url_template.repository');
+        $templateRepository = static::getContainer()->get('seo_url_template.repository');
 
         /** @var string[] $ids */
         $ids = $templateRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
@@ -670,7 +670,7 @@ class SeoUrlIndexerTest extends TestCase
     private function getSeoUrls(string $salesChannelId, string $productId): SeoUrlCollection
     {
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('seo_url.repository');
+        $repo = static::getContainer()->get('seo_url.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
@@ -691,7 +691,7 @@ class SeoUrlIndexerTest extends TestCase
     {
         $seoUrlTemplateDefaults = [
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
         ];
         $seoUrlTemplate = array_merge($seoUrlTemplateDefaults, $data);

@@ -29,4 +29,9 @@ class MediaExtension extends EntityExtension
     {
         return MediaDefinition::class;
     }
+
+    public function getEntityName(): string
+    {
+        return MediaDefinition::ENTITY_NAME;
+    }
 }

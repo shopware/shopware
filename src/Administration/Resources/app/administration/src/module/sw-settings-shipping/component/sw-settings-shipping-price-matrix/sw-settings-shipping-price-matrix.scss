@@ -5,6 +5,7 @@ $sw-shipping-list-color-error: $color-crimson-500;
 .sw-settings-shipping-price-matrix {
     &.sw-card .sw-card__content {
         padding: 0;
+        overflow: auto;
     }
 
     .sw-settings-shipping-price-matrix__top-container {
@@ -72,5 +73,14 @@ $sw-shipping-list-color-error: $color-crimson-500;
 
     .sw-settings-shipping-price-matrix__new-matrix-alert {
         margin-bottom: 0;
+    }
+
+    .sw-settings-shipping-price-matrix__price-load-all {
+        border-top: 1px solid $color-gray-300;
+        padding: 20px;
+
+        &-button {
+            width: 100%;
+        }
     }
 }

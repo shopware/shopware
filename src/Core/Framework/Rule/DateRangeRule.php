@@ -15,16 +15,22 @@ class DateRangeRule extends Rule
 
     /**
      * @var \DateTimeInterface|string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fromDate;
 
     /**
      * @var \DateTimeInterface|string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $toDate;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $useTime;
 

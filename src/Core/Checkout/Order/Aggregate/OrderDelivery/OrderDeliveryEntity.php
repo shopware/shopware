@@ -21,76 +21,106 @@ class OrderDeliveryEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderVersionId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingOrderAddressId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingOrderAddressVersionId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethodId;
 
     /**
      * @var array<string>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $trackingCodes;
 
     /**
      * @var \DateTimeInterface
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingDateEarliest;
 
     /**
      * @var \DateTimeInterface
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingDateLatest;
 
     /**
      * @var CalculatedPrice
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingCosts;
 
     /**
      * @var OrderAddressEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingOrderAddress;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateId;
 
     /**
      * @var StateMachineStateEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachineState;
 
     /**
      * @var ShippingMethodEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethod;
 
     /**
      * @var OrderEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $order;
 
     /**
      * @var OrderDeliveryPositionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $positions;
 

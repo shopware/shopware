@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
-use Predis\ClientInterface;
-use Relay\Relay;
+use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -11,15 +10,17 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\Lock\LockFactory;
 
+/**
+ * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
+ */
 #[Package('checkout')]
 class IncrementRedisStorage extends AbstractIncrementStorage
 {
     /**
-     * param cannot be natively typed, as symfony might change the type in the future
-     *
-     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay $redis
+     * @param RedisTypeHint $redis
      */
     public function __construct(
+        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
         private $redis,
         private readonly LockFactory $lockFactory,
         private readonly EntityRepository $numberRangeRepository

@@ -41,16 +41,16 @@ class CachedProductDetailRouteTest extends TestCase
         Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $closure, int $calls, bool $isTestingWithVariant = false): void
     {
-        $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
+        static::getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(ProductDetailRouteCacheTagsEvent::class, static function (ProductDetailRouteCacheTagsEvent $event): void {
                 $event->addTags([self::ALL_TAG]);
             });
@@ -58,7 +58,7 @@ class CachedProductDetailRouteTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
 
-        $this->getContainer()
+        static::getContainer()
             ->get('event_dispatcher')
             ->addListener(ProductDetailRouteCacheTagsEvent::class, $listener);
 
@@ -92,11 +92,11 @@ class CachedProductDetailRouteTest extends TestCase
             $propertyId = $variantPropertyId;
         }
 
-        $route = $this->getContainer()->get(ProductDetailRoute::class);
+        $route = static::getContainer()->get(ProductDetailRoute::class);
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());
 
-        $closure($propertyId, $this->getContainer());
+        $closure($propertyId, static::getContainer());
 
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());
@@ -218,7 +218,7 @@ class CachedProductDetailRouteTest extends TestCase
             $data
         );
 
-        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
     }
 
     private function createCmsPage(string $type): string
@@ -231,7 +231,7 @@ class CachedProductDetailRouteTest extends TestCase
             'type' => $type,
         ];
 
-        $this->getContainer()->get('cms_page.repository')->create([$cmsPage], Context::createDefaultContext());
+        static::getContainer()->get('cms_page.repository')->create([$cmsPage], Context::createDefaultContext());
 
         return $cmsPageId;
     }

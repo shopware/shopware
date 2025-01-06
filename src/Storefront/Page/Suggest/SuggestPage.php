@@ -12,11 +12,15 @@ class SuggestPage extends Page
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $searchTerm;
 
     /**
      * @var EntitySearchResult<ProductCollection>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $searchResult;
 

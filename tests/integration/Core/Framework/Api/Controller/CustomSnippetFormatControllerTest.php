@@ -50,7 +50,7 @@ class CustomSnippetFormatControllerTest extends TestCase
     public function testGetSnippetsWithPlugins(): void
     {
         $plugin = new BundleWithCustomSnippet(true, __DIR__ . '/Fixtures/BundleWithCustomSnippet');
-        $pluginCollection = $this->getContainer()->get(KernelPluginCollection::class);
+        $pluginCollection = static::getContainer()->get(KernelPluginCollection::class);
         $pluginCollection->add($plugin);
 
         $url = '/api/_action/custom-snippet';
@@ -230,8 +230,10 @@ class CustomSnippetFormatControllerTest extends TestCase
                         'address/company',
                         'symbol/dash',
                         'address/department',
+                        'symbol/dash',
                     ],
                     [
+                        'symbol/dash',
                         'address/first_name',
                         'address/last_name',
                     ],
@@ -307,6 +309,26 @@ class CustomSnippetFormatControllerTest extends TestCase
                 ],
             ],
             'expectedHtml' => '550000,  Da Nang',
+        ];
+
+        yield 'render lines with empty snippet' => [
+            'payload' => [
+                'format' => [
+                    [
+                        'address/first_name',
+                        'address/last_name',
+                        'address/country_state',
+                    ],
+                ],
+                'data' => [
+                    'address' => [
+                        'firstName' => 'Vin',
+                        'lastName' => 'Le',
+                        'countryState' => null,
+                    ],
+                ],
+            ],
+            'expectedHtml' => 'Vin Le',
         ];
     }
 }

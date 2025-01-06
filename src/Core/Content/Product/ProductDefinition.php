@@ -66,6 +66,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
@@ -207,7 +208,7 @@ class ProductDefinition extends EntityDefinition
 
             (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class))->addFlags(new ApiAware(), new Inherited()),
 
-            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id', true))->addFlags(new ApiAware(), new Inherited()),
+            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id', !Feature::isActive('v6.7.0.0')))->addFlags(new ApiAware(), new Inherited()),
 
             (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
 

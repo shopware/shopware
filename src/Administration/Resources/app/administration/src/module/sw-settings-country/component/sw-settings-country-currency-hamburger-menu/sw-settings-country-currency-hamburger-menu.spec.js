@@ -42,7 +42,7 @@ async function createWrapper(privileges = []) {
                     'sw-icon': {
                         template: '<div></div>',
                     },
-                    'sw-checkbox-field': {
+                    'mt-checkbox': {
                         template: '<div class="checkbox"></div>',
                     },
                     'router-link': true,

@@ -28,9 +28,9 @@ class UserValidationServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->userRepository = $this->getContainer()->get('user.repository');
-        $this->localeRepository = $this->getContainer()->get('locale.repository');
-        $this->userValidationService = $this->getContainer()->get(UserValidationService::class);
+        $this->userRepository = static::getContainer()->get('user.repository');
+        $this->localeRepository = static::getContainer()->get('locale.repository');
+        $this->userValidationService = static::getContainer()->get(UserValidationService::class);
     }
 
     public function testIfReturnsTrueForUniqueEmails(): void

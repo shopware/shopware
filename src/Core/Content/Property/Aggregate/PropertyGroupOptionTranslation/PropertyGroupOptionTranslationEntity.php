@@ -14,21 +14,29 @@ class PropertyGroupOptionTranslationEntity extends TranslationEntity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $propertyGroupOptionId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $position;
 
     /**
      * @var PropertyGroupOptionEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $propertyGroupOption;
 

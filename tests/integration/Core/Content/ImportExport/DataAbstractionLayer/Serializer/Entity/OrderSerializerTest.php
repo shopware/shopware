@@ -38,8 +38,8 @@ class OrderSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
 
         $this->serializer = new OrderSerializer();
 
@@ -54,7 +54,7 @@ class OrderSerializerTest extends TestCase
         static::assertNotNull($order->getBillingAddress());
         static::assertNotNull($order->getOrderCustomer());
 
-        $orderDefinition = $this->getContainer()->get('order.repository')->getDefinition();
+        $orderDefinition = static::getContainer()->get('order.repository')->getDefinition();
         $config = new Config([], [], []);
 
         $serialized = iterator_to_array($this->serializer->serialize($config, $orderDefinition, $order));
@@ -123,7 +123,7 @@ class OrderSerializerTest extends TestCase
         $productId = Uuid::randomHex();
         $product = $this->getProductData($productId);
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create([$product], $this->context);
 
         $orderId = Uuid::randomHex();
@@ -199,13 +199,13 @@ class OrderSerializerTest extends TestCase
      */
     private function getTransactionData(array $orderData): array
     {
-        $paymentMethod = $this->getContainer()->get('payment_method.repository')->search(new Criteria(), $this->context)->first();
+        $paymentMethod = static::getContainer()->get('payment_method.repository')->search(new Criteria(), $this->context)->first();
         $paymentMethodId = null;
         if ($paymentMethod instanceof PaymentMethodEntity) {
             $paymentMethodId = $paymentMethod->getId();
         }
 
-        $stateMachineState = $this->getContainer()->get('state_machine_state.repository')->search(new Criteria(), $this->context)->first();
+        $stateMachineState = static::getContainer()->get('state_machine_state.repository')->search(new Criteria(), $this->context)->first();
         $stateMachineStateId = null;
         if ($stateMachineState instanceof StateMachineStateEntity) {
             $stateMachineStateId = $stateMachineState->getId();

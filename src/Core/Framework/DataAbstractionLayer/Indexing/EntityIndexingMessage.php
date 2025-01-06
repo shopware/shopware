@@ -11,6 +11,8 @@ class EntityIndexingMessage implements AsyncMessageInterface
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $indexer;
 
@@ -21,8 +23,14 @@ class EntityIndexingMessage implements AsyncMessageInterface
      */
     private array $skip = [];
 
+    /**
+     * @param array<string>|string $data
+     * @param array{offset: int|null}|null $offset
+     */
     public function __construct(
+        /** @deprecated tag:v6.7.0 - Will be natively typed */
         protected $data,
+        /** @deprecated tag:v6.7.0 - Will be natively typed */
         protected $offset = null,
         ?Context $context = null,
         public bool $forceQueue = false,
@@ -31,11 +39,21 @@ class EntityIndexingMessage implements AsyncMessageInterface
         $this->context = $context ?? Context::createDefaultContext();
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will return native type
+     *
+     * @return array<string>|string
+     */
     public function getData()
     {
         return $this->data;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will return native type
+     *
+     * @return array{offset: int|null}|null
+     */
     public function getOffset()
     {
         return $this->offset;

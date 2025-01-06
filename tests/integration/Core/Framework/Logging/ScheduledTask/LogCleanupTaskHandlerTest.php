@@ -38,12 +38,12 @@ class LogCleanupTaskHandlerTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->connection->executeStatement('DELETE FROM `log_entry`');
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $this->scheduledTaskRepository = $this->getContainer()->get('scheduled_task.repository');
-        $this->logEntryRepository = $this->getContainer()->get('log_entry.repository');
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $this->scheduledTaskRepository = static::getContainer()->get('scheduled_task.repository');
+        $this->logEntryRepository = static::getContainer()->get('log_entry.repository');
         $this->context = Context::createDefaultContext();
     }
 
@@ -71,10 +71,10 @@ class LogCleanupTaskHandlerTest extends TestCase
 
     public function testIsRegistered(): void
     {
-        $registry = $this->getContainer()->get(TaskRegistry::class);
+        $registry = static::getContainer()->get(TaskRegistry::class);
         $registry->registerTasks();
 
-        $scheduledTaskRepository = $this->getContainer()->get('scheduled_task.repository');
+        $scheduledTaskRepository = static::getContainer()->get('scheduled_task.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', LogCleanupTask::getTaskName()));

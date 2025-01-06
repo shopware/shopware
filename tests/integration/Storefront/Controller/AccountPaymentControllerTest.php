@@ -45,7 +45,7 @@ class AccountPaymentControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('account-payment-method-page-loaded', $traces);
     }
@@ -98,7 +98,7 @@ class AccountPaymentControllerTest extends TestCase
             ],
         ];
         /** @var EntityRepository<CustomerCollection> $repo */
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
 
         $repo->create($data, $context);
 

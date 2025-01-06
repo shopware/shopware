@@ -1,4 +1,53 @@
 # 6.7.0.0
+## Introduced in 6.6.8.0
+## Vat Ids will be validated case sensitive
+Vat Ids will now be checked for case sensitivity, which means that most Vat Ids will now have to be upper case, depending on their validation pattern.
+For customers without a company, this check will only be done on entry, so it is still possible to checkout with an existing lower case Vat Id.
+For customers with a company, this check will be done at checkout, so they will need to change their Vat Id to upper case.
+## Changed PromotionGatewayInterface
+* Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface` from `EntityCollection<PromotionEntity>` to `PromotionCollection`
+## Deletes by filter over the Sync API
+The sync API allows now to add a filter to the delete request to delete multiple entities at once. This is useful if you want to delete all entities that match a certain criteria:
+```json
+[
+  {
+    "action": "delete",
+    "entity": "product",
+    "payload": [],
+    "filter": [
+      {
+        "field": "name",
+        "type": "equals",
+        "value": "test"
+      }
+    ]
+  }
+]
+```
+## Config keys changes:
+
+Next configuration keys are deprecated and will be removed in the next major version:
+* `shopware.cache.invalidation.delay_options.dsn`
+* `shopware.increment.<increment_name>.config.url`
+* `shopware.number_range.redis_url`
+* `shopware.number_range.config.dsn`
+* `shopware.cart.redis_url`
+* `cart.storage.config.dsn`
+
+To prepare for migration:
+
+1.  For all different redis connections (different DSNs) that are used in the project, add a separate record in the `config/packages/shopware.yaml` file under the `shopware` section, as in upgrade section of this document.
+2.  Replace deprecated dsn/url keys with corresponding connection names in the configuration files.
+* `shopware.cache.invalidation.delay_options.dsn` -> `shopware.cache.invalidation.delay_options.connection`
+* `shopware.increment.<increment_name>.config.url` -> `shopware.increment.<increment_name>.config.connection`
+* `shopware.number_range.redis_url` -> `shopware.number_range.config.connection`
+* `shopware.number_range.config.dsn` -> `shopware.number_range.config.connection`
+* `shopware.cart.redis_url` -> `cart.storage.config.connection`
+* `cart.storage.config.dsn` -> `cart.storage.config.connection`
+* Removed `\Core\Framework\Api\Controller\AuthController::authorize` method (API route `/api/oauth/authorize`) without replacement.
+## Removal of obsolete method in DefinitionValidator
+The method `\Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator::getNotices` was removed.
+
 ## Introduced in 6.6.7.0
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.

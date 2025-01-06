@@ -93,7 +93,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier">
-            <argument type="tagged" tag="shopware.legacy_encoder" />
+            <argument type="tagged_iterator" tag="shopware.legacy_encoder" />
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber">
@@ -113,8 +113,9 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber">
-            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -377,6 +378,10 @@
         <service id="Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand">
             <argument type="service" id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService" />
             <tag name="console.command" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerTask">
+            <tag name="shopware.scheduled.task"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerHandler">

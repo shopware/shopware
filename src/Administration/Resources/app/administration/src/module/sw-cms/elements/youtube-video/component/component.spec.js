@@ -21,6 +21,9 @@ const defaultElement = {
         videoID: {
             value: 'foo-bar',
         },
+        iframeTitle: {
+            value: 'foo-bar',
+        },
         showControls: {
             value: true,
         },
@@ -72,7 +75,7 @@ describe('modules/sw-cms/elements/youtube-video/component', () => {
 
     it('showControls computes URL parameters for showing the video controls', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.vm.showControls).toBe('');
+        expect(wrapper.vm.showControls).toBe('controls=1&');
 
         const newElement = {
             ...defaultElement,

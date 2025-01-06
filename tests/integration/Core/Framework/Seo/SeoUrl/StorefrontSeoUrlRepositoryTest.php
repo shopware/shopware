@@ -25,17 +25,14 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
     /**
      * @var EntityRepository<SeoUrlCollection>
      */
-    private $seoUrlRepository;
+    private EntityRepository $seoUrlRepository;
 
-    /**
-     * @var SalesChannelRepository
-     */
-    private $salesChannelSeoUrlRepository;
+    private SalesChannelRepository $salesChannelSeoUrlRepository;
 
     protected function setUp(): void
     {
-        $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
-        $this->salesChannelSeoUrlRepository = $this->getContainer()->get('sales_channel.seo_url.repository');
+        $this->seoUrlRepository = static::getContainer()->get('seo_url.repository');
+        $this->salesChannelSeoUrlRepository = static::getContainer()->get('sales_channel.seo_url.repository');
     }
 
     public function testOnlyCanonical(): void
@@ -75,7 +72,6 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $criteria = new Criteria([$canonicalId, $oldId]);
 
         $seoUrls = $this->salesChannelSeoUrlRepository->search($criteria, $salesChannelContext)->getEntities();
-        static::assertNotNull($seoUrls);
         static::assertCount(1, $seoUrls);
         $first = $seoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $first);
@@ -121,7 +117,6 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $criteria = new Criteria([$deId, $enId]);
 
         $seoUrls = $this->salesChannelSeoUrlRepository->search($criteria, $salesChannelContext)->getEntities();
-        static::assertNotNull($seoUrls);
         static::assertCount(1, $seoUrls);
         $first = $seoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $first);
@@ -168,7 +163,6 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $criteria = new Criteria([$expectedId, $otherId]);
 
         $seoUrls = $this->salesChannelSeoUrlRepository->search($criteria, $salesChannelContext)->getEntities();
-        static::assertNotNull($seoUrls);
         static::assertCount(1, $seoUrls);
         $first = $seoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $first);
@@ -215,7 +209,6 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $criteria = new Criteria([$expectedId, $otherId]);
 
         $seoUrls = $this->salesChannelSeoUrlRepository->search($criteria, $salesChannelContext)->getEntities();
-        static::assertNotNull($seoUrls);
         static::assertCount(1, $seoUrls);
         $first = $seoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $first);
@@ -273,7 +266,6 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $criteria = new Criteria([$expectedId, $expectedFallbackId, $otherId]);
 
         $seoUrls = $this->salesChannelSeoUrlRepository->search($criteria, $salesChannelContext)->getEntities();
-        static::assertNotNull($seoUrls);
         static::assertCount(2, $seoUrls);
 
         $expected = $seoUrls->get($expectedId);
@@ -287,7 +279,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
 
     private function upsertLanguage(string $id, string $name): void
     {
-        $languageRepo = $this->getContainer()->get('language.repository');
+        $languageRepo = static::getContainer()->get('language.repository');
         $languageRepo->upsert([[
             'id' => $id,
             'name' => $name,

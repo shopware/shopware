@@ -68,26 +68,26 @@ class ThemeLifecycleServiceTest extends TestCase
         ]);
 
         $this->themeFilesystemResolver = new ThemeFilesystemResolver(
-            $this->getContainer()->get(SourceResolver::class),
+            static::getContainer()->get(SourceResolver::class),
             $kernel
         );
-        $this->themeRepository = $this->getContainer()->get('theme.repository');
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->themeRepository = static::getContainer()->get('theme.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->themeLifecycleService = new ThemeLifecycleService(
-            $this->getContainer()->get(StorefrontPluginRegistry::class),
+            static::getContainer()->get(StorefrontPluginRegistry::class),
             $this->themeRepository,
             $this->mediaRepository,
             $this->mediaFolderRepository,
-            $this->getContainer()->get('theme_media.repository'),
-            $this->getContainer()->get(FileSaver::class),
-            $this->getContainer()->get(FileNameProvider::class),
+            static::getContainer()->get('theme_media.repository'),
+            static::getContainer()->get(FileSaver::class),
+            static::getContainer()->get(FileNameProvider::class),
             $this->themeFilesystemResolver,
-            $this->getContainer()->get('language.repository'),
-            $this->getContainer()->get('theme_child.repository'),
+            static::getContainer()->get('language.repository'),
+            static::getContainer()->get('theme_child.repository'),
             $this->connection,
-            $this->getContainer()->get(StorefrontPluginConfigurationFactory::class)
+            static::getContainer()->get(StorefrontPluginConfigurationFactory::class)
         );
 
         $this->context = Context::createDefaultContext();
@@ -407,14 +407,14 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private function getThemeConfig(): StorefrontPluginConfiguration
     {
-        $factory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
+        $factory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
 
         return $factory->createFromBundle(new ThemeWithFileAssociations());
     }
 
     private function getThemeConfigWithLabels(): StorefrontPluginConfiguration
     {
-        $factory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
+        $factory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
 
         return $factory->createFromBundle(new ThemeWithLabels());
     }
@@ -467,7 +467,7 @@ class ThemeLifecycleServiceTest extends TestCase
     // we create a cms-page because it has has the DeleteRestricted flag in media definition
     private function createCmsPage(string $logoId): void
     {
-        $manufacturerRepository = $this->getContainer()->get('cms_page.repository');
+        $manufacturerRepository = static::getContainer()->get('cms_page.repository');
         $manufacturerRepository->create([[
             'name' => 'dummy cms page',
             'previewMediaId' => $logoId,
@@ -523,7 +523,7 @@ class ThemeLifecycleServiceTest extends TestCase
     private function deleteLanguageForLocale(string $locale): void
     {
         /** @var EntityRepository $languageRepository */
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
@@ -539,7 +539,7 @@ class ThemeLifecycleServiceTest extends TestCase
     private function changeDefaultLanguageLocale(string $locale): void
     {
         /** @var EntityRepository $languageRepository */
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
@@ -549,7 +549,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $language = $languageRepository->search($criteria, $context)->first();
 
         /** @var EntityRepository $localeRepository */
-        $localeRepository = $this->getContainer()->get('locale.repository');
+        $localeRepository = static::getContainer()->get('locale.repository');
 
         $localeRepository->upsert([
             [

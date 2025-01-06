@@ -37,7 +37,7 @@ class NavigationPageTest extends TestCase
     public function testItDeniesAccessToInactiveCategoryPage(): void
     {
         $context = $this->createSalesChannelContextWithNavigation();
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
 
         $categoryId = $context->getSalesChannel()->getNavigationCategoryId();
 
@@ -59,7 +59,7 @@ class NavigationPageTest extends TestCase
     {
         $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
-        $seoUrlHandler = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
+        $seoUrlHandler = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
 
         $event = null;
         $this->catchEvent(NavigationPageLoadedEvent::class, $event);
@@ -76,6 +76,6 @@ class NavigationPageTest extends TestCase
 
     protected function getPageLoader(): NavigationPageLoader
     {
-        return $this->getContainer()->get(NavigationPageLoader::class);
+        return static::getContainer()->get(NavigationPageLoader::class);
     }
 }

@@ -38,15 +38,15 @@ class ProductReviewSubscriberTest extends TestCase
         $this->ids = new IdsCollection();
 
         /** @var EntityRepository $productReviewRepository */
-        $productReviewRepository = $this->getContainer()->get('product_review.repository');
+        $productReviewRepository = static::getContainer()->get('product_review.repository');
         $this->productReviewRepository = $productReviewRepository;
 
         /** @var EntityRepository $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
+        $customerRepository = static::getContainer()->get('customer.repository');
         $this->customerRepository = $customerRepository;
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $this->productRepository = $productRepository;
 
         $this->createCustomer();

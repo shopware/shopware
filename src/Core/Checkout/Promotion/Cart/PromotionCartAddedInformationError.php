@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionCartAddedInformationError extends Error
 {
     private const KEY = 'promotion-discount-added';

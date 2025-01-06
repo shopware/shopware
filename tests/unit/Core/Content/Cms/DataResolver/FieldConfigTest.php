@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\Cms\DataResolver;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
-use Shopware\Core\Content\Cms\Exception\UnexpectedFieldConfigValueType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -41,29 +41,29 @@ class FieldConfigTest extends TestCase
 
     public function testThrowExceptionOnGetArrayValue(): void
     {
-        static::expectException(UnexpectedFieldConfigValueType::class);
-        static::expectExceptionMessage('Expected to load value of "my-config" with type "array", but value with type "string" given.');
+        $this->expectException(CmsException::class);
+        $this->expectExceptionMessage('Expected to load value of "my-config" with type "array", but value with type "string" given.');
         (new FieldConfig('my-config', 'static', 'some-value'))->getArrayValue();
     }
 
     public function testThrowExceptionOnGetIntValue(): void
     {
-        static::expectException(UnexpectedFieldConfigValueType::class);
-        static::expectExceptionMessage('Expected to load value of "my-config" with type "int", but value with type "array" given.');
+        $this->expectException(CmsException::class);
+        $this->expectExceptionMessage('Expected to load value of "my-config" with type "int", but value with type "array" given.');
         (new FieldConfig('my-config', 'static', ['some-value']))->getIntValue();
     }
 
     public function testThrowExceptionOnGetFloatValue(): void
     {
-        static::expectException(UnexpectedFieldConfigValueType::class);
-        static::expectExceptionMessage('Expected to load value of "my-config" with type "float", but value with type "array" given.');
+        $this->expectException(CmsException::class);
+        $this->expectExceptionMessage('Expected to load value of "my-config" with type "float", but value with type "array" given.');
         (new FieldConfig('my-config', 'static', ['some-value']))->getFloatValue();
     }
 
     public function testThrowExceptionOnGetStringValue(): void
     {
-        static::expectException(UnexpectedFieldConfigValueType::class);
-        static::expectExceptionMessage('Expected to load value of "my-config" with type "string", but value with type "array" given.');
+        $this->expectException(CmsException::class);
+        $this->expectExceptionMessage('Expected to load value of "my-config" with type "string", but value with type "array" given.');
         (new FieldConfig('my-config', 'static', ['some-value']))->getStringValue();
     }
 }

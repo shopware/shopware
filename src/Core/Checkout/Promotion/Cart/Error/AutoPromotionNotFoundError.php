@@ -5,13 +5,15 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Error;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class AutoPromotionNotFoundError extends Error
 {
     private const KEY = 'auto-promotion-not-found';
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 

@@ -23,7 +23,7 @@ class ProductBench extends AbstractBenchCase
             $this->ids->getList(['simple-product'])
         );
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
     }
 }

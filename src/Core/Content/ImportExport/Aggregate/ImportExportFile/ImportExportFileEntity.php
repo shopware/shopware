@@ -15,31 +15,43 @@ class ImportExportFileEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $originalName;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $path;
 
     /**
      * @var \DateTimeInterface
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $expireDate;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $size;
 
     /**
      * @var ImportExportLogEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $log;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $accessToken;
 

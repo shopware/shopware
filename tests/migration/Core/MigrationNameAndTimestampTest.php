@@ -20,7 +20,7 @@ class MigrationNameAndTimestampTest extends TestCase
 
     public function testMigrationNameAndTimestampAreNamedAfterOptionalConvention(): void
     {
-        $loader = $this->getContainer()->get(MigrationCollectionLoader::class);
+        $loader = static::getContainer()->get(MigrationCollectionLoader::class);
         $migrationCollection = $loader->collectAll();
 
         foreach ($migrationCollection as $migrations) {

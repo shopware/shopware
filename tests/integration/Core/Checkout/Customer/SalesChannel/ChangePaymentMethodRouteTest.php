@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
@@ -32,9 +33,9 @@ class ChangePaymentMethodRouteTest extends TestCase
     private IdsCollection $ids;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -53,7 +54,7 @@ class ChangePaymentMethodRouteTest extends TestCase
             ],
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $email = Uuid::randomHex() . '@example.com';
         $this->createCustomer($email);
@@ -181,7 +182,7 @@ class ChangePaymentMethodRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('payment_method.repository')
+        static::getContainer()->get('payment_method.repository')
             ->create($data, Context::createDefaultContext());
     }
 }

@@ -5,6 +5,7 @@ const PSEUDO_MODAL_CLASS = 'js-pseudo-modal';
 const PSEUDO_MODAL_TEMPLATE_CLASS = 'js-pseudo-modal-template';
 const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-element';
 const PSEUDO_MODAL_TEMPLATE_TITLE_CLASS = 'js-pseudo-modal-template-title-element';
+const PSEUDO_MODAL_TEMPLATE_ROOT_CLASS = 'js-pseudo-modal-template-root-element';
 
 /**
  * @package storefront
@@ -116,6 +117,18 @@ export default class PseudoModalUtil {
         this._modal.addEventListener('hidden.bs.modal', this._modalWrapper.remove);
         this._modal.addEventListener('shown.bs.modal', cb);
 
+        /**
+         * Fix bootstrap modal accessibility errors.
+         *
+         * The bootstrap modal adds the `aria-hidden` attribute on the modal element when closed.
+         * This leads to console errors in some browsers, if an element within the modal still has focus.
+         */
+        this._modal.addEventListener('hide.bs.modal', () => {
+            if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+            }
+        });
+
         this._modalInstance.show();
     }
 
@@ -200,6 +213,13 @@ export default class PseudoModalUtil {
     _setModalContent(content) {
         const contentElement = DomAccess.querySelector(this._modalWrapper, this._templateContentSelector);
         contentElement.innerHTML = content;
+
+        const rootElement = DomAccess.querySelector(contentElement, `.${PSEUDO_MODAL_TEMPLATE_ROOT_CLASS}`, false);
+
+        if (rootElement) {
+            DomAccess.querySelector(this._modalWrapper,  `.${PSEUDO_MODAL_TEMPLATE_ROOT_CLASS}`).replaceChildren(rootElement);
+            return;
+        }
 
         try {
             const titleElement = DomAccess.querySelector(contentElement, this._templateTitleSelector);

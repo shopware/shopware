@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Category\Validation;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\Test\TestDefaults;
 
@@ -23,19 +25,19 @@ class EntryPointValidatorTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CategoryCollection>
      */
-    private $categoryRepository;
+    private EntityRepository $categoryRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<SalesChannelCollection>
      */
-    private $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     protected function setUp(): void
     {
-        $this->categoryRepository = $this->getContainer()->get(\sprintf('%s.repository', CategoryDefinition::ENTITY_NAME));
-        $this->salesChannelRepository = $this->getContainer()->get(\sprintf('%s.repository', SalesChannelDefinition::ENTITY_NAME));
+        $this->categoryRepository = static::getContainer()->get(\sprintf('%s.repository', CategoryDefinition::ENTITY_NAME));
+        $this->salesChannelRepository = static::getContainer()->get(\sprintf('%s.repository', SalesChannelDefinition::ENTITY_NAME));
     }
 
     public function testChangeNavigationFail(): void

@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
-use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Symfony\Component\Filesystem\Path;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\Error;
@@ -37,7 +37,7 @@ class StringTemplateRenderer
     {
         // use private twig instance here, because we use custom template loader
         $this->twig = new TwigEnvironment(new ArrayLoader(), [
-            'cache' => new FilesystemCache($this->cacheDir . '/string-template-renderer'),
+            'cache' => new FilesystemCache(Path::join($this->cacheDir, 'twig', 'string-template-renderer')),
         ]);
 
         $this->disableTestMode();
@@ -82,7 +82,7 @@ class StringTemplateRenderer
                 throw AdapterException::invalidTemplateSyntax($error->getMessage());
             }
 
-            throw new StringTemplateRenderingException($error->getMessage());
+            throw AdapterException::renderingTemplateFailed($error->getMessage());
         }
     }
 

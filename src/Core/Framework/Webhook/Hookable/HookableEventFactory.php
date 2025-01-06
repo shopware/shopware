@@ -24,6 +24,11 @@ class HookableEventFactory
     ) {
     }
 
+    public static function isHookable(object $event): bool
+    {
+        return $event instanceof Hookable || $event instanceof FlowEventAware || $event instanceof EntityWrittenContainerEvent;
+    }
+
     /**
      * @return Hookable[]
      */

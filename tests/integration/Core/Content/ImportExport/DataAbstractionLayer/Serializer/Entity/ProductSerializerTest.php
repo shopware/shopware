@@ -46,10 +46,10 @@ class ProductSerializerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->visibilityRepository = $this->getContainer()->get('product_visibility.repository');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $this->productMediaRepository = $this->getContainer()->get('product_media.repository');
-        $this->productConfiguratorSettingRepository = $this->getContainer()->get('product_configurator_setting.repository');
+        $this->visibilityRepository = static::getContainer()->get('product_visibility.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+        $this->productMediaRepository = static::getContainer()->get('product_media.repository');
+        $this->productConfiguratorSettingRepository = static::getContainer()->get('product_configurator_setting.repository');
     }
 
     public function testOnlySupportsProduct(): void
@@ -63,7 +63,7 @@ class ProductSerializerTest extends TestCase
 
         static::assertTrue($serializer->supports('product'), 'should support product');
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
             if ($entity !== 'product') {
@@ -79,7 +79,7 @@ class ProductSerializerTest extends TestCase
     {
         $product = $this->getProduct();
 
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         $serializer = new ProductSerializer(
             $this->visibilityRepository,
@@ -87,7 +87,7 @@ class ProductSerializerTest extends TestCase
             $this->productMediaRepository,
             $this->productConfiguratorSettingRepository
         );
-        $serializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+        $serializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
         $serialized = iterator_to_array($serializer->serialize(new Config([], [], []), $productDefinition, $product));
 
@@ -128,7 +128,7 @@ class ProductSerializerTest extends TestCase
             $this->productConfiguratorSettingRepository
         );
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
 
@@ -175,10 +175,10 @@ class ProductSerializerTest extends TestCase
         $mediaSerializer = new MediaSerializer(
             $mediaService,
             $fileSaver,
-            $this->getContainer()->get('media_folder.repository'),
-            $this->getContainer()->get('media.repository')
+            static::getContainer()->get('media_folder.repository'),
+            static::getContainer()->get('media.repository')
         );
-        $mediaSerializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+        $mediaSerializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
         $serializerRegistry = $this->createMock(SerializerRegistry::class);
         $serializerRegistry->expects(static::any())
@@ -193,7 +193,7 @@ class ProductSerializerTest extends TestCase
             'media' => 'http://172.16.11.80/shopware-logo.png|http://172.16.11.80/shopware-logo2.png',
         ];
 
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         $serializer = new ProductSerializer(
             $this->visibilityRepository,
@@ -219,7 +219,7 @@ class ProductSerializerTest extends TestCase
             'media' => 'foo',
         ];
 
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         $serializer = new ProductSerializer(
             $this->visibilityRepository,
@@ -227,7 +227,7 @@ class ProductSerializerTest extends TestCase
             $this->productMediaRepository,
             $this->productConfiguratorSettingRepository
         );
-        $serializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+        $serializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
         $result = $serializer->deserialize(new Config([], [], []), $productDefinition, $record);
         $result = \is_array($result) ? $result : iterator_to_array($result);
@@ -321,7 +321,7 @@ class ProductSerializerTest extends TestCase
         ];
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create([$product], Context::createDefaultContext());
 
         $criteria = new Criteria();
@@ -329,8 +329,8 @@ class ProductSerializerTest extends TestCase
         $criteria->addAssociation('visibilities');
         $criteria->addAssociation('tax');
         $criteria->addAssociation('categories');
-        $criteria->addAssociation('cover');
-        $criteria->addAssociation('media');
+        $criteria->addAssociation('cover.media');
+        $criteria->addAssociation('media.media');
         $criteria->getAssociation('media')->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
         $product = $productRepository->search($criteria, Context::createDefaultContext())->first();

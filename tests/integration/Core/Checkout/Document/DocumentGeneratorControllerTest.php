@@ -61,7 +61,7 @@ class DocumentGeneratorControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -72,7 +72,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $this->addCountriesToSalesChannel();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -91,11 +91,11 @@ class DocumentGeneratorControllerTest extends TestCase
         }
         $this->salesChannelContext->setRuleIds($ruleIds);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
 
-        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
     }
 
     public function testCustomUploadDocument(): void
@@ -103,7 +103,7 @@ class DocumentGeneratorControllerTest extends TestCase
         $context = Context::createDefaultContext();
 
         /** @var EntityRepository $documentTypeRepository */
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
         /** @var DocumentTypeEntity $type */
         $type = $documentTypeRepository->search($criteria, $context)->first();
@@ -392,7 +392,7 @@ class DocumentGeneratorControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): OrderEntity
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [

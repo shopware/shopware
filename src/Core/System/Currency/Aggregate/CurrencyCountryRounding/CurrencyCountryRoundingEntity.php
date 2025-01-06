@@ -16,31 +16,43 @@ class CurrencyCountryRoundingEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currencyId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $countryId;
 
     /**
      * @var CashRoundingConfig
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $itemRounding;
 
     /**
      * @var CashRoundingConfig
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $totalRounding;
 
     /**
      * @var CurrencyEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currency;
 
     /**
      * @var CountryEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $country;
 

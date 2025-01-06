@@ -59,12 +59,12 @@ class CartFacadeTest extends TestCase
     #[DataProvider('addProductProvider')]
     public function testAddProduct(string $input, ?string $expected): void
     {
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
         $hook = new CartHook($this->createCart(), $context);
 
-        $service = $this->getContainer()->get(CartFacadeHookFactory::class)
+        $service = static::getContainer()->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
 
         $service->products()->add($this->ids->get($input));
@@ -85,12 +85,12 @@ class CartFacadeTest extends TestCase
 
     public function testContainer(): void
     {
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
         $hook = new CartHook($this->createCart(), $context);
 
-        $service = $this->getContainer()->get(CartFacadeHookFactory::class)
+        $service = static::getContainer()->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
 
         $id = $this->ids->get('p1');
@@ -127,11 +127,11 @@ class CartFacadeTest extends TestCase
 
     public function testRemove(): void
     {
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
         $hook = new CartHook($this->createCart(), $context);
-        $cart = $this->getContainer()->get(CartFacadeHookFactory::class)->factory($hook, $this->script);
+        $cart = static::getContainer()->get(CartFacadeHookFactory::class)->factory($hook, $this->script);
 
         $item = $cart->products()->add($this->ids->get('p1'));
 
@@ -155,14 +155,14 @@ class CartFacadeTest extends TestCase
 
         $hook = $this->createTestHook($hook, $this->ids);
 
-        $service = $this->getContainer()
+        $service = static::getContainer()
             ->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         // add {% do debug.dump('foo') %} to debug scripts
-        //         dump($this->getContainer()->get(ScriptTraces::class)->getTraces());
+        //         dump(static::getContainer()->get(ScriptTraces::class)->getTraces());
 
         $this->assertItems($service, $expectations);
 
@@ -175,7 +175,7 @@ class CartFacadeTest extends TestCase
     {
         $this->expectException(HookInjectionException::class);
 
-        $service = $this->getContainer()->get(CartFacadeHookFactory::class);
+        $service = static::getContainer()->get(CartFacadeHookFactory::class);
         $service->factory(new TestHook('test', Context::createDefaultContext()), $this->script);
     }
 
@@ -413,7 +413,7 @@ class CartFacadeTest extends TestCase
      */
     private function createTestHook(string $case, IdsCollection $ids, array $data = []): CartTestHook
     {
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
         $cart = $this->createCart();
@@ -442,7 +442,7 @@ class CartFacadeTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
         return $this->ids;

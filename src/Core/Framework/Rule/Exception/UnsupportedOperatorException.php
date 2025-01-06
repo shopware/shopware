@@ -11,11 +11,15 @@ class UnsupportedOperatorException extends ShopwareHttpException
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $operator;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $class;
 

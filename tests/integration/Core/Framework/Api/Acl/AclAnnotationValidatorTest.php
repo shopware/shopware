@@ -34,8 +34,8 @@ class AclAnnotationValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->validator = new AclAnnotationValidator($this->connection);
     }
 

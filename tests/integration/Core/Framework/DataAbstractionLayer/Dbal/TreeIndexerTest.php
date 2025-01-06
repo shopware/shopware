@@ -35,10 +35,10 @@ class TreeIndexerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
         $this->context = Context::createDefaultContext();
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->categoryIndexer = $this->getContainer()->get(CategoryIndexer::class);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->categoryIndexer = static::getContainer()->get(CategoryIndexer::class);
     }
 
     public function testRefreshTree(): void

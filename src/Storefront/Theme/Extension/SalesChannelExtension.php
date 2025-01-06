@@ -24,4 +24,9 @@ class SalesChannelExtension extends EntityExtension
     {
         return SalesChannelDefinition::class;
     }
+
+    public function getEntityName(): string
+    {
+        return SalesChannelDefinition::ENTITY_NAME;
+    }
 }

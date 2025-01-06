@@ -17,36 +17,50 @@ class CartPrice extends Struct
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $netPrice;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $totalPrice;
 
     /**
      * @var CalculatedTaxCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $calculatedTaxes;
 
     /**
      * @var TaxRuleCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxRules;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $positionPrice;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxStatus;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $rawTotal;
 

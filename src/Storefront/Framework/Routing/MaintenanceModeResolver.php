@@ -15,11 +15,15 @@ class MaintenanceModeResolver
 {
     /**
      * @var RequestStack
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $requestStack;
 
     /**
      * @var CoreMaintenanceModeResolver
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $maintenanceModeResolver;
 

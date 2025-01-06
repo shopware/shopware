@@ -28,7 +28,11 @@ export default {
     },
 
     methods: {
-        async setPaymentMethodActive(active) {
+        setPaymentMethodActive(active) {
+            if (this.paymentMethod.active === active) {
+                return;
+            }
+
             this.paymentMethod.active = active;
 
             this.$emit('set-payment-active', this.paymentMethod);

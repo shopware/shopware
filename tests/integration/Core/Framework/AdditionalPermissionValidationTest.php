@@ -108,7 +108,7 @@ class AdditionalPermissionValidationTest extends TestCase
     {
         $entityPermissions = [];
 
-        $registry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         $entities = $registry->getDefinitions();
 
         foreach ($entities as $entity) {

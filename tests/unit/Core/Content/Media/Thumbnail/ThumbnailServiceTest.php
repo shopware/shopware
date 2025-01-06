@@ -26,6 +26,7 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -256,11 +257,8 @@ class ThumbnailServiceTest extends TestCase
         $thumbnailSizeEntity->setWidth($preferredThumbnailSize['width']);
         $thumbnailSizeEntity->setHeight($preferredThumbnailSize['height']);
 
-        $calculatedSize = $this->invokeMethod(
-            $this->thumbnailService,
-            'calculateThumbnailSize',
-            [$imageSize, $thumbnailSizeEntity, $mediaFolderConfigEntity]
-        );
+        $method = ReflectionHelper::getMethod(ThumbnailService::class, 'calculateThumbnailSize');
+        $calculatedSize = $method->invokeArgs($this->thumbnailService, [$imageSize, $thumbnailSizeEntity, $mediaFolderConfigEntity]);
 
         static::assertEquals($expectedSize, $calculatedSize);
     }
@@ -370,20 +368,6 @@ class ThumbnailServiceTest extends TestCase
         static::assertTrue($this->context->hasState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE));
     }
 
-    /**
-     * @param list<mixed> $parameters
-     *
-     * @throws \ReflectionException
-     */
-    private function invokeMethod(object $object, string $methodName, array $parameters = []): mixed
-    {
-        $reflection = new \ReflectionClass($object::class);
-        $method = $reflection->getMethod($methodName);
-        $method->setAccessible(true);
-
-        return $method->invokeArgs($object, $parameters);
-    }
-
     private function createMediaEntity(MediaThumbnailEntity $mediaThumbnailEntity, MediaFolderEntity $mediaFolderEntity): MediaEntity
     {
         $mediaEntity = new MediaEntity();
@@ -396,7 +380,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaEntity->setMetaData(['example' => 'metadata']);
         $mediaType = new ImageType();
         $mediaEntity->setMediaType($mediaType);
-        $mediaEntity->setFilesize(100);
+        $mediaEntity->setFileSize(100);
         $mediaEntity->setPath(__DIR__ . '/shopware-logo.png');
         $mediaEntity->setPrivate(false);
         $mediaEntity->setTitle('Test Image');

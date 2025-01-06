@@ -51,6 +51,8 @@
                 'is--locked': priceForCurrency.linked,
                 'is--disabled': isDisabled
             }"
+            :aria-label="$t('global.sw-price-field.toggleLinkedCurrency')"
+            :aria-pressed="priceForCurrency.linked"
             @click="onLockSwitch"
         >
             <sw-icon

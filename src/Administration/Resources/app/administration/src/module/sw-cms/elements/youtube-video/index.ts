@@ -30,6 +30,11 @@ Shopware.Service('cmsService').registerCmsElement({
             value: '',
             required: true,
         },
+        iframeTitle: {
+            source: 'static',
+            value: '',
+            required: false,
+        },
         autoPlay: {
             source: 'static',
             value: false,

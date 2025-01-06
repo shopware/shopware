@@ -9,16 +9,22 @@ class XmlValidationError extends Error
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $id;
 
     /**
      * @var array<string, mixed>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $errors;
 
     /**
      * @var ErrorMessage[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $errorMessages;
 

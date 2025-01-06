@@ -42,7 +42,7 @@ class CustomerRecoveryRouteTest extends TestCase
         $this->hash = Random::getAlphanumericString(32);
         $this->hashId = Uuid::randomHex();
 
-        $this->getContainer()->get('customer_recovery.repository')->create([
+        static::getContainer()->get('customer_recovery.repository')->create([
             [
                 'id' => $this->hashId,
                 'customerId' => $customerId,
@@ -53,7 +53,7 @@ class CustomerRecoveryRouteTest extends TestCase
 
     public function testNotDecorated(): void
     {
-        $customerRecoveryRoute = $this->getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
+        $customerRecoveryRoute = static::getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
 
         static::expectException(DecorationPatternException::class);
         $customerRecoveryRoute->getDecorated();
@@ -61,11 +61,11 @@ class CustomerRecoveryRouteTest extends TestCase
 
     public function testGetCustomerRecoveryNotFound(): void
     {
-        $customerRecoveryRoute = $this->getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
+        $customerRecoveryRoute = static::getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
 
         $token = Uuid::randomHex();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
 
         static::expectException(CustomerNotFoundByHashException::class);
         $customerRecoveryRoute->load(new RequestDataBag(['hash' => Random::getAlphanumericString(32)]), $context);
@@ -73,11 +73,11 @@ class CustomerRecoveryRouteTest extends TestCase
 
     public function testGetCustomerRecoveryInvalidHash(): void
     {
-        $customerRecoveryRoute = $this->getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
+        $customerRecoveryRoute = static::getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
 
         $token = Uuid::randomHex();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
 
         static::expectException(ConstraintViolationException::class);
         $customerRecoveryRoute->load(new RequestDataBag(['hash' => 'ThisIsAWrongHash']), $context);
@@ -85,11 +85,11 @@ class CustomerRecoveryRouteTest extends TestCase
 
     public function testGetCustomerRecovery(): void
     {
-        $customerRecoveryRoute = $this->getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
+        $customerRecoveryRoute = static::getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
 
         $token = Uuid::randomHex();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
 
         $customerRecoveryResponse = $customerRecoveryRoute->load(new RequestDataBag(['hash' => $this->hash]), $context);
 
@@ -98,13 +98,13 @@ class CustomerRecoveryRouteTest extends TestCase
 
     public function testGetCustomerRecoveryExpired(): void
     {
-        $customerRecoveryRoute = $this->getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
+        $customerRecoveryRoute = static::getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
 
         $token = Uuid::randomHex();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
 
-        $this->getContainer()->get(Connection::class)->update(
+        static::getContainer()->get(Connection::class)->update(
             'customer_recovery',
             [
                 'created_at' => (new \DateTime())->sub(new \DateInterval('PT3H'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),

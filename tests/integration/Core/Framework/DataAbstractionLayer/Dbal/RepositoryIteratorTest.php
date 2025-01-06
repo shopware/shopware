@@ -27,7 +27,7 @@ class RepositoryIteratorTest extends TestCase
     {
         $context = Context::createDefaultContext();
         /** @var EntityRepository<SystemConfigCollection> $systemConfigRepository */
-        $systemConfigRepository = $this->getContainer()->get('system_config.repository');
+        $systemConfigRepository = static::getContainer()->get('system_config.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new ContainsFilter('configurationKey', 'core'));
@@ -53,7 +53,7 @@ class RepositoryIteratorTest extends TestCase
     {
         $context = Context::createDefaultContext();
         /** @var EntityRepository<SystemConfigCollection> $systemConfigRepository */
-        $systemConfigRepository = $this->getContainer()->get('system_config.repository');
+        $systemConfigRepository = static::getContainer()->get('system_config.repository');
 
         $iterator = new RepositoryIterator($systemConfigRepository, $context, new Criteria());
 
@@ -68,7 +68,7 @@ class RepositoryIteratorTest extends TestCase
     public function testFetchIdAutoIncrement(): void
     {
         /** @var EntityRepository<ProductCollection> $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $context = Context::createDefaultContext();
 

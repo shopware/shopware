@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\App;
 
+use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
+use Shopware\Administration\Controller\Exception\MissingAppSecretException;
+use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppFlowException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
@@ -9,6 +12,7 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
+use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -40,6 +44,10 @@ class AppException extends HttpException
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
     public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
     public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
+    public const APP_ACTION_NOT_FOUND = 'FRAMEWORK__APP_ACTION_NOT_FOUND';
+    public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__APP_JWKS_KEY_NOT_FOUND';
+    final public const APP_UNALLOWED_HOST = 'APP__UNALLOWED_HOST';
+    final public const INVALID_ARGUMENT = 'APP__INVALID_ARGUMENT';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -180,6 +188,19 @@ class AppException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, use AppException::appSecretMissing instead
+     */
+    public static function secretMissing(): MissingAppSecretException
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', AppException::class . '::appSecretMissing')
+        );
+
+        return new MissingAppSecretException();
+    }
+
     public static function actionButtonProcessException(string $actionId, string $message, ?\Throwable $e = null): self
     {
         return new self(
@@ -274,6 +295,15 @@ class AppException extends HttpException
         );
     }
 
+    public static function inAppPurchaseGatewayUrlEmpty(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_CONFIGURATION,
+            'No In-App Purchases gateway url set. Please update your manifest file.',
+        );
+    }
+
     public static function noSourceSupports(): self
     {
         return new self(
@@ -322,6 +352,77 @@ class AppException extends HttpException
             self::CANNOT_READ_FILE,
             'Unable to read file: "{{ file }}"',
             ['file' => $file]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function actionNotFound(): self|ActionNotFoundException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new ActionNotFoundException();
+        }
+
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::APP_ACTION_NOT_FOUND,
+            'The requested app action does not exist',
+        );
+    }
+
+    public static function jwksNotFound(?\Throwable $e = null): self
+    {
+        return new self(
+            statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+            errorCode: self::JWKS_KEY_NOT_FOUND,
+            message: 'Unable to retrieve JWKS key',
+            previous: $e
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function hostNotAllowed(string $host, string $appName): self|UnallowedHostException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new UnallowedHostException($host, [], $appName);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_UNALLOWED_HOST,
+            'The host "{{ host }}" you tried to call is not listed in the allowed hosts in the manifest file for app "{{ appName }}".',
+            ['host' => $host, 'appName' => $appName]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function appNotFoundByName(mixed $appName): self|AppByNameNotFoundException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new AppByNameNotFoundException($appName);
+        }
+
+        return self::notFoundByField($appName, 'name');
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function invalidArgument(string $string): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \InvalidArgumentException('Ids must be an array');
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_ARGUMENT,
+            $string
         );
     }
 }

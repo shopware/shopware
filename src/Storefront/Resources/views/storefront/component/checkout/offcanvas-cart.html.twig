@@ -20,18 +20,28 @@
 
         <div class="offcanvas-cart">
             {% block component_offcanvas_cart_header %}
-                <div class="row align-items-center h4 offcanvas-cart-header">
-                    <div class="col">
-                        {{ 'checkout.cartHeader'|trans|sw_sanitize }}
-                    </div>
+                <div class="row align-items-center offcanvas-cart-header {% if not feature('ACCESSIBILITY_TWEAKS') %}h4{% endif %}">
+
+                    {# @deprecated tag:v6.7.0 - `<h4>` is added to cart header #}
+                    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                        <div class="col">
+                            <h4>
+                            {{- 'checkout.cartHeader'|trans|sw_sanitize -}}
+                            </h4>
+                        </div>
+                    {%- else -%}
+                        <div class="col">
+                            {{ 'checkout.cartHeader'|trans|sw_sanitize }}
+                        </div>
+                    {%- endif -%}
 
                     {% set checkoutItemCounter = page.cart.lineItems|length %}
 
                     {% block component_offcanvas_cart_header_item_counter %}
                         {% if isCartNotEmpty %}
                             <div class="col-auto">
-                                <small class="offcanvas-cart-header-count">
-                                    {{ 'checkout.itemCounter'|trans({'%count%': checkoutItemCounter})|sw_sanitize }}
+                                <small class="offcanvas-cart-header-count {% if feature('ACCESSIBILITY_TWEAKS') %}h4{% endif %}">
+                                    {{- 'checkout.itemCounter'|trans({'%count%': checkoutItemCounter})|sw_sanitize -}}
                                 </small>
                             </div>
                         {% endif %}
@@ -104,7 +114,7 @@
                                         {% endblock %}
 
                                         {% block component_offcanvas_cart_actions_promotion_label %}
-                                            <label class="visually-hidden" for="addPromotionOffcanvasCartInput">
+                                            <label class="mb-1" for="addPromotionOffcanvasCartInput">
                                                 {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
                                             </label>
                                         {% endblock %}
@@ -115,17 +125,19 @@
                                                     <input type="text"
                                                            name="code"
                                                            class="form-control"
-                                                           id="addPromotionOffcanvasCartInput"
                                                            placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
+                                                           id="addPromotionOffcanvasCartInput"
                                                            aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
                                                            aria-describedby="addPromotionOffcanvasCart"
-                                                           required="required">
+                                                           required="required"
+                                                           aria-invalid="false">
                                                 {% endblock %}
 
                                                 {% block component_offcanvas_cart_actions_promotion_submit %}
-                                                    <button class="btn btn-secondary"
+                                                    <button class="btn btn-outline-secondary offcanvas-cart-promotion-button"
                                                             type="submit"
-                                                            id="addPromotionOffcanvasCart">
+                                                            id="addPromotionOffcanvasCart"
+                                                            aria-labelledby="addPromotionOffcanvasCartInput">
                                                         {% sw_icon 'checkmark' %}
                                                     </button>
                                                 {% endblock %}

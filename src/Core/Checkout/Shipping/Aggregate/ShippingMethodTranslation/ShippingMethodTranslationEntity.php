@@ -14,26 +14,36 @@ class ShippingMethodTranslationEntity extends TranslationEntity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethodId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $description;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $trackingUrl;
 
     /**
      * @var ShippingMethodEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethod;
 

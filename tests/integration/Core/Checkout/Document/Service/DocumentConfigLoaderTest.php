@@ -37,7 +37,7 @@ class DocumentConfigLoaderTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -45,7 +45,7 @@ class DocumentConfigLoaderTest extends TestCase
             ]
         );
 
-        $this->documentConfigLoader = $this->getContainer()->get(DocumentConfigLoader::class);
+        $this->documentConfigLoader = static::getContainer()->get(DocumentConfigLoader::class);
     }
 
     protected function tearDown(): void

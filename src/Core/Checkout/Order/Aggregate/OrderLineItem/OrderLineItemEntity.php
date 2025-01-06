@@ -24,21 +24,29 @@ class OrderLineItemEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $identifier;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $referencedId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
@@ -49,96 +57,134 @@ class OrderLineItemEntity extends Entity
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $quantity;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $unitPrice;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $totalPrice;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $label;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $description;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $good;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $removable;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $coverId;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stackable;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $position;
 
     /**
      * @var CalculatedPrice|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $price;
 
     /**
      * @var PriceDefinitionInterface|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $priceDefinition;
 
     /**
      * @var array<string>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $payload;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parentId;
 
     /**
      * @var OrderLineItemEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parent;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var OrderEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $order;
 
     /**
      * @var OrderDeliveryPositionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderDeliveryPositions;
 
     /**
      * @var MediaEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cover;
 
@@ -146,11 +192,15 @@ class OrderLineItemEntity extends Entity
      * @var OrderLineItemCollection|null
      *
      * @internal
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $children;
 
     /**
      * @var ProductEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $product;
 
@@ -167,16 +217,22 @@ class OrderLineItemEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderVersionId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productVersionId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parentVersionId;
 

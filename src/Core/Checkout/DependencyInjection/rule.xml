@@ -92,6 +92,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerRequestedGroupRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\CustomerTagRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -361,6 +365,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemVariantValueRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\AdminSalesChannelSourceRule">
             <tag name="shopware.rule.definition"/>
         </service>
     </services>

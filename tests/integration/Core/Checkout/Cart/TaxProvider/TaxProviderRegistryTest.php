@@ -20,7 +20,7 @@ class TaxProviderRegistryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->taxProviderRegistry = $this->getContainer()->get(TaxProviderRegistry::class);
+        $this->taxProviderRegistry = static::getContainer()->get(TaxProviderRegistry::class);
     }
 
     public function testTestProvidersAreRegisteredByServiceContainerTag(): void

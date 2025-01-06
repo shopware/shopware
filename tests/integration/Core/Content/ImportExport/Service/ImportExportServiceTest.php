@@ -44,13 +44,13 @@ class ImportExportServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->profileRepository = $this->getContainer()->get('import_export_profile.repository');
+        $this->profileRepository = static::getContainer()->get('import_export_profile.repository');
 
         $this->importExportService = new ImportExportService(
-            $this->getContainer()->get('import_export_log.repository'),
-            $this->getContainer()->get('user.repository'),
+            static::getContainer()->get('import_export_log.repository'),
+            static::getContainer()->get('user.repository'),
             $this->profileRepository,
-            $this->getContainer()->get(FileService::class)
+            static::getContainer()->get(FileService::class)
         );
     }
 

@@ -29,12 +29,12 @@ class TestRuleHelperTest extends TestCase
                 ->willReturn(TestCase::class);
 
             $classReflection
-                ->method('getParentClass')
-                ->willReturn($parentClass);
+                ->method('getParents')
+                ->willReturn([$parentClass]);
         }
 
-        static::assertEquals($isTestClass, TestRuleHelper::isTestClass($classReflection));
-        static::assertEquals($isUnitTestClass, TestRuleHelper::isUnitTestClass($classReflection));
+        static::assertSame($isTestClass, TestRuleHelper::isTestClass($classReflection));
+        static::assertSame($isUnitTestClass, TestRuleHelper::isUnitTestClass($classReflection));
     }
 
     public static function classProvider(): \Generator

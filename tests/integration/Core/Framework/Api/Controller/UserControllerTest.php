@@ -54,7 +54,7 @@ class UserControllerTest extends TestCase
             'lastName' => 'Lastname',
             'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
         ];
 
         $client->request('POST', '/api/user', $data);
@@ -66,7 +66,7 @@ class UserControllerTest extends TestCase
         static::assertArrayHasKey('errors', $content);
         static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
 
         $this->kernelBrowser = null;
@@ -88,14 +88,14 @@ class UserControllerTest extends TestCase
             'lastName' => 'Lastname',
             'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [
                 ['id' => $ids->get('role-1'), 'name' => 'role-1'],
                 ['id' => $ids->get('role-2'), 'name' => 'role-2'],
             ],
         ];
 
-        $this->getContainer()->get('user.repository')
+        static::getContainer()->get('user.repository')
             ->create([$user], Context::createDefaultContext());
 
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
@@ -105,7 +105,7 @@ class UserControllerTest extends TestCase
         $content = json_decode((string) $response->getContent(), true);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
 
-        $assigned = $this->getContainer()->get(Connection::class)
+        $assigned = static::getContainer()->get(Connection::class)
             ->fetchAllAssociative(
                 'SELECT LOWER(HEX(acl_role_id)) as id FROM acl_user_role WHERE user_id = :id',
                 ['id' => Uuid::fromHexToBytes($ids->get('user'))]
@@ -126,11 +126,11 @@ class UserControllerTest extends TestCase
             'lastName' => 'Lastname',
             'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [],
         ];
 
-        $this->getContainer()->get('user.repository')
+        static::getContainer()->get('user.repository')
             ->create([$user], Context::createDefaultContext());
 
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
@@ -149,7 +149,7 @@ class UserControllerTest extends TestCase
         $content = json_decode((string) $response->getContent(), true);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
 
-        $assigned = $this->getContainer()->get(Connection::class)
+        $assigned = static::getContainer()->get(Connection::class)
             ->fetchAllAssociative(
                 'SELECT LOWER(HEX(acl_role_id)) as id FROM acl_user_role WHERE user_id = :id ORDER BY acl_role_id ASC',
                 ['id' => Uuid::fromHexToBytes($ids->get('user'))]
@@ -172,10 +172,10 @@ class UserControllerTest extends TestCase
             'lastName' => 'Lastname',
             'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
         ];
 
-        $this->getContainer()->get('user.repository')
+        static::getContainer()->get('user.repository')
             ->create([$data], Context::createDefaultContext());
 
         $client = $this->getBrowser();
@@ -187,7 +187,7 @@ class UserControllerTest extends TestCase
         static::assertArrayHasKey('errors', $content);
         static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
 
         $this->kernelBrowser = null;
@@ -251,11 +251,11 @@ class UserControllerTest extends TestCase
             'lastName' => 'Lastname',
             'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [],
         ];
 
-        $this->getContainer()->get('user.repository')
+        static::getContainer()->get('user.repository')
             ->create([$user], Context::createDefaultContext());
 
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);

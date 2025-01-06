@@ -80,7 +80,7 @@ class TestBootstrapper
 
     public function getStaticAnalyzeKernel(): StaticAnalyzeKernel
     {
-        $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getContainer()->get(Connection::class));
+        $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getKernelContainer()->get(Connection::class));
 
         KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
 
@@ -381,7 +381,7 @@ class TestBootstrapper
         return KernelLifecycleManager::getKernel();
     }
 
-    private function getContainer(): ContainerInterface
+    private function getKernelContainer(): ContainerInterface
     {
         return $this->getKernel()->getContainer();
     }
@@ -389,7 +389,7 @@ class TestBootstrapper
     private function dbExists(): bool
     {
         try {
-            $connection = $this->getContainer()->get(Connection::class);
+            $connection = $this->getKernelContainer()->get(Connection::class);
             $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAllAssociative();
 
             return true;

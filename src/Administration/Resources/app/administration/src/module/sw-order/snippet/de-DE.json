@@ -32,7 +32,6 @@
       "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
       "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
       "buttonDelete": "Löschen",
-      "buttonCancel": "Abbrechen",
       "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?",
       "labelManualOrder": "Erstellt von Admin"
     },
@@ -49,12 +48,12 @@
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
       "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",
       "labelManualOrder": "Erstellt von Admin",
-      "textUnsavedOrderWarning": "Es gibt ungespeicherte Änderungen. Bitte speichern die Bestellung, bevor Du diese Seite verlässt."
+      "textUnsavedOrderWarning": "Es gibt ungespeicherte Änderungen. Bitte speichern die Bestellung, bevor Du diese Seite verlässt.",
+      "messageEmptyLineItems": "Bestellung konnte nicht gespeichert werden. Es gibt keine Positionen."
     },
     "create": {
       "textNewOrder": "Neue Bestellung",
       "buttonSaveOrder": "Bestellung speichern",
-      "buttonCancelOrder": "Abbrechen",
       "messageSaveError": "Bestellung konnte nicht gespeichert werden",
       "messageSwitchCustomerError": "Beim Kundenwechsel ist ein Fehler aufgetreten",
       "messageFetchCustomerAddressesError": "Beim Abrufen der Kundenadresse ist ein Fehler aufgetreten",

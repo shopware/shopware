@@ -41,12 +41,12 @@ class MigrationCommandTest extends TestCase
 
     public function getCommand(): MigrationCommand
     {
-        return $this->getContainer()->get(MigrationCommand::class);
+        return static::getContainer()->get(MigrationCommand::class);
     }
 
     public function getDestructiveCommand(): MigrationDestructiveCommand
     {
-        return $this->getContainer()->get(MigrationDestructiveCommand::class);
+        return static::getContainer()->get(MigrationDestructiveCommand::class);
     }
 
     public function testCommandMigrateNoUntilNoAllOption(): void
@@ -224,7 +224,7 @@ class MigrationCommandTest extends TestCase
         $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
         $cache->expects(static::never())->method('clear');
 
-        $command = new MigrationCommand($loader, $cache, $this->getContainer()->getParameter('kernel.shopware_version'));
+        $command = new MigrationCommand($loader, $cache, static::getContainer()->getParameter('kernel.shopware_version'));
 
         $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
@@ -238,7 +238,7 @@ class MigrationCommandTest extends TestCase
         $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
         $cache->expects(static::once())->method('clear');
 
-        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache, $this->getContainer()->getParameter('kernel.shopware_version'));
+        $command = new MigrationCommand(static::getContainer()->get(MigrationCollectionLoader::class), $cache, static::getContainer()->getParameter('kernel.shopware_version'));
 
         $command->run(new ArrayInput(['--all' => true, '--limit' => 1, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
@@ -252,7 +252,7 @@ class MigrationCommandTest extends TestCase
         $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
         $cache->expects(static::once())->method('clear');
 
-        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache, $this->getContainer()->getParameter('kernel.shopware_version'));
+        $command = new MigrationCommand(static::getContainer()->get(MigrationCollectionLoader::class), $cache, static::getContainer()->getParameter('kernel.shopware_version'));
 
         $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
@@ -261,7 +261,7 @@ class MigrationCommandTest extends TestCase
 
     private function getConnection(): Connection
     {
-        return $this->getContainer()->get(Connection::class);
+        return static::getContainer()->get(Connection::class);
     }
 
     private function getMigrationCount(bool $executed = false, bool $destructive = false): int

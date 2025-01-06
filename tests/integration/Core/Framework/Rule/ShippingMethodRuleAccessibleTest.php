@@ -29,7 +29,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
+        $this->ruleRepository = static::getContainer()->get('rule.repository');
     }
 
     public function testIfShippingMethodAssociatedWithRuleCanBeAccessed(): void
@@ -111,7 +111,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         $criteria->addAssociation('availabilityRule');
 
         /** @var EntityRepository<ShippingMethodCollection> $shippingRepo */
-        $shippingRepo = $this->getContainer()->get('shipping_method.repository');
+        $shippingRepo = static::getContainer()->get('shipping_method.repository');
         $searchResult = $shippingRepo->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($searchResult);

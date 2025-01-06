@@ -25,21 +25,29 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @var Criteria
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $criteria;
 
     /**
      * @var Context
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $page;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $limit;
 

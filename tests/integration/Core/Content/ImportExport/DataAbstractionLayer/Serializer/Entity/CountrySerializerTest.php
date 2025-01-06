@@ -29,8 +29,8 @@ class CountrySerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->countryRepository = $this->getContainer()->get('country.repository');
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $this->countryRepository = static::getContainer()->get('country.repository');
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
 
         $this->serializer = new CountrySerializer($this->countryRepository);
         $this->serializer->setRegistry($serializerRegistry);
@@ -54,9 +54,9 @@ class CountrySerializerTest extends TestCase
 
     public function testSupportsOnlyCountry(): void
     {
-        $serializer = new CountrySerializer($this->getContainer()->get('country.repository'));
+        $serializer = new CountrySerializer(static::getContainer()->get('country.repository'));
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
 

@@ -51,7 +51,7 @@ Shopware.Service('cmsService').registerCmsElement({
         },
         navigationDots: {
             source: 'static',
-            value: null,
+            value: 'none',
         },
         displayMode: {
             source: 'static',

@@ -15,7 +15,7 @@ class FallbackUrlPackage extends UrlPackage
     /**
      * @internal
      *
-     * @param string|string[] $baseUrls
+     * @param string|list<string> $baseUrls
      */
     public function __construct(
         string|array $baseUrls,
@@ -30,19 +30,19 @@ class FallbackUrlPackage extends UrlPackage
     }
 
     /**
-     * @param string[] $baseUrls
+     * @param list<string> $baseUrls
      *
-     * @return string[]
+     * @return list<string>
      */
     private function applyFallback(array $baseUrls): array
     {
-        $request = $this->requestStack?->getMainRequest() ?? new Request([], [], [], [], [], $_SERVER);
+        $request = $this->requestStack?->getMainRequest() ?? new Request(server: $_SERVER);
 
-        $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
-        $requestUrl = rtrim($basePath, '/') . '/';
-
-        if ($request->getHost() === '' && EnvironmentHelper::hasVariable('APP_URL')) {
+        if ($request->getHost() === '') {
             $requestUrl = EnvironmentHelper::getVariable('APP_URL');
+        } else {
+            $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
+            $requestUrl = rtrim($basePath, '/') . '/';
         }
 
         foreach ($baseUrls as &$url) {
@@ -50,7 +50,6 @@ class FallbackUrlPackage extends UrlPackage
                 $url = $requestUrl;
             }
         }
-
         unset($url);
 
         return $baseUrls;

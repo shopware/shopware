@@ -2,6 +2,7 @@
 
 namespace Shopware\WebInstaller\Services;
 
+use Composer\MetadataMinifier\MetadataMinifier;
 use Composer\Semver\VersionParser;
 use Composer\Util\Platform;
 use Shopware\Core\Framework\Log\Package;
@@ -104,6 +105,8 @@ class ProjectComposerJsonUpdater
     {
         /** @var array{packages: array{"shopware/conflicts": array{version: string, require: array{"shopware/core": string}}[]}} $data */
         $data = $this->httpClient->request('GET', 'https://repo.packagist.org/p2/shopware/conflicts.json')->toArray();
+
+        $data['packages']['shopware/conflicts'] = MetadataMinifier::expand($data['packages']['shopware/conflicts']);
 
         $versions = $data['packages']['shopware/conflicts'];
 

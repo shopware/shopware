@@ -89,11 +89,12 @@ class MediaFolderIndexer extends EntityIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
-        $context = $message->getContext();
-
         $ids = $message->getData();
-        $ids = array_filter(array_unique($ids));
+        if (!\is_array($ids)) {
+            return;
+        }
 
+        $ids = array_filter(array_unique($ids));
         if (empty($ids)) {
             return;
         }
@@ -138,7 +139,7 @@ class MediaFolderIndexer extends EntityIndexer
             $this->treeUpdater->batchUpdate(
                 $children,
                 MediaFolderDefinition::ENTITY_NAME,
-                $context,
+                $message->getContext(),
                 !$message->isFullIndexing
             );
         }

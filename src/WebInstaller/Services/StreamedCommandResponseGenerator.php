@@ -6,6 +6,7 @@ namespace Shopware\WebInstaller\Services;
 use Composer\Util\Platform;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -37,10 +38,14 @@ class StreamedCommandResponseGenerator
         $process->start();
 
         return new StreamedResponse(function () use ($process, $finish): void {
-            foreach ($process->getIterator() as $item) {
-                \assert(\is_string($item));
-                echo $item;
-                flush();
+            try {
+                foreach ($process->getIterator() as $item) {
+                    \assert(\is_string($item));
+                    echo $item;
+                    flush();
+                }
+            } catch (ProcessTimedOutException $e) {
+                echo 'Update timed out after ' . $e->getExceededTimeout() . " second(s)\n";
             }
 
             $finish($process);

@@ -89,7 +89,7 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
 
         expect(customerGroupSelect.classes()).toContain('has--error');
 
-        await wrapper.find('.sw-select__select-indicator').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-select-option--1 .sw-select-result__result-item-text').trigger('click');
@@ -105,7 +105,7 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-select__select-indicator').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-select-result-list .sw-select-option--1').trigger('click');

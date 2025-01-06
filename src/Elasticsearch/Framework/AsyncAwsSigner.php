@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Framework;
 
 use AsyncAws\Core\Configuration;
-use AsyncAws\Core\Credentials\ChainProvider;
+use AsyncAws\Core\Credentials\CredentialProvider;
 use AsyncAws\Core\Request;
 use AsyncAws\Core\RequestContext;
 use AsyncAws\Core\Signer\SignerV4;
@@ -25,6 +25,7 @@ class AsyncAwsSigner
         private readonly LoggerInterface $logger,
         private readonly string $service,
         private readonly string $region,
+        private readonly CredentialProvider $credentialProvider
     ) {
     }
 
@@ -36,9 +37,7 @@ class AsyncAwsSigner
         try {
             $transformed = $this->transformRequest($request);
 
-            $credentialProvider = ChainProvider::createDefaultChain(null, $this->logger);
-
-            $credentials = $credentialProvider->getCredentials($this->configuration);
+            $credentials = $this->credentialProvider->getCredentials($this->configuration);
             if ($credentials === null) {
                 throw ElasticsearchException::awsCredentialsNotFound();
             }

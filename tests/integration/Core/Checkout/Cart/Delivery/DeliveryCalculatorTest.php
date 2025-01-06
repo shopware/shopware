@@ -49,7 +49,6 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -70,7 +69,7 @@ class DeliveryCalculatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->deliveryCalculator = $this->getContainer()->get(DeliveryCalculator::class);
+        $this->deliveryCalculator = static::getContainer()->get(DeliveryCalculator::class);
         $this->deliveryTime = (new DeliveryTime())->assign([
             'min' => 1,
             'max' => 3,
@@ -1685,12 +1684,9 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_FIXED);
 
         $taxRate = 10;
+        $taxId = Uuid::randomHex();
 
-        $shippingMethod->setTax((new TaxEntity())->assign([
-            'id' => Uuid::randomHex(),
-            'name' => 'Test',
-            'taxRate' => $taxRate,
-        ]));
+        $shippingMethod->setTaxId($taxId);
 
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
@@ -1713,7 +1709,10 @@ class DeliveryCalculatorTest extends TestCase
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
-        $context->expects(static::atLeastOnce())->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule($taxRate)]));
+        $context->expects(static::atLeastOnce())
+            ->method('buildTaxRules')
+            ->with($taxId)
+            ->willReturn(new TaxRuleCollection([new TaxRule($taxRate)]));
 
         $lineItem = $this->createLineItem(
             new DeliveryInformation(10, 12.0, false, null, $this->deliveryTime),
@@ -2006,7 +2005,7 @@ class DeliveryCalculatorTest extends TestCase
         $cart = new Cart('test');
         $cart->setLineItems($lineItems);
 
-        return $this->getContainer()->get(DeliveryBuilder::class)
+        return static::getContainer()->get(DeliveryBuilder::class)
             ->build($cart, $data, $context, new CartBehavior());
     }
 
@@ -2079,7 +2078,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $calculator = new AmountCalculator(
             new CashRounding(),
-            $this->getContainer()->get(PercentageTaxRuleBuilder::class),
+            static::getContainer()->get(PercentageTaxRuleBuilder::class),
             new TaxCalculator()
         );
 

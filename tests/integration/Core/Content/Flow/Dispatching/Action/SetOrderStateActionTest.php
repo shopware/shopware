@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -42,17 +44,20 @@ class SetOrderStateActionTest extends TestCase
 
     private EntityRepository $orderRepository;
 
+    private EntityRepository $orderDeliveryRepository;
+
     private EntityRepository $flowRepository;
 
     private Connection $connection;
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->orderDeliveryRepository = static::getContainer()->get('order_delivery.repository');
 
         $this->ids = new IdsCollection();
 
@@ -60,14 +65,14 @@ class SetOrderStateActionTest extends TestCase
             'id' => $this->ids->get('sales-channel'),
         ]);
 
-        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
         $shippingMethodRepository->create([
             [
                 'id' => $this->ids->get('shipping-method'),
                 'name' => 'test',
                 'technicalName' => 'test',
                 'active' => true,
-                'deliveryTimeId' => $this->getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
+                'deliveryTimeId' => static::getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
                 'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -93,7 +98,7 @@ class SetOrderStateActionTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
     }
@@ -140,6 +145,82 @@ class SetOrderStateActionTest extends TestCase
         static::assertNotSame($orderTransactionState, $orderTransactionStateAfterAction);
     }
 
+    public function testSetStateOnOrderDeliveryWithDiscountOnDelivery(): void
+    {
+        $flowCreatePayload = [
+            'id' => Uuid::randomHex(),
+            'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
+            'name' => 'Test Flow',
+            'active' => true,
+            'sequences' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'actionName' => SetOrderStateAction::getName(),
+                    'config' => [
+                        'order_delivery' => 'shipped',
+                        'force_transition' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->flowRepository->create([$flowCreatePayload], Context::createDefaultContext());
+        $this->createCustomerAndLogin();
+
+        $customerId = $this->ids->get('customer');
+        $orderId = $this->ids->get('order');
+        $IdForShippingCosts = Uuid::randomHex();
+        $orderDeliveries = [
+            $this->generateOrderDeliveryPayload([
+                'id' => $IdForShippingCosts,
+                'orderId' => $orderId,
+                'shippingCosts' => new CalculatedPrice(
+                    10.00,
+                    10.00,
+                    new CalculatedTaxCollection([]),
+                    new TaxRuleCollection([]),
+                ),
+            ]),
+            $this->generateOrderDeliveryPayload([
+                'orderId' => $orderId,
+                'shippingCosts' => new CalculatedPrice(
+                    -10.00,
+                    -10.00,
+                    new CalculatedTaxCollection([]),
+                    new TaxRuleCollection([]),
+                ),
+            ]),
+        ];
+
+        $context = Generator::createSalesChannelContext();
+
+        $this->createOrder($customerId, ['deliveries' => $orderDeliveries, 'id' => $orderId]);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->first();
+
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $event = new CheckoutOrderPlacedEvent($context, $order);
+
+        $subscriber = new SetOrderStateAction(
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderService::class),
+        );
+
+        /** @var FlowFactory $flowFactory */
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig(['order_delivery' => 'shipped']);
+
+        $subscriber->handleFlow($flow);
+
+        $criteria = new Criteria([$IdForShippingCosts]);
+        $criteria->addAssociation('stateMachineState');
+        $oderDeliveryForShippingCosts = $this->orderDeliveryRepository->search($criteria, $context->getContext())->first();
+
+        static::assertInstanceOf(OrderDeliveryEntity::class, $oderDeliveryForShippingCosts);
+        static::assertSame('shipped', $oderDeliveryForShippingCosts->getStateMachineState()?->getTechnicalName());
+    }
+
     public function testThrowsWhenEntityNotFoundAndInsideATransactionWithoutSavepointNesting(): void
     {
         $this->connection->executeStatement('DELETE FROM `sales_channel` WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('sales-channel'))]);
@@ -152,24 +233,24 @@ class SetOrderStateActionTest extends TestCase
         $this->connection->beginTransaction();
 
         $orderId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
+        $context = Generator::createSalesChannelContext();
 
-        $orderData = $this->getOrderData($orderId, $context);
+        $orderData = $this->getOrderData($orderId, $context->getContext());
         $orderData[0]['deliveries'] = [];
-        $this->orderRepository->create($orderData, $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $this->orderRepository->create($orderData, $context->getContext());
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
 
-        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order);
 
         $subscriber = new SetOrderStateAction(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(OrderService::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderService::class),
         );
 
         /** @var FlowFactory $flowFactory */
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig(['order_delivery' => 'cancelled']);
 
@@ -179,6 +260,37 @@ class SetOrderStateActionTest extends TestCase
         $this->connection->transactional(function () use ($subscriber, $flow): void {
             $subscriber->handleFlow($flow);
         });
+    }
+
+    /**
+     * @param array<int|string, mixed> $payload
+     *
+     * @return array<int|string, mixed>
+     */
+    public function generateOrderDeliveryPayload(array $payload = []): array
+    {
+        $payload = array_merge(
+            [
+                'id' => $this->ids->create('delivery'),
+                'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                'shippingMethodId' => $this->getValidShippingMethodId(),
+                'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'shippingDateEarliest' => date(\DATE_ATOM),
+                'shippingDateLatest' => date(\DATE_ATOM),
+                'shippingOrderAddressId' => $this->ids->get('shipping-address'),
+                'trackingCodes' => [],
+                'positions' => [
+                    [
+                        'id' => $this->ids->create('position'),
+                        'orderLineItemId' => $this->ids->create('line-item'),
+                        'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    ],
+                ],
+            ],
+            $payload,
+        );
+
+        return $payload;
     }
 
     private function prepareFlowSequences(string $orderState, string $orderDeliveryState, string $orderTransactionState): void
@@ -277,7 +389,7 @@ class SetOrderStateActionTest extends TestCase
                 'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
+                'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
@@ -299,7 +411,7 @@ class SetOrderStateActionTest extends TestCase
                 ],
                 'deliveries' => [
                     [
-                        'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                        'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(\DATE_ATOM),
@@ -390,7 +502,7 @@ class SetOrderStateActionTest extends TestCase
     private function getPrePaymentMethodId(): string
     {
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('payment_method.repository');
+        $repository = static::getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
             ->setLimit(1)
@@ -403,7 +515,7 @@ class SetOrderStateActionTest extends TestCase
     private function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
     {
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('state_machine_state.repository');
+        $repository = static::getContainer()->get('state_machine_state.repository');
 
         $criteria = new Criteria();
         $criteria

@@ -49,16 +49,21 @@ class MediaPathPostUpdater extends SynchronousPostUpdateIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
+        $ids = $message->getData();
+        if (!\is_array($ids)) {
+            return;
+        }
+
         $mediaWithMissingPaths = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) FROM media WHERE path IS NULL AND id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($message->getData())],
+            ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );
         $this->updater->updateMedia($mediaWithMissingPaths);
 
         $thumbnailsWithMissingPaths = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) FROM media_thumbnail WHERE path IS NULL AND media_id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($message->getData())],
+            ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );
 

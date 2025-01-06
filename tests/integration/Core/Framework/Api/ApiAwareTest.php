@@ -64,7 +64,7 @@ class ApiAwareTest extends TestCase
         }
         $expected = \json_decode($expected, true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
 
-        if ($this->getContainer()->has(ThemeDefinition::class)) {
+        if (static::getContainer()->has(ThemeDefinition::class)) {
             $expected = array_merge(
                 $expected,
                 [
@@ -97,7 +97,7 @@ class ApiAwareTest extends TestCase
             );
         }
 
-        if ($this->getContainer()->has(NotificationDefinition::class)) {
+        if (static::getContainer()->has(NotificationDefinition::class)) {
             $expected = array_merge(
                 $expected,
                 [
@@ -107,7 +107,7 @@ class ApiAwareTest extends TestCase
             );
         }
 
-        if ($this->getContainer()->has(AppAdministrationSnippetDefinition::class)) {
+        if (static::getContainer()->has(AppAdministrationSnippetDefinition::class)) {
             $expected = array_merge(
                 $expected,
                 [

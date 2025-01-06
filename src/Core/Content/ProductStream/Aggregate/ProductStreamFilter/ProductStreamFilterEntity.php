@@ -16,56 +16,78 @@ class ProductStreamFilterEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $field;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $operator;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $value;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productStreamId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parentId;
 
     /**
      * @var ProductStreamEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productStream;
 
     /**
      * @var ProductStreamFilterCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $queries;
 
     /**
      * @var ProductStreamFilterEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parent;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $position;
 
     /**
      * @var array<string>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parameters;
 

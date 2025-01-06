@@ -45,8 +45,8 @@ class SeoUrlTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->landingPageRepository = $this->getContainer()->get('landing_page.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->landingPageRepository = static::getContainer()->get('landing_page.repository');
     }
 
     public function testSearchLandingPage(): void
@@ -185,7 +185,7 @@ class SeoUrlTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
 
         $rootId = Uuid::randomHex();
         $childAId = Uuid::randomHex();
@@ -224,7 +224,7 @@ class SeoUrlTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
 
         $categoryPageId = Uuid::randomHex();
         $categoryPage = [
@@ -266,7 +266,7 @@ class SeoUrlTest extends TestCase
             'test'
         );
 
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
 
         $rootId = Uuid::randomHex();
         $childAId = Uuid::randomHex();
@@ -317,7 +317,7 @@ class SeoUrlTest extends TestCase
             'test'
         );
 
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
 
         $rootId = Uuid::randomHex();
         $childAId = Uuid::randomHex();
@@ -400,7 +400,7 @@ class SeoUrlTest extends TestCase
     public function testSearchWithLimit(): void
     {
         /** @var EntityRepository $productRepo */
-        $productRepo = $this->getContainer()->get('product.repository');
+        $productRepo = static::getContainer()->get('product.repository');
 
         $productRepo->create([[
             'id' => Uuid::randomHex(),
@@ -430,7 +430,7 @@ class SeoUrlTest extends TestCase
     public function testSearchWithFilter(): void
     {
         /** @var EntityRepository $productRepo */
-        $productRepo = $this->getContainer()->get('product.repository');
+        $productRepo = static::getContainer()->get('product.repository');
 
         $productRepo->create([[
             'id' => Uuid::randomHex(),
@@ -536,7 +536,7 @@ class SeoUrlTest extends TestCase
         $id = Uuid::randomHex();
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
 
-        $router = $this->getContainer()->get('router');
+        $router = static::getContainer()->get('router');
         $pathInfo = $router->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $id]);
 
         $this->upsertProduct([

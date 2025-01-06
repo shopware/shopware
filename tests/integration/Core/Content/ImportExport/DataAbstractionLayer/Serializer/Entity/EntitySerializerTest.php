@@ -44,7 +44,7 @@ class EntitySerializerTest extends TestCase
     {
         $serializer = new EntitySerializer();
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
             static::assertTrue(
@@ -57,12 +57,12 @@ class EntitySerializerTest extends TestCase
     public function testEnsureIdFields(): void
     {
         /** @var EntityDefinition $productDefinition */
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         [$expectedData, $importData] = require __DIR__ . '/_fixtures/ensure_ids_for_products.php';
 
         $serializer = new EntitySerializer();
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
         $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
         $return = \is_array($return) ? $return : iterator_to_array($return);
@@ -73,7 +73,7 @@ class EntitySerializerTest extends TestCase
     public function testEnsureIdFieldsWithMixedContent(): void
     {
         /** @var EntityDefinition $productDefinition */
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         [$expectedData, $importData] = require __DIR__ . '/_fixtures/ensure_ids_for_products.php';
         $importData['tax'] = [
@@ -94,7 +94,7 @@ class EntitySerializerTest extends TestCase
         $expectedData['tax'] = $importData['tax'];
 
         $serializer = new EntitySerializer();
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
         $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
         $return = \is_array($return) ? $return : iterator_to_array($return);
@@ -113,10 +113,10 @@ class EntitySerializerTest extends TestCase
 
         $entity = \array_merge($this->getDefaultEntityArray(), $value);
 
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         $entitySerializer = new EntitySerializer();
-        $entitySerializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+        $entitySerializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
         $result = $entitySerializer->deserialize(new Config($mapping, [], []), $productDefinition, $entity);
         $result = \is_array($result) ? $result : iterator_to_array($result);
@@ -172,10 +172,10 @@ class EntitySerializerTest extends TestCase
 
         $entity = \array_merge($this->getDefaultEntityArray(), ['releaseDate' => ' ']);
 
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         $entitySerializer = new EntitySerializer();
-        $entitySerializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+        $entitySerializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
         $result = $entitySerializer->deserialize(new Config($mapping, [], []), $productDefinition, $entity);
         $result = \is_array($result) ? $result : iterator_to_array($result);
@@ -193,10 +193,10 @@ class EntitySerializerTest extends TestCase
 
         $entity = \array_merge($this->getDefaultEntityArray(), $value);
 
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         $entitySerializer = new EntitySerializer();
-        $entitySerializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+        $entitySerializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
         $result = $entitySerializer->deserialize(new Config($mapping, [], []), $productDefinition, $entity);
         $result = \is_array($result) ? $result : iterator_to_array($result);
@@ -240,7 +240,7 @@ class EntitySerializerTest extends TestCase
     public function testEntityExtensionSerialization(): void
     {
         // add temporary db table for the test extension
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $migration = new TestExtensionMigration();
         $migration->update($connection);
         $connection->setNestTransactionsWithSavepoints(true);
@@ -251,10 +251,10 @@ class EntitySerializerTest extends TestCase
         $this->registerDefinitionWithExtensions(ProductDefinition::class, TestExtension::class);
 
         // create a product with extension data
-        $productRepo = $this->getContainer()->get('product.repository');
+        $productRepo = static::getContainer()->get('product.repository');
         $taxCriteria = new Criteria();
         $taxCriteria->addFilter(new EqualsFilter('taxRate', 19.0));
-        $taxId = $this->getContainer()->get('tax.repository')->searchIds($taxCriteria, Context::createDefaultContext())->firstId();
+        $taxId = static::getContainer()->get('tax.repository')->searchIds($taxCriteria, Context::createDefaultContext())->firstId();
         $productId = Uuid::randomHex();
         $productRepo->create([
             [
@@ -284,9 +284,9 @@ class EntitySerializerTest extends TestCase
 
         // do the serialization
         /** @var EntityDefinition $productDefinition */
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $serializer = new EntitySerializer();
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
         $return = $serializer->serialize(new Config([], [], []), $productDefinition, $exportData);
         $return = iterator_to_array($return);
@@ -373,6 +373,11 @@ class TestExtension extends EntityExtension
     public function getDefinitionClass(): string
     {
         return ProductDefinition::class;
+    }
+
+    public function getEntityName(): string
+    {
+        return ProductDefinition::ENTITY_NAME;
     }
 }
 

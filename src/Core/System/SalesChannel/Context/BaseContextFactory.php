@@ -152,7 +152,9 @@ class BaseContextFactory extends AbstractBaseContextFactory
     {
         $id = $options[SalesChannelContextService::PAYMENT_METHOD_ID] ?? $salesChannel->getPaymentMethodId();
 
-        $criteria = (new Criteria([$id]))->addAssociation('media');
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('media');
+        $criteria->addAssociation('appPaymentMethod');
         $criteria->setTitle('base-context-factory::payment-method');
 
         $paymentMethod = $this->paymentMethodRepository

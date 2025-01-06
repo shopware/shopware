@@ -13,6 +13,8 @@ class ThemeException extends HttpException
     public const THEME_SALES_CHANNEL_NOT_FOUND = 'THEME__SALES_CHANNEL_NOT_FOUND';
     public const INVALID_THEME_BY_NAME = 'THEME__INVALID_THEME';
     public const INVALID_THEME_BY_ID = 'THEME__INVALID_THEME_BY_ID';
+    public const INVALID_SCSS_VAR = 'THEME__INVALID_SCSS_VAR';
+    public const THEME__COMPILING_ERROR = 'THEME__COMPILING_ERROR';
 
     public static function themeMediaStillInUse(): self
     {
@@ -50,6 +52,25 @@ class ThemeException extends HttpException
             self::INVALID_THEME_BY_ID,
             self::$couldNotFindMessage,
             ['entity' => 'theme', 'field' => 'id', 'value' => $themeId]
+        );
+    }
+
+    public static function InvalidScssValue(mixed $value, string $type, string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_SCSS_VAR,
+            'SCSS Value "{{ name }}" with value "{{ value }}" is not valid for type "{{ type }}"',
+            ['name' => $name, 'value' => $value, 'type' => $type]
+        );
+    }
+
+    public static function themeCompileException(string $themeName, string $message = '', ?\Throwable $e = null): ThemeCompileException
+    {
+        return new ThemeCompileException(
+            $themeName,
+            $message,
+            $e
         );
     }
 }

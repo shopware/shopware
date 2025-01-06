@@ -46,12 +46,12 @@ class PaymentHandlerRegistryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->appPaymentMethodRepository = $this->getContainer()->get('app_payment_method.repository');
-        $this->paymentHandlerRegistry = $this->getContainer()->get(PaymentHandlerRegistry::class);
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+        $this->appPaymentMethodRepository = static::getContainer()->get('app_payment_method.repository');
+        $this->paymentHandlerRegistry = static::getContainer()->get(PaymentHandlerRegistry::class);
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/testPayments/manifest.xml');
-        $appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $appLifecycle->install($manifest, true, Context::createDefaultContext());
     }
 

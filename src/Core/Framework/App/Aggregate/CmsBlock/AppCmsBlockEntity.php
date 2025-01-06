@@ -21,36 +21,50 @@ class AppCmsBlockEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $appId;
 
     /**
      * @var AppEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $app;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var BlockArray
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $block;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $template;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $styles;
 
     /**
      * @var AppCmsBlockTranslationCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 

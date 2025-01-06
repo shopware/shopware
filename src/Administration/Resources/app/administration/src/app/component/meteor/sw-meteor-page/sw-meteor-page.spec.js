@@ -28,6 +28,7 @@ async function createWrapper(slotsData = {}) {
                 },
                 'mt-tabs': true,
                 'sw-extension-component-section': true,
+                'sw-app-topbar-button': true,
             },
             mocks: {
                 $route: {

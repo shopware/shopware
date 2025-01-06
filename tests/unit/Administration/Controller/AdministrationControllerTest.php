@@ -68,6 +68,8 @@ class AdministrationControllerTest extends TestCase
 
     private string $shopwareCoreDir;
 
+    private string $refreshTokenTtl;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
@@ -79,6 +81,7 @@ class AdministrationControllerTest extends TestCase
         $this->htmlSanitizer = $this->createMock(HtmlSanitizer::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->shopwareCoreDir = __DIR__ . '/../../../../src/Core/';
+        $this->refreshTokenTtl = 'P1W';
     }
 
     public function testIndexPerformsOnSearchOfCurrency(): void
@@ -108,6 +111,7 @@ class AdministrationControllerTest extends TestCase
                     'cspNonce' => null,
                     'adminEsEnable' => true,
                     'storefrontEsEnable' => true,
+                    'refreshTokenTtl' => 7 * 86400 * 1000,
                 ]
             );
 
@@ -481,6 +485,7 @@ class AdministrationControllerTest extends TestCase
                 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
             ]),
             $this->fileSystemOperator,
+            $this->refreshTokenTtl,
         );
     }
 

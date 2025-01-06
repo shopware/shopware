@@ -1,0 +1,7 @@
+{% block component_skip_target %}
+    {% set snippet = snippet ?? 'general.skipThisElement' %}
+
+    <a href="#content-after-target-{{ targetId }}" class="skip-target visually-hidden-focusable overflow-hidden">
+        {{ snippet|trans|sw_sanitize }}
+    </a>
+{% endblock %}

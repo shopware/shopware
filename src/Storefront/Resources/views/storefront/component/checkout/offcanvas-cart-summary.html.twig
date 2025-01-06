@@ -3,13 +3,13 @@
         <dl class="row offcanvas-summary-list">
             {% block component_offcanvas_summary_total %}
                 {% block component_offcanvas_summary_total_label %}
-                    <dt class="col-7 summary-label summary-total">
+                    <dt class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-8{% else %}col-7{% endif %} summary-label summary-total">
                         {{ 'checkout.subtotalAmount'|trans|sw_sanitize }}
                     </dt>
                 {% endblock %}
 
                 {% block component_offcanvas_summary_total_value %}
-                    <dd class="col-5 summary-value summary-total">
+                    <dd class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-4{% else %}col-5{% endif %} summary-value summary-total">
                         <strong>{{ page.cart.price.positionPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}</strong>
                     </dd>
                 {% endblock %}
@@ -20,7 +20,7 @@
             {% for activeShipping in page.cart.deliveries.elements %}
                 {% block component_offcanvas_summary_content_info %}
                     <div class="row offcanvas-shipping-info">
-                        <span class="col-7 shipping-label shipping-cost">
+                        <span class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-8{% else %}col-7{% endif %} shipping-label shipping-cost">
                             <strong>{{ 'checkout.summaryShipping'|trans|sw_sanitize }}</strong>
                             {% if loop.first %}
                                 {% if page.shippingMethods|length %}
@@ -33,8 +33,9 @@
                             {% endif %}
                         </span>
 
-                        <span class="col-5 pb-2 shipping-value shipping-cost">
-                            <strong>{{ activeShipping.shippingCosts.totalPrice < 0 ? '-' : '+' }} {{ activeShipping.shippingCosts.totalPrice|abs|currency }}{{ 'general.star'|trans|sw_sanitize }}</strong>
+                        <span class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-4{% else %}col-5{% endif %} pb-2 shipping-value shipping-cost">
+                            {% set shippingTotalPrice = activeShipping.shippingCosts.totalPrice ?? 0 %}
+                            <strong>{{ shippingTotalPrice < 0 ? '&minus;' : '+' }} {{ shippingTotalPrice|abs|currency }}{{ 'general.star'|trans|sw_sanitize }}</strong>
                         </span>
                     </div>
                 {% endblock %}

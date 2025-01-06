@@ -59,16 +59,16 @@ class CmsAwareAndAdminUiTest extends TestCase
         static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
         $this->context = Context::createDefaultContext();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
+        $this->appRepository = static::getContainer()->get('app.repository');
 
-        $this->pluginFinder = $this->getContainer()->get(PluginFinder::class);
-        $this->pluginRepository = $this->getContainer()->get('plugin.repository');
-        $this->pluginLifecycleService = $this->getContainer()->get(PluginLifecycleService::class);
+        $this->pluginFinder = static::getContainer()->get(PluginFinder::class);
+        $this->pluginRepository = static::getContainer()->get('plugin.repository');
+        $this->pluginLifecycleService = static::getContainer()->get(PluginLifecycleService::class);
 
-        $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
     }
 
     public function testCmsAwareAndAdminUiForApp(): void
@@ -120,7 +120,7 @@ class CmsAwareAndAdminUiTest extends TestCase
     {
         $this->pluginService = $this->createPluginService(
             __DIR__ . '/_fixtures/plugins',
-            $this->getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->getParameter('kernel.project_dir'),
             $this->pluginRepository,
             $this->languageRepository,
             $this->pluginFinder

@@ -48,17 +48,17 @@ class StorefrontRoutingTest extends TestCase
     {
         $this->requestTransformer = new RequestTransformer(
             new CoreRequestTransformer(),
-            $this->getContainer()->get(SeoResolver::class),
-            $this->getContainer()->getParameter('shopware.routing.registered_api_prefixes'),
-            $this->getContainer()->get(DomainLoader::class)
+            static::getContainer()->get(SeoResolver::class),
+            static::getContainer()->getParameter('shopware.routing.registered_api_prefixes'),
+            static::getContainer()->get(DomainLoader::class)
         );
 
-        $this->seoUrlReplacer = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
+        $this->seoUrlReplacer = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
 
-        $this->requestStack = $this->getContainer()->get('request_stack');
+        $this->requestStack = static::getContainer()->get('request_stack');
         while ($this->requestStack->pop()) {
         }
-        $this->router = $this->getContainer()->get('router');
+        $this->router = static::getContainer()->get('router');
         $this->oldContext = $this->router->getContext();
     }
 
@@ -246,7 +246,7 @@ class StorefrontRoutingTest extends TestCase
         }, $salesChannels);
 
         /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $event = $salesChannelRepository->create($salesChannels, Context::createDefaultContext());
         $entities = $event->getEventByEntityName($salesChannelRepository->getDefinition()->getEntityName());
@@ -254,9 +254,9 @@ class StorefrontRoutingTest extends TestCase
         static::assertNotNull($entities);
         $id = $entities->getIds()[0];
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), $id);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), $id);
 
-        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
         $ruleLoader->loadByToken($context, $context->getToken());
 
         return $context;

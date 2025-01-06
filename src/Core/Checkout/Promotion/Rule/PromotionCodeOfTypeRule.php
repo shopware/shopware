@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Rule;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -73,7 +74,11 @@ class PromotionCodeOfTypeRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
-            ->selectField('promotionCodeType', ['global', 'fixed', 'individual']);
+            ->selectField('promotionCodeType', [
+                PromotionItemBuilder::PROMOTION_TYPE_GLOBAL,
+                PromotionItemBuilder::PROMOTION_TYPE_INDIVIDUAL,
+                PromotionItemBuilder::PROMOTION_TYPE_FIXED,
+            ]);
     }
 
     private function lineItemMatches(LineItem $lineItem): bool

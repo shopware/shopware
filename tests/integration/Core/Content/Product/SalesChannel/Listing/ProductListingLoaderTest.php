@@ -69,10 +69,10 @@ class ProductListingLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->productListingLoader = $this->getContainer()->get(ProductListingLoader::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->productListingLoader = static::getContainer()->get(ProductListingLoader::class);
         $this->salesChannelContext = $this->createSalesChannelContext();
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         parent::setUp();
     }
@@ -84,12 +84,12 @@ class ProductListingLoaderTest extends TestCase
             ->price(100)
             ->visibility()
             ->build();
-        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $this->getContainer()->get('event_dispatcher')->addListener(ProductListingResolvePreviewEvent::class, $listener);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        static::getContainer()->get('event_dispatcher')->addListener(ProductListingResolvePreviewEvent::class, $listener);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $criteria = new Criteria($ids->getList(['p1']));
         $this->productListingLoader->load($criteria, $context);

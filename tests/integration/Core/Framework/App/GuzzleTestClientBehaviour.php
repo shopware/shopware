@@ -23,20 +23,20 @@ trait GuzzleTestClientBehaviour
     #[After]
     public function resetHistory(): void
     {
-        $historyCollector = $this->getContainer()->get(GuzzleHistoryCollector::class);
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
         static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
         $historyCollector->resetHistory();
-        $mockHandler = $this->getContainer()->get(MockHandler::class);
+        $mockHandler = static::getContainer()->get(MockHandler::class);
         static::assertInstanceOf(MockHandler::class, $mockHandler);
         $mockHandler->reset();
-        $testServer = $this->getContainer()->get(TestAppServer::class);
+        $testServer = static::getContainer()->get(TestAppServer::class);
         static::assertInstanceOf(TestAppServer::class, $testServer);
         $testServer->reset();
     }
 
     public function getLastRequest(): ?RequestInterface
     {
-        $mockHandler = $this->getContainer()->get(MockHandler::class);
+        $mockHandler = static::getContainer()->get(MockHandler::class);
         static::assertInstanceOf(MockHandler::class, $mockHandler);
 
         return $mockHandler->getLastRequest();
@@ -44,7 +44,7 @@ trait GuzzleTestClientBehaviour
 
     public function getPastRequest(int $index): RequestInterface
     {
-        $historyCollector = $this->getContainer()->get(GuzzleHistoryCollector::class);
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
         static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
 
         return $historyCollector->getHistory()[$index]['request'];
@@ -52,7 +52,7 @@ trait GuzzleTestClientBehaviour
 
     public function getRequestCount(): int
     {
-        $historyCollector = $this->getContainer()->get(GuzzleHistoryCollector::class);
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
         static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
 
         return \count($historyCollector->getHistory());
@@ -60,14 +60,14 @@ trait GuzzleTestClientBehaviour
 
     public function appendNewResponse(ResponseInterface|\Exception|PromiseInterface $response): void
     {
-        $mockHandler = $this->getContainer()->get(MockHandler::class);
+        $mockHandler = static::getContainer()->get(MockHandler::class);
         static::assertInstanceOf(MockHandler::class, $mockHandler);
         $mockHandler->append($response);
     }
 
     public function didRegisterApp(): bool
     {
-        $testServer = $this->getContainer()->get(TestAppServer::class);
+        $testServer = static::getContainer()->get(TestAppServer::class);
         static::assertInstanceOf(TestAppServer::class, $testServer);
 
         return $testServer->didRegister();

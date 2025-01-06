@@ -18,8 +18,8 @@ class ElasticsearchException extends HttpException
     public const NESTED_AGGREGATION_PARSE_ERROR = 'ELASTICSEARCH__NESTED_AGGREGATION_PARSE_ERROR';
     public const PARENT_FILTER_ERROR = 'ELASTICSEARCH__PARENT_FILTER_ERROR';
     public const SERVER_NOT_AVAILABLE = 'ELASTICSEARCH__SERVER_NOT_AVAILABLE';
-
     public const EMPTY_QUERY = 'ELASTICSEARCH__EMPTY_QUERY';
+    public const EMPTY_INDEXING_REQUEST = 'ELASTICSEARCH__EMPTY_INDEXING_REQUEST';
 
     public const AWS_CREDENTIALS_NOT_FOUND = 'ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND';
 
@@ -137,6 +137,15 @@ class ElasticsearchException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::AWS_CREDENTIALS_NOT_FOUND,
             'Could not get AWS credentials'
+        );
+    }
+
+    public static function emptyIndexingRequest(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::EMPTY_INDEXING_REQUEST,
+            'Empty indexing request provided'
         );
     }
 }

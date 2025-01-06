@@ -33,11 +33,11 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCas
 
     protected function setUp(): void
     {
-        $this->logRepository = $this->getContainer()->get('import_export_log.repository');
-        $this->fileRepository = $this->getContainer()->get('import_export_file.repository');
-        $this->filesystem = $this->getContainer()->get('shopware.filesystem.private');
-        $this->messageBus = $this->getContainer()->get('messenger.bus.shopware');
-        $this->deleteFileHandler = $this->getContainer()->get(DeleteFileHandler::class);
+        $this->logRepository = static::getContainer()->get('import_export_log.repository');
+        $this->fileRepository = static::getContainer()->get('import_export_file.repository');
+        $this->filesystem = static::getContainer()->get('shopware.filesystem.private');
+        $this->messageBus = static::getContainer()->get('messenger.bus.shopware');
+        $this->deleteFileHandler = static::getContainer()->get(DeleteFileHandler::class);
 
         parent::setUp();
     }
@@ -63,7 +63,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCas
         $expiredFilePath = $this->getLogEntity($logIdB)->getFile()?->getPath();
         static::assertIsString($expiredFilePath);
 
-        $handler = $this->getContainer()->get(CleanupImportExportFileTaskHandler::class);
+        $handler = static::getContainer()->get(CleanupImportExportFileTaskHandler::class);
 
         $handler->run();
 

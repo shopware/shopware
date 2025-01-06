@@ -228,6 +228,26 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer($message);
     }
 
+    public function testHandleIndexingNoIds(): void
+    {
+        $message = new ElasticsearchIndexingMessage(
+            new IndexingDto([], 'foo', 'product'),
+            null,
+            Context::createDefaultContext()
+        );
+
+        $this->indices
+            ->expects(static::once())
+            ->method('exists')->willReturn(true);
+
+        $indexer = $this->getIndexer();
+
+        static::expectException(ElasticsearchException::class);
+        static::expectExceptionMessage('Empty indexing request provided');
+
+        $indexer($message);
+    }
+
     public function testHandleIndexing(): void
     {
         $productDefinition = $this->createDefinition('product');

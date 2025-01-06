@@ -134,16 +134,16 @@ class ElasticsearchProductTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
-        $this->utils = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
+        $this->definition = static::getContainer()->get(ElasticsearchProductDefinition::class);
+        $this->utils = static::getContainer()->get(ElasticsearchIndexingUtils::class);
 
-        $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
-        $this->client = $this->getContainer()->get(Client::class);
-        $this->productDefinition = $this->getContainer()->get(ProductDefinition::class);
-        $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->helper = static::getContainer()->get(ElasticsearchHelper::class);
+        $this->client = static::getContainer()->get(Client::class);
+        $this->productDefinition = static::getContainer()->get(ProductDefinition::class);
+        $this->languageRepository = static::getContainer()->get('language.repository');
 
-        $this->getContainer()->get(SalesChannelLanguageLoader::class)->reset();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        static::getContainer()->get(SalesChannelLanguageLoader::class)->reset();
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->navigationId = $this->connection->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
@@ -153,7 +153,7 @@ class ElasticsearchProductTest extends TestCase
         $this->registerDefinition(ExtendedProductDefinition::class);
         $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
         $this->ids = new IdsCollection();
         $this->ids->set('navi', $this->navigationId);
@@ -236,7 +236,7 @@ class ElasticsearchProductTest extends TestCase
                 ],
             ];
 
-            $this->getContainer()
+            static::getContainer()
                 ->get('currency.repository')
                 ->upsert($currencies, $this->context);
 
@@ -2066,7 +2066,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             $this->helper->setEnabled(true);
 
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
                     TestDefaults::SALES_CHANNEL,
@@ -2080,7 +2080,7 @@ class ElasticsearchProductTest extends TestCase
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-            $result = $this->getContainer()->get(ProductListingRoute::class)
+            $result = static::getContainer()->get(ProductListingRoute::class)
                 ->load($context->getSalesChannel()->getNavigationCategoryId(), $request, $context, $criteria);
 
             $listing = $result->getResult();
@@ -2140,7 +2140,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             $cases = $this->providerCheapestPriceFilter();
 
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
                     TestDefaults::SALES_CHANNEL,
@@ -2230,7 +2230,7 @@ class ElasticsearchProductTest extends TestCase
     public function testCheapestPriceSorting(IdsCollection $ids): void
     {
         try {
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
                     TestDefaults::SALES_CHANNEL,
@@ -2453,7 +2453,7 @@ class ElasticsearchProductTest extends TestCase
     public function testCheapestPricePercentageFilterAndSorting(IdsCollection $ids): void
     {
         try {
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
                     TestDefaults::SALES_CHANNEL,
@@ -3192,7 +3192,7 @@ class ElasticsearchProductTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     /**
@@ -3253,9 +3253,9 @@ class ElasticsearchProductTest extends TestCase
         $this->ids->set('language-3', $fourthLanguage);
         $this->createSalesChannel(['id' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT]);
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_field');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_field');
 
-        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
+        $customFieldRepository = static::getContainer()->get('custom_field_set.repository');
 
         $customFields = [
             [
@@ -4006,7 +4006,7 @@ class ElasticsearchProductTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
 
         $languageRepository->create(
             [
@@ -4037,7 +4037,7 @@ class ElasticsearchProductTest extends TestCase
     private function createIndexingContext(): Context
     {
         $context = $this->context;
-        $context->addExtension('currencies', $this->getContainer()->get('currency.repository')->search(new Criteria(), $this->context));
+        $context->addExtension('currencies', static::getContainer()->get('currency.repository')->search(new Criteria(), $this->context));
 
         return $context;
     }
@@ -4048,7 +4048,7 @@ class ElasticsearchProductTest extends TestCase
      */
     private function resetStopWords(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('UPDATE `product_search_config` SET `excluded_terms` = "[]"');
     }
 }

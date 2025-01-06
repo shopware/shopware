@@ -83,7 +83,7 @@ class ShippingMethodDefinition extends EntityDefinition
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new StringField('tax_type', 'taxType', 50))->addFlags(new ApiAware(), new Required()),
             new FkField('tax_id', 'taxId', TaxDefinition::class),
-            (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class, 'id', true))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class, 'id', !Feature::isActive('v6.7.0.0')))->addFlags(new ApiAware()),
             (new TranslatedField('description'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
             (new TranslatedField('trackingUrl'))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shipping_method_id'))->addFlags(new ApiAware(), new Required()),
@@ -97,7 +97,7 @@ class ShippingMethodDefinition extends EntityDefinition
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, 'shipping_method_id', 'sales_channel_id'),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', 'id'))->addFlags(new RestrictDelete()),
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class))->addFlags(new ApiAware()),
-            (new OneToOneAssociationField('appShippingMethod', 'id', 'shipping_method_id', AppShippingMethodDefinition::class, true))->addFlags(new CascadeDelete()),
+            (new OneToOneAssociationField('appShippingMethod', 'id', 'shipping_method_id', AppShippingMethodDefinition::class, !Feature::isActive('v6.7.0.0')))->addFlags(new CascadeDelete()),
         ]);
 
         if (Feature::isActive('v6.7.0.0')) {

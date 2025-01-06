@@ -72,6 +72,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 'basePath' => $path . '/',
                 'views' => ['Resources/views'],
                 'technicalName' => \str_replace('_', '-', $bundle->getContainerPrefix()),
+                'isTheme' => $this->isTheme($path),
                 'administration' => [
                     'path' => 'Resources/app/administration/src',
                     'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/administration/src'),
@@ -102,6 +103,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 'basePath' => $app['path'] . '/',
                 'views' => ['Resources/views'],
                 'technicalName' => str_replace('_', '-', $this->asSnakeCase($app['name'])),
+                'isTheme' => $this->isTheme($absolutePath),
                 'storefront' => [
                     'path' => 'Resources/app/storefront/src',
                     'entryFilePath' => $this->getEntryFile($absolutePath, 'Resources/app/storefront/src'),
@@ -112,6 +114,11 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         }
 
         return $configs;
+    }
+
+    private function isTheme(string $path): bool
+    {
+        return file_exists($path . '/Resources/theme.json');
     }
 
     private function getEntryFile(string $rootPath, string $componentPath): ?string

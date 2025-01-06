@@ -30,7 +30,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
+        $this->ruleRepository = static::getContainer()->get('rule.repository');
     }
 
     public function testIfPaymentMethodAssociatedWithRuleCanBeAccessed(): void
@@ -121,7 +121,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         $criteria->addAssociation('availabilityRule');
 
         /** @var EntityRepository<PaymentMethodCollection> $paymentMethodRepo */
-        $paymentMethodRepo = $this->getContainer()->get('payment_method.repository');
+        $paymentMethodRepo = static::getContainer()->get('payment_method.repository');
         $paymentMethod = $paymentMethodRepo->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($paymentMethod);
 

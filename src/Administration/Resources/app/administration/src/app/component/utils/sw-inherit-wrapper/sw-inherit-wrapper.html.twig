@@ -50,7 +50,7 @@
     {% block sw_inherit_wrapper_content %}
     <slot
         name="content"
-        v-bind="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance, error }"
+        v-bind="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance, error, label }"
     ></slot>
     {% endblock %}
 </div>

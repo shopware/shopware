@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendEx
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -31,8 +32,8 @@ final class WebhookEventMessageHandler
      */
     public function __construct(
         private readonly Client $client,
-        private readonly EntityRepository $webhookRepository,
-        private readonly EntityRepository $webhookEventLogRepository
+        private readonly EntityRepository $webhookEventLogRepository,
+        private readonly RelatedWebhooks $relatedWebhooks,
     ) {
     }
 
@@ -98,15 +99,10 @@ final class WebhookEventMessageHandler
             ], $context);
 
             try {
-                $this->webhookRepository->update([
-                    [
-                        'id' => $message->getWebhookId(),
-                        'errorCount' => 0,
-                    ],
-                ], $context);
+                $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
             } catch (AppNotFoundException|WriteTypeIntendException $e) {
                 // may happen if app or webhook got deleted in the meantime,
-                // we don't need to update the erro-count in that case, so we can ignore the error
+                // we don't need to update the error-count in that case, so we can ignore the error
             }
         } catch (\Throwable $e) {
             $payload = [

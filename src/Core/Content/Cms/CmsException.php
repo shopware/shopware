@@ -3,6 +3,9 @@
 namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
+use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\Cms\Exception\UnexpectedFieldConfigValueType;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,10 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
 class CmsException extends HttpException
 {
     final public const DELETION_OF_DEFAULT_CODE = 'CONTENT__DELETION_DEFAULT_CMS_PAGE';
-
     final public const OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE = 'CONTENT__DELETION_OVERALL_DEFAULT_CMS_PAGE';
-
     final public const INVALID_FIELD_CONFIG_SOURCE_CODE = 'CONTENT__INVALID_FIELD_CONFIG_SOURCE';
+    final public const CMS_PAGE_NOT_FOUND = 'CONTENT__CMS_PAGE_NOT_FOUND';
+    final public const UNEXPECTED_VALUE_TYPE = 'CONTENT__CMS_UNEXPECTED_VALUE_TYPE';
 
     /**
      * @param array<string> $cmsPages
@@ -54,5 +57,50 @@ class CmsException extends HttpException
     public static function duplicateCriteriaKey(string $key): self
     {
         return new DuplicateCriteriaKeyException($key);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' with next major version
+     */
+    public static function pageNotFound(string $pageId): self|PageNotFoundException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new PageNotFoundException($pageId);
+        }
+
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CMS_PAGE_NOT_FOUND,
+            'Page with ID "{{ pageId }}" was not found.',
+            ['pageId' => $pageId]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' with next major version
+     */
+    public static function unexpectedFieldConfigValueType(
+        string $fieldConfigName,
+        string $expectedType,
+        string $givenType
+    ): self|UnexpectedFieldConfigValueType {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new UnexpectedFieldConfigValueType(
+                $fieldConfigName,
+                $expectedType,
+                $givenType
+            );
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNEXPECTED_VALUE_TYPE,
+            'Expected to load value of "{{ fieldConfigName }}" with type "{{ expectedType }}", but value with type "{{ givenType }}" given.',
+            [
+                'fieldConfigName' => $fieldConfigName,
+                'expectedType' => $expectedType,
+                'givenType' => $givenType,
+            ]
+        );
     }
 }

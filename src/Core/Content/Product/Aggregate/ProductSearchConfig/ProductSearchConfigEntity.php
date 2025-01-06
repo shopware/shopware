@@ -15,31 +15,43 @@ class ProductSearchConfigEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $languageId;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $andLogic;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $minSearchLength;
 
     /**
      * @var array|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $excludedTerms;
 
     /**
      * @var LanguageEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $language;
 
     /**
      * @var ProductSearchConfigFieldCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $configFields;
 

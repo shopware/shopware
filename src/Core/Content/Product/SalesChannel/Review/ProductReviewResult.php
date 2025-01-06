@@ -14,29 +14,51 @@ use Shopware\Core\Framework\Log\Package;
 class ProductReviewResult extends EntitySearchResult
 {
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parentId;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var RatingMatrix
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $matrix;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var ProductReviewEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customerReview;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $totalReviews;
+
+    protected int $totalReviewsInCurrentLanguage;
 
     public function getProductId(): string
     {
@@ -76,6 +98,16 @@ class ProductReviewResult extends EntitySearchResult
     public function setTotalReviews(int $totalReviews): void
     {
         $this->totalReviews = $totalReviews;
+    }
+
+    public function getTotalReviewsInCurrentLanguage(): int
+    {
+        return $this->totalReviewsInCurrentLanguage;
+    }
+
+    public function setTotalReviewsInCurrentLanguage(int $totalReviewsInCurrentLanguage): void
+    {
+        $this->totalReviewsInCurrentLanguage = $totalReviewsInCurrentLanguage;
     }
 
     public function getParentId(): ?string

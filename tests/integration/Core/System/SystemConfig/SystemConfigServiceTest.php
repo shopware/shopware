@@ -33,10 +33,10 @@ class SystemConfigServiceTest extends TestCase
         parent::setUp();
 
         $this->systemConfigService = new SystemConfigService(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(ConfigReader::class),
-            $this->getContainer()->get(SystemConfigLoader::class),
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(ConfigReader::class),
+            static::getContainer()->get(SystemConfigLoader::class),
+            static::getContainer()->get('event_dispatcher'),
             new SymfonySystemConfigService([]),
             false
         );
@@ -369,7 +369,7 @@ class SystemConfigServiceTest extends TestCase
 
     public function testWebhookEventsFired(): void
     {
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $called = false;
 

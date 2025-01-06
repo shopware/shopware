@@ -29,7 +29,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver" public="true">
-            <argument type="tagged" tag="shopware.cms.data_resolver"/>
+            <argument type="tagged_iterator" tag="shopware.cms.data_resolver"/>
             <argument type="collection">
                 <argument type="service" key="product" id="sales_channel.product.repository" />
             </argument>

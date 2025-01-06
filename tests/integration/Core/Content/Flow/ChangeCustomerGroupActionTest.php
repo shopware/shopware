@@ -43,9 +43,9 @@ class ChangeCustomerGroupActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $this->ids = new IdsCollection();
 
@@ -107,7 +107,7 @@ class ChangeCustomerGroupActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Test group'));
         /** @var CustomerGroupEntity $customerGroupId */
-        $customerGroupId = $this->getContainer()->get('customer_group.repository')->search($criteria, Context::createDefaultContext())->first();
+        $customerGroupId = static::getContainer()->get('customer_group.repository')->search($criteria, Context::createDefaultContext())->first();
 
         /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
@@ -172,7 +172,7 @@ class ChangeCustomerGroupActionTest extends TestCase
 
     private function createDataTest(): void
     {
-        $this->getContainer()->get('customer_group.repository')->create([
+        static::getContainer()->get('customer_group.repository')->create([
             [
                 'id' => $this->ids->create('customer_group_id'),
                 'name' => 'Test group',

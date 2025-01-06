@@ -15,6 +15,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @description This event allows intercepting the listing process, when the product ids should be determined for the current category page and the applied filter.
  *
+ * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
+ *
+ * @codeCoverageIgnore
+ *
  * @extends Extension<IdSearchResult>
  */
 #[Package('inventory')]

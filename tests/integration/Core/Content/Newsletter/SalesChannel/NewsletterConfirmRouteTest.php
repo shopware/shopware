@@ -96,9 +96,9 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de"');
+        $count = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de"');
         static::assertSame(1, $count);
-        $hash = $this->getContainer()->get(Connection::class)->fetchOne('SELECT hash FROM newsletter_recipient WHERE email = "test@test.de"');
+        $hash = static::getContainer()->get(Connection::class)->fetchOne('SELECT hash FROM newsletter_recipient WHERE email = "test@test.de"');
 
         $this->browser
             ->request(
@@ -110,7 +110,7 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $status = $this->getContainer()->get(Connection::class)->fetchOne('SELECT status FROM newsletter_recipient WHERE email = "test@test.de"');
+        $status = static::getContainer()->get(Connection::class)->fetchOne('SELECT status FROM newsletter_recipient WHERE email = "test@test.de"');
         static::assertSame('optIn', $status);
     }
 }

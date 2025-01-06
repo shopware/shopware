@@ -46,11 +46,11 @@ class CachedCountryStateRouteTest extends TestCase
         Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $ids = new IdsCollection();
-        $this->getContainer()->get('country.repository')->create(
+        static::getContainer()->get('country.repository')->create(
             [
                 [
                     'id' => $ids->get('country'),
@@ -68,7 +68,7 @@ class CachedCountryStateRouteTest extends TestCase
     #[AfterClass]
     public function cleanup(): void
     {
-        $this->getContainer()->get('cache.object')
+        static::getContainer()->get('cache.object')
             ->invalidateTags([self::ALL_TAG]);
     }
 
@@ -76,7 +76,7 @@ class CachedCountryStateRouteTest extends TestCase
     public function testInvalidation(string $countryId, \Closure $before, \Closure $after, int $calls): void
     {
         $ids = new IdsCollection();
-        $this->getContainer()->get('country.repository')->create(
+        static::getContainer()->get('country.repository')->create(
             [
                 [
                     'id' => $ids->get('country'),
@@ -92,29 +92,29 @@ class CachedCountryStateRouteTest extends TestCase
 
         $countryId = $ids->get($countryId);
 
-        $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
+        static::getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(CountryStateRouteCacheTagsEvent::class, static function (CountryStateRouteCacheTagsEvent $event): void {
                 $event->addTags([self::ALL_TAG]);
             });
 
-        $route = $this->getContainer()->get(CountryStateRoute::class);
+        $route = static::getContainer()->get(CountryStateRoute::class);
         static::assertInstanceOf(CachedCountryStateRoute::class, $route);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
 
-        $this->getContainer()
+        static::getContainer()
             ->get('event_dispatcher')
             ->addListener(CountryStateRouteCacheTagsEvent::class, $listener);
 
-        $before($this->getContainer(), $ids);
+        $before(static::getContainer(), $ids);
 
         $route->load($countryId, new Request(), new Criteria(), $this->context);
         $route->load($countryId, new Request(), new Criteria(), $this->context);
 
-        $after($this->getContainer(), $ids);
+        $after(static::getContainer(), $ids);
 
         $route->load($countryId, new Request(), new Criteria(), $this->context);
         $route->load($countryId, new Request(), new Criteria(), $this->context);

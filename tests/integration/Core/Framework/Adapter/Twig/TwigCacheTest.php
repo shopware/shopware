@@ -59,9 +59,9 @@ class TwigCacheTest extends TestCase
      */
     private function createFinder(array $bundles): array
     {
-        $twig = $this->getContainer()->get('twig');
+        $twig = static::getContainer()->get('twig');
 
-        $loader = $this->getContainer()->get('twig.loader.native_filesystem');
+        $loader = static::getContainer()->get('twig.loader.native_filesystem');
         foreach ($bundles as $bundle) {
             $directory = $bundle->getPath() . '/Resources/views';
             $loader->addPath($directory);
@@ -85,7 +85,7 @@ class TwigCacheTest extends TestCase
             new NamespaceHierarchyBuilder([
                 new BundleHierarchyBuilder(
                     $kernel,
-                    $this->getContainer()->get(Connection::class)
+                    static::getContainer()->get(Connection::class)
                 ),
             ]),
             $scopeDetector,

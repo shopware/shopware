@@ -14,21 +14,29 @@ class LocaleTranslationEntity extends TranslationEntity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $localeId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $territory;
 
     /**
      * @var LocaleEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $locale;
 

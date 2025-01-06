@@ -11,6 +11,8 @@ trait ExtendableTrait
      * Contains an array of extension structs.
      *
      * @var Struct[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $extensions = [];
 

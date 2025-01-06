@@ -5,8 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\Script\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Script\Api\ScriptStoreApiRoute;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -85,7 +85,7 @@ class ScriptStoreApiRouteTest extends TestCase
             (new ProductBuilder($ids, 'p2'))->visibility($salesChannelId)->price(200)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $criteria = [
             'filter' => [
@@ -176,7 +176,7 @@ class ScriptStoreApiRouteTest extends TestCase
             (new ProductBuilder($ids, 'p1'))->price(100)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $this->browser->followRedirects(false);
         $this->browser->request('POST', '/store-api/script/redirect-response', ['productId' => $ids->get('p1')]);
@@ -208,7 +208,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertEquals('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
-        static::assertFalse($this->browser->getResponse()->headers->has(ScriptStoreApiRoute::INVALIDATION_STATES_HEADER));
+        static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
 
         $this->browser->request('GET', '/store-api/script/cache-script?query-param=1');
         static::assertNotFalse($this->browser->getResponse()->getContent());
@@ -226,7 +226,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertEquals('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
-        static::assertFalse($this->browser->getResponse()->headers->has(ScriptStoreApiRoute::INVALIDATION_STATES_HEADER));
+        static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
 
         $this->browser->request('GET', '/store-api/script/cache-script?query-param=2');
         static::assertNotFalse($this->browser->getResponse()->getContent());
@@ -282,7 +282,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
         // invalidate the custom cache tag
-        $cacheInvalidator = $this->getContainer()->get(CacheInvalidator::class);
+        $cacheInvalidator = static::getContainer()->get(CacheInvalidator::class);
         $cacheInvalidator->invalidate(['my-custom-tag'], true);
 
         $this->browser->request('GET', '/store-api/script/cache-script');

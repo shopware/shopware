@@ -91,7 +91,7 @@ class ContextRouteTest extends TestCase
         static::assertArrayHasKey('activeBillingAddress', $response['customer']);
 
         $newBillingAddressId = Uuid::randomHex();
-        $addressRepository = $this->getContainer()->get('customer_address.repository');
+        $addressRepository = static::getContainer()->get('customer_address.repository');
         $addressRepository->create([
             [
                 'id' => $newBillingAddressId,

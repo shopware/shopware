@@ -19,11 +19,15 @@ trait PluginIntegrationTestBehaviour
 {
     /**
      * @var ClassLoader
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $classLoader;
 
     /**
      * @var Connection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $connection;
 

@@ -67,11 +67,10 @@ class ThemeDumpCommand extends Command
         $themeId = $input->getArgument('theme-id');
 
         if (!$themeId) {
-            $helper = $this->getHelper('question');
-
             $choices = $this->getThemeChoices();
 
-            if (\count($choices) > 1) {
+            if ($input->isInteractive() && \count($choices) > 1) {
+                $helper = $this->getHelper('question');
                 $question = new ChoiceQuestion('Please select a theme:', $choices);
                 $themeName = $helper->ask($input, $output, $question);
 
@@ -117,21 +116,22 @@ class ThemeDumpCommand extends Command
         $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
 
         $domainUrl = $input->getArgument('domain-url');
-        $domainUrl = $domainUrl ?? $this->askForDomainUrlIfMoreThanOneExists($themeEntity, $input, $output);
+        if ($input->isInteractive()) {
+            $domainUrl = $domainUrl ?? $this->askForDomainUrlIfMoreThanOneExists($themeEntity, $input, $output);
 
-        if ($domainUrl === null) {
-            $this->io->error(\sprintf('No domain URL for theme %s found', $themeEntity->getTechnicalName()));
+            if ($domainUrl === null) {
+                $this->io->error(\sprintf('No domain URL for theme %s found', $themeEntity->getTechnicalName()));
 
-            return self::FAILURE;
+                return self::FAILURE;
+            }
         }
 
-        $dump['domainUrl'] = $domainUrl;
+        $dump['themeId'] = $themeEntity->getId();
+        $dump['technicalName'] = $themeConfig->getTechnicalName();
+        $dump['domainUrl'] = $domainUrl ?? '';
         $dump['basePath'] = $this->stripProjectDir($fs->location);
 
-        file_put_contents(
-            $this->projectDir . \DIRECTORY_SEPARATOR . 'var' . \DIRECTORY_SEPARATOR . 'theme-files.json',
-            json_encode($dump, \JSON_PRETTY_PRINT)
-        );
+        $this->staticFileConfigDumper->dumpConfigInVar('theme-files.json', $dump);
 
         $this->staticFileConfigDumper->dumpConfig($this->context);
 
@@ -144,7 +144,7 @@ class ThemeDumpCommand extends Command
     protected function getThemeChoices(): array
     {
         $choices = [];
-
+        /** @var ThemeCollection $themes */
         $themes = $this->themeRepository->search(new Criteria(), Context::createCLIContext())->getEntities();
 
         foreach ($themes as $theme) {

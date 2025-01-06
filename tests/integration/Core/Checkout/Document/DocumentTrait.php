@@ -38,7 +38,7 @@ trait DocumentTrait
 
     private function persistCart(Cart $cart): string
     {
-        return $this->getContainer()->get(CartService::class)->order($cart, $this->salesChannelContext, new RequestDataBag());
+        return static::getContainer()->get(CartService::class)->order($cart, $this->salesChannelContext, new RequestDataBag());
     }
 
     /**
@@ -84,14 +84,14 @@ trait DocumentTrait
 
         $customer = array_merge($customer, $options);
 
-        $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
+        static::getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 
         return $customerId;
     }
 
     private function generateDemoCart(int $lineItemCount): Cart
     {
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $cart = $cartService->createNew('a-b-c');
 
@@ -127,7 +127,7 @@ trait DocumentTrait
             $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
         }
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         return $cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
@@ -135,14 +135,14 @@ trait DocumentTrait
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
     {
         /** @var EntityRepository $documentTypeRepository */
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
             Context::createDefaultContext()
         )->firstId();
 
         /** @var EntityRepository $documentBaseConfigRepository */
-        $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
+        $documentBaseConfigRepository = static::getContainer()->get('document_base_config.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
@@ -173,7 +173,7 @@ trait DocumentTrait
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $config);
         $operations[$orderId] = $operation;
 
-        return $this->getContainer()->get(DocumentGenerator::class)->generate($documentType, $operations, $context)->getSuccess();
+        return static::getContainer()->get(DocumentGenerator::class)->generate($documentType, $operations, $context)->getSuccess();
     }
 
     /**
@@ -184,7 +184,7 @@ trait DocumentTrait
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
 
         /** @var EntityRepository $documentTypeRepository */
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
             Context::createDefaultContext()
@@ -216,13 +216,13 @@ trait DocumentTrait
         }
 
         /** @var EntityRepository $documentBaseConfigRepository */
-        $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
+        $documentBaseConfigRepository = static::getContainer()->get('document_base_config.repository');
         $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
     }
 
     private function orderVersionExists(string $orderId, string $orderVersionId): bool
     {
-        return (bool) $this->getContainer()->get(Connection::class)->fetchOne('
+        return (bool) static::getContainer()->get(Connection::class)->fetchOne('
             SELECT 1 FROM `order` WHERE `id` = :id AND `version_id` = :versionId
         ', [
             'id' => Uuid::fromHexToBytes($orderId),

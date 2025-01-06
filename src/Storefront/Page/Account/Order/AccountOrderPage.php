@@ -20,6 +20,8 @@ if (Feature::isActive('v6.7.0.0')) {
 
         /**
          * @var string|null
+         *
+         * @deprecated tag:v6.7.0 - Will be natively typed
          */
         protected $deepLinkCode;
 
@@ -54,7 +56,7 @@ if (Feature::isActive('v6.7.0.0')) {
     class AccountOrderPage extends Page
     {
         /**
-         * @deprecated tag:v6.7.0 - Type will change to EntitySearchResult<OrderCollection>
+         * @deprecated tag:v6.7.0 - Type will change to EntitySearchResult<OrderCollection> and natively typed
          *
          * @var StorefrontSearchResult<OrderCollection>
          */
@@ -62,6 +64,8 @@ if (Feature::isActive('v6.7.0.0')) {
 
         /**
          * @var string|null
+         *
+         * @deprecated tag:v6.7.0 - Will be natively typed
          */
         protected $deepLinkCode;
 

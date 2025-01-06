@@ -149,11 +149,19 @@
 
                                     {% block page_account_order_item_context_menu_cancel_order %}
                                         {% if orderState != ORDER_STATE_CANCELLED and config('core.cart.enableOrderRefunds') %}
+
+                                            {% if feature('v6.7.0.0') %}
+                                                {% set modalId = 'cancelOrderModal-' ~ order.id %}
+                                            {% else %}
+                                                {# @deprecated tag:v6.7.0 - The id of the cancel order modal will have the format `cancelOrderModal-$id` #}
+                                                {% set modalId = 'order-' ~ order.id %}
+                                            {% endif %}
+
                                             {# @deprecated tag:v6.7.0 - Will use Bootstrap `dropdown-item` class instead of custom styling #}
                                             <button type="button"
                                                     class="{% if feature('ACCESSIBILITY_TWEAKS') %}dropdown-item {% endif %}order-table-header-context-menu-content-link"
                                                     data-bs-toggle="modal"
-                                                    data-bs-target="#order-{{ order.id }}">
+                                                    data-bs-target="#{{ modalId }}">
                                                 {{ 'account.editOrderCancelOrderButton'|trans|sw_sanitize }}
                                             </button>
                                         {% endif %}
@@ -163,7 +171,12 @@
                         {% endblock %}
 
                         {% if orderState != ORDER_STATE_CANCELLED %}
-                            {% sw_include '@Storefront/storefront/page/account/order-history/cancel-order-modal.html.twig' %}
+                            {# @deprecated tag:v6.7.0 - Template will be removed. Use `account/order/cancel-order-modal.html.twig` instead. #}
+                            {% if feature('v6.7.0.0') %}
+                                {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
+                            {% else %}
+                                {% sw_include '@Storefront/storefront/page/account/order-history/cancel-order-modal.html.twig' %}
+                            {% endif %}
                         {% endif %}
                     </div>
                 {% endblock %}

@@ -1,3 +1,4 @@
+{# @deprecated tag:v6.7.0 - Template will be removed. Use `account/order/cancel-order-modal.html.twig` instead. #}
 {% sw_extends '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
 
 {% block page_checkout_aside_cancel_order_modal %}
@@ -6,15 +7,17 @@
          data-backdrop="static"
          tabindex="-1"
          role="dialog"
-         aria-hidden="true">
+         aria-modal="true"
+         aria-hidden="true"
+         aria-labelledby="history-cancel-oder-modal-title">
         {% block page_checkout_aside_cancel_order_modal_dialog %}
-            <div class="modal-dialog order-history-cancel-modal" role="dialog">
+            <div class="modal-dialog order-history-cancel-modal">
                 {% block page_checkout_aside_cancel_order_modal_content %}
                     <div class="modal-content">
                         {% block page_checkout_aside_cancel_order_modal_header %}
                             <div class="modal-header">
                                 {% block page_checkout_aside_cancel_order_modal_header_title %}
-                                    <h5 class="modal-title">{{ 'account.editOrderCancelOrderModalHeader'|trans|sw_sanitize }}</h5>
+                                    <h5 id="history-cancel-oder-modal-title" class="modal-title">{{ 'account.editOrderCancelOrderModalHeader'|trans|sw_sanitize }}</h5>
                                 {% endblock %}
 
                                 {% block page_checkout_aside_cancel_order_modal_header_close_button %}

@@ -37,7 +37,7 @@ class TwigSwExtendsTest extends TestCase
 
     protected function tearDown(): void
     {
-        $filesystem = $this->getContainer()->get(Filesystem::class);
+        $filesystem = static::getContainer()->get(Filesystem::class);
         $filesystem->remove($this->cacheDir);
     }
 
@@ -220,7 +220,7 @@ class TwigSwExtendsTest extends TestCase
             new NamespaceHierarchyBuilder([
                 new BundleHierarchyBuilder(
                     $kernel,
-                    $this->getContainer()->get(Connection::class)
+                    static::getContainer()->get(Connection::class)
                 ),
             ]),
             $scopeDetector,

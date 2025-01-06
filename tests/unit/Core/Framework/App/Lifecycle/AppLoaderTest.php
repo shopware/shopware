@@ -56,6 +56,12 @@ class AppLoaderTest extends TestCase
 
         $appLoader = $this->getAppLoader();
 
+        /**
+         * @deprecated tag:v6.7.0 - double check if we can increase composer constraint and remove this
+         * @see https://github.com/composer/composer/issues/12235
+         */
+        static::markTestSkipped('This test is not compatible with Composer 2.8.4');
+
         $apps = $appLoader->load();
         static::assertCount(1, $apps);
         static::assertArrayHasKey('test', $apps);
@@ -74,6 +80,12 @@ class AppLoaderTest extends TestCase
 
     public function testLoadAppByComposerWithInvalidAppManifest(): void
     {
+        /**
+         * @deprecated tag:v6.7.0 - double check if we can increase composer constraint and remove this
+         * @see https://github.com/composer/composer/issues/12235
+         */
+        static::markTestSkipped('This test is not compatible with Composer 2.8.4');
+
         $packages = InstalledVersions::getAllRawData();
         $modified = $packages[0];
         static::assertIsArray($modified);

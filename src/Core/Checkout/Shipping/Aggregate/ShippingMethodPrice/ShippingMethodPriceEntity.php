@@ -19,51 +19,71 @@ class ShippingMethodPriceEntity extends Entity implements IdAware
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethodId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ruleId;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $calculation;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $quantityStart;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $quantityEnd;
 
     /**
      * @var ShippingMethodEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethod;
 
     /**
      * @var RuleEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $rule;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $calculationRuleId;
 
     /**
      * @var RuleEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $calculationRule;
 
     /**
      * @var PriceCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currencyPrice;
 

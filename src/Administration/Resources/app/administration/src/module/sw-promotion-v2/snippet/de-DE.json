@@ -16,7 +16,8 @@
             "descriptionEmpty": "Steigere Deinen Umsatz durch Rabatte auf Deine Produkte und Leistungen.",
             "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
             "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
-            "titleSidebarItemRefresh": "Aktualisieren"
+            "titleSidebarItemRefresh": "Aktualisieren",
+            "duplicatePromotionInfo": "Aktionscodes werden nicht dupliziert und müssen neu generiert werden."
         },
         "detail": {
             "header": {
@@ -38,6 +39,7 @@
                     "nameLabel": "Name",
                     "namePlaceholder": "Namen eingeben ...",
                     "priorityLabel": "Priorität",
+                    "helpTextPriority": "Die Priorität bestimmt die Reihenfolge, in der die Aktionen angewendet werden. Aktionen mit höherer Priorität werden vor Aktionen mit niedrigerer Priorität angewendet.",
                     "validFromLabel": "Gültig ab",
                     "validFromPlaceholder": "Wähle ein Startdatum ...",
                     "validUntilLabel": "Gültig bis",
@@ -69,6 +71,7 @@
                         "columnCode": "Code",
                         "columnRedeemed": "Eingelöst",
                         "columnCustomer": "Kunde",
+                        "columnCreatedAt": "Erzeugt am",
                         "textDeleteConfirm": "Möchtest Du den Aktionscode \"{code}\" wirklich löschen? | Möchtest Du diese {count} Aktionscodes wirklich löschen?",
                         "openCustomer": "Kunde öffnen",
                         "routingError": "Der Kunde \"{name}\" konnte nicht gefunden werden.",
@@ -271,7 +274,6 @@
                     "delete": {
                         "confirmTitle": "Rabatt entfernen",
                         "confirmText": "Möchtest Du diesen Rabatt wirklich aus der Rabattaktion entfernen?",
-                        "buttonCancel": "Abbrechen",
                         "buttonDelete": "Rabatt entfernen"
                     },
                     "labelSorting": "Sortieren nach",

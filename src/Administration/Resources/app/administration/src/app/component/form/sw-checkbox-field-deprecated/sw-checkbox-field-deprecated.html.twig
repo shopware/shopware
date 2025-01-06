@@ -18,6 +18,8 @@
                 :checked="inputState"
                 :disabled="disabled"
                 :indeterminate.prop="partlyChecked"
+                v-bind="attrsWithoutClass"
+                :aria-label="ariaLabel || label"
                 @change="onChange"
             >
             <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->

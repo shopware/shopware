@@ -98,7 +98,7 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @psalm-param class-string<\Throwable> $exceptionClass
+     * @param class-string<\Throwable> $exceptionClass
      */
     #[DataProvider('assembleSalesChannelContextData')]
     public function testAssembleSalesChannelContext(string $exceptionClass, string $manipulateOrder = ''): void
@@ -278,7 +278,7 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @psalm-param class-string<\Throwable> $exceptionClass
+     * @param class-string<\Throwable> $exceptionClass
      */
     #[DisabledFeatures(['v6.7.0.0'])]
     #[DataProvider('convertToOrderExceptionsDataWithDisabledFeatures')]
@@ -340,7 +340,7 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @psalm-param class-string<\Throwable> $exceptionClass
+     * @param class-string<\Throwable> $exceptionClass
      */
     #[DataProvider('convertToOrderExceptionsData')]
     public function testConvertToOrderExceptions(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void

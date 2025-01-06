@@ -83,7 +83,7 @@ class CartMergedSubscriberTest extends TestCase
             $salesChannelData[SalesChannelContextService::CUSTOMER_ID] = $customerId;
         }
 
-        return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        return static::getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
             TestDefaults::SALES_CHANNEL,
             $salesChannelData
@@ -108,7 +108,7 @@ class CartMergedSubscriberTest extends TestCase
                 ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
-        $this->getContainer()->get('product.repository')->create([$data], $context);
+        static::getContainer()->get('product.repository')->create([$data], $context);
 
         return $productId;
     }

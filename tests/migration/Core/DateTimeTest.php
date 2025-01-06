@@ -28,7 +28,7 @@ EOF;
 
         $classLoader = KernelLifecycleManager::getClassLoader();
 
-        $migrationLoader = $this->getContainer()->get(MigrationCollectionLoader::class);
+        $migrationLoader = static::getContainer()->get(MigrationCollectionLoader::class);
         foreach ($migrationLoader->collectAll() as $collection) {
             foreach (array_keys($collection->getMigrationSteps()) as $className) {
                 /** @var string $file */

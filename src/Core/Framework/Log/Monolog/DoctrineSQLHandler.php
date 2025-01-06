@@ -15,6 +15,8 @@ class DoctrineSQLHandler extends AbstractProcessingHandler
 {
     /**
      * @var Connection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $connection;
 

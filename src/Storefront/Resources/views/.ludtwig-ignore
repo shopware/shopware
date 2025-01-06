@@ -3,7 +3,7 @@
 # -------------------------------------------
 # Baseline (we should fix these in the future)
 # most of them have twig syntax which slices HTML.
-# this is an antipattern and not supported by ludtwig.
+# this is an anti-pattern and not supported by ludtwig.
 # ludtwig always needs complete html tags inside twig blocks, ...
 # -------------------------------------------
 /storefront/page/content/single-cms-page.html.twig
@@ -41,6 +41,11 @@
 /storefront/component/line-item/type/discount.html.twig
 /storefront/component/line-item/type/generic.html.twig
 /storefront/component/line-item/type/container.html.twig
+/storefront/component/product/card/box-standard.html.twig
+
+# break statement in for loop is not vanilla twig
+# this should be fixed with: https://shopware.atlassian.net/browse/NEXT-39634
+/storefront/section/cms-section-block-container.html.twig
 
 # -------------------------------------------
 # Ludtwig related parser errors below.

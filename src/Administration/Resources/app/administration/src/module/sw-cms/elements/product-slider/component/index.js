@@ -41,15 +41,33 @@ export default {
             };
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed, use the specific navigation setting `hasNavigationArrows` instead
+         */
         hasNavigation() {
-            return !!this.element.config.navigation.value;
+            return this.hasNavigationArrows;
+        },
+
+        hasNavigationArrows() {
+            return [
+                'inside',
+                'outside',
+            ].includes(this.element.config.navigationArrows.value);
         },
 
         classes() {
             return {
-                'has--navigation': this.hasNavigation,
+                'has--navigation-indent': this.element.config.navigationArrows.value === 'outside',
                 'has--border': !!this.element.config.border.value,
             };
+        },
+
+        navArrowsClasses() {
+            if (this.hasNavigationArrows) {
+                return [`has--arrow-${this.element.config.navigationArrows.value}`];
+            }
+
+            return null;
         },
 
         sliderBoxMinWidth() {

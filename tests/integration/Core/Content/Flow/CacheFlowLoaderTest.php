@@ -30,13 +30,13 @@ class CacheFlowLoaderTest extends TestCase
     public function testClearFlowCache(): void
     {
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
         $dispatcher->addListener(FlowEvents::FLOW_WRITTEN_EVENT, $listener);
 
-        $flowLoader = $this->getContainer()->get(CachedFlowLoader::class);
+        $flowLoader = static::getContainer()->get(CachedFlowLoader::class);
         $class = new \ReflectionClass($flowLoader);
         $property = $class->getProperty('flows');
         $property->setAccessible(true);
@@ -45,7 +45,7 @@ class CacheFlowLoaderTest extends TestCase
             ['abc']
         );
 
-        $this->getContainer()->get('flow.repository')->create([[
+        static::getContainer()->get('flow.repository')->create([[
             'name' => 'Create Order',
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
             'priority' => 1,

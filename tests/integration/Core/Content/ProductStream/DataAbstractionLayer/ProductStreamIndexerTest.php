@@ -45,11 +45,11 @@ class ProductStreamIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->productRepo = $this->getContainer()->get('product.repository');
-        $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->productRepo = static::getContainer()->get('product.repository');
+        $this->productStreamRepository = static::getContainer()->get('product_stream.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->indexer = $this->getContainer()->get(ProductStreamIndexer::class);
+        $this->indexer = static::getContainer()->get(ProductStreamIndexer::class);
     }
 
     public function testValidRefresh(): void

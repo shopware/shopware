@@ -6,6 +6,8 @@
     class="sw-tabs-item"
     :class="tabsItemClasses"
     v-bind="$attrs"
+    role="tab"
+    tabindex="0"
     @click="clickEvent"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -37,6 +39,8 @@
     v-bind="$attrs"
     class="sw-tabs-item"
     :to="route"
+    role="tab"
+    tabindex="0"
     @click="clickEvent"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

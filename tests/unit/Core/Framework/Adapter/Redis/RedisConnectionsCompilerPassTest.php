@@ -48,6 +48,7 @@ class RedisConnectionsCompilerPassTest extends TestCase
 
         $db1Definition = $this->containerBuilder->getDefinition('shopware.redis.connection.db1');
         static::assertSame('Redis', $db1Definition->getClass());
+        static::assertFalse($db1Definition->isLazy());
 
         $factory = $db1Definition->getFactory();
         static::assertIsArray($factory);
@@ -77,6 +78,8 @@ class RedisConnectionsCompilerPassTest extends TestCase
         $locatorDefinition = $this->containerBuilder->getDefinition((string) $locatorArgument);
         $className = $locatorDefinition->getClass();
         static::assertIsString($className);
-        static::assertArrayHasKey(ContainerInterface::class, class_implements($className));
+        $interfaces = class_implements($className);
+        static::assertIsArray($interfaces);
+        static::assertArrayHasKey(ContainerInterface::class, $interfaces);
     }
 }

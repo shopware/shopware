@@ -5,6 +5,7 @@ namespace Shopware\Core\System\CustomEntity;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException;
 use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,8 @@ class CustomEntityException extends HttpException
     public const CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_WRONG_TYPE = 'LABEL_PROPERTY_WRONG_TYPE';
 
     public const XML_PARSE_ERROR = 'SYSTEM_CUSTOM_ENTITY__XML_PARSE_ERROR';
+
+    public const NOT_FOUND = 'FRAMEWORK__CUSTOM_ENTITY_NOT_FOUND';
 
     public static function noLabelProperty(): self
     {
@@ -31,6 +34,15 @@ class CustomEntityException extends HttpException
     public static function labelPropertyWrongType(string $labelProperty): self
     {
         return new self(Response::HTTP_INTERNAL_SERVER_ERROR, self::CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_WRONG_TYPE, 'Entity label_property "{{ labelProperty }}" must be a string field', ['labelProperty' => $labelProperty]);
+    }
+
+    public static function notFound(string $entityName): self|CustomEntityNotFoundException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new CustomEntityNotFoundException($entityName);
+        }
+
+        return new self(Response::HTTP_NOT_FOUND, self::NOT_FOUND, 'Custom entity "{{ entityName }}" not found', ['entityName' => $entityName]);
     }
 
     /**

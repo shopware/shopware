@@ -93,6 +93,11 @@ Component.register('sw-select-selection-list', {
             required: false,
             default: false,
         },
+        inputLabel: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {

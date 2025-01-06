@@ -234,6 +234,9 @@ Component.register('sw-form-field-renderer', {
 
                 this.config.options.forEach((option) => {
                     const translation = this.getTranslations('options', option, [labelProperty]);
+                    if (!translation.label) {
+                        translation.label = option.value;
+                    }
                     // Merge original option with translation
                     const translatedOption = { ...option, ...translation };
                     options.push(translatedOption);

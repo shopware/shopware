@@ -31,7 +31,7 @@ class SaleChannelsReadinessCheckTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testWhereAllChannelsAreReturningHealthy(): void
@@ -83,10 +83,10 @@ class SaleChannelsReadinessCheckTest extends TestCase
     private function createCheck((MockObject&Kernel)|null $kernel = null): SaleChannelsReadinessCheck
     {
         return new SaleChannelsReadinessCheck(
-            $kernel ?? $this->getContainer()->get('kernel'),
-            $this->getContainer()->get('router'),
+            $kernel ?? static::getContainer()->get('kernel'),
+            static::getContainer()->get('router'),
             $this->connection,
-            $this->getContainer()->get('request_stack')
+            static::getContainer()->get('request_stack')
         );
     }
 

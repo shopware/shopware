@@ -30,66 +30,92 @@ class SalesChannelContext extends Struct
      * Unique token for context, e.g. stored in session or provided in request headers
      *
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $token;
 
     /**
      * @var CustomerGroupEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currentCustomerGroup;
 
     /**
      * @var CurrencyEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currency;
 
     /**
      * @var SalesChannelEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannel;
 
     /**
      * @var TaxCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxRules;
 
     /**
      * @var CustomerEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customer;
 
     /**
      * @var PaymentMethodEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethod;
 
     /**
      * @var ShippingMethodEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethod;
 
     /**
      * @var ShippingLocation
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingLocation;
 
     /**
      * @var array<string, bool>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $permissions = [];
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $permisionsLocked = false;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $imitatingUserId;
 
     /**
      * @var Context
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 

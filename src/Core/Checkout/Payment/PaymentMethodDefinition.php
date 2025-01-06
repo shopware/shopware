@@ -85,15 +85,15 @@ class PaymentMethodDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'payment_method_id'))->addFlags(new ApiAware(), new Required()),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            new ManyToOneAssociationField('availabilityRule', 'availability_rule_id', RuleDefinition::class, 'id', false),
+            new ManyToOneAssociationField('availabilityRule', 'availability_rule_id', RuleDefinition::class, 'id'),
 
             // Reverse Associations, not available in store-api
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete()),
-            new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, 'id', false),
+            new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, 'id'),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelPaymentMethodDefinition::class, 'payment_method_id', 'sales_channel_id'),
-            (new OneToOneAssociationField('appPaymentMethod', 'id', 'payment_method_id', AppPaymentMethodDefinition::class, true))->addFlags(new CascadeDelete()),
+            (new OneToOneAssociationField('appPaymentMethod', 'id', 'payment_method_id', AppPaymentMethodDefinition::class, !Feature::isActive('v6.7.0.0')))->addFlags(new CascadeDelete()),
 
             // runtime fields
             (new StringField('short_name', 'shortName'))->addFlags(new ApiAware(), new Runtime()),

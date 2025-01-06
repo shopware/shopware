@@ -6,7 +6,10 @@
     class="sw-admin-menu__navigation-list-item"
     :class="getElementClasses(entry.id || entryPath)"
     :style="{ 'border-color': borderColor }"
+    :aria-current="subIsActive(entryPath, entry.id) ? 'page' : 'false'"
     @click.prevent="$emit('menu-item-click', entry, $event.target)"
+    @keydown.enter="$emit('menu-item-click', entry, $event.target)"
+    @keydown.space="$emit('menu-item-click', entry, $event.target)"
     @mouseenter="$emit('menu-item-enter', entry, $event, parentEntries)"
 >
 
@@ -160,6 +163,7 @@
                 v-if="isFirstPluginInMenuEntries(entry, children)"
                 :style="{ 'border-color': borderColor }"
                 class="sw-admin-menu__separator"
+                tabindex="0"
             >
                 <span class="sw-admin-menu__separator-line"></span>
             </li>

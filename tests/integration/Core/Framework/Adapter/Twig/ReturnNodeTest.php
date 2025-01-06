@@ -25,7 +25,7 @@ class ReturnNodeTest extends TestCase
 
         $content = (string) file_get_contents($file);
 
-        $renderer = $this->getContainer()->get(StringTemplateRenderer::class);
+        $renderer = static::getContainer()->get(StringTemplateRenderer::class);
 
         $result = $renderer->render($content, $data, Context::createDefaultContext());
 

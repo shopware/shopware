@@ -49,9 +49,9 @@ class SitemapRouteTest extends TestCase
 
     public function testSitemapListsEntries(): void
     {
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create('', $this->ids->get('sales-channel'));
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create('', $this->ids->get('sales-channel'));
 
-        $fs = $this->getContainer()->get('shopware.filesystem.sitemap');
+        $fs = static::getContainer()->get('shopware.filesystem.sitemap');
         $fs->write('sitemap/salesChannel-' . $context->getSalesChannel()->getId() . '-' . $context->getLanguageId() . '/test.xml', 'some content');
 
         $this->browser->request('POST', '/store-api/sitemap');

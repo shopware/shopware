@@ -151,6 +151,22 @@ export default {
             ];
         },
 
+        conditionTreeFlat() {
+            const getAllConditions = (conditionTree) => {
+                if (!conditionTree?.length) return [];
+
+                return conditionTree.reduce((acc, condition) => {
+                    acc.push(condition);
+                    if (condition.children?.length > 0) {
+                        acc.push(...getAllConditions(condition.children));
+                    }
+                    return acc;
+                }, []);
+            };
+
+            return getAllConditions(this.conditionTree);
+        },
+
         ...mapPropertyErrors('rule', [
             'name',
             'priority',
@@ -421,8 +437,29 @@ export default {
             return conditions;
         },
 
+        validateDateRange() {
+            return this.conditionTreeFlat
+                .filter((condition) => condition.type === 'dateRange')
+                .every(({ value: { fromDate, toDate } }) => {
+                    return fromDate && toDate && new Date(fromDate) <= new Date(toDate);
+                });
+        },
+
         onSave() {
             if (!this.validateRuleAwareness()) {
+                return Promise.resolve();
+            }
+
+            if (!this.validateDateRange()) {
+                Shopware.State.dispatch('error/addApiError', {
+                    expression: `rule_condition.${this.rule.id}.value`,
+                    error: new Shopware.Classes.ShopwareError({
+                        detail: this.$tc('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
+                        code: 'INVALID_DATE_RANGE',
+                    }),
+                });
+                this.showErrorNotification();
+
                 return Promise.resolve();
             }
 

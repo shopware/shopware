@@ -27,10 +27,10 @@ class DeleteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->writer = $this->getContainer()->get(EntityWriter::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->writer = static::getContainer()->get(EntityWriter::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $registry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $registry->register(new DeleteCascadeParentDefinition());
         $registry->register(new DeleteCascadeManyToOneDefinition());
@@ -98,7 +98,7 @@ class DeleteTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $definition = $this->getContainer()->get(DeleteCascadeParentDefinition::class);
+        $definition = static::getContainer()->get(DeleteCascadeParentDefinition::class);
         static::assertInstanceOf(DeleteCascadeParentDefinition::class, $definition);
 
         $this->writer->insert(
@@ -145,7 +145,7 @@ class DeleteTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $definition = $this->getContainer()->get(DeleteCascadeParentDefinition::class);
+        $definition = static::getContainer()->get(DeleteCascadeParentDefinition::class);
         static::assertInstanceOf(DeleteCascadeParentDefinition::class, $definition);
 
         $this->writer->insert(
@@ -176,7 +176,7 @@ class DeleteTest extends TestCase
         $manyToOne = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_many_to_one');
         static::assertCount(1, $manyToOne);
 
-        $definition = $this->getContainer()->get(DeleteCascadeManyToOneDefinition::class);
+        $definition = static::getContainer()->get(DeleteCascadeManyToOneDefinition::class);
         static::assertInstanceOf(DeleteCascadeManyToOneDefinition::class, $definition);
 
         $this->writer->delete(

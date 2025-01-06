@@ -256,7 +256,6 @@ export default {
 
                     return;
                 }
-
                 // convert from user timezone (represented as UTC) to UTC timezone
                 const utcDate = zonedTimeToUtc(new Date(newValue), this.userTimeZone);
 
@@ -275,6 +274,13 @@ export default {
             }
 
             return 'UTC';
+        },
+
+        is24HourFormat() {
+            const locale = Shopware.State.get('session').currentLocale;
+            const formatter = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
+            const intlOptions = formatter.resolvedOptions();
+            return !intlOptions.hour12;
         },
     },
 
@@ -525,25 +531,55 @@ export default {
 
         createConfig() {
             let dateFormat = 'Y-m-dTH:i:S';
-            let altFormat = 'Y-m-d H:i';
+            let altFormat = this.getDateStringFormat({
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
 
             if (this.dateType === 'time') {
                 dateFormat = 'H:i:S';
-                altFormat = 'H:i';
+                altFormat = this.getDateStringFormat({
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
             }
 
             if (this.dateType === 'date') {
-                altFormat = 'Y-m-d';
+                altFormat = this.getDateStringFormat({
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                });
             }
 
             this.defaultConfig = {
-                time_24hr: true,
+                time_24hr: this.is24HourFormat,
                 locale: this.locale,
                 dateFormat,
                 altInput: true,
                 altFormat,
                 allowInput: true,
             };
+        },
+
+        getDateStringFormat(options) {
+            const locale = Shopware.State.get('session').currentLocale;
+            const formatter = new Intl.DateTimeFormat(locale, options);
+            const parts = formatter.formatToParts(new Date(2000, 0, 1, 0, 0, 0));
+            const flatpickrMapping = {
+                // https://flatpickr.js.org/formatting/
+                year: 'Y', // 4-digit year
+                month: 'm', // 2-digit month
+                day: 'd', // 2-digit day
+                hour: this.is24HourFormat ? 'H' : 'h', // 24-hour or 12-hour
+                minute: 'i', // 2-digit minute
+                dayPeriod: 'K', // AM/PM
+            };
+            // 'literal' parts are the separators
+            return parts.map((part) => (part.type === 'literal' ? part.value : flatpickrMapping[part.type])).join('');
         },
     },
 };

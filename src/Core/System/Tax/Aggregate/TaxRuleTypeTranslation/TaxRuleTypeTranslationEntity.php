@@ -11,16 +11,22 @@ class TaxRuleTypeTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxRuleTypeId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $typeName;
 
     /**
      * @var TaxRuleTypeEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxRuleType;
 

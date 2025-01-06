@@ -293,19 +293,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(wrapper.vm.domainExistsLocal(testedDomain)).toBeTruthy();
     });
 
-    it('isOriginalUrl › checks if "url" equals the backup domains url', async () => {
-        const exampleDomains = getExampleDomains();
-        const testedDomain = exampleDomains[0];
-        const wrapper = await createWrapper({}, exampleDomains);
-
-        await wrapper.setData({ currentDomainBackup: exampleDomains[0] });
-        expect(wrapper.vm.isOriginalUrl(testedDomain.url)).toBeTruthy();
-
-        await wrapper.setData({ currentDomainBackup: exampleDomains[1] });
-        expect(wrapper.vm.isOriginalUrl(testedDomain.url)).toBeFalsy();
-    });
-
-    it('onClickAddNewDomain › early returns, if a domain is saved with its original "url" value', async () => {
+    it('onClickAddNewDomain › do not verify URL if a domain is saved with its original "url" value', async () => {
         const exampleDomains = getExampleDomains();
         const testedDomain = exampleDomains[0];
         const wrapper = await createWrapper(
@@ -319,16 +307,51 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
             exampleDomains,
         );
 
-        wrapper.vm.isOriginalUrl = jest.fn(() => true);
         wrapper.vm.verifyUrl = jest.fn();
         await wrapper.setData({
             currentDomain: testedDomain,
-            currentDomainBackup: testedDomain,
+            oldDomainUrl: testedDomain.url,
+            isEditingDomain: true,
         });
 
         await wrapper.vm.onClickAddNewDomain();
 
         expect(wrapper.vm.verifyUrl).not.toHaveBeenCalled();
+    });
+
+    it('onClickAddNewDomain › verify URL if a new domain is added', async () => {
+        const exampleDomains = getExampleDomains();
+        const testedDomain = exampleDomains[0];
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    languages: [],
+                    domains: new EntityCollection(
+                        '/sales-channel-domain',
+                        'sales_channel_domain',
+                        Context.api,
+                    ),
+                    currencies: [],
+                },
+            },
+        );
+
+        wrapper.vm.verifyUrl = jest.fn(() => true);
+        await wrapper.setData({
+            currentDomain: testedDomain,
+            isEditingDomain: false,
+        });
+
+        await wrapper.vm.onClickAddNewDomain();
+
+        expect(wrapper.vm.verifyUrl).toHaveBeenCalled();
+
+        const domains = wrapper.vm.salesChannel.domains;
+        expect(domains).toHaveLength(1);
+
+        const addedDomain = domains.first();
+        expect(addedDomain.id).toStrictEqual(testedDomain.id);
+        expect(addedDomain.url).toStrictEqual(testedDomain.url);
     });
 
     it('should delete a domain when onConfirmDeleteDomain is called', async () => {

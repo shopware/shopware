@@ -5,7 +5,7 @@
 import template from './sw-sales-channel-detail-domains.html.twig';
 import './sw-sales-channel-detail-domains.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 
@@ -39,15 +39,7 @@ export default {
     data() {
         return {
             currentDomain: null,
-            currentDomainBackup: {
-                url: null,
-                language: null,
-                languageId: null,
-                currency: null,
-                currencyId: null,
-                snippetSet: null,
-                snippetSetId: null,
-            },
+            oldDomainUrl: null,
             isLoadingDomains: false,
             deleteDomain: null,
             sortBy: 'url',
@@ -68,7 +60,7 @@ export default {
             }
 
             return this.$t('sw-sales-channel.detail.titleEditDomain', 0, {
-                name: this.unicodeUriFilter(this.currentDomainBackup.url),
+                name: this.unicodeUriFilter(this.oldDomainUrl),
             });
         },
 
@@ -81,14 +73,6 @@ export default {
 
         snippetSetCriteria() {
             return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
-        },
-
-        salesChannelFilterCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addAssociation('salesChannels').addSorting(Criteria.sort('name', 'ASC'));
-
-            return criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannel.id));
         },
 
         currencyCriteria() {
@@ -193,10 +177,6 @@ export default {
             );
         },
 
-        isOriginalUrl(url) {
-            return url === this.currentDomainBackup.url;
-        },
-
         async domainExistsInDatabase(url) {
             const globalDomainRepository = this.repositoryFactory.create(this.salesChannel.domains.entity);
             const criteria = new Criteria(1, 25);
@@ -214,46 +194,20 @@ export default {
             return items.first().salesChannelId !== this.salesChannel.id;
         },
 
-        setCurrentDomainBackup(domain) {
-            this.currentDomainBackup = {
-                url: domain.url,
-                language: domain.language,
-                languageId: domain.languageId,
-                currency: domain.currency,
-                currencyId: domain.currencyId,
-                snippetSet: domain.snippetSet,
-                snippetSetId: domain.snippetSetId,
-            };
-        },
-
-        resetCurrentDomainToBackup() {
-            this.currentDomain.url = this.currentDomainBackup.url;
-            this.currentDomain.language = this.currentDomainBackup.language;
-            this.currentDomain.languageId = this.currentDomainBackup.languageId;
-            this.currentDomain.currency = this.currentDomainBackup.currency;
-            this.currentDomain.currencyId = this.currentDomainBackup.currencyId;
-            this.currentDomain.snippetSet = this.currentDomainBackup.snippetSet;
-            this.currentDomain.snippetSetId = this.currentDomainBackup.snippetSetId;
-        },
-
         setInitialCurrency(domain) {
             const currency = this.salesChannel.currencies.first();
             domain.currency = currency;
             domain.currencyId = currency.id;
-            this.currentDomain = domain;
         },
 
         setInitialLanguage(domain) {
             const language = this.salesChannel.languages.first();
             domain.language = language;
             domain.languageId = language.id;
-            this.currentDomain = domain;
         },
 
         onClickOpenCreateDomainModal() {
-            const domain = this.domainRepository.create(Context.api);
-
-            this.setCurrentDomainBackup(domain);
+            const domain = this.domainRepository.create();
 
             if (this.salesChannel.currencies.length === 1) {
                 this.setInitialCurrency(domain);
@@ -266,40 +220,41 @@ export default {
             domain.hreflangUseOnlyLocale = false;
 
             this.currentDomain = domain;
+            this.oldDomainUrl = null;
             this.isEditingDomain = false;
         },
 
         async onClickAddNewDomain() {
-            if (this.isOriginalUrl(this.currentDomain.url)) {
-                this.currentDomain = null;
-                return;
+            const isNewDomain = !this.isEditingDomain;
+
+            if (isNewDomain || this.currentDomain.url !== this.oldDomainUrl) {
+                if (!(await this.verifyUrl(this.currentDomain))) {
+                    this.error = new ShopwareError({
+                        code: 'DUPLICATED_URL',
+                    });
+
+                    return;
+                }
             }
 
-            if (!(await this.verifyUrl(this.currentDomain))) {
-                this.error = new ShopwareError({
-                    code: 'DUPLICATED_URL',
-                });
-
-                return;
-            }
-
-            if (!this.isEditingDomain) {
+            if (isNewDomain) {
                 this.salesChannel.domains.add(this.currentDomain);
             }
 
             this.currentDomain = null;
+            this.oldDomainUrl = null;
             this.isEditingDomain = false;
         },
 
         onClickEditDomain(domain) {
             this.currentDomain = domain;
-            this.setCurrentDomainBackup(this.currentDomain);
+            this.oldDomainUrl = this.currentDomain.url;
             this.isEditingDomain = true;
         },
 
         onCloseCreateDomainModal() {
-            this.resetCurrentDomainToBackup();
             this.currentDomain = null;
+            this.oldDomainUrl = null;
             this.isEditingDomain = false;
         },
 

@@ -24,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CountryStateRoute::class)]
 class CountryStateRouteTest extends TestCase
 {

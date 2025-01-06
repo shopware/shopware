@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CountryException::class)]
 class CountryExceptionTest extends TestCase
 {

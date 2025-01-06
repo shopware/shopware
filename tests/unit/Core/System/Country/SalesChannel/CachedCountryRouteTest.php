@@ -32,7 +32,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  *
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CachedCountryRoute::class)]
 class CachedCountryRouteTest extends TestCase
 {

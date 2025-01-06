@@ -118,7 +118,7 @@ jobs:
             -H "Content-Type: application/json" \
             https://api.github.com/repos/shopwareLabs/testenv-platform/actions/workflows/shopware.yml/dispatches \
             -d '{"ref": "trunk"}'
-  
+
   publish-sbp-release:
     if: github.repository == 'shopware/shopware'
     strategy:
@@ -129,6 +129,7 @@ jobs:
       SBP_TOKEN: ${{ secrets[format('sbp_api_token_{0}', matrix.sbp-environment)] }}
       # set dry run if it's not a tag
       DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
+      DEBUG: ${{ runner.debug }}
     runs-on: ubuntu-24.04
     continue-on-error: true
     steps:

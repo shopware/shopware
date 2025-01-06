@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -13,9 +14,10 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('framework')]
-class StructEncoder
+class StructEncoder implements ResetInterface
 {
     /**
      * @var array<string, bool>
@@ -23,12 +25,24 @@ class StructEncoder
     private array $protections = [];
 
     /**
+     * @var ?array<string, string[]>
+     */
+    private ?array $blockedCustomFields = null;
+
+    /**
      * @internal
      */
     public function __construct(
         private readonly DefinitionRegistryChain $registry,
-        private readonly NormalizerInterface $serializer
+        private readonly NormalizerInterface $serializer,
+        private readonly Connection $connection
     ) {
+    }
+
+    public function reset(): void
+    {
+        $this->protections = [];
+        $this->blockedCustomFields = [];
     }
 
     /**
@@ -166,6 +180,23 @@ class StructEncoder
                 $data[$property] = $array;
 
                 continue;
+            }
+
+            if ($property === 'customFields') {
+                if ($this->blockedCustomFields === null) {
+                    $this->fetchBlockedCustomFields();
+                }
+
+                $blockedFields = $this->blockedCustomFields[$alias] ?? [];
+                $blockedFields = \array_merge($blockedFields, $this->blockedCustomFields['global'] ?? []);
+
+                if ($blockedFields) {
+                    $blockedFieldsLookup = \array_flip($blockedFields);
+
+                    $value = \array_filter($value, static function ($key) use ($blockedFieldsLookup) {
+                        return !isset($blockedFieldsLookup[$key]);
+                    }, \ARRAY_FILTER_USE_KEY);
+                }
             }
 
             $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), (string) $property, $value, $fields);
@@ -332,5 +363,27 @@ class StructEncoder
         }
 
         return $values[0] instanceof Struct;
+    }
+
+    private function fetchBlockedCustomFields(): void
+    {
+        /** @var array<string, string>[] */
+        $blockedCustomFields = $this->connection->fetchAllAssociative(
+            '# struct-encoder::fetch-blocked-custom-fields
+            SELECT
+                IFNULL(cfsr.entity_name, "global") as entity_name,
+                cf.name
+            FROM custom_field_set cfs
+            LEFT JOIN custom_field_set_relation cfsr ON cfs.global = 0 AND cfsr.set_id = cfs.id
+            INNER JOIN custom_field cf ON cf.active = 1 AND cf.store_api_aware = 0 AND cf.set_id = cfs.id
+            WHERE cfs.active = 1
+        '
+        );
+
+        $this->blockedCustomFields = [];
+
+        foreach ($blockedCustomFields as $blockedCustomField) {
+            $this->blockedCustomFields[$blockedCustomField['entity_name']][] = $blockedCustomField['name'];
+        }
     }
 }

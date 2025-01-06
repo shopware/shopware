@@ -71,6 +71,8 @@ class CustomFieldEntity extends Entity
 
     protected bool $allowCartExpose = false;
 
+    protected bool $storeApiAware = true;
+
     public function getName(): string
     {
         return $this->name;
@@ -165,5 +167,15 @@ class CustomFieldEntity extends Entity
     public function setAllowCartExpose(bool $allowCartExpose): void
     {
         $this->allowCartExpose = $allowCartExpose;
+    }
+
+    public function isStoreApiAware(): bool
+    {
+        return $this->storeApiAware;
+    }
+
+    public function setStoreApiAware(bool $storeApiAware): void
+    {
+        $this->storeApiAware = $storeApiAware;
     }
 }

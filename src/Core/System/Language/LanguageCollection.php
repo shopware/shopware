@@ -9,7 +9,7 @@ use Shopware\Core\System\Locale\LocaleCollection;
 /**
  * @extends EntityCollection<LanguageEntity>
  */
-#[Package('core')]
+#[Package('discovery')]
 class LanguageCollection extends EntityCollection
 {
     /**

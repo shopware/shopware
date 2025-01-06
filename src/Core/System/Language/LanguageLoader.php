@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
-#[Package('core')]
+#[Package('discovery')]
 class LanguageLoader implements LanguageLoaderInterface
 {
     /**

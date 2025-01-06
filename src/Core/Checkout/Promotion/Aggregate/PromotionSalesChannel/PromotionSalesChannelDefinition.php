@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionSalesChannelDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'promotion_sales_channel';

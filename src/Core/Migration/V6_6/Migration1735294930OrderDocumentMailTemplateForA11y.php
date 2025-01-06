@@ -98,7 +98,7 @@ class Migration1735294930OrderDocumentMailTemplateForA11y extends MigrationStep
                 [
                     'mail_template_type_id' => $templateTypeId,
                     'language_id' => $germanLanguageId,
-                    'name' => 'Document for accessibility',
+                    'name' => 'Dokument für Barrierefreiheit',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
@@ -129,8 +129,8 @@ class Migration1735294930OrderDocumentMailTemplateForA11y extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'New document for Accessible HTML Version',
-                    'description' => 'Access your documents online with added support for HTML accessibility features.',
+                    'subject' => 'Accessible {{ document.documentType.translated.name }} for order {{ order.orderNumber }}',
+                    'description' => '',
                     'sender_name' => '{{ salesChannel.name }}',
                     'content_html' => '',
                     'content_plain' => '',
@@ -145,8 +145,8 @@ class Migration1735294930OrderDocumentMailTemplateForA11y extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'New document for Accessible HTML Version',
-                    'description' => 'Access your documents online with added support for HTML accessibility features.',
+                    'subject' => 'Accessible {{ document.documentType.translated.name }} for order {{ order.orderNumber }}',
+                    'description' => '',
                     'sender_name' => '{{ salesChannel.name }}',
                     'content_html' => '',
                     'content_plain' => '',
@@ -161,8 +161,8 @@ class Migration1735294930OrderDocumentMailTemplateForA11y extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'New document for Accessible HTML Version',
-                    'description' => 'Access your documents online with added support for HTML accessibility features.',
+                    'subject' => 'Barrierefreie/r {{ document.documentType.translated.name }} für Bestellung {{ order.orderNumber }}',
+                    'description' => '',
                     'sender_name' => '{{ salesChannel.name }}',
                     'content_html' => '',
                     'content_plain' => '',

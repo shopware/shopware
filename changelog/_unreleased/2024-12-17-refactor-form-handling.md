@@ -32,6 +32,10 @@ issue: NEXT-39235
   * Changed `page/account/profile/index.html.twig`.
   * Changed `page/account/profile/recover-password.html.twig`.
   * Changed `page/account/profile/reset-password.html.twig`.
+  * Changed `component/captcha/basicCaptcha.html.twig`.
+  * Changed `component/captcha/googleReCaptchaV2.html.twig`.
+  * Changed `component/captcha/googleReCaptchaV3.html.twig`.
+* Changed `plugin/captcha/basic-captcha.plugin.js` to work in association with the new form handling.
 * Changed several snippets of form violation messages to optimize their content.
   * Changed `error.VIOLATION::INVALID_EMAIL_FORMAT_ERROR` snippet.
   * Changed `error.VIOLATION::NOT_EQUAL_ERROR` snippet.
@@ -47,6 +51,7 @@ issue: NEXT-39235
 * Changed `form-country-state-select.plugin.js` to be compatible with the new `form-handler.plugin`. The flag `ACCESSIBILITY_TWEAKS` has to be active for this.
 * Changed `$enable-validation-icons` variable in SCSS to use the additional icons to show the state of a form field. Only used when flag `ACCESSIBILITY_TWEAKS` is active.
 * Deprecated `page/account/profile/personal.html.twig` for v6.7.0 - Use `address-personal.html.twig` instead.
+* Deprecated `component/captcha/basicCaptchaFields.html.twig` for v6.7.0 - The fields are already implemented in `basicCaptcha.html.twig`.
 * Deprecated several Twig blocks for v6.7.0 because of the replacement by the central form field components:
   * Deprecated block `component_account_login_form_mail_label` in `login.html.twig`.
   * Deprecated block `component_account_login_form_mail_input` in `login.html.twig`.
@@ -243,6 +248,14 @@ These validators are available by default:
 | `conformation` | Checks if the value of a confirmation field matches the value of the original field. Make sure to use the right ID naming for the validator to work. As an example, the orginal field has the ID `email` and the confirmation field has the ID `emailConfirmation`. The `confirmation` validator should be added to the confirmation field. Note that unnecessary inputs are seen as not accessible and should be avoided wherever possible. |
 | `minLength` | Checks the value of the field for a minimum length. If available the validator will use the `minlength` attribute of the field to validate against. Otherwise, it will use the default configuration of eight characters. | 
 
+You can add your own custom validators via the global `formValidation` class.
+
+```JavaScript
+window.formValidation.addValidator('custom', (value, field) => {
+    // You custom validation. Should return a boolean.
+}, 'Your custom validation message.');
+```
+
 You can take a look at the reference documentation of the service and the plugin for further information.
 
 #### New form field components in Twig
@@ -316,6 +329,14 @@ These validators are available by default:
 | `email` | Checks the value of the field to be a valid email address. |
 | `conformation` | Checks if the value of a confirmation field matches the value of the original field. Make sure to use the right ID naming for the validator to work. As an example, the orginal field has the ID `email` and the confirmation field has the ID `emailConfirmation`. The `confirmation` validator should be added to the confirmation field. Note that unnecessary inputs are seen as not accessible and should be avoided wherever possible. |
 | `minLength` | Checks the value of the field for a minimum length. If available the validator will use the `minlength` attribute of the field to validate against. Otherwise, it will use the default configuration of eight characters. | 
+
+You can add your own custom validators via the global `formValidation` class.
+
+```JavaScript
+window.formValidation.addValidator('custom', (value, field) => {
+    // You custom validation. Should return a boolean.
+}, 'Your custom validation message.');
+```
 
 You can take a look at the reference documentation of the service and the plugin for further information.
 

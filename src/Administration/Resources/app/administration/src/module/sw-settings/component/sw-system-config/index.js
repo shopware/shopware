@@ -258,7 +258,11 @@ export default {
         },
 
         getInheritedValue(element) {
-            const value = this.actualConfigData.null[element.name];
+            let value = this.actualConfigData.null[element.name];
+
+            if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+                value = JSON.parse(JSON.stringify(value));
+            }
 
             if (value) {
                 return value;

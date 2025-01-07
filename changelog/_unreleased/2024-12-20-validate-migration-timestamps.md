@@ -9,7 +9,7 @@ ___
 # Next Major Version Changes
 ## Bulletproofing Plugin Migrations
 ### Creation timestamp is now validated
-The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647`. This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number, 
+The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647` (the `max_int` value on 32-bit systems). This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number, 
 that will silently be treated as max_int, leading to multiple migrations having the same creation timestamp, thus the execution order becomes random, which might lead to hard to debug errors while executing migrations.
 ### Plugin migrations are now removed before calling `uninstall()`
 When `keepUserData` is set to false during plugin uninstall, the plugin is expected to clean up all DB tables the plugin created in the `unistall` method.

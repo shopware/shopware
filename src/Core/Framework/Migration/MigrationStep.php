@@ -18,6 +18,8 @@ abstract class MigrationStep
 
     final public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
 
+    private const MAX_INT_32_BIT = 2147483647;
+
     /**
      * get creation timestamp
      */
@@ -39,7 +41,7 @@ abstract class MigrationStep
     {
         $creationTime = $this->getCreationTimestamp();
 
-        if ($creationTime < 1 || $creationTime >= 2147483647) {
+        if ($creationTime < 1 || $creationTime >= self::MAX_INT_32_BIT) {
             if (Feature::isActive('v6.7.0.0')) {
                 throw MigrationException::implausibleCreationTimestamp($creationTime, $this);
             }

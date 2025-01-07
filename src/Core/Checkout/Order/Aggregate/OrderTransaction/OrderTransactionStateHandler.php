@@ -112,7 +112,7 @@ class OrderTransactionStateHandler
     }
 
     /**
-     * @deprecated please use `paidPartially`, as the action `pay_partially` does not exist anymore.
+     * @deprecated tag:v6.7.0 - Will be removed. Use OrderTransactionStateHandler::paidPartially instead
      *
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineException

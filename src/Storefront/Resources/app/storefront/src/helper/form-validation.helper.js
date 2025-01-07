@@ -210,11 +210,18 @@ export default class FormValidation {
             return false;
         }
 
+        const isNotVisible = typeof field.checkVisibility === 'function' && field.checkVisibility() === false;
+
         // If the field is hidden then skip validation.
-        // This can happen due to optional fields like alternative shipping address.
-        if (typeof field.checkVisibility === 'function' && field.checkVisibility() === false) {
-            this.setFieldNeutral(field);
-            return true;
+        // This can happen due to optional fields which are only active in certain conditions.
+        if (isNotVisible && field.type !== 'hidden') {
+            // You can still validate non visible fields by setting the `data-validate-hidden` attribute.
+            const validateHiddenAttr = field.getAttribute('data-validate-hidden');
+
+            if (!validateHiddenAttr) {
+                this.setFieldNeutral(field);
+                return true;
+            }
         }
 
         const validationConfig = field.getAttribute('data-validation');

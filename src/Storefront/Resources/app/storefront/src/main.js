@@ -69,8 +69,10 @@ if (Feature.isActive('ACCESSIBILITY_TWEAKS')) {
 }
 /** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
 PluginManager.register('FormValidation', () => import('src/plugin/forms/form-validation.plugin'), '[data-form-validation]');
-/** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
-PluginManager.register('FormScrollToInvalidField', () => import('src/plugin/forms/form-scroll-to-invalid-field.plugin'), 'form');
+/** @deprecated tag:v6.7.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
+if (!Feature.isActive('ACCESSIBILITY_TWEAKS')) {
+    PluginManager.register('FormScrollToInvalidField', () => import('src/plugin/forms/form-scroll-to-invalid-field.plugin'), 'form');
+}
 /** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
 PluginManager.register('FormSubmitLoader', () => import('src/plugin/forms/form-submit-loader.plugin'), '[data-form-submit-loader]');
 PluginManager.register('FormFieldToggle', () => import('src/plugin/forms/form-field-toggle.plugin'), '[data-form-field-toggle]');

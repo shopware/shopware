@@ -316,12 +316,6 @@ jobs:
           - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
           - version: ${{ needs.tested-update-versions.outputs.first-version }}
           - version: ${{ needs.tested-update-versions.outputs.latest-version }}
-        php-version: 
-          - '8.4'
-        include:
-          - update:
-              version: ${{ needs.tested-update-versions.outputs.latest-version }}
-            php-version: '8.4'
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       BLUE_GREEN_DEPLOYMENT: 1
@@ -338,7 +332,6 @@ jobs:
         env:
           COMPOSER_ROOT_VERSION: 6.6.9999999-dev
         with:
-          php-version: ${{ matrix.php-version }}
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install-admin: true

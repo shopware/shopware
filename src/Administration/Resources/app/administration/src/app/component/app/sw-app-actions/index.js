@@ -126,6 +126,12 @@ Component.register('sw-app-actions', {
         },
     },
 
+    created() {
+        // Reset the selectedIds when the component is created to avoid
+        // that the actions are executed on the wrong entities
+        Shopware.State.commit('shopwareApps/setSelectedIds', []);
+    },
+
     methods: {
         async runAction(action) {
             const entityIdList = { ids: this.params };

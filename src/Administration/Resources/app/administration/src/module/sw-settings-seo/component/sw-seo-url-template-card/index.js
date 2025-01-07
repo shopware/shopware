@@ -1,9 +1,5 @@
 /**
-<<<<<<< HEAD
- * @sw-package buyers-experience
-=======
- * @package inventory
->>>>>>> bf84aa50b6 (chore: move seo to inventory domain)
+ * @sw-package inventory
  */
 
 import template from './sw-seo-url-template-card.html.twig';

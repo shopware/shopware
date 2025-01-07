@@ -8,7 +8,7 @@ use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 /**
  * @internal
  */
-#[Package('fundamentals_byteclub')]
+#[Package('fundamentals@discovery')]
 class StaticSalesChannelLanguageLoader extends SalesChannelLanguageLoader
 {
     /**

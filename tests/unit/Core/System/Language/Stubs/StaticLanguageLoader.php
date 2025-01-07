@@ -10,7 +10,7 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
  *
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
-#[Package('fundamentals_byteclub')]
+#[Package('fundamentals@discovery')]
 class StaticLanguageLoader implements LanguageLoaderInterface
 {
     /**

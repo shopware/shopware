@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('fundamentals_byteclub')]
+#[Package('fundamentals@discovery')]
 class CountryCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     public function __construct(

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('fundamentals_byteclub')]
+#[Package('fundamentals@discovery')]
 class CountryStateRouteResponse extends StoreApiResponse
 {
     /**

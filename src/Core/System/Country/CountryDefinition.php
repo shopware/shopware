@@ -30,7 +30,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannel
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 
-#[Package('fundamentals_byteclub')]
+#[Package('fundamentals@discovery')]
 class CountryDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'country';

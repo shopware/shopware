@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('fundamentals_byteclub')]
+#[Package('fundamentals@discovery')]
 class LanguageForeignKeyDeleteException extends ShopwareHttpException
 {
     public function __construct(?\Throwable $e = null)

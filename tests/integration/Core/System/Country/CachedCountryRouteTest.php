@@ -39,7 +39,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @internal
  */
-#[Package('fundamentals_byteclub')]
+#[Package('fundamentals@discovery')]
 #[Group('cache')]
 #[Group('store-api')]
 class CachedCountryRouteTest extends TestCase

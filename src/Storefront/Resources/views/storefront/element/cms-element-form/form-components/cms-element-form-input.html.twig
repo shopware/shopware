@@ -28,14 +28,14 @@
 
     <div class="form-group {{ additionalClass }}">
 
-        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component `component/form/form-input.html.twig`. #}
         {% block cms_element_form_input_label %}
             <label class="form-label" for="form-{{ fieldName }}">
                 {{- label|trans -}}{% if required %} {{- 'general.required'|trans -}}{% endif %}
             </label>
         {% endblock %}
 
-        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component `component/form/form-input.html.twig`. #}
         {% block cms_element_form_input_input %}
             <input name="{{ fieldName }}"
                    type="{{ type ?? 'text'}}"

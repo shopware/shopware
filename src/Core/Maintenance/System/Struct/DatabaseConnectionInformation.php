@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Maintenance\System\Struct;
 
-use Doctrine\DBAL\Tools\DsnParser;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -97,16 +96,27 @@ class DatabaseConnectionInformation extends Struct
      */
     public function toDBALParameters(bool $withoutDatabaseName = false): array
     {
-        // todo: refactor (avoid creating dsn from parameters and than parsing it again)
-        $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
-        $parameters = $dsnParser->parse($this->asDsn($withoutDatabaseName));
-        $parameters = array_merge([
+        $parameters = [
+            'host' => $this->hostname,
+            'port' => $this->port,
             'charset' => 'utf8mb4',
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
             ],
-        ], $parameters);
+        ];
+
+        if (!$withoutDatabaseName) {
+            $parameters['dbname'] = $this->databaseName;
+        }
+
+        if ($this->username !== null) {
+            $parameters['user'] = $this->username;
+        }
+
+        if ($this->password !== null) {
+            $parameters['password'] = $this->password;
+        }
 
         if ($this->sslCaPath) {
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $this->sslCaPath;

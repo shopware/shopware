@@ -113,7 +113,7 @@ class PaymentMethodValidatorTest extends TestCase
         $base = Context::createDefaultContext();
         $base->setRuleIds(['payment-method-availability-rule-id']);
 
-        return Generator::createSalesChannelContext(
+        return Generator::generateSalesChannelContext(
             baseContext: $base,
             salesChannel: $salesChannel,
             paymentMethod: $paymentMethod,

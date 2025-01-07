@@ -601,7 +601,7 @@ class CheckoutControllerTest extends TestCase
             'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
-            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
             'domains' => [
                 [
                     'id' => $salesChannelId,
@@ -701,7 +701,7 @@ class CheckoutControllerTest extends TestCase
                 'countryId' => $this->getValidCountryId(),
             ],
             'defaultBillingAddressId' => $this->customerId,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => 'not12345',
             'firstName' => 'Test',

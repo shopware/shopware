@@ -1407,7 +1407,7 @@ class RegisterRouteTest extends TestCase
             'customerNumber' => '1337',
             'email' => $email,
             'password' => 'shopware',
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelId,
             'boundSalesChannelId' => $boundSalesChannel ? $salesChannelId : null,
             'defaultBillingAddressId' => $addressId,

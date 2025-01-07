@@ -140,7 +140,7 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->ids->get('payment'),
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::CUSTOMER_GROUP,
                 'email' => $email,
                 'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',

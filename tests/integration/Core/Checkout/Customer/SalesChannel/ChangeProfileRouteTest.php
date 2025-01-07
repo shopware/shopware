@@ -708,7 +708,7 @@ class ChangeProfileRouteTest extends TestCase
             ],
             'defaultBillingAddressId' => $addressId,
 
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => $email,
             'password' => $password,
             'firstName' => 'Max',

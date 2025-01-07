@@ -55,7 +55,7 @@ class Migration1663402950SetDoubleOptinCustomerActiveTest extends TestCase
 
         $data = [
             'id' => $customerId,
-            'customer_group_id' => Uuid::fromHexToBytes(TestDefaults::FALLBACK_CUSTOMER_GROUP),
+            'customer_group_id' => Uuid::fromHexToBytes(TestDefaults::CUSTOMER_GROUP),
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'default_billing_address_id' => $customerAddressId,

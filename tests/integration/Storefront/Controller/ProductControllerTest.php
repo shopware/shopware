@@ -434,7 +434,7 @@ class ProductControllerTest extends TestCase
                 'countryId' => $this->getValidCountryId(),
             ],
             'defaultBillingAddressId' => $addressId,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => 'testuser@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',

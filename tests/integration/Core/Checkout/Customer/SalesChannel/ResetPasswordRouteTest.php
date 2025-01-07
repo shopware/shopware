@@ -210,7 +210,7 @@ class ResetPasswordRouteTest extends TestCase
                 'countryId' => $this->getValidCountryId(),
             ],
             'defaultBillingAddressId' => $addressId,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => $email,
             'password' => $password,
             'firstName' => 'Max',

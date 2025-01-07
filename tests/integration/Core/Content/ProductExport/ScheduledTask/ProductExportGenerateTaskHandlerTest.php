@@ -106,7 +106,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
             'accessKey' => $id,
             'name' => 'A totally fake Storefront SalesChannel',
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
             'currencyId' => Defaults::CURRENCY,
             'languages' => $languages,
             'languageId' => $originalSalesChannel->getLanguageId(),

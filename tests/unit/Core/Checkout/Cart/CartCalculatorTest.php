@@ -27,7 +27,7 @@ class CartCalculatorTest extends TestCase
 
     public function testCalculate(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
         $cart = $this->getCart();
         $result = new RuleLoaderResult($cart, new RuleCollection());
@@ -52,7 +52,7 @@ class CartCalculatorTest extends TestCase
 
     public function testSetHash(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
         $cart = $this->getCart();
         $result = new RuleLoaderResult($cart, new RuleCollection());

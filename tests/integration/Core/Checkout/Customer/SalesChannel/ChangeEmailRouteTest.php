@@ -280,7 +280,7 @@ class ChangeEmailRouteTest extends TestCase
             ],
             'defaultBillingAddressId' => $addressId,
 
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => $email,
             'password' => $password,
             'firstName' => 'Max',
@@ -312,7 +312,7 @@ class ChangeEmailRouteTest extends TestCase
             'customerNumber' => '1337',
             'email' => $email,
             'password' => 'shopware',
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelId,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,

@@ -276,7 +276,7 @@ class CustomerGroupSubscriberTest extends TestCase
             'countryId' => $this->getValidCountryId(),
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,

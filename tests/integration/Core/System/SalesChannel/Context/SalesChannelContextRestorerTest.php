@@ -305,7 +305,7 @@ class SalesChannelContextRestorerTest extends TestCase
                 'countryId' => $this->getValidCountryId(),
             ],
             'defaultBillingAddressId' => $addressId,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => 'foo@bar.de',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',

@@ -40,7 +40,7 @@ class NavigationControllerTest extends TestCase
             ->willReturn(new NavigationPage());
 
         $request = new Request();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $response = $this->controller->home($request, $context);
         static::assertInstanceOf(Response::class, $response);
@@ -55,7 +55,7 @@ class NavigationControllerTest extends TestCase
         $request = new Request([
             'navigationId' => Uuid::randomHex(),
         ]);
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $this->controller->index($context, $request);
         static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->renderStorefrontView);
@@ -64,7 +64,7 @@ class NavigationControllerTest extends TestCase
     public function testOffcanvasRendersStorefront(): void
     {
         $request = new Request();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $response = $this->controller->offcanvas($request, $context);
         static::assertSame('noindex', $response->headers->get('x-robots-tag'));

@@ -436,7 +436,7 @@ class CartTaxTest extends TestCase
                 'countryId' => $countryId,
             ],
             'defaultBillingAddressId' => $this->ids->get('address'),
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => $email,
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',

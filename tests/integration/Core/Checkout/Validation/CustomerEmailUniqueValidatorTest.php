@@ -140,7 +140,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
             'email' => $email,
             'password' => TestDefaults::HASHED_PASSWORD,
             'boundSalesChannelId' => $boundToSalesChannel ? $salesChannelId : null,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelId,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,

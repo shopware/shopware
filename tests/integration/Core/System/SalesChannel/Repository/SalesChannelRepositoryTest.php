@@ -117,7 +117,7 @@ class SalesChannelRepositoryTest extends TestCase
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
-            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
         ]], $context);
 
         $criteria1 = new Criteria([$salesChannelId]);
@@ -171,7 +171,7 @@ class SalesChannelRepositoryTest extends TestCase
             'id' => $id,
             'name' => 'test',
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'shippingMethodId' => $this->getValidShippingMethodId(),

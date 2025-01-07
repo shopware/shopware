@@ -291,7 +291,7 @@ class AccountServiceTest extends TestCase
             'legacyEncoder' => $legacyEncoder,
             'legacyPassword' => $legacyEncoder ? $password : null,
             'boundSalesChannelId' => $boundToSalesChannel ? $salesChannelId : null,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelId,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,

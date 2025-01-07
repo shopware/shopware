@@ -89,7 +89,7 @@ class CartRuleLoaderTest extends TestCase
 
     public function testProcessorHasCorrectRuleIds(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $rule1 = new RuleEntity();
         $rule1->setId(Uuid::randomHex());

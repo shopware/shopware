@@ -152,7 +152,7 @@ class ChangeCustomerGroupActionTest extends TestCase
                 'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
             ],
             'defaultBillingAddressId' => $this->ids->get('address'),
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => $email,
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',

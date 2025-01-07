@@ -285,7 +285,7 @@ class FlowDispatcherTest extends TestCase
 
     private function createCheckoutOrderPlacedEvent(OrderEntity $order): CheckoutOrderPlacedEvent
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         return new CheckoutOrderPlacedEvent($context, $order);
     }

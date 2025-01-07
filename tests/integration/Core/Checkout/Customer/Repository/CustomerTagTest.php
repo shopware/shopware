@@ -152,7 +152,7 @@ class CustomerTagTest extends TestCase
                 'salutationId' => $this->getValidSalutationId(),
                 'country' => ['name' => 'not'],
             ],
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'lastName' => 'not',

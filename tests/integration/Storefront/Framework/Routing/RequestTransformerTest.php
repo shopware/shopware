@@ -469,7 +469,7 @@ class RequestTransformerTest extends TestCase
                 'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
                 'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
                 'countries' => [['id' => $this->getValidCountryId()]],
-                'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
             ];
 
             foreach ($salesChannelData['languages'] as &$language) {

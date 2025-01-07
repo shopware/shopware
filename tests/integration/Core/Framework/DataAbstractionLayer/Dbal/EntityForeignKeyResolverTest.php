@@ -392,7 +392,7 @@ class EntityForeignKeyResolverTest extends TestCase
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
-            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
         ];
 
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');

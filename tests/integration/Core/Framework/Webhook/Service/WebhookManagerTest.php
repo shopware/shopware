@@ -1038,7 +1038,7 @@ class WebhookManagerTest extends TestCase
                 'countryId' => $this->getValidCountryId(),
             ],
             'defaultBillingAddressId' => $addressId,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => 'test@gmail.com',
             'password' => 'shopware',
             'firstName' => 'Max',

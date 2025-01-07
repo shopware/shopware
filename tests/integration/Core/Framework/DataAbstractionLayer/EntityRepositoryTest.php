@@ -999,7 +999,7 @@ class EntityRepositoryTest extends TestCase
             'id' => $recordA,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $address,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'lastName' => 'not',

@@ -88,7 +88,7 @@ class AccountPaymentControllerTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::CUSTOMER_GROUP,
                 'email' => 'test@example.com',
                 'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',

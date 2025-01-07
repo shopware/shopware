@@ -62,7 +62,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         \assert($customer instanceof CustomerEntity);
 
         $languageId = $context->getContext()->getLanguageId();
-        $salesChannelId = $context->getSalesChannel()->getId();
+        $salesChannelId = $context->getSalesChannelId();
 
         $customerId = $customer->getId();
 
@@ -105,7 +105,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $mail = \is_string($mail) ? $mail : '';
         $event = new ReviewFormEvent(
             $context->getContext(),
-            $context->getSalesChannel()->getId(),
+            $context->getSalesChannelId(),
             new MailRecipientStruct([$mail => $review['externalUser'] . ' ' . $data->get('lastName')]),
             $data,
             $productId,
@@ -168,7 +168,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
      */
     private function checkReviewsActive(SalesChannelContext $context): void
     {
-        $showReview = $this->config->get('core.listing.showReview', $context->getSalesChannel()->getId());
+        $showReview = $this->config->get('core.listing.showReview', $context->getSalesChannelId());
 
         if (!$showReview) {
             throw ProductException::reviewNotActive();

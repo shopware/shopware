@@ -14,6 +14,6 @@ class SalesChannelLanguageDefinition extends LanguageDefinition implements Sales
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('language.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('language.salesChannels.id', $context->getSalesChannelId()));
     }
 }

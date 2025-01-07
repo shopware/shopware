@@ -107,7 +107,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     {
         $definition = new DataValidationDefinition('customer.password.update');
 
-        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());
+        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
 
         $definition->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']));
 

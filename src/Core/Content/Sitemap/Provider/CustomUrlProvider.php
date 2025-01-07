@@ -39,7 +39,7 @@ class CustomUrlProvider extends AbstractUrlProvider
         $urls = [];
         $url = new Url();
         foreach ($sitemapCustomUrls as $sitemapCustomUrl) {
-            if (!$this->isAvailableForSalesChannel($sitemapCustomUrl, $context->getSalesChannel()->getId())) {
+            if (!$this->isAvailableForSalesChannel($sitemapCustomUrl, $context->getSalesChannelId())) {
                 continue;
             }
 

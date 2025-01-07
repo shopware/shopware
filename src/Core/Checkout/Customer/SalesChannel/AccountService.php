@@ -237,7 +237,7 @@ class AccountService
             }
 
             // It is bound, but not to the current one. Skip it
-            if ($customer->getBoundSalesChannelId() !== $context->getSalesChannel()->getId()) {
+            if ($customer->getBoundSalesChannelId() !== $context->getSalesChannelId()) {
                 return null;
             }
 

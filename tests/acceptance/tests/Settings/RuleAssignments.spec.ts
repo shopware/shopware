@@ -5,7 +5,10 @@ test('As an admin user, I want to have an overview of my assigned rules, so that
     ShopAdmin,
     AdminRuleDetail,
     AdminShippingDetail,
+    InstanceMeta,
 }) => {
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40161');
 
     const rule = await TestDataService.createBasicRule();
     const shippingMethod = await TestDataService.createBasicShippingMethod({availabilityRuleId: rule.id});

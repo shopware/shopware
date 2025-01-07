@@ -3,6 +3,7 @@
 namespace Shopware\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
@@ -19,8 +20,10 @@ class ShopConfigurator
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function updateBasicInformation(?string $shopName, ?string $email): void
@@ -99,6 +102,8 @@ class ShopConfigurator
         } else {
             $this->changeDefaultLanguageData($newDefaultLanguageId, $currentLocale, $locale);
         }
+
+        $this->eventDispatcher->dispatch(new SystemLanguageChangeEvent($newDefaultLanguageId));
     }
 
     public function setDefaultCurrency(string $currencyCode): void

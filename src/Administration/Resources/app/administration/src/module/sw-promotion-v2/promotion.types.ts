@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package checkout
  */
 
 enum DiscountTypes {

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionSalesChannelEntity extends Entity
 {
     use EntityIdTrait;

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class SalutationTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'salutation_translation';

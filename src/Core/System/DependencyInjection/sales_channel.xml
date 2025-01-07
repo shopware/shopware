@@ -162,6 +162,7 @@
         <service id="Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">

@@ -588,10 +588,10 @@ export default {
             }
 
             // set first item or selected event as focus
-            this.$nextTick(() => {
+            this.$nextTick().then(() => {
                 if (this.searchTerm === this.formatEventName) {
                     const currentEvent = this.eventTree.find((event) => event.id === this.eventName);
-                    this.selectedTreeItem = currentEvent || this.$refs.flowTriggerTree.treeItems[0];
+                    this.selectedTreeItem = currentEvent || this.eventTree[0];
                 }
             });
         },

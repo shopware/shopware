@@ -468,7 +468,12 @@
                     {% endblock %}
 
                     {% block component_account_register_captcha %}
-                        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { preCheck: true } %}
+                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+                            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' %}
+                        {% else %}
+                            {# @deprecated tag:v6.7.0 - The option "preCheck" becomes obsolete. #}
+                            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { preCheck: true } %}
+                        {% endif %}
                     {% endblock %}
 
                     {% block component_account_register_privacy %}

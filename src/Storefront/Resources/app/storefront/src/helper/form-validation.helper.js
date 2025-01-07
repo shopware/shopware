@@ -449,6 +449,12 @@ export default class FormValidation {
         }
 
         const describedBy = field.getAttribute('aria-describedby');
+
+        if (!describedBy) {
+            console.warn('[FormValidation]: field is missing the necessary feedback element referenced with "aria-describedby".', field);
+            return false;
+        }
+
         const describedByIds = describedBy.split(' ');
         const feedbackElId = describedByIds.find(id => id.includes('feedback'));
         const fieldFeedbackEl = document.getElementById(feedbackElId);

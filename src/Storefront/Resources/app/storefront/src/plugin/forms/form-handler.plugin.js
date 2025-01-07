@@ -92,6 +92,9 @@ export default class FormHandler extends Plugin {
         this.formFields = this.form.querySelectorAll(this.options.formFieldSelector);
         this.submitButtons = this._getSubmitButtons();
 
+        // Will hold the instances of loading indicators for each submit button.
+        this.submittButtonLoaders = [];
+
         if (this.options.validation === true) {
             this._initFormValidation();
         }
@@ -106,6 +109,7 @@ export default class FormHandler extends Plugin {
      */
     _initFormEvents() {
         this.form.addEventListener('submit', this._onFormSubmit.bind(this));
+        this.form.addEventListener('removeLoader', this.removeLoadingIndicator.bind(this));
     }
 
     /**
@@ -159,9 +163,12 @@ export default class FormHandler extends Plugin {
      * The event handler will validate the form and handle the submitting.
      *
      * @param {SubmitEvent} event
+     *
      * @private
      */
     _onFormSubmit(event) {
+        this.$emitter.publish('beforeSubmit');
+
         // Handle form validation
         if (this.options.validateOnSubmit === true) {
             const invalidFields = window.formValidation.validateForm(this.form, this.formFields);
@@ -169,6 +176,8 @@ export default class FormHandler extends Plugin {
             if (invalidFields.length > 0) {
                 // If local validation failed, the form submit is prevented.
                 event.preventDefault();
+
+                this.$emitter.publish('validationFailed', { invalidFields });
 
                 // The focus will be set to the first invalid field.
                 // The page will automatically scroll to the field with focus.
@@ -181,13 +190,30 @@ export default class FormHandler extends Plugin {
         }
 
         // Form is valid and can be submitted.
+        this.$emitter.publish('validSubmit');
 
         if (this.options.loadingIndicator === true) {
-            this.submitButtons.forEach((submitButton) => {
-                const loader = new ButtonLoadingIndicator(submitButton, this.options.loadingIndicatorPosition);
-                loader.create();
-            });
+            this.addLoadingIndicator();
         }
+    }
+
+    /**
+     * Adds a loading indicator to each submit button of the form.
+     */
+    addLoadingIndicator() {
+        this.submitButtons.forEach((submitButton) => {
+            const loader = new ButtonLoadingIndicator(submitButton, this.options.loadingIndicatorPosition);
+            this.submittButtonLoaders.push(loader);
+            loader.create();
+        });
+    }
+
+    /**
+     * Will remove existing loading indicators from submit buttons.
+     * Can be called directly on this plugin instance or via event `removeLoader`.
+     */
+    removeLoadingIndicator() {
+        this.submittButtonLoaders.forEach(loader => loader.remove());
     }
 
     /**

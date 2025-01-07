@@ -391,7 +391,7 @@ class Kernel extends HttpKernel
     protected function dumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
-        $cacheDir = $this->getCacheDir();
+        $cacheDir = $container->getParameter('kernel.cache_dir');
         $cacheName = basename($cacheDir);
         $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
 

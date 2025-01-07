@@ -42,7 +42,7 @@ describe('error.store', () => {
                 expect(store.api.entity.field).toBeDefined();
                 store.removeApiError('entity.field');
                 // @ts-expect-error
-                expect(store.api.entity.field).toBeUndefined();
+                expect(store.api.entity?.field).toBeUndefined();
             });
 
             it('removes a nested API error', () => {
@@ -54,7 +54,7 @@ describe('error.store', () => {
                 store.removeApiError('entity.nested.field');
                 // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                expect(store.api.entity.nested.field).toBeUndefined();
+                expect(store.api.entity?.nested.field).toBeUndefined();
             });
         });
 

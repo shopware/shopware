@@ -85,11 +85,6 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
             getters: {
                 isLoading: () => false,
             },
-            actions: {
-                setProduct(state, newProduct) {
-                    state.product = newProduct;
-                },
-            },
         });
     });
 

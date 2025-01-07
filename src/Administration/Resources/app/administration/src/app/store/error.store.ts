@@ -74,7 +74,7 @@ function removeApiError(expression: string, store: ErrorStore) {
         return;
     }
 
-    if (Shopware.Utils.types.isEmpty(store)) {
+    if (Shopware.Utils.types.isEmpty(deepState)) {
         removeApiError(path.join('.'), store);
     }
 }

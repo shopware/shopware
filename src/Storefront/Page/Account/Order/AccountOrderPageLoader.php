@@ -101,8 +101,8 @@ class AccountOrderPageLoader
     {
         $limit = $request->get('limit');
         $limit = $limit ? (int) $limit : 10;
-        $page = $request->get('p');
-        $page = $page ? (int) $page : 1;
+        
+        $page = max((int) $request->get('p'), 1);
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))

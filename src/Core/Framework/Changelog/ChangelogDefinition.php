@@ -20,8 +20,6 @@ class ChangelogDefinition
     #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
 
-    #[Assert\NotBlank(message: 'No issue was referenced')]
-    #[Assert\Regex(pattern: '/^(NEXT-|#)\d+$/', message: 'The issue has an invalid format')]
     private string $issue;
 
     private ?string $flag = null;

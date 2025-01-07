@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRoute;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -44,27 +45,24 @@ class BreadcrumbRouteTest extends TestCase
         $categoryEntity->setType('category');
 
         $request = new Request(['id' => '1', 'type' => 'category']);
-        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn([new Breadcrumb('Home', '/')]);
+        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', '/')]));
         $this->breadcrumbBuilder->method('loadCategory')->willReturn($categoryEntity);
 
-        $response = $this->breadcrumbRoute->load($request, $this->context);
-        $firstBreadcrumb = $response->getBreadcrumbCollection()->getBreadcrumb(0);
+        $collection = $this->breadcrumbRoute->load($request, $this->context)->getBreadcrumbCollection();
+        static::assertCount(1, $collection);
+        $firstBreadcrumb = $collection->first();
+        static::assertNotNull($firstBreadcrumb);
 
-        static::assertCount(1, $response->getBreadcrumbCollection()->getBreadcrumbs());
-        if ($firstBreadcrumb === null) {
-            static::fail('Breadcrumb is null');
-        }
         static::assertSame('Home', $firstBreadcrumb->name);
     }
 
     public function testLoadCategoryBreadcrumbReturnsCorrectBreadcrumbNullCategory(): void
     {
         $request = new Request(['id' => '1', 'type' => 'category']);
-        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn([new Breadcrumb('Home', '/')]);
+        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', '/')]));
 
         $response = $this->breadcrumbRoute->load($request, $this->context);
-        $firstBreadcrumb = $response->getBreadcrumbCollection()->getBreadcrumb(0);
-        static::assertNull($response->getBreadcrumbCollection()->getBreadcrumb(0));
+        static::assertNull($response->getBreadcrumbCollection()->first());
     }
 
     public function testGetDecoratedThrowsException(): void
@@ -76,15 +74,13 @@ class BreadcrumbRouteTest extends TestCase
     public function testLoadProductBreadcrumbReturnsCorrectBreadcrumb(): void
     {
         $request = new Request(['id' => '1', 'type' => 'product']);
-        $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willReturn([new Breadcrumb('Product', 'product')]);
+        $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Product', 'product')]));
 
-        $response = $this->breadcrumbRoute->load($request, $this->context);
-        $firstBreadcrumb = $response->getBreadcrumbCollection()->getBreadcrumb(0);
+        $collection = $this->breadcrumbRoute->load($request, $this->context)->getBreadcrumbCollection();
+        static::assertCount(1, $collection);
+        $firstBreadcrumb = $collection->first();
+        static::assertNotNull($firstBreadcrumb);
 
-        static::assertCount(1, $response->getBreadcrumbCollection()->getBreadcrumbs());
-        if ($firstBreadcrumb === null) {
-            static::fail('Breadcrumb is null');
-        }
         static::assertSame('Product', $firstBreadcrumb->name);
     }
 
@@ -97,16 +93,13 @@ class BreadcrumbRouteTest extends TestCase
 
         $request = new Request(['id' => '1', 'type' => 'product']);
         $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willThrowException(new ProductNotFoundException('1'));
-        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn([new Breadcrumb('Category', 'category')]);
+        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Category', 'category')]));
         $this->breadcrumbBuilder->method('loadCategory')->willReturn($categoryEntity);
 
-        $response = $this->breadcrumbRoute->load($request, $this->context);
-        $firstBreadcrumb = $response->getBreadcrumbCollection()->getBreadcrumb(0);
-
-        static::assertCount(1, $response->getBreadcrumbCollection()->getBreadcrumbs());
-        if ($firstBreadcrumb === null) {
-            static::fail('Breadcrumb is null');
-        }
+        $collection = $this->breadcrumbRoute->load($request, $this->context)->getBreadcrumbCollection();
+        static::assertCount(1, $collection);
+        $firstBreadcrumb = $collection->first();
+        static::assertNotNull($firstBreadcrumb);
         static::assertSame('Category', $firstBreadcrumb->name);
     }
 
@@ -114,11 +107,10 @@ class BreadcrumbRouteTest extends TestCase
     {
         $request = new Request(['id' => '1', 'type' => 'product']);
         $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willThrowException(new ProductNotFoundException('1'));
-        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn([new Breadcrumb('Category', 'category')]);
+        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Category', 'category')]));
 
         $response = $this->breadcrumbRoute->load($request, $this->context);
-        $firstBreadcrumb = $response->getBreadcrumbCollection()->getBreadcrumb(0);
-        static::assertNull($response->getBreadcrumbCollection()->getBreadcrumb(0));
+        static::assertNull($response->getBreadcrumbCollection()->first());
     }
 
     public function testLoadBreadcrumbWithInvalidType(): void
@@ -126,6 +118,6 @@ class BreadcrumbRouteTest extends TestCase
         $request = new Request(['id' => '1', 'type' => 'invalid']);
         $response = $this->breadcrumbRoute->load($request, $this->context);
 
-        static::assertCount(0, $response->getBreadcrumbCollection()->getBreadcrumbs());
+        static::assertCount(0, $response->getBreadcrumbCollection());
     }
 }

@@ -205,10 +205,18 @@ class PluginLifecycleService
             $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
         }
 
+        if (!$uninstallContext->keepUserData() && Feature::isActive('v6.7.0.0')) {
+            // plugin->uninstall() will remove the tables etc of the plugin,
+            // we drop the migrations before, so we can recover in case of errors by rerunning the migrations
+            $pluginBaseClass->removeMigrations();
+        }
+
         $pluginBaseClass->uninstall($uninstallContext);
 
         if (!$uninstallContext->keepUserData()) {
-            $pluginBaseClass->removeMigrations();
+            if (!Feature::isActive('v6.7.0.0')) {
+                $pluginBaseClass->removeMigrations();
+            }
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
         }
 

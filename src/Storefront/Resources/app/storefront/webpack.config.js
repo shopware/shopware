@@ -270,6 +270,14 @@ const coreConfig = {
         }),
         new FilenameToChunkNamePlugin(),
         ...(() => {
+            if (isHotMode) {
+                return [
+                    new webpack.HotModuleReplacementPlugin(),
+                ];
+            }
+            return [];
+        })(),
+        ...(() => {
             if (fs.existsSync(path.resolve(__dirname, 'static'))) {
                 // copy custom static assets
                 return [
@@ -477,7 +485,7 @@ const mergedCoreConfig = merge([
                             colors: true,
                         },
                     },
-                    hot: true,
+                    hot: false,
                     compress: false,
                     allowedHosts: 'all',
                     port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),

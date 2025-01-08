@@ -15,12 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('data-services')]
 class EntityDefinitionService
 {
-    public const PUID_FIELDS = [
-        'firstName' => 'first_name',
-        'lastName' => 'last_name',
-        'email' => 'email',
-    ];
-
     /**
      * @var array<string, EntityDefinition>
      */
@@ -77,19 +71,6 @@ class EntityDefinitionService
         }
 
         return $associations;
-    }
-
-    public function isPuidEntity(EntityDefinition $entityDefinition): bool
-    {
-        foreach (self::PUID_FIELDS as $fieldName => $fieldStorageName) {
-            $field = $entityDefinition->getField($fieldName);
-
-            if (!($field instanceof StorageAware) || ($field->getStorageName() !== $fieldStorageName)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public function addEntityDefinition(EntityDefinition $entityDefinition): void

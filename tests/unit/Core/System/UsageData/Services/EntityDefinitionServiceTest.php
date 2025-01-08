@@ -101,46 +101,6 @@ class EntityDefinitionServiceTest extends TestCase
         static::assertSame('EntityWithManyToManyWithIdFieldAssociationName', $result[0]['idField']->getAssociationName());
     }
 
-    #[DataProvider('provideEntityDefinitions')]
-    public function testNewsletterRecipientDefinitionIsPuidEntity(
-        EntityDefinition $entityDefinition,
-        bool $isPuidEntity,
-        string $errorMessage,
-    ): void {
-        new StaticDefinitionInstanceRegistry(
-            [$entityDefinition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
-
-        $service = new EntityDefinitionService([$entityDefinition], new UsageDataAllowListService());
-
-        static::assertSame($isPuidEntity, $service->isPuidEntity($entityDefinition), $errorMessage);
-    }
-
-    /**
-     * @return list<array{EntityDefinition, bool}>
-     */
-    public static function provideEntityDefinitions(): array
-    {
-        $dataset = [
-            ProductDefinition::class => false,
-            NewsletterRecipientDefinition::class => true,
-            CustomerDefinition::class => true,
-        ];
-
-        $result = [];
-        foreach ($dataset as $class => $isPuid) {
-            $result[] = [
-                new $class(),
-                $isPuid,
-                \sprintf('Entity "%s" should %sbe a PUID entity', $class, $isPuid ? '' : 'not '),
-            ];
-        }
-
-        return $result;
-    }
-
     private function initDefinitions(): void
     {
         $definitions = [

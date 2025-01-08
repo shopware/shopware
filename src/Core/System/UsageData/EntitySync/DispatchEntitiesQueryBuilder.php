@@ -24,8 +24,6 @@ use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 #[Package('data-services')]
 class DispatchEntitiesQueryBuilder
 {
-    public const PUID_FIELD_NAME = 'puid';
-
     private readonly QueryBuilder $queryBuilder;
 
     public function __construct(Connection $connection)
@@ -55,26 +53,6 @@ class DispatchEntitiesQueryBuilder
 
             $this->queryBuilder->addSelect(EntityDefinitionQueryHelper::escape($field->getStorageName()));
         }
-
-        return $this;
-    }
-
-    public function withPersonalUniqueIdentifier(): self
-    {
-        $concatenatedFields = array_map(
-            static fn (string $field) => \sprintf('LOWER(%s)', EntityDefinitionQueryHelper::escape($field)),
-            [
-                EntityDefinitionService::PUID_FIELDS['firstName'],
-                EntityDefinitionService::PUID_FIELDS['lastName'],
-                EntityDefinitionService::PUID_FIELDS['email'],
-            ]
-        );
-
-        $this->queryBuilder->addSelect(\sprintf(
-            'SHA2(CONCAT(%s), 512) AS %s',
-            implode(', ', $concatenatedFields),
-            EntityDefinitionQueryHelper::escape(self::PUID_FIELD_NAME)
-        ));
 
         return $this;
     }

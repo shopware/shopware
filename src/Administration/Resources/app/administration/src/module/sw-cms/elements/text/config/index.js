@@ -4,7 +4,7 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 export default {
     template,

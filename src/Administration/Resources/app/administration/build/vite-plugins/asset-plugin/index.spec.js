@@ -1,7 +1,7 @@
 /**
- * @package admin
+ * @package framework
  */
-import AssetPlugin from './index'
+import AssetPlugin from './index';
 
 describe('build/vite-plugins/asset-plugin', () => {
     it('should be a function with 2 arguments', () => {
@@ -9,14 +9,14 @@ describe('build/vite-plugins/asset-plugin', () => {
 
         // check that the function has 2 arguments
         expect(AssetPlugin.length).toBe(2);
-    })
+    });
 
     it('should return dev plugin', () => {
         const plugin = AssetPlugin(false, 'build');
 
         // Identify plugin by name
         expect(plugin).toHaveProperty('name');
-        expect(plugin.name).toBe('shopware-serve-multiple-static');
+        expect(plugin.name).toBe('shopware-vite-plugin-serve-multiple-static');
 
         // Check if the plugin has a configureServer method
         expect(plugin).toHaveProperty('configureServer');
@@ -55,17 +55,17 @@ describe('build/vite-plugins/asset-plugin', () => {
         const server = { middlewares: { use: useMock } };
         plugin.configureServer(server);
         expect(useMock).toHaveBeenCalled();
-    })
+    });
 
     it('should return build plugin', async () => {
         const plugin = AssetPlugin(true, 'build');
 
         // Identify plugin by name
         expect(plugin).toHaveProperty('name');
-        expect(plugin.name).toBe('shopware-copy-static-assets');
+        expect(plugin.name).toBe('shopware-vite-plugin-copy-static-assets');
 
         // Check if the plugin has a closeBundle method
         expect(plugin).toHaveProperty('closeBundle');
         expect(typeof plugin.closeBundle).toBe('function');
-    })
+    });
 });

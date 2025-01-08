@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class PartialSalesChannelEntityLoadedEvent extends SalesChannelEntityLoadedEvent
 {
     /**

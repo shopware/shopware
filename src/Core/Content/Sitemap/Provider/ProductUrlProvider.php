@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class ProductUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'hourly';

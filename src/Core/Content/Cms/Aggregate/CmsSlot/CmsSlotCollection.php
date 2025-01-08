@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CmsSlotEntity>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsSlotCollection extends EntityCollection
 {
     /**

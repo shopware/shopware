@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaCreationSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

@@ -16,6 +16,8 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 #[Package('core')]
 class ExtensionRegistry
 {
+    private bool $is67;
+
     /**
      * @internal
      *
@@ -26,6 +28,7 @@ class ExtensionRegistry
         private readonly iterable $extensions,
         private readonly iterable $bulks
     ) {
+        $this->is67 = Feature::isActive('v6.7.0.0');
     }
 
     public function configureExtensions(DefinitionInstanceRegistry $registry, SalesChannelDefinitionInstanceRegistry $salesChannelRegistry): void
@@ -115,7 +118,7 @@ class ExtensionRegistry
 
     private function getInstance(DefinitionInstanceRegistry $registry, EntityExtension $extension): EntityDefinition
     {
-        if (Feature::isActive('v6.7.0.0')) {
+        if ($this->is67) {
             $entity = $extension->getEntityName();
 
             return $registry->getByEntityName($entity);

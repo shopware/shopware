@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionException::class)]
 class PromotionExceptionTest extends TestCase
 {

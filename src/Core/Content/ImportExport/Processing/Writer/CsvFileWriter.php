@@ -36,7 +36,7 @@ class CsvFileWriter extends AbstractFileWriter
      */
     private function writeToBuffer(array $data): void
     {
-        if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure) === false) {
+        if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure, '\\') === false) {
             throw ImportExportException::couldNotWriteToBuffer();
         }
     }

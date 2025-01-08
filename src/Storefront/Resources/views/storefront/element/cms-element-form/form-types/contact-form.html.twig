@@ -134,7 +134,7 @@
                     <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ page.navigationId }}">
                     <input type="hidden" id="{{ formPrefix }}-entityName" name="entityName" value="{{ page.entityName }}">
                 {% else %}
-                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ page.header.navigation.active.id }}">
+                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ shopware.navigation.id }}">
                 {% endif %}
 
                 <input type="hidden" id="{{ formPrefix }}-slotId" name="slotId" value="{{ element.id }}">

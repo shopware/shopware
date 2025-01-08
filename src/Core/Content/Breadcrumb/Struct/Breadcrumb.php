@@ -13,7 +13,7 @@ class Breadcrumb extends Struct
 {
     /**
      * @param array<string, mixed> $translated
-     * @param array<int, array<string, string>> $seoUrls
+     * @param list<array<string, string>> $seoUrls
      */
     public function __construct(
         public string $name,

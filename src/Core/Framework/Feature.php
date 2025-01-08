@@ -17,6 +17,11 @@ class Feature
     final public const ALL_MAJOR = 'major';
 
     /**
+     * @internal
+     */
+    public static bool $emitDeprecations = true;
+
+    /**
      * @var array<bool>
      */
     private static array $silent = [];
@@ -230,7 +235,7 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
-        if (!empty(self::$silent[$majorFlag])) {
+        if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
             return;
         }
 

@@ -35,7 +35,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(DiscountAbsoluteCalculator::class)]
 class DiscountAbsoluteCalculatorTest extends TestCase
 {

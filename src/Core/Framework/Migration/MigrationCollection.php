@@ -108,7 +108,7 @@ class MigrationCollection
         $activeMigrations = [];
 
         foreach ($this->getMigrationSteps() as $migration) {
-            $activeMigrations[] = $migration->getCreationTimestamp();
+            $activeMigrations[] = $migration->getPlausibleCreationTimestamp();
         }
 
         return $activeMigrations;
@@ -123,7 +123,7 @@ class MigrationCollection
     {
         return [
             'class' => $className,
-            'creation_timestamp' => $migrationStep->getCreationTimestamp(),
+            'creation_timestamp' => $migrationStep->getPlausibleCreationTimestamp(),
         ];
     }
 

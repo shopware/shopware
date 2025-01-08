@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(MediaUrlPlaceholderHandler::class)]
 class MediaUrlPlaceholderHandlerTest extends TestCase
 {

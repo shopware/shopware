@@ -6,7 +6,7 @@ use Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer\SlotConfigFie
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SlotConfigField extends JsonField
 {
     public function __construct(

@@ -159,7 +159,7 @@ class CacheInvalidatorTest extends TestCase
     #[DataProvider('dataProviderInvalidation')]
     #[DisabledFeatures(['cache_rework'])]
     /**
-     * @deprecated tag:v6.7.0.0 - can be removed as it tests only deprecated functionality
+     * @deprecated tag:v6.7.0 - can be removed as it tests only deprecated functionality
      */
     public function testInvalidation(bool $enableDelay, bool $directInvalidate, bool $backgroundInvalidate, bool $force): void
     {

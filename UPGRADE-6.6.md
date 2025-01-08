@@ -854,11 +854,9 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: redis
+                storage: cache
                 dsn: 'redis://localhost'
 ```
-
-Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 # General Core Breaking Changes
 
@@ -2070,11 +2068,9 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: redis
+                storage: cache
                 dsn: 'redis://localhost'
 ```
-
-Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 ## Introduced in 6.5.5.0
 ## New stock handling implementation is now the default

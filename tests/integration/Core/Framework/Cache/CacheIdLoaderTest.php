@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - remove this test
  */
 #[Group('cache')]
 class CacheIdLoaderTest extends TestCase

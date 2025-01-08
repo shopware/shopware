@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 #[CoversClass(ChangeCustomerGroupAction::class)]
 class ChangeCustomerGroupActionTest extends TestCase
 {

@@ -29,7 +29,7 @@
             @blur="onBlur($event, item, endInlineEdit)"
             @keyup.esc="endInlineEdit"
             @click.stop
-            @keydown.enter.stop
+            @keydown.enter="endInlineEdit"
         />
         <div
             v-else

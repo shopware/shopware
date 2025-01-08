@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
+namespace Shopware\Tests\Unit\Core\Content\Mail\Transport;
 
 use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
@@ -9,20 +9,22 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
-use Shopware\Core\Content\Mail\Service\MailerTransportDecorator;
-use Shopware\Core\Content\Mail\Service\MailerTransportLoader;
+use Shopware\Core\Content\Mail\Transport\MailerTransportDecorator;
+use Shopware\Core\Content\Mail\Transport\MailerTransportLoader;
+use Shopware\Core\Content\Mail\Transport\SmtpOauthAuthenticator;
+use Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Mailer\Transport;
-use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\NullTransport;
 use Symfony\Component\Mailer\Transport\NullTransportFactory;
 use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\SendmailTransportFactory;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
+use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
 
 /**
  * @internal
@@ -113,6 +115,37 @@ class MailerTransportLoaderTest extends TestCase
         yield 'tls' => ['tls'];
         yield 'ssl' => ['ssl'];
         yield 'null' => [null];
+    }
+
+    public function testLoaderWithSmtpOauthConfig(): void
+    {
+        $transport = $this->getTransportFactory();
+
+        $loader = new MailerTransportLoader(
+            $transport,
+            new StaticSystemConfigService([
+                'core.mailerSettings.emailAgent' => 'smtp+oauth',
+                'core.mailerSettings.host' => 'localhost',
+                'core.mailerSettings.port' => '225',
+                'core.mailerSettings.clientId' => '123',
+                'core.mailerSettings.clientSecret' => 'SECRET',
+                'core.mailerSettings.oauthUrl' => 'test',
+                'core.mailerSettings.oauthScope' => 'test',
+                'core.mailerSettings.senderAddress' => 'test@example.com',
+                'core.mailerSettings.encryption' => 'tls',
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(EntityRepository::class),
+        );
+
+        $mailer = $loader->fromString('null://null');
+
+        static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
+
+        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+
+        static::assertInstanceOf(EsmtpTransport::class, $decorated);
     }
 
     public function testFactoryWithLocalAndInvalidConfig(): void
@@ -232,11 +265,12 @@ class MailerTransportLoaderTest extends TestCase
     }
 
     /**
-     * @return array<string, AbstractTransportFactory>
+     * @return array<string, TransportFactoryInterface>
      */
     private function getFactories(): array
     {
         return [
+            'smtp+oauth' => new SmtpOauthTransportFactoryDecorator(new EsmtpTransportFactory(), $this->createMock(SmtpOauthAuthenticator::class)),
             'smtp' => new EsmtpTransportFactory(),
             'null' => new NullTransportFactory(),
             'sendmail' => new SendmailTransportFactory(),

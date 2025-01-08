@@ -27,6 +27,9 @@ Thumbs.db
 /vendor/*
 /composer.lock
 
+# Generated database schema files
+/schema
+
 # Symfony-CLI
 php.ini
 .php-version

@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @package discovery
  */
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';

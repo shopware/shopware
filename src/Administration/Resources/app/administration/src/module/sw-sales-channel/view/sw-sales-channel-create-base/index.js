@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package discovery
  */
 
 import template from './sw-sales-channel-create-base.html.twig';

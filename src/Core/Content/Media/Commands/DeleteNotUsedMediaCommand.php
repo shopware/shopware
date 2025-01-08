@@ -22,7 +22,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
     name: 'media:delete-unused',
     description: 'Deletes all media files which are not used in any entity',
 )]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class DeleteNotUsedMediaCommand extends Command
 {
     /**

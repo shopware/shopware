@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class AdvancedPackageRules extends SetGroupScopeFilter
 {
     public function getDecorated(): SetGroupScopeFilter

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package discovery
  */
 import { shallowMount } from '@vue/test-utils';
 

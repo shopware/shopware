@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\File;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FileUrlValidator implements FileUrlValidatorInterface
 {
     public function isValid(string $source): bool

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package checkout
  */
 import DiscountComponentHandler from 'src/module/sw-promotion-v2/component/sw-promotion-discount-component/handler';
 import { DiscountTypes } from 'src/module/sw-promotion-v2/helper/promotion.helper';

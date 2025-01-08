@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CmsRoute::class)]
 class CmsRouteTest extends TestCase
 {

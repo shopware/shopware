@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(DownloadResponseGenerator::class)]
 class DownloadResponseGeneratorTest extends TestCase
 {

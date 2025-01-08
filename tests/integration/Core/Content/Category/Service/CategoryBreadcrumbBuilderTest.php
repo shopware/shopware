@@ -31,7 +31,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
     use AdminApiTestBehaviour;

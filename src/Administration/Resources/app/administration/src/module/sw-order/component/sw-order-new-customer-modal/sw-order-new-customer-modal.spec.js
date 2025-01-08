@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Context } = Shopware;

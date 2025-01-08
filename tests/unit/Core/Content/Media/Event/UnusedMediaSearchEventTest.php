@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(UnusedMediaSearchEvent::class)]
 class UnusedMediaSearchEventTest extends TestCase
 {

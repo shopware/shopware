@@ -1,6 +1,9 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed without placement
+ */
 export default class CollapseCheckoutConfirmMethodsPlugin extends Plugin {
 
     static options = {

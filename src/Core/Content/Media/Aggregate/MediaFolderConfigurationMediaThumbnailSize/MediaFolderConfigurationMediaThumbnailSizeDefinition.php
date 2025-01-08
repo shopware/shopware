@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaFolderConfigurationMediaThumbnailSizeDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'media_folder_configuration_media_thumbnail_size';

@@ -76,6 +76,7 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                     'sw-loader': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
+                    'mt-switch': true,
                 },
             },
             props: {
@@ -120,6 +121,10 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                         autoplayTimeout: {
                             source: 'static',
                             value: 5000,
+                        },
+                        isDecorative: {
+                            source: 'static',
+                            value: false,
                         },
                     },
                     data: {},

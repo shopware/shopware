@@ -41,6 +41,7 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
                     'sw-icon': true,
+                    'mt-switch': true,
                 },
             },
             props: {
@@ -77,6 +78,10 @@ async function createWrapper() {
                         horizontalAlign: {
                             source: 'static',
                             value: null,
+                        },
+                        isDecorative: {
+                            source: 'static',
+                            value: false,
                         },
                     },
                     data: {},

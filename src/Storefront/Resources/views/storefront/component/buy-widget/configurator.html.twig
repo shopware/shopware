@@ -30,7 +30,7 @@
                             {% else %}
                                 <fieldset class="product-detail-configurator-group{% if feature('ACCESSIBILITY_TWEAKS') %} mb-3{% endif %}">
                                     {% block buy_widget_configurator_group_title %}
-                                        <legend class="product-detail-configurator-group-title fs-5 fw-bold">
+                                        <legend class="product-detail-configurator-group-title{% if feature('ACCESSIBILITY_TWEAKS') %} fs-5 fw-bold{% endif %}">
                                             {% block buy_widget_configurator_group_title_text %}
                                                 {{ 'component.product.configurator.legend'|trans({ '%group_name%': group.translated.name, '%hidden_cls%': 'visually-hidden' })|sw_sanitize }}
                                             {% endblock %}
@@ -85,6 +85,7 @@
                                                                     {% if displayType == 'color' and option.colorHexCode %}
                                                                         style="background-color: {{ option.colorHexCode }}"
                                                                     {% endif %}
+                                                                       title="{{ option.translated.name }}"
                                                                        id="{{ optionIdentifier }}-label"
                                                                        for="{{ optionIdentifier }}"
                                                                        aria-hidden="true">
@@ -122,7 +123,7 @@
                                                                         {% endblock %}
                                                                     {% endif %}
                                                                     {% if not option.combinable %}
-                                                                        <small class="visually-hidden">({{ 'component.product.configurator.notAvailable'|trans|sw_sanitize }})</small>
+                                                                        <small class="visually-hidden">({{ 'detail.unavailableTooltip'|trans|sw_sanitize }})</small>
                                                                     {% endif %}
                                                                 </label>
                                                             {% endblock %}

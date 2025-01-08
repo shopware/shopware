@@ -1,6 +1,6 @@
 ---
 title: Improve accessibility of product variant switch
-issue: NEXT-39111
+issue: #5193
 ---
 # Storefront
 * Changed element `product-detail-configurator-group` from `<div>` to `<fieldset>` in `Resources/views/storefront/component/buy-widget/configurator.html.twig`.

@@ -14,7 +14,7 @@
         --#{$prefix}btn-disabled-opacity: 0.65;
 
         &.disabled {
-            pointer-events: all;
+            pointer-events: auto;
             text-decoration: line-through;
         }
 
@@ -37,6 +37,7 @@
 
     .product-detail-configurator-group-title {
         font-weight: $font-weight-bold;
+        font-size: $font-size-base;
         margin-bottom: $spacer-sm;
     }
 

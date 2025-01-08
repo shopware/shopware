@@ -779,8 +779,7 @@
         "decreaseOfProduct": "Verringere die Anzahl %product%"
       },
       "configurator": {
-        "legend": "%group_name% <span class=\"%hidden_cls%\">auswählen</span>",
-        "notAvailable": "Diese Variante ist nicht verfügbar."
+        "legend": "%group_name%<span class=\"%hidden_cls%\">\t&nbsp;auswählen</span>"
       }
     },
     "cms": {

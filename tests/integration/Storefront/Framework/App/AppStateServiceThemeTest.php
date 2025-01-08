@@ -198,7 +198,7 @@ class AppStateServiceThemeTest extends TestCase
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
-            'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ]];
 
         $salesChannelRepository->create($payload, Context::createDefaultContext());

@@ -440,7 +440,7 @@ class AccountOrderControllerTest extends TestCase
             ],
             'defaultBillingAddressId' => $addressId,
             'guest' => $guest,
-            'groupId' => TestDefaults::CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => 'test@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',

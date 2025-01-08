@@ -154,7 +154,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                     'countryId' => $this->getValidCountryId(null),
                     'currencies' => [['id' => Defaults::CURRENCY]],
                     'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-                    'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
+                    'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 ],
             ],
         ], Context::createDefaultContext());

@@ -317,7 +317,7 @@ class LoginRouteTest extends TestCase
                 'country' => ['name' => 'Germany'],
             ],
             'defaultBillingAddressId' => $addressId,
-            'groupId' => TestDefaults::CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => $email,
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',

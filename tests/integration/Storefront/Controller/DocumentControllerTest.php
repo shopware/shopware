@@ -225,7 +225,7 @@ class DocumentControllerTest extends TestCase
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'email' => 'customer@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
-            'groupId' => TestDefaults::CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,

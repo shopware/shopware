@@ -111,7 +111,7 @@ trait StorefrontSalesChannelTestHelper
             'paymentMethods' => [['id' => $paymentMethod]],
             'shippingMethods' => [['id' => $shippingMethod]],
             'countries' => [['id' => $country]],
-            'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => $domains,
             'navigationCategoryId' => !$categoryEntrypoint ? $this->getValidCategoryId() : $categoryEntrypoint,
         ]], Context::createDefaultContext());

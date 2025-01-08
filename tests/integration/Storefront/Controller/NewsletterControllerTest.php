@@ -154,7 +154,7 @@ class NewsletterControllerTest extends TestCase
                 'countryId' => $this->getValidCountryId(),
             ],
             'defaultBillingAddressId' => $addressId,
-            'groupId' => TestDefaults::CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => 'nltest@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'title' => 'Dr.',

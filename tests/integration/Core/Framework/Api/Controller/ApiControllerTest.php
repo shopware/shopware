@@ -2453,7 +2453,7 @@ EOF;
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
-            'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];
     }
 
@@ -2496,7 +2496,7 @@ EOF;
             'customerNumber' => '1337',
             'email' => $ids->get('email') . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
-            'groupId' => TestDefaults::CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $ids->get('address'),
             'defaultShippingAddressId' => $ids->get('address'),

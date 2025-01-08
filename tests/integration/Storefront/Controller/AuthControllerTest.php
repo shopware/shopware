@@ -673,7 +673,7 @@ class AuthControllerTest extends TestCase
             ],
             'doubleOptInRegistration' => $doubleOptInReg,
             'defaultBillingAddressId' => $addressId,
-            'groupId' => TestDefaults::CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => 'test@example.com',
             'password' => 'test12345',
             'firstName' => 'Max',

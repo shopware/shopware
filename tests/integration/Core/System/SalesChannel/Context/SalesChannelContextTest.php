@@ -826,7 +826,7 @@ class SalesChannelContextTest extends TestCase
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $shippingAddress,
             'defaultBillingAddress' => $billingAddress,
-            'groupId' => TestDefaults::CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'guest' => $isGuest,
             'password' => '$password',

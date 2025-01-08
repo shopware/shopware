@@ -93,7 +93,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
             'password' => 'shopware',
-            'groupId' => TestDefaults::CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
@@ -139,7 +139,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressStart($numberOfItems);
 
         $netCustomerGroupId = $this->createNetCustomerGroup($context->getContext());
-        $customerGroups = [TestDefaults::CUSTOMER_GROUP, $netCustomerGroupId];
+        $customerGroups = [TestDefaults::FALLBACK_CUSTOMER_GROUP, $netCustomerGroupId];
         $tags = $this->getIds('tag');
 
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');

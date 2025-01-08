@@ -47,6 +47,20 @@ use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 #[Package('checkout')]
 class Generator extends TestCase
 {
+    final public const TOKEN = 'test-token';
+    final public const DOMAIN = 'test-domain';
+    final public const NAVIGATION_CATEGORY = 'f8466865cc6a45e48ed98dd2f6a0a293';
+    final public const TAX_CALCULATION_TYPE = SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL;
+    final public const CUSTOMER_GROUP_DISPLAY_GROSS = true;
+    final public const TAX = 'c725e107825c4c7281673aeea66ed67e';
+    final public const TAX_RATE = 19.0;
+    final public const PAYMENT_METHOD = 'cce0e1ca23de4c55868ce057f628c349';
+    final public const SHIPPING_METHOD = '37dbe80c5cbb4852a97cb742ed04ba41';
+    final public const COUNTRY = 'd4eb3205dd9444169b3f60c056c313a1';
+    final public const COUNTRY_STATE = '119d6e30fc4f468daa88ff5b413e9322';
+    final public const CUSTOMER_ADDRESS = '08f1594313494c3e9eb57bb53486fe61';
+    final public const CUSTOMER = '42d58aa78cf14851968a786a66bab93a';
+
     /**
      * @param array<string, string[]> $areaRuleIds
      * @param array<array-key, mixed> $overrides
@@ -73,17 +87,17 @@ class Generator extends TestCase
     ): SalesChannelContext {
         $baseContext ??= Context::createDefaultContext();
 
-        $token ??= TestDefaults::TOKEN;
+        $token ??= self::TOKEN;
 
-        $domainId ??= TestDefaults::DOMAIN;
+        $domainId ??= self::DOMAIN;
 
         if (!$salesChannel) {
             $salesChannel = new SalesChannelEntity();
             $salesChannel->setId(TestDefaults::SALES_CHANNEL);
-            $salesChannel->setNavigationCategoryId(TestDefaults::NAVIGATION_CATEGORY);
-            $salesChannel->setTaxCalculationType(TestDefaults::TAX_CALCULATION_TYPE);
-            $salesChannel->setPaymentMethodId($paymentMethod?->getId() ?? TestDefaults::PAYMENT_METHOD);
-            $salesChannel->setShippingMethodId($shippingMethod?->getId() ?? TestDefaults::SHIPPING_METHOD);
+            $salesChannel->setNavigationCategoryId(self::NAVIGATION_CATEGORY);
+            $salesChannel->setTaxCalculationType(self::TAX_CALCULATION_TYPE);
+            $salesChannel->setPaymentMethodId($paymentMethod?->getId() ?? self::PAYMENT_METHOD);
+            $salesChannel->setShippingMethodId($shippingMethod?->getId() ?? self::SHIPPING_METHOD);
         }
 
         if (!$currency) {
@@ -94,44 +108,44 @@ class Generator extends TestCase
 
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupEntity();
-            $currentCustomerGroup->setId(TestDefaults::CUSTOMER_GROUP);
-            $currentCustomerGroup->setDisplayGross(TestDefaults::CUSTOMER_GROUP_DISPLAY_GROSS);
+            $currentCustomerGroup->setId(TestDefaults::FALLBACK_CUSTOMER_GROUP);
+            $currentCustomerGroup->setDisplayGross(self::CUSTOMER_GROUP_DISPLAY_GROSS);
         }
 
         if (!$taxRules) {
             $tax = new TaxEntity();
-            $tax->setId(TestDefaults::TAX);
-            $tax->setTaxRate(TestDefaults::TAX_RATE);
+            $tax->setId(self::TAX);
+            $tax->setTaxRate(self::TAX_RATE);
 
             $taxRules = new TaxCollection([$tax]);
         }
 
         if (!$paymentMethod) {
             $paymentMethod = new PaymentMethodEntity();
-            $paymentMethod->setId(TestDefaults::PAYMENT_METHOD);
+            $paymentMethod->setId(self::PAYMENT_METHOD);
         }
 
         if (!$shippingMethod) {
             $shippingMethod = new ShippingMethodEntity();
-            $shippingMethod->setId(TestDefaults::SHIPPING_METHOD);
+            $shippingMethod->setId(self::SHIPPING_METHOD);
         }
 
         if (!$shippingLocation) {
             if (!$country) {
                 $country = new CountryEntity();
-                $country->setId(TestDefaults::COUNTRY);
+                $country->setId(self::COUNTRY);
             }
 
             if (!$countryState) {
                 $countryState = new CountryStateEntity();
-                $countryState->setId(TestDefaults::COUNTRY_STATE);
+                $countryState->setId(self::COUNTRY_STATE);
                 $countryState->setCountryId($country->getId());
                 $countryState->setCountry($country);
             }
 
             if (!$customerAddress) {
                 $customerAddress = new CustomerAddressEntity();
-                $customerAddress->setId(TestDefaults::CUSTOMER_ADDRESS);
+                $customerAddress->setId(self::CUSTOMER_ADDRESS);
             }
 
             $customerAddress->setCountryId($country->getId());
@@ -144,7 +158,7 @@ class Generator extends TestCase
 
         if (!$customer) {
             $customer = new CustomerEntity();
-            $customer->setId(TestDefaults::CUSTOMER);
+            $customer->setId(self::CUSTOMER);
             $customer->setGroupId($currentCustomerGroup->getId());
             $customer->setGroup($currentCustomerGroup);
             $customer->setSalesChannelId($salesChannel->getId());
@@ -227,7 +241,7 @@ class Generator extends TestCase
 
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupEntity();
-            $currentCustomerGroup->setId(TestDefaults::CUSTOMER_GROUP);
+            $currentCustomerGroup->setId(TestDefaults::FALLBACK_CUSTOMER_GROUP);
             $currentCustomerGroup->setDisplayGross(true);
         }
 

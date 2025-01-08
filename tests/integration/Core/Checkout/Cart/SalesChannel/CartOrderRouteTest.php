@@ -833,7 +833,7 @@ class CartOrderRouteTest extends TestCase
                         ],
                     ],
                 ],
-                'groupId' => TestDefaults::CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
                 'password' => $password,
                 'firstName' => 'Max',

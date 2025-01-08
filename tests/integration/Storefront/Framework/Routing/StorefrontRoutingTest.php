@@ -239,7 +239,7 @@ class StorefrontRoutingTest extends TestCase
                 'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
                 'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
                 'countries' => [['id' => $this->getValidCountryId()]],
-                'customerGroupId' => TestDefaults::CUSTOMER_GROUP,
+                'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             ];
 
             return array_merge_recursive($defaults, $salesChannelData);

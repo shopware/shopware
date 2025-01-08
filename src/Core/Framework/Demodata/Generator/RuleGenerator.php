@@ -91,7 +91,7 @@ class RuleGenerator implements DemodataGeneratorInterface
                 'name' => 'Cart >= 5000',
             ],
             [
-                'rule' => (new CustomerGroupRule())->assign(['customerGroupIds' => [TestDefaults::CUSTOMER_GROUP]]),
+                'rule' => (new CustomerGroupRule())->assign(['customerGroupIds' => [TestDefaults::FALLBACK_CUSTOMER_GROUP]]),
                 'name' => 'Default group',
             ],
             [

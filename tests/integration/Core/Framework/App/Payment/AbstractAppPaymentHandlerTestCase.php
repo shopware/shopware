@@ -161,7 +161,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
                 'zipcode' => '48624',
                 'city' => 'Schöppingen',
             ])
-            ->customerGroup(TestDefaults::CUSTOMER_GROUP);
+            ->customerGroup(TestDefaults::FALLBACK_CUSTOMER_GROUP);
 
         if (!Feature::isActive('v6.7.0.0')) {
             $customer->add('defaultPaymentMethodId', $this->getValidPaymentMethodId());

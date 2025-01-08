@@ -263,6 +263,8 @@ export default {
                 this.setInitialLanguage(domain);
             }
 
+            domain.hreflangUseOnlyLocale = false;
+
             this.currentDomain = domain;
             this.isEditingDomain = false;
         },

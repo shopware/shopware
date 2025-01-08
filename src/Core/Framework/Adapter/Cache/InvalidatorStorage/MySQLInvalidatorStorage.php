@@ -68,7 +68,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
      */
     private function executeLoadAndDelete(): array
     {
-        // fetch and lock records, ignoring locked records, se we don't handle tags
+        // fetch and lock records, ignoring locked records, so we don't handle tags
         // being processed by parallel worker
         $rows = $this->connection->fetchAllAssociative(
             \sprintf('SELECT id, tag FROM %s ORDER BY id FOR UPDATE SKIP LOCKED', self::TABLE_NAME)

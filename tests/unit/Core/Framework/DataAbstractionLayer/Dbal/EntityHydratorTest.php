@@ -426,7 +426,7 @@ class EntityHydratorTest extends TestCase
     private function createContext(bool $inheritance = true, array $additionalLanguages = []): Context
     {
         $languageIdChain = array_values(array_filter([Uuid::randomHex(), ...$additionalLanguages, Defaults::LANGUAGE_SYSTEM]));
-        \assert(!empty($languageIdChain));
+        static::assertNotEmpty($languageIdChain);
 
         return new Context(
             new SystemSource(),

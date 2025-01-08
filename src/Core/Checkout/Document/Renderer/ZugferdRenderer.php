@@ -88,7 +88,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
             return;
         }
 
-        $config = clone $this->documentConfigLoader->load(static::TYPE, $order->getSalesChannelId(), $context);
+        $config = clone $this->documentConfigLoader->load(InvoiceRenderer::TYPE, $order->getSalesChannelId(), $context);
         $config->merge($operation->getConfig());
 
         $documentNumber = $config->getDocumentNumber();

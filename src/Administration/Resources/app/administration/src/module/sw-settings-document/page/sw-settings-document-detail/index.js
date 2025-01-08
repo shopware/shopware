@@ -414,6 +414,14 @@ export default {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        documentCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.not('AND', [Criteria.prefix('technicalName', 'zugferd_')]));
+
+            return criteria
+        },
     },
 
     created() {

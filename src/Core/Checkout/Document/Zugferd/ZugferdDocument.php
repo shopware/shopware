@@ -9,6 +9,7 @@ use horstoeko\zugferd\codelists\ZugferdSchemeIdentifiers;
 use horstoeko\zugferd\codelists\ZugferdUnitCodes;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentValidator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
@@ -119,17 +120,21 @@ class ZugferdDocument
 
     public function withProductLineItem(OrderLineItemEntity $lineItem, string $parentPosition): self
     {
-        /** @var CalculatedTax $tax */
-        $tax = $lineItem->getPrice()?->getCalculatedTaxes()->first();
+        $calculatedPrice = $lineItem->getPrice();
+        $tax = $calculatedPrice?->getCalculatedTaxes()->first();
         $product = $lineItem->getProduct();
-        $totalNet = $this->getPrice($tax);
+        $totalNet = $tax ? $this->getPrice($tax) : $calculatedPrice?->getTotalPrice();
+
+        if ($totalNet < 0) {
+            throw DocumentException::generationError('Price can\'t be negative: ' . $lineItem->getLabel());
+        }
 
         $this->addLineTotalAmount($totalNet);
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
             ->setDocumentPositionNetPrice(\round($totalNet / $lineItem->getQuantity(), 2), $lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
             ->setDocumentPositionQuantity($lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
-            ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax->getTaxRate())
+            ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax?->getTaxRate() ?? 0.0)
             ->setDocumentPositionLineSummation($totalNet)
             ->setDocumentPositionProductDetails(
                 $lineItem->getLabel(),
@@ -207,9 +212,15 @@ class ZugferdDocument
         return $this;
     }
 
-    public function withTaxes(CalculatedTaxCollection $taxes): self
+    public function withTaxes(CartPrice $price): self
     {
-        foreach ($taxes as $tax) {
+        if ($price->getTaxStatus() === CartPrice::TAX_STATE_FREE) {
+            $this->zugferdBuilder->addDocumentTax($this->getTaxCode(null), 'VAT', $price->getTotalPrice(), 0, 0);
+
+            return $this;
+        }
+
+        foreach ($price->getCalculatedTaxes() as $tax) {
             $this->zugferdBuilder->addDocumentTax($this->getTaxCode($tax), 'VAT', $this->getPrice($tax), $tax->getTax(), $tax->getTaxRate());
         }
 
@@ -241,9 +252,9 @@ class ZugferdDocument
         return $price;
     }
 
-    protected function getTaxCode(CalculatedTax $tax): string
+    protected function getTaxCode(?CalculatedTax $tax): string
     {
-        return match ($tax->getTaxRate()) {
+        return match ($tax?->getTaxRate() ?? 0.0) {
             0.0 => ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS,
             default => ZugferdDutyTaxFeeCategories::STANDARD_RATE,
         };

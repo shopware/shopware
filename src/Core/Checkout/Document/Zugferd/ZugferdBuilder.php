@@ -45,7 +45,7 @@ class ZugferdBuilder
             ->withBuyerInformation($customer, $billingAddress)
             ->withSellerInformation($config)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
-            ->withTaxes($order->getPrice()->getCalculatedTaxes())
+            ->withTaxes($order->getPrice())
             ->withGeneralOrderData($deliveryDate, $operation->getConfig()['documentDate'] ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '');
 
         $this->addLineItems($document, $order->getLineItems());
@@ -72,7 +72,7 @@ class ZugferdBuilder
     protected function matchByType(ZugferdDocument $document, OrderLineItemEntity $lineItem, string $parentPosition = ''): void
     {
         match ($lineItem->getType()) {
-            LineItem::PRODUCT_LINE_ITEM_TYPE => $document->withProductLineItem($lineItem, $parentPosition),
+            LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE => $document->withProductLineItem($lineItem, $parentPosition),
             LineItem::PROMOTION_LINE_ITEM_TYPE, LineItem::CREDIT_LINE_ITEM_TYPE => $document->withDiscountItem($lineItem),
             default => null,
         };

@@ -90,6 +90,7 @@
                             show-clearable-button
                             :error="documentBaseConfigDocumentTypeIdError"
                             entity="document_type"
+                            :criteria="documentCriteria"
                             :label="$tc('sw-settings-document.detail.labelType')"
                             class="sw-settings-document-detail__select-type"
                             :disabled="documentConfig.global || !acl.can('document.editor') || undefined"

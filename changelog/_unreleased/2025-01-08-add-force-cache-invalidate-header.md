@@ -9,6 +9,7 @@ ___
 # Next Major Version Changes
 ## Delayed Cache Invalidation
 In the next major version, the cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
+This will lead to better cache hit rates and way less (duplicated) cache invalidations, which will improve efficiency and scalability of the system.
 As this feature is now active by default the previous `shopware.cache.invalidation.delay` configuration is removed.
 
 The default interval is 5 min, this can be changed by adjusting the run interval of the `shopware.invalidate_cache` scheduled task.
@@ -19,7 +20,7 @@ POST /api/product
 sw-force-cache-invalidate: 1
 ```
 
-To clear manually clear all the stale caches you can either run the `cache:clear:delayed` command or use the `/api/_action/cache-delayed` api endpoint.
+To manually clear all the stale caches you can either run the `cache:clear:delayed` command or use the `/api/_action/cache-delayed` API endpoint.
 ```
 bin/console cache:clear:delayed
 ```

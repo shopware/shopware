@@ -1,5 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
-
+import console from 'console';
 test('Shop customer should be able to see the product image in the Storefront.', { tag: '@Product' }, async ({
     ShopCustomer,
     TestDataService,
@@ -22,8 +22,9 @@ test('Shop customer should be able to see the product image in the Storefront.',
     OpenSearchSuggestPage,
     Login,
     Logout,
+    InstanceMeta,
 }) => {
-
+    console.log(InstanceMeta.version);
     const product = await TestDataService.createBasicProduct();
     const media = await TestDataService.createMediaPNG();
 

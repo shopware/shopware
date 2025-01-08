@@ -196,7 +196,7 @@ class Generator extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Use `generateSalesChannelContext` instead
+     * @deprecated tag:v6.7.0 - Will be removed. Use `generateSalesChannelContext` instead
      */
     public static function createSalesChannelContext(
         ?Context $baseContext = null,
@@ -217,7 +217,7 @@ class Generator extends TestCase
     ): SalesChannelContext {
         Feature::triggerDeprecationOrThrow(
             'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0', 'generateSalesChannelContext'),
         );
 
         if (!$baseContext) {

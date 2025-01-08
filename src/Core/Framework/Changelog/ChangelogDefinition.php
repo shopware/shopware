@@ -20,7 +20,7 @@ class ChangelogDefinition
     #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
 
-    private string $issue;
+    private ?string $issue = null;
 
     private ?string $flag = null;
 

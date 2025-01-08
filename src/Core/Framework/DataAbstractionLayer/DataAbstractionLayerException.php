@@ -82,6 +82,7 @@ class DataAbstractionLayerException extends HttpException
     public const PRIMARY_KEY_NOT_PROVIDED = 'FRAMEWORK__PRIMARY_KEY_NOT_PROVIDED';
     public const NO_GENERATOR_FOR_FIELD_TYPE = 'FRAMEWORK__NO_GENERATOR_FOR_FIELD_TYPE';
     public const FOREIGN_KEY_NOT_FOUND_IN_DEFINITION = 'FRAMEWORK__FOREIGN_KEY_NOT_FOUND_IN_DEFINITION';
+    public const INVALID_CHUNK_SIZE = 'FRAMEWORK__INVALID_CHUNK_SIZE';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -770,6 +771,16 @@ class DataAbstractionLayerException extends HttpException
             self::FOREIGN_KEY_NOT_FOUND_IN_DEFINITION,
             'Foreign key for association "{{ association }}" not found. Please add one to "{{ entityDefinition }}"',
             ['association' => $association, 'entityDefinition' => $entityDefinition]
+        );
+    }
+
+    public static function invalidChunkSize(int $size): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CHUNK_SIZE,
+            'Parameter $chunkSize needs to be a positive integer starting with 1, "{{ size }}" given',
+            ['size' => $size]
         );
     }
 }

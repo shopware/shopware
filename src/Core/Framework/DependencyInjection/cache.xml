@@ -35,6 +35,13 @@
             <tag name="shopware.cache.invalidator.storage" storage="redis"/>
         </service>
 
+        <service id="shopware.cache.invalidator.storage.mysql" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage" lazy="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="shopware.cache.invalidator.storage" storage="mysql"/>
+        </service>
+
         <service id="shopware.cache.invalidator.storage.locator" class="Shopware\Core\Framework\DependencyInjection\TaggedServiceLocator">
             <argument type="tagged_locator" tag="shopware.cache.invalidator.storage" index-by="storage" />
         </service>

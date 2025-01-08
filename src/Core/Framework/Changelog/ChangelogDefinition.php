@@ -94,7 +94,7 @@ class ChangelogDefinition
 
     public function getIssue(): string
     {
-        return $this->issue;
+        return $this->issue ?? '';
     }
 
     public function setIssue(string $issue): ChangelogDefinition

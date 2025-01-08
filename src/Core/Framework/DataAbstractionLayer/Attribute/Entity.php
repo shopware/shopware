@@ -17,6 +17,7 @@ class Entity
 
     /**
      * @param class-string<EntityCollection> $collectionClass
+     * @param class-string<EntityHydrator> $hydratorClass
      *
      * @phpstan-ignore missingType.generics (At this point it is not really possible to determine the correct entity class)
      */

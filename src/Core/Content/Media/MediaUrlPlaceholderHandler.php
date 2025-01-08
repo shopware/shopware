@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaUrlPlaceholderHandler implements MediaUrlPlaceholderHandlerInterface
 {
     final public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';

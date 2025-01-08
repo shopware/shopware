@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(MediaUploadController::class)]
 class MediaUploadControllerTest extends TestCase
 {

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal Concrete implementation is not allowed to be decorated or extended. The implementation details can change
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FilenamePathStrategy extends AbstractMediaPathStrategy
 {
     public function name(): string

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryEntity extends Entity
 {
     use EntityCustomFieldsTrait;

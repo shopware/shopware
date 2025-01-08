@@ -24,6 +24,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
@@ -60,6 +61,10 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
         $container
             ->registerForAutoconfiguration(EntityExtension::class)
             ->addTag('shopware.entity.extension');
+
+        $container
+            ->registerForAutoconfiguration(BulkEntityExtension::class)
+            ->addTag('shopware.bulk.entity.extension');
 
         $container
             ->registerForAutoconfiguration(CartProcessorInterface::class)

@@ -10,7 +10,7 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\User\UserCollection;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LocaleEntity extends Entity
 {
     use EntityCustomFieldsTrait;

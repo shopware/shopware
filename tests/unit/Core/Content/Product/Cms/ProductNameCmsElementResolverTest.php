@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ProductNameCmsElementResolver::class)]
 class ProductNameCmsElementResolverTest extends TestCase
 {

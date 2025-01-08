@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SnippetException extends HttpException
 {
     final public const SNIPPET_INVALID_FILTER_NAME = 'SYSTEM__SNIPPET_INVALID_FILTER_NAME';

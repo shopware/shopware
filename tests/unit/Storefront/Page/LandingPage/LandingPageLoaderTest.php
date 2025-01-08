@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(LandingPageLoader::class)]
 class LandingPageLoaderTest extends TestCase
 {

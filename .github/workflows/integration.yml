@@ -16,6 +16,8 @@ jobs:
           - 'Install'
         major:
           - ''
+        php-version:
+          - '8.2'
         include:
           - name: 'Platform'
             major: 'major'
@@ -116,25 +118,25 @@ jobs:
           retention-days: 3
 
   phpunit:
-    name: "${{ matrix.tests.testsuite }}${{ matrix.tests.path }} ${{ matrix.db }}"
+    name: "${{ matrix.php}} ${{ matrix.tests.testsuite }}${{ matrix.tests.path }} ${{ matrix.db }}"
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         tests:
-          - path: Administration
           - path: Core/Checkout
           - path: Core/Content
           - path: Core/Framework
-          - path: Core/Installer
-          - path: Core/Maintenance
-          - path: Core/System
-          - path: Elasticsearch
           - path: Storefront
+          - path: '{Administration,Elasticsearch}'
+          - path: '{Core/Installer,Core/Maintenance,Core/System}'
           - testsuite: devops,migration
         db:
           - mysql:8.0
           - mariadb:11
+        php:
+          - '8.2'
+          - '8.4'
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
@@ -166,6 +168,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          php-version: ${{ matrix.php }}
           mysql-version: 'skip'
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}

@@ -35,7 +35,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
  * related methods: getProductBreadcrumbUrls, loadProduct, getCategoryForProduct, loadCategory,
  * getCategoryBreadcrumbUrls, loadCategories, loadSeoUrls, convertCategoriesToBreadcrumbUrls, filterCategorySeoUrls
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryBreadcrumbBuilder
 {
     /**

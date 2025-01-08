@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends Extension<CmsSlotCollection>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 final class CmsSlotsDataEnrichExtension extends Extension
 {
     public const NAME = 'cms-slots-data.enrich';

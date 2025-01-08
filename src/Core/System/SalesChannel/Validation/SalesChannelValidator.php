@@ -24,7 +24,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  *
  * @phpstan-type Mapping array<string, array{current_default: string, new_default: string, inserts: list<string>, updateId: string, deletions: list<string>, state: list<string>}>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelValidator implements EventSubscriberInterface
 {
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';

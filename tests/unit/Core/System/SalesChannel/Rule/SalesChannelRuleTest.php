@@ -18,7 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelRule::class)]
 class SalesChannelRuleTest extends TestCase
 {

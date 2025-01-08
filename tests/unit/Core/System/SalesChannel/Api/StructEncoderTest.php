@@ -39,7 +39,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(StructEncoder::class)]
 class StructEncoderTest extends TestCase
 {

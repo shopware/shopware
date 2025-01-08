@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -24,6 +25,7 @@ class Entity
         public ?string $parent = null,
         public ?string $since = null,
         public string $collectionClass = EntityCollection::class,
+        public string $hydratorClass = EntityHydrator::class,
     ) {
     }
 }

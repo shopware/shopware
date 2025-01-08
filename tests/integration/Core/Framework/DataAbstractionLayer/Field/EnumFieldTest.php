@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumerationField\TestIntegerEnumeration;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumerationField\TestStringEnumeration;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumField\TestIntegerEnum;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumField\TestStringEnum;
 
 /**
  * @internal
@@ -85,15 +85,15 @@ class EnumFieldTest extends TestCase
         $validationFailedForInt = 'This value should satisfy at least one of the following constraints: [1] This value should be of type integer. [2] This value should be null.';
         $validationFailedForString = 'This value should satisfy at least one of the following constraints: [1] This value should be of type string. [2] This value should be null.';
         return [
-            ['assertion', 'string', TestStringEnumeration::Regular->value, TestStringEnumeration::TrailingSpace, []],
-            ['assertion', 0, TestIntegerEnumeration::Zero->value, TestIntegerEnumeration::One, []],
-            ['assertion', 'leading-space', null, TestStringEnumeration::Regular, []],
-            ['assertion', ' leading-space', TestStringEnumeration::LeadingSpace->value, TestStringEnumeration::Regular, []],
-            ['assertion', 'string', TestStringEnumeration::Regular->value, TestStringEnumeration::TrailingSpace, []],
-            ['writeException', 'leading-space', 'This value should not be blank.', TestStringEnumeration::LeadingSpace, [new Required()]],
-            ['writeException', false, $validationFailedForInt, TestIntegerEnumeration::One, []],
-            ['writeException', new \stdClass(), $validationFailedForInt, TestIntegerEnumeration::One, []],
-            ['writeException', 0, $validationFailedForString, TestStringEnumeration::Regular, []],
+            ['assertion', 'string', TestStringEnum::Regular->value, TestStringEnum::TrailingSpace, []],
+            ['assertion', 0, TestIntegerEnum::Zero->value, TestIntegerEnum::One, []],
+            ['assertion', 'leading-space', null, TestStringEnum::Regular, []],
+            ['assertion', ' leading-space', TestStringEnum::LeadingSpace->value, TestStringEnum::Regular, []],
+            ['assertion', 'string', TestStringEnum::Regular->value, TestStringEnum::TrailingSpace, []],
+            ['writeException', 'leading-space', 'This value should not be blank.', TestStringEnum::LeadingSpace, [new Required()]],
+            ['writeException', false, $validationFailedForInt, TestIntegerEnum::One, []],
+            ['writeException', new \stdClass(), $validationFailedForInt, TestIntegerEnum::One, []],
+            ['writeException', 0, $validationFailedForString, TestStringEnum::Regular, []],
         ];
     }
 

@@ -22,8 +22,8 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumerationField\TestIntegerEnumeration;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumerationField\TestStringEnumeration;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumField\TestIntegerEnum;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumField\TestStringEnum;
 
 /**
  * @internald.grothaus@shopwa
@@ -43,11 +43,11 @@ class EnumFieldSerializerTest extends TestCase
         $update = new EntityExistence('product', [], true, false, false, []);
         $create = new EntityExistence('product', [], false, false, false, []);
 
-        $requiredString = (new EnumField('name', 'name', TestStringEnumeration::Regular))->addFlags(new Required());
-        $optionalString = new EnumField('name', 'name', TestStringEnumeration::Regular);
+        $requiredString = (new EnumField('name', 'name', TestStringEnum::Regular))->addFlags(new Required());
+        $optionalString = new EnumField('name', 'name', TestStringEnum::Regular);
 
-        $requiredInt = (new EnumField('name', 'name', TestIntegerEnumeration::One))->addFlags(new Required());
-        $optionalInt = new EnumField('name', 'name', TestIntegerEnumeration::One);
+        $requiredInt = (new EnumField('name', 'name', TestIntegerEnum::One))->addFlags(new Required());
+        $optionalInt = new EnumField('name', 'name', TestIntegerEnum::One);
 
         yield 'Create string with null and required' => [$requiredString, null, null, true, $create];
         yield 'Create string with null and optional' => [$optionalString, null, null, false, $create];
@@ -68,8 +68,8 @@ class EnumFieldSerializerTest extends TestCase
         yield 'Update int with null and optional' => [$optionalInt, null, null, false, $update];
         yield 'Create int with string and optional' => [$optionalInt, '', null, true, $create];
         yield 'Create int with false and required' => [$optionalInt, false, null, true, $create];
-        yield 'Create int from 0 and required' => [$requiredInt, 0, TestIntegerEnumeration::Zero->value, false, $create];
-        yield 'Create int from 1 null and optional' => [$optionalInt, 1, TestIntegerEnumeration::One->value, false, $create];
+        yield 'Create int from 0 and required' => [$requiredInt, 0, TestIntegerEnum::Zero->value, false, $create];
+        yield 'Create int from 1 null and optional' => [$optionalInt, 1, TestIntegerEnum::One->value, false, $create];
     }
 
     #[DataProvider('serializerProvider')]

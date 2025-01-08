@@ -13,13 +13,12 @@ class FilenameToChunkNamePlugin {
                         const rootPath = rootModule?.userRequest;
                         const targetName = rootPath && `${chunk.runtime}.${path.basename(rootPath, '.js')}`;
                         const isTargetNameSet = allChunkNames.includes(targetName);
-                        const name = isTargetNameSet ? `${targetName}.${chunk.id.split('-').pop()}` : targetName;
-                        // always set our custom chunk name for consistent naming
-                        chunk.name = name;
+                        const name = isTargetNameSet ? `${targetName}.${chunk.id}` : targetName;
+                        chunk.name = name; // always set our custom chunk name for consistent naming
                         if (debug) {
                             if (isTargetNameSet) {
                                 // eslint-disable-next-line no-console
-                                console.log(`Chunk targetName '${targetName}' already exists, adding hash '${chunk.id.split('-').pop()}' to name`);
+                                console.log(`Chunk targetName '${targetName}' already exists, adding chunk id '${chunk.id}' to name`);
                             } else {
                                 // eslint-disable-next-line no-console
                                 console.log(`Setting chunk name to '${name}'`);

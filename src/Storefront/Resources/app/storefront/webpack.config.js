@@ -226,7 +226,7 @@ const coreConfig = {
     name: 'shopware-6-storefront',
     optimization: {
         moduleIds: 'deterministic',
-        chunkIds: 'named', // replaced by FilenameToChunkNamePlugin (named not used)
+        chunkIds: false, // chunk name is set by FilenameToChunkNamePlugin
         ...(() => {
             if (isProdMode) {
                 return {
@@ -264,6 +264,9 @@ const coreConfig = {
         new MiniCssExtractPlugin({
             filename: './css/[name].css',
             chunkFilename: './css/[name].css',
+        }),
+        new webpack.ids.DeterministicChunkIdsPlugin({
+            maxLength: 5,
         }),
         new FilenameToChunkNamePlugin(),
         ...(() => {

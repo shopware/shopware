@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -13,12 +12,12 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
-use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
 
 #[Package('core')]
@@ -123,6 +122,8 @@ class SalesChannelContext extends Struct
      * @internal
      *
      * @param array<string, string[]> $areaRuleIds
+     *
+     * @deprecated tag:v6.7.0 - Parameter 'languageInfo' will be required and not nullable. It will also be the second last parameter
      */
     public function __construct(
         Context $baseContext,
@@ -138,7 +139,8 @@ class SalesChannelContext extends Struct
         ?CustomerEntity $customer,
         protected CashRoundingConfig $itemRounding,
         protected CashRoundingConfig $totalRounding,
-        protected array $areaRuleIds = []
+        protected array $areaRuleIds = [],
+        protected ?LanguageInfo $languageInfo = null,
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
         $this->currency = $currency;
@@ -151,6 +153,10 @@ class SalesChannelContext extends Struct
         $this->token = $token;
         $this->context = $baseContext;
         $this->imitatingUserId = null;
+
+        if ($this->languageInfo === null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter "languageInfo" will be required and not nullable in the next major');
+        }
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -182,7 +188,7 @@ class SalesChannelContext extends Struct
         $tax = $this->taxRules->get($taxId);
 
         if ($tax === null || $tax->getRules() === null) {
-            throw new TaxNotFoundException($taxId);
+            throw SalesChannelException::taxNotFound($taxId);
         }
 
         if ($tax->getRules()->first() !== null) {
@@ -326,7 +332,7 @@ class SalesChannelContext extends Struct
     public function setPermissions(array $permissions): void
     {
         if ($this->permisionsLocked) {
-            throw new ContextPermissionsLockedException();
+            throw SalesChannelException::contextPermissionsLocked();
         }
 
         $this->permissions = array_filter($permissions);
@@ -431,11 +437,11 @@ class SalesChannelContext extends Struct
     public function ensureLoggedIn(bool $allowGuest = true): void
     {
         if ($this->customer === null) {
-            throw CartException::customerNotLoggedIn();
+            throw SalesChannelException::customerNotLoggedIn();
         }
 
         if (!$allowGuest && $this->customer->getGuest()) {
-            throw CartException::customerNotLoggedIn();
+            throw SalesChannelException::customerNotLoggedIn();
         }
     }
 
@@ -482,5 +488,22 @@ class SalesChannelContext extends Struct
     public function getCustomerGroupId(): string
     {
         return $this->currentCustomerGroup->getId();
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'LanguageInfo' as it is required in the next major
+     */
+    public function getLanguageInfo(): ?LanguageInfo
+    {
+        if ($this->languageInfo === null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property "languageInfo" will be required in the next major');
+        }
+
+        return $this->languageInfo;
+    }
+
+    public function setLanguageInfo(LanguageInfo $languageInfo): void
+    {
+        $this->languageInfo = $languageInfo;
     }
 }

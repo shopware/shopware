@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block base_html %}
-<html lang="{{ page.header.activeLanguage.translationCode.code }}"
+<html lang="{{ context.saleschannel.languages.first.translationCode.code }}"
       itemscope="itemscope"
       itemtype="https://schema.org/WebPage">
 {% endblock %}
@@ -93,7 +93,7 @@
                                     {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                                         context: context,
                                         themeIconConfig: themeIconConfig,
-                                        category: page.product.seoCategory
+                                        categoryId: shopware.navigation.id,
                                     } only %}
                                 {% endblock %}
 

@@ -11,8 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
-use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[Package('core')]
 class Context extends Struct
@@ -26,7 +25,7 @@ class Context extends Struct
     final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
     /**
-     * @var non-empty-array<string>
+     * @var non-empty-list<string>
      */
     protected array $languageIdChain;
 
@@ -62,13 +61,12 @@ class Context extends Struct
             $this->scope = self::SYSTEM_SCOPE;
         }
 
+        $languageIdChain = array_values(array_filter($languageIdChain));
         if (empty($languageIdChain)) {
-            throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
+            throw FrameworkException::invalidArgumentException('Argument "languageIdChain" must not be empty');
         }
 
-        /** @var non-empty-array<string> $chain */
-        $chain = array_keys(array_flip(array_filter($languageIdChain)));
-        $this->languageIdChain = $chain;
+        $this->languageIdChain = $languageIdChain;
     }
 
     /**
@@ -120,7 +118,7 @@ class Context extends Struct
     }
 
     /**
-     * @return non-empty-array<string>
+     * @return non-empty-list<string>
      */
     public function getLanguageIdChain(): array
     {
@@ -150,6 +148,8 @@ class Context extends Struct
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
+     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $callback
@@ -210,13 +210,15 @@ class Context extends Struct
     public function setRuleIds(array $ruleIds): void
     {
         if ($this->rulesLocked) {
-            throw new ContextRulesLockedException();
+            throw FrameworkException::contextRulesLocked();
         }
 
         $this->ruleIds = array_filter(array_values($ruleIds));
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
+     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $function
@@ -234,6 +236,8 @@ class Context extends Struct
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
+     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $function

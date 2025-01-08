@@ -30,6 +30,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\BaseContext;
 use Shopware\Core\System\SalesChannel\Context\AbstractBaseContextFactory;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -83,8 +84,10 @@ class SalesChannelContextFactoryTest extends TestCase
             new ShippingLocation($country, null, null),
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
+            new LanguageInfo('English', 'en-GB'),
         );
 
+        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */
         $paymentMethodRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($baseContext) {
@@ -107,6 +110,7 @@ class SalesChannelContextFactoryTest extends TestCase
             new PaymentMethodDefinition(),
         );
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
@@ -123,6 +127,7 @@ class SalesChannelContextFactoryTest extends TestCase
             new CustomerDefinition(),
         );
 
+        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
         $addressRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {

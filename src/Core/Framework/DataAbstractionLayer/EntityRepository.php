@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\VarExporter\LazyGhostTrait;
 
 /**
  * @final
@@ -34,6 +35,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('core')]
 class EntityRepository
 {
+    use LazyGhostTrait;
+
     /**
      * @internal
      */

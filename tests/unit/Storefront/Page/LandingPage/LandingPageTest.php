@@ -12,7 +12,7 @@ use Shopware\Storefront\Page\LandingPage\LandingPage;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(LandingPage::class)]
 class LandingPageTest extends TestCase
 {

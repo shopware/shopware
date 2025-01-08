@@ -12,7 +12,7 @@ use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CmsPageLoadedHook::class)]
 class CmsPageLoadedHookTest extends TestCase
 {

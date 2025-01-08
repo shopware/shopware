@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Snippet\Files;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SnippetFileCollectionFactory
 {
     /**

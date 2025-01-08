@@ -1,9 +1,13 @@
+{% if not header is defined and page is defined %}
+    {% set header = page.header %}
+{% endif %}
+
 {% block layout_header_actions_currency_widget %}
     {% if position is empty %}
         {% set position = 'top-bar' %}
     {% endif %}
 
-    {% if page.header.currencies.count > 1 %}
+    {% if header.currencies.count > 1 %}
         <div class="top-bar-nav-item top-bar-currency">
             {% block layout_header_actions_currency_widget_form %}
                 <form method="post"
@@ -19,11 +23,11 @@
                                         data-bs-toggle="dropdown"
                                         aria-haspopup="true"
                                         aria-expanded="false"
-                                        aria-label="{{ 'header.currencyTrigger'|trans({ '%currency%': page.header.activeCurrency.translated.name })|striptags }}">
+                                        aria-label="{{ 'header.currencyTrigger'|trans({ '%currency%': context.currency.translated.name })|striptags }}">
                                     {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
-                                        <span aria-hidden="true">{{ page.header.activeCurrency.symbol }}</span>
+                                        <span aria-hidden="true">{{ context.currency.translated.symbol }}</span>
                                         {# @deprecated tag:v6.7.0 - Toggling the text display will use Bootstrap helper classes instead of custom CSS. #}
-                                        <span class="top-bar-nav-text{% if feature('ACCESSIBILITY_TWEAKS') %} d-none d-md-inline{% endif %}">{{ page.header.activeCurrency.translated.name }}</span>
+                                        <span class="top-bar-nav-text{% if feature('ACCESSIBILITY_TWEAKS') %} d-none d-md-inline{% endif %}">{{ context.currency.translated.name }}</span>
                                     {% endblock %}
                                 </button>
                             {% endblock %}
@@ -31,8 +35,8 @@
                             {% block layout_header_actions_currency_widget_form_items %}
                                 <ul class="top-bar-list dropdown-menu dropdown-menu-end"
                                     aria-label="{{ 'header.currencyList'|trans|striptags }}">
-                                    {% for currency in page.header.currencies %}
-                                        {% set isActiveCurrency = currency.id is same as(page.header.activeCurrency.id) %}
+                                    {% for currency in header.currencies %}
+                                        {% set isActiveCurrency = currency.id is same as(context.currency.id) %}
 
                                         {% block layout_header_actions_currency_widget_form_items_element %}
                                             {# @deprecated tag:v6.7.0 - `dropdown-item` class will be on the button as docuented by Bootstrap: https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items #}

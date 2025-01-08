@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CrossSellingCmsElementResolver::class)]
 class CrossSellingCmsElementResolverTest extends TestCase
 {

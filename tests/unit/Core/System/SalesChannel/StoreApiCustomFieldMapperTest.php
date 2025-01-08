@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(StoreApiCustomFieldMapper::class)]
 class StoreApiCustomFieldMapperTest extends TestCase
 {

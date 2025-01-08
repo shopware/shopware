@@ -27,7 +27,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
     name: 'media:generate-thumbnails',
     description: 'Generates thumbnails for all media files',
 )]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class GenerateThumbnailsCommand extends Command
 {
     private ShopwareStyle $io;

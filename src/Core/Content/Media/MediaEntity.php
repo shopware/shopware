@@ -36,7 +36,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool}}
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaEntity extends Entity
 {
     use EntityCustomFieldsTrait;

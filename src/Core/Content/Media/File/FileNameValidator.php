@@ -7,7 +7,7 @@ use League\Flysystem\WhitespacePathNormalizer;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FileNameValidator
 {
     private const RESTRICTED_CHARACTERS = [

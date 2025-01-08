@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ProductDescriptionReviewsCmsElementResolver::class)]
 class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
 {

@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('storefront')]
+#[Package('discovery')]
 class GuestWishlistPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

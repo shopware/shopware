@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 final class DeleteFileHandler
 {
     /**

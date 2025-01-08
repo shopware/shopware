@@ -10,7 +10,7 @@ use Shopware\Core\System\Snippet\Filter\EmptySnippetFilter;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 #[CoversClass(EmptySnippetFilter::class)]
 class EmptySnippetFilterTest extends TestCase
 {

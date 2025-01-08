@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class CustomUrlProvider extends AbstractUrlProvider
 {
     /**

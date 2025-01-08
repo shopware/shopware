@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class AlreadyLockedException extends ShopwareHttpException
 {
     public function __construct(SalesChannelContext $salesChannelContext)

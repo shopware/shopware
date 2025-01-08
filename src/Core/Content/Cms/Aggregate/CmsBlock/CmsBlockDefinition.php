@@ -25,7 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsBlockDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'cms_block';

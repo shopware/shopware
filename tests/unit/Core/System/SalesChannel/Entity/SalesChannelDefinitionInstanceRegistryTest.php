@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Container;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelDefinitionInstanceRegistry::class)]
 class SalesChannelDefinitionInstanceRegistryTest extends TestCase
 {

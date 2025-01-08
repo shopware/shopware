@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionRedemptionUpdater::class)]
 class PromotionRedemptionUpdaterTest extends TestCase
 {

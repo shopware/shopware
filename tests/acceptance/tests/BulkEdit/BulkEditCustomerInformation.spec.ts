@@ -8,7 +8,10 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
     BulkEditCustomers,
     IdProvider,
     DefaultSalesChannel,
+    InstanceMeta,
 }) => {
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0, ticket: NEXT-40150 ');
 
     const customer1 = await TestDataService.createCustomer();
     const customer2 = await TestDataService.createCustomer();

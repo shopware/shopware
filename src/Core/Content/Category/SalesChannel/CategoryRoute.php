@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryRoute extends AbstractCategoryRoute
 {
     final public const HOME = 'home';

@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class CachedLanguageRoute extends AbstractLanguageRoute
 {
     final public const ALL_TAG = 'language-route';

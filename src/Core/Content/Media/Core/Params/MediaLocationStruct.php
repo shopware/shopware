@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Struct\Struct;
  *
  * @final
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaLocationStruct extends Struct
 {
     public function __construct(

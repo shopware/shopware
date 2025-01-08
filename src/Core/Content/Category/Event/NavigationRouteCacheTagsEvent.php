@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class NavigationRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
     /**

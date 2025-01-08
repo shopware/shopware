@@ -15,7 +15,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(DeleteThumbnailsCommand::class)]
 class DeleteThumbnailsCommandTest extends TestCase
 {

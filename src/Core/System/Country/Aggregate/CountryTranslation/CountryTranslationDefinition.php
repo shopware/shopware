@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class CountryTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'country_translation';

@@ -184,7 +184,9 @@
             <argument type="service" id="Shopware\Core\Installer\Finish\UniqueIdGenerator"/>
         </service>
 
-        <service id="Shopware\Core\Installer\Configuration\ShopConfigurationService"/>
+        <service id="Shopware\Core\Installer\Configuration\ShopConfigurationService">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
 
         <service id="Shopware\Core\Installer\Configuration\AdminConfigurationService"/>
 

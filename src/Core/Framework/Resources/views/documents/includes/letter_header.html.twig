@@ -11,7 +11,7 @@ All blocks of this template are available in the template which renders this tem
 
 {% block letter_header %}
     <div class="letter-header">
-        <div class="recipient-address-container">
+        <div class="recipient-address-container" tabindex="0">
             {% block document_recipient %}
                 {% if config.displayCompanyAddress and config.companyAddress is not empty %}
                     {{ config.companyName }} {{ config.companyAddress }}<br><br>
@@ -28,7 +28,7 @@ All blocks of this template are available in the template which renders this tem
             {% endblock %}
         </div>
 
-        <div class="sender-address-container">
+        <div class="sender-address-container" tabindex="0">
             {% block document_sender_address %}
                 <table>
                     {% if config.companyName %}

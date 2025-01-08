@@ -81,7 +81,7 @@
                                                                    {% if isActive %}checked="checked"{% endif %}>
 
                                                             {% block buy_widget_configurator_option_radio_label %}
-                                                                <label class="product-detail-configurator-option-label {{ isCombinableCls }} is-display-{{ displayType }}{% if feature('ACCESSIBILITY_TWEAKS') %} btn btn-outline-primary d-inline-flex justify-content-center align-items-center{% endif %}"
+                                                                <label class="product-detail-configurator-option-label {{ isCombinableCls }} is-display-{{ displayType }}{% if feature('ACCESSIBILITY_TWEAKS') %} btn btn-outline-secondary d-inline-flex justify-content-center align-items-center{% endif %}"
                                                                     {% if displayType == 'color' and option.colorHexCode %}
                                                                         style="background-color: {{ option.colorHexCode }}"
                                                                     {% endif %}
@@ -91,7 +91,7 @@
 
                                                                     {% if displayType == 'media' and media %}
                                                                         {#
-                                                                            The image is marked as decorative because the parent <label> text already describes it.
+                                                                            The image is marked as decorative because the <label> text already describes it.
                                                                             Using alt text results in duplicate read out for screenreaders.
                                                                         #}
                                                                         {% block buy_widget_configurator_option_radio_label_media %}
@@ -101,7 +101,7 @@
                                                                                     default: '52px'
                                                                                 },
                                                                                 attributes: {
-                                                                                    class: 'product-detail-configurator-option-image',
+                                                                                    class: 'product-detail-configurator-option-image h-100',
                                                                                     role: 'presentation',
                                                                                 }
                                                                             } %}
@@ -117,7 +117,9 @@
                                                                     {% if displayType == 'media' and media or displayType == 'color' and option.colorHexCode %}
                                                                         <span class="visually-hidden">{{ option.translated.name }}</span>
                                                                     {% else %}
-                                                                        {{ option.translated.name }}
+                                                                        {% block page_product_detail_configurator_option_radio_label_text %}
+                                                                            {{ option.translated.name }}
+                                                                        {% endblock %}
                                                                     {% endif %}
                                                                     {% if not option.combinable %}
                                                                         <small class="visually-hidden">({{ 'component.product.configurator.notAvailable'|trans|sw_sanitize }})</small>

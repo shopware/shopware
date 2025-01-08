@@ -1,4 +1,4 @@
-// @deprecated tag:v6.7.0 - Custom styling for product-detail-configurator-group-* classes is deprecated. Will use Bootstrap components and helpers instead.
+// @deprecated tag:v6.7.0 - Custom styling for product-detail-configurator-group-* classes is deprecated. Will use Bootstrap btn-check component and helper classes instead.
 @if feature('ACCESSIBILITY_TWEAKS') {
     .product-detail-configurator-option-label {
         --#{$prefix}btn-font-weight: #{$font-weight-normal};
@@ -6,7 +6,11 @@
         --#{$prefix}btn-color: #{$body-color};
         --#{$prefix}btn-padding-y: 0.125rem;
         --#{$prefix}btn-line-height: 1.625rem;
+        --#{$prefix}btn-active-bg: #{$white};
+        --#{$prefix}btn-active-color: #{$body-color};
+        --#{$prefix}btn-active-border-color: #{$primary};
         --#{$prefix}btn-disabled-border-color: #{$gray-600};
+        --#{$prefix}btn-disabled-color: #{$body-color};
         --#{$prefix}btn-disabled-opacity: 0.65;
 
         &.disabled {
@@ -21,14 +25,10 @@
             min-width: 3.75rem;
             height: 3.75rem;
         }
+    }
 
-        &.is-display-text {
-            height: auto;
-        }
-
-        .product-detail-configurator-option-image {
-            height: 100%;
-        }
+    .btn-check:checked + .product-detail-configurator-option-label {
+        --#{$prefix}btn-border-width: 2px;
     }
 } @else {
     .product-detail-configurator-group {

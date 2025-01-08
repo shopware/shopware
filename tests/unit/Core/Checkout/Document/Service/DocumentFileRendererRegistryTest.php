@@ -43,7 +43,7 @@ class DocumentFileRendererRegistryTest extends TestCase
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
-        $registry = new DocumentFileRendererRegistry([$pdfRenderer, $htmlRenderer]);
+        $registry = new DocumentFileRendererRegistry(['pdf' => $pdfRenderer, 'html' => $htmlRenderer]);
 
         $config = new DocumentConfiguration();
 

@@ -135,7 +135,7 @@ class InvoiceRendererTest extends TestCase
             static::assertInstanceOf(OrderLineItemCollection::class, $lineItems = $order->getLineItems());
             static::assertInstanceOf(OrderLineItemEntity::class, $firstLineItem = $lineItems->first());
             static::assertInstanceOf(OrderLineItemEntity::class, $lastLineItem = $lineItems->last());
-            static::assertStringContainsString('<html>', $rendered->getHtml());
+            static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
             static::assertStringContainsString('</html>', $rendered->getHtml());
             static::assertStringContainsString($firstLineItem->getLabel(), $rendered->getHtml());
             static::assertStringContainsString($lastLineItem->getLabel(), $rendered->getHtml());

@@ -25,6 +25,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <argument type="service" id="twig"/>

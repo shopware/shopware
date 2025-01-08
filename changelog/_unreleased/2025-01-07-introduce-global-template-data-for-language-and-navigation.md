@@ -17,7 +17,6 @@ ___
 * Added `minSearchLength` to the global `shopware` Twig variable, which defines the minimum search term length.
 * Added `showStagingBanner` to the global `shopware` Twig variable, which defines if the staging banner should be shown.
 * Deprecated the global `showStagingBanner` Twig variable. Use `shopware.showStagingBanner` instead.
-* Deprecated the global `themeId` Twig variable as it is unused.
 * Deprecated the usage of the `header` and `footer` properties of page Twig objects outside the dedicated header and footer templates. Use the following alternatives instead:
     * `context.currency` instead of `page.header.activeCurrency`
     * `shopware.navigation` instead of `page.header.navigation.active`
@@ -27,9 +26,8 @@ ___
 
 # Upgrade Information
 
-## Deprecation of Twig variables
+## Deprecation of Twig variable
 The global `showStagingBanner` Twig variable has been deprecated. Use `shopware.showStagingBanner` instead.
-The global `themeId` Twig variable has been deprecated as it is unused.
 
 ## New constructor parameter in FooterPagelet
 The new optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` has been added to `\Shopware\Storefront\Pagelet\Footer\FooterPagelet`.
@@ -38,9 +36,8 @@ ___
 
 # Next Major Version Changes
 
-## Removal of Twig variables
+## Removal of Twig variable
 The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
-The global `themeId` Twig variable was removed as it is unused.
 
 ## FooterPagelet changes
 The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.

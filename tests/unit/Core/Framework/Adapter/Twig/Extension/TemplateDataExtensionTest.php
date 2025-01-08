@@ -77,6 +77,9 @@ class TemplateDataExtensionTest extends TestCase
         static::assertArrayHasKey('showStagingBanner', $globals['shopware']);
         static::assertTrue($globals['shopware']['showStagingBanner']);
 
+        static::assertArrayHasKey('themeId', $globals);
+        static::assertSame($themeId, $globals['themeId']);
+
         static::assertArrayHasKey('controllerName', $globals);
         static::assertSame('Navigation', $globals['controllerName']);
         static::assertArrayHasKey('controllerAction', $globals);

@@ -67,6 +67,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'minSearchLength' => $this->minSearchLength($context),
                 'showStagingBanner' => $this->showStagingBanner,
             ],
+            'themeId' => $themeId, /** Not used in Twig template directly, but in @see \Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::getThemeId */
             'controllerName' => $controllerName,
             'controllerAction' => $controllerAction,
             'context' => $context,
@@ -75,8 +76,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         ];
 
         if (!Feature::isActive('v6.7.0.0')) {
-            /** @deprecated tag:v6.7.0 - Will be removed as it is unused */
-            $globalTemplateData['themeId'] = $themeId;
             /** @deprecated tag:v6.7.0 - Will be removed, use shopware.showStagingBanner instead */
             $globalTemplateData['showStagingBanner'] = $this->showStagingBanner;
         }

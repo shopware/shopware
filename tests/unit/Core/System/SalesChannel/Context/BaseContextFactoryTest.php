@@ -45,7 +45,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(BaseContextFactory::class)]
 class BaseContextFactoryTest extends TestCase
 {

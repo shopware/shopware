@@ -36,7 +36,6 @@ const BaseTestClasses = [
 
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
-    ->useRule(new DisallowRepeatedCommits())
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 

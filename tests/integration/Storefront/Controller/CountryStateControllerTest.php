@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CountryStateControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

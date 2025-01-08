@@ -13,7 +13,7 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
 
     test.slow();
 
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40155');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40179');
 
     const originalStock = 200;
     const originalRestockTime = 10;
@@ -26,11 +26,17 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
     const originalProductPrice = unchangedProduct.price[0].gross.toString();
     const changedProducts = [changedProduct1, changedProduct2];
     const changedManufacturer = await TestDataService.createBasicManufacturer();
+
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    const changedReleaseDate: string = InstanceMeta.features['V6_7_0_0']
+        ? '2025-01-01 00:01'
+        : '31/12/2024, 23:59';
+
     const changes = {
         'grossPrice': { value: '99.99', method: '' },
         'active': { value: 'false', method: '' },
         'manufacturer': { value: changedManufacturer.name, method: '' },
-        'releaseDate': { value: '11/01/2024, 00:00', method: '' },
+        'releaseDate': { value: changedReleaseDate, method: '' },
         'stock': { value: '400', method: 'Overwrite' },
         'restockTime': { value: '', method: 'Clear' },
         'tags': { value: addedTag.name, method: 'Add' },
@@ -63,7 +69,17 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
         await ShopAdmin.expects(AdminProductDetail.priceGrossInput).toHaveValue(originalProductPrice);
         await ShopAdmin.expects(AdminProductDetail.activeForAllSalesChannelsToggle).toBeChecked();
         await ShopAdmin.expects(AdminProductDetail.manufacturerDropdownText).toHaveText('Enter product manufacturer...');
-        await ShopAdmin.expects(AdminProductDetail.releaseDateInput).toHaveValue('');
+
+        // Verify the release date input value
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        if (InstanceMeta.features['V6_7_0_0']) {
+            const todayDate = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+            const receivedDate = (await AdminProductDetail.releaseDateInput.inputValue()).split(' ')[0];
+            await ShopAdmin.expects(receivedDate).toContain(todayDate);
+        } else {
+            await ShopAdmin.expects(AdminProductDetail.releaseDateInput).toHaveValue('');
+        }
+
         await ShopAdmin.expects(AdminProductDetail.stockInput).toHaveValue(originalStock.toString());
         await ShopAdmin.expects(AdminProductDetail.restockTimeInput).toHaveValue(originalRestockTime.toString());
         await ShopAdmin.expects(AdminProductDetail.tagsInput).toContainText(originalTag.name);

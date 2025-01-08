@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapFileRoute
 {
     /**

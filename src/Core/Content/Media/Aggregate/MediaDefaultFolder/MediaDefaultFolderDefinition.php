@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaDefaultFolderDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'media_default_folder';

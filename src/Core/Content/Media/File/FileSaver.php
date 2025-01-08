@@ -29,7 +29,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FileSaver
 {
     private readonly FileNameValidator $fileNameValidator;

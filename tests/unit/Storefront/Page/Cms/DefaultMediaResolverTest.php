@@ -15,7 +15,7 @@ use Symfony\Component\Asset\Packages;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(DefaultMediaResolver::class)]
 class DefaultMediaResolverTest extends TestCase
 {

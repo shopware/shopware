@@ -1,4 +1,57 @@
 # 6.7.0.0
+## Introduced in 6.6.9.0
+## Administration removed associations
+* Removed `calculationRule` association in `shippingMethodCriteria()` in `sw-settings-shipping-detail`.
+* Removed `conditions` association in `ruleFilterCriteria()` and `shippingRuleFilterCriteria()` in `sw-settings-shipping-price-matrix`
+## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` changed
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` changed to `columnName` 
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` changed to `foreignKeyName` 
+* Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` changed to `indexName`
+## Removal of deprecated product review loading logic in Storefront
+* The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
+* The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
+* The hook `\Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook` instead.
+* The struct `\Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult` instead.
+## Native types for PHP class properties
+All PHP class properties now have a native type.
+If you have extended classes with properties, which didn't have a native type before, make sure you now add them as well.
+## Storefront product box accessibility: Removed duplicate links around the product image in product cards
+**Affected template: `Resources/views/storefront/component/product/card/box-standard.html.twig`**
+
+The anchor link around the product image `a.product-image-link` is removed and replaced with the link of the product name `a.product-name` that now uses the `stretched-link` helper class:
+```diff
+<div class="card product-box box-standard">
+    <div class="card-body">
+        <div class="product-image-wrapper">
+-            <a href="https://shopware.local/Example-Product/SW-01931a101dcc725aa3affc0ff408ee31">
+                <img src="https://shopware.local/media/a3/22/75/1731309077/Example-Product_%283%29.webp?ts=1731309077" alt="Example-Product">
+-            </a>
+        </div>
+
+        <div class="product-info">
+            <a href="https://shopware.local/Example-Product/SW-01931a101dcc725aa3affc0ff408ee31"
++               class="product-name stretched-link"> {# <------ stretched-link is used instead #}
+                Example-Product
+            </a>
+        </div>
+    </div>
+</div>
+```
+## Reduced data loaded in Store-API Register Route and Register related events
+
+The customer entity does not have all associations loaded by default anymore. 
+This change reduces the amount of data loaded in the Store-API Register Route and Register related events to improve the performance.
+
+In the following event, the CustomerEntity has no association loaded anymore:
+
+- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
+- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
+- `\Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent`
+- `\Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent`
+- `\Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent`
+## Required foreign key in mapping definition for many-to-many associations
+If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
+
 ## Introduced in 6.6.8.0
 ## Vat Ids will be validated case sensitive
 Vat Ids will now be checked for case sensitivity, which means that most Vat Ids will now have to be upper case, depending on their validation pattern.

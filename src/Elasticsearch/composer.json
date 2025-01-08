@@ -29,7 +29,7 @@
     },
     "minimum-stability": "stable",
     "require": {
-        "php": "~8.2.0 || ~8.3.0",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
         "ext-curl": "*",
         "async-aws/core": "^1.22",
         "doctrine/dbal": "^3.9",

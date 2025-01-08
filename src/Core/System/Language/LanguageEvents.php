@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class LanguageEvents
 {
     final public const LANGUAGE_WRITTEN_EVENT = 'language.written';

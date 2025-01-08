@@ -584,11 +584,10 @@
                     "properties": {
                         "storage": {
                             "type": "string",
-                            "default": "mysql",
+                            "default": "cache",
                             "enum": [
                                 "cache",
-                                "redis",
-                                "mysql"
+                                "redis"
                             ]
                         },
                         "dsn": {

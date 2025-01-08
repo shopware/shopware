@@ -671,29 +671,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         static::assertArrayNotHasKey('one_to_one', $serialized);
     }
 
-    public function testSerializeAdmitsPuidField(): void
-    {
-        $definition = new EntityEncoderEntity();
-        new StaticDefinitionInstanceRegistry(
-            [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
-        );
-
-        $puid = '73df9248667e865f6e1dfbb8e1fc1dca642a990ea575954b74bf2ee18ebd11c48bc8301256b51a9921b36c7493bb3dea62171966c5de830d64403cd747786dad';
-        $serialized = DispatchEntityMessageHandler::serialize($definition->getFields(), [
-            'string' => 'foo',
-            'int' => '1337',
-            'blob' => 'blob',
-            'created_at' => (new \DateTimeImmutable('2023-07-31'))->format(Defaults::STORAGE_DATE_FORMAT),
-            'updated_at' => null,
-            'puid' => $puid,
-        ]);
-
-        static::assertArrayHasKey('puid', $serialized);
-        static::assertSame($puid, $serialized['puid']);
-    }
-
     public function testDoesNotDispatchIfNoEntitiesAreGiven(): void
     {
         $definition = new SyncEntityDefinition();

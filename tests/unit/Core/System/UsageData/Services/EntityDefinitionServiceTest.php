@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;

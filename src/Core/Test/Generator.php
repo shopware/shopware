@@ -80,6 +80,7 @@ class Generator extends TestCase
         ?CashRoundingConfig $itemRounding = null,
         ?CashRoundingConfig $totalRounding = null,
         ?array $areaRuleIds = [],
+        ?LanguageInfo $languageInfo = null,
         ?CountryEntity $country = null,
         ?CountryStateEntity $countryState = null,
         ?CustomerAddressEntity $customerAddress = null,
@@ -96,8 +97,6 @@ class Generator extends TestCase
             $salesChannel->setId(TestDefaults::SALES_CHANNEL);
             $salesChannel->setNavigationCategoryId(self::NAVIGATION_CATEGORY);
             $salesChannel->setTaxCalculationType(self::TAX_CALCULATION_TYPE);
-            $salesChannel->setPaymentMethodId($paymentMethod?->getId() ?? self::PAYMENT_METHOD);
-            $salesChannel->setShippingMethodId($shippingMethod?->getId() ?? self::SHIPPING_METHOD);
         }
 
         if (!$currency) {
@@ -125,10 +124,17 @@ class Generator extends TestCase
             $paymentMethod->setId(self::PAYMENT_METHOD);
         }
 
+        $salesChannel->setPaymentMethodIds([$paymentMethod->getId()]);
+        $salesChannel->setPaymentMethodId($paymentMethod->getId());
+        $salesChannel->setPaymentMethod($paymentMethod);
+
         if (!$shippingMethod) {
             $shippingMethod = new ShippingMethodEntity();
             $shippingMethod->setId(self::SHIPPING_METHOD);
         }
+
+        $salesChannel->setShippingMethodId($shippingMethod->getId());
+        $salesChannel->setShippingMethod($shippingMethod);
 
         if (!$shippingLocation) {
             if (!$country) {
@@ -171,6 +177,8 @@ class Generator extends TestCase
 
         $areaRuleIds ??= [];
 
+        $languageInfo ??= new LanguageInfo('English', 'en-GB');
+
         $salesChannelContext = new SalesChannelContext(
             $baseContext,
             $token,
@@ -186,6 +194,7 @@ class Generator extends TestCase
             $itemRounding,
             $totalRounding,
             $areaRuleIds,
+            $languageInfo,
         );
 
         if ($overrides) {

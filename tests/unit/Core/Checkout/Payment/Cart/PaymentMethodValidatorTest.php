@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -108,6 +109,7 @@ class PaymentMethodValidatorTest extends TestCase
         $paymentMethod->setAvailabilityRuleId('payment-method-availability-rule-id');
 
         $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setPaymentMethodIds(['payment-method-id']);
 
         $base = Context::createDefaultContext();

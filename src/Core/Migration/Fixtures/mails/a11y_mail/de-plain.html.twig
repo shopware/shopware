@@ -1,8 +1,10 @@
-{% set Ayy1Link = rawUrl('frontend.account.order.single.document', { documentId: document.id, 'deepLinkCode': document.deepLinkCode, fileType: 'html' }, salesChannel.domains|first.url)%}
+{% set Ayy1Link = rawUrl('frontend.account.order.single.document.a11y', { documentId: document.id, 'deepLinkCode': document.deepLinkCode, fileType: 'html' }, salesChannel.domains|first.url)%}
 
 {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
 
-In addition to the PDF document, we provide an HTML version for better accessibility here ({{ Ayy1Link }})
-For data protection reasons the HTML version requires to login.
-You can use your usual customer login credentials.
-In case of a guest order, you can instead use your mail address and the postal code of your billing address
+Ein neues Dokument wurde Ihrer Bestellung {{ order.orderNumber }} hinzugefügt. Das Originaldokument sollten Sie bereits in einer separaten Mail erhalten haben.
+
+Für einen barrierefreien Zugang, bieten wir hier auch eine HTML version des Dokuments an: {{ Ayy1Link }}
+
+Aus Datenschutzgründen ist für das HTML Dokument ein Login erforderlich.
+Im Falle einer Gastbestellung können Sie Ihre Mail-Adresse und die Postleitzahl Ihrer Rechnungsadresse verwenden.

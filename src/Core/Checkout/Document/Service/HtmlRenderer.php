@@ -23,7 +23,6 @@ class HtmlRenderer extends AbstractDocumentTypeRenderer
      * @internal
      *
      * @param DocumentTemplateRenderer $documentTemplateRenderer The renderer for document templates.
-     * @param ExtensionDispatcher $extensions
      */
     public function __construct(
         private readonly DocumentTemplateRenderer $documentTemplateRenderer,

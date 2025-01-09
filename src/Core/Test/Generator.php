@@ -60,6 +60,8 @@ class Generator extends TestCase
     final public const COUNTRY_STATE = '119d6e30fc4f468daa88ff5b413e9322';
     final public const CUSTOMER_ADDRESS = '08f1594313494c3e9eb57bb53486fe61';
     final public const CUSTOMER = '42d58aa78cf14851968a786a66bab93a';
+    final public const LANGUAGE_INFO_NAME = 'English';
+    final public const LANGUAGE_INFO_LOCALE_CODE = 'en-GB';
 
     /**
      * @param array<string, string[]> $areaRuleIds
@@ -177,24 +179,24 @@ class Generator extends TestCase
 
         $areaRuleIds ??= [];
 
-        $languageInfo ??= new LanguageInfo('English', 'en-GB');
+        $languageInfo ??= new LanguageInfo(self::LANGUAGE_INFO_NAME, self::LANGUAGE_INFO_LOCALE_CODE);
 
         $salesChannelContext = new SalesChannelContext(
-            $baseContext,
-            $token,
-            $domainId,
-            $salesChannel,
-            $currency,
-            $currentCustomerGroup,
-            $taxRules,
-            $paymentMethod,
-            $shippingMethod,
-            $shippingLocation,
-            $customer,
-            $itemRounding,
-            $totalRounding,
-            $areaRuleIds,
-            $languageInfo,
+            baseContext: $baseContext,
+            token: $token,
+            domainId: $domainId,
+            salesChannel: $salesChannel,
+            currency: $currency,
+            currentCustomerGroup: $currentCustomerGroup,
+            taxRules: $taxRules,
+            paymentMethod: $paymentMethod,
+            shippingMethod: $shippingMethod,
+            shippingLocation: $shippingLocation,
+            customer: $customer,
+            itemRounding: $itemRounding,
+            totalRounding: $totalRounding,
+            areaRuleIds: $areaRuleIds,
+            languageInfo: $languageInfo,
         );
 
         if ($overrides) {

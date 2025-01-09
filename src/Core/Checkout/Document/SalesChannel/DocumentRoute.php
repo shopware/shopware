@@ -31,13 +31,11 @@ final class DocumentRoute extends AbstractDocumentRoute
     }
 
     #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'document'])]
-    public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = ''): Response
+    public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = '', string $fileType = PdfRenderer::FILE_EXTENSION): Response
     {
         if ($context->getCustomer() === null || ($context->getCustomer()->getGuest() && $deepLinkCode === '')) {
             throw DocumentException::customerNotLoggedIn();
         }
-
-        $fileType = $request->query->getString('fileType', PdfRenderer::FILE_EXTENSION);
 
         $download = $request->query->getBoolean('download');
 

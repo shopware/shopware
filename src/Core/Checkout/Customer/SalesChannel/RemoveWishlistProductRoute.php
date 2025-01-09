@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,6 +26,9 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerWishlistCollection> $wishlistRepository
+     * @param EntityRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $wishlistRepository,
@@ -69,13 +74,12 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
             new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
         ]));
 
-        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());
-
-        if ($wishlistIds->firstId() === null) {
+        $wishlistId = $this->wishlistRepository->searchIds($criteria, $context->getContext())->firstId();
+        if (!$wishlistId) {
             throw CustomerException::customerWishlistNotFound();
         }
 
-        return $wishlistIds->firstId();
+        return $wishlistId;
     }
 
     private function getWishlistProductId(string $wishlistId, string $productId, SalesChannelContext $context): string
@@ -87,12 +91,11 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
             new EqualsFilter('productId', $productId),
             new EqualsFilter('productVersionId', Defaults::LIVE_VERSION),
         ]));
-        $wishlistProductIds = $this->productRepository->searchIds($criteria, $context->getContext());
-
-        if ($wishlistProductIds->firstId() === null) {
+        $wishlistProductId = $this->productRepository->searchIds($criteria, $context->getContext())->firstId();
+        if (!$wishlistProductId) {
             throw CustomerException::wishlistProductNotFound($productId);
         }
 
-        return $wishlistProductIds->firstId();
+        return $wishlistProductId;
     }
 }

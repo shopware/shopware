@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Attribute\Route;
@@ -39,6 +40,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      * @internal
      *
      * @param EntityRepository<CustomerAddressCollection> $addressRepository
+     * @param EntityRepository<SalutationCollection> $salutationRepository
      */
     public function __construct(
         private readonly EntityRepository $addressRepository,

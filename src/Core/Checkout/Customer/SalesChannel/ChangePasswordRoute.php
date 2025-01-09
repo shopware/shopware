@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
@@ -31,6 +32,8 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,

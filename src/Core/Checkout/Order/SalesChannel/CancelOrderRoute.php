@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -20,6 +21,8 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly OrderService $orderService,
@@ -62,7 +65,8 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
         $criteria = new Criteria([$orderId]);
         $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomerId()));
 
-        if ($this->orderRepository->searchIds($criteria, $context->getContext())->firstId() === null) {
+        $total = $this->orderRepository->searchIds($criteria, $context->getContext())->getTotal();
+        if (!$total) {
             throw OrderException::orderNotFound($orderId);
         }
     }

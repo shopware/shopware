@@ -11,10 +11,12 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -28,8 +30,10 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<EntityCollection<SalesChannelCountryDefinition>> $salesChannelCountryRepository
      */
-    public function __construct(private readonly EntityRepository $repository)
+    public function __construct(private readonly EntityRepository $salesChannelCountryRepository)
     {
     }
 
@@ -105,6 +109,6 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
         $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()));
         $criteria->addFilter(new EqualsFilter('countryId', $countryId));
 
-        return $this->available[$countryId] = $this->repository->searchIds($criteria, $context->getContext())->getTotal() !== 0;
+        return $this->available[$countryId] = $this->salesChannelCountryRepository->searchIds($criteria, $context->getContext())->getTotal() !== 0;
     }
 }

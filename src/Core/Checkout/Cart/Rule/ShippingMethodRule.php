@@ -24,7 +24,7 @@ class ShippingMethodRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        return RuleComparison::uuids([$scope->getSalesChannelContext()->getShippingMethod()->getId()], $this->shippingMethodIds, $this->operator);
+        return RuleComparison::uuids([$scope->getSalesChannelContext()->getShippingMethodId()], $this->shippingMethodIds, $this->operator);
     }
 
     public function getConstraints(): array

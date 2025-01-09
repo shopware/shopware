@@ -431,8 +431,8 @@ class RegisterRoute extends AbstractRegisterRoute
                 $context->getSalesChannelId()
             ),
             'salesChannelId' => $context->getSalesChannelId(),
-            'languageId' => $context->getContext()->getLanguageId(),
-            'groupId' => $context->getCurrentCustomerGroup()->getId(),
+            'languageId' => $context->getLanguageId(),
+            'groupId' => $context->getCustomerGroupId(),
             'requestedGroupId' => $data->get('requestedGroupId', null),
             'salutationId' => $data->get('salutationId'),
             'firstName' => $data->get('firstName'),
@@ -449,7 +449,7 @@ class RegisterRoute extends AbstractRegisterRoute
         ];
 
         if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $context->getPaymentMethod()->getId();
+            $customer['defaultPaymentMethodId'] = $context->getPaymentMethodId();
         }
 
         if (!$isGuest) {

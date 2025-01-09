@@ -47,7 +47,7 @@ class PaymentMethodCollection extends EntityCollection
     public function sortPaymentMethodsByPreference(SalesChannelContext $context): void
     {
         $ids = array_merge(
-            !Feature::isActive('ACCESSIBILITY_TWEAKS') ? [$context->getPaymentMethod()->getId()] : [],
+            !Feature::isActive('ACCESSIBILITY_TWEAKS') ? [$context->getPaymentMethodId()] : [],
             [$context->getSalesChannel()->getPaymentMethodId()],
             $this->getIds()
         );

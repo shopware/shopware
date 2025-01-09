@@ -164,7 +164,7 @@ class AccountOrderController extends StorefrontController
             return $this->redirectToRoute('frontend.account.order.page');
         }
 
-        if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
+        if ($context->getCurrencyId() !== $order->getCurrencyId()) {
             $this->contextSwitchRoute->switchContext(
                 new RequestDataBag([SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId()]),
                 $context
@@ -176,7 +176,7 @@ class AccountOrderController extends StorefrontController
         /** @var OrderDeliveryEntity|null $mostCurrentDelivery */
         $mostCurrentDelivery = $order->getDeliveries()?->last();
 
-        if ($mostCurrentDelivery !== null && $context->getShippingMethod()->getId() !== $mostCurrentDelivery->getShippingMethodId()) {
+        if ($mostCurrentDelivery !== null && $context->getShippingMethodId() !== $mostCurrentDelivery->getShippingMethodId()) {
             $this->contextSwitchRoute->switchContext(
                 new RequestDataBag([SalesChannelContextService::SHIPPING_METHOD_ID => $mostCurrentDelivery->getShippingMethodId()]),
                 $context
@@ -246,7 +246,7 @@ class AccountOrderController extends StorefrontController
             throw OrderException::paymentMethodNotChangeable();
         }
 
-        if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
+        if ($context->getCurrencyId() !== $order->getCurrencyId()) {
             $this->contextSwitchRoute->switchContext(
                 new RequestDataBag([SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId()]),
                 $context
@@ -256,7 +256,7 @@ class AccountOrderController extends StorefrontController
                 new SalesChannelContextServiceParameters(
                     $context->getSalesChannelId(),
                     $context->getToken(),
-                    $context->getContext()->getLanguageId()
+                    $context->getLanguageId()
                 )
             );
         }

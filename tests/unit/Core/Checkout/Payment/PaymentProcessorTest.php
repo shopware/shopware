@@ -581,7 +581,7 @@ class PaymentProcessorTest extends TestCase
 
         $this->paymentHandlerRegistry->expects(static::once())
             ->method('getPaymentMethodHandler')
-            ->with($salesChannelContext->getPaymentMethod()->getId())
+            ->with($salesChannelContext->getPaymentMethodId())
             ->willReturn($handler);
 
         $struct = $this->processor->validate(
@@ -604,7 +604,7 @@ class PaymentProcessorTest extends TestCase
 
         $this->paymentHandlerRegistry->expects(static::once())
             ->method('getPaymentMethodHandler')
-            ->with($salesChannelContext->getPaymentMethod()->getId())
+            ->with($salesChannelContext->getPaymentMethodId())
             ->willReturn(null);
 
         $this->expectException(PaymentException::class);
@@ -629,7 +629,7 @@ class PaymentProcessorTest extends TestCase
 
         $this->paymentHandlerRegistry->expects(static::once())
             ->method('getPaymentMethodHandler')
-            ->with($salesChannelContext->getPaymentMethod()->getId())
+            ->with($salesChannelContext->getPaymentMethodId())
             ->willReturn($this->createMock(SynchronousPaymentHandlerInterface::class));
 
         $this->processor->validate(
@@ -656,7 +656,7 @@ class PaymentProcessorTest extends TestCase
 
         $this->paymentHandlerRegistry->expects(static::once())
             ->method('getPaymentMethodHandler')
-            ->with($salesChannelContext->getPaymentMethod()->getId())
+            ->with($salesChannelContext->getPaymentMethodId())
             ->willReturn($handler);
 
         $this->expectException(PaymentException::class);

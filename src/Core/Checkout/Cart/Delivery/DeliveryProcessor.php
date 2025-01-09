@@ -66,7 +66,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
         Profiler::trace('cart::delivery::collect', function () use ($data, $original, $context): void {
-            $default = $context->getShippingMethod()->getId();
+            $default = $context->getShippingMethodId();
 
             if (!$data->has(self::buildKey($default))) {
                 $ids = [$default];

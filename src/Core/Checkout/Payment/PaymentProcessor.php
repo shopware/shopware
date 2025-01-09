@@ -176,9 +176,9 @@ class PaymentProcessor
         SalesChannelContext $salesChannelContext
     ): ?Struct {
         try {
-            $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($salesChannelContext->getPaymentMethod()->getId());
+            $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($salesChannelContext->getPaymentMethodId());
             if (!$paymentHandler) {
-                throw PaymentException::unknownPaymentMethodById($salesChannelContext->getPaymentMethod()->getId());
+                throw PaymentException::unknownPaymentMethodById($salesChannelContext->getPaymentMethodId());
             }
 
             if (!($paymentHandler instanceof PreparedPaymentHandlerInterface) && !($paymentHandler instanceof AbstractPaymentHandler)) {
@@ -192,7 +192,7 @@ class PaymentProcessor
         } catch (\Throwable $e) {
             $this->logger->error(
                 'An error occurred during processing the validation of the payment. The order has not been placed yet.',
-                ['customerId' => $salesChannelContext->getCustomer()?->getId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]
+                ['customerId' => $salesChannelContext->getCustomerId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]
             );
 
             throw $e;

@@ -107,7 +107,7 @@ class CartLoadRouteTest extends TestCase
 
         if ($ruleConditions !== null) {
             $this->paymentMethodRepository->update([[
-                'id' => $context->getPaymentMethod()->getId(),
+                'id' => $context->getPaymentMethodId(),
                 'availabilityRule' => [
                     'name' => 'Test Rule',
                     'priority' => 0,

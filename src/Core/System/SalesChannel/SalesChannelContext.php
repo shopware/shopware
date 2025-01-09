@@ -212,9 +212,19 @@ class SalesChannelContext extends Struct
         return $this->customer;
     }
 
+    public function getPaymentMethodId(): string
+    {
+        return $this->paymentMethod->getId();
+    }
+
     public function getPaymentMethod(): PaymentMethodEntity
     {
         return $this->paymentMethod;
+    }
+
+    public function getShippingMethodId(): string
+    {
+        return $this->shippingMethod->getId();
     }
 
     public function getShippingMethod(): ShippingMethodEntity

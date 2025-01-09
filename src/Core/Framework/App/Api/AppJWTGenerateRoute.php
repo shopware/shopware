@@ -62,11 +62,11 @@ class AppJWTGenerateRoute
         }
 
         if (\in_array('customer:read', $privileges, true)) {
-            $builder = $builder->withClaim('customerId', $context->getCustomer()->getId());
+            $builder = $builder->withClaim('customerId', $context->getCustomerId());
         }
 
         if (\in_array('currency:read', $privileges, true)) {
-            $builder = $builder->withClaim('currencyId', $context->getCurrency()->getId());
+            $builder = $builder->withClaim('currencyId', $context->getCurrencyId());
         }
 
         if (\in_array('language:read', $privileges, true)) {
@@ -74,11 +74,11 @@ class AppJWTGenerateRoute
         }
 
         if (\in_array('payment_method:read', $privileges, true)) {
-            $builder = $builder->withClaim('paymentMethodId', $context->getPaymentMethod()->getId());
+            $builder = $builder->withClaim('paymentMethodId', $context->getPaymentMethodId());
         }
 
         if (\in_array('shipping_method:read', $privileges, true)) {
-            $builder = $builder->withClaim('shippingMethodId', $context->getShippingMethod()->getId());
+            $builder = $builder->withClaim('shippingMethodId', $context->getShippingMethodId());
         }
 
         return new JsonResponse([

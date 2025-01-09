@@ -105,7 +105,7 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithInvalidOrderCountPerCustomerCount(): void
     {
-        $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], Uuid::randomHex(), 1, 2, 1, [$this->context->getCustomer()?->getId() => 1]);
+        $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], Uuid::randomHex(), 1, 2, 1, [$this->context->getCustomerId() => 1]);
         $cartDataCollection = new CartDataCollection();
 
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
@@ -184,7 +184,7 @@ class PromotionCollectorTest extends TestCase
             1,
             1,
             1,
-            [$this->context->getCustomer()?->getId() => 1]
+            [$this->context->getCustomerId() => 1]
         );
         $cart->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct(Uuid::randomHex()));
 

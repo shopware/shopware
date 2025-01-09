@@ -85,7 +85,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
 
         $addressCriteria = new Criteria();
         if ($context->getCustomer()) {
-            $addressCriteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomer()->getId()));
+            $addressCriteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomerId()));
         } else {
             // do not allow to set address ids if the customer is not logged in
             if (isset($parameters[self::SHIPPING_ADDRESS_ID])) {

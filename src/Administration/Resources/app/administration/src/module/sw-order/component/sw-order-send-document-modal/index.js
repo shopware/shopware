@@ -75,7 +75,6 @@ export default {
                     'invoice_mail',
                     'credit_note_mail',
                     'cancellation_mail',
-                    'a11y_mail',
                 ]),
             );
 
@@ -122,7 +121,22 @@ export default {
                 return;
             }
 
-            this.mailTemplateRepository.search(this.mailTemplateCriteria, Shopware.Context.api).then((result) => {
+            const criteria = new Criteria(1, 25);
+            criteria
+                .addAssociation('mailTemplateType')
+                .addFilter(
+                    Criteria.equalsAny('mailTemplateType.technicalName', [
+                        'delivery_mail',
+                        'invoice_mail',
+                        'credit_note_mail',
+                        'cancellation_mail',
+                        'a11y_mail',
+                    ]));
+
+            this.mailTemplateRepository.search(
+                criteria,
+                { ...Shopware.Context.api, languageId: this.order.languageId },
+            ).then((result) => {
                 const mailTemplate = result
                     .filter(
                         (t) =>
@@ -187,8 +201,11 @@ export default {
             this.isLoading = true;
 
             this.mailTemplateRepository
-                .get(this.mailTemplateId, Shopware.Context.api, this.mailTemplateSendCriteria)
-                .then((mailTemplate) => {
+                .get(
+                    this.mailTemplateId,
+                    { ...Shopware.Context.api, languageId: this.order.languageId },
+                    this.mailTemplateSendCriteria,
+                ).then((mailTemplate) => {
                     this.mailService
                         .sendMailTemplate(
                             this.recipient,
@@ -230,10 +247,10 @@ export default {
 
         onSendDocumentForA11y() {
             if (!this.mailA11yTemplate) {
-                return;
+                return Promise.resolve();
             }
 
-            this.mailService
+            return this.mailService
                 .sendMailTemplate(
                     this.recipient,
                     `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
@@ -248,16 +265,13 @@ export default {
                     },
                     this.order.salesChannelId,
                     false,
-                    [this.document.id],
+                    [],
                     {
                         order: this.order,
                         salesChannel: this.order.salesChannel,
                         document: this.document,
                     },
-                )
-                .catch(() => {
-                    // do something
-                });
+                );
         },
     },
 };

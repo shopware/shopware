@@ -68,7 +68,7 @@ class DocumentGenerator
 
         $mediaIds = $document->getDocumentMediaFileIds();
         if (empty($mediaIds)) {
-            return null;
+            $mediaIds = [$document->getDocumentMediaFileId()];
         }
 
         /** @var array{fileExtension: string, fileName: string, id: string, mimeType: string} $documentMedia */

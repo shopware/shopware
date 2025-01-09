@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,8 +26,11 @@ class DocumentController extends StorefrontController
     }
 
     #[Route(path: '/account/order/document/{documentId}/{deepLinkCode}', name: 'frontend.account.order.single.document', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['GET'])]
+    #[Route(path: '/account/order/document/{documentId}/{deepLinkCode}/{fileType}', name: 'frontend.account.order.single.document.a11y', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['GET'])]
     public function downloadDocument(Request $request, SalesChannelContext $context, string $documentId): Response
     {
-        return $this->documentRoute->download($documentId, $request, $context, $request->get('deepLinkCode'));
+        $fileType = $request->get('fileType', PdfRenderer::FILE_EXTENSION);
+
+        return $this->documentRoute->download($documentId, $request, $context, $request->get('deepLinkCode'), $fileType);
     }
 }

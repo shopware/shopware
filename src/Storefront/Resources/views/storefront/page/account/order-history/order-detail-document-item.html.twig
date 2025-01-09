@@ -7,7 +7,9 @@
     {%- endif -%}
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
-                {% for mediaFileId in document.documentMediaFileIds %}
+                {% set mediaFileIds = document.documentMediaFileIds ?: [document.documentMediaFileId] %}
+
+                {% for mediaFileId in mediaFileIds %}
                     {% set fileType = mediaFileId === document.documentMediaFileId
                         ? constant('Shopware\\Core\\Checkout\\Document\\Service\\PdfRenderer::FILE_EXTENSION')
                         : constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION')
@@ -16,19 +18,23 @@
                     {% set documentLink = path('frontend.account.order.single.document', {
                         documentId: document.id,
                         deepLinkCode: document.deepLinkCode,
-                        fileType,
                     }) %}
 
-                    <a href="{{ documentLink }}"
-                       target="_blank">
+                    {% if fileType == constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION') %}
+                        {% set documentLink = path('frontend.account.order.single.document.a11y', {
+                            documentId: document.id,
+                            deepLinkCode: document.deepLinkCode,
+                            fileType: fileType,
+                        }) %}
+                    {% endif %}
+
+                    <a href="{{ documentLink }}" target="_blank">
                         {% block page_account_order_document_item_detail_file_name_icon %}
                             <span class="icon icon-xs">{% sw_icon 'file' %}</span>
                         {% endblock %}
 
                         {% block page_account_order_document_item_detail_file_name_value %}
-                            {{ document.documentType.translated.name|replace({' ' : '-'}) }}_
-                            {{ document.config.documentNumber }}_
-                            {{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ fileType }}
+                            {{ document.config.filenamePrefix }}{{ document.config.documentNumber }}{{ document.config.filenameSuffix }}_{{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ fileType }}
                         {% endblock %}
                     </a><br>
                 {% endfor %}
@@ -44,6 +50,11 @@
 
         {% block page_account_order_document_item_detail_view_file_btn %}
              <div class="col-3 col-md-2 document-item document-item-view-file">
+                 {% set documentLink = path('frontend.account.order.single.document', {
+                     documentId: document.id,
+                     deepLinkCode: document.deepLinkCode,
+                 }) %}
+
                  {% block page_account_order_document_item_detail_view_file_btn_text %}
                      <a href="{{ documentLink }}"
                         target="_blank"

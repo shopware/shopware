@@ -264,6 +264,15 @@ class RequestTransformer implements RequestTransformerInterface
             return null;
         }
 
+        if ($request->attributes->get('sw-domain-id') !== null) {
+            $id = $request->attributes->get('sw-domain-id');
+            foreach ($domains as $url => $data) {
+                if ($data['id'] === $id) {
+                    return $data;
+                }
+            }
+        }
+
         // domain urls and request uri should be in same format, all with trailing slash
         $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
 

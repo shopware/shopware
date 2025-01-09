@@ -21,6 +21,8 @@ class DeleteUnusedGuestCustomerService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,

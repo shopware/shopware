@@ -14,8 +14,9 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
@@ -25,6 +26,7 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -43,6 +45,10 @@ class RecalculationService
      * @internal
      *
      * @param EntityRepository<OrderCollection> $orderRepository
+     * @param EntityRepository<ProductCollection> $productRepository
+     * @param EntityRepository<OrderAddressCollection> $orderAddressRepository
+     * @param EntityRepository<CustomerAddressCollection> $customerAddressRepository
+     * @param EntityRepository<OrderLineItemCollection> $orderLineItemRepository
      */
     public function __construct(
         protected EntityRepository $orderRepository,
@@ -253,8 +259,8 @@ class RecalculationService
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('customer_address.id', $customerAddressId));
 
-        $customerAddress = $this->customerAddressRepository->search($criteria, $context)->get($customerAddressId);
-        if (!$customerAddress instanceof CustomerAddressEntity) {
+        $customerAddress = $this->customerAddressRepository->search($criteria, $context)->getEntities()->first();
+        if (!$customerAddress) {
             throw CartException::addressNotFound($customerAddressId);
         }
 
@@ -294,7 +300,7 @@ class RecalculationService
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
-        $order = $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
 
         $this->validateOrder($order, $orderId);
 
@@ -341,7 +347,7 @@ class RecalculationService
      */
     private function validateOrderAddress(string $orderAddressId, Context $context): void
     {
-        $address = $this->orderAddressRepository->search(new Criteria([$orderAddressId]), $context)->get($orderAddressId);
+        $address = $this->orderAddressRepository->search(new Criteria([$orderAddressId]), $context)->getEntities()->first();
         if (!$address) {
             throw CartException::addressNotFound($orderAddressId);
         }

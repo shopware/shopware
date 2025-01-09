@@ -75,9 +75,8 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
             new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
         ]));
 
-        $wishlist = $this->wishlistRepository->search($criteria, $context->getContext());
-        $result = $wishlist->first();
-        if (!$result instanceof CustomerWishlistEntity) {
+        $result = $this->wishlistRepository->search($criteria, $context->getContext())->getEntities()->first();
+        if (!$result) {
             throw CustomerException::customerWishlistNotFound();
         }
 

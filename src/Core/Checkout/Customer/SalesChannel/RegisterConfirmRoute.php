@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -32,6 +33,8 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -54,17 +57,13 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             throw CustomerException::noHashProvided();
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('hash', $dataBag->get('hash')));
-        $criteria->addAssociation('addresses');
-        $criteria->addAssociation('salutation');
-        $criteria->setLimit(1);
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('hash', $dataBag->get('hash')))
+            ->addAssociations(['addresses', 'salutation'])
+            ->setLimit(1);
 
-        $customer = $this->customerRepository
-            ->search($criteria, $context->getContext())
-            ->first();
-
-        if (!$customer instanceof CustomerEntity) {
+        $customer = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
+        if (!$customer) {
             throw CustomerException::customerNotFoundByHash($dataBag->get('hash'));
         }
 
@@ -124,10 +123,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
-        $customer = $this->customerRepository
-            ->search($criteria, $new->getContext())
-            ->first();
-
+        $customer = $this->customerRepository->search($criteria, $new->getContext())->getEntities()->first();
         \assert($customer instanceof CustomerEntity);
 
         $response = new CustomerResponse($customer);

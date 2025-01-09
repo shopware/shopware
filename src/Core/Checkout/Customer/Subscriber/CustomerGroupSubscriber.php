@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Subscriber;
 use Cocur\Slugify\SlugifyInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -30,6 +31,10 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
+     * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly EntityRepository $customerGroupRepository,
@@ -128,7 +133,6 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)])
         );
 
-        /** @var CustomerGroupCollection $groups */
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
         $buildUrls = [];
 
@@ -148,13 +152,15 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
                 /** @var array<string> $languageIds */
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
-                $criteria = new Criteria($languageIds);
-                /** @var LanguageCollection $languageCollection */
-                $languageCollection = $this->languageRepository->search($criteria, $context)->getEntities();
+
+                $languageCollection = $this->languageRepository->search(new Criteria($languageIds), $context)->getEntities();
 
                 foreach ($languageIds as $languageId) {
-                    /** @var LanguageEntity $language */
                     $language = $languageCollection->get($languageId);
+                    if (!$language) {
+                        continue;
+                    }
+
                     $title = $this->getTranslatedTitle($group->getTranslations(), $language);
 
                     if (empty($title)) {

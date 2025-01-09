@@ -69,7 +69,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
             $criteria->addAssociation('tax');
             $criteria->setTitle('cart::shipping-methods');
 
-            $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
+            $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
 
             foreach ($ids as $id) {
                 $key = self::buildKey($id);

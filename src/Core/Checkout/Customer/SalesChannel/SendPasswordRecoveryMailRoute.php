@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
@@ -43,6 +45,9 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<CustomerRecoveryCollection> $customerRecoveryRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -80,8 +85,8 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         $repoContext = $context->getContext();
 
-        $existingRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
-        if ($existingRecovery instanceof CustomerRecoveryEntity) {
+        $existingRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->getEntities()->first();
+        if ($existingRecovery) {
             $this->deleteRecoveryForCustomer($existingRecovery, $repoContext);
         }
 
@@ -92,9 +97,8 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         $this->customerRecoveryRepository->create([$recoveryData], $repoContext);
 
-        $customerRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
-
-        if (!$customerRecovery instanceof CustomerRecoveryEntity) {
+        $customerRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->getEntities()->first();
+        if (!$customerRecovery) {
             throw CustomerException::customerNotFoundByIdException($customerId);
         }
 
@@ -205,15 +209,8 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannelId()),
         ]));
 
-        $result = $this->customerRepository->search($criteria, $context->getContext());
-
-        if ($result->count() !== 1) {
-            throw CustomerException::customerNotFound($email);
-        }
-
-        $customer = $result->first();
-
-        if (!$customer instanceof CustomerEntity) {
+        $customer = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
+        if (!$customer) {
             throw CustomerException::customerNotFound($email);
         }
 

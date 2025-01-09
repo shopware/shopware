@@ -95,8 +95,11 @@ class OrderAddressServiceTest extends TestCase
 
     public function testMissingOrder(): void
     {
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([new OrderCollection([])]);
+
         $orderAddressService = new OrderAddressService(
-            new StaticEntityRepository([new OrderCollection([])]),
+            $orderRepository,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class)

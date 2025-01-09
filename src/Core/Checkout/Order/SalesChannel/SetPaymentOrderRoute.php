@@ -244,9 +244,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
-
-        if ($order === null) {
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
+        if (!$order) {
             throw OrderException::orderNotFound($orderId);
         }
 

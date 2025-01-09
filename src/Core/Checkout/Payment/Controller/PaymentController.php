@@ -101,7 +101,7 @@ class PaymentController extends AbstractController
         $context = Context::createDefaultContext();
 
         $transactionId = $token->getTransactionId();
-        if ($transactionId === null) {
+        if (!$transactionId) {
             throw PaymentException::invalidToken($token->getToken() ?? '');
         }
 
@@ -111,8 +111,7 @@ class PaymentController extends AbstractController
         $criteria->addAssociation('orderCustomer');
 
         $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
-
-        if ($order === null) {
+        if (!$order) {
             throw PaymentException::invalidToken($token->getToken() ?? '');
         }
 

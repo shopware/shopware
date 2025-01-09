@@ -119,10 +119,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         $this->addressRepository->upsert([$addressData], $context->getContext());
 
-        $criteria = new Criteria([$addressId]);
-
-        /** @var CustomerAddressEntity $address */
-        $address = $this->addressRepository->search($criteria, $context->getContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$addressId]), $context->getContext())->getEntities()->first();
+        \assert($address instanceof CustomerAddressEntity);
 
         return new UpsertAddressRouteResponse($address);
     }

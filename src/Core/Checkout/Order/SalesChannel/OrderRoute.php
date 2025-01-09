@@ -131,15 +131,14 @@ class OrderRoute extends AbstractOrderRoute
             }
         }
 
-        $promotions = new PromotionCollection();
-
-        if (!empty($promotionIds)) {
-            $criteria = new Criteria($promotionIds);
-            $criteria->addAssociation('cartRules');
-            $promotions = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
+        if (!$promotionIds) {
+            return new PromotionCollection();
         }
 
-        return $promotions;
+        $criteria = new Criteria($promotionIds);
+        $criteria->addAssociation('cartRules');
+
+        return $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
     }
 
     private function checkRuleType(Container $rule): bool

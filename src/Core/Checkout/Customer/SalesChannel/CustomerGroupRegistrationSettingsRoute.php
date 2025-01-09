@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,6 +19,8 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      */
     public function __construct(private readonly EntityRepository $customerGroupRepository)
     {
@@ -36,11 +39,11 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
         $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
         $result = $this->customerGroupRepository->search($criteria, $context->getContext());
-        if ($result->getTotal() === 0) {
+        if (!$result->getTotal()) {
             throw CustomerException::customerGroupRegistrationConfigurationNotFound($customerGroupId);
         }
 
-        $customerGroup = $result->first();
+        $customerGroup = $result->get($customerGroupId);
         \assert($customerGroup instanceof CustomerGroupEntity);
 
         return new CustomerGroupRegistrationSettingsRouteResponse($customerGroup);

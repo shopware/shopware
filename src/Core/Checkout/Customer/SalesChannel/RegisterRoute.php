@@ -41,7 +41,6 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -192,8 +191,8 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $criteria = new Criteria([$customer['id']]);
 
-        /** @var CustomerEntity $customerEntity */
-        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
+        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
+        assert($customerEntity !== null);
 
         if ($customerEntity->getDoubleOptInRegistration()) {
             $this->eventDispatcher->dispatch(

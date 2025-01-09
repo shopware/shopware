@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,6 +23,8 @@ class DownloadRoute extends AbstractDownloadRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderLineItemDownloadCollection> $downloadRepository
      */
     public function __construct(
         private readonly EntityRepository $downloadRepository,
@@ -61,9 +63,8 @@ class DownloadRoute extends AbstractDownloadRoute
             ]
         ));
 
-        $download = $this->downloadRepository->search($criteria, $context->getContext())->first();
-
-        if (!$download instanceof OrderLineItemDownloadEntity || !$download->getMedia()) {
+        $download = $this->downloadRepository->search($criteria, $context->getContext())->getEntities()->first();
+        if (!$download || !$download->getMedia()) {
             throw CustomerException::downloadFileNotFound($downloadId);
         }
 

@@ -65,8 +65,8 @@ class DocumentGenerator
             'documentA11yMediaFile',
         ]);
 
-        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
-        if (!$document instanceof DocumentEntity) {
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
@@ -174,11 +174,8 @@ class DocumentGenerator
 
     public function upload(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
     {
-        $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('documentMediaFile');
-
-        $document = $this->documentRepository->search($criteria, $context)->first();
-        if (!($document instanceof DocumentEntity)) {
+        $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
@@ -310,8 +307,7 @@ class DocumentGenerator
             ->addAssociation('documentA11yMediaFile')
             ->addAssociation('documentType');
 
-        /** @var ?DocumentEntity $document */
-        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
 
         return $document;
     }

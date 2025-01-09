@@ -28,6 +28,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      * @internal
      *
      * @param EntityRepository<CountryCollection> $countryRepository
+     * @param EntityRepository<DocumentBaseConfigCollection> $documentConfigRepository
      */
     public function __construct(
         private readonly EntityRepository $documentConfigRepository,
@@ -57,7 +58,6 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $criteria->addAssociation('logo');
         $criteria->getAssociation('salesChannels')->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
 
-        /** @var DocumentBaseConfigCollection $documentConfigs */
         $documentConfigs = $this->documentConfigRepository->search($criteria, $context)->getEntities();
 
         $globalConfig = $documentConfigs->filterByProperty('global', true)->first();

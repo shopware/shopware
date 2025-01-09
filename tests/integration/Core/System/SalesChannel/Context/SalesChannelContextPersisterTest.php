@@ -242,7 +242,7 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $token = Random::getAlphanumericString(32);
 
-        $context = Generator::generateSalesChannelContext();
+        $context = Generator::generateSalesChannelContext(overrides: ['customer' => null]);
         $newToken = $this->contextPersister->replace($token, $context);
 
         static::assertTrue($this->contextExists($newToken));
@@ -262,7 +262,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ]);
 
-        $context = Generator::generateSalesChannelContext();
+        $context = Generator::generateSalesChannelContext(overrides: ['customer' => null]);
         $newToken = $this->contextPersister->replace($token, $context);
 
         static::assertTrue($this->contextExists($newToken));

@@ -1,6 +1,5 @@
 ---
 title: Add custom_field storeApiAware field
-issue: NEXT-00000
 author: Benjamin Wittwer
 author_email: benjamin.wittwer@a-k-f.de
 author_github: akf-bw

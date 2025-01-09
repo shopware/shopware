@@ -56,5 +56,7 @@ return [
 
         // Added new optional parameter to those classes
         'Parameter fileType was added to Method readDocument\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator',
+
+        'Parameter fileType was added to Method download\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\SalesChannel\\\\AbstractDocumentRoute'
     ],
 ];

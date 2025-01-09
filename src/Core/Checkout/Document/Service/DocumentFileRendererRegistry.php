@@ -25,9 +25,9 @@ class DocumentFileRendererRegistry
      *
      * @param RenderedDocument $document The document to be rendered.
      *
-     * @return string The rendered document content.
-     *
      * @throws DocumentException If no renderer matches the document's file extension.
+     *
+     * @return string The rendered document content.
      */
     public function render(RenderedDocument $document): string
     {

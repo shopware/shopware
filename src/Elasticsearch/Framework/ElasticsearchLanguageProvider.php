@@ -18,9 +18,13 @@ class ElasticsearchLanguageProvider
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
-    public function __construct(private readonly EntityRepository $languageRepository, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $languageRepository,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getLanguages(Context $context): LanguageCollection
@@ -31,11 +35,6 @@ class ElasticsearchLanguageProvider
 
         $this->eventDispatcher->dispatch(new ElasticsearchIndexerLanguageCriteriaEvent($criteria, $context));
 
-        /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context)
-            ->getEntities();
-
-        return $languages;
+        return $this->languageRepository->search($criteria, $context)->getEntities();
     }
 }

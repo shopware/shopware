@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
@@ -19,6 +20,8 @@ final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductStreamCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,

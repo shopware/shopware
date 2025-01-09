@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
@@ -19,6 +20,8 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,

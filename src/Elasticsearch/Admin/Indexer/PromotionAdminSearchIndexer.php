@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
@@ -22,6 +23,8 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,

@@ -8,6 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
@@ -25,6 +26,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
     /**
      * @internal
      *
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      * @param array<mixed> $config
      */
     public function __construct(

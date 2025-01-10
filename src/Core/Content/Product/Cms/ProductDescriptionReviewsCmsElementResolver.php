@@ -98,7 +98,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 
     private function createReviewCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        $limit = (int) $request->get('limit', self::LIMIT);
+        $limit = self::LIMIT;
         $page = (int) $request->get('p', self::DEFAULT_PAGE);
         $offset = $limit * ($page - 1);
 

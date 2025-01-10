@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
@@ -81,7 +80,7 @@ class ProductReviewLoader
 
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        $limit = (int) $request->get('limit', self::LIMIT);
+        $limit = self::LIMIT;
         $page = (int) $request->get('p', self::DEFAULT_PAGE);
         $offset = $limit * ($page - 1);
 

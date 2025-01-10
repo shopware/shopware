@@ -87,10 +87,6 @@
                                                                   {# ludtwig-ignore html-string-quotation #}
                                                                   data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
-                                                                {% if app.request.get('limit') %}
-                                                                    <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
-                                                                {% endif %}
-
                                                                 {% if app.request.get('sort') %}
                                                                     <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
                                                                 {% endif %}
@@ -132,9 +128,6 @@
                                                                       data-form-ajax-submit="true"
                                                                       {# ludtwig-ignore html-string-quotation #}
                                                                       data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
-                                                                    {% if app.request.get('limit') %}
-                                                                        <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
-                                                                    {% endif %}
 
                                                                     {% if app.request.get('language') %}
                                                                         <input type="hidden" name="language" value="{{ app.request.get('language') }}">
@@ -216,9 +209,6 @@
                                                               data-form-ajax-submit="true"
                                                               {# ludtwig-ignore html-string-quotation #}
                                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
-                                                            {% if app.request.get('limit') %}
-                                                                <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
-                                                            {% endif %}
 
                                                             {% if app.request.get('language') %}
                                                                 <input type="hidden" name="language" value="{{ app.request.get('language') }}">

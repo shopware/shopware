@@ -287,4 +287,96 @@ describe('form-validation', () => {
         expect(validator).toHaveReturnedWith(true);
         expect(field.classList).not.toContain(formValidation.config.invalidClass);
     });
+
+    test('should validate hidden fields correctly', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <!-- Should be validated-->
+                <input type="text"
+                       name="visible"
+                       id="visible"
+                       data-validation="required">
+
+                <!-- Should not be validated-->
+                <input type="text"
+                       name="invisible"
+                       id="invisible"
+                       data-validation="required"
+                       style="display: none;">
+
+                <!-- Should be validated-->
+                <input type="text"
+                       name="invisible-but-validated"
+                       id="invisible-but-validated"
+                       data-validation="required"
+                       data-validate-hidden="true"
+                       style="display: none;">
+
+                <!-- Should be validated-->
+                <input type="hidden"
+                       name="hidden"
+                       id="hidden"
+                       data-validation="required">
+            </form>
+        `;
+
+        const form = document.getElementById('testForm');
+        const visibleField = document.getElementById('visible');
+        const invisibleField = document.getElementById('invisible');
+        const invisibleButValidatedField = document.getElementById('invisible-but-validated');
+        const hiddenField = document.getElementById('hidden');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        visibleField.checkVisibility = jest.fn().mockReturnValue(true);
+        invisibleField.checkVisibility = jest.fn().mockReturnValue(false);
+        invisibleButValidatedField.checkVisibility = jest.fn().mockReturnValue(false);
+        hiddenField.checkVisibility = jest.fn().mockReturnValue(false);
+
+        let invalidFields = formValidation.validateForm(form);
+
+        expect(invalidFields.length).toBe(3);
+
+        visibleField.value = 'Test';
+        invisibleField.value = 'Test';
+        invisibleButValidatedField.value = 'Test';
+        hiddenField.value = 'Test';
+
+        invalidFields = formValidation.validateForm(form);
+
+        expect(invalidFields.length).toBe(0);
+    });
+
+    test('should validate field with native required attribute', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <input type="text" name="required" id="required" data-validation="required">
+                <input type="text" name="required-native" id="required-native" required>
+                <input type="text" name="not-required" id="not-required">
+            </form>
+        `;
+
+        const form = document.getElementById('testForm');
+        const formFields = form.querySelectorAll('input');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        formFields.forEach((field) => {
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+        });
+
+        const requiredField = document.getElementById('required');
+        const nativeRequiredField = document.getElementById('required-native');
+        const notRequiredField = document.getElementById('not-required');
+
+        let invalidFields = formValidation.validateForm(form);
+
+        expect(invalidFields.length).toBe(2);
+
+        requiredField.value = 'Test';
+        nativeRequiredField.value = 'Test';
+        notRequiredField.value = 'Test';
+
+        invalidFields = formValidation.validateForm(form);
+
+        expect(invalidFields.length).toBe(0);
+    });
 });

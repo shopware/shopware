@@ -171,6 +171,9 @@ export default class FormHandler extends Plugin {
 
         // Handle form validation
         if (this.options.validateOnSubmit === true) {
+            // Form fields are always updated again, because there might be fields that where added async.
+            this.formFields = this.form.querySelectorAll(this.options.formFieldSelector);
+
             const invalidFields = window.formValidation.validateForm(this.form, this.formFields);
 
             if (invalidFields.length > 0) {
@@ -223,6 +226,9 @@ export default class FormHandler extends Plugin {
      * @private
      */
     _checkValidity() {
+        // Form fields are always updated again, because there might be fields that where added async.
+        this.formFields = this.form.querySelectorAll(this.options.formFieldSelector);
+
         const invalidFields = window.formValidation.validateForm(this.form, this.formFields);
 
         return invalidFields.length === 0;

@@ -175,7 +175,7 @@ export default class FormValidation {
         let fields = formFields;
 
         if (!formFields) {
-            fields = form.querySelectorAll('[data-validation]');
+            fields = form.querySelectorAll('[data-validation], [required]');
         }
 
         fields.forEach((field) => {
@@ -210,11 +210,11 @@ export default class FormValidation {
             return false;
         }
 
-        const isNotVisible = typeof field.checkVisibility === 'function' && field.checkVisibility() === false;
+        const isVisible = this.checkVisibility(field);
 
         // If the field is hidden then skip validation.
         // This can happen due to optional fields which are only active in certain conditions.
-        if (isNotVisible && field.type !== 'hidden') {
+        if (!isVisible && field.type !== 'hidden') {
             // You can still validate non visible fields by setting the `data-validate-hidden` attribute.
             const validateHiddenAttr = field.getAttribute('data-validate-hidden');
 
@@ -225,14 +225,20 @@ export default class FormValidation {
         }
 
         const validationConfig = field.getAttribute('data-validation');
+        const validationRules = validationConfig ? validationConfig.split(',') : [];
+        const hasRequiredAttribute = field.hasAttribute('required');
+
+        // Support for the native `required` attribute.
+        if (hasRequiredAttribute && !validationRules.includes('required')) {
+            validationRules.push('required');
+        }
 
         // Field has no validation rules.
-        if (!validationConfig || !validationConfig.length) {
+        if (validationRules.length === 0) {
             this.setFieldNeutral(field);
             return true;
         }
 
-        const validationRules = validationConfig.split(',');
         const value = field.value.trim();
 
         const validationErrors = validationRules.reduce((errors, validationRule) => {
@@ -514,6 +520,21 @@ export default class FormValidation {
 
         fieldFeedbackEl.innerHTML = '';
         return true;
+    }
+
+    /**
+     * Checks if an HTML element is visible within the page.
+     *
+     * @param {HTMLElement} el
+     *
+     * @returns {boolean}
+     */
+    checkVisibility(el) {
+        if (typeof el.checkVisibility === 'function') {
+            return el.checkVisibility();
+        }
+
+        return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
     }
 
     /**

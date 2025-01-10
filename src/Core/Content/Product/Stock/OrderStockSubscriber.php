@@ -12,9 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -29,7 +31,9 @@ final class OrderStockSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly Connection $connection,
         private readonly AbstractStockStorage $stockStorage,
+        /** @deprecated tag:v6.7.0 - Will be removed */
         private readonly bool $enableStockManagement,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -48,7 +52,13 @@ final class OrderStockSubscriber implements EventSubscriberInterface
 
     public function beforeWriteOrderItems(EntityWriteEvent $event): void
     {
-        if (!$this->enableStockManagement) {
+        $enableStockManagement = $this->enableStockManagement;
+        if (Feature::isActive('v6.7.0.0')) {
+            $enableStockManagementConfig = $this->systemConfigService->get('core.listing.enableStockManagement');
+            $enableStockManagement = $enableStockManagementConfig !== null ? (bool) $enableStockManagementConfig : true;
+        }
+
+        if (!$enableStockManagement) {
             return;
         }
 
@@ -92,7 +102,13 @@ final class OrderStockSubscriber implements EventSubscriberInterface
 
     public function stateChanged(StateMachineTransitionEvent $event): void
     {
-        if (!$this->enableStockManagement) {
+        $enableStockManagement = $this->enableStockManagement;
+        if (Feature::isActive('v6.7.0.0')) {
+            $enableStockManagementConfig = $this->systemConfigService->get('core.listing.enableStockManagement');
+            $enableStockManagement = $enableStockManagementConfig !== null ? (bool) $enableStockManagementConfig : true;
+        }
+
+        if (!$enableStockManagement) {
             return;
         }
 

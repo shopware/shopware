@@ -38,6 +38,15 @@
             <helpText lang="de-DE">Aktivieren um Bewertungen anzuzeigen</helpText>
         </input-field>
 
+        <input-field type="bool">
+            <name>enableStockManagement</name>
+            <label>Enable stock management</label>
+            <label lang="de-DE">Bestandsverwaltung ermöglichen</label>
+            <helpText>Deactivate to disable stock management. Please note this only applies if you have the STOCK_HANDLING feature flag enabled. When disabled, none of the event subscribers for order transitions will be executed. In practice, this means that none of the subscribers in Shopware\Core\Content\Product\Stock\OrderStockSubscriber will be executed</helpText>
+            <helpText lang="de-DE">Deaktivieren, um die Bestandsverwaltung zu deaktivieren. Bitte beachten Sie, dass dies nur gilt, wenn Sie das Funktionskennzeichen STOCK_HANDLING aktiviert haben. Wenn die Funktion deaktiviert ist, wird keiner der Ereignisabonnenten für Bestellübergänge ausgeführt. In der Praxis bedeutet dies, dass keiner der Abonnenten in Shopware\Core\Content\Product\Stock\OrderStockSubscriber ausgeführt wird.</helpText>
+            <defaultValue>1</defaultValue>
+        </input-field>
+
         <input-field type="int">
             <name>reviewsPerPage</name>
             <defaultValue>10</defaultValue>

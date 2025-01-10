@@ -43,6 +43,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createIncrementSection())
                 ->append($this->createTwigSection())
                 ->append($this->createDompdfSection())
+                /** @deprecated tag:v6.7.0 - Will be removed */
                 ->append($this->createStockSection())
                 ->append($this->createUsageDataSection())
                 ->append($this->createFeatureToggleNode())

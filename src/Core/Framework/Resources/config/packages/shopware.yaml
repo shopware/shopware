@@ -538,6 +538,7 @@ shopware:
         options:
             isRemoteEnabled: true
 
+    # @deprecated tag:v6.7.0 - Will be removed
     stock:
         enable_stock_management: true
 

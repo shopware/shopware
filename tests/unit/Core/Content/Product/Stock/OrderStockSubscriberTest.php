@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -70,10 +71,17 @@ class OrderStockSubscriberTest extends TestCase
         $stockStorage = $this->createMock(StockStorage::class);
         $stockStorage->expects(static::never())->method('alter');
 
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('get')
+            ->with('core.listing.enableStockManagement')
+            ->willReturn(false);
+
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
             $stockStorage,
-            false
+            false,
+            $systemConfigService
         );
 
         $event = EntityWriteEvent::create(
@@ -92,10 +100,17 @@ class OrderStockSubscriberTest extends TestCase
         $stockStorage = $this->createMock(StockStorage::class);
         $stockStorage->expects(static::never())->method('alter');
 
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('get')
+            ->with('core.listing.enableStockManagement')
+            ->willReturn(true);
+
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
             $stockStorage,
-            true
+            true,
+            $systemConfigService
         );
 
         $event = EntityWriteEvent::create(
@@ -114,10 +129,17 @@ class OrderStockSubscriberTest extends TestCase
         $stockStorage = $this->createMock(StockStorage::class);
         $stockStorage->expects(static::never())->method('alter');
 
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('get')
+            ->with('core.listing.enableStockManagement')
+            ->willReturn(true);
+
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
             $stockStorage,
-            true
+            true,
+            $systemConfigService
         );
 
         $definition = $this->getDefinition(ProductDefinition::class);
@@ -151,10 +173,17 @@ class OrderStockSubscriberTest extends TestCase
         $stockStorage = $this->createMock(StockStorage::class);
         $stockStorage->expects(static::never())->method('alter');
 
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('get')
+            ->with('core.listing.enableStockManagement')
+            ->willReturn(true);
+
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
             $stockStorage,
-            true
+            true,
+            $systemConfigService
         );
 
         $definition = $this->getDefinition();
@@ -224,10 +253,18 @@ class OrderStockSubscriberTest extends TestCase
         );
 
         $stockStorage = $this->createMock(StockStorage::class);
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('get')
+            ->with('core.listing.enableStockManagement')
+            ->willReturn(true);
+
         $stockSubscriber = new OrderStockSubscriber(
             $connection,
             $stockStorage,
-            true
+            true,
+            $systemConfigService
         );
 
         $expectedUpdates = array_map($idMapper(['lineItemId', 'productId']), $expectedUpdates);
@@ -526,10 +563,17 @@ class OrderStockSubscriberTest extends TestCase
         $stockStorage = $this->createMock(StockStorage::class);
         $stockStorage->expects(static::never())->method('alter');
 
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('get')
+            ->with('core.listing.enableStockManagement')
+            ->willReturn(false);
+
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
             $stockStorage,
-            false
+            false,
+            $systemConfigService
         );
 
         $stockSubscriber->stateChanged($event);
@@ -556,10 +600,17 @@ class OrderStockSubscriberTest extends TestCase
         $stockStorage = $this->createMock(StockStorage::class);
         $stockStorage->expects(static::never())->method('alter');
 
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('get')
+            ->with('core.listing.enableStockManagement')
+            ->willReturn(true);
+
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
             $stockStorage,
-            true
+            true,
+            $systemConfigService
         );
 
         $stockSubscriber->stateChanged($event);
@@ -586,10 +637,17 @@ class OrderStockSubscriberTest extends TestCase
         $stockStorage = $this->createMock(StockStorage::class);
         $stockStorage->expects(static::never())->method('alter');
 
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('get')
+            ->with('core.listing.enableStockManagement')
+            ->willReturn(true);
+
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
             $stockStorage,
-            true
+            true,
+            $systemConfigService
         );
 
         $stockSubscriber->stateChanged($event);
@@ -645,10 +703,17 @@ class OrderStockSubscriberTest extends TestCase
                 return true;
             }));
 
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('get')
+            ->with('core.listing.enableStockManagement')
+            ->willReturn(true);
+
         $stockSubscriber = new OrderStockSubscriber(
             $connection,
             $stockStorage,
-            true
+            true,
+            $systemConfigService
         );
 
         $stockSubscriber->stateChanged($event);

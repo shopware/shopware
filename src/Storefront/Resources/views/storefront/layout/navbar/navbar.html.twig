@@ -1,3 +1,7 @@
+{% if not header is defined and page is defined %}
+    {% set header = page.header %}
+{% endif %}
+
 {% block layout_navbar %}
     <div class="container">
         <nav class="navbar navbar-expand-lg main-navigation-menu"
@@ -26,9 +30,9 @@
                         {% endblock %}
 
                         {% block layout_navbar_menu_items %}
-                            {% set activePath = page.header.navigation.active.path %}
+                            {% set activePath = shopware.navigation.path %}
 
-                            {% for treeItem in page.header.navigation.tree %}
+                            {% for treeItem in header.navigation.tree %}
                                 {% set category = treeItem.category %}
                                 {% set name = category.translated.name %}
 
@@ -45,7 +49,7 @@
                                         </li>
                                     {% else %}
                                         <li class="nav-item {% if treeItem.children|length > 0 %}dropdown position-static pe-2{% endif %}">
-                                            <a class="nav-link dropdown-toggle main-navigation-link{% if category.id == page.header.navigation.active.id or category.id in activePath %} active{% endif %} p-2"
+                                            <a class="nav-link dropdown-toggle main-navigation-link{% if category.id == shopware.navigation.id or category.id in activePath %} active{% endif %} p-2"
                                                href="{{ category_url(category) }}"
                                                data-bs-toggle="dropdown"
                                                itemprop="url"

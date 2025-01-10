@@ -32,6 +32,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -59,7 +60,8 @@ class Generator extends TestCase
         ?CustomerEntity $customer = null,
         ?string $token = null,
         ?string $domainId = null,
-        bool $createCustomer = true
+        bool $createCustomer = true,
+        ?LanguageInfo $languageInfo = null,
     ): SalesChannelContext {
         if (!$baseContext) {
             $baseContext = Context::createDefaultContext();
@@ -156,7 +158,8 @@ class Generator extends TestCase
             $customer,
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
-            []
+            [],
+            $languageInfo ?? new LanguageInfo('English', 'en-GB')
         );
     }
 

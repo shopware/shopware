@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:remove-exception - Will be removed. Use \Shopware\Core\System\SalesChannel\SalesChannelException::taxNotFound instead
+ */
 #[Package('checkout')]
 class TaxNotFoundException extends ShopwareHttpException
 {

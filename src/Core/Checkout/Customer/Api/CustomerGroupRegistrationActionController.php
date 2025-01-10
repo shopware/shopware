@@ -110,10 +110,13 @@ class CustomerGroupRegistrationActionController
         $this->customerRepository->update($updateData, $context);
 
         foreach ($customers as $customer) {
-            $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
+            $customerId = $customer->getId();
+            $salesChannelContext = $this->restorer->restoreByCustomer($customerId, $context);
 
-            /** @var CustomerEntity $customer */
             $customer = $salesChannelContext->getCustomer();
+            if (!$customer) {
+                throw CustomerException::customersNotFound([$customerId]);
+            }
             $customerGroupId = $customer->getGroupId();
 
             $criteria = (new Criteria([$customerGroupId]))
@@ -161,14 +164,14 @@ class CustomerGroupRegistrationActionController
     {
         $criteria = new Criteria($customerIds);
         $result = $this->customerRepository->search($criteria, $context);
-        if (!$result->getTotal()) {
+        if ($result->getTotal() === 0) {
             throw CustomerException::customersNotFound($customerIds);
         }
 
         $customers = [];
 
         foreach ($result->getEntities() as $customer) {
-            if ($customer->getRequestedGroupId() === null) {
+            if (!$customer->getRequestedGroupId()) {
                 if ($silentError === false) {
                     throw CustomerException::groupRequestNotFound($customer->getId());
                 }

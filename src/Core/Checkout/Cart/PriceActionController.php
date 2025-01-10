@@ -88,7 +88,6 @@ class PriceActionController extends AbstractController
             throw CartException::pricesParameterIsMissing();
         }
 
-<<<<<<< HEAD
         $taxRate = null;
         if (Feature::isActive('v6.8.0.0')) {
             $criteria = (new Criteria([$taxId]))
@@ -101,22 +100,14 @@ class PriceActionController extends AbstractController
             $taxRate = $tax?->getTaxRate();
         }
 
-        if ($taxRate === null) {
-=======
-        $criteria = (new Criteria([$taxId]))
-            ->addFields(['taxRate']);
-
-        $tax = $this->taxRepository->search($criteria, $context)->getEntities()->first();
+        $tax = $this->taxRepository->search(new Criteria([$taxId]), $context)->getEntities()->first();
         if (!$tax) {
->>>>>>> e76ff17a16 (Improve core checkout domain search usage)
             throw CartException::taxRuleNotFound($taxId);
         }
 
         $data = [];
-<<<<<<< HEAD
-=======
+
         $taxRate = $tax->get('taxRate');
->>>>>>> e76ff17a16 (Improve core checkout domain search usage)
         foreach ($productPrices as $productId => $prices) {
             $calculatedPrices = [];
             foreach ($prices as $price) {

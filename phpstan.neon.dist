@@ -178,7 +178,6 @@ parameters:
         - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
             message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
             paths:
-                - src/Core/Checkout/**
                 - src/Core/Content/**
                 - src/Core/Framework/**
                 - src/Core/Maintenance/**
@@ -195,7 +194,6 @@ parameters:
         - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
             message: '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
             paths:
-                - src/Core/Checkout/**
                 - src/Core/Content/**
                 - src/Core/System/**
                 - tests/integration/Core/**

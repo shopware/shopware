@@ -39,11 +39,11 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
         $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
         $result = $this->customerGroupRepository->search($criteria, $context->getContext());
-        if (!$result->getTotal()) {
+        if ($result->getTotal() === 0) {
             throw CustomerException::customerGroupRegistrationConfigurationNotFound($customerGroupId);
         }
 
-        $customerGroup = $result->get($customerGroupId);
+        $customerGroup = $result->first();
         \assert($customerGroup instanceof CustomerGroupEntity);
 
         return new CustomerGroupRegistrationSettingsRouteResponse($customerGroup);

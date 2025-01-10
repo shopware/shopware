@@ -33,7 +33,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -256,10 +255,7 @@ class RecalculationService
     {
         $this->validateOrderAddress($orderAddressId, $context);
 
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('customer_address.id', $customerAddressId));
-
-        $customerAddress = $this->customerAddressRepository->search($criteria, $context)->getEntities()->first();
+        $customerAddress = $this->customerAddressRepository->search(new Criteria([$customerAddressId]), $context)->getEntities()->first();
         if (!$customerAddress) {
             throw CartException::addressNotFound($customerAddressId);
         }

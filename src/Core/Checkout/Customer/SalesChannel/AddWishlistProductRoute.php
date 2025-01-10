@@ -90,7 +90,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
     private function validateProduct(string $productId, SalesChannelContext $context): void
     {
         $total = $this->productRepository->searchIds(new Criteria([$productId]), $context)->getTotal();
-        if (!$total) {
+        if ($total === 0) {
             throw new ProductNotFoundException($productId);
         }
     }

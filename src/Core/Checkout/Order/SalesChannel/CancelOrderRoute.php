@@ -66,7 +66,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
         $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomerId()));
 
         $total = $this->orderRepository->searchIds($criteria, $context->getContext())->getTotal();
-        if (!$total) {
+        if ($total === 0) {
             throw OrderException::orderNotFound($orderId);
         }
     }

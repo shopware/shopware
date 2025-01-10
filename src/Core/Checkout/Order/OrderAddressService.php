@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -173,10 +172,7 @@ class OrderAddressService
         string $newOrderAddressId,
         Context $context
     ): void {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('customer_address.id', $customerAddressId));
-
-        $customerAddress = $this->customerAddressRepository->search($criteria, $context)->getEntities()->first();
+        $customerAddress = $this->customerAddressRepository->search(new Criteria([$customerAddressId]), $context)->getEntities()->first();
         if (!$customerAddress) {
             throw OrderException::customerAddressNotFound($customerAddressId);
         }

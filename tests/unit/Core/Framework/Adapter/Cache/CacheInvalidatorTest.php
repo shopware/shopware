@@ -44,7 +44,6 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test'
         );
 
         $invalidator->invalidate([]);
@@ -70,36 +69,9 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'prod'
         );
 
         $invalidator->invalidate(['foo'], true);
-    }
-
-    public function testInvalidationIsImplicitlyForcedOnNonProdEnvs(): void
-    {
-        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
-        $tagAwareAdapter
-            ->expects(static::once())
-            ->method('invalidateTags')
-            ->with(['foo']);
-
-        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
-        $redisInvalidatorStorage
-            ->expects(static::never())
-            ->method('store');
-
-        $invalidator = new CacheInvalidator(
-            0,
-            [$tagAwareAdapter],
-            $redisInvalidatorStorage,
-            new EventDispatcher(),
-            new NullLogger(),
-            new RequestStack([new Request()]),
-            'dev'
-        );
-
-        $invalidator->invalidate(['foo']);
     }
 
     public function testInvalidationIsImplicitlyForcedWhenRequestHeaderIsSet(): void
@@ -125,7 +97,6 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([$request]),
-            'prod'
         );
 
         $invalidator->invalidate(['foo']);
@@ -150,7 +121,6 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'prod'
         );
 
         $invalidator->invalidate(['foo']);
@@ -183,7 +153,6 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'prod'
         );
 
         $invalidator->invalidate(['foo'], $force);
@@ -242,7 +211,6 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test'
         );
 
         $invalidator->invalidateExpired();
@@ -271,7 +239,6 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test'
         );
 
         $invalidator->invalidateExpired();

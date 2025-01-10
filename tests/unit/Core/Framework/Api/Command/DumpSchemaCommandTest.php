@@ -5,9 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\Command\DumpSchemaCommand;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
@@ -19,7 +21,8 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects(static::once())->method('getSchema');
-        $cmd = new DumpSchemaCommand($definitionService);
+        $cache = $this->createMock(CacheInterface::class);
+        $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $cmd = new CommandTester($cmd);
         $cmd->execute(['outfile' => '-'], ['capture_stderr_separately' => true]);
@@ -32,7 +35,9 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects(static::once())->method('getSchema')->with(EntitySchemaGenerator::FORMAT, DefinitionService::API);
-        $cmd = new DumpSchemaCommand($definitionService);
+        $cache = $this->createMock(CacheInterface::class);
+        $cache->expects(static::once())->method('delete')->with(CachedEntitySchemaGenerator::CACHE_KEY);
+        $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $cmd = new CommandTester($cmd);
         $cmd->execute(['outfile' => '/dev/null',  '--schema-format' => 'entity-schema']);
@@ -44,7 +49,8 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects(static::once())->method('generate')->with('openapi-3', DefinitionService::API);
-        $cmd = new DumpSchemaCommand($definitionService);
+        $cache = $this->createMock(CacheInterface::class);
+        $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $cmd = new CommandTester($cmd);
         $cmd->execute(['outfile' => '/dev/null', '--schema-format' => 'openapi3']);
@@ -56,7 +62,8 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects(static::once())->method('generate')->with('openapi-3', DefinitionService::STORE_API);
-        $cmd = new DumpSchemaCommand($definitionService);
+        $cache = $this->createMock(CacheInterface::class);
+        $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $cmd = new CommandTester($cmd);
         $cmd->execute(['outfile' => '/dev/null', '--schema-format' => 'openapi3', '--store-api' => true]);

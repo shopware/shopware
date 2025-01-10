@@ -192,15 +192,14 @@ jobs:
       - name: Start Webserver
         run: symfony server:start -d
 
-      - name: Install Shopware
-        run: php src/Core/TestBootstrap.php
-
       - name: Migration test suite setup
         if: ${{ matrix.suite == 'migration' }}
         run: |
           sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Core/Migration</directory>|' phpunit.xml.dist
-          echo "Workflow Ref: ${{ github.workflow_ref }}"
-          echo "V6_7_0_0=1" >> $GITHUB_ENV
+          echo "FEATURE_ALL=major" >> $GITHUB_ENV
+
+      - name: Install Shopware
+        run: php src/Core/TestBootstrap.php
 
       - name: Run PHPUnit with coverage
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml

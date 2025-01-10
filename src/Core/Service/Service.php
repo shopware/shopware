@@ -4,7 +4,9 @@ namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\DependencyInjection\CompilerPass\MessengerCompilerPass;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
@@ -24,5 +26,7 @@ class Service extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
         $loader->load('services.xml');
         parent::build($container);
+
+        $container->addCompilerPass(new MessengerCompilerPass(), PassConfig::TYPE_BEFORE_REMOVING);
     }
 }

@@ -75,12 +75,13 @@
         :title="$tc('sw-landing-page.base.seo.title')"
         :is-loading="isLoading"
     >
-        <sw-alert
+        <mt-banner
             v-if="!isLayoutSet"
-            variant="warning"
+            variant="attention"
+            :title="$tc('sw-landing-page.base.seo.notification.noLayoutAssigned')"
         >
             {{ $tc('sw-landing-page.base.seo.notification.noLayoutAssigned') }}
-        </sw-alert>
+        </mt-banner>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_landing_page_detail_base_seo_form %}

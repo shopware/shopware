@@ -11,6 +11,12 @@ on:
       - src/Storefront/DependencyInjection/*
       - src/**/snippet/**/*.json
       - .github/workflows/php.yml
+      - .bc-exclude.php
+      - .php-cs-fixer.dist.php
+      - phpstan.neon.dist
+      - phpstan-baseline.neon
+      - phpstan-v67-baseline.neon
+      - phpunit.xml.dist
   workflow_dispatch:
   workflow_call:
 

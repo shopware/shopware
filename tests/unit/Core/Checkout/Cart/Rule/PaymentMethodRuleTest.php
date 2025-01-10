@@ -82,7 +82,7 @@ class PaymentMethodRuleTest extends TestCase
         $paymentMethodeEntity->setId('foo');
 
         $salesChannelContextMock = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $salesChannelContextMock->method('getPaymentMethod')->willReturn($paymentMethodeEntity);
+        $salesChannelContextMock->method('getPaymentMethodId')->willReturn($paymentMethodeEntity->getId());
 
         $ruleScope = $this->createMock(RuleScope::class);
         $ruleScope->method('getSalesChannelContext')->willReturn($salesChannelContextMock);

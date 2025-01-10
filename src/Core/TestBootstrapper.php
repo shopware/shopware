@@ -104,8 +104,10 @@ class TestBootstrapper
         }
         $classLoader = require $this->getProjectDir() . '/vendor/autoload.php';
 
+        // workaround for league/event deprecation in php 8.4
         $prev = error_reporting(0);
         class_exists(\League\OAuth2\Server\AuthorizationServer::class);
+        error_clear_last();
         error_reporting($prev);
 
         $this->addPluginAutoloadDev($classLoader);

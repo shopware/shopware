@@ -95,7 +95,7 @@ return (new Config())
                     $context->failure(
                         'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).'
                         . ' Use Store-Api Routes instead.<br/>'
-                        . print_r($errorFiles, true)
+                        . implode('<br>', $errorFiles)
                     );
                 }
             },
@@ -147,7 +147,7 @@ return (new Config())
         $context->failure(
             'Please use [Nowdoc](https://www.php.net/manual/de/language.types.string.php#language.types.string.syntax.nowdoc)'
             . ' for SQL (&lt;&lt;&lt;\'SQL\') instead of Heredoc (&lt;&lt;&lt;SQL)<br/>'
-            . print_r($errorFiles, true)
+            . implode('<br>', $errorFiles)
         );
     })
     ->useRule(function (Context $context): void {
@@ -162,8 +162,8 @@ return (new Config())
 
         $patched = [];
         foreach ($changedTemplates as $file) {
-            preg_match_all('/\- .*? (\{% block (.*?) %\})+/', $file->patch, $removedBlocks);
-            preg_match_all('/\+ .*? (\{% block (.*?) %\})+/', $file->patch, $addedBlocks);
+            preg_match_all('/-.*?(\{% block (.*?) %})+/', $file->patch, $removedBlocks);
+            preg_match_all('/\+.*?(\{% block (.*?) %})+/', $file->patch, $addedBlocks);
             if (!isset($removedBlocks[2]) || !is_array($removedBlocks[2])) {
                 $removedBlocks[2] = [];
             }
@@ -174,7 +174,9 @@ return (new Config())
             $remaining = array_diff_assoc($removedBlocks[2], $addedBlocks[2]);
 
             if (count($remaining) > 0) {
-                $patched[] = print_r($remaining, true) . '<br/>';
+                foreach ($remaining as $item) {
+                    $patched[] = $item;
+                }
             }
         }
 
@@ -184,10 +186,10 @@ return (new Config())
 
         $context->warning(
             'You probably moved or deleted a twig block. This is likely a hard break. Please check your template'
-            . ' changes and make sure that deleted blocks are already deprecated. <br/>'
+            . ' changes and make sure that deleted blocks are already deprecated.<br/>'
             . 'If you are sure everything is fine with your changes, you can resolve this warning.<br/>'
-            . 'Moved or deleted block: <br/>'
-            . print_r($patched, true)
+            . 'Moved or deleted block:<br/>'
+            . implode('<br>', $patched)
         );
     })
     ->useRule(function (Context $context): void {
@@ -205,8 +207,8 @@ return (new Config())
 
         if (count($invalidFiles) > 0) {
             $context->failure(
-                'The following filenames contain invalid special characters, please use only alphanumeric characters, dots, dashes and underscores: <br/>'
-                . print_r($invalidFiles, true)
+                'The following filenames contain invalid special characters, please use only alphanumeric characters, dots, dashes and underscores:<br/>'
+                . implode('<br>', $invalidFiles)
             );
         }
     })
@@ -229,8 +231,8 @@ return (new Config())
 
         if (count($addedLegacyTests) > 0) {
             $context->failure(
-                'Don\'t add new testcases in the `/src` folder, for new tests write "real" unit tests under `tests/unit` and if needed a few meaningful integration tests under `tests/integration`: <br/>'
-                . print_r($addedLegacyTests, true)
+                'Don\'t add new testcases in the `/src` folder, for new tests write "real" unit tests under `tests/unit` and if needed a few meaningful integration tests under `tests/integration`:<br/>'
+                . implode('<br>', $addedLegacyTests)
             );
         }
     })

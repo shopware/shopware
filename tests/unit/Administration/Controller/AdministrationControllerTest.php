@@ -54,6 +54,7 @@ class AdministrationControllerTest extends TestCase
 
     private Context $context;
 
+    /** @var MockObject&EntityRepository<CurrencyCollection> */
     private MockObject&EntityRepository $currencyRepository;
 
     private MockObject&DefinitionInstanceRegistry $definitionRegistry;

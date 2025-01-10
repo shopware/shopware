@@ -10,6 +10,7 @@ use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Administration\Controller\Exception\MissingAppSecretException;
 use Shopware\Core\Framework\App\ActionButton\Executor;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
@@ -37,6 +38,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private Context $context;
 
+    /** @var MockObject&EntityRepository<AppCollection> */
     private MockObject&EntityRepository $entityRepository;
 
     private MockObject&Executor $executor;

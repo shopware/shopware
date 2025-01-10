@@ -7,7 +7,6 @@ import { config, mount } from '@vue/test-utils';
 import 'src/module/sw-login/view/sw-login-recovery';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-alert';
 
 async function createWrapper() {
     // delete global $router and $routes mocks
@@ -65,7 +64,7 @@ async function createWrapper() {
                 'sw-contextual-field': true,
                 'router-link': true,
                 'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-alert': await Shopware.Component.build('sw-alert'),
+                'mt-banner': true,
                 'sw-icon': true,
                 'sw-button-deprecated': true,
             },
@@ -87,7 +86,7 @@ describe('module/sw-login/recovery.spec.js', () => {
     it('should redirect on submit', async () => {
         await wrapper.get('#email').setValue('test@example.com');
 
-        expect(wrapper.find('.sw-alert').exists()).toBe(false);
+        expect(wrapper.find('.mt-banner').exists()).toBe(false);
 
         await wrapper.get('.sw-login__recovery-form').trigger('submit');
 

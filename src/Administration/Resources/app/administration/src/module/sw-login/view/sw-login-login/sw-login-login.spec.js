@@ -66,10 +66,9 @@ async function createWrapper(loginSuccessfull) {
                 'router-link': true,
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-alert': await wrapTestComponent('sw-alert', {
-                    sync: true,
-                }),
-                'sw-alert-deprecated': await wrapTestComponent('sw-alert-deprecated', { sync: true }),
+                'mt-banner': {
+                    template: '<div class="mt-banner"><div class="mt-banner__message"><slot></slot></div></div>',
+                },
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -106,7 +105,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         await wrapper.get('#sw-field--username').setValue('Username');
         await wrapper.get('#sw-field--password').setValue('Password');
 
-        expect(wrapper.find('.sw-alert').exists()).toBe(false);
+        expect(wrapper.find('.mt-banner').exists()).toBe(false);
 
         await wrapper.get('.sw-login-login').trigger('submit');
 
@@ -116,13 +115,13 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         expect(setTimeout).toHaveBeenCalledTimes(2);
         expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 1000);
 
-        expect(wrapper.get('.sw-alert__message').text()).toBe('["sw-login.index.messageAuthThrottled",0,{"seconds":1}]');
+        expect(wrapper.get('.mt-banner__message').text()).toBe('["sw-login.index.messageAuthThrottled",0,{"seconds":1}]');
 
         // advance the timer to make the warning disappear
         jest.advanceTimersByTime(1001);
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-alert').exists()).toBe(false);
+        expect(wrapper.find('.mt-banner').exists()).toBe(false);
     });
 
     it('should handle login', async () => {

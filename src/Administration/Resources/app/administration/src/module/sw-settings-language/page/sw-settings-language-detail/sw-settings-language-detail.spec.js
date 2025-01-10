@@ -123,7 +123,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-inheritance-switch': true,
                 'sw-highlight-text': true,
                 'sw-select-result': true,
-                'sw-alert': true,
+                'mt-banner': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-product-variant-info': true,
                 'sw-icon': true,

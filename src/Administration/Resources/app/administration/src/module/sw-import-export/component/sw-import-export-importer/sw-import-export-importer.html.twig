@@ -57,8 +57,8 @@
     <template v-if="showProductVariantsInfo">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_importer_product_variants_warning %}
-        <sw-alert
-            variant="warning"
+        <mt-banner
+            variant="attention"
             class="sw-import-export-importer__variants-warning"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -84,7 +84,7 @@
                 </a>
             </p>
             {% endblock %}
-        </sw-alert>
+        </mt-banner>
         {% endblock %}
     </template>
 

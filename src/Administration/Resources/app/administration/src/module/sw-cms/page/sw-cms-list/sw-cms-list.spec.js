@@ -77,7 +77,7 @@ async function createWrapper(
                     'sw-skeleton': true,
                     'sw-empty-state': true,
                     'sw-sorting-select': true,
-                    'sw-alert': true,
+                    'mt-banner': true,
                     'sw-modal': {
                         template: `
                         <div class="sw-modal-stub">

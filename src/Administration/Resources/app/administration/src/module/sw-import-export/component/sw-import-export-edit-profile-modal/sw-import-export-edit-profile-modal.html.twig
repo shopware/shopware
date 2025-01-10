@@ -11,12 +11,12 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_alert %}
-        <sw-alert
+        <mt-banner
             v-if="profile.systemDefault"
             variant="info"
         >
             {{ $tc('sw-import-export.profile.systemDefaultInfoText') }}
-        </sw-alert>
+        </mt-banner>
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

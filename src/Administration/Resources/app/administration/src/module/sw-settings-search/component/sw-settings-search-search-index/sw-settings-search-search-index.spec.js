@@ -93,8 +93,8 @@ async function createWrapper(privileges = []) {
                     'sw-progress-bar': {
                         template: '<div class="sw-progress-bar"><slot></slot></div>',
                     },
-                    'sw-alert': {
-                        template: '<div class="sw-alert"><slot></slot></div>',
+                    'mt-banner': {
+                        template: '<div class="mt-banner"><slot></slot></div>',
                     },
                     'sw-icon': true,
                     'sw-loader': true,

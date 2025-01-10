@@ -74,13 +74,13 @@
                 {% block sw_flow_tabs_header_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
-            <sw-alert
+            <mt-banner
                 v-if="isTemplate"
-                variant="warning"
+                variant="attention"
                 class="sw-flow-detail__warning"
             >
                 {{ $tc('sw-flow.flowNotification.messageWarningSave') }}
-            </sw-alert>
+            </mt-banner>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_tabs_content %}
             <template v-if="isLoading">

@@ -73,14 +73,14 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_number_range_detail_content_global_warning %}
-                    <sw-alert
+                    <mt-banner
                         v-if="numberRange && numberRange.type && numberRange.type.global"
                         class="sw-number_range-quickinfo__alert-global-type"
-                        variant="warning"
+                        variant="attention"
                         :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', 0, {typeName: numberRange.type.typeName})"
                     >
                         {{ $tc('sw-settings-number-range.general.infoGlobalType', 0, {typeName: numberRange.type.typeName}) }}
-                    </sw-alert>
+                    </mt-banner>
                     {% endblock %}
 
                     <sw-container
@@ -232,24 +232,24 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_number_range_detail_assignment_card_global_warning %}
-                    <sw-alert
+                    <mt-banner
                         v-if="numberRange !== null && numberRange.global"
                         class="sw-number_range-quickinfo__alert-global-type"
                         variant="info"
                         :title="$tc('sw-settings-number-range.general.infoGlobalTitle', 0, {name: numberRange.name})"
                     >
                         {{ $tc('sw-settings-number-range.general.infoGlobal', 0, {name: numberRange.name}) }}
-                    </sw-alert>
-                    <sw-alert
+                    </mt-banner>
+                    <mt-banner
                         v-if="
                             numberRange.type !== null &&
                                 numberRange.numberRangeSalesChannels &&
                                 numberRange.numberRangeSalesChannels.length > 0"
                         class="sw-number_range-quickinfo__alert-global-type"
-                        variant="warning"
+                        variant="attention"
                     >
                         {{ $tc('sw-settings-number-range.general.infoSalesChannelBound', 0, {name: numberRange.name}) }}
-                    </sw-alert>
+                    </mt-banner>
                     {% endblock %}
                     <sw-container
                         columns="repeat(auto-fit, minmax(100%, 1fr))"

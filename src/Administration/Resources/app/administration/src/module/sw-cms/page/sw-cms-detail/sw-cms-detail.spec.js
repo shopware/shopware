@@ -34,7 +34,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     `,
                     },
                     'sw-cms-toolbar': await wrapTestComponent('sw-cms-toolbar'),
-                    'sw-alert': true,
+                    'mt-banner': true,
                     'sw-language-switch': true,
                     'sw-router-link': true,
                     'sw-icon': true,

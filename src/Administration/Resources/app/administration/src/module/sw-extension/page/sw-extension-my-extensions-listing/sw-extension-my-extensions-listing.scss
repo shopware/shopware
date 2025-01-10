@@ -28,13 +28,17 @@
         .sw-extension-my-extensions-listing__app-url-warning {
             max-width: 960px;
             margin-bottom: 32px;
+
+            .sw-app-wrong-app-url-modal__content-link-button .mt-button__content {
+                display: inline-block;
+            }
         }
 
         .sw-extension-my-extensions-listing__runtime-extension-warning {
             max-width: 960px;
             margin-bottom: 32px;
 
-            .sw-alert__actions {
+            .mt-banner__actions {
                 padding: 16px;
             }
         }

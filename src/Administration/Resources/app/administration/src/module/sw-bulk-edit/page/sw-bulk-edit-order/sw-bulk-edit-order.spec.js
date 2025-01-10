@@ -81,7 +81,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-help-center': true,
                     'sw-icon': true,
                     'sw-help-text': true,
-                    'sw-alert': true,
+                    'mt-banner': true,
                     'sw-label': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),

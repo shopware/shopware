@@ -17,7 +17,7 @@ async function createWrapper() {
                     'sw-switch-field': true,
                     'sw-number-field': true,
                     'sw-single-select': true,
-                    'sw-alert': true,
+                    'mt-banner': true,
                 },
             },
         },

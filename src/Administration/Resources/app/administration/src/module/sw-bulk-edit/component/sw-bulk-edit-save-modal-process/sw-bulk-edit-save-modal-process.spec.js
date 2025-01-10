@@ -12,7 +12,7 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-alert': true,
+                    'mt-banner': true,
                     'sw-loader': true,
                     'sw-label': true,
                 },

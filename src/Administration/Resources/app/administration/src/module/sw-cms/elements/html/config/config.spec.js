@@ -16,7 +16,7 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-code-editor': true,
-                    'sw-alert': true,
+                    'mt-banner': true,
                 },
             },
             props: {

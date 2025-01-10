@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Log;
 /**
  * @internal
  *
- * @phpstan-type PackageString 'buyers-experience'|'services-settings'|'inventory'|'content'|'sales-channel'|'customer-order'|'checkout'|'merchant-services'|'storefront'|'core'|'administration'|'data-services'|'innovation'|'discovery'|b2b|'fundamentals@discovery'
+ * @phpstan-type PackageString 'buyers-experience'|'services-settings'|'inventory'|'content'|'sales-channel'|'customer-order'|'checkout'|'merchant-services'|'storefront'|'core'|'administration'|'data-services'|'innovation'|'discovery'|'b2b'|'fundamentals@discovery'
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 #[Package('core')]

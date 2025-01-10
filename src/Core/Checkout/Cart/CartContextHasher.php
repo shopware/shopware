@@ -32,8 +32,8 @@ class CartContextHasher
         $struct = new CartContextHashStruct();
 
         $struct->setPrice($cart->getPrice()->getRawTotal());
-        $struct->setShippingMethod($context->getShippingMethodId());
-        $struct->setPaymentMethod($context->getPaymentMethodId());
+        $struct->setShippingMethod($context->getShippingMethod()->getId());
+        $struct->setPaymentMethod($context->getPaymentMethod()->getId());
 
         foreach ($cart->getLineItems()->getElements() as $item) {
             $struct->addLineItem($item->getId(), $item->getHashContent());

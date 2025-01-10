@@ -50,7 +50,7 @@ class DeliveryProcessorTest extends TestCase
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $shippingMethodCriteria = new Criteria([$this->salesChannelContext->getShippingMethodId()]);
+        $shippingMethodCriteria = new Criteria([$this->salesChannelContext->getShippingMethod()->getId()]);
         $shippingMethodCriteria->addAssociation('media');
         $shippingMethodCriteria->addAssociation('deliveryTime');
 
@@ -71,7 +71,7 @@ class DeliveryProcessorTest extends TestCase
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(
-            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethodId()),
+            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
             $this->salesChannelContext->getShippingMethod()
         );
         $originalCart = new Cart('original');
@@ -114,7 +114,7 @@ class DeliveryProcessorTest extends TestCase
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(
-            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethodId()),
+            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
             $this->salesChannelContext->getShippingMethod()
         );
 
@@ -167,7 +167,7 @@ class DeliveryProcessorTest extends TestCase
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(
-            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethodId()),
+            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
             $this->salesChannelContext->getShippingMethod()
         );
 

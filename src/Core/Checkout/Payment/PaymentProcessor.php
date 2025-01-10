@@ -176,9 +176,9 @@ class PaymentProcessor
         SalesChannelContext $salesChannelContext
     ): ?Struct {
         try {
-            $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($salesChannelContext->getPaymentMethodId());
+            $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($salesChannelContext->getPaymentMethod()->getId());
             if (!$paymentHandler) {
-                throw PaymentException::unknownPaymentMethodById($salesChannelContext->getPaymentMethodId());
+                throw PaymentException::unknownPaymentMethodById($salesChannelContext->getPaymentMethod()->getId());
             }
 
             if (!($paymentHandler instanceof PreparedPaymentHandlerInterface) && !($paymentHandler instanceof AbstractPaymentHandler)) {

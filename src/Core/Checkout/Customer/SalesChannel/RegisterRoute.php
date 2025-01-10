@@ -449,7 +449,7 @@ class RegisterRoute extends AbstractRegisterRoute
         ];
 
         if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $context->getPaymentMethodId();
+            $customer['defaultPaymentMethodId'] = $context->getPaymentMethod()->getId();
         }
 
         if (!$isGuest) {

@@ -53,8 +53,8 @@ class StorefrontCartFacade
         // Switch payment method if blocked
         $contextPaymentMethod = $this->blockedPaymentMethodSwitcher->switch($cartErrors, $originalContext);
 
-        if ($contextShippingMethod->getId() === $originalContext->getShippingMethodId()
-            && $contextPaymentMethod->getId() === $originalContext->getPaymentMethodId()
+        if ($contextShippingMethod->getId() === $originalContext->getShippingMethod()->getId()
+            && $contextPaymentMethod->getId() === $originalContext->getPaymentMethod()->getId()
         ) {
             return $originalCart;
         }
@@ -96,8 +96,8 @@ class StorefrontCartFacade
     {
         $this->contextSwitchRoute->switchContext(
             new RequestDataBag([
-                SalesChannelContextService::SHIPPING_METHOD_ID => $salesChannelContext->getShippingMethodId(),
-                SalesChannelContextService::PAYMENT_METHOD_ID => $salesChannelContext->getPaymentMethodId(),
+                SalesChannelContextService::SHIPPING_METHOD_ID => $salesChannelContext->getShippingMethod()->getId(),
+                SalesChannelContextService::PAYMENT_METHOD_ID => $salesChannelContext->getPaymentMethod()->getId(),
             ]),
             $salesChannelContext
         );

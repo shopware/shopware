@@ -2000,7 +2000,7 @@ class DeliveryCalculatorTest extends TestCase
     private function buildDeliveries(LineItemCollection $lineItems, SalesChannelContext $context): DeliveryCollection
     {
         $data = new CartDataCollection();
-        $data->set(DeliveryProcessor::buildKey($context->getShippingMethodId()), $context->getShippingMethod());
+        $data->set(DeliveryProcessor::buildKey($context->getShippingMethod()->getId()), $context->getShippingMethod());
 
         $cart = new Cart('test');
         $cart->setLineItems($lineItems);

@@ -29,7 +29,7 @@ class PaymentMethodRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        return RuleComparison::uuids([$scope->getSalesChannelContext()->getPaymentMethodId()], $this->paymentMethodIds, $this->operator);
+        return RuleComparison::uuids([$scope->getSalesChannelContext()->getPaymentMethod()->getId()], $this->paymentMethodIds, $this->operator);
     }
 
     public function getConstraints(): array

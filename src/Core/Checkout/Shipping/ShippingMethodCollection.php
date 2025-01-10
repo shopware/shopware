@@ -62,7 +62,7 @@ class ShippingMethodCollection extends EntityCollection
     public function sortShippingMethodsByPreference(SalesChannelContext $context): void
     {
         $ids = array_merge(
-            !Feature::isActive('ACCESSIBILITY_TWEAKS') ? [$context->getShippingMethodId()] : [],
+            !Feature::isActive('ACCESSIBILITY_TWEAKS') ? [$context->getShippingMethod()->getId()] : [],
             [$context->getSalesChannel()->getShippingMethodId()],
             $this->getIds()
         );

@@ -74,11 +74,11 @@ class AppJWTGenerateRoute
         }
 
         if (\in_array('payment_method:read', $privileges, true)) {
-            $builder = $builder->withClaim('paymentMethodId', $context->getPaymentMethodId());
+            $builder = $builder->withClaim('paymentMethodId', $context->getPaymentMethod()->getId());
         }
 
         if (\in_array('shipping_method:read', $privileges, true)) {
-            $builder = $builder->withClaim('shippingMethodId', $context->getShippingMethodId());
+            $builder = $builder->withClaim('shippingMethodId', $context->getShippingMethod()->getId());
         }
 
         return new JsonResponse([

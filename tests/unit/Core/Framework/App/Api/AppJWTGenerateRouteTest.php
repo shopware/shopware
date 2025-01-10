@@ -89,8 +89,8 @@ class AppJWTGenerateRouteTest extends TestCase
         static::assertArrayHasKey('customerId', $payload);
         static::assertSame($context->getSalesChannelId(), $payload['salesChannelId']);
         static::assertSame($context->getCustomerId(), $payload['customerId']);
-        static::assertSame($context->getPaymentMethodId(), $payload['paymentMethodId']);
-        static::assertSame($context->getShippingMethodId(), $payload['shippingMethodId']);
+        static::assertSame($context->getPaymentMethod()->getId(), $payload['paymentMethodId']);
+        static::assertSame($context->getShippingMethod()->getId(), $payload['shippingMethodId']);
         static::assertSame($context->getCurrencyId(), $payload['currencyId']);
         static::assertSame($context->getLanguageId(), $payload['languageId']);
         static::assertSame('a6a4063ffda65516983ad40e8dc91db6', $payload['inAppPurchases']);

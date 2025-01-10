@@ -125,7 +125,7 @@ class OrderConverter
             $data['orderCustomer'] = CustomerTransformer::transform($customer);
             $data['orderCustomer']['customer'] = [
                 'id' => $customer->getId(),
-                'lastPaymentMethodId' => $context->getPaymentMethodId(),
+                'lastPaymentMethodId' => $context->getPaymentMethod()->getId(),
             ];
             unset($data['orderCustomer']['customerId']);
         }

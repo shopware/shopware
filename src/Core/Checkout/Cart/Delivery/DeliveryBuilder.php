@@ -25,10 +25,10 @@ class DeliveryBuilder
 {
     public function build(Cart $cart, CartDataCollection $data, SalesChannelContext $context, CartBehavior $cartBehavior): DeliveryCollection
     {
-        $key = DeliveryProcessor::buildKey($context->getShippingMethodId());
+        $key = DeliveryProcessor::buildKey($context->getShippingMethod()->getId());
 
         if (!$data->has($key)) {
-            throw CartException::shippingMethodNotFound($context->getShippingMethodId());
+            throw CartException::shippingMethodNotFound($context->getShippingMethod()->getId());
         }
 
         /** @var ShippingMethodEntity $shippingMethod */

@@ -176,7 +176,7 @@ class AccountOrderController extends StorefrontController
         /** @var OrderDeliveryEntity|null $mostCurrentDelivery */
         $mostCurrentDelivery = $order->getDeliveries()?->last();
 
-        if ($mostCurrentDelivery !== null && $context->getShippingMethodId() !== $mostCurrentDelivery->getShippingMethodId()) {
+        if ($mostCurrentDelivery !== null && $context->getShippingMethod()->getId() !== $mostCurrentDelivery->getShippingMethodId()) {
             $this->contextSwitchRoute->switchContext(
                 new RequestDataBag([SalesChannelContextService::SHIPPING_METHOD_ID => $mostCurrentDelivery->getShippingMethodId()]),
                 $context

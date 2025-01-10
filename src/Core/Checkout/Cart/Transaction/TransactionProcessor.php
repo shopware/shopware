@@ -24,7 +24,7 @@ class TransactionProcessor
                     $cart->getPrice()->getCalculatedTaxes(),
                     $cart->getPrice()->getTaxRules()
                 ),
-                $context->getPaymentMethodId()
+                $context->getPaymentMethod()->getId()
             ),
         ]);
     }

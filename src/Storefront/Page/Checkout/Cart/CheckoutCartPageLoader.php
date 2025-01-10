@@ -63,7 +63,7 @@ class CheckoutCartPageLoader
 
         $shippingMethods = $gatewayResponse->getShippingMethods();
 
-        if (!$shippingMethods->has($salesChannelContext->getShippingMethodId())) {
+        if (!$shippingMethods->has($salesChannelContext->getShippingMethod()->getId())) {
             $shippingMethods->add($salesChannelContext->getShippingMethod());
         }
 

@@ -29,7 +29,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -42,7 +42,7 @@ class PromotionCollectorTest extends TestCase
 
     private readonly PromotionCollector $promotionCollector;
 
-    private readonly SalesChannelContext&MockObject $context;
+    private readonly SalesChannelContext $context;
 
     private readonly Connection&MockObject $connection;
 
@@ -57,11 +57,10 @@ class PromotionCollectorTest extends TestCase
             $this->connection
         );
 
-        $this->context = $this->createMock(SalesChannelContext::class);
-
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
-        $this->context->method('getCustomer')->willReturn($customer);
+
+        $this->context = Generator::createSalesChannelContext(customer: $customer);
     }
 
     public function testCollectWithExistingPromotionAndDifferentDiscount(): void
@@ -239,10 +238,6 @@ class PromotionCollectorTest extends TestCase
         $promotionData = new CartExtension();
         $promotionData->addCode($code);
         $cart->addExtension(CartExtension::KEY, $promotionData);
-
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-        $this->context->method('getSalesChannel')->willReturn($salesChannel);
 
         $this->gateway->method('get')->willReturn(
             new PromotionCollection([$promotion]),

@@ -112,7 +112,9 @@ class ElasticsearchProductTest extends TestCase
 
     private ProductDefinition $productDefinition;
 
-    /** @var EntityRepository<LanguageCollection> */
+    /**
+     * @var EntityRepository<LanguageCollection>
+     */
     private EntityRepository $languageRepository;
 
     private ElasticsearchHelper $helper;
@@ -121,7 +123,9 @@ class ElasticsearchProductTest extends TestCase
 
     private Connection $connection;
 
-    /** @var EntityRepository<ProductCollection> */
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private string $navigationId;

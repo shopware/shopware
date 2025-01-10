@@ -30,7 +30,9 @@ class AdminSearchControllerTest extends TestCase
 
     private Connection $connection;
 
-    /** @var EntityRepository<PromotionCollection> */
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     private EntityRepository $promotionRepository;
 
     protected function setUp(): void

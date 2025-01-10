@@ -50,7 +50,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use SessionTestBehaviour;
 
-    /** @var EntityRepository<ProductCollection> */
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private Connection $connection;

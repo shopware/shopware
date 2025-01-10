@@ -5,4 +5,4 @@ author_email: benjamin.wittwer@a-k-f.de
 author_github: akf-bw
 ---
 # Core
-* Changed several files in the core checkout domain to improve the use of `EntityRepository->search` by updating the types, using the `PartialEntity` where possible, and switching to `searchIds` for performance reasons
+* Changed several files in the core area checkout domain to improve the use of `EntityRepository->search` by updating the types

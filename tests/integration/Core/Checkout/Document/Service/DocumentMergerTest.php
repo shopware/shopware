@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -14,7 +13,6 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
-use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaService;
@@ -104,7 +102,6 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
-            static::getContainer()->get(Connection::class),
         );
 
         $doc1 = Uuid::randomHex();
@@ -146,7 +143,6 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $mockGenerator,
             static::getContainer()->get('pdf.merger'),
-            static::getContainer()->get(Connection::class),
         );
 
         $documentId = Uuid::randomHex();
@@ -212,51 +208,10 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
-            static::getContainer()->get(Connection::class),
         );
 
         $result = $documentMerger->merge($docIds, $this->context);
         $assertionCallback($result);
-    }
-
-    public function testMergeWithZipArchive(): void
-    {
-        $docIds = [];
-
-        for ($i = 0; $i < 2; ++$i) {
-            $deliveryOperation = new DocumentGenerateOperation($this->orderId, HtmlRenderer::FILE_EXTENSION, [], null, true);
-            $result = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $deliveryOperation], $this->context)->getSuccess()->first();
-            static::assertNotNull($result);
-            $docIds[] = $result->getId();
-
-            $staticFileContent = 'this is some content';
-
-            $uploadFileRequest = new Request([
-                'extension' => HtmlRenderer::FILE_EXTENSION,
-                'fileName' => Uuid::randomHex(),
-            ], [], [], [], [], [
-                'HTTP_CONTENT_LENGTH' => \strlen($staticFileContent),
-                'HTTP_CONTENT_TYPE' => 'text/html',
-            ], $staticFileContent);
-
-            $this->documentGenerator->upload($result->getId(), $this->context, $uploadFileRequest);
-        }
-
-        $documentMerger = new DocumentMerger(
-            $this->documentRepository,
-            static::getContainer()->get(MediaService::class),
-            $this->documentGenerator,
-            static::getContainer()->get('pdf.merger'),
-            static::getContainer()->get(Connection::class),
-        );
-
-        $mergeResult = $documentMerger->merge($docIds, $this->context, HtmlRenderer::FILE_EXTENSION);
-
-        static::assertInstanceOf(RenderedDocument::class, $mergeResult);
-
-        static::assertSame($mergeResult->getContentType(), 'application/zip');
-        static::assertSame($mergeResult->getFileExtension(), 'zip');
-        static::assertStringContainsString('.zip', $mergeResult->getName());
     }
 
     public static function documentMergeDataProvider(): \Generator

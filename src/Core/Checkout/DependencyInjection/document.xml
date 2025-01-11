@@ -118,7 +118,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
 
-            <tag name="document_type.renderer" />
+            <tag name="document_type.renderer" key="pdf"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Service\DocumentGenerator">
@@ -134,7 +134,6 @@
             <argument type="service" id="Shopware\Core\Content\Media\MediaService" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator" />
             <argument type="service" id="pdf.merger" />
-            <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Controller\DocumentController" public="true">
@@ -154,11 +153,11 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
 
-            <tag name="document_type.renderer" />
+            <tag name="document_type.renderer" key="html"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry">
-            <argument type="tagged_iterator" tag="document_type.renderer"/>
+            <argument type="tagged_iterator" tag="document_type.renderer" index-by="key"/>
         </service>
     </services>
 </container>

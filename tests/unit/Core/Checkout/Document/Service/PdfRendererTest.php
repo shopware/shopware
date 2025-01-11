@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -34,6 +36,12 @@ class PdfRendererTest extends TestCase
         $dispatcher = new EventDispatcher();
         $renderer = new PdfRenderer([], $this->createMock(DocumentTemplateRenderer::class), new ExtensionDispatcher($dispatcher));
         $rendered = new RenderedDocument('html', '1001', InvoiceRenderer::TYPE);
+        $rendered->setTemplateOptions([
+            '',
+            [
+                'config' => new DocumentConfiguration(),
+            ],
+        ]);
 
         $pre = $this->createMock(CallableClass::class);
         $pre->expects(static::once())->method('__invoke');
@@ -91,5 +99,24 @@ class PdfRendererTest extends TestCase
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
         static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+    }
+
+    public function testRenderThrowException(): void
+    {
+        static::expectException(DocumentException::class);
+
+        $rendered = new RenderedDocument(
+            '',
+            '1001',
+            InvoiceRenderer::TYPE,
+        );
+
+        $htmlRenderer = new PdfRenderer(
+            [],
+            $this->createMock(DocumentTemplateRenderer::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $htmlRenderer->render($rendered);
     }
 }

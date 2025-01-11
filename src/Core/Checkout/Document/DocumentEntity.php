@@ -305,7 +305,7 @@ class DocumentEntity extends Entity
     /**
      * @param array<string> $mediaIds
      */
-    public function setDocumentMediaFileIds(array $mediaIds): void
+    public function setDocumentMediaFileIds(?array $mediaIds): void
     {
         $this->documentMediaFileIds = $mediaIds;
     }

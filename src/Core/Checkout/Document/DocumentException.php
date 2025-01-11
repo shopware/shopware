@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,6 +31,8 @@ class DocumentException extends HttpException
     public const DOCUMENT_INVALID_RENDERER_TYPE = 'DOCUMENT__INVALID_RENDERER_TYPE';
 
     public const DOCUMENT_INVALID_RENDERER_FILE_EXTENSION = 'DOCUMENT__INVALID_RENDERER_FILE_EXTENSION';
+
+    public const DOCUMENT_MEDIA_FILE_NOT_FOUND = 'DOCUMENT__MEDIA_FILE_NOT_FOUND';
 
     public static function invalidDocumentGeneratorType(string $type): self
     {
@@ -80,8 +83,16 @@ class DocumentException extends HttpException
         );
     }
 
-    public static function customerNotLoggedIn(): CustomerNotLoggedInException
+    public static function customerNotLoggedIn(): self|CustomerNotLoggedInException
     {
+        if (Feature::isActive('v6.7.0.0')) {
+            return new self(
+                Response::HTTP_FORBIDDEN,
+                CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
+                'Customer is not logged in.'
+            );
+        }
+
         return new CustomerNotLoggedInException(
             Response::HTTP_FORBIDDEN,
             CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
@@ -96,11 +107,33 @@ class DocumentException extends HttpException
 
     public static function documentGenerationException(string $message = ''): self|DocumentGenerationException
     {
+        if (Feature::isActive('v6.7.0.0')) {
+            return new self(
+                Response::HTTP_BAD_REQUEST,
+                self::DOCUMENT_GENERATION_ERROR,
+                \sprintf('Unable to generate document. %s', $message),
+                [
+                    '$message' => $message,
+                ],
+            );
+        }
+
         return new DocumentGenerationException($message);
     }
 
     public static function invalidDocumentRenderer(string $type): self|InvalidDocumentRendererException
     {
+        if (Feature::isActive('v6.7.0.0')) {
+            return new self(
+                Response::HTTP_BAD_REQUEST,
+                self::DOCUMENT_INVALID_RENDERER_TYPE,
+                \sprintf('Unable to find a document renderer with type "%s"', $type),
+                [
+                    '$type' => $type,
+                ],
+            );
+        }
+
         return new InvalidDocumentRendererException($type);
     }
 
@@ -111,6 +144,19 @@ class DocumentException extends HttpException
             DocumentException::DOCUMENT_INVALID_RENDERER_FILE_EXTENSION,
             'Invalid file extension: "{{ fileExtension }}"',
             ['fileExtension' => $fileExtension]
+        );
+    }
+
+    public static function documentMediaFileNotFound(string $documentId, string $fileExtension): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_MEDIA_FILE_NOT_FOUND,
+            'The media file for the document "{{ documentId }}" with file extension "{{ fileExtension }}" is invalid or could not be found.',
+            [
+                'documentId' => $documentId,
+                'fileExtension' => $fileExtension,
+            ]
         );
     }
 }

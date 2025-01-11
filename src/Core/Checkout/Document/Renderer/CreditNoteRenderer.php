@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
-use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -209,10 +208,6 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     $order->getLanguageId(),
                     $locale->getCode(),
                 ]);
-
-                if ($operation->getFileType() === HtmlRenderer::FILE_EXTENSION) {
-                    $doc->setContentType(HtmlRenderer::FILE_CONTENT_TYPE);
-                }
 
                 if (Feature::isActive('v6.7.0.0')) {
                     $doc->setContent($this->fileRendererRegistry->render($doc));

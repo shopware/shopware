@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -50,8 +51,12 @@ class PdfRendererTest extends TestCase
         );
 
         $rendered = new RenderedDocument('html', '1001', InvoiceRenderer::TYPE);
-        $rendered->setContext(Context::createDefaultContext());
-        $rendered->setOrder($this->getOrder());
+        $rendered->setTemplateOptions([
+            '',
+            [
+                'config' => new DocumentConfiguration(),
+            ],
+        ]);
 
         $pre = $this->createMock(CallableClass::class);
         $pre->expects(static::once())->method('__invoke');
@@ -126,29 +131,9 @@ class PdfRendererTest extends TestCase
         $htmlRenderer = new PdfRenderer(
             [],
             $this->createMock(DocumentTemplateRenderer::class),
-            '',
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $htmlRenderer->render($rendered);
-    }
-
-    private function getOrder(): OrderEntity
-    {
-        $locale = new LocaleEntity();
-        $locale->setId(Uuid::randomHex());
-        $locale->setCode('en-GB');
-
-        $language = new LanguageEntity();
-        $language->setId(Uuid::randomHex());
-        $language->setLocale($locale);
-
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-        $order->setSalesChannelId(Uuid::randomHex());
-        $order->setLanguageId($language->getId());
-        $order->setLanguage($language);
-
-        return $order;
     }
 }

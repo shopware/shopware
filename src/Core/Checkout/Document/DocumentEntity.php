@@ -303,7 +303,10 @@ class DocumentEntity extends Entity
         return $this->documentA11yMediaFileId;
     }
 
-    public function setDocumentA11yMediaFileId(?string $mediaFileId): void
+    /**
+     * @param array<string> $mediaIds
+     */
+    public function setDocumentMediaFileIds(?array $mediaIds): void
     {
         $this->documentA11yMediaFileId = $mediaFileId;
     }

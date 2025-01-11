@@ -47,7 +47,7 @@ class DocumentGenerator
     ) {
     }
 
-    public function readDocument(string $documentId, Context $context, string $deepLinkCode = '', string $fileType = PdfRenderer::FILE_EXTENSION): ?RenderedDocument
+    public function readDocument(string $documentId, Context $context, string $deepLinkCode = '', string $fileType = PdfRenderer::FILE_EXTENSION): RenderedDocument
     {
         $criteria = new Criteria([$documentId]);
 
@@ -67,12 +67,18 @@ class DocumentGenerator
         }
 
         $document = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
-        $documentMedia = $this->loadMediaByFileType($document, $fileType);
-        if (!$documentMedia) {
-            return null;
+
+        /** @var array{fileExtension: string, fileName: string, id: string, mimeType: string} $documentMedia */
+        $documentMedia = $this->loadMediaByFileExtension($document->getDocumentMediaFileIds() ?: [], $fileType);
+        if ($documentMedia === null) {
+            throw DocumentException::documentMediaFileNotFound($documentId, $fileType);
         }
 
-        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMedia->getId(), $context));
+        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMedia['id'], $context));
+
+        $fileName = $documentMedia['fileName'] . '.' . $documentMedia['fileExtension'];
+
+        $contentType = $documentMedia['mimeType'];
 
         $renderedDocument = new RenderedDocument(
             name: $documentMedia->getFileName() . '.' . $documentMedia->getFileExtension(),
@@ -278,8 +284,8 @@ class DocumentGenerator
 
     private function ensureDocumentMediaFileGenerated(DocumentEntity $document, string $fileType, Context $context): ?DocumentEntity
     {
-        $documentMedia = $this->loadMediaByFileType($document, $fileType);
-        if ($documentMedia?->getId() !== null || $document->isStatic()) {
+        $documentMedia = $this->loadMediaByFileExtension($document->getDocumentMediaFileIds() ?: [], $fileType);
+        if ($documentMedia !== null || $document->isStatic()) {
             return $document;
         }
 

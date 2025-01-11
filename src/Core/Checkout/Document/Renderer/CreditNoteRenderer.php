@@ -195,9 +195,23 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     $config->jsonSerialize(),
                 );
 
-                $doc->setTemplate($template);
-                $doc->setOrder($order);
-                $doc->setContext($context);
+                // set the template renderer to be able to render template
+                $doc->setTemplateOptions([
+                    $template,
+                    [
+                        'order' => $order,
+                        'creditItems' => $creditItems,
+                        'price' => $price->getTotalPrice() * -1,
+                        'amountTax' => $price->getCalculatedTaxes()->getAmount(),
+                        'config' => $config,
+                        'rootDir' => $this->rootDir,
+                        'context' => $context,
+                    ],
+                    $context,
+                    $order->getSalesChannelId(),
+                    $order->getLanguageId(),
+                    $locale->getCode(),
+                ]);
 
                 if (Feature::isActive('v6.7.0.0')) {
                     $doc->setContent($this->fileRendererRegistry->render($doc));

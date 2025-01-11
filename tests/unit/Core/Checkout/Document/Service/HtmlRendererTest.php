@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\HtmlRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -37,22 +38,14 @@ class HtmlRendererTest extends TestCase
     public function testExtensionIsDispatched(): void
     {
         $dispatcher = new EventDispatcher();
-        $renderer = new HtmlRenderer(
-            $this->createMock(DocumentTemplateRenderer::class),
+        $renderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), new ExtensionDispatcher($dispatcher));
+        $rendered = new RenderedDocument('html', '1001', InvoiceRenderer::TYPE);
+        $rendered->setTemplateOptions([
             '',
-            new ExtensionDispatcher($dispatcher),
-        );
-
-        $rendered = new RenderedDocument(
-            'html',
-            '1001',
-            InvoiceRenderer::TYPE,
-            HtmlRenderer::FILE_EXTENSION,
-        );
-
-        $rendered->setOrder($this->getOrder());
-        $rendered->setContext(Context::createDefaultContext());
-
+            [
+                'config' => new DocumentConfiguration(),
+            ],
+        ]);
         $pre = $this->createMock(CallableClass::class);
         $pre->expects(static::once())->method('__invoke');
         $dispatcher->addListener(HtmlRendererExtension::NAME . '.pre', $pre);
@@ -131,29 +124,9 @@ class HtmlRendererTest extends TestCase
 
         $htmlRenderer = new HtmlRenderer(
             $this->createMock(DocumentTemplateRenderer::class),
-            '',
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $htmlRenderer->render($rendered);
-    }
-
-    private function getOrder(): OrderEntity
-    {
-        $locale = new LocaleEntity();
-        $locale->setId(Uuid::randomHex());
-        $locale->setCode('en-GB');
-
-        $language = new LanguageEntity();
-        $language->setId(Uuid::randomHex());
-        $language->setLocale($locale);
-
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-        $order->setSalesChannelId(Uuid::randomHex());
-        $order->setLanguageId($language->getId());
-        $order->setLanguage($language);
-
-        return $order;
     }
 }

@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

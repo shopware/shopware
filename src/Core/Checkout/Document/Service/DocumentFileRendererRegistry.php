@@ -31,11 +31,10 @@ class DocumentFileRendererRegistry
      */
     public function render(RenderedDocument $document): string
     {
-        foreach ($this->renderers as $renderer) {
-            if ($renderer->getContentType() !== $document->getContentType()) {
-                continue;
-            }
+        $renderers = $this->renderers instanceof \Traversable ? iterator_to_array($this->renderers) : $this->renderers;
+        $renderer = $renderers[$document->getFileExtension()];
 
+        if ($renderer instanceof AbstractDocumentTypeRenderer) {
             return $renderer->render($document);
         }
 

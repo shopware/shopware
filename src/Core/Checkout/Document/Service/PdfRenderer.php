@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -99,7 +100,7 @@ final class PdfRenderer
         }
 
         if (empty($options)) {
-            return '';
+            throw DocumentException::documentGenerationException('No options provided for rendering the document.');
         }
 
         return $this->documentTemplateRenderer->render(

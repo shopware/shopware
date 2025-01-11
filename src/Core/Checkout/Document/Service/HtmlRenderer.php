@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Service;
 
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\HtmlRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -59,7 +60,7 @@ class HtmlRenderer extends AbstractDocumentTypeRenderer
     private function getContent(array $options): string
     {
         if (empty($options)) {
-            return '';
+            throw DocumentException::documentGenerationException('No options provided for rendering the document.');
         }
 
         // override the config to set the correct file type

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -40,7 +39,7 @@ class DocumentGeneratorController extends AbstractController
         $documents = $this->serializer->decode($request->getContent(), 'json');
 
         if (empty($documents) || !\is_array($documents)) {
-            throw RoutingException::invalidRequestParameter('Request parameters must be an array of documents object');
+            throw DocumentException::invalidRequestParameter('Request parameters must be an array of documents object');
         }
 
         $operations = [];

@@ -58,7 +58,7 @@ class PdfRendererTest extends TestCase
     {
         $html = '
             <!DOCTYPE html>
-            <html>
+            <html lang="en-GB">
                 <head>
                     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
                     <title>Delivery note 1000 for Order 10000</title>
@@ -81,7 +81,14 @@ class PdfRendererTest extends TestCase
             ['displayFooter' => true]
         );
 
-        static::assertStringContainsString('<html>', $rendered->getHtml());
+        $rendered->setTemplateOptions([
+            '',
+            [
+                'config' => new DocumentConfiguration(),
+            ],
+        ]);
+
+        static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
         static::assertStringContainsString('DOMPDF_PAGE_COUNT_PLACEHOLDER', $rendered->getHtml());
 

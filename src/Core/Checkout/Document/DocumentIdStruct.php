@@ -2,16 +2,20 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('checkout')]
 class DocumentIdStruct extends Struct
 {
+    /**
+     * @deprecated tag:v6.7.0 - $mediaId will be removed.
+     */
     public function __construct(
         protected string $id,
         protected string $deepLinkCode,
-        protected ?string $mediaId = null
+        protected ?string $mediaId = null,
     ) {
     }
 
@@ -35,8 +39,16 @@ class DocumentIdStruct extends Struct
         $this->id = $id;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - $mediaId will be removed.
+     */
     public function getMediaId(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'Property `media` will be removed'
+        );
+
         return $this->mediaId;
     }
 

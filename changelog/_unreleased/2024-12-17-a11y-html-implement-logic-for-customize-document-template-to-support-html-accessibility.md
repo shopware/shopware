@@ -11,13 +11,13 @@ issue: NEXT-40059
 * Added parameter `templateOptions` in `Shopware\Core\Checkout\Document\Renderer\RenderedDocument` to the provide the config to render template.
 * Changed `Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute::download` to add the `fileType` configuration to the `DocumentGenerator`.
 * Changed `Shopware\Core\Checkout\Document\Service\DocumentGenerator::readDocument` to load the media based on `fileType`.
-* Changed `Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate` to save `documentMediaFileIds`.
+* Changed `Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate` to save `documentMediaFiles` association.
 * Changed `Shopware\Core\Checkout\Document\Service\DocumentGenerator::preview` to set the content based on `fileType`.
 * Added `Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry` to callable render by contentType.
 * Added `Shopware\Core\Checkout\Document\Service\HtmlRenderer` to render the document file.
 * Changed `Shopware\Core\Checkout\Document\Service\PdfRenderer` to add the function `templateRenderer` to add document template. 
-* Changed `Shopware\Core\Checkout\Document\Controller\DocumentController::downloadDocuments` to add the attribute `fileType` to the request.
-* Changed `Shopware\Core\Checkout\Document\Service\DocumentMerger::merge` to implement a case zip archive to merge documents.
+* Added `Shopware\Core\Checkout\Document\Aggregate\DocumentMedia` folder to add new table `document_media` to implement document multiple media.
+* Changed `Shopware\Core\Checkout\Document\DocumentDefinition` to add new association `documentMediaFiles`.
 ___
 # Administration
 * Changed method `getDocumentPreview` in `document.api.service` service to add the `fileType` like <html or pdf> attributes.

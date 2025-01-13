@@ -550,6 +550,10 @@ class CustomDocRenderer extends AbstractDocumentRenderer
 
         foreach ($operations as $operation) {
             $rendered = new RenderedDocument('<html>test</html>');
+            $rendered->setTemplateOptions([
+                'test',
+                [],
+            ]);
             $rendered->setName('custom.pdf');
 
             $result->addSuccess($operation->getOrderId(), $rendered);

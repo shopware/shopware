@@ -55,6 +55,7 @@ class DocumentGenerationResult extends Struct
             $errors[$orderId] = (new ErrorResponseFactory())->getErrorsFromException($error);
         }
 
+        // @deprecated tag:v6.7.0 - documentMediaId will be removed
         return [
             'data' => $this->success->map(fn (DocumentIdStruct $documentIdStruct) => [
                 'documentId' => $documentIdStruct->getId(),

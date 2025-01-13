@@ -34,6 +34,8 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_MEDIA_FILE_NOT_FOUND = 'DOCUMENT__MEDIA_FILE_NOT_FOUND';
 
+    public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new InvalidDocumentGeneratorTypeException(
@@ -157,6 +159,16 @@ class DocumentException extends HttpException
                 'documentId' => $documentId,
                 'fileExtension' => $fileExtension,
             ]
+        );
+    }
+
+    public static function invalidRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER_CODE,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $name]
         );
     }
 }

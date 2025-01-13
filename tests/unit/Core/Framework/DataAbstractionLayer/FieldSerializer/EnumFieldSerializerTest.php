@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerialize
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -20,12 +21,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field\EnumField\TestIntegerEnum;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field\EnumField\TestStringEnum;
+use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\Context\ExecutionContextFactory;
+use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
+use Symfony\Component\Validator\Validator\RecursiveValidator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
@@ -36,9 +39,26 @@ use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field\EnumField\Test
 #[Group('DAL')]
 class EnumFieldSerializerTest extends TestCase
 {
-    use CacheTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
-    use KernelTestBehaviour;
+    private EnumFieldSerializer $enumFieldSerializer;
+
+    private DefinitionInstanceRegistry&MockObject $definitionInstanceRegistry;
+
+    protected function setUp(): void
+    {
+        $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $validator = new RecursiveValidator(
+            new ExecutionContextFactory(
+                $this->createMock(TranslatorInterface::class)
+            ),
+            new BlackHoleMetadataFactory(),
+            new ConstraintValidatorFactory()
+        );
+
+        $this->enumFieldSerializer = new EnumFieldSerializer(
+            $validator,
+            $this->definitionInstanceRegistry
+        );
+    }
 
     public static function serializerProvider(): \Generator
     {
@@ -72,6 +92,11 @@ class EnumFieldSerializerTest extends TestCase
         yield 'Create int with false and required' => [$optionalInt, false, null, true, $create];
         yield 'Create int from 0 and required' => [$requiredInt, 0, TestIntegerEnum::Zero->value, false, $create];
         yield 'Create int from 1 null and optional' => [$optionalInt, 1, TestIntegerEnum::One->value, false, $create];
+
+        yield 'Create null with misspelled string' => [$optionalString, 'leading-space', null, false, $create];
+        yield 'Create string with leading space' => [$optionalString, ' leading-space', TestStringEnum::LeadingSpace->value, false, $create];
+        yield 'Create string with trailing space' => [$optionalString, 'trailing-space ', TestStringEnum::TrailingSpace->value, false, $create];
+        yield 'Fail creation with required string and misspelled value' => [$requiredString, 'leading-space', null, true, $create];
     }
 
     public static function decoderProvider(): \Generator
@@ -84,7 +109,7 @@ class EnumFieldSerializerTest extends TestCase
     #[DataProvider('serializerProvider')]
     public function testSerialize(EnumField $field, string|int|bool|null $value, string|int|null $expected, bool $expectError, EntityExistence $existence): void
     {
-        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile($this->definitionInstanceRegistry);
 
         $actual = null;
         $exception = null;
@@ -92,10 +117,9 @@ class EnumFieldSerializerTest extends TestCase
         try {
             $kv = new KeyValuePair($field->getPropertyName(), $value, true);
 
-            $params = new WriteParameterBag($this->getContainer()->get(ProductDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
+            $params = $this->createWriteParameterBag();
 
-            $actual = $this->getContainer()->get(EnumFieldSerializer::class)
-                ->encode($field, $existence, $kv, $params)->current();
+            $actual = $this->enumFieldSerializer->encode($field, $existence, $kv, $params)->current();
         } catch (\Throwable $e) {
             $exception = $e;
         }
@@ -115,7 +139,7 @@ class EnumFieldSerializerTest extends TestCase
     #[DataProvider('decoderProvider')]
     public function testDecode(EnumField $field, string|int|null $value, ?\BackedEnum $expected): void
     {
-        $actual = $this->getContainer()->get(EnumFieldSerializer::class)->decode($field, $value);
+        $actual = $this->enumFieldSerializer->decode($field, $value);
         static::assertSame($expected, $actual);
     }
 
@@ -125,6 +149,16 @@ class EnumFieldSerializerTest extends TestCase
         $this->expectExceptionObject(
             DataAbstractionLayerException::invalidSerializerField(EnumField::class, $field)
         );
-        $this->getContainer()->get(EnumFieldSerializer::class)->decode($field, null);
+        $this->enumFieldSerializer->decode($field, null);
+    }
+
+    private function createWriteParameterBag(): WriteParameterBag
+    {
+        return new WriteParameterBag(
+            new ProductDefinition(),
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            '',
+            new WriteCommandQueue()
+        );
     }
 }

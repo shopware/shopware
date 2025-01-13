@@ -73,8 +73,8 @@ export default class ShopwareExtensionService {
         await this.updateExtensionData();
     }
 
-    public async removeExtension(extensionName: string, type: ExtensionType): Promise<void> {
-        await this.extensionStoreActionService.removeExtension(extensionName, type);
+    public async removeExtension(extensionName: string, type: ExtensionType, removeData: boolean): Promise<void> {
+        await this.extensionStoreActionService.removeExtension(extensionName, type, removeData);
 
         await this.updateExtensionData();
     }

@@ -49,7 +49,7 @@ class CustomUrlProviderTest extends TestCase
                     'lastMod' => new \DateTimeImmutable(),
                     'changeFreq' => 'weekly',
                     'priority' => 0.5,
-                    'salesChannelId' => $salesChannelContext->getSalesChannel()->getId(),
+                    'salesChannelId' => $salesChannelContext->getSalesChannelId(),
                 ],
             ]);
 

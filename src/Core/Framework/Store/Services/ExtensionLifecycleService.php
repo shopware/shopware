@@ -83,7 +83,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
         $this->storeAppLifecycleService->deactivateExtension($technicalName, $context);
     }
 
-    public function remove(string $type, string $technicalName, Context $context): void
+    public function remove(string $type, string $technicalName, bool $keepUserData, Context $context): void
     {
         if ($type === 'plugin') {
             $plugin = $this->pluginService->getPluginByName($technicalName, $context);
@@ -92,7 +92,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->deleteExtension($technicalName);
+        $this->storeAppLifecycleService->deleteExtension($technicalName, $keepUserData, $context);
     }
 
     protected function getDecorated(): AbstractExtensionLifecycle

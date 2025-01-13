@@ -27,7 +27,7 @@ class ProductMaxPurchaseCalculator extends AbstractProductMaxPurchaseCalculator
     {
         $fallback = $this->systemConfigService->getInt(
             'core.cart.maxQuantity',
-            $context->getSalesChannel()->getId()
+            $context->getSalesChannelId()
         );
 
         $max = $product->get('maxPurchase') ?? $fallback;

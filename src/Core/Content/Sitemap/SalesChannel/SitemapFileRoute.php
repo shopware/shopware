@@ -74,7 +74,7 @@ class SitemapFileRoute
      */
     private function isRequestedFileValid(SalesChannelContext $salesChannelContext, string $filePath): bool
     {
-        $files = $this->fileSystem->listContents('sitemap/salesChannel-' . $salesChannelContext->getSalesChannel()->getId() . '-' . $salesChannelContext->getLanguageId());
+        $files = $this->fileSystem->listContents('sitemap/salesChannel-' . $salesChannelContext->getSalesChannelId() . '-' . $salesChannelContext->getLanguageId());
 
         foreach ($files as $file) {
             if ($filePath === $file->path()) {

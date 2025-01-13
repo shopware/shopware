@@ -45,7 +45,7 @@ class AddressValidationFactory implements DataValidationFactoryInterface
     private function buildCommonValidation(DataValidationDefinition $definition, SalesChannelContext $context): DataValidationDefinition
     {
         $frameworkContext = $context->getContext();
-        $salesChannelId = $context->getSalesChannel()->getId();
+        $salesChannelId = $context->getSalesChannelId();
 
         $definition
             ->add('salutationId', new EntityExists(['entity' => 'salutation', 'context' => $frameworkContext]))

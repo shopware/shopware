@@ -127,7 +127,11 @@ export default {
         documentCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
-            criteria.addAssociation('documentType');
+            criteria
+                .addAssociation('documentType')
+                .addAssociation('documentMediaFile')
+                .addAssociation('documentA11yMediaFile');
+
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
 
             if (!this.term) {
@@ -160,6 +164,12 @@ export default {
                     property: 'documentType.name',
                     dataIndex: 'documentType.name',
                     label: 'sw-order.documentCard.labelType',
+                    allowResize: false,
+                },
+                {
+                    property: 'fileTypes',
+                    dataIndex: 'fileTypes',
+                    label: 'sw-order.documentCard.labelAvailableFormats',
                     allowResize: false,
                 },
                 {
@@ -316,29 +326,33 @@ export default {
             this.showModal = true;
         },
 
-        openDocument(documentId, documentDeepLink) {
-            this.documentService.getDocument(documentId, documentDeepLink, Shopware.Context.api, true).then((response) => {
-                if (response.data) {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.target = '_blank';
-                    link.dispatchEvent(new MouseEvent('click'));
-                    link.remove();
-                }
-            });
+        openDocument(documentId, documentDeepLink, fileType) {
+            this.documentService
+                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+                .then((response) => {
+                    if (response.data) {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(response.data);
+                        link.target = '_blank';
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    }
+                });
         },
 
-        downloadDocument(documentId, documentDeepLink) {
-            this.documentService.getDocument(documentId, documentDeepLink, Shopware.Context.api, true).then((response) => {
-                if (response.data) {
-                    const filename = response.headers['content-disposition'].split('filename=')[1];
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.download = filename;
-                    link.dispatchEvent(new MouseEvent('click'));
-                    link.remove();
-                }
-            });
+        downloadDocument(documentId, documentDeepLink, fileType) {
+            this.documentService
+                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+                .then((response) => {
+                    if (response.data) {
+                        const filename = response.headers['content-disposition'].split('filename=')[1];
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(response.data);
+                        link.download = filename;
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    }
+                });
         },
 
         markDocumentAsSent(documentId) {
@@ -393,7 +407,8 @@ export default {
                     this.downloadDocument(documentId, documentDeepLink);
                 } else if (additionalAction === 'send') {
                     const criteria = new Criteria(null, null);
-                    criteria.addAssociation('documentType');
+                    criteria.addAssociation('documentType')
+                        .addAssociation('documentA11yMediaFile');
 
                     this.documentRepository.get(documentId, Shopware.Context.api, criteria).then((documentData) => {
                         if (!documentData) {
@@ -432,12 +447,12 @@ export default {
                 });
         },
 
-        onOpenDocument(id, deepLink) {
-            this.openDocument(id, deepLink);
+        onOpenDocument(id, deepLink, fileType) {
+            this.openDocument(id, deepLink, fileType);
         },
 
-        onDownload(id, deepLink) {
-            this.downloadDocument(id, deepLink);
+        onDownload(id, deepLink, fileType) {
+            this.downloadDocument(id, deepLink, fileType);
         },
 
         onSendDocument(id) {
@@ -481,6 +496,15 @@ export default {
             if (persist) {
                 this.onPrepareDocument();
             }
+        },
+
+        availableFormatsFilter(item) {
+            const fileTypesArray = Object.values({ ...item.config?.fileTypes });
+            if (fileTypesArray.includes('pdf') && fileTypesArray.includes('html')) {
+                return fileTypesArray.join(', ').toUpperCase();
+            }
+
+            return this.$tc('sw-order.documentCard.labelOnlyPdf');
         },
     },
 };

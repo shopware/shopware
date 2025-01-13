@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Struct;
 
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -16,6 +17,7 @@ final class DocumentGenerateOperation extends Struct
 
     /**
      * @param array<string, mixed> $config
+     * @param array<string> $fileTypes
      */
     public function __construct(
         protected string $orderId,
@@ -24,6 +26,7 @@ final class DocumentGenerateOperation extends Struct
         protected ?string $referencedDocumentId = null,
         protected bool $static = false,
         protected bool $preview = false,
+        protected array $fileTypes = [PdfRenderer::FILE_EXTENSION, HtmlRenderer::FILE_EXTENSION]
     ) {
     }
 
@@ -83,5 +86,21 @@ final class DocumentGenerateOperation extends Struct
     public function setOrderVersionId(string $orderVersionId): void
     {
         $this->orderVersionId = $orderVersionId;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getFileTypes(): array
+    {
+        return $this->fileTypes;
+    }
+
+    /**
+     * @param array<string> $types
+     */
+    public function setFileTypes(array $types): void
+    {
+        $this->fileTypes = $types;
     }
 }

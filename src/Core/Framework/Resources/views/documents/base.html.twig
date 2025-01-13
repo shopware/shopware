@@ -45,6 +45,9 @@ merge 16.11.2020
     <head>
         {% block document_head %}
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            <meta name="created_time" content="<?php echo date('c'); ?>">
+            <meta http-equiv="Content-Security-Policy" content="script-src 'none';">
+
             {#{% if config.title %}#}
             <title>{% block document_title_tag %}{% endblock %}</title>
             {#{% endif %}#}

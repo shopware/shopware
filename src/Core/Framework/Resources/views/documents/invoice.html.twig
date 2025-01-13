@@ -37,7 +37,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
 
 {% block shipping_address %}
     {% if config.displayDivergentDeliveryAddress %}
-        <div class="shipping-address-container">
+        <div class="shipping-address-container" tabindex="0">
             <br><p class="bold">{{ 'document.shippingAddress'|trans|sw_sanitize }}</p>
             {{ shippingAddress.company }}
             {{ shippingAddress.department }} <br>

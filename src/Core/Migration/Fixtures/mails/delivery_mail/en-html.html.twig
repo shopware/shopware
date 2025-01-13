@@ -5,5 +5,25 @@
     Attached to this email you will find the delivery note for your order with the number: {{ order.orderNumber }}<br>
     <br>
     If you have any questions, do not hesitate to contact us.
-    <br>
+    <br><br>
+
+    {% if a11yDocuments %}
+        For better accessibility we also provide an HTML version of the documents here:<br><br>
+        {% for a11y in a11yDocuments %}
+            {% set documentLink = rawUrl(
+                'frontend.account.order.single.document.a11y',
+                {
+                    documentId: a11y.documentId,
+                    deepLinkCode: a11y.deepLinkCode,
+                    fileType: a11y.fileExtension,
+                },
+                salesChannel.domains|first.url
+            )%}
+
+            - <a href="{{ documentLink }}" target="_blank">{{ documentLink }}</a> <br>
+        {% endfor %}<br>
+
+        For data protection reasons the HTML version requires a login. <br><br>
+        In case of a guest order, you can use your mail address and postal code of the billing address.<br>
+    {% endif %}
 </div>

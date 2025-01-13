@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -60,15 +59,12 @@ class DocumentGeneratorTest extends TestCase
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        $mockTypeRenderer = $this->createMock(AbstractDocumentTypeRenderer::class);
-        $fileRenderer = new DocumentFileRendererRegistry([$mockTypeRenderer]);
-
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
         $generator = new DocumentGenerator(
             $registry,
-            $fileRenderer,
+            $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(MediaService::class),
             $documentRepository,
             $this->createMock(Connection::class),
@@ -103,14 +99,6 @@ class DocumentGeneratorTest extends TestCase
         );
         $resultRenderer->setContent('html');
 
-        $resultRenderer->setTemplateOptions([
-            '',
-            [
-                'order' => new OrderEntity(),
-                'context' => $context,
-            ],
-        ]);
-
         $result = new RendererResult();
         $result->addSuccess('orderId', $resultRenderer);
 
@@ -131,14 +119,13 @@ class DocumentGeneratorTest extends TestCase
         $mockTypeRenderer->method('render')->willReturn('html');
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
-        $fileRenderer = new DocumentFileRendererRegistry([$mockTypeRenderer]);
 
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
         $generator = new DocumentGenerator(
             $registry,
-            $fileRenderer,
+            $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(MediaService::class),
             $documentRepository,
             $this->createMock(Connection::class),

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -11,10 +13,11 @@ final class RenderedDocument extends Struct
 {
     private string $content;
 
-    /**
-     * @var array<mixed>
-     */
-    private array $templateOptions = [];
+    private string $template = '';
+
+    private ?OrderEntity $order = null;
+
+    private ?Context $context = null;
 
     /**
      * @param array<string, mixed> $config
@@ -97,19 +100,33 @@ final class RenderedDocument extends Struct
         return $this->config;
     }
 
-    /**
-     * @param array<mixed> $templateOptions
-     */
-    public function setTemplateOptions(array $templateOptions): void
+    public function getOrder(): ?OrderEntity
     {
-        $this->templateOptions = $templateOptions;
+        return $this->order;
     }
 
-    /**
-     * @return mixed[]
-     */
-    public function getTemplateOptions(): array
+    public function setOrder(?OrderEntity $order): void
     {
-        return $this->templateOptions;
+        $this->order = $order;
+    }
+
+    public function getContext(): ?Context
+    {
+        return $this->context;
+    }
+
+    public function setContext(?Context $context): void
+    {
+        $this->context = $context;
+    }
+
+    public function getTemplate(): string
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(string $template): void
+    {
+        $this->template = $template;
     }
 }

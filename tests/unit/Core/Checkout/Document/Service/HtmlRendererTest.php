@@ -4,17 +4,20 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\HtmlRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
-use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -26,7 +29,7 @@ class HtmlRendererTest extends TestCase
 {
     public function testGetContentType(): void
     {
-        $htmlRenderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), new ExtensionDispatcher(new EventDispatcher()));
+        $htmlRenderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), '', new ExtensionDispatcher(new EventDispatcher()));
 
         static::assertEquals('text/html', $htmlRenderer->getContentType());
     }
@@ -34,14 +37,22 @@ class HtmlRendererTest extends TestCase
     public function testExtensionIsDispatched(): void
     {
         $dispatcher = new EventDispatcher();
-        $renderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), new ExtensionDispatcher($dispatcher));
-        $rendered = new RenderedDocument('html', '1001', InvoiceRenderer::TYPE);
-        $rendered->setTemplateOptions([
+        $renderer = new HtmlRenderer(
+            $this->createMock(DocumentTemplateRenderer::class),
             '',
-            [
-                'config' => new DocumentConfiguration(),
-            ],
-        ]);
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        $rendered = new RenderedDocument(
+            'html',
+            '1001',
+            InvoiceRenderer::TYPE,
+            HtmlRenderer::FILE_EXTENSION,
+        );
+
+        $rendered->setOrder($this->getOrder());
+        $rendered->setContext(Context::createDefaultContext());
+
         $pre = $this->createMock(CallableClass::class);
         $pre->expects(static::once())->method('__invoke');
         $dispatcher->addListener(HtmlRendererExtension::NAME . '.pre', $pre);
@@ -77,22 +88,12 @@ class HtmlRendererTest extends TestCase
             '1001',
             InvoiceRenderer::TYPE,
             HtmlRenderer::FILE_EXTENSION,
-            ['displayFooter' => true],
+            [],
             HtmlRenderer::FILE_CONTENT_TYPE,
         );
 
-        $config = new DocumentConfiguration();
-        $config->merge([
-            'fileType' => PdfRenderer::FILE_EXTENSION,
-            'itemsPerPage' => 10,
-        ]);
-
-        $rendered->setTemplateOptions([
-            '',
-            [
-                'config' => $config,
-            ],
-        ]);
+        $rendered->setContext(Context::createDefaultContext());
+        $rendered->setOrder($this->getOrder());
 
         static::assertStringContainsString('<html>', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
@@ -105,14 +106,11 @@ class HtmlRendererTest extends TestCase
 
         $htmlRenderer = new HtmlRenderer(
             $documentTemplateRenderer,
+            '',
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $generatorOutput = $htmlRenderer->render($rendered);
-
-        static::assertNotEmpty($config->getVars());
-        static::assertSame($config->getVars()['fileType'], 'html');
-        static::assertSame($config->getVars()['itemsPerPage'], 1000);
 
         static::assertNotEmpty($generatorOutput);
         static::assertEquals($html, $generatorOutput);
@@ -133,9 +131,29 @@ class HtmlRendererTest extends TestCase
 
         $htmlRenderer = new HtmlRenderer(
             $this->createMock(DocumentTemplateRenderer::class),
+            '',
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $htmlRenderer->render($rendered);
+    }
+
+    private function getOrder(): OrderEntity
+    {
+        $locale = new LocaleEntity();
+        $locale->setId(Uuid::randomHex());
+        $locale->setCode('en-GB');
+
+        $language = new LanguageEntity();
+        $language->setId(Uuid::randomHex());
+        $language->setLocale($locale);
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setSalesChannelId(Uuid::randomHex());
+        $order->setLanguageId($language->getId());
+        $order->setLanguage($language);
+
+        return $order;
     }
 }

@@ -84,6 +84,16 @@
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_order_document_card_grid_column_avaiable_formats %}
+            <template #column-fileTypes="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_document_card_grid_column_available_formats_label %}
+                {{ availableFormatsFilter(item) }}
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_document_card_grid_column_sent %}
             <template #column-sent="{ item }">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -126,7 +136,20 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_card_grid_action_open_label %}
-                    {{ $tc('sw-order.documentCard.labelOpenDocument') }}
+                    {{ $tc('sw-order.documentCard.labelOpenDocument', 0, { fileType: 'PDF' }) }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_document_card_grid_action_open_html %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer') || !item?.documentA11yMediaFile"
+                    @click="onOpenDocument(item.id, item.deepLinkCode, 'html')"
+                >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_order_document_card_grid_action_open_label %}
+                    {{ $tc('sw-order.documentCard.labelOpenDocument', 0, { fileType: 'HTML' }) }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
@@ -139,7 +162,20 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_card_grid_action_download_label %}
-                    {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
+                    {{ $tc('sw-order.documentCard.labelDownloadPdf', 0, { fileType: 'PDF' }) }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_document_card_grid_action_download_html %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer') || !item?.documentA11yMediaFile"
+                    @click="onDownload(item.id, item.deepLinkCode, 'html')"
+                >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_order_document_card_grid_action_download_html_label %}
+                        {{ $tc('sw-order.documentCard.labelDownloadPdf', 0, { fileType: 'HTML' }) }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}

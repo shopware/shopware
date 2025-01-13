@@ -40,6 +40,17 @@ const documentBaseConfigRepositoryMock = {
                 documentType: { id: 'documentTypeId1' },
             });
         }
+
+        if (id === 'documentConfigWithDocumentFileTypes') {
+            return Promise.resolve({
+                id: id,
+                documentTypeId: 'documentTypeId',
+                config: {
+                    fileTypes: ['pdf', 'html']
+                }
+            });
+        }
+
         return Promise.resolve({
             id: id,
             documentTypeId: 'documentTypeId',
@@ -427,5 +438,60 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(swCardComponents.length).toBeGreaterThan(0);
         expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');
+    });
+
+    it('should be have config files type with html and pdf', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentFileTypes' },
+            },
+            ['document.editor'],
+        );
+
+        await flushPromises();
+
+        const filesTypeLabel = wrapper.find(
+            'sw-form-field-renderer-stub[name="fileTypes"]',
+        );
+
+        expect(filesTypeLabel).toBeTruthy();
+        expect(wrapper.vm.documentConfig.config.fileTypes).toBe('all');
+    });
+
+    it('should be have config files type only show pdf', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentId' },
+            },
+            ['document.editor'],
+        );
+
+        await flushPromises();
+
+        const filesTypeLabel = wrapper.find(
+            'sw-form-field-renderer-stub[name="fileTypes"]',
+        );
+
+        expect(filesTypeLabel).toBeTruthy();
+        expect(wrapper.vm.documentConfig.config.fileTypes).toBe('pdf');
+    });
+
+    it('should be save with config files type', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentFileTypes' },
+            },
+            ['document.editor'],
+        );
+
+        wrapper.vm.documentBaseConfigRepository.save = jest.fn(() => Promise.resolve());
+
+        await flushPromises();
+
+        expect(wrapper.vm.documentConfig.config.fileTypes).toBe('all');
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.documentConfig.config.fileTypes).toEqual(['pdf', 'html']);
     });
 });

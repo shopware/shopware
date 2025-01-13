@@ -142,8 +142,7 @@ class AccountOrderPageLoader
             ->addAssociation('currency')
             ->addAssociation('stateMachineState')
             ->addAssociation('documents.documentType')
-            ->addAssociation('documents.documentMediaFile')
-            ->addAssociation('documents.documentA11yMediaFile')
+            ->addAssociation('documents.documentMediaFiles')
             ->setLimit(self::DEFAULT_LIMIT)
             ->setOffset(($page - 1) * self::DEFAULT_LIMIT)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Service;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -47,7 +48,7 @@ class DocumentGenerator
     ) {
     }
 
-    public function readDocument(string $documentId, Context $context, string $deepLinkCode = '', string $fileType = PdfRenderer::FILE_EXTENSION): RenderedDocument
+    public function readDocument(string $documentId, Context $context, string $deepLinkCode = '', string $fileType = PdfRenderer::FILE_EXTENSION): ?RenderedDocument
     {
         $criteria = new Criteria([$documentId]);
 
@@ -55,12 +56,18 @@ class DocumentGenerator
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
 
+        // @deprecated tag:v6.7.0 - documentMediaFile association will be removed
         $criteria->addAssociations([
             'documentMediaFile',
             'documentType',
-            'documentA11yMediaFile',
+            'documentMediaFiles.media',
         ]);
 
+        $criteria->getAssociation('documentMediaFiles')->addFilter(
+            new EqualsFilter('fileExtension', $fileType)
+        );
+
+        /** @var DocumentEntity|null $document */
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
         if (!$document instanceof DocumentEntity) {
             throw DocumentException::documentNotFound($documentId);
@@ -68,22 +75,26 @@ class DocumentGenerator
 
         $document = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
 
-        /** @var array{fileExtension: string, fileName: string, id: string, mimeType: string} $documentMedia */
-        $documentMedia = $this->loadMediaByFileExtension($document->getDocumentMediaFileIds() ?: [], $fileType);
-        if ($documentMedia === null) {
-            throw DocumentException::documentMediaFileNotFound($documentId, $fileType);
+        /** @var ?DocumentMediaEntity $documentMedia */
+        $documentMedia = $document->getDocumentMediaFiles()?->first();
+
+        if (!$documentMedia || !$documentMedia->getMedia()) {
+            return null;
         }
 
-        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMedia['id'], $context));
+        $media = $documentMedia->getMedia();
 
-        $fileName = $documentMedia['fileName'] . '.' . $documentMedia['fileExtension'];
+        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($media->getId(), $context));
 
-        $contentType = $documentMedia['mimeType'];
+        $fileExtension = $media->getFileExtension() ?: $documentMedia->getFileExtension();
 
         $renderedDocument = new RenderedDocument(
-            name: $documentMedia->getFileName() . '.' . $documentMedia->getFileExtension(),
-            fileExtension: $documentMedia->getFileExtension() ?? $fileType,
-            contentType: $documentMedia->getMimeType()
+            '',
+            '',
+            $media->getFileName() . '.' . $fileExtension,
+            $fileExtension,
+            [],
+            $media->getMimeType()
         );
         $renderedDocument->setContent($fileBlob);
 
@@ -157,6 +168,20 @@ class DocumentGenerator
                 $mediaId = $this->resolveMediaId($operation, $context, $document);
                 $mediaIdForHtmlA11y = $this->resolveMediaIdForA11y($operation, $context, $document);
 
+                $documentMediaFileIds = array_filter([
+                    PdfRenderer::FILE_EXTENSION => $mediaId,
+                    HtmlRenderer::FILE_EXTENSION => $mediaIdForHtmlA11y,
+                ]);
+
+                $documentMediaFiles = array_map(function (string $fileExtension, string $mediaId) use ($id): array {
+                    return [
+                        'mediaId' => $mediaId,
+                        'documentId' => $id,
+                        'fileExtension' => $fileExtension,
+                    ];
+                }, array_keys($documentMediaFileIds), $documentMediaFileIds);
+
+                // @deprecated tag:v6.7.0 - documentMediaFileId will be removed
                 $records[] = [
                     'id' => $id,
                     'documentTypeId' => $documentTypeId,
@@ -168,7 +193,7 @@ class DocumentGenerator
                     'config' => $document->getConfig(),
                     'deepLinkCode' => $deepLinkCode,
                     'referencedDocumentId' => $operation->getReferencedDocumentId(),
-                    'documentA11yMediaFileId' => $mediaIdForHtmlA11y,
+                    'documentMediaFiles' => $documentMediaFiles,
                 ];
 
                 $result->addSuccess(new DocumentIdStruct($id, $deepLinkCode, $mediaId, $mediaIdForHtmlA11y));
@@ -185,15 +210,23 @@ class DocumentGenerator
     public function upload(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
     {
         $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('documentMediaFile');
+        $criteria->addAssociation('documentMediaFiles');
+
+        $criteria->getAssociation('documentMediaFiles')->addFilter(
+            new EqualsFilter('fileExtension', PdfRenderer::FILE_EXTENSION)
+        );
+
+        /** @var DocumentEntity $document */
+        $document = $this->documentRepository->search($criteria, $context)->first();
+        /** @var ?DocumentMediaEntity $documentMedia */
+        $documentMedia = $document->getDocumentMediaFiles()?->first();
 
         $document = $this->documentRepository->search($criteria, $context)->first();
         if (!($document instanceof DocumentEntity)) {
             throw DocumentException::documentNotFound($documentId);
         }
 
-        $documentMedia = $document->getDocumentMediaFile();
-        if ($documentMedia?->getId() !== null) {
+        if ($documentMedia?->getMediaId() !== null) {
             throw DocumentException::documentGenerationException('Document already exists');
         }
 
@@ -211,11 +244,18 @@ class DocumentGenerator
 
         $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
 
+        // @deprecated tag:v6.7.0 - documentMediaFileId will be removed
         $this->documentRepository->upsert([
             [
                 'id' => $documentId,
                 'documentMediaFileId' => $mediaId,
-                'documentA11yMediaFileId' => null,
+                'documentMediaFiles' => [
+                    [
+                        'mediaId' => $mediaId,
+                        'documentId' => $documentId,
+                        'fileExtension' => PdfRenderer::FILE_EXTENSION,
+                    ],
+                ],
                 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
         ], $context);
@@ -284,8 +324,9 @@ class DocumentGenerator
 
     private function ensureDocumentMediaFileGenerated(DocumentEntity $document, string $fileType, Context $context): ?DocumentEntity
     {
-        $documentMedia = $this->loadMediaByFileExtension($document->getDocumentMediaFileIds() ?: [], $fileType);
-        if ($documentMedia !== null || $document->isStatic()) {
+        /** @var ?DocumentMediaEntity $documentMedia */
+        $documentMedia = $document->getDocumentMediaFiles()?->first();
+        if ($documentMedia?->getMediaId() !== null || $document->isStatic()) {
             return $document;
         }
 
@@ -316,9 +357,14 @@ class DocumentGenerator
         // Fetch the document again because new mediaFile is generated
         $criteria = new Criteria([$documentId]);
 
-        $criteria->addAssociation('documentMediaFile')
-            ->addAssociation('documentA11yMediaFile')
-            ->addAssociation('documentType');
+        // @deprecated tag:v6.7.0 - documentMediaFile association will be removed
+        $criteria->addAssociation('documentMediaFile');
+        $criteria->addAssociation('documentType');
+        $criteria->addAssociation('documentMediaFiles.media');
+
+        $criteria
+            ->getAssociation('documentMediaFiles')
+            ->addFilter(new EqualsFilter('fileExtension', $fileType));
 
         /** @var ?DocumentEntity $document */
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
@@ -329,10 +375,6 @@ class DocumentGenerator
     private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
     {
         if ($operation->isStatic()) {
-            return null;
-        }
-
-        if (!\in_array($document->getFileExtension(), $operation->getFileTypes(), true)) {
             return null;
         }
 

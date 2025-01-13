@@ -94,8 +94,12 @@ class PdfRendererTest extends TestCase
             InvoiceRenderer::TYPE,
         );
 
-        $rendered->setContext(Context::createDefaultContext());
-        $rendered->setOrder($this->getOrder());
+        $rendered->setTemplateOptions([
+            '',
+            [
+                'config' => new DocumentConfiguration(),
+            ],
+        ]);
 
         static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());

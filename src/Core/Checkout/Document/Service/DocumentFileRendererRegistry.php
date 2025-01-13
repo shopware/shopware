@@ -21,7 +21,7 @@ class DocumentFileRendererRegistry
     public function render(RenderedDocument $document): string
     {
         $renderers = $this->renderers instanceof \Traversable ? iterator_to_array($this->renderers) : $this->renderers;
-        $renderer = $renderers[$document->getFileExtension()];
+        $renderer = $renderers[$document->getFileExtension()] ?? null;
 
         if ($renderer instanceof AbstractDocumentTypeRenderer) {
             return $renderer->render($document);

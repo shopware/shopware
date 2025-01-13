@@ -38,11 +38,7 @@ class DocumentFileRendererRegistryTest extends TestCase
         $language->setId(Uuid::randomHex());
         $language->setLocale($locale);
 
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-        $order->setSalesChannelId(Uuid::randomHex());
-        $order->setLanguageId($language->getId());
-        $order->setLanguage($language);
+        $registry = new DocumentFileRendererRegistry(['pdf' => $pdfRenderer, 'html' => $htmlRenderer]);
 
         $document->setOrder($order);
         $document->setContext(Context::createDefaultContext());

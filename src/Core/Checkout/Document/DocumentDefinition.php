@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -74,7 +75,7 @@ class DocumentDefinition extends EntityDefinition
             (new ManyToOneAssociationField('referencedDocument', 'referenced_document_id', self::class, 'id', false))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('dependentDocuments', self::class, 'referenced_document_id'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('documentMediaFile', 'document_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            (new ManyToOneAssociationField('documentA11yMediaFile', 'document_a11y_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('documentMediaFiles', DocumentMediaDefinition::class, 'document_id', 'id'))->addFlags(new ApiAware()),
         ]);
     }
 }

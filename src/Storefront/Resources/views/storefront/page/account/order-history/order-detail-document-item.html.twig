@@ -7,9 +7,7 @@
     {%- endif -%}
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
-                {% set documentMediaFiles = [document.documentMediaFile, document.documentA11yMediaFile] %}
-
-                {% for media in documentMediaFiles|filter(media => media is not null) %}
+                {% for media in document.documentMediaFiles %}
                     {% set documentLink = path('frontend.account.order.single.document', {
                         documentId: document.id,
                         deepLinkCode: document.deepLinkCode,
@@ -40,7 +38,31 @@
         {% endblock %}
 
         {# @deprecated tag:v6.7.0 - This block will be removed #}
-        {% block page_account_order_document_item_detail_view_file_btn %}{% endblock %}
+        {% block page_account_order_document_item_detail_view_file_btn %}
+             <div class="col-3 col-md-2 document-item document-item-view-file">
+                 {% set documentLink = path('frontend.account.order.single.document', {
+                     documentId: document.id,
+                     deepLinkCode: document.deepLinkCode,
+                 }) %}
+
+                 {% block page_account_order_document_item_detail_view_file_btn_text %}
+                     <a href="{{ documentLink }}"
+                        target="_blank"
+                        class="btn btn-light btn-sm document-item-view-file-text-btn">
+                         {{ 'account.documentItemViewFileButton'|trans|sw_sanitize }}
+                     </a>
+                 {% endblock %}
+
+                 {% block page_account_order_document_item_detail_view_file_btn_icon %}
+                     <a href="{{ documentLink }}"
+                        target="_blank"
+                        class="btn btn-light btn-sm document-item-view-file-icon-btn"
+                        aria-label="{{ 'account.documentItemViewFileButton'|trans|striptags }}">
+                         {% sw_icon 'external' style { size: 'xs', ariaHidden: true } %}
+                     </a>
+                 {% endblock %}
+            </div>
+        {% endblock %}
     {# @deprecated tag:v6.7.0 - Document item will be `<li>` instead if `<div>` #}
     {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
         </div>

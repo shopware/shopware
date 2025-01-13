@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumField;
 

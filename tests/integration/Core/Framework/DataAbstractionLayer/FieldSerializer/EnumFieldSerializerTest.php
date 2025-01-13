@@ -8,9 +8,11 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\EnumFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -26,7 +28,7 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumFie
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumField\TestStringEnum;
 
 /**
- * @internald.grothaus@shopwa
+ * @internal
  */
 #[CoversClass(EnumFieldSerializer::class)]
 #[Package('core')]
@@ -72,6 +74,13 @@ class EnumFieldSerializerTest extends TestCase
         yield 'Create int from 1 null and optional' => [$optionalInt, 1, TestIntegerEnum::One->value, false, $create];
     }
 
+    public static function decoderProvider(): \Generator
+    {
+        yield 'String enum' => [new EnumField('name', 'name', TestStringEnum::Regular), 'string', TestStringEnum::Regular];
+        yield 'Int enum' => [new EnumField('name', 'name', TestIntegerEnum::One), 1, TestIntegerEnum::One];
+        yield 'Null' => [new EnumField('name', 'name', TestIntegerEnum::One), null, null];
+    }
+
     #[DataProvider('serializerProvider')]
     public function testSerialize(EnumField $field, string|int|bool|null $value, string|int|null $expected, bool $expectError, EntityExistence $existence): void
     {
@@ -94,12 +103,28 @@ class EnumFieldSerializerTest extends TestCase
         // error cases
         if ($expectError) {
             static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'This value should not be blank.');
-            static::assertEquals('/' . $field->getPropertyName(), $exception->getViolations()->get(0)->getPropertyPath());
+            static::assertSame('/' . $field->getPropertyName(), $exception->getViolations()->get(0)->getPropertyPath());
 
             return;
         }
 
         static::assertNull($exception);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
+    }
+
+    #[DataProvider('decoderProvider')]
+    public function testDecode(EnumField $field, string|int|null $value, ?\BackedEnum $expected): void
+    {
+        $actual = $this->getContainer()->get(EnumFieldSerializer::class)->decode($field, $value);
+        static::assertSame($expected, $actual);
+    }
+
+    public function testInvalidField(): void
+    {
+        $field = new IntField('int', 'int');
+        $this->expectExceptionObject(
+            DataAbstractionLayerException::invalidSerializerField(EnumField::class, $field)
+        );
+        $this->getContainer()->get(EnumFieldSerializer::class)->decode($field, null);
     }
 }

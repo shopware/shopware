@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\EnumFieldSerial
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Stores a PHP enumeration
+ * Stores a PHP Enum
  */
 #[Package('core')]
 class EnumField extends Field implements StorageAware, TypeVariant
@@ -16,15 +16,15 @@ class EnumField extends Field implements StorageAware, TypeVariant
     private string $type;
 
     /**
-     * @param \BackedEnum $enumeration Any case from the used enumeration may be passed.
+     * @param \BackedEnum $enum Any case from the used Enum may be passed.
      */
     public function __construct(
         private readonly string $storageName,
         string $propertyName,
-        private \BackedEnum $enumeration
+        private \BackedEnum $enum
     ) {
         parent::__construct($propertyName);
-        $backingType = (new \ReflectionEnum($enumeration::class))->getBackingType();
+        $backingType = (new \ReflectionEnum($enum::class))->getBackingType();
         $this->type = match ($backingType?->getName()) {
             'int' => Types::INTEGER,
             'string' => Types::STRING,
@@ -38,16 +38,16 @@ class EnumField extends Field implements StorageAware, TypeVariant
     }
 
     /**
-     * @return \BackedEnum Any case from the mapped enumeration.
+     * @return \BackedEnum Any case from the mapped Enum.
      */
-    public function getEnumeration(): \BackedEnum
+    public function getEnum(): \BackedEnum
     {
-        return $this->enumeration;
+        return $this->enum;
     }
 
     /**
      * @return string The DBAL {@see Types type} of the field. Supports {@see Types::STRING} when
-     *                {@see self::$enumeration} is {@see \StringBackedEnum} and {@see Types::INTEGER} for
+     *                {@see self::$enum} is {@see \StringBackedEnum} and {@see Types::INTEGER} for
      *                {@see \IntBackedEnum}
      */
     public function getType(): string

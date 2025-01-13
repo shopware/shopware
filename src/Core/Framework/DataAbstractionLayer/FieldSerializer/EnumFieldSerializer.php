@@ -37,7 +37,7 @@ class EnumFieldSerializer extends AbstractFieldSerializer
 
         $enumCase = null;
         if ($data->getValue() !== null) {
-            $enumCase = $field->getEnumeration()::tryFrom($data->getValue());
+            $enumCase = $field->getEnum()::tryFrom($data->getValue());
         }
         $data->setValue($enumCase?->value);
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -49,7 +49,7 @@ class EnumFieldSerializer extends AbstractFieldSerializer
     {
         $field = $this->checkFieldTypeOrThrowInvalidFieldException($field);
 
-        return $field->getEnumeration()::tryFrom($value);
+        return ($value !== null) ? $field->getEnum()::tryFrom($value): null;
     }
 
     /**

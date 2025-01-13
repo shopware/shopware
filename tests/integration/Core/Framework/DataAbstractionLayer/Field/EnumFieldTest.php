@@ -33,8 +33,8 @@ class EnumFieldTest extends TestCase
     /**
      * @param list<Flag> $flags
      */
-    #[DataProvider('enumerationFieldDataProvider')]
-    public function testEnumerationFieldSerializer(
+    #[DataProvider('enumFieldDataProvider')]
+    public function testEnumFieldSerializer(
         string $type,
         mixed $input,
         string|int|null $expected,
@@ -51,7 +51,7 @@ class EnumFieldTest extends TestCase
 
             try {
                 $serializer->encode(
-                    $this->getEnumerationField($name, $enum, $flags),
+                    $this->getEnumField($name, $enum, $flags),
                     EntityExistence::createEmpty(),
                     $data,
                     $this->getWriteParameterBagMock()
@@ -68,7 +68,7 @@ class EnumFieldTest extends TestCase
             static::assertSame(
                 $expected,
                 $serializer->encode(
-                    $this->getEnumerationField($name, $enum, $flags),
+                    $this->getEnumField($name, $enum, $flags),
                     EntityExistence::createEmpty(),
                     $data,
                     $this->getWriteParameterBagMock()
@@ -78,12 +78,13 @@ class EnumFieldTest extends TestCase
     }
 
     /**
-     * @return list<array{string, bool|string|int|\BackedEnum|\stdClass|null, string|\BackedEnum|null, \BackedEnum, array<Flag>}>
+     * @return list<array{string, bool|string|int|\stdClass|null, string|int|null, \BackedEnum, array<Flag>}>
      */
-    public static function enumerationFieldDataProvider(): array
+    public static function enumFieldDataProvider(): array
     {
         $validationFailedForInt = 'This value should satisfy at least one of the following constraints: [1] This value should be of type integer. [2] This value should be null.';
         $validationFailedForString = 'This value should satisfy at least one of the following constraints: [1] This value should be of type string. [2] This value should be null.';
+
         return [
             ['assertion', 'string', TestStringEnum::Regular->value, TestStringEnum::TrailingSpace, []],
             ['assertion', 0, TestIntegerEnum::Zero->value, TestIntegerEnum::One, []],
@@ -108,7 +109,7 @@ class EnumFieldTest extends TestCase
     /**
      * @param list<Flag> $flags
      */
-    private function getEnumerationField(string $name, \BackedEnum $enum, array $flags = []): EnumField
+    private function getEnumField(string $name, \BackedEnum $enum, array $flags = []): EnumField
     {
         $field = new EnumField($name, $name, $enum);
 

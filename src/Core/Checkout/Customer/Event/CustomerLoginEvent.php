@@ -69,7 +69,7 @@ class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSal
 
     public function getSalesChannelId(): string
     {
-        return $this->salesChannelContext->getSalesChannel()->getId();
+        return $this->salesChannelContext->getSalesChannelId();
     }
 
     public static function getAvailableData(): EventDataCollection

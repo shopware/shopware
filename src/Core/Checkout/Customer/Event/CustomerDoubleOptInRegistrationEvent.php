@@ -81,7 +81,7 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
 
     public function getSalesChannelId(): string
     {
-        return $this->salesChannelContext->getSalesChannel()->getId();
+        return $this->salesChannelContext->getSalesChannelId();
     }
 
     public function getContext(): Context

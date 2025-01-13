@@ -8,7 +8,9 @@
       "messageSaveSuccess": "Configuration saved.",
       "messageSaveError": "Configuration could not be saved due to: \"{message}\"",
       "labelDefaultSorting": "Default sorting",
+      "labelDefaultSearchResultSorting": "Default search result sorting",
       "placeholderDefaultSorting": "Select a default sorting...",
+      "placeholderDefaultSearchResultSorting": "Select a default search result sorting...",
       "productSortingCriteriaGrid": {
         "header": {
           "name": "Name",

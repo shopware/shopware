@@ -24,7 +24,7 @@ test('Shop customer should be able to see the product image in the Storefront.',
     Logout,
     InstanceMeta,
 }) => {
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40156');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: Ticket: https://shopware.atlassian.net/browse/NEXT-40217');
 
     const product = await TestDataService.createBasicProduct();
     const media = await TestDataService.createMediaPNG();

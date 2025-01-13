@@ -187,15 +187,17 @@ class SalesChannelContext extends Struct
     {
         $tax = $this->taxRules->get($taxId);
 
-        if ($tax === null || $tax->getRules() === null) {
+        if ($tax?->getRules() === null) {
             throw SalesChannelException::taxNotFound($taxId);
         }
 
-        if ($tax->getRules()->first() !== null) {
+        $firstTaxRule = $tax->getRules()->first();
+
+        if ($firstTaxRule) {
             // NEXT-21735 - This is covered randomly
             // @codeCoverageIgnoreStart
             return new TaxRuleCollection([
-                new TaxRule($tax->getRules()->first()->getTaxRate(), 100),
+                new TaxRule($firstTaxRule->getTaxRate(), 100),
             ]);
             // @codeCoverageIgnoreEnd
         }
@@ -235,7 +237,7 @@ class SalesChannelContext extends Struct
      */
     public function getRuleIds(): array
     {
-        return $this->getContext()->getRuleIds();
+        return $this->context->getRuleIds();
     }
 
     /**
@@ -243,7 +245,7 @@ class SalesChannelContext extends Struct
      */
     public function setRuleIds(array $ruleIds): void
     {
-        $this->getContext()->setRuleIds($ruleIds);
+        $this->context->setRuleIds($ruleIds);
     }
 
     /**
@@ -290,7 +292,7 @@ class SalesChannelContext extends Struct
 
     public function lockRules(): void
     {
-        $this->getContext()->lockRules();
+        $this->context->lockRules();
     }
 
     public function lockPermissions(): void
@@ -315,7 +317,7 @@ class SalesChannelContext extends Struct
 
     public function getTaxCalculationType(): string
     {
-        return $this->getSalesChannel()->getTaxCalculationType();
+        return $this->salesChannel->getTaxCalculationType();
     }
 
     /**
@@ -350,7 +352,7 @@ class SalesChannelContext extends Struct
 
     public function getSalesChannelId(): string
     {
-        return $this->getSalesChannel()->getId();
+        return $this->salesChannel->getId();
     }
 
     public function addState(string ...$states): void
@@ -431,7 +433,7 @@ class SalesChannelContext extends Struct
 
     public function getCurrencyId(): string
     {
-        return $this->getCurrency()->getId();
+        return $this->currency->getId();
     }
 
     public function ensureLoggedIn(bool $allowGuest = true): void

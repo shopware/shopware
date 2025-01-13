@@ -65,7 +65,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeBreadcrumbField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TypeVariant;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
@@ -183,7 +182,7 @@ class SchemaBuilder
                 continue;
             }
 
-            if ($field instanceof TypeVariant) {
+            if ($field instanceof EnumField) {
                 $fieldType = $field->getType();
             }
 

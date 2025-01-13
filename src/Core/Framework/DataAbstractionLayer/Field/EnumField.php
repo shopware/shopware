@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * Stores a PHP Enum
  */
 #[Package('core')]
-class EnumField extends Field implements StorageAware, TypeVariant
+class EnumField extends Field implements StorageAware
 {
     private string $type;
 

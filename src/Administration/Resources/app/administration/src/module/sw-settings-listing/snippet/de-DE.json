@@ -10,7 +10,7 @@
       "labelDefaultSorting": "Standard-Sortierung",
       "labelDefaultSearchResultSorting": "Standard-Sortierung der Suchergebnisse",
       "placeholderDefaultSorting": "Wähle eine Standard-Sortierung ...",
-      "placeholderDefaultSearchResultSorting": "Wählen Sie eine Standardsortierung der Suchergebnisse...",
+      "placeholderDefaultSearchResultSorting": "Wähle eine Standard-Sortierung der Suchergebnisse ...",
       "productSortingCriteriaGrid": {
         "header": {
           "name": "Name",

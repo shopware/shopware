@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends Extension<array<string, CriteriaCollection>>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 final class CmsSlotsDataCollectExtension extends Extension
 {
     public const NAME = 'cms-slots-data.collect';

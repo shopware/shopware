@@ -9,9 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -40,7 +43,7 @@ class CacheInvalidatorTest extends TestCase
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
-            'test'
+            new RequestStack([new Request()]),
         );
 
         $invalidator->invalidate([]);
@@ -48,7 +51,6 @@ class CacheInvalidatorTest extends TestCase
 
     public function testForceInvalidation(): void
     {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
             ->expects(static::once())
@@ -66,10 +68,38 @@ class CacheInvalidatorTest extends TestCase
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
-            'prod'
+            new RequestStack([new Request()]),
         );
 
         $invalidator->invalidate(['foo'], true);
+    }
+
+    public function testInvalidationIsImplicitlyForcedWhenRequestHeaderIsSet(): void
+    {
+        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
+        $tagAwareAdapter
+            ->expects(static::once())
+            ->method('invalidateTags')
+            ->with(['foo']);
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects(static::never())
+            ->method('store');
+
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE, '1');
+
+        $invalidator = new CacheInvalidator(
+            0,
+            [$tagAwareAdapter],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger(),
+            new RequestStack([$request]),
+        );
+
+        $invalidator->invalidate(['foo']);
     }
 
     public function testStoreInvalidation(): void
@@ -90,16 +120,19 @@ class CacheInvalidatorTest extends TestCase
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
-            'prod'
+            new RequestStack([new Request()]),
         );
 
         $invalidator->invalidate(['foo']);
     }
 
     #[DataProvider('dataProviderInvalidation')]
+    #[DisabledFeatures(['cache_rework'])]
+    /**
+     * @deprecated tag:v6.7.0 - can be removed as it tests only deprecated functionality
+     */
     public function testInvalidation(bool $enableDelay, bool $directInvalidate, bool $backgroundInvalidate, bool $force): void
     {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
             ->expects($directInvalidate ? static::once() : static::never())
@@ -119,7 +152,7 @@ class CacheInvalidatorTest extends TestCase
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
-            'prod'
+            new RequestStack([new Request()]),
         );
 
         $invalidator->invalidate(['foo'], $force);
@@ -177,7 +210,7 @@ class CacheInvalidatorTest extends TestCase
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
-            'test'
+            new RequestStack([new Request()]),
         );
 
         $invalidator->invalidateExpired();
@@ -205,7 +238,7 @@ class CacheInvalidatorTest extends TestCase
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
-            'test'
+            new RequestStack([new Request()]),
         );
 
         $invalidator->invalidateExpired();

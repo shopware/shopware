@@ -49,7 +49,7 @@ class CustomerSetDefaultShippingAddressEvent extends Event implements SalesChann
 
     public function getSalesChannelId(): string
     {
-        return $this->salesChannelContext->getSalesChannel()->getId();
+        return $this->salesChannelContext->getSalesChannelId();
     }
 
     public static function getAvailableData(): EventDataCollection

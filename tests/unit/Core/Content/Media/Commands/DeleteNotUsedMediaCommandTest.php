@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(DeleteNotUsedMediaCommand::class)]
 class DeleteNotUsedMediaCommandTest extends TestCase
 {

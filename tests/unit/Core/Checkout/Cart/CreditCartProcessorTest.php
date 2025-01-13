@@ -35,7 +35,7 @@ class CreditCartProcessorTest extends TestCase
         $original->add($item);
 
         $toCalculate = new Cart('toCalculate');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
 
         $calculator = $this->createMock(AbsolutePriceCalculator::class);
@@ -66,7 +66,7 @@ class CreditCartProcessorTest extends TestCase
         $original->add($item);
 
         $toCalculate = new Cart('toCalculate');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
 
         $calculator = $this->createMock(AbsolutePriceCalculator::class);
@@ -90,7 +90,7 @@ class CreditCartProcessorTest extends TestCase
         $original->add($item);
 
         $toCalculate = new Cart('toCalculate');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
 
         $calculator = $this->createMock(AbsolutePriceCalculator::class);

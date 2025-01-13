@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package discovery
  */
 
 import header from './header.csv.twig';

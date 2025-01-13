@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class LandingPageUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'daily';
@@ -117,7 +117,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
-        $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannel()->getId()));
+        $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
         /** @var list<array{id: string, created_at: string, updated_at: string}> $result */
         $result = $query->executeQuery()->fetchAllAssociative();
@@ -134,7 +134,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
      */
     private function getExcludedLandingPageIds(SalesChannelContext $salesChannelContext): array
     {
-        $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
         if (empty($excludedUrls)) {

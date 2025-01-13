@@ -10,10 +10,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal Use SalesChannelContext for extensions
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class BaseContext
@@ -28,7 +31,8 @@ class BaseContext
         protected ShippingMethodEntity $shippingMethod,
         protected ShippingLocation $shippingLocation,
         private readonly CashRoundingConfig $itemRounding,
-        private readonly CashRoundingConfig $totalRounding
+        private readonly CashRoundingConfig $totalRounding,
+        private readonly LanguageInfo $languageInfo
     ) {
     }
 
@@ -37,9 +41,19 @@ class BaseContext
         return $this->currentCustomerGroup;
     }
 
+    public function getCurrencyId(): string
+    {
+        return $this->currency->getId();
+    }
+
     public function getCurrency(): CurrencyEntity
     {
         return $this->currency;
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannel->getId();
     }
 
     public function getSalesChannel(): SalesChannelEntity
@@ -77,29 +91,23 @@ class BaseContext
         return $this->context->getTaxState();
     }
 
-    public function getApiAlias(): string
-    {
-        return 'base_channel_context';
-    }
-
-    /**
-     * @codeCoverageIgnore
-     */
     public function getTotalRounding(): CashRoundingConfig
     {
         return $this->totalRounding;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function getItemRounding(): CashRoundingConfig
     {
         return $this->itemRounding;
     }
 
-    public function getCurrencyId(): string
+    public function getLanguageInfo(): LanguageInfo
     {
-        return $this->getCurrency()->getId();
+        return $this->languageInfo;
+    }
+
+    public function getApiAlias(): string
+    {
+        return 'base_channel_context';
     }
 }

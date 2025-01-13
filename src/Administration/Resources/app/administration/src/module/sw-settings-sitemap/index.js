@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package discovery
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

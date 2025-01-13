@@ -1,0 +1,13 @@
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: phpunit-unit
+      paths:
+        - src/**
+    - name: jest-admin
+      paths:
+        - src/Administration/Resources/app/administration/src
+    - name: jest-storefront
+      paths:
+        - src/Storefront/Resources/app/storefront/src

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsRoute extends AbstractCmsRoute
 {
     /**

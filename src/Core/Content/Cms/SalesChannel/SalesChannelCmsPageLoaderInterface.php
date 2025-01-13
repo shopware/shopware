@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 interface SalesChannelCmsPageLoaderInterface
 {
     /**

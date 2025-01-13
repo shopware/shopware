@@ -500,7 +500,7 @@ class PromotionExtensionCodesTest extends TestCase
             'name' => $name,
             'active' => true,
             'salesChannels' => [
-                ['salesChannelId' => $this->context->getSalesChannel()->getId(), 'priority' => 1],
+                ['salesChannelId' => $this->context->getSalesChannelId(), 'priority' => 1],
             ],
         ], $data);
 

@@ -26,7 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaFolderDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'media_folder';

@@ -583,7 +583,7 @@ class DocumentControllerTest extends TestCase
             [
                 'documentIds' => $documentIds,
             ],
-            ['documentIds' => ArrayParameterType::BINARY]
+            ['documentIds' => ArrayParameterType::STRING]
         );
     }
 

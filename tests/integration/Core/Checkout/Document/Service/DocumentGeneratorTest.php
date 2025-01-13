@@ -489,7 +489,7 @@ class DocumentGeneratorTest extends TestCase
             'companyName' => 'Custom corp.',
             'displayCompanyAddress' => false,
         ];
-        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannel()->getId());
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannelId());
 
         $operation = new DocumentGenerateOperation($this->orderId);
 
@@ -524,7 +524,7 @@ class DocumentGeneratorTest extends TestCase
             'displayCompanyAddress' => false,
             'pageSize' => 'a5',
         ];
-        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannel()->getId());
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannelId());
 
         $overrides = [
             'companyName' => 'Override corp.',

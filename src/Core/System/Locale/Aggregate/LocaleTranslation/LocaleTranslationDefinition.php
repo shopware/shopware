@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LocaleTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'locale_translation';

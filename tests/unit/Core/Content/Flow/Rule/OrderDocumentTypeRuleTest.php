@@ -76,7 +76,7 @@ class OrderDocumentTypeRuleTest extends TestCase
 
         $order->setDocuments($collection);
         $cart = Generator::createCart();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $scope = new FlowRuleScope($order, $cart, $context);
 
         $this->rule->assign(['documentIds' => $selectedDocumentIds, 'operator' => $operator]);
@@ -94,7 +94,7 @@ class OrderDocumentTypeRuleTest extends TestCase
     {
         $order = new OrderEntity();
         $cart = Generator::createCart();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $scope = new FlowRuleScope($order, $cart, $context);
 
         $this->rule->assign(['documentIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);

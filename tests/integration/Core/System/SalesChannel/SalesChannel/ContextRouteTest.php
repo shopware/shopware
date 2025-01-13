@@ -17,7 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ContextRoute::class)]
 #[Group('store-api')]
 class ContextRouteTest extends TestCase

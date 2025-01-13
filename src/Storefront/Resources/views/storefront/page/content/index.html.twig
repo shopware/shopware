@@ -9,7 +9,7 @@
                     {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                         context: context,
                         themeIconConfig: themeIconConfig,
-                        category: page.header.navigation.active
+                        categoryId: shopware.navigation.id,
                     } only %}
                 </div>
             {% endblock %}

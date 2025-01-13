@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Routing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -27,6 +28,7 @@ class RouteEventSubscriber implements EventSubscriberInterface
     {
         $events = [
             KernelEvents::REQUEST => ['request', -10],
+            KernelEvents::CONTROLLER => ['controller', -10],
             KernelEvents::RESPONSE => ['response', -10],
         ];
 
@@ -67,6 +69,17 @@ class RouteEventSubscriber implements EventSubscriberInterface
         }
 
         $name = $request->attributes->get('_route') . '.response';
+        $this->dispatcher->dispatch($event, $name);
+    }
+
+    public function controller(ControllerEvent $event): void
+    {
+        $request = $event->getRequest();
+        if (!$request->attributes->has('_route')) {
+            return;
+        }
+
+        $name = $request->attributes->get('_route') . '.controller';
         $this->dispatcher->dispatch($event, $name);
     }
 }

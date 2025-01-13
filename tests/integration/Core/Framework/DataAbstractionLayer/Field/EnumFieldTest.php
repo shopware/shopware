@@ -78,7 +78,7 @@ class EnumFieldTest extends TestCase
     }
 
     /**
-     * @return list<array{string, bool|string|int|\stdClass|null, string|int|null, \BackedEnum, array<Flag>}>
+     * @return array<string, array{string, bool|string|int|\stdClass|null, string|int|null, \BackedEnum, array<Flag>}>
      */
     public static function enumFieldDataProvider(): array
     {
@@ -86,15 +86,15 @@ class EnumFieldTest extends TestCase
         $validationFailedForString = 'This value should satisfy at least one of the following constraints: [1] This value should be of type string. [2] This value should be null.';
 
         return [
-            ['assertion', 'string', TestStringEnum::Regular->value, TestStringEnum::TrailingSpace, []],
-            ['assertion', 0, TestIntegerEnum::Zero->value, TestIntegerEnum::One, []],
-            ['assertion', 'leading-space', null, TestStringEnum::Regular, []],
-            ['assertion', ' leading-space', TestStringEnum::LeadingSpace->value, TestStringEnum::Regular, []],
-            ['assertion', 'string', TestStringEnum::Regular->value, TestStringEnum::TrailingSpace, []],
-            ['writeException', 'leading-space', 'This value should not be blank.', TestStringEnum::LeadingSpace, [new Required()]],
-            ['writeException', false, $validationFailedForInt, TestIntegerEnum::One, []],
-            ['writeException', new \stdClass(), $validationFailedForInt, TestIntegerEnum::One, []],
-            ['writeException', 0, $validationFailedForString, TestStringEnum::Regular, []],
+            'regular string with other case as reference to enum' => ['assertion', 'string', TestStringEnum::Regular->value, TestStringEnum::TrailingSpace, []],
+            'regular int with other case as reference to enum' => ['assertion', 0, TestIntegerEnum::Zero->value, TestIntegerEnum::One, []],
+            'ignored misspelled values' => ['assertion', 'leading-space', null, TestStringEnum::Regular, []],
+            'respect leading spaces' => ['assertion', ' leading-space', TestStringEnum::LeadingSpace->value, TestStringEnum::Regular, []],
+            'respect trailing spaces' => ['assertion', 'string', TestStringEnum::Regular->value, TestStringEnum::TrailingSpace, []],
+            'error for misspelled values and required values' => ['writeException', 'leading-space', 'This value should not be blank.', TestStringEnum::LeadingSpace, [new Required()]],
+            'error for unsupported scalars' => ['writeException', false, $validationFailedForInt, TestIntegerEnum::One, []],
+            'error for invalid objects' => ['writeException', new \stdClass(), $validationFailedForInt, TestIntegerEnum::One, []],
+            'error for mismatching scalars' => ['writeException', 0, $validationFailedForString, TestStringEnum::Regular, []],
         ];
     }
 

@@ -8,9 +8,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  *
- * This event is dispatched during the version merge process and solves specific CMS entities problem.
- * It allows listeners to manipulate the writes array before they are applied.
- * If a similar issue arises for other entities, this approach should be revisited and generalized at a more abstract level
+ * This event is dispatched during the version merge process and allows listeners to manipulate the writes array before they are applied.
  *
  * @phpstan-type WriteOperation array<string, array<int, mixed>>
  * @phpstan-type Writes array{

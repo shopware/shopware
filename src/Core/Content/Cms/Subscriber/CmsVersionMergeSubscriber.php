@@ -8,9 +8,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
  * Handles cleanup of CMS entities (`cms_slot`) referencing deleted parent entities (`cms_block`) during a version merge.
+ * This solution addresses a specific corner case for CMS entities. If a similar issue arises with other entities,
+ * consider generalizing this approach.
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsVersionMergeSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

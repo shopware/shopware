@@ -157,7 +157,7 @@ class CreditNoteRendererTest extends TestCase
             static::assertNotEmpty($processedTemplate->getSuccess());
             static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
             $rendered = $processedTemplate->getSuccess()[$orderId];
-            static::assertStringContainsString('<html>', $rendered->getHtml());
+            static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
             static::assertStringContainsString('</html>', $rendered->getHtml());
 
             if ($successCallback) {

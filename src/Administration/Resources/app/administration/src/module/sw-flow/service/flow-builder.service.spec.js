@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';

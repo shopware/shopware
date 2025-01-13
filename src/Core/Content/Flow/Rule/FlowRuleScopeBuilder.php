@@ -14,7 +14,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class FlowRuleScopeBuilder implements ResetInterface
 {
     /**

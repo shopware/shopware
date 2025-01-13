@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 function createEntityCollectionMock(entityName, items = []) {

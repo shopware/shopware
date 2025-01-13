@@ -2,7 +2,7 @@ import template from './sw-flow-leave-page-modal.html.twig';
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default {
     template,

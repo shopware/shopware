@@ -48,7 +48,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class GrantDownloadAccessActionTest extends TestCase
 {
     use IntegrationTestBehaviour;

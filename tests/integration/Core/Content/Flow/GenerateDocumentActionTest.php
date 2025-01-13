@@ -53,7 +53,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class GenerateDocumentActionTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -529,7 +529,7 @@ class GenerateDocumentActionTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CustomDocRenderer extends AbstractDocumentRenderer
 {
     final public const TYPE = 'customDoc';

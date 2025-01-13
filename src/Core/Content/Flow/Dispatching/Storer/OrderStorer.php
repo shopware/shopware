@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class OrderStorer extends FlowStorer
 {
     /**

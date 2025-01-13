@@ -21,7 +21,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class AddOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;

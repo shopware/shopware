@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 abstract class AbstractFlowLoader
 {
     abstract public function load(): array;

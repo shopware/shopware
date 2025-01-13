@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class BeforeLoadStorableFlowDataEvent extends Event implements ShopwareEvent, GenericEvent
 {
     public function __construct(

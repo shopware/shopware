@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const fieldClasses = [

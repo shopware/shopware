@@ -58,7 +58,7 @@ use Symfony\Component\Mime\Part\DataPart;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class SendMailActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -971,7 +971,7 @@ class SendMailActionTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class TestEmailService extends MailService
 {
     public float $calls = 0;

@@ -5,7 +5,7 @@ const { Application } = Shopware;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const sequenceFixture = {

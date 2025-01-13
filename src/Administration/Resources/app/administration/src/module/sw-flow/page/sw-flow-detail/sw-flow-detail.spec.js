@@ -4,7 +4,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 class MockFlowBuilderService extends FlowBuilderService {

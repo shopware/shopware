@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class OrderCreatedByAdminRule extends FlowRule
 {
     final public const RULE_NAME = 'orderCreatedByAdmin';

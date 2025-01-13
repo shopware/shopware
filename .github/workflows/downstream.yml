@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   rufus:
-    name: Rufus
+    name: "Rufus ${{ github.event.pull_request.author_association }}"
     runs-on: ubuntu-24.04
     if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' }}
     steps:

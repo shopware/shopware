@@ -3,7 +3,14 @@ name: Integration tests
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      nightly:
+        default: ""
   workflow_call:
+    inputs:
+      nightly:
+        type: string
+        default: ""
 
 jobs:
   acceptance:
@@ -117,26 +124,27 @@ jobs:
           path: tests/acceptance/test-results/
           retention-days: 3
 
-  phpunit:
-    name: "${{ matrix.php}} ${{ matrix.tests.testsuite }}${{ matrix.tests.path }} ${{ matrix.db }}"
+  phpunit-matrix:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        tests:
-          - path: Core/Checkout
-          - path: Core/Content
-          - path: Core/Framework
-          - path: Storefront
-          - path: '{Administration,Elasticsearch}'
-          - path: '{Core/Installer,Core/Maintenance,Core/System}'
-          - testsuite: devops,migration
-        db:
-          - mysql:8.0
-          - mariadb:11
-        php:
-          - '8.2'
-          - '8.4'
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v4
+      - id: generate-matrix
+        run: |
+          MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
+          echo $MATRIX
+          echo "matrix<<EOF" >> $GITHUB_OUTPUT
+          echo "$MATRIX" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+  phpunit:
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
+    needs: 
+      - phpunit-matrix
+    runs-on: ubuntu-24.04
+    strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
@@ -149,7 +157,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.tests.path != '' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        image: ${{ matrix.test.path != '' && 'opensearchproject/opensearch:1' || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -179,12 +187,12 @@ jobs:
         run: php src/Core/TestBootstrap.php
 
       - name: Run PHPUnit testsuite
-        if: ${{ matrix.tests.testsuite != '' }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.tests.testsuite }}"
+        if: ${{ matrix.test.testsuite != '' }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.test.testsuite }}"
 
       - name: Run PHPUnit path
-        if: ${{ matrix.tests.path != '' }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit -- tests/integration/${{ matrix.tests.path }}
+        if: ${{ matrix.test.path != '' }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit -- tests/integration/${{ matrix.test.path }}
 
   win-checkout:
     runs-on: windows-latest

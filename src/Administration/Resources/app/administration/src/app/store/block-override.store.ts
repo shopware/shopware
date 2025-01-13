@@ -2,42 +2,12 @@
  * @package customer-order
  * @private
  */
-import type { Slot } from 'vue';
+import useBlockContext from '../composables/use-block-context';
 
 /**
  * @private
  */
-const blockOverrideStore = Shopware.Store.register({
-    id: 'blockOverride',
-
-    state: () => ({
-        blocks: {} as Record<string, Slot[]>,
-    }),
-
-    actions: {
-        getBlocks(blockName: string): Slot[] {
-            return this.blocks[blockName] ?? [];
-        },
-        addBlock(blockName: string, block?: Slot): void {
-            if (!block) {
-                return;
-            }
-            if (!this.blocks[blockName]) {
-                this.blocks[blockName] = [];
-            }
-            this.blocks[blockName].push(block);
-        },
-        removeBlock(blockName: string, block?: Slot): void {
-            if (!block) {
-                return;
-            }
-            if (!this.blocks[blockName]) {
-                return;
-            }
-            this.blocks[blockName] = this.blocks[blockName].filter((b) => b !== block);
-        },
-    },
-});
+const blockOverrideStore = Shopware.Store.register('blockOverride', useBlockContext);
 
 /**
  * @private

@@ -8,6 +8,6 @@ describe('block-override.store', () => {
     });
 
     it('has initial state', () => {
-        expect(store.blocks).toStrictEqual({});
+        expect(store.blockContext).toStrictEqual({});
     });
 });

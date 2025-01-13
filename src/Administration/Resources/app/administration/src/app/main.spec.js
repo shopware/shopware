@@ -244,7 +244,6 @@ describe('src/app/main.ts', () => {
             'store',
             'topbarButton',
             'teaserPopover',
-            'blockOverride',
         ];
 
         const initializers = Shopware.Application.getContainer('init').$list();

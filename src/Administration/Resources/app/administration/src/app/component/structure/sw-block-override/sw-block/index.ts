@@ -4,6 +4,7 @@
  */
 import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type PropType, type Slot } from 'vue';
 import parentsInjectionKey from './parents-injection-key';
+import useBlockContext from '../../../../composables/use-block-context';
 
 /**
  * @private
@@ -70,13 +71,13 @@ Shopware.Component.register('sw-block', {
         },
     },
     setup(props, { slots }) {
-        const store = Shopware.Store.get('blockOverride');
+        const { addBlock, removeBlock, getBlocks } = useBlockContext();
         if (props.extends) {
-            store.addBlock(props.extends, slots.default);
+            addBlock(props.extends, slots.default);
 
             onBeforeUnmount(() => {
                 if (props.extends) {
-                    store.removeBlock(props.extends, slots.default);
+                    removeBlock(props.extends, slots.default);
                 }
             });
 
@@ -91,7 +92,7 @@ Shopware.Component.register('sw-block', {
                 return null;
             }
 
-            const blocks = store.getBlocks(props.name);
+            const blocks = getBlocks(props.name);
             const blocksAndParent = [
                 slots.default ?? (() => []),
                 ...blocks,

@@ -62,7 +62,7 @@ async function createWrapper({
 
 describe('sw-block', () => {
     beforeAll(() => {
-        Shopware.Store.register(blockOverrideStore);
+        Shopware.Store.register('blockOverride', blockOverrideStore);
     });
 
     it('renders the default content inside the `block`', async () => {

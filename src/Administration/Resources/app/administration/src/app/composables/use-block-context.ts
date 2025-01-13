@@ -1,18 +1,15 @@
+/**
+ * @package admin
+ */
 import { reactive, type Slot } from 'vue';
 
 const blockContext: Record<string, Slot[]> = reactive({});
 
-/**
- * @private
- */
-export function getBlocks(blockName: string): Slot[] {
+function getBlocks(blockName: string): Slot[] {
     return blockContext[blockName] ?? [];
 }
 
-/**
- * @private
- */
-export function addBlock(blockName: string, block?: Slot): void {
+function addBlock(blockName: string, block?: Slot): void {
     if (!block) {
         return;
     }
@@ -22,10 +19,7 @@ export function addBlock(blockName: string, block?: Slot): void {
     blockContext[blockName].push(block);
 }
 
-/**
- * @private
- */
-export function removeBlock(blockName: string, block?: Slot): void {
+function removeBlock(blockName: string, block?: Slot): void {
     if (!block) {
         return;
     }
@@ -33,4 +27,20 @@ export function removeBlock(blockName: string, block?: Slot): void {
         return;
     }
     blockContext[blockName] = blockContext[blockName].filter((b) => b !== block);
+
+    if (blockContext[blockName].length === 0) {
+        delete blockContext[blockName];
+    }
+}
+
+/**
+ * @private
+ */
+export default function useBlockContext() {
+    return {
+        blockContext,
+        getBlocks,
+        addBlock,
+        removeBlock,
+    };
 }

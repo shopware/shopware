@@ -351,7 +351,6 @@ declare global {
         teaserPopover: TeaserPopoverStore;
         adminMenu: AdminMenuStore;
         inAppPurchaseCheckout: InAppPurchasesStore;
-        blockOverrideState: BlockOverrideState;
         blockOverride: BlockOverrideStore;
     }
 

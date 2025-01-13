@@ -18,7 +18,7 @@
         "symfony/twig-bundle": "6.4.*",
         "symfony/yaml": "6.4.*",
         "symfony/filesystem": "6.4.*",
-        "twig/twig": "^3.4"
+        "twig/twig": "^3.18.0"
     },
     "replace": {
         "symfony/polyfill-ctype": "*",

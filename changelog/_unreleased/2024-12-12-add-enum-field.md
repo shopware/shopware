@@ -3,4 +3,30 @@ title: Add enum field to DAL
 issue: NEXT-39968
 ---
 # Core
-* Added support for enum fields in the Data Abstraction Layer (DAL) to store and query enum values.
+* Added support for Enum fields in the Data Abstraction Layer (DAL) to store and query enum values.
+
+# Upgrade Information
+
+The new field type allows to use PHP's `BackedEnum` types to be used as Entity fields. Together with RDBMS `ENUM` types, this allows to store and query enum values in a type-safe way with restricted values for a field.
+
+## Example
+
+```php
+<?php
+enum PaymentProvider: string {
+    case PAYPAL = 'paypal';
+    case CREDIT_CARD = 'credit_card';
+}
+
+class Entity {
+    private PaymentProvider $paymentProvider;
+…
+```
+
+```mysql
+CREATE TABLE `entity`
+(
+    `id`               INTEGER                        NOT NULL,
+    `payment_provider` ENUM ('paypal', 'credit_card') NOT NULL
+)
+```

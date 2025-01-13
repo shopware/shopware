@@ -24,7 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[Group('store-api')]
 class ContactFormRouteTest extends TestCase
 {

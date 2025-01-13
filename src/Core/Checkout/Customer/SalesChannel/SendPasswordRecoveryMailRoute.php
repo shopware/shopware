@@ -202,7 +202,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('customer.boundSalesChannelId', null),
-            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
+            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannelId()),
         ]));
 
         $result = $this->customerRepository->search($criteria, $context->getContext());

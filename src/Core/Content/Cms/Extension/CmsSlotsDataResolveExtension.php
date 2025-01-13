@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends Extension<CmsSlotCollection>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 final class CmsSlotsDataResolveExtension extends Extension
 {
     public const NAME = 'cms-slots-data.resolve';

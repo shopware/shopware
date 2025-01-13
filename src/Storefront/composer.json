@@ -28,7 +28,7 @@
         }
     },
     "require": {
-        "php": "~8.2.0 || ~8.3.0",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
         "cocur/slugify": "^4.3.0",
         "doctrine/dbal": "^3.9",
         "meyfa/php-svg": "^0.14.0",

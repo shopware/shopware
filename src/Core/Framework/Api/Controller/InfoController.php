@@ -3,6 +3,9 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
+use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -57,6 +60,7 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
+        private readonly FilesystemOperator $filesystem,
     ) {
     }
 
@@ -280,17 +284,40 @@ class InfoController extends AbstractController
                 throw ApiException::unableGenerateBundle($bundle->getName());
             }
 
-            $styles = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
-                $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
+            $viteEntryPoints = [];
+            if (Feature::isActive('ADMIN_VITE')) {
+                try {
+                    $viteEntryPoints = \json_decode(
+                        $this->filesystem->read(\sprintf('bundles/%s/administration/.vite/%s', $bundleDirectoryName, ViteFileAccessorDecorator::FILES[ViteFileAccessorDecorator::ENTRYPOINTS])),
+                        true,
+                        flags: \JSON_THROW_ON_ERROR
+                    );
+                } catch (FilesystemException|\JsonException $e) {
+                    // ignore
+                }
+            }
 
-                return $package->getUrl($url);
-            }, $this->getAdministrationStyles($bundle));
+            $styles = [];
+            if (Feature::isActive('ADMIN_VITE') && !empty($viteEntryPoints)) {
+                $styles = $viteEntryPoints['entryPoints'][$this->getTechnicalBundleName($bundle)]['css'] ?? [];
+            } else {
+                $styles = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
+                    $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
 
-            $scripts = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
-                $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
+                    return $package->getUrl($url);
+                }, $this->getAdministrationStyles($bundle));
+            }
 
-                return $package->getUrl($url);
-            }, $this->getAdministrationScripts($bundle));
+            $scripts = [];
+            if (Feature::isActive('ADMIN_VITE') && !empty($viteEntryPoints)) {
+                $scripts = $viteEntryPoints['entryPoints'][$this->getTechnicalBundleName($bundle)]['js'] ?? [];
+            } else {
+                $scripts = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
+                    $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
+
+                    return $package->getUrl($url);
+                }, $this->getAdministrationScripts($bundle));
+            }
 
             $baseUrl = $this->getBaseUrl($bundle);
 
@@ -326,7 +353,7 @@ class InfoController extends AbstractController
      */
     private function getAdministrationStyles(Bundle $bundle): array
     {
-        $path = 'administration/css/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.css';
+        $path = \sprintf('administration/css/%s.css', $this->getTechnicalBundleName($bundle));
         $bundlePath = $bundle->getPath();
 
         if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-css')) {
@@ -341,7 +368,7 @@ class InfoController extends AbstractController
      */
     private function getAdministrationScripts(Bundle $bundle): array
     {
-        $path = 'administration/js/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
+        $path = \sprintf('administration/js/%s.js', $this->getTechnicalBundleName($bundle));
         $bundlePath = $bundle->getPath();
 
         if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-js')) {
@@ -427,5 +454,10 @@ WHERE app.active = 1 AND app.base_app_url is not null');
         }
 
         return $shopwareVersion;
+    }
+
+    private function getTechnicalBundleName(Bundle $bundle): string
+    {
+        return str_replace('_', '-', $bundle->getContainerPrefix());
     }
 }

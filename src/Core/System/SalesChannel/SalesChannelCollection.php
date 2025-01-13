@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 /**
  * @extends EntityCollection<SalesChannelEntity>
  */
-#[Package('core')]
+#[Package('discovery')]
 class SalesChannelCollection extends EntityCollection
 {
     /**

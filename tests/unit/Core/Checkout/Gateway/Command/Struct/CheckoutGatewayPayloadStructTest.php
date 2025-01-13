@@ -21,7 +21,7 @@ class CheckoutGatewayPayloadStructTest extends TestCase
     public function testConstruct(): void
     {
         $cart = new Cart('test');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $paymentMethods = new PaymentMethodCollection();
         $shippingMethods = new ShippingMethodCollection();
 

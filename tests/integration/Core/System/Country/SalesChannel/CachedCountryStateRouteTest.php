@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@discovery')]
 #[Group('cache')]
 #[Group('store-api')]
 class CachedCountryStateRouteTest extends TestCase

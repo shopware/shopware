@@ -94,7 +94,7 @@ class HreflangLoaderTest extends TestCase
         $this->seoUrlRepository->create([
             [
                 'id' => Uuid::randomHex(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'languageId' => $firstDomain->getLanguageId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
@@ -120,7 +120,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => false,
                 'languageId' => $first->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -128,7 +128,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
                 'languageId' => $last->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -136,7 +136,7 @@ class HreflangLoaderTest extends TestCase
 
         $this->seoUrlRepository->create([
             [
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'languageId' => $first->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
@@ -145,7 +145,7 @@ class HreflangLoaderTest extends TestCase
                 'isCanonical' => true,
             ],
             [
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'languageId' => $last->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
@@ -195,7 +195,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => false,
                 'languageId' => $first->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -203,7 +203,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
                 'languageId' => $last->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -211,7 +211,7 @@ class HreflangLoaderTest extends TestCase
 
         $this->seoUrlRepository->create([
             [
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'languageId' => $first->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
@@ -220,7 +220,7 @@ class HreflangLoaderTest extends TestCase
                 'isCanonical' => true,
             ],
             [
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'languageId' => $last->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
@@ -276,7 +276,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => true,
                 'languageId' => $first->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -284,7 +284,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
                 'languageId' => $last->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -292,7 +292,7 @@ class HreflangLoaderTest extends TestCase
 
         $this->seoUrlRepository->create([
             [
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'languageId' => $first->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
@@ -301,7 +301,7 @@ class HreflangLoaderTest extends TestCase
                 'isCanonical' => true,
             ],
             [
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'languageId' => $last->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
@@ -346,7 +346,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => false,
                 'languageId' => $first->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -354,7 +354,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
                 'languageId' => $last->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -400,7 +400,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => false,
                 'languageId' => $first->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -408,7 +408,7 @@ class HreflangLoaderTest extends TestCase
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
                 'languageId' => $last->getId(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -486,7 +486,7 @@ class HreflangLoaderTest extends TestCase
                 'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ['salesChannelId' => $salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
             [
@@ -498,7 +498,7 @@ class HreflangLoaderTest extends TestCase
                 'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ['salesChannelId' => $salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
             [
@@ -510,7 +510,7 @@ class HreflangLoaderTest extends TestCase
                 'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ['salesChannelId' => $salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
             [
@@ -522,7 +522,7 @@ class HreflangLoaderTest extends TestCase
                 'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ['salesChannelId' => $salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
             [
@@ -534,7 +534,7 @@ class HreflangLoaderTest extends TestCase
                 'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ['salesChannelId' => $salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
         ];

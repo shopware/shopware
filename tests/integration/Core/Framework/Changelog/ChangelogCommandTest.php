@@ -41,17 +41,8 @@ class ChangelogCommandTest extends TestCase
                 false,
             ],
             [
-                __DIR__ . '/_fixture/stage/command-invalid-issue-number',
-                [
-                    '* The issue has an invalid format',
-                    '[ERROR] You have 1 syntax errors in changelog files.',
-                ],
-                false,
-            ],
-            [
                 __DIR__ . '/_fixture/stage/command-missing-separator',
                 [
-                    '* The issue has an invalid format',
                     '[ERROR] You have 1 syntax errors in changelog files.',
                     'You should use "___" to separate Storefront and Upgrade section',
                 ],

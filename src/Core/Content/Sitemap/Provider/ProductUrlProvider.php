@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class ProductUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'hourly';
@@ -167,7 +167,7 @@ class ProductUrlProvider extends AbstractUrlProvider
      */
     private function getExcludedProductIds(SalesChannelContext $salesChannelContext): array
     {
-        $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
         if (empty($excludedUrls)) {

@@ -27,6 +27,7 @@ export default {
             showRatingModal: false,
             showExtensionInstallationFailedModal: false,
             installationFailedError: null,
+            removePluginData: false,
         };
     },
 

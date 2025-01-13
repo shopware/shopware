@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsSlotsDataResolver
 {
     /**

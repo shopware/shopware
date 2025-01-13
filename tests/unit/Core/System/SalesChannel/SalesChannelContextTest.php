@@ -12,13 +12,13 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelContext::class)]
 class SalesChannelContextTest extends TestCase
 {
     public function testGetRuleIdsByAreas(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $idA = Uuid::randomHex();
         $idB = Uuid::randomHex();

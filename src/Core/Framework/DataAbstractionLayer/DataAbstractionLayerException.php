@@ -772,4 +772,14 @@ class DataAbstractionLayerException extends HttpException
             ['association' => $association, 'entityDefinition' => $entityDefinition]
         );
     }
+
+    public static function versionFieldNotFound(string $field): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FIELD_NOT_FOUND,
+            'Field "{{ field }}" is missing a reference version field',
+            ['field' => $field]
+        );
+    }
 }

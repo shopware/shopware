@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('core')]
 class StopwordTokenFilter extends AbstractTokenFilter
 {
-    private const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
-
     /**
      * @var array<string, int>
      */

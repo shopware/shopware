@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelCreateStorefrontCommand::class)]
 class SalesChannelCreateStorefrontCommandTest extends TestCase
 {

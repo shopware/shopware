@@ -20,9 +20,7 @@ class ChangelogDefinition
     #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
 
-    #[Assert\NotBlank(message: 'No issue was referenced')]
-    #[Assert\Regex(pattern: '/^(NEXT-|#)\d+$/', message: 'The issue has an invalid format')]
-    private string $issue;
+    private ?string $issue = null;
 
     private ?string $flag = null;
 
@@ -96,7 +94,7 @@ class ChangelogDefinition
 
     public function getIssue(): string
     {
-        return $this->issue;
+        return $this->issue ?? '';
     }
 
     public function setIssue(string $issue): ChangelogDefinition

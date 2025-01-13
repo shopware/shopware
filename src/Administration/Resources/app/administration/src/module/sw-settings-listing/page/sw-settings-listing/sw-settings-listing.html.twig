@@ -119,6 +119,31 @@
                             </template>
                         </sw-inherit-wrapper>
                         {% endblock %}
+
+                        {% block sw_settings_listing_content_card_view_system_config_default_search_result_sorting_select %}
+                        <sw-inherit-wrapper
+                            v-if="config && index === 0"
+                            v-model:value="config['core.listing.defaultSearchResultSorting']"
+                            :label="$tc('sw-settings-listing.general.labelDefaultSearchResultSorting')"
+                            :has-parent="isNotDefaultSalesChannel"
+                            :inherited-value="inheritance['core.listing.defaultSearchResultSorting']"
+                            required
+                        >
+                            <template #content="{ isInherited, currentValue, updateCurrentValue }">
+                                <sw-single-select
+                                    class="sw-settings-listing-index__default-search-result-sorting-select"
+                                    :placeholder="$tc('sw-settings-listing.general.placeholderDefaultSearchResultSorting')"
+                                    :disabled="isInherited"
+                                    :value="currentValue"
+                                    :options="searchResultSortingOptions"
+                                    :error="hasDefaultSortingError ? salesChannelDefaultSortingError : null"
+                                    label-property="label"
+                                    value-property="id"
+                                    @update:value="updateCurrentValue"
+                                />
+                            </template>
+                        </sw-inherit-wrapper>
+                        {% endblock %}
                     </template>
 
                 </sw-system-config>

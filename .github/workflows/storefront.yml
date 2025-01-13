@@ -71,6 +71,14 @@ jobs:
           npm ci
           npm run unit -- --silent
 
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: build/artifacts/jest/cobertura-coverage.xml
+          flags: jest-storefront
+
   license-check:
     runs-on: ubuntu-24.04
     name: "License check"

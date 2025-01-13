@@ -137,7 +137,7 @@ class ProductPageLoaderTest extends TestCase
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId('salesChannelId');
 
-        return Generator::createSalesChannelContext(
+        return Generator::generateSalesChannelContext(
             salesChannel: $salesChannelEntity,
         );
     }

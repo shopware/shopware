@@ -449,7 +449,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
     {
         $this->configureProductRepositoryMock($streamProducts);
 
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $resolverContext = new EntityResolverContext($salesChannelContext, new Request(), new ProductDefinition(), new SalesChannelProductEntity());
 
         $streamResult = new ProductCollection($streamProducts);
@@ -604,7 +604,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
                     new ProductCollection($filteredProducts),
                     null,
                     $criteria,
-                    Generator::createSalesChannelContext()->getContext()
+                    Generator::generateSalesChannelContext()->getContext()
                 );
             });
     }

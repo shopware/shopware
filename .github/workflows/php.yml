@@ -192,6 +192,12 @@ jobs:
       - name: Start Webserver
         run: symfony server:start -d
 
+      - name: Migration test suite setup
+        if: ${{ matrix.suite == 'migration' }}
+        run: |
+          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Core/Migration</directory>|' phpunit.xml.dist
+          echo "FEATURE_ALL=major" >> $GITHUB_ENV
+
       - name: Install Shopware
         run: php src/Core/TestBootstrap.php
 
@@ -199,9 +205,12 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: coverage.xml
+          flags: phpunit-${{ matrix.suite }}
 
   license-check:
     runs-on: ubuntu-24.04

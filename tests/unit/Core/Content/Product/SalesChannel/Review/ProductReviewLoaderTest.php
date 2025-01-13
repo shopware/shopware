@@ -274,10 +274,9 @@ class ProductReviewLoaderTest extends TestCase
             $customer->setId(Uuid::randomHex());
         }
 
-        return Generator::createSalesChannelContext(
+        return Generator::generateSalesChannelContext(
             salesChannel: $salesChannelEntity,
-            customer: $customer,
-            createCustomer: $setCustomer
+            overrides: ['customer' => $customer],
         );
     }
 

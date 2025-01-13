@@ -135,7 +135,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
                 new ErrorCollection(),
             ));
 
-        $page = $this->pageLoader->load(new Request(), Generator::createSalesChannelContext());
+        $page = $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
 
         static::assertEquals($order, $page->getOrder());
         static::assertEquals('translated | testshop', $page->getMetaInformation()?->getMetaTitle());
@@ -183,7 +183,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
             ->method('load')
             ->willReturn($orderResponse);
 
-        $orderContext = Generator::createSalesChannelContext();
+        $orderContext = Generator::generateSalesChannelContext();
 
         $this->cartService
             ->expects(static::once())
@@ -214,7 +214,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
                 new ErrorCollection(),
             ));
 
-        $this->pageLoader->load($request, Generator::createSalesChannelContext());
+        $this->pageLoader->load($request, Generator::generateSalesChannelContext());
     }
 
     public function testLoadCancelled(): void
@@ -254,6 +254,6 @@ class AccountOrderEditPageLoaderTest extends TestCase
             ->willReturn($page);
 
         static::expectException(OrderException::class);
-        $page = $this->pageLoader->load(new Request(), Generator::createSalesChannelContext());
+        $page = $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
     }
 }

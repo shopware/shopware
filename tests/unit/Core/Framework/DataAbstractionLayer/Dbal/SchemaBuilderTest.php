@@ -7,6 +7,8 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
@@ -87,6 +89,8 @@ class SchemaBuilderTest extends TestCase
                 TestAssociationDefinition::class,
                 TestEntityWithAllPossibleFieldsDefinition::class,
                 TestEntityWithForeignKeysDefinition::class,
+                ProductDefinition::class,
+                TestAssociationWithMissingReferenceVersionDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -110,6 +114,9 @@ class SchemaBuilderTest extends TestCase
 
         static::assertArrayNotHasKey('runtime', $table->getColumns());
         static::assertArrayNotHasKey('translated', $table->getColumns());
+
+        static::assertSame('utf8mb4', $table->getOption('charset'));
+        static::assertSame('utf8mb4_unicode_ci', $table->getOption('collate'));
     }
 
     public function testDifferentFieldTypes(): void
@@ -323,6 +330,16 @@ class SchemaBuilderTest extends TestCase
         static::assertArrayHasKey('onDelete', $associationFk3->getOptions());
         static::assertEquals('RESTRICT', $associationFk3->getOptions()['onDelete']);
     }
+
+    public function testDefinitionMissingReferenceVersionField(): void
+    {
+        $definition = $this->registry->get(TestAssociationWithMissingReferenceVersionDefinition::class);
+
+        $schemaBuilder = new SchemaBuilder();
+
+        static::expectExceptionObject(DataAbstractionLayerException::versionFieldNotFound('product'));
+        $schemaBuilder->buildSchemaOfDefinition($definition);
+    }
 }
 
 /**
@@ -451,6 +468,26 @@ class TestAssociationDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new StringField('name', 'name'),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class TestAssociationWithMissingReferenceVersionDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'test_association_with_missing_reference_version';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
+            new OneToOneAssociationField('product', 'product_id', 'id', ProductDefinition::class),
         ]);
     }
 }

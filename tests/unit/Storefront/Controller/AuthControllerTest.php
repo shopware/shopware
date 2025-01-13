@@ -70,7 +70,7 @@ class AuthControllerTest extends TestCase
 
     public function testAccountRegister(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
         $request = new Request();
         $request->attributes->set('_route', 'frontend.account.login.page');
@@ -94,7 +94,7 @@ class AuthControllerTest extends TestCase
 
     public function testGuestLoginPageWithoutRedirectParametersRedirects(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = new Request();
@@ -131,7 +131,7 @@ class AuthControllerTest extends TestCase
             ->method('sendRecoveryMail')
             ->willThrowException($exception);
 
-        $this->controller->generateAccountRecovery($request, $dataBag, Generator::createSalesChannelContext());
+        $this->controller->generateAccountRecovery($request, $dataBag, Generator::generateSalesChannelContext());
 
         static::assertSame('frontend.account.recover.page', $this->controller->forwardToRoute);
 

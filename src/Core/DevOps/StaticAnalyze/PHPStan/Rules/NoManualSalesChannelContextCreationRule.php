@@ -20,7 +20,7 @@ use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKey
 /**
  * This PHPStan rule prevents the manual creation of a `SalesChannelContext`.
  * It checks if the `SalesChannelContext` or any of its children are created manually.
- * Usually it should be sufficient to use the `SalesChannelContextFactory` or the `Generator::createSalesChannelContext` method.
+ * Usually it should be sufficient to use the `SalesChannelContextFactory` or the `Generator::generateSalesChannelContext` method.
  *
  * @internal
  *
@@ -72,7 +72,7 @@ class NoManualSalesChannelContextCreationRule implements Rule
         return [
             RuleErrorBuilder::message('Manual creation of `Shopware\Core\System\SalesChannel\SalesChannelContext` is not allowed.')
                 ->identifier('shopware.noManualSalesChannelContextCreation')
-                ->addTip('Use `Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory` or `Shopware\Core\Test\Generator::createSalesChannelContext` instead.')
+                ->addTip('Use `Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory` or `Shopware\Core\Test\Generator::generateSalesChannelContext` instead.')
                 ->build(),
         ];
     }

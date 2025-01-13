@@ -38,4 +38,5 @@ labels:
   - label: "Internal" # add internal Label to everything that is created by a member of the organization
     author-can-merge: True
   - label: "Community" # add community Label to everything that is created by a community member
-    author-can-merge: False
+    negate: True
+    author-can-merge: True

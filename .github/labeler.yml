@@ -33,10 +33,7 @@ labels:
   - label: "Extension:Social-Shopping"
     body: "Extension:Social-Shopping"
   - label: "Bug" # add bug Label to every issue but to no PR
-    negate: True
+    negate: true
     type: "pull_request"
-  - label: "Internal" # add internal Label to everything that is created by a member of the organization
-    author-can-merge: True
   - label: "Community" # add community Label to everything that is created by a community member
-    negate: True
-    author-can-merge: True
+    author-can-merge: false

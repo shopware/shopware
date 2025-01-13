@@ -76,7 +76,7 @@ class CacheInvalidatorTest extends TestCase
         $invalidator->invalidate(['foo'], true);
     }
 
-    public function testInvalidationIsImplicitlyForcedOnNonProdEnvs(): void
+    public function testInvalidationIsImplicitlyForcedOnTestEnvs(): void
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
@@ -96,7 +96,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'dev'
+            'test'
         );
 
         $invalidator->invalidate(['foo']);

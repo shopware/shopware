@@ -86,6 +86,7 @@ class Generator extends TestCase
         ?CountryEntity $country = null,
         ?CountryStateEntity $countryState = null,
         ?CustomerAddressEntity $customerAddress = null,
+        bool $createCustomer = true,
         ?array $overrides = [],
     ): SalesChannelContext {
         $baseContext ??= Context::createDefaultContext();
@@ -164,7 +165,7 @@ class Generator extends TestCase
             $shippingLocation = ShippingLocation::createFromAddress($customerAddress);
         }
 
-        if (!$customer) {
+        if (!$customer && $createCustomer) {
             $customer = new CustomerEntity();
             $customer->setId(self::CUSTOMER);
             $customer->setGroupId($currentCustomerGroup->getId());

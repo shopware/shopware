@@ -706,7 +706,7 @@ class OrderConverterTest extends TestCase
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('payment-method-id');
 
-        $salesChannelContext = Generator::createSalesChannelContext(
+        $salesChannelContext = Generator::generateSalesChannelContext(
             salesChannel: $salesChannel,
             paymentMethod: $paymentMethod,
             customer: $loginCustomer ? $this->getCustomer($customerWithoutBillingAddress) : null,

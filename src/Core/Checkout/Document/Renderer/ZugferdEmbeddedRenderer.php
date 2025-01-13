@@ -80,7 +80,7 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
                 $combined = (new ZugferdDocumentPdfMerger($electronicDoc->getContent(), $invoiceDocument->getContent()))
                     ->setAdditionalCreatorTool('Shopware@' . $this->shopwareVersion)
                     ->generateDocument()
-                    ->downloadString('');
+                    ->downloadString();
 
                 $invoiceDocument->setName('embedded_' . $invoiceDocument->getName());
                 $invoiceDocument->setContent($combined);

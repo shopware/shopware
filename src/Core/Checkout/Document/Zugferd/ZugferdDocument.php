@@ -11,7 +11,6 @@ use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentValidator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
@@ -52,8 +51,8 @@ class ZugferdDocument
         $validation = (new ZugferdDocumentValidator($this->zugferdBuilder))->validateDocument();
         if ($validation->count()) {
             $errors = [];
-            foreach ($validation as $item) {
-                $errors[(string) $item->getMessage()][] = $item->getPropertyPath();
+            foreach ($validation as $error) {
+                $errors[$error->getPropertyPath()][] = (string) $error->getMessage();
             }
 
             throw DocumentException::electronicInvoiceViolation($validation->count(), $errors);
@@ -193,7 +192,6 @@ class ZugferdDocument
     {
         foreach ($deliveries as $delivery) {
             foreach ($delivery->getShippingCosts()->getCalculatedTaxes() as $calculatedTax) {
-                // TODO: add promotion shipping discounts with isCharge = false?
                 $actualAmount = $this->getPrice($calculatedTax);
 
                 $this->addChargeAmount($actualAmount);

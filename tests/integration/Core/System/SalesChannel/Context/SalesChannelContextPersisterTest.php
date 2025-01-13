@@ -245,7 +245,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
         $salesChannel = (new SalesChannelEntity())->assign(['id' => TestDefaults::SALES_CHANNEL]);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
+        $context->method('getSalesChannelId')->willReturn($salesChannel->getId());
         $newToken = $this->contextPersister->replace($token, $context);
 
         static::assertTrue($this->contextExists($newToken));

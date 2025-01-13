@@ -12,6 +12,7 @@ import type VueAdapter from '../app/adapter/view/vue.adapter';
 interface bundlesSinglePluginResponse {
     css?: string | string[];
     js?: string | string[];
+    hmrSrc?: string;
     html?: string;
     baseUrl?: null | string;
     type?: 'app' | 'plugin';
@@ -458,21 +459,19 @@ class ApplicationBootstrapper {
         const initContainer = this.getContainer('init');
         const initPostContainer = this.getContainer('init-post');
 
-        return (
-            this.initializeInitializersVite(initPreContainer, '-pre')
-                .then(() => this.initializeInitializersVite(initContainer))
-                .then(() => this.initializeInitializersVite(initPostContainer, '-post'))
-                // .then(() => this.loadPlugins())
-                .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
-                .then(() => {
-                    if (!this.view) {
-                        return Promise.reject();
-                    }
+        return this.initializeInitializersVite(initPreContainer, '-pre')
+            .then(() => this.initializeInitializersVite(initContainer))
+            .then(() => this.initializeInitializersVite(initPostContainer, '-post'))
+            .then(() => this.loadPlugins())
+            .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
+            .then(() => {
+                if (!this.view) {
+                    return Promise.reject();
+                }
 
-                    return this.view.initDependencies();
-                })
-                .then(() => this.createApplicationRoot())
-        );
+                return this.view.initDependencies();
+            })
+            .then(() => this.createApplicationRoot());
         // .catch((error) => this.createApplicationRootError(error));
     }
 
@@ -696,7 +695,7 @@ class ApplicationBootstrapper {
             const response = await fetch('./sw-plugin-dev.json');
             plugins = (await response.json()) as bundlesPluginResponse;
 
-            // Added via webpack.config.js@193
+            // Added via webpack.config.js@193 || plugins.vite.ts@123
             if (Shopware.Utils.object.hasOwnProperty(plugins, 'metadata')) {
                 delete plugins.metadata;
             }
@@ -717,6 +716,13 @@ class ApplicationBootstrapper {
         const injectAllPlugins = Object.entries(plugins)
             .filter(([pluginName]) => {
                 // Filter the swag-commercial plugin because it was loaded beforehand
+                if (window._features_.ADMIN_VITE) {
+                    return ![
+                        'swag-commercial',
+                        'SwagCommercial',
+                        'Administration',
+                    ].includes(pluginName);
+                }
                 return ![
                     'swag-commercial',
                     'SwagCommercial',
@@ -807,6 +813,22 @@ class ApplicationBootstrapper {
         let allScripts = [];
         let allStyles = [];
 
+        // if dev and vite feature flag
+        if (window._features_.ADMIN_VITE && process.env.NODE_ENV === 'development' && plugin.hmrSrc && plugin.js) {
+            allScripts.push(this.injectJs(plugin.hmrSrc));
+            allScripts.push(this.injectJs(plugin.js as string));
+
+            try {
+                return await Promise.all([
+                    ...allScripts,
+                ]);
+            } catch (_) {
+                console.warn('Error while loading plugin', plugin);
+
+                return null;
+            }
+        }
+
         // load multiple js scripts
         if (plugin.js && Array.isArray(plugin.js)) {
             allScripts = plugin.js.map((src) => this.injectJs(src));
@@ -842,6 +864,10 @@ class ApplicationBootstrapper {
             const script = document.createElement('script');
             script.src = scriptSrc;
             script.async = true;
+
+            if (window._features_.ADMIN_VITE) {
+                script.type = 'module';
+            }
 
             // resolve when script was loaded succcessfully
             script.onload = (): void => {

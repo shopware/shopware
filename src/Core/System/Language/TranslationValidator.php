@@ -21,7 +21,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('fundamentals@discovery')]
 class TranslationValidator implements EventSubscriberInterface
 {
     final public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';

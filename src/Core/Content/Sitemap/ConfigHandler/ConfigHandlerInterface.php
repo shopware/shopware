@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Sitemap\ConfigHandler;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 interface ConfigHandlerInterface
 {
     public function getSitemapConfig(): array;

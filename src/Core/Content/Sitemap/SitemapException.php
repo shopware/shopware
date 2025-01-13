@@ -6,7 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapException extends HttpException
 {
     public const FILE_NOT_READABLE = 'CONTENT__FILE_IS_NOT_READABLE';

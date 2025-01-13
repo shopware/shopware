@@ -58,7 +58,7 @@ class AppJWTGenerateRoute
         $builder = $builder->withClaim('inAppPurchases', $this->inAppPurchase->getJWTByExtension($name));
 
         if (\in_array('sales_channel:read', $privileges, true)) {
-            $builder = $builder->withClaim('salesChannelId', $context->getSalesChannel()->getId());
+            $builder = $builder->withClaim('salesChannelId', $context->getSalesChannelId());
         }
 
         if (\in_array('customer:read', $privileges, true)) {

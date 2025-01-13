@@ -3,7 +3,7 @@ import template from './sw-media-collapse.html.twig';
 import './sw-media-collapse.scss';
 
 /**
- * @package buyers-experience
+ * @package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

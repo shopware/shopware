@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
@@ -16,6 +17,8 @@ abstract class MigrationStep
     use AddColumnTrait;
 
     final public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
+
+    private const MAX_INT_32_BIT = 2147483647;
 
     /**
      * get creation timestamp
@@ -32,6 +35,28 @@ abstract class MigrationStep
      */
     public function updateDestructive(Connection $connection): void
     {
+    }
+
+    public function getPlausibleCreationTimestamp(): int
+    {
+        $creationTime = $this->getCreationTimestamp();
+
+        if ($creationTime < 1 || $creationTime >= self::MAX_INT_32_BIT) {
+            if (Feature::isActive('v6.7.0.0')) {
+                throw MigrationException::implausibleCreationTimestamp($creationTime, $this);
+            }
+
+            Feature::triggerDeprecationOrThrow(
+                'v6.7.0.0',
+                \sprintf(
+                    'The method "%s::getCreationTimestamp" returned a timestamp of "%d". This method should return a timestamp between 1 and 2147483647 to ensure migration order is deterministic on every system.',
+                    static::class,
+                    $creationTime
+                ),
+            );
+        }
+
+        return $creationTime;
     }
 
     public function removeTrigger(Connection $connection, string $name): void

@@ -13,6 +13,8 @@ class ChangelogParser
 {
     public const FIXES_REGEX = '(closes?|resolved?|fix(es)?):?\s+(#[0-9]+)';
 
+    public const REFERENCE_REGEX = '\((#[0-9]+)\)';
+
     public function parse(SplFileInfo $file, string $rootDir): ChangelogDefinition
     {
         $content = trim($file->getContents());
@@ -44,6 +46,10 @@ class ChangelogParser
 
         if ($output && preg_match_all('/' . self::FIXES_REGEX . '/i', $output, $matches)) {
             return $matches[3][0];
+        }
+
+        if ($output && preg_match_all('/' . self::REFERENCE_REGEX . '/i', $output, $matches)) {
+            return $matches[1][0];
         }
 
         return null;

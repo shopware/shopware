@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Pagelet\Pagelet;
 
-#[Package('storefront')]
+#[Package('discovery')]
 class GuestWishlistPagelet extends Pagelet
 {
     /**

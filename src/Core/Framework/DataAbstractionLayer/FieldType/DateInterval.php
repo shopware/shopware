@@ -35,6 +35,7 @@ class DateInterval extends \DateInterval
             && $this->s === 0;
     }
 
+    #[\ReturnTypeWillChange]
     public static function createFromDateString(string $datetime): \DateInterval|false
     {
         return static::createFromString($datetime) ?? false;

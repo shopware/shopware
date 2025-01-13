@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class CustomUrlProvider extends AbstractUrlProvider
 {
     /**
@@ -39,7 +39,7 @@ class CustomUrlProvider extends AbstractUrlProvider
         $urls = [];
         $url = new Url();
         foreach ($sitemapCustomUrls as $sitemapCustomUrl) {
-            if (!$this->isAvailableForSalesChannel($sitemapCustomUrl, $context->getSalesChannel()->getId())) {
+            if (!$this->isAvailableForSalesChannel($sitemapCustomUrl, $context->getSalesChannelId())) {
                 continue;
             }
 

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SpatialObjectType extends MediaType
 {
     /**

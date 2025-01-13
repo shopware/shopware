@@ -61,7 +61,7 @@ class DocumentConfigLoaderTest extends TestCase
         $globalConfig['displayCompanyAddress'] = true;
         $this->upsertBaseConfig($globalConfig, 'invoice');
 
-        $salesChannelId = $this->salesChannelContext->getSalesChannel()->getId();
+        $salesChannelId = $this->salesChannelContext->getSalesChannelId();
         $config = $this->documentConfigLoader->load('invoice', $salesChannelId, $this->context);
 
         $config = $config->jsonSerialize();
@@ -87,7 +87,7 @@ class DocumentConfigLoaderTest extends TestCase
             'pageSize' => 'a5',
         ]);
 
-        $salesChannelId = $this->salesChannelContext->getSalesChannel()->getId();
+        $salesChannelId = $this->salesChannelContext->getSalesChannelId();
         $this->upsertBaseConfig($salesChannelConfig->jsonSerialize(), InvoiceRenderer::TYPE, $salesChannelId);
 
         $config = $this->documentConfigLoader->load(InvoiceRenderer::TYPE, $salesChannelId, $this->context);

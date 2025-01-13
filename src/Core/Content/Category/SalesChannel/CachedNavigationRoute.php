@@ -27,7 +27,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('discovery')]
 class CachedNavigationRoute extends AbstractNavigationRoute
 {
     final public const ALL_TAG = 'navigation';

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package discovery
  */
 import { runCmsElementRegistryTest } from 'src/module/sw-cms/test-utils';
 

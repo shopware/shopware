@@ -9,3 +9,6 @@
 
 %Twig Filter "spaceless" is deprecated in%
 %The "tag" constructor argument of the ".*" class is deprecated and ignored \(check which TokenParser class set it to ".*"\), the tag is now automatically set by the Parser when needed.%
+
+# league/event 2.x has not fixed this php 8.4 issue yet
+%Implicitly marking parameter \$emitter as nullable is deprecated, the explicit nullable type must be used instead%

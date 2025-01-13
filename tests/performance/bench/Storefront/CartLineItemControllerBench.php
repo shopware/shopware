@@ -55,7 +55,7 @@ class CartLineItemControllerBench extends AbstractBenchCase
             'categories' => [['id' => $this->ids->get('navigation')]],
             'visibilities' => [
                 [
-                    'salesChannelId' => $this->context->getSalesChannel()->getId(),
+                    'salesChannelId' => $this->context->getSalesChannelId(),
                     'visibility' => 30,
                 ],
             ],
@@ -90,7 +90,7 @@ class CartLineItemControllerBench extends AbstractBenchCase
             'useCodes' => true,
             'useSetGroups' => true,
             'salesChannels' => [
-                ['salesChannelId' => $this->context->getSalesChannel()->getId(), 'priority' => 1],
+                ['salesChannelId' => $this->context->getSalesChannelId(), 'priority' => 1],
             ],
             'setgroups' => [
                 [

@@ -21,7 +21,7 @@ class AdminSearcher
     }
 
     /**
-     * @return array<string, array{data: EntityCollection<covariant Entity>, total: int}>
+     * @return array<array-key, array{data: EntityCollection<covariant Entity>, total: int}>
      */
     public function search(CriteriaCollection $entities, Context $context): array
     {
@@ -39,7 +39,7 @@ class AdminSearcher
             $repository = $this->definitionRegistry->getRepository($entityName);
             $collection = $repository->search($criteria, $context);
 
-            $result[(string) $entityName] = [
+            $result[$entityName] = [
                 'data' => $collection->getEntities(),
                 'total' => $collection->getTotal(),
             ];

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated will be removed in 6.7.0, use Shopware\Core\Checkout\Cart\CartException::lineItemGroupSorterNotFoundException instead
+ * @deprecated tag:v6.7.0 - will be removed, use Shopware\Core\Checkout\Cart\CartException::lineItemGroupSorterNotFoundException instead
  */
 #[Package('checkout')]
 class LineItemGroupSorterNotFoundException extends ShopwareHttpException

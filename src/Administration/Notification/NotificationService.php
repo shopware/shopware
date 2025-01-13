@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Notification;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\UsageData\UsageDataException;
 
 /**
  * @internal
@@ -42,7 +42,7 @@ class NotificationService
     {
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
-            throw UsageDataException::invalidContextSource(AdminApiSource::class, $context->getSource()::class);
+            throw ApiException::invalidAdminSource($context->getSource()::class);
         }
 
         $criteria = new Criteria();

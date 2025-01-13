@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @deprecated tag:v6.7.0 - will be removed, use UsageDataException::invalidContextSource instead
- */
 #[Package('core')]
 class InvalidContextSourceException extends ApiException
 {

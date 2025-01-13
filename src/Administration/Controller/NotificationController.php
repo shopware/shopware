@@ -11,7 +11,6 @@ use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\UsageDataException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,7 +50,7 @@ class NotificationController extends AbstractController
 
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
-            throw UsageDataException::invalidContextSource(AdminApiSource::class, $context->getSource()::class);
+            throw ApiException::invalidAdminSource($context->getSource()::class);
         }
 
         if (empty($status)) {

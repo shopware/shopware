@@ -6,6 +6,8 @@ use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('administration')]
@@ -18,6 +20,9 @@ class AdminSearcher
     {
     }
 
+    /**
+     * @return array<string, array{data: EntityCollection<covariant Entity>, total: int}>
+     */
     public function search(CriteriaCollection $entities, Context $context): array
     {
         $result = [];
@@ -34,7 +39,7 @@ class AdminSearcher
             $repository = $this->definitionRegistry->getRepository($entityName);
             $collection = $repository->search($criteria, $context);
 
-            $result[$entityName] = [
+            $result[(string) $entityName] = [
                 'data' => $collection->getEntities(),
                 'total' => $collection->getTotal(),
             ];

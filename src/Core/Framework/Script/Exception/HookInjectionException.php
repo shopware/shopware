@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Script\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 
+/**
+ * @deprecated v6.7.0 - Will be removed in v6.8.0. Use Shopware\Core\Checkout\Cart\CartException::hookInjectionException instead
+ */
 #[Package('core')]
 class HookInjectionException extends \RuntimeException
 {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumField;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field\EnumField;
 
 /**
  * @internal

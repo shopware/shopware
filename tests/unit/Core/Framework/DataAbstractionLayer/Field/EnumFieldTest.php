@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumField\TestIntegerEnum;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field\EnumField\TestStringEnum;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field\EnumField\TestIntegerEnum;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field\EnumField\TestStringEnum;
 
 /**
  * @internal

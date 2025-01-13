@@ -63,7 +63,7 @@ class MigrationQueryGenerator
 
         $this->dropIndexes($tableSchema);
 
-        return $this->getPlatform()->getCreateTableSQL($tableSchema);
+        return $this->getPlatform()->getCreateTableSQL($tableSchema, AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS);
     }
 
     private function getPlatform(): AbstractPlatform

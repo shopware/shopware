@@ -60,7 +60,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 
         $this->newsletterRecipientRepository->update([$data], $context->getContext());
 
-        $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
+        $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();

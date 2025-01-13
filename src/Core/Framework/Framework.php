@@ -158,5 +158,6 @@ class Framework extends Bundle
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
+        Feature::$emitDeprecations = $this->container->getParameter('kernel.debug');
     }
 }

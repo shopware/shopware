@@ -50,6 +50,8 @@ class TemplateEntity extends Entity
      */
     protected $app;
 
+    protected ?string $hash = null;
+
     public function getTemplate(): string
     {
         return $this->template;
@@ -98,5 +100,15 @@ class TemplateEntity extends Entity
     public function setApp(?AppEntity $app): void
     {
         $this->app = $app;
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(?string $hash): void
+    {
+        $this->hash = $hash;
     }
 }

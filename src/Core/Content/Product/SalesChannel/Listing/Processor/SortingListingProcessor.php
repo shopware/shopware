@@ -41,7 +41,8 @@ class SortingListingProcessor extends AbstractListingProcessor
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         if (!$request->get('order')) {
-            $request->request->set('order', $this->getSystemDefaultSortingKey($context));
+            $key = $request->query->has('search') ? 'core.listing.defaultSearchResultSorting' : 'core.listing.defaultSorting';
+            $request->request->set('order', $this->getDefaultSortingKey($key, $context));
         }
 
         /** @var ProductSortingCollection $sortings */
@@ -138,16 +139,9 @@ class SortingListingProcessor extends AbstractListingProcessor
         return $sortings;
     }
 
-    private function getSystemDefaultSortingKey(SalesChannelContext $context): ?string
+    private function getDefaultSortingKey(string $key, SalesChannelContext $context): ?string
     {
-        $id = $this->systemConfigService->getString(
-            'core.listing.defaultSorting',
-            $context->getSalesChannel()->getId()
-        );
-
-        if (empty($id)) {
-            return null;
-        }
+        $id = $this->systemConfigService->getString($key, $context->getSalesChannelId());
 
         if (!Uuid::isValid($id)) {
             return $id;

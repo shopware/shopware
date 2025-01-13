@@ -136,6 +136,6 @@ abstract class Plugin extends Bundle
             return $this->basePath . $relativePluginClassPath;
         }
 
-        return $this->getPath();
+        return $canonicalizedPluginClassPath;
     }
 }

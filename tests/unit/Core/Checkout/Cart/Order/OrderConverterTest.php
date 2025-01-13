@@ -710,7 +710,7 @@ class OrderConverterTest extends TestCase
             salesChannel: $salesChannel,
             paymentMethod: $paymentMethod,
             customer: $loginCustomer ? $this->getCustomer($customerWithoutBillingAddress) : null,
-            createCustomer: false,
+            overrides: $loginCustomer ? [] : ['customer' => null]
         );
 
         $salesChannelContext->setItemRounding($this->cashRoundingConfig);

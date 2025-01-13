@@ -104,7 +104,7 @@ class SalesChannelRuleTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
 
-        $salesChannelContext = Generator::createSalesChannelContext(
+        $salesChannelContext = Generator::generateSalesChannelContext(
             salesChannel: $salesChannel
         );
 

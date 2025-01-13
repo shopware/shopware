@@ -22,7 +22,7 @@ class SitemapListerTest extends TestCase
 {
     public function testListsFilesWithoutDomainId(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $filesystem = $this->createMock(FilesystemOperator::class);
         $filesystem->method('listContents')->willReturn(new DirectoryListing([
@@ -43,7 +43,7 @@ class SitemapListerTest extends TestCase
 
     public function testSitemapWithMultipleDomainsUseCorrectDomains(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $domains = new SalesChannelDomainCollection();
 

@@ -18,6 +18,14 @@
         <p class="sw-extension-removal-modal__bold-paragraph">
             {{ alert }}
         </p>
+
+        <p>
+            <sw-switch-field
+                v-model:value="removePluginData"
+                :label="$tc('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
+                :help-text="$tc('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
+            />
+        </p>
         {% endblock %}
     </template>
 

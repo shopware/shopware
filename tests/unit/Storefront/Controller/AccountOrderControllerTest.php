@@ -87,7 +87,7 @@ class AccountOrderControllerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $response = $this->controller->editOrder($ids->get('order'), new Request(), Generator::createSalesChannelContext());
+        $response = $this->controller->editOrder($ids->get('order'), new Request(), Generator::generateSalesChannelContext());
 
         // Ensure flash massage is shown
         static::assertEquals(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
@@ -101,7 +101,7 @@ class AccountOrderControllerTest extends TestCase
         // Ensure invalid uuid exception is thrown
         $this->orderRouteMock->method('load')->willThrowException(new InvalidUuidException('invalid-id'));
 
-        $response = $this->controller->editOrder('invalid-id', new Request(), Generator::createSalesChannelContext());
+        $response = $this->controller->editOrder('invalid-id', new Request(), Generator::generateSalesChannelContext());
 
         // Ensure flash massage is shown
         static::assertEquals(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
@@ -114,7 +114,7 @@ class AccountOrderControllerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->assign([
             'currency' => (new CurrencyEntity())->assign([
                 'id' => $ids->get('currency'),
@@ -197,7 +197,7 @@ class AccountOrderControllerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->assign([
             'currency' => (new CurrencyEntity())->assign([
                 'id' => $ids->get('currency'),

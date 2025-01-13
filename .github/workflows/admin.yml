@@ -66,6 +66,14 @@ jobs:
           shopware-repository: ${{ github.repository }}
       - name: Run Jest Admin ${{ matrix.test-type }}
         run: npm --prefix src/Administration/Resources/app/administration run ${{ matrix.test-type }} -- --silent
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        if: ${{ matrix.test-type == 'unit' }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: build/artifacts/jest/cobertura-coverage.xml
+          flags: jest-admin
 
   license-check:
     runs-on: ubuntu-24.04

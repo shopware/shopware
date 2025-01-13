@@ -43,7 +43,7 @@ class PaymentServiceTest extends TestCase
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
         $transaction->setOrder($order);
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
         $tokenFactory = $this->createMock(JWTFactoryV2::class);

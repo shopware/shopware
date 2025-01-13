@@ -1,6 +1,11 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { RuleType } from '@shopware-ag/acceptance-test-suite';
 test('As an admin user, I want to filter and add rule assignments, to easily add new entities to a rule', { tag: '@Rule' }, async ({
+    ShopAdmin,
+    TestDataService,
+    AdminRuleDetail,
+    AssignEntitiesToRule,
+}) => {
                                                                                                                                    }) => {
     const rule = await TestDataService.createBasicRule();
     const shippingMethod1 = await TestDataService.createBasicShippingMethod();

@@ -88,7 +88,7 @@ class AddShippingMethodCommandHandlerTest extends TestCase
             new ErrorCollection()
         );
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $handler = new AddShippingMethodCommandHandler($repo, $this->createMock(ExceptionLogger::class));
         $handler->handle($command, $response, $context);
@@ -121,7 +121,7 @@ class AddShippingMethodCommandHandlerTest extends TestCase
             new ErrorCollection()
         );
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger

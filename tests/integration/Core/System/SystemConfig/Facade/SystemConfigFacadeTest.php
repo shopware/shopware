@@ -62,7 +62,7 @@ class SystemConfigFacadeTest extends TestCase
      */
     public static function getWithoutAppCases(): array
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setId(TestDefaults::SALES_CHANNEL);
 
         return [

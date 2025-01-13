@@ -20,7 +20,9 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -89,7 +91,11 @@ class CartRuleLoaderTest extends TestCase
 
     public function testProcessorHasCorrectRuleIds(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $country = new CountryEntity();
+        $country->setId(Generator::COUNTRY);
+        $country->setCustomerTax(new TaxFreeConfig());
+
+        $salesChannelContext = Generator::generateSalesChannelContext(country: $country);
 
         $rule1 = new RuleEntity();
         $rule1->setId(Uuid::randomHex());

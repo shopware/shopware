@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterUnsubscribeRoute::class)]
 class NewsletterUnsubscribeRouteTest extends TestCase
 {

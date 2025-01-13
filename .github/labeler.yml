@@ -35,5 +35,5 @@ labels:
   - label: "Bug" # add bug Label to every issue but to no PR
     negate: true
     type: "pull_request"
-  - label: "Community" # add community Label to everything that is created by a community member
-    author-can-merge: false
+  - label: "Internal" # add internal Label to everything that is created by a shopware member
+    author-can-merge: true

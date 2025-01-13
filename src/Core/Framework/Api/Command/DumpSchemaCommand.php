@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Command;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 #[AsCommand(
     name: 'framework:schema',
@@ -23,8 +25,10 @@ class DumpSchemaCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionService $definitionService)
-    {
+    public function __construct(
+        private readonly DefinitionService $definitionService,
+        private readonly CacheInterface $cache,
+    ) {
         parent::__construct();
     }
 
@@ -69,6 +73,8 @@ class DumpSchemaCommand extends Command
 
                 break;
             case 'entity-schema':
+                $this->cache->delete(CachedEntitySchemaGenerator::CACHE_KEY);
+
                 $definitionContents = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API);
 
                 break;

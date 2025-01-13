@@ -788,15 +788,15 @@ class VersionManager
     {
         $operations = [];
 
-        foreach (array_filter($writes['insert']) as $entity => $payload) {
+        foreach (array_filter($writes['insert'] ?? []) as $entity => $payload) {
             $operations[] = new SyncOperation('insert-' . $entity, $entity, 'upsert', $payload);
         }
 
-        foreach (array_filter($writes['update']) as $entity => $payload) {
+        foreach (array_filter($writes['update'] ?? []) as $entity => $payload) {
             $operations[] = new SyncOperation('update-' . $entity, $entity, 'upsert', $payload);
         }
 
-        foreach (array_filter($writes['delete']) as $entity => $payload) {
+        foreach (array_filter($writes['delete'] ?? []) as $entity => $payload) {
             $operations[] = new SyncOperation('delete-' . $entity, $entity, 'delete', $payload);
         }
 

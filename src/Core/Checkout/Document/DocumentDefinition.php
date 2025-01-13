@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -66,7 +67,6 @@ class DocumentDefinition extends EntityDefinition
             (new BoolField('static', 'static'))->addFlags(new ApiAware()),
             (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new ApiAware(), new Required()),
             (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware()),
-            (new JsonField('document_media_file_ids', 'documentMediaFileIds', [], []))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
 
             (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
@@ -74,6 +74,7 @@ class DocumentDefinition extends EntityDefinition
             (new ManyToOneAssociationField('referencedDocument', 'referenced_document_id', self::class, 'id', false))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('dependentDocuments', self::class, 'referenced_document_id'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('documentMediaFile', 'document_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('documentMediaFiles', DocumentMediaDefinition::class, 'document_id', 'id'))->addFlags(new ApiAware()),
         ]);
     }
 }

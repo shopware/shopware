@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
@@ -40,14 +42,14 @@ class DocumentEntity extends Entity
     /**
      * @var string|null
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.7.0 - Will be removed
      */
     protected $documentMediaFileId;
 
     /**
      * @var string
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.7.0 - Will be removed
      */
     protected $fileType;
 
@@ -117,16 +119,13 @@ class DocumentEntity extends Entity
     /**
      * @var MediaEntity|null
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.7.0 - Will be removed
      */
     protected $documentMediaFile;
 
     protected ?string $documentNumber;
 
-    /**
-     * @var array<string>|null
-     */
-    protected ?array $documentMediaFileIds = [];
+    protected ?DocumentMediaCollection $documentMediaFiles = null;
 
     public function getFileType(): string
     {
@@ -264,23 +263,43 @@ class DocumentEntity extends Entity
         $this->static = $static;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed
+     */
     public function getDocumentMediaFile(): ?MediaEntity
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `document_media_file_id` will be removed');
+
         return $this->documentMediaFile;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed
+     */
     public function setDocumentMediaFile(?MediaEntity $documentMediaFile): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `document_media_file_id` will be removed');
+
         $this->documentMediaFile = $documentMediaFile;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed
+     */
     public function getDocumentMediaFileId(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `document_media_file_id` will be removed');
+
         return $this->documentMediaFileId;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed
+     */
     public function setDocumentMediaFileId(?string $documentMediaFileId): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `document_media_file_id` will be removed');
+
         $this->documentMediaFileId = $documentMediaFileId;
     }
 
@@ -294,19 +313,13 @@ class DocumentEntity extends Entity
         return $this->documentNumber;
     }
 
-    /**
-     * @return array<string>|null
-     */
-    public function getDocumentMediaFileIds(): ?array
+    public function getDocumentMediaFiles(): ?DocumentMediaCollection
     {
-        return $this->documentMediaFileIds;
+        return $this->documentMediaFiles;
     }
 
-    /**
-     * @param array<string> $mediaIds
-     */
-    public function setDocumentMediaFileIds(?array $mediaIds): void
+    public function setDocumentMediaFiles(DocumentMediaCollection $documentMediaCollection): void
     {
-        $this->documentMediaFileIds = $mediaIds;
+        $this->documentMediaFiles = $documentMediaCollection;
     }
 }

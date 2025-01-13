@@ -1,6 +1,7 @@
 name: Downstream
 
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       nightly:

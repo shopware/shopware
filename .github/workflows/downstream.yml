@@ -18,9 +18,9 @@ permissions:
 
 jobs:
   rufus:
-    name: "Rufus ${{ github.event.pull_request.author_association }}"
+    name: "Rufus"
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' }}
+    if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' || github.event.pull_request.author_association == 'OWNER' }}
     steps:
       - name: Rufus
         uses: shopware/github-actions/downstream@main

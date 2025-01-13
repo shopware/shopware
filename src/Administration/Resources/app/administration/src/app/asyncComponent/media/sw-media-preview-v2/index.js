@@ -289,8 +289,8 @@ export default {
             this.trueSource.thumbnails.forEach((thumbnail) => {
                 const url = thumbnail.url;
 
-                const encoded = encodeURI(url);
-                sources.push(`${encoded} ${thumbnail.width}w`);
+
+                sources.push(`${url} ${thumbnail.width}w`);
             });
 
             return sources.join(', ');

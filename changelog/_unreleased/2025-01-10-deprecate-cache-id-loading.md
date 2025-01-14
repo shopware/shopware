@@ -8,7 +8,7 @@ title: Deprecate cache id loading
 
 ___
 
-# Upgrade Information
+# Next Major Version Changes
 
 ## Cache ID loaded by Database is removed
 

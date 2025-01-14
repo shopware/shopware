@@ -1,5 +1,5 @@
 /**
- * @sw-package framework
+ * @sw-package fundamentals@framework
  */
 class FeatureSingleton {
 

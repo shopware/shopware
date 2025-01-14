@@ -20,10 +20,13 @@ jobs:
   rufus:
     name: "Rufus"
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' || github.event.pull_request.author_association == 'OWNER' }}
     steps:
+      - name: test
+        run: |
+          echo "${{ github.event.pull_request.author_association }}"
       - name: Rufus
         uses: shopware/github-actions/downstream@main
+        if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' || github.event.pull_request.author_association == 'OWNER' }}
         with:
           repo: shopware/rufus
           workflow: Downstream

@@ -61,6 +61,11 @@ class CustomEntitySchemaUpdater
         $baseSchema = $schemaManager->introspectSchema();
         $queries = $this->getPlatform()->getAlterSchemaSQL($schemaManager->createComparator()->compareSchemas($baseSchema, $update));
 
+        // Store the current value of foreign key checks and disable them
+        // This is a temporary fix until there is answer for https://github.com/doctrine/dbal/issues/6706
+        $currentForeignKeyChecks = $this->connection->fetchOne('SELECT @@FOREIGN_KEY_CHECKS');
+        $this->connection->executeQuery('SET FOREIGN_KEY_CHECKS = 0');
+
         foreach ($queries as $query) {
             try {
                 $this->connection->executeStatement($query);
@@ -68,10 +73,15 @@ class CustomEntitySchemaUpdater
                 // there seems to be a timing issue in sql when dropping a foreign key which relates to an index.
                 // Sometimes the index exists no more when doctrine tries to drop it after dropping the foreign key.
                 if (!\str_contains($e->getMessage(), 'An exception occurred while executing \'DROP INDEX IDX_')) {
+                    // Restore the original value of foreign key checks
+                    $this->connection->executeQuery('SET FOREIGN_KEY_CHECKS = ' . $currentForeignKeyChecks);
+
                     throw $e;
                 }
             }
         }
+        // Restore the original value of foreign key checks
+        $this->connection->executeQuery('SET FOREIGN_KEY_CHECKS = ' . $currentForeignKeyChecks);
     }
 
     private function getPlatform(): AbstractPlatform
@@ -82,6 +92,12 @@ class CustomEntitySchemaUpdater
     private function cleanup(Schema $schema): void
     {
         foreach ($schema->getTables() as $table) {
+            //            $fks = $table->getForeignKeys();
+            //
+            //            foreach ($fks as $foreignKey) {
+            //                $refTable = $foreignKey->getForeignTableName();
+            //            }
+            //
             if ($table->getComment() === self::COMMENT) {
                 $schema->dropTable($table->getName());
 

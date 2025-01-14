@@ -6,7 +6,7 @@ import Debouncer from 'src/helper/debouncer.helper';
 const RESIZE_DEBOUNCE_TIME = 200;
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class ViewportDetection {
 

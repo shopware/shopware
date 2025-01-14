@@ -314,8 +314,8 @@ For customers with a company, this check will be done at checkout, so they will 
 Custom field names and field set names will be validated to not contain hyphens or dots, they must be valid Twig variable names (https://github.com/twigphp/Twig/blob/21df1ad7824ced2abcbd33863f04c6636674481f/src/Lexer.php#L46).
 Existing custom fields continue to work, however the validation will be enforced on new custom fields.
 
-### Removal of deprecated properties of `CustomerDeletedEvent`
-* The deprecated properties `customerId`, `customerNumber`, `customerEmail`, `customerFirstName`, `customerLastName`, `customerCompany` and `customerSalutationId` of `CustomerDeleteEvent` will be removed and cannot be accessed anymore in a mail template when sending a mail via the `Checkout > Customer > Deleted` flow trigger.
+## Removal of deprecated properties of `CustomerDeletedEvent`
+The deprecated properties `customerId`, `customerNumber`, `customerEmail`, `customerFirstName`, `customerLastName`, `customerCompany` and `customerSalutationId` of `CustomerDeleteEvent` will be removed and cannot be accessed anymore in a mail template when sending a mail via the `Checkout > Customer > Deleted` flow trigger.
 
 ## Rule builder: Condition `customerDefaultPaymentMethod` removed
 * Removed condition `customerDefaultPaymentMethod` from rule builder, since customers do not have default payment methods anymore
@@ -326,7 +326,7 @@ Existing custom fields continue to work, however the validation will be enforced
 * Existing flows will be automatically disabled with Shopware 6.7 and removed in a future, destructive migration
 
 ## Direct debit default payment: State change removed
-* The default payment method "Direct debit" will no longer automatically change the order state to "in progress". Use the flow builder instead, if you want the same behavior.
+The default payment method "Direct debit" will no longer automatically change the order state to "in progress". Use the flow builder instead, if you want the same behavior.
 
 ## New `technicalName` property for payment and shipping methods
 The `technicalName` property will be required for payment and shipping methods in the API.
@@ -357,7 +357,7 @@ The sync API allows now to add a filter to the delete request to delete multiple
 ```
 
 ## Removal of /api/oauth/authorize route
-* Removed API route `/api/oauth/authorize` (`\Core\Framework\Api\Controller\AuthController::authorize` method) without replacement.
+Removed API route `/api/oauth/authorize` (`\Core\Framework\Api\Controller\AuthController::authorize` method) without replacement.
 
 # Core
 ## Native types for PHP class properties
@@ -413,7 +413,7 @@ If the mapping definition of a many-to-many association does not contain foreign
 * Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` changed to `indexName`
 
 ## Changed PromotionGatewayInterface
-* Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface` from `EntityCollection<PromotionEntity>` to `PromotionCollection`
+Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface` from `EntityCollection<PromotionEntity>` to `PromotionCollection`
 
 ## ImportExport signature changes
 
@@ -428,7 +428,7 @@ We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInt
 If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandleFactory` class, you should properly handle the new parameter in your custom implementation.
 
 ## Removal of AuthController::authorize
-* Removed `\Core\Framework\Api\Controller\AuthController::authorize` method (API route `/api/oauth/authorize`) without replacement.
+Removed `\Core\Framework\Api\Controller\AuthController::authorize` method (API route `/api/oauth/authorize`) without replacement.
 
 ## TreeUpdater::batchUpdate signature change
 
@@ -458,10 +458,10 @@ The `Shopware\Core\Checkout\Customer\SalesChannel\AccountService::login` method 
 Unused constant `Shopware\Core\Checkout\Customer\CustomerException::CUSTOMER_IS_INACTIVE` and unused method `Shopware\Core\Checkout\Customer\CustomerException::inactiveCustomer` are removed.
 
 ## Removed `CustomFieldRule` comparison methods:
-* `floatMatch` and `arrayMatch` methods in `src/Core/Framework/Rule/CustomFieldRule.php` will be removed for Shopware 6.7.0.0
+`floatMatch` and `arrayMatch` methods in `src/Core/Framework/Rule/CustomFieldRule.php` will be removed for Shopware 6.7.0.0
 
 ## AbstractCartOrderRoute::order method signature change
-* The `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute::order` method will change its signature in the next major version. A new mandatory `request` parameter will be introduced.
+The `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute::order` method will change its signature in the next major version. A new mandatory `request` parameter will be introduced.
 
 ## Removal of MailTemplate deprecations
 * Removed constants `Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` instead
@@ -481,10 +481,10 @@ We have changed/removed some exception classes in accordance with the [domain ex
 * Removed `Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException`. Use `Shopware\Core\System\Snippet\SnippetException::invalidSnippetFile` instead.
 
 ## Changed thrown exceptions in `TranslationsSerializer`
-* Changed the `InvalidArgumentException`, which was thrown in `TranslationsSerializer::serialize` and `TranslationsSerializer::deserialize` when the given association field wasn't a `TranslationsAssociationField`, to the new `ImportExportException::invalidInstanceType` exception.
+Changed the `InvalidArgumentException`, which was thrown in `TranslationsSerializer::serialize` and `TranslationsSerializer::deserialize` when the given association field wasn't a `TranslationsAssociationField`, to the new `ImportExportException::invalidInstanceType` exception.
 
 ## Deprecated ImportExport domain exception
-* Deprecated method `\Shopware\Core\Content\ImportExport\ImportExportException::invalidInstanceType`. Thrown exception will change from `InvalidArgumentException` to `ImportExportException`.
+Deprecated method `\Shopware\Core\Content\ImportExport\ImportExportException::invalidInstanceType`. Thrown exception will change from `InvalidArgumentException` to `ImportExportException`.
 
 ## Removal of obsolete method in DefinitionValidator
 The method `\Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator::getNotices` was removed.
@@ -541,7 +541,7 @@ Additionally, the associated data sets `sw-dashboard-detail__todayOrderData` and
 In both cases, use the Admin API instead.
 
 ## Replace `isEmailUsed` with `isEmailAlreadyInUse`:
-* Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
+Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
 
 ## Component replacement with Meteor Component Library
 We switched the usage of basic components from custom components to the meteor component library. For more details take a look at the [according ADR](./adr/2024-03-21-implementation-of-meteor-component-library.md).
@@ -2286,13 +2286,13 @@ After:
 # App System
 
 ## Payment: payment states
-* For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
+For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
 
 ## Payment: finalize step
-* The `finalize` step now transmits the `queryParameters` under the object key `requestData` as other payment calls
+The `finalize` step now transmits the `queryParameters` under the object key `requestData` as other payment calls
 
 ## Payment: onlyAvailable flag removed from CheckoutGatewayRoute
-* The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request is removed. The route always filters the payment and shipping methods before calling the checkout gateway based on availability.
+The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request is removed. The route always filters the payment and shipping methods before calling the checkout gateway based on availability.
 
 # Hosting & Configuration
 ## Config keys changes due to improved redis connection handling

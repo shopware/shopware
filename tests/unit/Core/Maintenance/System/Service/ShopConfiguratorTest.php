@@ -67,7 +67,7 @@ class ShopConfiguratorTest extends TestCase
         $this->expectException(MaintenanceException::class);
         $this->expectExceptionMessage('Default language locale not found');
 
-        $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters): array|false {
+        $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters): false {
             static::assertSame(
                 'SELECT locale.id, locale.code
              FROM language

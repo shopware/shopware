@@ -92,7 +92,7 @@ class DatabaseConnectionInformation extends Struct
     }
 
     /**
-     * @return array{url: string, charset: string, driverOptions: array<int, string|bool>}
+     * @return array{host: string, port: int, charset: string, driver: 'pdo_mysql', dbname?: string, user?: string, password?: string, driverOptions: array<int, string|bool>}
      */
     public function toDBALParameters(bool $withoutDatabaseName = false): array
     {

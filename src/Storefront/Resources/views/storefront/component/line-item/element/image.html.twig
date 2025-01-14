@@ -2,7 +2,7 @@
     {% set thumbnail %}
         {% if lineItem.cover.url and lineItem.cover.isSpatialObject() == false %}
             {% set attributes = {
-                class: 'img-fluid line-item-img',
+                class: 'img-fluid line-item-img p-1 border object-fit-contain',
                 title: (lineItem.cover.translated.title ?: '')
             } %}
 

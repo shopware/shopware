@@ -1,18 +1,29 @@
 {% block component_line_item_unit_price %}
+    {% if feature('v6.7.0.0') %}
+        <div class="row g-1">
+    {% endif %}
+
     {% block component_line_item_unit_price_label %}
-        <div class="line-item-unit-price-label">
+        <div class="line-item-unit-price-label fw-bold col-6 col-md-12 d-md-none py-1">
             {{ 'checkout.cartHeaderUnitPrice'|trans|sw_sanitize }}
         </div>
     {% endblock %}
 
     {% block component_line_item_unit_price_inner %}
-        <div class="line-item-unit-price-value">
+        <div class="line-item-unit-price-value col-6 col-md-12 text-end py-1">
             {% if displayMode === 'order' %}
                 {{ lineItem.price.unitPrice|currency(order.currency.isoCode) }}{{ 'general.star'|trans|sw_sanitize }}
             {% else %}
                 {{ lineItem.price.unitPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
             {% endif %}
-            <span class="line-item-unit-price-value-descriptor"> / {{ 'checkout.lineItemUnitPriceDescriptor'|trans|sw_sanitize }}</span>
+
+            {% if not feature('v6.7.0.0') %}
+                <span class="line-item-unit-price-value-descriptor"> / {{ 'checkout.lineItemUnitPriceDescriptor'|trans|sw_sanitize }}</span>
+            {% endif %}
         </div>
      {% endblock %}
+
+    {% if feature('v6.7.0.0') %}
+        </div>
+    {% endif %}
 {% endblock %}

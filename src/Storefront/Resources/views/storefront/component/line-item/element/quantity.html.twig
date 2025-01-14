@@ -23,15 +23,15 @@
     {% set isDigital = lineItem.states is defined and DOWNLOAD_STATE in lineItem.states and (DOWNLOAD_STATE not in lineItem.states or quantityInformation.maxPurchase === 1) %}
 
     {% block component_line_item_quantity_inner %}
-        <div class="row line-item-quantity-row">
+        <div class="row line-item-quantity-row g-1">
             {% block component_line_item_quantity_label %}
-                <div class="line-item-quantity-label" aria-hidden="true">
+                <div class="line-item-quantity-label fw-bold col-6 col-md-12 d-md-none" aria-hidden="true">
                     {{ 'checkout.cartHeaderQuantity'|trans|sw_sanitize }}
                 </div>
             {% endblock %}
 
             {% block component_line_item_quantity_select_wrapper %}
-                <div class="line-item-quantity-select-wrapper">
+                <div class="line-item-quantity-select-wrapper col-6 col-md-12">
 
                     {% if showQuantitySelect and lineItem.quantityInformation and lineItem.stackable and nestingLevel < 1 %}
                         {% block component_line_item_quantity_select_form %}

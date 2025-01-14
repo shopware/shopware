@@ -16,7 +16,7 @@
         {%- else -%}
             <div class="card-title cart-table-header" role="listitem" aria-hidden="true">
         {%- endif -%}
-            <div class="row cart-header-row">
+            <div class="row g-1 cart-header-row">
                 {% block component_checkout_cart_header_product_info %}
                     <div class="{{ infoColumnClass }} cart-header-info">
                         {{ 'checkout.cartHeaderInfo'|trans|sw_sanitize }}

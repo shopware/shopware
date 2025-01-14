@@ -28,18 +28,18 @@
     {%- endif -%}
         {% block component_line_item_type_product_inner %}
             {% block component_line_item_type_product_row %}
-                <div class="row line-item-row">
+                <div class="row line-item-row g-1">
                     {% block component_line_item_type_product_row_inner %}
                         {% block component_line_item_type_product_col_info %}
-                            <div class="line-item-info">
+                            <div class="line-item-info col-10 col-md-5 order-1">
                                 {% block component_line_item_type_product_info_row %}
-                                    <div class="row line-item-row">
+                                    <div class="row line-item-row g-1 g-md-2">
                                         {% set showLineItemModal = controllerAction is same as('confirmPage') %}
 
                                         {% if nestingLevel < 1 %}
                                             {% block component_line_item_type_product_image %}
                                                 <div class="col-auto line-item-info-img">
-                                                    <div class="line-item-img-container">
+                                                    <div class="line-item-img-container mb-2">
                                                         {% block component_line_item_type_product_image_inner %}
                                                             {% sw_include '@Storefront/storefront/component/line-item/element/image.html.twig' with {
                                                                 lineItemLink: displayMode !== 'order' or lineItem.productId ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,
@@ -52,7 +52,7 @@
                                         {% endif %}
 
                                         {% block component_line_item_type_product_details %}
-                                            <div class="line-item-details">
+                                            <div class="line-item-details col-12 col-md-8">
                                                 {% block component_line_item_type_product_details_container %}
                                                     <div class="line-item-details-container">
                                                     {% block component_line_item_type_product_label %}
@@ -78,7 +78,7 @@
 
                                                     {% if lineItem.payload.productNumber %}
                                                         {% block component_line_item_type_product_number %}
-                                                            <div class="line-item-product-number">
+                                                            <div class="line-item-product-number fs-6 mb-2">
                                                                 {{ 'checkout.cartItemInfoId'|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
                                                             </div>
                                                         {% endblock %}
@@ -109,14 +109,14 @@
                         {% endblock %}
 
                         {% block component_line_item_type_product_col_quantity %}
-                            <div class="line-item-quantity">
+                            <div class="line-item-quantity col-12 col-md-2 order-3">
                                 {% sw_include '@Storefront/storefront/component/line-item/element/quantity.html.twig' %}
                             </div>
                         {% endblock %}
 
                         {% if showTaxPrice %}
                             {% block component_line_item_type_product_col_tax_price %}
-                                <div class="line-item-tax-price">
+                                <div class="line-item-tax-price col-md-2 col-12">
                                     {% if context.salesChannel.taxCalculationType == 'horizontal' %}
                                         {% sw_include '@Storefront/storefront/component/line-item/element/tax-price.html.twig' %}
                                     {% endif %}
@@ -124,14 +124,14 @@
                             {% endblock %}
                         {% else %}
                             {% block component_line_item_type_product_col_unit_price %}
-                                <div class="line-item-unit-price{% if lineItem.quantity > 1 %} is-shown{% endif %}">
+                                <div class="line-item-unit-price{% if lineItem.quantity > 1 %} is-shown{% endif %} col-12 col-md-2 order-5">
                                     {% sw_include '@Storefront/storefront/component/line-item/element/unit-price.html.twig' %}
                                 </div>
                             {% endblock %}
                         {% endif %}
 
                         {% block component_line_item_type_product_col_total_price %}
-                            <div class="line-item-total-price line-item-price">
+                            <div class="line-item-total-price line-item-price col-12 col-md-2 order-4">
                                 {% sw_include '@Storefront/storefront/component/line-item/element/total-price.html.twig' with {
                                     currency: lineItem.order.currency.isoCode
                                 } %}
@@ -140,7 +140,7 @@
 
                         {% if showRemoveButton %}
                             {% block component_line_item_type_product_col_remove %}
-                                <div class="line-item-remove">
+                                <div class="line-item-remove col-2 col-md-1 order-2 order-md-5 text-end">
                                     {% if lineItem.removable and nestingLevel < 1 %}
                                         {% sw_include '@Storefront/storefront/component/line-item/element/remove.html.twig' %}
                                     {% endif %}

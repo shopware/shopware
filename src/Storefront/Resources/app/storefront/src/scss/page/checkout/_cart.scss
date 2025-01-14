@@ -43,17 +43,21 @@
     text-align: center;
 }
 
+// @deprecated tag:v6.7.0 - Variable $cart-grid-gutter-width is deprecated. Using gutter variable `g-1` in template instead.
 $cart-grid-gutter-width: $spacer-sm;
 
-.cart-header-row,
-.line-item-row {
-    margin-right: -$cart-grid-gutter-width / 2;
-    margin-left: -$cart-grid-gutter-width / 2;
+// @deprecated tag:v6.7.0 - Using gutter variable `g-1` in template instead.
+@if not feature('ACCESSIBILITY_TWEAKS') {
+    .cart-header-row,
+    .line-item-row {
+        margin-right: -$cart-grid-gutter-width / 2;
+        margin-left: -$cart-grid-gutter-width / 2;
 
-    > .col,
-    > [class*='col-'] {
-        padding-right: $cart-grid-gutter-width / 2;
-        padding-left: $cart-grid-gutter-width / 2;
+        > .col,
+        > [class*='col-'] {
+            padding-right: $cart-grid-gutter-width / 2;
+            padding-left: $cart-grid-gutter-width / 2;
+        }
     }
 }
 

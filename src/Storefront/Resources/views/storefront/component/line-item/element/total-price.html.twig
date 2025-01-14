@@ -1,12 +1,16 @@
 {% block component_line_item_total_price %}
+    {% if feature('v6.7.0.0') %}
+        <div class="row g-1">
+    {% endif %}
+
     {% block component_line_item_total_price_label %}
-        <div class="line-item-total-price-label">
+        <div class="line-item-total-price-label fw-bold col-6 col-md-12 d-md-none py-1">
             {{ 'checkout.cartHeaderTotalPrice'|trans|sw_sanitize }}
         </div>
     {% endblock %}
 
     {% block component_line_item_total_price_value %}
-        <div class="line-item-total-price-value">
+        <div class="line-item-total-price-value col-6 col-md-12 text-end py-1">
             {# Shipping costs discounts always have a price of 0, which might be confusing, therefore we do not show those #}
             {% if lineItem.payload.discountScope != 'delivery' %}
                 {% set lineItemTotalPrice = lineItem.price.totalPrice ?? 0 %}
@@ -31,4 +35,8 @@
             {% endif %}
         </div>
     {% endblock %}
+
+    {% if feature('v6.7.0.0') %}
+        </div>
+    {% endif %}
 {% endblock %}

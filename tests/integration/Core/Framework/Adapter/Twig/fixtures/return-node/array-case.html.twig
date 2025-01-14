@@ -1,15 +1,12 @@
 {% apply spaceless %}
-    {% macro foo(index = null) %}
-        {% set arr = [1, 2] %}
-        {% if index is not null %}
-            {{ arr[index] }}
-        {% else %}
-            {{ arr|join(', ') }}
-        {% endif %}
+    {% macro foo() %}
+        {% return [1, 2] %}
     {% endmacro %}
 
-    {% if _self.foo(1) is empty %}
+    {% set foo = _self.foo() %}
+
+    {% if foo is empty %}
         should not be empty
     {% endif %}
-    {{ _self.foo(1) }}
-{% endapply %}
+    {{ foo[1] }}
+{% endapply  %}

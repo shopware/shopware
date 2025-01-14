@@ -1,6 +1,6 @@
 {% apply spaceless %}
     {% macro foo() %}
-        1
+        {% return 1 %}
     {% endmacro %}
 
     {% set var = _self.foo() %}

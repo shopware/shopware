@@ -48,6 +48,11 @@ class MediaUrlGeneratorTest extends TestCase
             'http://localhost:8000/test.jpg',
         ];
 
+        yield 'Test with whitespace in path' => [
+            new UrlParams('id', UrlParamsSource::MEDIA, 'test with space.jpg', null),
+            'http://localhost:8000/test%20with%20space.jpg',
+        ];
+
         yield 'Test with longer path' => [
             new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test.jpg', null),
             'http://localhost:8000/media/foo/3a/test.jpg',

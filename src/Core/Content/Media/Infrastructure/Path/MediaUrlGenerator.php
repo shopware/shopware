@@ -28,7 +28,7 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
             } else {
                 $pathInfo = pathinfo($value->path);
                 $encodedFilename = rawurlencode($pathInfo['basename']);
-                $encodedPath = $pathInfo['dirname'] . '/' . $encodedFilename;
+                $encodedPath = ($pathInfo['dirname'] ?? '') . '/' . $encodedFilename;
                 $url = $this->filesystem->publicUrl($encodedPath);
             }
 

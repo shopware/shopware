@@ -14,6 +14,7 @@ CREATE TABLE `attribute_entity` (
     `bool` TINYINT(1) NULL DEFAULT '0',
     `datetime` DATETIME(3) NULL,
     `auto_increment` int NOT NULL AUTO_INCREMENT,
+    `enum` ENUM('a', 'b') NULL,
     `json` JSON NULL,
     `custom_fields` JSON NULL,
     `date` DATE NULL,

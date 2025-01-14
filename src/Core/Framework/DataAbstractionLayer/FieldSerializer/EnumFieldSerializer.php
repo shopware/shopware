@@ -49,7 +49,7 @@ class EnumFieldSerializer extends AbstractFieldSerializer
     {
         $field = $this->checkFieldTypeOrThrowInvalidFieldException($field);
 
-        return ($value !== null) ? $field->getEnum()::tryFrom($value): null;
+        return ($value !== null) ? $field->getEnum()::tryFrom($value) : null;
     }
 
     /**

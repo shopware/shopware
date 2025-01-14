@@ -33,6 +33,7 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\Attri
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityCollection;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithHydrator;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\DummyHydrator;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\StringEnum;
 
 /**
  * @internal
@@ -210,6 +211,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'date' => new \DateTimeImmutable('2020-01-01 00:00:00'),
             'dateInterval' => new \DateInterval('P1D'),
             'timeZone' => 'Europe/Berlin',
+            'enum' => 'b',
             'json' => ['key' => 'value'],
             'serialized' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => true],
@@ -254,6 +256,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertEquals(new \DateTimeImmutable('2020-01-01 00:00:00'), $record->date);
         static::assertEquals(new DateInterval('P1D'), $record->dateInterval);
         static::assertSame('Europe/Berlin', $record->timeZone);
+        static::assertSame(StringEnum::B, $record->enum);
         static::assertSame(['key' => 'value'], $record->json);
         static::assertEquals(
             new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
@@ -293,6 +296,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'bool' => true,
             'datetime' => $record->datetime?->format(\DateTimeInterface::RFC3339_EXTENDED),
             'autoIncrement' => 1,
+            'enum' => StringEnum::B,
             'json' => ['key' => 'value'],
             'date' => $record->date?->format(\DateTimeInterface::RFC3339_EXTENDED),
             'dateInterval' => new DateInterval('P1D'),

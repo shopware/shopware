@@ -6,7 +6,6 @@ test('As an admin user, I want to filter and add rule assignments, to easily add
     AdminRuleDetail,
     AssignEntitiesToRule,
 }) => {
-                                                                                                                                   }) => {
     const rule = await TestDataService.createBasicRule();
     const shippingMethod1 = await TestDataService.createBasicShippingMethod();
     const shippingMethod2 = await TestDataService.createBasicShippingMethod();

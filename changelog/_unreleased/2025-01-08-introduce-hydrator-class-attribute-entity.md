@@ -1,6 +1,5 @@
 ---
 title: Introduce Hydrator class on Attribute Entity 
-issue: NEXT-00000
 author: Raffaele Carelle <raffaele.carelle@gmail.com>
 author_github: @raffaelecarelle
 ---

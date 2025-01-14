@@ -3308,7 +3308,7 @@ class ProductRepositoryTest extends TestCase
     }
 
     /**
-     * @param non-empty-array<string> $languages
+     * @param non-empty-list<string> $languages
      */
     private static function createLanguageContext(array $languages, bool $inheritance): Context
     {

@@ -6,8 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
+use Twig\Error\RuntimeError;
 use Twig\Extension\CoreExtension;
-use Twig\Extension\SandboxExtension;
 use Twig\Markup;
 use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
@@ -23,12 +23,13 @@ class SwTwigFunction
      *
      * @param mixed $object The object or array from where to get the item
      * @param mixed $item The item to get from the array or object
-     * @param array<mixed> $arguments An array of arguments to pass if the item is an object method
+     * @param array $arguments An array of arguments to pass if the item is an object method
      * @param string $type The type of attribute (@see \Twig\Template constants)
      * @param bool $isDefinedTest Whether this is only a defined check
      * @param bool $ignoreStrictCheck Whether to ignore the strict attribute check or not
      * @param int $lineno The template line where the attribute was called
-     * @param bool $sandboxed When true the extension use SandboxExtension
+     *
+     * @throws RuntimeError if the attribute does not exist and Twig is running in strict mode and $isDefinedTest is false
      *
      * @return mixed The attribute value, or a Boolean when $isDefinedTest is true, or null when the attribute is not set and $ignoreStrictCheck is true
      *

@@ -193,7 +193,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         isSpatial(productMedia) {
             if (productMedia.media?.fileExtension === 'glb') {

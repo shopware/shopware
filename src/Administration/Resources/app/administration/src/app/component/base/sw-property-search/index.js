@@ -88,10 +88,27 @@ Component.register('sw-property-search', {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
-            criteria.addSorting(Criteria.sort('name', 'ASC', true));
-            criteria.setTotalCountMode(1);
-            criteria.setTerm(this.searchTerm);
-            criteria.addAssociation('group');
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            if (this.currentGroup) {
+                criteria.addFilter(Criteria.equals('groupId', this.currentGroup.id));
+            }
+
+            if (this.searchTerm.length > 0) {
+                this.searchTerm
+                    .trim()
+                    .split(' ')
+                    .forEach((option) => {
+                        if (option.trim().length === 0) {
+                            return;
+                        }
+
+                        criteria.addQuery(Criteria.contains('name', option.trim()), 1000);
+                        criteria.addQuery(Criteria.contains('group.name', option.trim()), 800);
+                    });
+
+                criteria.addAssociation('group');
+            }
 
             return criteria;
         },

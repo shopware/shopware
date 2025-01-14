@@ -28,7 +28,7 @@ class OrderPersisterTest extends TestCase
 {
     public function testPersist(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $cart = new Cart('hatoken');
         $cart->add(new LineItem('hatoken', 'product'));
@@ -59,7 +59,7 @@ class OrderPersisterTest extends TestCase
 
     public function testWithBlockingCart(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $cart = new Cart('hatoken');
         $cart->add(new LineItem('hatoken', 'product'));
@@ -88,7 +88,7 @@ class OrderPersisterTest extends TestCase
 
     public function testPersistWithoutCustomer(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $cart = new Cart('hatoken');
@@ -108,7 +108,7 @@ class OrderPersisterTest extends TestCase
 
     public function testPersistWithEmptyCart(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $cart = new Cart('hatoken');
 
@@ -126,7 +126,7 @@ class OrderPersisterTest extends TestCase
 
     public function testPersistWithCartCleaner(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $lineItem = new LineItem('hatoken', 'product');
         $lineItem->setPayloadValue('customFields', ['test' => 'test']);

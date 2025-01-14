@@ -33,7 +33,7 @@ class StoreApiRouteCacheKeyEventTest extends TestCase
         $this->request = new Request();
         $this->salesChannelEntity = new SalesChannelEntity();
         $this->salesChannelEntity->setId(Uuid::randomHex());
-        $this->context = Generator::createSalesChannelContext(
+        $this->context = Generator::generateSalesChannelContext(
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
             salesChannel: $this->salesChannelEntity
         );

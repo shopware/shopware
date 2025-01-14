@@ -30,6 +30,7 @@ class CacheInvalidator
         private readonly EventDispatcherInterface $dispatcher,
         private readonly LoggerInterface $logger,
         private readonly RequestStack $requestStack,
+        private readonly string $environment
     ) {
     }
 
@@ -103,6 +104,7 @@ class CacheInvalidator
 
     private function shouldForceInvalidate(): bool
     {
-        return $this->requestStack->getMainRequest()?->headers->get(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE) === '1';
+        return $this->environment === 'test' // immediately invalidate in test environment, to make tests deterministic
+            || $this->requestStack->getMainRequest()?->headers->get(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE) === '1';
     }
 }

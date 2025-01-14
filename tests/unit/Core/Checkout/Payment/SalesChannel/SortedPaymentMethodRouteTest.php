@@ -47,7 +47,7 @@ class SortedPaymentMethodRouteTest extends TestCase
         $salesChannel->setPaymentMethodId(Uuid::randomHex());
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId($salesChannel->getPaymentMethodId());
-        $this->context = Generator::createSalesChannelContext(
+        $this->context = Generator::generateSalesChannelContext(
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
             salesChannel: $salesChannel,
             paymentMethod: $paymentMethod,

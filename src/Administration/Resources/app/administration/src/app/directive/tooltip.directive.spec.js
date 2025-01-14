@@ -4,7 +4,7 @@
 
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/app/directive/tooltip.directive';
+import { tooltipRegistry } from 'src/app/directive/tooltip.directive';
 
 jest.useFakeTimers();
 
@@ -66,6 +66,20 @@ describe('directives/tooltip', () => {
         tooltips = document.body.getElementsByClassName('sw-tooltip');
         // Tooltip gets rendered
         expect(tooltips).toHaveLength(0);
+    });
+
+    it('should remove the tooltip from the registry after unmount to prevent memory leak', async () => {
+        const wrapper = await createWrapper('a tooltip');
+        await flushPromises();
+
+        // Tooltip is in the registry
+        expect(tooltipRegistry.size).toBe(1);
+
+        // Unmount the wrapper
+        wrapper.unmount();
+
+        // Tooltip is removed from the registry
+        expect(tooltipRegistry.size).toBe(0);
     });
 
     it('should not be created when target element gets deleted before creation of tooltip', async () => {

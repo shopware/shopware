@@ -65,11 +65,15 @@ class SeoUrlUpdater
         foreach ($templates as $config) {
             $template = $config['template'];
             $salesChannel = $salesChannels->get($config['salesChannelId']);
-            if ($template === '' || $salesChannel === null) {
+            if ($template === '' || !$salesChannel) {
                 continue;
             }
 
-            $chain = $languageChains[$config['languageId']];
+            $chain = $languageChains[$config['languageId']] ?? null;
+            if (!$chain) {
+                continue;
+            }
+
             $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
             $languageContext->setConsiderInheritance(true);
 
@@ -136,7 +140,7 @@ class SeoUrlUpdater
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, non-empty-list<string>>
      */
     private function fetchLanguageChains(Context $context): array
     {
@@ -145,11 +149,11 @@ class SeoUrlUpdater
         $languageChains = [];
         foreach ($languages as $language) {
             $languageId = $language->getId();
-            $languageChains[$languageId] = array_filter([
+            $languageChains[$languageId] = array_values(array_filter([
                 $languageId,
                 $language->getParentId(),
                 Defaults::LANGUAGE_SYSTEM,
-            ]);
+            ]));
         }
 
         return $languageChains;

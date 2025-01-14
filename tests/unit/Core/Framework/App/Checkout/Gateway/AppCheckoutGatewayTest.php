@@ -60,12 +60,12 @@ class AppCheckoutGatewayTest extends TestCase
             $this->createMock(ActiveAppsLoader::class)
         );
 
-        $gateway->process(new CheckoutGatewayPayloadStruct(new Cart('hatoken'), Generator::createSalesChannelContext(), new PaymentMethodCollection(), new ShippingMethodCollection()));
+        $gateway->process(new CheckoutGatewayPayloadStruct(new Cart('hatoken'), Generator::generateSalesChannelContext(), new PaymentMethodCollection(), new ShippingMethodCollection()));
     }
 
     public function testProcess(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $criteria = new Criteria();
         $criteria->addAssociation('paymentMethods');

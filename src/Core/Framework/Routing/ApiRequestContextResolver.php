@@ -76,7 +76,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @return array{currencyId: string, languageId: string, systemFallbackLanguageId: string, currencyFactory: float, currencyPrecision: int, versionId: ?string, considerInheritance: bool}
+     * @return array{currencyId: string, languageId: non-falsy-string, systemFallbackLanguageId: non-falsy-string, currencyFactory: float, currencyPrecision: int, versionId: ?string, considerInheritance: bool}
      */
     private function getContextParameters(Request $request): array
     {
@@ -92,7 +92,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $runtimeParams = $this->getRuntimeParameters($request);
 
-        /** @var array{currencyId: string, languageId: string, systemFallbackLanguageId: string, currencyFactory: float, currencyPrecision: int, versionId: ?string, considerInheritance: bool} $params */
+        /** @var array{currencyId: string, languageId: non-falsy-string, systemFallbackLanguageId: non-falsy-string, currencyFactory: float, currencyPrecision: int, versionId: ?string, considerInheritance: bool} $params */
         $params = array_replace_recursive($params, $runtimeParams);
 
         return $params;
@@ -172,24 +172,19 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @param array{languageId: string, systemFallbackLanguageId: string} $params
+     * @param array{languageId: non-falsy-string, systemFallbackLanguageId: non-falsy-string} $params
      *
-     * @return non-empty-array<string>
+     * @return non-empty-list<string>
      */
     private function getLanguageIdChain(array $params): array
     {
-        $chain = [$params['languageId']];
-        if ($chain[0] === Defaults::LANGUAGE_SYSTEM) {
-            return $chain; // no query needed
+        $languageId = $params['languageId'];
+        if ($languageId === Defaults::LANGUAGE_SYSTEM) {
+            // no query needed
+            return [$languageId];
         }
-        // `Context` ignores nulls and duplicates
-        $chain[] = $this->getParentLanguageId($chain[0]);
-        $chain[] = $params['systemFallbackLanguageId'];
 
-        /** @var non-empty-array<string> $filtered */
-        $filtered = array_filter($chain);
-
-        return $filtered;
+        return array_values(array_filter([$languageId, $this->getParentLanguageId($languageId), $params['systemFallbackLanguageId']]));
     }
 
     private function getParentLanguageId(?string $languageId): ?string

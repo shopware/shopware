@@ -174,7 +174,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      */
     public static function onRenderingDocumentProvider(): iterable
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         yield 'no theme is using' => [
             [

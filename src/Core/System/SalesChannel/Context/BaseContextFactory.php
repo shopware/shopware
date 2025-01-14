@@ -344,7 +344,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
      * @param array<string, mixed> $sessionOptions
      * @param array<string> $availableLanguageIds
      *
-     * @return non-empty-array<string>
+     * @return non-empty-list<string>
      */
     private function buildLanguageChain(array $sessionOptions, string $defaultLanguageId, array $availableLanguageIds): array
     {
@@ -364,7 +364,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
         }
 
         // provided language can be a child language
-        return array_filter([$current, $this->getParentLanguageId($current), Defaults::LANGUAGE_SYSTEM]);
+        return array_values(array_filter([$current, $this->getParentLanguageId($current), Defaults::LANGUAGE_SYSTEM]));
     }
 
     /**

@@ -1,12 +1,11 @@
 {% apply spaceless %}
-    {% macro foo() %}
-        {% return [1, 2] %}
+    {% macro foo(index) %}
+        {% set arr = [1, 2] %}
+        {{ arr[index] }}
     {% endmacro %}
 
-    {% set foo = _self.foo() %}
-
-    {% if foo is empty %}
+    {% if _self.foo(1) is empty %}
         should not be empty
     {% endif %}
-    {{ foo[1] }}
-{% endapply  %}
+    {{ _self.foo(1) }}
+{% endapply %}

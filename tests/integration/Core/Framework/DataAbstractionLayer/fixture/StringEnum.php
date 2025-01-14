@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture;
 
+/**
+ * @internal
+ */
 enum StringEnum: string
 {
     case A = 'a';

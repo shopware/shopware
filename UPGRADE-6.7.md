@@ -1,21 +1,87 @@
 # 6.7.0.0
-## Introduced in 6.6.9.0
-## Administration removed associations
-* Removed `calculationRule` association in `shippingMethodCriteria()` in `sw-settings-shipping-detail`.
-* Removed `conditions` association in `ruleFilterCriteria()` and `shippingRuleFilterCriteria()` in `sw-settings-shipping-price-matrix`
-## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` changed
-* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` changed to `columnName` 
-* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` changed to `foreignKeyName` 
-* Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` changed to `indexName`
-## Removal of deprecated product review loading logic in Storefront
-* The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
-* The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
-* The hook `\Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook` instead.
-* The struct `\Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult` instead.
-## Native types for PHP class properties
-All PHP class properties now have a native type.
-If you have extended classes with properties, which didn't have a native type before, make sure you now add them as well.
-## Storefront product box accessibility: Removed duplicate links around the product image in product cards
+**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.7.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
+
+## Notable Changes
+
+### Webpack to vite migration for the administration
+We are switching the build system for our administration from webpack to vite. 
+This means that when your plugins depends on a custom `webpack.config.js` file, you'll need to migrate it to a `vite.config.js` file.
+**TBD how does that look like? Is there a docs page for that?**
+Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
+For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
+
+**Note:** This change can be activated separately with the `ADMIN_VITE` feature flag.
+
+### Vue.js Enhancements (full native vue 3 support)
+#### Removal of Vue 2 compatibility layer
+The Vue 2 compatibility layer has been removed from the administration. This means that all components that still rely on Vue 2 features need to be updated.
+This ensures that our administration stays future-proof and we can make use of the most recent Vue 3 features.
+
+**What does that mean, can we link to a guide or something?**
+
+**Note:** This change can be activated separately with the `DISABLE_VUE_COMPAT` feature flag.
+
+#### Migration from Vuex to Pinia
+For Vue 3 the default state management library has become Pinia, therefore we are migrating from Vuex to Pinia. to stay as close to the default as possible.
+When you use default stores in your plugin you need to switch from `Shopware.State` (Vuex) to `Shopware.Store` (Pinia).
+Adding your own Vuex stores is still possible, however it is recommended that you switch to Pinia as well.
+
+**TBD, can we have a realistic example how this looked like before and what actually needs to change?
+
+For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
+
+### Cache Rework
+**Note:** Those changes can be activated separately with the `cache_rework` feature flag.
+
+#### Delayed Cache Invalidation
+The cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
+This will lead to better cache hit rates and way less (duplicated) cache invalidations, which will improve efficiency and scalability of the system.
+As this feature is now active by default the previous `shopware.cache.invalidation.delay` configuration is removed.
+
+The default interval is 5 min, this can be changed by adjusting the run interval of the `shopware.invalidate_cache` scheduled task.
+
+If you sent an API request with critical information, where the cache should be invalidated immediately, you can set the `sw-force-cache-invalidate` header on your request.
+```
+POST /api/product
+sw-force-cache-invalidate: 1
+```
+
+To manually clear all the stale caches you can either run the `cache:clear:delayed` command or use the `/api/_action/cache-delayed` API endpoint.
+```
+bin/console cache:clear:delayed
+```
+```
+DELETE /api/_action/cache-delayed
+```
+
+For debugging there is the `cache:watch:delayed` command available, to watch the cache tags that are stored in the delayed cache invalidation queue.
+```
+bin/console cache:watch:delayed
+```
+
+#### Removal of Store-API route caching
+The Store-API route caching has been removed. This means that the `Cached*Route` classes will be removed.
+This solves some weird states when the HTTP-Cache was invalidated separately from the route cache.
+Additionally, the cache hit rate for the Store-API was low, so the performance impact should be minimal, but the amount of cache items and cache invalidations will be reduced.
+This overall should lead to more effective cache resource usage.
+
+#### Use ESI includes for Header and Footer
+**TBD**
+
+### Major Library Updates
+We upgraded the following libraries to their latest versions:
+* [DBAL 4.x](https://github.com/doctrine/dbal/blob/4.2.x/UPGRADE.md#upgrade-to-40): When you are using DBAL directly, please check the upgrade guide.
+* [PHPUnit 11.x](https://github.com/sebastianbergmann/phpunit/blob/11.0.0/ChangeLog-11.0.md#1100---2024-02-02): You need to adjust your tests to the new PHPUnit version.
+* [Dompdf 3.x](https://github.com/dompdf/dompdf/releases/tag/v3.0.0): Please check your document templates, if they are still rendered as expected.
+
+### Accessibility Compliance
+In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
+**Note:** Those changes can be activated separately with the `ACCESSIBILITY_TWEAKS` feature flag.
+
+<details>
+  <summary>Detailed Changes</summary>
+
+#### Storefront product box accessibility: Removed duplicate links around the product image in product cards
 **Affected template: `Resources/views/storefront/component/product/card/box-standard.html.twig`**
 
 The anchor link around the product image `a.product-image-link` is removed and replaced with the link of the product name `a.product-name` that now uses the `stretched-link` helper class:
@@ -37,90 +103,8 @@ The anchor link around the product image `a.product-image-link` is removed and r
     </div>
 </div>
 ```
-## Reduced data loaded in Store-API Register Route and Register related events
 
-The customer entity does not have all associations loaded by default anymore. 
-This change reduces the amount of data loaded in the Store-API Register Route and Register related events to improve the performance.
-
-In the following event, the CustomerEntity has no association loaded anymore:
-
-- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
-- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
-- `\Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent`
-- `\Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent`
-- `\Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent`
-## Required foreign key in mapping definition for many-to-many associations
-If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
-
-## Introduced in 6.6.8.0
-## Vat Ids will be validated case sensitive
-Vat Ids will now be checked for case sensitivity, which means that most Vat Ids will now have to be upper case, depending on their validation pattern.
-For customers without a company, this check will only be done on entry, so it is still possible to checkout with an existing lower case Vat Id.
-For customers with a company, this check will be done at checkout, so they will need to change their Vat Id to upper case.
-## Changed PromotionGatewayInterface
-* Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface` from `EntityCollection<PromotionEntity>` to `PromotionCollection`
-## Deletes by filter over the Sync API
-The sync API allows now to add a filter to the delete request to delete multiple entities at once. This is useful if you want to delete all entities that match a certain criteria:
-```json
-[
-  {
-    "action": "delete",
-    "entity": "product",
-    "payload": [],
-    "filter": [
-      {
-        "field": "name",
-        "type": "equals",
-        "value": "test"
-      }
-    ]
-  }
-]
-```
-## Config keys changes:
-
-Next configuration keys are deprecated and will be removed in the next major version:
-* `shopware.cache.invalidation.delay_options.dsn`
-* `shopware.increment.<increment_name>.config.url`
-* `shopware.number_range.redis_url`
-* `shopware.number_range.config.dsn`
-* `shopware.cart.redis_url`
-* `cart.storage.config.dsn`
-
-To prepare for migration:
-
-1.  For all different redis connections (different DSNs) that are used in the project, add a separate record in the `config/packages/shopware.yaml` file under the `shopware` section, as in upgrade section of this document.
-2.  Replace deprecated dsn/url keys with corresponding connection names in the configuration files.
-* `shopware.cache.invalidation.delay_options.dsn` -> `shopware.cache.invalidation.delay_options.connection`
-* `shopware.increment.<increment_name>.config.url` -> `shopware.increment.<increment_name>.config.connection`
-* `shopware.number_range.redis_url` -> `shopware.number_range.config.connection`
-* `shopware.number_range.config.dsn` -> `shopware.number_range.config.connection`
-* `shopware.cart.redis_url` -> `cart.storage.config.connection`
-* `cart.storage.config.dsn` -> `cart.storage.config.connection`
-* Removed `\Core\Framework\Api\Controller\AuthController::authorize` method (API route `/api/oauth/authorize`) without replacement.
-## Removal of obsolete method in DefinitionValidator
-The method `\Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator::getNotices` was removed.
-
-## Introduced in 6.6.7.0
-## ThemeFileImporterInterface & ThemeFileImporter Removal
-Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
-
-`getBasePath` & `setBasePath` methods and `basePath` property on `StorefrontPluginConfiguration` are removed. If you need to get the absolute path you should ask for a filesystem instance via `\Shopware\Storefront\Theme\ThemeFilesystemResolver::getFilesystemForStorefrontConfig()` passing in the config object. 
-This filesystem instance can read files via a relative path and also return the absolute path of a file. Eg:
-
-```php
-$fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($storefrontPluginConfig);
-foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
-    $absolutePath = $fs->path('Resources', $relativePath);
-}
-```
-
-`\Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException` is removed, if it was previously caught you should change your catch to `\Shopware\Core\System\SystemConfig\SystemConfigException` instead and inspect the code for `\Shopware\Core\System\SystemConfig\SystemConfigException::CONFIG_NOT_FOUND`.
-## SitemapHandleFactoryInterface::create
-
-We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInterface::create` and `SitemapHandleFactory::create`.
-If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandleFactory` class, you should properly handle the new parameter in your custom implementation.
-## Accessibility - Storefront base font-size  
+#### Storefront base font-size
 In regard to better readability the base font-size of the storefront is updated to the browser standard of `1rem` (16px). Other text formatting is adjusted accordingly. The following variables and properties are changed:
 
 * `$font-size-base` changed from `0.875rem` to `1rem`.
@@ -136,14 +120,15 @@ In regard to better readability the base font-size of the storefront is updated 
 * `line-height` of `.quantity-selector-group-input` changed to `1rem`.
 * `font-size` of `.main-navigation-menu` changed from `$font-size-lg` to `$font-size-base`.
 * `font-size` of `.navigation-flyout-category-link`changed from `$font-size-lg` to `$font-size-base`.
-## Change Storefront language and currency dropdown items to buttons
+
+#### Change Storefront language and currency dropdown items to buttons
 The `.top-bar-list-item` elements inside the "top-bar" dropdown menus will contain `<button>` elements instead of a hidden `<input type="radio">` elements.
 
 **Affected templates:**
 * `Resources/views/storefront/layout/header/actions/language-widget.html.twig`
 * `Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
 
-### Before:
+##### Before:
 ```html
 <ul class="top-bar-list dropdown-menu dropdown-menu-end">
     <li class="top-bar-list-item">
@@ -161,7 +146,7 @@ The `.top-bar-list-item` elements inside the "top-bar" dropdown menus will conta
 </ul>
 ```
 
-### After:
+##### After:
 ```html
 <ul class="top-bar-list dropdown-menu dropdown-menu-end">
     <li class="top-bar-list-item">
@@ -179,10 +164,10 @@ The `.top-bar-list-item` elements inside the "top-bar" dropdown menus will conta
 </ul>
 ```
 
-If you are modifying the dropdown item, please adjust to the new HTML structure and consider the deprecation comments in the code. 
+If you are modifying the dropdown item, please adjust to the new HTML structure and consider the deprecation comments in the code.
 The example below shows `currency-widget.html.twig`. Inside `language-widget.html.twig` a similar structure can be found.
 
-### Before:
+##### Before:
 ```twig
 {% sw_extends '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' %}
 
@@ -192,7 +177,7 @@ The example below shows `currency-widget.html.twig`. Inside `language-widget.htm
 {% endblock %}
 ```
 
-### After:
+##### After:
 ```twig
 {% sw_extends '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' %}
 
@@ -203,7 +188,8 @@ The example below shows `currency-widget.html.twig`. Inside `language-widget.htm
     </button>
 {% endblock %}
 ```
-## Change Storefront order items and cart line-items from `<div>` to `<ul>` and `<li>`:
+
+#### Change Storefront order items and cart line-items from `<div>` to `<ul>` and `<li>`:
 To improve the accessibility and semantics, several generic `<div>` elements that are representing lists are changed to actual `<ul>` and `<li>` elements.
 This effects the account order overview area as well as the cart line-item templates.
 
@@ -247,7 +233,7 @@ to
 </ul>
 ```
 
-### List of affected templates:
+##### List of affected templates:
 Please consider the documented deprecations inside the templates and adjust modified HTML accordingly.
 The overall HTML tree structure and the Twig blocks are not affected by this change.
 
@@ -269,25 +255,13 @@ The overall HTML tree structure and the Twig blocks are not affected by this cha
   * `src/Storefront/Resources/views/storefront/component/line-item/type/discount.html.twig`
   * `src/Storefront/Resources/views/storefront/component/line-item/type/generic.html.twig`
   * `src/Storefront/Resources/views/storefront/component/line-item/type/container.html.twig`
-## ImportExportFactory::create
 
-We added a new optional parameter `bool $useBatchImport` to `ImportExportFactory::create`.
-If you extend the `ImportExportFactory` class, you should properly handle the new parameter in your custom implementation.
-## Changed thrown exceptions in `TranslationsSerializer`
-* Changed the `InvalidArgumentException`, which was thrown in `TranslationsSerializer::serialize` and `TranslationsSerializer::deserialize` when the given association field wasn't a `TranslationsAssociationField`, to the new `ImportExportException::invalidInstanceType` exception.
-
-## Deprecated ImportExport domain exception
-* Deprecated method `\Shopware\Core\Content\ImportExport\ImportExportException::invalidInstanceType`. Thrown exception will change from `InvalidArgumentException` to `ImportExportException`.
-## Custom field names and field set names
-Custom field names and field set names will be validated to not contain hyphens or dots, they must be valid Twig variable names (https://github.com/twigphp/Twig/blob/21df1ad7824ced2abcbd33863f04c6636674481f/src/Lexer.php#L46).
-
-## Introduced in 6.6.6.0
-## Storefront pagination is using anchor links instead of radio inputs
+#### Storefront pagination is using anchor links instead of radio inputs
 The storefront pagination component (`Resources/views/storefront/component/pagination.html.twig`) is no longer using radio inputs with styled labels. Anchor links are used instead.
 If you are modifying the `<label>` inside the pagination template, you need to change the markup to `<a>` instead. Please use one of the documented twig block alternatives inside `pagination.html.twig`.
 The hidden radio input will no longer be in the HTML. The current page value will be retrieved by the `data-page` attribute instead of the radio inputs value.
 
-### Before:
+##### Before:
 ```twig
 {% sw_extends '@Storefront/storefront/component/pagination.html.twig '%}
 
@@ -309,7 +283,7 @@ The hidden radio input will no longer be in the HTML. The current page value wil
 {% endblock %}
 ```
 
-### After:
+##### After:
 ```twig
 {% sw_extends '@Storefront/storefront/component/pagination.html.twig '%}
 
@@ -326,37 +300,84 @@ The hidden radio input will no longer be in the HTML. The current page value wil
     </a>
 {% endblock %}
 ```
-## Removal of deprecated properties of `CustomerDeletedEvent`
+</details>
+
+## Other Changes
+
+### Changed Functionality
+#### Vat Ids will be validated case sensitive
+Vat Ids will now be checked for case sensitivity, which means that most Vat Ids will now have to be upper case, depending on their validation pattern.
+For customers without a company, this check will only be done on entry, so it is still possible to checkout with an existing lower case Vat Id.
+For customers with a company, this check will be done at checkout, so they will need to change their Vat Id to upper case.
+
+#### Custom field names and field set names validation
+Custom field names and field set names will be validated to not contain hyphens or dots, they must be valid Twig variable names (https://github.com/twigphp/Twig/blob/21df1ad7824ced2abcbd33863f04c6636674481f/src/Lexer.php#L46).
+Existing custom fields continue to work, however the validation will be enforced on new custom fields.
+
+#### Removal of deprecated properties of `CustomerDeletedEvent`
 * The deprecated properties `customerId`, `customerNumber`, `customerEmail`, `customerFirstName`, `customerLastName`, `customerCompany` and `customerSalutationId` of `CustomerDeleteEvent` will be removed and cannot be accessed anymore in a mail template when sending a mail via the `Checkout > Customer > Deleted` flow trigger.
-## Message queue size limit
 
-Any message queue message bigger than 256KB will be now rejected by default.
-To reduce the size of your messages you should only store the ID of an entity in the message and fetch it later in the message handler.
-This can be disabled again with:
+#### Rule builder: Condition `customerDefaultPaymentMethod` removed
+* Removed condition `customerDefaultPaymentMethod` from rule builder, since customers do not have default payment methods anymore
+* Existing rules with this condition will be automatically migrated to the new condition `paymentMethod`, so the currently selected payment method
 
-```yaml
-shopware:
-    messenger:
-        enforce_message_size: false
+#### Flow builder: Trigger `checkout.customer.changed-payment-method` removed
+* Removed trigger `checkout.customer.changed-payment-method` from flow builder, since customers do not have default payment methods anymore
+* Existing flows will be automatically disabled with Shopware 6.7 and removed in a future, destructive migration
 
+#### Direct debit default payment: State change removed
+* The default payment method "Direct debit" will no longer automatically change the order state to "in progress". Use the flow builder instead, if you want the same behavior.
+
+#### New `technicalName` property for payment and shipping methods
+The `technicalName` property will be required for payment and shipping methods in the API.
+The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
+
+Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+
+Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
+
+### API
+#### Deletes by filter over the Sync API
+The sync API allows now to add a filter to the delete request to delete multiple entities at once. This is useful if you want to delete all entities that match a certain criteria:
+```json
+[
+  {
+    "action": "delete",
+    "entity": "product",
+    "payload": [],
+    "filter": [
+      {
+        "field": "name",
+        "type": "equals",
+        "value": "test"
+      }
+    ]
+  }
+]
 ```
-## Removal of deprecated exceptions
-The following exceptions were removed:
-* `\Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException`
-## Entity class throws different exceptions
-The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Entity` class are now throwing different exceptions:
-* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::__get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
-* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
-* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
-* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
 
-## Introduced in 6.6.5.0
-## Payment: Reworked payment handlers
+#### Removal of /api/oauth/authorize route
+* Removed API route `/api/oauth/authorize` (`\Core\Framework\Api\Controller\AuthController::authorize` method) without replacement.
+
+### Core
+#### Native types for PHP class properties
+All PHP class properties now have a native type.
+If you have extended classes with properties, which didn't have a native type before, make sure you now add them as well.
+
+#### Reduced data loaded in Store-API Register Route and Register related events
+
+The customer entity does not have all associations loaded by default anymore.
+This change reduces the amount of data loaded in the Store-API Register Route and Register related events to improve the performance.
+
+In the following event, the CustomerEntity has no association loaded anymore:
+
+- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
+- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
+- `\Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent`
+- `\Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent`
+- `\Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent`
+
+#### Payment: Reworked payment handlers
 * The payment handlers have been reworked to provide a more flexible and consistent way to handle payments.
 * The new `AbstractPaymentHandler` class should be used to implement payment handlers.
 * The following interfaces have been deprecated:
@@ -367,28 +388,130 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
   * `RecurringPaymentHandlerInterface`
 * Synchronous and asynchronous payments have been merged to return an optional redirect response.
 
-
-## Payment: Capture step of prepared payments removed
+#### Payment: Capture step of prepared payments removed
 * The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
 * Use the `pay` method instead for capturing previously validated payments.
 
-## App System: Payment: payment states
-* For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
+#### New `technicalName` property for payment and shipping methods
+The `technicalName` property will be required for payment and shipping methods in the API.
+The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
 
-## App system: Payment:  finalize step
-* The `finalize` step now transmits the `queryParameters` under the object key `requestData` as other payment calls
-## Customer: Default payment method removed
+Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+
+Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
+
+#### Customer: Default payment method removed
 * Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
 * Logic is now more consistent to always be the last used payment method
 
-## Rule builder: Condition `customerDefaultPaymentMethod` removed
-* Removed condition `customerDefaultPaymentMethod` from rule builder, since customers do not have default payment methods anymore
-* Existing rules with this condition will be automatically migrated to the new condition `paymentMethod`, so the currently selected payment method
+#### Required foreign key in mapping definition for many-to-many associations
+If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
 
-## Flow builder: Trigger `checkout.customer.changed-payment-method` removed
-* Removed trigger `checkout.customer.changed-payment-method` from flow builder, since customers do not have default payment methods anymore
-* Existing flows will be automatically disabled with Shopware 6.7 and removed in a future, destructive migration
-## Removal of sw-dashboard-statistics and associated component sections and data sets
+#### Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` changed
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` changed to `columnName`
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` changed to `foreignKeyName`
+* Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` changed to `indexName`
+
+#### Changed PromotionGatewayInterface
+* Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface` from `EntityCollection<PromotionEntity>` to `PromotionCollection`
+
+#### ImportExport signature changes
+
+* Added a new optional parameter `bool $useBatchImport` to `ImportExportFactory::create`. If you extend the `ImportExportFactory` class, you should properly handle the new parameter in your custom implementation.
+* Removed method `ImportExportProfileEntity::getName()` and `ImportExportProfileEntity::setName()`. Use `getTechnicalName()` and `setTechnicalName()` instead.
+* Removed `profile` attribute from `ImportEntityCommand`. Use `--profile-technical-name` instead.
+* Removed `name` field from `ImportExportProfileEntity`.
+
+#### SitemapHandleFactoryInterface::create method signature change
+
+We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInterface::create` and `SitemapHandleFactory::create`.
+If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandleFactory` class, you should properly handle the new parameter in your custom implementation.
+
+#### Removal of AuthController::authorize
+* Removed `\Core\Framework\Api\Controller\AuthController::authorize` method (API route `/api/oauth/authorize`) without replacement.
+
+## TreeUpdater::batchUpdate signature change
+
+We added a new optional parameter `bool $recursive` to `TreeUpdater::batchUpdate`.
+If you extend the `TreeUpdater` class, you should properly handle the new parameter in your custom implementation.
+```php
+<?php
+
+class CustomTreeUpdater extends TreeUpdater
+{
+    public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
+    {
+        parent::batchUpdate($updateIds, $entity, $context, $recursive);
+    }
+}
+```
+#### removal of \Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand:
+`\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand` instead.
+
+#### Removal of \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator:
+`\Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator` instead.
+
+#### AccountService refactoring
+
+The `Shopware\Core\Checkout\Customer\SalesChannel\AccountService::login` method is removed. Use `AccountService::loginByCredentials` or `AccountService::loginById` instead.
+
+Unused constant `Shopware\Core\Checkout\Customer\CustomerException::CUSTOMER_IS_INACTIVE` and unused method `Shopware\Core\Checkout\Customer\CustomerException::inactiveCustomer` are removed.
+
+#### Removed `CustomFieldRule` comparison methods:
+* `floatMatch` and `arrayMatch` methods in `src/Core/Framework/Rule/CustomFieldRule.php` will be removed for Shopware 6.7.0.0
+
+#### AbstractCartOrderRoute::order method signature change
+* The `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute::order` method will change its signature in the next major version. A new mandatory `request` parameter will be introduced.
+
+## Removal of MailTemplate deprecations
+* Removed constants `Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` instead
+* Removed constant `Shopware\Core\Content\MailTemplate\MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::ACTION_NAME` instead
+* Removed class `Shopware\Core\Content\MailTemplate\MailTemplateActions` without replacement
+* Removed service `Shopware\Core\Content\MailTemplate\Service\AttachmentLoader` without replacement.
+* Removed event `Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent` without replacement.
+
+#### Domain Exception Handling
+We have changed/removed some exception classes in accordance with the [domain exception handling ADR](./adr/2022-02-24-domain-exceptions.md).
+<details>
+  <summary>See the detailed list</summary>
+
+#### Removal of ConfigurationNotFoundException
+* Removed `\Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException`. Use `\Shopware\Core\System\SystemConfig\SystemConfigException::configurationNotFound` instead.
+* Removed `Shopware\Core\System\Snippet\Exception\FilterNotFoundException`. Use `Shopware\Core\System\Snippet\SnippetException::filterNotFound` instead.
+* Removed `Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException`. Use `Shopware\Core\System\Snippet\SnippetException::invalidSnippetFile` instead.
+
+#### Changed thrown exceptions in `TranslationsSerializer`
+* Changed the `InvalidArgumentException`, which was thrown in `TranslationsSerializer::serialize` and `TranslationsSerializer::deserialize` when the given association field wasn't a `TranslationsAssociationField`, to the new `ImportExportException::invalidInstanceType` exception.
+
+#### Deprecated ImportExport domain exception
+* Deprecated method `\Shopware\Core\Content\ImportExport\ImportExportException::invalidInstanceType`. Thrown exception will change from `InvalidArgumentException` to `ImportExportException`.
+
+#### Removal of obsolete method in DefinitionValidator
+The method `\Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator::getNotices` was removed.
+
+#### Removal of deprecated exceptions
+The following exceptions were removed:
+* `\Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException`
+
+#### Entity class throws different exceptions
+The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Entity` class are now throwing different exceptions:
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::__get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
+</details>
+
+### Administration
+#### Administration removed associations
+* Removed `calculationRule` association in `shippingMethodCriteria()` in `sw-settings-shipping-detail`.
+* Removed `conditions` association in `ruleFilterCriteria()` and `shippingRuleFilterCriteria()` in `sw-settings-shipping-price-matrix`
+
+#### Removal of sw-dashboard-statistics and associated component sections and data sets
 The component `sw-dashboard-statistics` (`src/module/sw-dashboard/component/sw-dashboard-statistics`) has been removed without replacement.
 
 The associated component sections `sw-chart-card__before` and `sw-chart-card__after` were removed, too.
@@ -416,75 +539,40 @@ ui.componentSection.add({
 
 Additionally, the associated data sets `sw-dashboard-detail__todayOrderData` and `sw-dashboard-detail__statisticDateRanges` were removed.
 In both cases, use the Admin API instead.
-## Direct debit default payment: State change removed
-* The default payment method "Direct debit" will no longer automatically change the order state to "in progress". Use the flow builder instead, if you want the same behavior.
 
-## Introduced in 6.6.4.0
-## Removal of Storefront `sw-skin-alert` SCSS mixin
-The mixin `sw-skin-alert` will be removed in v6.7.0. Instead of styling the alert manually with CSS selectors and the custom mixin `sw-skin-alert`,
-we modify the appearance inside the `alert-*` modifier classes directly with the Bootstrap CSS variables like it is documented: https://getbootstrap.com/docs/5.3/components/alerts/#sass-loops
+#### Replace `isEmailUsed` with `isEmailAlreadyInUse`:
+* Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
 
-Before:
-```scss
-@each $color, $value in $theme-colors {
-  .alert-#{$color} {
-    @include sw-skin-alert($value, $white);
-  }
-}
-```
+#### Component replacement with Meteor Component Library
+We switched the usage of basic components from custom components to the meteor component library. For more details take a look at the [according ADR](./adr/2024-03-21-implementation-of-meteor-component-library.md).
 
-After:
-```scss
-@each $state, $value in $theme-colors {
-  .alert-#{$state} {
-    --#{$prefix}alert-border-color: #{$value};
-    --#{$prefix}alert-bg: #{$white};
-    --#{$prefix}alert-color: #{$body-color};
-  }
-}
-```
+**TBD, please link to guides how to use the mentioned code mods etc**
 
-## Removal of Storefront alert class `alert-has-icon` styling
-When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the class `alert-has-icon` will be removed. Helper classes `d-flex align-items-center` will be used instead.
+In short this means we replaced the following components:
+* `sw-popover` with `mt-floating-ui`
+* `sw-tabs` with `mt-tabs`
+* `sw-select-field` with `mt-select`
+* `sw-textarea-field` with `mt-textarea`
+* `sw-datepicker` with `mt-datepicker`
+* `sw-password-field` with `mt-password-field`
+* `sw-colorpicker` with `mt-colorpicker`
+* `sw-external-link` with `mt-external-link`
+* `sw-skeleton-bar` with `mt-skeleton-bar`
+* `sw-email-field` with `mt-email-field`
+* `sw-url-field` with `mt-url-field`
+* `sw-progress-bar` with `mt-progress-bar`
+* `sw-button` with `mt-button`
+* `sw-icon` with `mt-icon`
+* `sw-card` with `mt-card`
+* `sw-text-field` with `mt-text-field`
+* `sw-switch-field` with `mt-switch`
+* `sw-number-field` with `mt-number-field`
+* `sw-loader` with `mt-loader`
+* `sw-checkbox-field` with `mt-checkbox`
 
-```diff
-- <div class="alert alert-info alert-has-icon">
-+ <div class="alert alert-info d-flex align-items-center">
-    {% sw_icon 'info' %}
-    <div class="alert-content-container">
-        An important info
-    </div>
-</div>
-```
-
-## Removal of Storefront alert inner container `alert-content`
-As of v6.7.0, the superfluous inner container `alert-content` will be removed to have lesser elements and be more aligned with Bootstraps alert structure.
-When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the inner container `alert-content` will no longer be present in the HTML output.
-
-The general usage of `Resources/views/storefront/utilities/alert.html.twig` and all include parameters remain the same.
-
-Before:
-```html
-<div role="alert" class="alert alert-info d-flex align-items-center">
-    <span class="icon icon-info"><svg></svg></span>                                                    
-    <div class="alert-content-container">
-        <div class="alert-content">                                                    
-            Your shopping cart is empty.
-        </div>                
-    </div>
-</div>
-```
-
-After:
-```html
-<div role="alert" class="alert alert-info d-flex align-items-center">
-    <span class="icon icon-info"><svg></svg></span>                                                    
-    <div class="alert-content-container">
-        Your shopping cart is empty.
-    </div>
-</div>
-```
-## Removal of "sw-popover":
+<details>
+    <summary>See the detailed list</summary>
+#### Removal of "sw-popover":
 The old "sw-popover" component will be removed in the next major version. Please use the new "mt-floating-ui" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-floating-ui" component. This component is much different from the old "sw-popover" component, so the codemod will not be able to convert all occurrences. You will have to manually adjust some parts of your codebase. For this you can look at the Storybook documentation for the Meteor Component Library.
@@ -493,7 +581,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-popover" is removed
+##### "sw-popover" is removed
 Replace all component names from "sw-popover" with "mt-floating-ui"
 
 Before:
@@ -505,7 +593,7 @@ After:
 <mt-floating-ui />
 ```
 
-### "mt-floating-ui" has no property "zIndex" anymore
+##### "mt-floating-ui" has no property "zIndex" anymore
 The property "zIndex" is removed without a replacement.
 
 Before:
@@ -517,7 +605,7 @@ After:
 <mt-floating-ui />
 ```
 
-### "mt-floating-ui" has no property "resizeWidth" anymore
+##### "mt-floating-ui" has no property "resizeWidth" anymore
 The property "resizeWidth" is removed without a replacement.
 
 Before:
@@ -530,7 +618,7 @@ After:
 <mt-floating-ui />
 ```
 
-### "mt-floating-ui" has no property "popoverClass" anymore
+##### "mt-floating-ui" has no property "popoverClass" anymore
 The property "popoverClass" is removed without a replacement.
 
 Before:
@@ -542,7 +630,7 @@ After:
 <mt-floating-ui />
 ```
 
-### "mt-floating-ui" is not open by default anymore
+##### "mt-floating-ui" is not open by default anymore
 The "open" property is removed. You have to control the visibility of the popover by yourself with the property "isOpened".
 
 Before:
@@ -553,56 +641,8 @@ After:
 ```html
 <mt-floating-ui :isOpened="myVisibility" />
 ```
-## Removal of deprecations
-* Removed method `ImportExportProfileEntity::getName()` and `ImportExportProfileEntity::setName()`. Use `getTechnicalName()` and `setTechnicalName()` instead.
-* Removed `profile` attribute from `ImportEntityCommand`. Use `--profile-technical-name` instead.
-* Removed `name` field from `ImportExportProfileEntity`.
-## All Vuex stores will be transitioned to Pinia
-* All Shopware states will become Pinia Stores and will be available via `Shopware.Store`
 
-## Introduced in 6.6.3.0
-## onlyAvailable flag removed
-* The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request will be removed in the next major version. The route will always filter the payment and shipping methods before calling the checkout gateway based on availability.
-## AbstractCartOrderRoute::order method signature change
-* The `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute::order` method will change its signature in the next major version. A new mandatory `request` parameter will be introduced.
-## Shopware config changes:
-### cart
-Replace the `redis_url` parameter in `config/packages/shopware.yaml` file:
-```yaml
-    cart:
-        compress: false
-        expire_days: 120
-        redis_url: false # or 'redis://localhost'
-```
-to
-```yaml
-    cart:
-        compress: false
-        expire_days: 120
-        storage:
-            type: "mysql" # or "redis"
-            # config:
-                # dsn: 'redis://localhost'
-```
-### number_range
-Replace the `redis_url` parameter in `config/packages/shopware.yaml` file:
-```yaml
-    number_range:
-        increment_storage: "SQL"
-        redis_url: false # or 'redis://localhost'
-```
-to
-```yaml
-    number_range:
-        increment_storage: "mysql" # or "redis"
-        # config:
-            # dsn: 'redis://localhost'
-```
-## Removal of deprecations
-* Removed constants `Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` instead
-* Removed constant `Shopware\Core\Content\MailTemplate\MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::ACTION_NAME` instead
-* Removed class `Shopware\Core\Content\MailTemplate\MailTemplateActions` without replacement
-## Removal of "sw-tabs":
+#### Removal of "sw-tabs":
 The old "sw-tabs" component will be removed in the next major version. Please use the new "mt-tabs" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-tabs" component. In this specific component it cannot convert anything correctly, because the new "mt-tabs" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
@@ -611,7 +651,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-tabs" is removed
+##### "sw-tabs" is removed
 Replace all component names from "sw-tabs" with "mt-tabs"
 
 Before:
@@ -623,7 +663,7 @@ After:
 <mt-tabs />
 ```
 
-### "sw-tabs" wrong "default" slot usage will be replaced with "items" property
+##### "sw-tabs" wrong "default" slot usage will be replaced with "items" property
 You need to replace the "default" slot with the "items" property. The "items" property is an array of objects which are used to render the tabs. Using the "sw-tabs-item" component is not needed anymore.
 
 Before:
@@ -651,7 +691,7 @@ After:
 </mt-tabs>
 ```
 
-### "sw-tabs" wrong "content" slot usage - content should be set manually outside the component
+##### "sw-tabs" wrong "content" slot usage - content should be set manually outside the component
 The content slot is not supported anymore. You need to set the content manually outside the component. You can use the "new-item-active" event to get the active item and set it to a variable. Then you can use this variable anywere in your template.
 
 Before:
@@ -671,7 +711,7 @@ After:
 The current active item is {{ activeItem }}
 ```
 
-### "sw-tabs" property "isVertical" was renamed to "vertical"
+##### "sw-tabs" property "isVertical" was renamed to "vertical"
 Before:
 ```html
 <sw-tabs is-vertical />
@@ -682,7 +722,7 @@ After:
 <mt-tabs vertical />
 ```
 
-### "sw-tabs" property "alignRight" was removed
+##### "sw-tabs" property "alignRight" was removed
 Before:
 ```html
 <sw-tabs align-right />
@@ -692,7 +732,7 @@ After:
 ```html
 <mt-tabs />
 ```
-## Removal of "sw-select-field":
+#### Removal of "sw-select-field":
 The old "sw-select-field" component will be removed in the next major version. Please use the new "mt-select" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-select" component.
@@ -701,7 +741,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-select-field" is removed
+##### "sw-select-field" is removed
 Replace all component names from "sw-select-field" with "mt-select"
 
 Before:
@@ -713,7 +753,7 @@ After:
 <mt-select />
 ```
 
-### "sw-select-field" prop "value" was renamed to "modelValue"
+##### "sw-select-field" prop "value" was renamed to "modelValue"
 Replace all occurrences of the prop "value" with "modelValue"
 
 Before:
@@ -726,7 +766,7 @@ After:
 <mt-select :modelValue="selectedValue" />
 ```
 
-### "sw-select-field" the "v-model:value" was renamed to "v-model"
+##### "sw-select-field" the "v-model:value" was renamed to "v-model"
 Replace all occurrences of the "v-model:value" directive with "v-model"
 
 Before:
@@ -739,7 +779,7 @@ After:
 <mt-select v-model="selectedValue" />
 ```
 
-### "sw-select-field" the prop "options" expect a different format
+##### "sw-select-field" the prop "options" expect a different format
 The prop "options" now expects an array of objects with the properties "label" and "value". The old format with "name" and "id" is not supported anymore.
 
 Before:
@@ -752,7 +792,7 @@ After:
 <mt-select :options="[ { label: 'Option 1', value: 1 }, { label: 'Option 2', value: 2 } ]" />
 ```
 
-### "sw-select-field" the prop "aside" was removed
+##### "sw-select-field" the prop "aside" was removed
 The prop "aside" was removed without replacement.
 
 Before:
@@ -765,7 +805,7 @@ After:
 <mt-select />
 ```
 
-### "sw-select-field" the default slot was removed
+##### "sw-select-field" the default slot was removed
 The default slot was removed. The options are now passed via the "options" prop.
 
 Before:
@@ -781,7 +821,7 @@ After:
 <mt-select :options="[ { label: 'Option 1', value: 1 }, { label: 'Option 2', value: 2 } ]" />
 ```
 
-### "sw-select-field" the label slot was removed
+##### "sw-select-field" the label slot was removed
 The label slot was removed. The label is now passed via the "label" prop.
 
 Before:
@@ -798,7 +838,7 @@ After:
 <mt-select label="My Label" />
 ```
 
-### "sw-select-field" the event "update:value" was renamed to "update:modelValue"
+##### "sw-select-field" the event "update:value" was renamed to "update:modelValue"
 The event "update:value" was renamed to "update:modelValue"
 
 Before:
@@ -810,7 +850,7 @@ After:
 ```html
 <mt-select @update:modelValue="onUpdateValue" />
 ```
-## Removal of "sw-textarea-field":
+#### Removal of "sw-textarea-field":
 The old "sw-textarea-field" component will be removed in the next major version. Please use the new "mt-textarea" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-textarea" component. In this specific component it cannot convert anything correctly, because the new "mt-textarea" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
@@ -819,7 +859,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-textarea-field" is removed
+##### "sw-textarea-field" is removed
 Replace all component names from "sw-textarea-field" with "mt-textarea"
 
 Before:
@@ -831,7 +871,7 @@ After:
 <mt-textarea />
 ```
 
-### "sw-textarea-field" property "value" is replaced by "modelValue"
+##### "sw-textarea-field" property "value" is replaced by "modelValue"
 Replace all occurrences of the property "value" with "modelValue"
 
 Before:
@@ -843,7 +883,7 @@ After:
 <mt-textarea :modelValue="myValue" />
 ```
 
-### "sw-textarea-field" binding "v-model:value" is replaced by "v-model"
+##### "sw-textarea-field" binding "v-model:value" is replaced by "v-model"
 Replace all occurrences of the binding "v-model:value" with "v-model"
 
 Before:
@@ -856,7 +896,7 @@ After:
 <mt-textarea v-model="myValue" />
 ```
 
-### "sw-textarea-field" slot "label" is replaced by property "label"
+##### "sw-textarea-field" slot "label" is replaced by property "label"
 Replace all occurrences of the slot "label" with the property "label"
 
 Before:
@@ -873,7 +913,7 @@ After:
 <mt-textarea label="My Label" />
 ```
 
-### "sw-textarea-field" event "update:value" is replaced by "update:modelValue"
+##### "sw-textarea-field" event "update:value" is replaced by "update:modelValue"
 Replace all occurrences of the event "update:value" with "update:modelValue"
 
 Before:
@@ -885,7 +925,7 @@ After:
 ```html
 <mt-textarea @update:modelValue="onUpdateValue" />
 ```
-## Removal of "sw-datepicker":
+#### Removal of "sw-datepicker":
 The old "sw-datepicker" component will be removed in the next major version. Please use the new "mt-datepicker" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-datepicker" component. In this specific component it cannot convert anything correctly, because the new "mt-datepicker" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
@@ -894,7 +934,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-datepicker" is removed
+##### "sw-datepicker" is removed
 Replace all component names from "sw-datepicker" with "mt-datepicker"
 
 Before:
@@ -906,7 +946,7 @@ After:
 <mt-datepicker />
 ```
 
-### "sw-datepicker" property "value" is replaced by "modelValue"
+##### "sw-datepicker" property "value" is replaced by "modelValue"
 Replace all occurrences of the property "value" with "modelValue"
 
 Before:
@@ -918,7 +958,7 @@ After:
 <mt-datepicker :modelValue="myValue" />
 ```
 
-### "sw-datepicker" binding "v-model:value" is replaced by "v-model"
+##### "sw-datepicker" binding "v-model:value" is replaced by "v-model"
 Replace all occurrences of the binding "v-model:value" with "v-model"
 
 Before:
@@ -931,7 +971,7 @@ After:
 <mt-datepicker v-model="myValue" />
 ```
 
-### "sw-datepicker" slot "label" is replaced by property "label"
+##### "sw-datepicker" slot "label" is replaced by property "label"
 Replace all occurrences of the slot "label" with the property "label"
 
 Before:
@@ -948,7 +988,7 @@ After:
 <mt-datepicker label="My Label" />
 ```
 
-### "sw-datepicker" event "update:value" is replaced by "update:modelValue"
+##### "sw-datepicker" event "update:value" is replaced by "update:modelValue"
 Replace all occurrences of the event "update:value" with "update:modelValue"
 
 Before:
@@ -960,7 +1000,7 @@ After:
 ```html
 <mt-datepicker @update:modelValue="onUpdateValue" />
 ```
-## Removal of "sw-password-field":
+#### Removal of "sw-password-field":
 The old "sw-password-field" component will be removed in the next major version. Please use the new "mt-password-field" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-password-field" component.
@@ -969,7 +1009,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-password-field" is removed
+##### "sw-password-field" is removed
 Replace all component names from "sw-password-field" with "mt-password-field"
 
 Before:
@@ -981,7 +1021,7 @@ After:
 <mt-password-field>Hello World</mt-password-field>
 ```
 
-### "mt-password-field" has no property "value" anymore
+##### "mt-password-field" has no property "value" anymore
 Replace all occurrences of the "value" prop with "modelValue"
 
 Before:
@@ -993,7 +1033,7 @@ After:
 <mt-password-field modelValue="Hello World" />
 ```
 
-### "mt-password-field" v-model:value is deprecated
+##### "mt-password-field" v-model:value is deprecated
 Replace all occurrences of the "v-model:value" directive with "v-model"
 
 Before:
@@ -1005,7 +1045,7 @@ After:
 <mt-password-field v-model="myValue" />
 ```
 
-### "mt-password-field" has no property "size" with value "medium" anymore
+##### "mt-password-field" has no property "size" with value "medium" anymore
 Replace all occurrences of the "size" prop with "default"
 
 Before:
@@ -1017,7 +1057,7 @@ After:
 <mt-password-field size="default" />
 ```
 
-### "mt-password-field" has no property "isInvalid" anymore
+##### "mt-password-field" has no property "isInvalid" anymore
 Remove all occurrences of the "isInvalid" prop
 
 Before:
@@ -1029,7 +1069,7 @@ After:
 <mt-password-field />
 ```
 
-### "mt-password-field" has no event "update:value" anymore
+##### "mt-password-field" has no event "update:value" anymore
 Replace all occurrences of the "update:value" event with "update:modelValue"
 
 Before:
@@ -1042,7 +1082,7 @@ After:
 <mt-password-field @update:modelValue="updateValue" />
 ```
 
-### "mt-password-field" has no event "base-field-mounted" anymore
+##### "mt-password-field" has no event "base-field-mounted" anymore
 Remove all occurrences of the "base-field-mounted" event
 
 Before:
@@ -1054,7 +1094,7 @@ After:
 <mt-password-field />
 ```
 
-### "mt-password-field" has no slot "label" anymore
+##### "mt-password-field" has no slot "label" anymore
 Remove all occurrences of the "label" slot. The slot content should be moved to the "label" prop. Only string values are supported. Other slot content is not supported
 anymore.
 
@@ -1072,7 +1112,7 @@ After:
 </mt-password-field>
 ```
 
-### "mt-password-field" has no slot "hint" anymore
+##### "mt-password-field" has no slot "hint" anymore
 Remove all occurrences of the "hint" slot. The slot content should be moved to the "hint" prop. Only string values are supported. Other slot content is not supported
 
 Before:
@@ -1088,7 +1128,7 @@ After:
 <mt-password-field hint="My hint">
 </mt-password-field>
 ```
-## Removal of "sw-colorpicker":
+#### Removal of "sw-colorpicker":
 The old "sw-colorpicker" component will be removed in the next major version. Please use the new "mt-colorpicker" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-colorpicker" component. In this specific component it cannot convert anything correctly, because the new "mt-colorpicker" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
@@ -1097,7 +1137,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-colorpicker" is removed
+##### "sw-colorpicker" is removed
 Replace all component names from "sw-colorpicker" with "mt-colorpicker"
 
 Before:
@@ -1109,7 +1149,7 @@ After:
 <mt-colorpicker />
 ```
 
-### "sw-colorpicker" property "value" is replaced by "modelValue"
+##### "sw-colorpicker" property "value" is replaced by "modelValue"
 Replace all occurrences of the property "value" with "modelValue"
 
 Before:
@@ -1121,7 +1161,7 @@ After:
 <mt-colorpicker :modelValue="myValue" />
 ```
 
-### "sw-colorpicker" binding "v-model:value" is replaced by "v-model"
+##### "sw-colorpicker" binding "v-model:value" is replaced by "v-model"
 Replace all occurrences of the binding "v-model:value" with "v-model"
 
 Before:
@@ -1134,7 +1174,7 @@ After:
 <mt-colorpicker v-model="myValue" />
 ```
 
-### "sw-colorpicker" slot "label" is replaced by property "label"
+##### "sw-colorpicker" slot "label" is replaced by property "label"
 Replace all occurrences of the slot "label" with the property "label"
 
 Before:
@@ -1151,7 +1191,7 @@ After:
 <mt-colorpicker label="My Label" />
 ```
 
-### "sw-colorpicker" event "update:value" is replaced by "update:modelValue"
+##### "sw-colorpicker" event "update:value" is replaced by "update:modelValue"
 Replace all occurrences of the event "update:value" with "update:modelValue"
 
 Before:
@@ -1163,7 +1203,7 @@ After:
 ```html
 <mt-colorpicker @update:modelValue="onUpdateValue" />
 ```
-## Removal of "sw-external-link":
+#### Removal of "sw-external-link":
 The old "sw-external-link" component will be removed in the next major version. Please use the new "mt-external-link" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-external-link" component.
@@ -1172,7 +1212,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-external-link" is removed
+##### "sw-external-link" is removed
 Replace all component names from "sw-external-link" with "mt-external-link"
 
 Before:
@@ -1184,7 +1224,7 @@ After:
 <mt-external-link>Hello World</mt-external-link>
 ```
 
-### "sw-external-link" property "icon" is removed
+##### "sw-external-link" property "icon" is removed
 The "icon" property is removed from the "mt-external-link" component. There is no replacement for this property.
 
 Before:
@@ -1195,7 +1235,7 @@ After:
 ```html
 <mt-external-link>Hello World</mt-external-link>
 ```
-## Removal of "sw-skeleton-bar":
+#### Removal of "sw-skeleton-bar":
 The old "sw-skeleton-bar" component will be removed in the next major version. Please use the new "mt-skeleton-bar" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-skeleton-bar" component.
@@ -1204,7 +1244,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-skeleton-bar" is removed
+##### "sw-skeleton-bar" is removed
 Replace all component names from "sw-skeleton-bar" with "mt-skeleton-bar"
 
 Before:
@@ -1215,7 +1255,7 @@ After:
 ```html
 <mt-skeleton-bar>Hello World</mt-skeleton-bar>
 ```
-## Removal of "sw-email-field":
+#### Removal of "sw-email-field":
 The old "sw-email-field" component will be removed in the next major version. Please use the new "mt-email-field" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-email-field" component.
@@ -1224,7 +1264,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-email-field" is removed
+##### "sw-email-field" is removed
 Replace all component names from "sw-email-field" with "mt-email-field"
 
 Before:
@@ -1236,7 +1276,7 @@ After:
 <mt-email-field>Hello World</mt-email-field>
 ```
 
-### "mt-email-field" has no property "value" anymore
+##### "mt-email-field" has no property "value" anymore
 Replace all occurrences of the "value" prop with "modelValue"
 
 Before:
@@ -1248,7 +1288,7 @@ After:
 <mt-email-field modelValue="Hello World" />
 ```
 
-### "mt-email-field" v-model:value is deprecated
+##### "mt-email-field" v-model:value is deprecated
 Replace all occurrences of the "v-model:value" directive with "v-model"
 
 Before:
@@ -1260,7 +1300,7 @@ After:
 <mt-email-field v-model="myValue" />
 ```
 
-### "mt-email-field" has no property "size" with value "medium" anymore
+##### "mt-email-field" has no property "size" with value "medium" anymore
 Replace all occurrences of the "size" prop with "default"
 
 Before:
@@ -1272,7 +1312,7 @@ After:
 <mt-email-field size="default" />
 ```
 
-### "mt-email-field" has no property "isInvalid" anymore
+##### "mt-email-field" has no property "isInvalid" anymore
 Remove all occurrences of the "isInvalid" prop
 
 Before:
@@ -1284,7 +1324,7 @@ After:
 <mt-email-field />
 ```
 
-### "mt-email-field" has no property "aiBadge" anymore
+##### "mt-email-field" has no property "aiBadge" anymore
 Remove all occurrences of the "aiBadge" prop
 
 Before:
@@ -1296,7 +1336,7 @@ After:
 <mt-email-field />
 ```
 
-### "mt-email-field" has no event "update:value" anymore
+##### "mt-email-field" has no event "update:value" anymore
 Replace all occurrences of the "update:value" event with "update:modelValue"
 
 Before:
@@ -1309,7 +1349,7 @@ After:
 <mt-email-field @update:modelValue="updateValue" />
 ```
 
-### "mt-email-field" has no event "base-field-mounted" anymore
+##### "mt-email-field" has no event "base-field-mounted" anymore
 Remove all occurrences of the "base-field-mounted" event
 
 Before:
@@ -1321,7 +1361,7 @@ After:
 <mt-email-field />
 ```
 
-### "mt-email-field" has no slot "label" anymore
+##### "mt-email-field" has no slot "label" anymore
 Remove all occurrences of the "label" slot. The slot content should be moved to the "label" prop. Only string values are supported. Other slot content is not supported
 anymore.
 
@@ -1338,7 +1378,7 @@ After:
 <mt-email-field label="My label">
 </mt-email-field>
 ```
-## Removal of "sw-url-field":
+#### Removal of "sw-url-field":
 The old "sw-url-field" component will be removed in the next major version. Please use the new "mt-url-field" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-url-field" component.
@@ -1347,7 +1387,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-url-field" is removed
+##### "sw-url-field" is removed
 Replace all component names from "sw-url-field" with "mt-url-field"
 
 Before:
@@ -1359,7 +1399,7 @@ After:
 <mt-url-field />
 ```
 
-### "mt-url-field" has no property "value" anymore
+##### "mt-url-field" has no property "value" anymore
 Replace all occurrences of the "value" prop with "modelValue"
 
 Before:
@@ -1371,7 +1411,7 @@ After:
 <mt-url-field modelValue="Hello World" />
 ```
 
-### "mt-url-field" v-model:value is deprecated
+##### "mt-url-field" v-model:value is deprecated
 Replace all occurrences of the "v-model:value" directive with "v-model"
 
 Before:
@@ -1383,7 +1423,7 @@ After:
 <mt-url-field v-model="myValue" />
 ```
 
-### "mt-url-field" has no event "update:value" anymore
+##### "mt-url-field" has no event "update:value" anymore
 Replace all occurrences of the "update:value" event with "update:modelValue"
 
 Before:
@@ -1396,7 +1436,7 @@ After:
 <mt-url-field @update:modelValue="updateValue" />
 ```
 
-### "mt-url-field" has no slot "label" anymore
+##### "mt-url-field" has no slot "label" anymore
 Remove all occurrences of the "label" slot. The slot content should be moved to the "label" prop. Only string values are supported. Other slot content is not supported
 anymore.
 
@@ -1414,7 +1454,7 @@ After:
 </mt-url-field>
 ```
 
-### "mt-url-field" has no slot "hint" anymore
+##### "mt-url-field" has no slot "hint" anymore
 Remove all occurrences of the "hint" slot. There is no replacement for this slot.
 
 Before:
@@ -1430,7 +1470,7 @@ After:
 ```html
 <mt-url-field />
 ```
-## Removal of "sw-progress-bar":
+##### Removal of "sw-progress-bar":
 The old "sw-progress-bar" component will be removed in the next major version. Please use the new "mt-progress-bar" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-progress-bar" component.
@@ -1439,7 +1479,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-progress-bar" is removed
+##### "sw-progress-bar" is removed
 Replace all component names from "sw-progress-bar" with "mt-progress-bar"
 
 Before:
@@ -1451,7 +1491,7 @@ After:
 <mt-progress-bar />
 ```
 
-### "mt-progress-bar" has no property "value" anymore
+##### "mt-progress-bar" has no property "value" anymore
 Replace all occurrences of the "value" prop with "modelValue"
 
 Before:
@@ -1463,7 +1503,7 @@ After:
 <mt-progress-bar modelValue="5" />
 ```
 
-### "mt-progress-bar" v-model:value is deprecated
+##### "mt-progress-bar" v-model:value is deprecated
 Replace all occurrences of the "v-model:value" directive with "v-model"
 
 Before:
@@ -1475,7 +1515,7 @@ After:
 <mt-progress-bar v-model="myValue" />
 ```
 
-### "mt-progress-bar" has no event "update:value" anymore
+##### "mt-progress-bar" has no event "update:value" anymore
 Replace all occurrences of the "update:value" event with "update:modelValue"
 
 Before:
@@ -1486,10 +1526,9 @@ Before:
 After:
 ```html
 <mt-progress-bar @update:modelValue="updateValue" />
-```g
+```
 
-## Introduced in 6.6.2.0
-## Removal of "sw-button":
+#### Removal of "sw-button":
 The old "sw-button" component will be removed in the next major version. Please use the new "mt-button" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-button" component.
@@ -1498,7 +1537,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-button" is removed
+##### "sw-button" is removed
 Replace all component names from "sw-button" with "mt-button"
 
 Before:
@@ -1510,7 +1549,7 @@ After:
 <mt-button>Save</mt-button>
 ```
 
-### "mt-button" has no value "ghost" in property "variant" anymore
+##### "mt-button" has no value "ghost" in property "variant" anymore
 Remove the property "variant". Use the property "ghost" instead.
 
 Before:
@@ -1522,7 +1561,7 @@ After:
 <mt-button ghost>Save</mt-button>
 ```
 
-### "mt-button" has no value "danger" in property "variant" anymore
+##### "mt-button" has no value "danger" in property "variant" anymore
 Replace the value "danger" with "critical" in the property "variant".
 
 Before:
@@ -1534,7 +1573,7 @@ After:
 <mt-button variant="critical">Delete</mt-button>
 ```
 
-### "mt-button" has no value "ghost-danger" in property "variant" anymore
+##### "mt-button" has no value "ghost-danger" in property "variant" anymore
 Replace the value "ghost-danger" with "critical" in the property "variant". Add the property "ghost".
 
 Before:
@@ -1546,13 +1585,13 @@ After:
 <mt-button variant="critical" ghost>Delete</mt-button>
 ```
 
-### "mt-button" has no value "contrast" in property "variant" anymore
+##### "mt-button" has no value "contrast" in property "variant" anymore
 Remove the value "contrast" from the property "variant". There is no replacement.
 
-### "mt-button" has no value "context" in property "variant" anymore
+##### "mt-button" has no value "context" in property "variant" anymore
 Remove the value "context" from the property "variant". There is no replacement.
 
-### "mt-button" has no property "router-link" anymore
+##### "mt-button" has no property "router-link" anymore
 Replace the property "router-link" with a "@click" event listener and a "this.$router.push()" method.
 
 Before:
@@ -1563,10 +1602,8 @@ After:
 ```html
 <mt-button @click="this.$router.push('sw.example.route')">Go to example</mt-button>
 ```
-## Removal of deprecations
-* Removed service `Shopware\Core\Content\MailTemplate\Service\AttachmentLoader` without replacement.
-* Removed event `Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent` without replacement.
-## Removal of "sw-icon":
+
+#### Removal of "sw-icon":
 The old "sw-icon" component will be removed in the next major version. Please use the new "mt-icon" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-icon" component.
@@ -1575,7 +1612,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-icon" is removed
+##### "sw-icon" is removed
 Replace all component names from "sw-icon" with "mt-icon"
 
 Before:
@@ -1587,7 +1624,7 @@ After:
 <mt-icon name="regular-times-s" />
 ```
 
-### "mt-icon" has no property "small" anymore
+##### "mt-icon" has no property "small" anymore
 Replace the property "small" with "size" of value "16px" if used
 
 Before:
@@ -1599,7 +1636,7 @@ After:
 <mt-icon name="regular-times-s" size="16px" />
 ```
 
-### "mt-icon" has no property "large" anymore
+##### "mt-icon" has no property "large" anymore
 Replace the property "large" with "size" of value "32px" if used
 
 Before:
@@ -1612,7 +1649,7 @@ After:
 <mt-icon name="regular-times-s" size="32px" />
 ```
 
-### "mt-icon" has different default sizes than "sw-icon"
+##### "mt-icon" has different default sizes than "sw-icon"
 If no property "size", "small" or "large" is used, you need to use the "size" prop with the value "24px" to avoid a different default size than with "sw-icon"
 
 Before:
@@ -1623,7 +1660,7 @@ After:
 ```html
 <mt-icon name="regular-times-s" size="24px" />
 ```
-## Removal of "sw-card":
+#### Removal of "sw-card":
 The old "sw-card" component will be removed in the next major version. Please use the new "mt-card" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-card" component.
@@ -1632,7 +1669,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-card" is removed
+##### "sw-card" is removed
 Replace all component names from "sw-card" with "mt-card"
 
 Before:
@@ -1644,7 +1681,7 @@ After:
 <mt-card>Hello World</mt-card>
 ```
 
-### "mt-card" has no property "aiBadge" anymore
+##### "mt-card" has no property "aiBadge" anymore
 Replace the property "aiBadge" by using the "sw-ai-copilot-badge" component directly inside the "title" slot
 
 Before:
@@ -1660,7 +1697,7 @@ After:
 </mt-card>
 ```
 
-### "mt-card" has no property "contentPadding" anymore
+##### "mt-card" has no property "contentPadding" anymore
 The property "contentPadding" is removed without a replacement.
 
 Before:
@@ -1672,10 +1709,8 @@ After:
 ```html
 <mt-card>Hello World</mt-card>
 ```
-## Removal of deprecated exceptions
-* Removed `Shopware\Core\System\Snippet\Exception\FilterNotFoundException`. Use `Shopware\Core\System\Snippet\SnippetException::filterNotFound` instead.
-* Removed `Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException`. Use `Shopware\Core\System\Snippet\SnippetException::invalidSnippetFile` instead.
-## Removal of "sw-text-field":
+
+#### Removal of "sw-text-field":
 The old "sw-text-field" component will be removed in the next major version. Please use the new "mt-text-field" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-text-field" component.
@@ -1684,7 +1719,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-text-field" is removed
+##### "sw-text-field" is removed
 Replace all component names from "sw-text-field" with "mt-text-field"
 
 Before:
@@ -1696,7 +1731,7 @@ After:
 <mt-text-field>Hello World</mt-text-field>
 ```
 
-### "mt-text-field" has no property "value" anymore
+##### "mt-text-field" has no property "value" anymore
 Replace all occurrences of the "value" prop with "modelValue"
 
 Before:
@@ -1708,7 +1743,7 @@ After:
 <mt-text-field modelValue="Hello World" />
 ```
 
-### "mt-text-field" v-model:value is deprecated
+##### "mt-text-field" v-model:value is deprecated
 Replace all occurrences of the "v-model:value" directive with "v-model"
 
 Before:
@@ -1720,7 +1755,7 @@ After:
 <mt-text-field v-model="myValue" />
 ```
 
-### "mt-text-field" has no property "size" with value "medium" anymore
+##### "mt-text-field" has no property "size" with value "medium" anymore
 Replace all occurrences of the "size" prop with "default"
 
 Before:
@@ -1732,7 +1767,7 @@ After:
 <mt-text-field size="default" />
 ```
 
-### "mt-text-field" has no property "isInvalid" anymore
+##### "mt-text-field" has no property "isInvalid" anymore
 Remove all occurrences of the "isInvalid" prop
 
 Before:
@@ -1744,7 +1779,7 @@ After:
 <mt-text-field />
 ```
 
-### "mt-text-field" has no property "aiBadge" anymore
+##### "mt-text-field" has no property "aiBadge" anymore
 Remove all occurrences of the "aiBadge" prop
 
 Before:
@@ -1756,7 +1791,7 @@ After:
 <mt-text-field />
 ```
 
-### "mt-text-field" has no event "update:value" anymore
+##### "mt-text-field" has no event "update:value" anymore
 Replace all occurrences of the "update:value" event with "update:modelValue"
 
 Before:
@@ -1769,7 +1804,7 @@ After:
 <mt-text-field @update:modelValue="updateValue" />
 ```
 
-### "mt-text-field" has no event "base-field-mounted" anymore
+##### "mt-text-field" has no event "base-field-mounted" anymore
 Remove all occurrences of the "base-field-mounted" event
 
 Before:
@@ -1781,7 +1816,7 @@ After:
 <mt-text-field />
 ```
 
-### "mt-text-field" has no slot "label" anymore
+##### "mt-text-field" has no slot "label" anymore
 Remove all occurrences of the "label" slot. The slot content should be moved to the "label" prop. Only string values are supported. Other slot content is not supported
 anymore.
 
@@ -1798,7 +1833,7 @@ After:
 <mt-text-field label="My label">
 </mt-text-field>
 ```
-## Removal of "sw-switch-field":
+#### Removal of "sw-switch-field":
 The old "sw-switch-field" component will be removed in the next major version. Please use the new "mt-switch" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-switch" component.
@@ -1807,7 +1842,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-switch-field" is removed
+##### "sw-switch-field" is removed
 Replace all component names from "sw-switch-field" with "mt-switch".
 
 Before:
@@ -1819,7 +1854,7 @@ After:
 <mt-switch>Hello World</mt-switch>
 ```
 
-### "mt-switch" has no "noMarginTop" prop anymore
+##### "mt-switch" has no "noMarginTop" prop anymore
 Replace all occurrences of the "noMarginTop" prop with "removeTopMargin".
 
 Before:
@@ -1831,7 +1866,7 @@ After:
 <mt-switch removeTopMargin />
 ```
 
-### "mt-switch" has no "size" prop anymore
+##### "mt-switch" has no "size" prop anymore
 Remove all occurrences of the "size" prop.
 
 Before:
@@ -1844,7 +1879,7 @@ After:
 <mt-switch />
 ```
 
-### "mt-switch" has no "id" prop anymore
+##### "mt-switch" has no "id" prop anymore
 Remove all occurrences of the "id" prop.
 
 Before:
@@ -1857,7 +1892,7 @@ After:
 <mt-switch />
 ```
 
-### "mt-switch" has no "value" prop anymore
+##### "mt-switch" has no "value" prop anymore
 Replace all occurrences of the "value" prop with "checked".
 
 Before:
@@ -1870,7 +1905,7 @@ After:
 <mt-switch checked="true" />
 ```
 
-### "mt-switch" has no "ghostValue" prop anymore
+##### "mt-switch" has no "ghostValue" prop anymore
 Remove all occurrences of the "ghostValue" prop.
 
 Before:
@@ -1883,7 +1918,7 @@ After:
 <mt-switch />
 ```
 
-### "mt-switch" has no "padded" prop anymore
+##### "mt-switch" has no "padded" prop anymore
 Remove all occurrences of the "padded" prop. Use CSS styling instead.
 
 Before:
@@ -1896,7 +1931,7 @@ After:
 <mt-switch />
 ```
 
-### "mt-switch" has no "partlyChecked" prop anymore
+##### "mt-switch" has no "partlyChecked" prop anymore
 Remove all occurrences of the "partlyChecked" prop.
 
 Before:
@@ -1909,7 +1944,7 @@ After:
 <mt-switch />
 ```
 
-### "mt-switch" has no "label" slot anymore
+##### "mt-switch" has no "label" slot anymore
 Replace all occurrences of the "label" slot with the "label" prop.
 
 Before:
@@ -1927,7 +1962,7 @@ After:
 </mt-switch>
 ```
 
-### "mt-switch" has no "hint" slot anymore
+##### "mt-switch" has no "hint" slot anymore
 Remove all occurrences of the "hint" slot.
 
 Before:
@@ -1945,7 +1980,7 @@ After:
     <!-- Slot "hint" was removed with no replacement. -->
 </mt-switch>
 ```
-## Removal of "sw-number-field":
+#### Removal of "sw-number-field":
 The old "sw-number-field" component will be removed in the next major version. Please use the new "mt-number-field" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-number-field" component.
@@ -1954,7 +1989,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-number-field" is removed
+##### "sw-number-field" is removed
 Replace all component names from "sw-number-field" with "mt-number-field"
 
 Before:
@@ -1966,7 +2001,7 @@ After:
 <mt-number-field />
 ```
 
-### "mt-number-field" has no property "value" anymore
+##### "mt-number-field" has no property "value" anymore
 Replace all occurrences of the "value" prop with "modelValue"
 
 Before:
@@ -1978,7 +2013,7 @@ After:
 <mt-number-field :modelValue="5" />
 ```
 
-### "mt-number-field" v-model:value is deprecated
+##### "mt-number-field" v-model:value is deprecated
 Replace all occurrences of the "v-model:value" directive with the combination of `:modelValue` and `@change`
 
 Before:
@@ -1990,7 +2025,7 @@ After:
 <mt-number-field :modelValue="myValue" @change="myValue = $event" />
 ```
 
-### "mt-number-field" label slot is deprecated
+##### "mt-number-field" label slot is deprecated
 Replace all occurrences of the "label" slot with the "label" prop
 
 Before:
@@ -2007,7 +2042,7 @@ After:
 <mt-number-field label="My Label" />
 ```
 
-### "mt-number-field" update:value event is deprecated
+##### "mt-number-field" update:value event is deprecated
 Replace all occurrences of the "update:value" event with the "change" event
 
 Before:
@@ -2018,7 +2053,7 @@ After:
 ```html
 <mt-number-field @change="updateValue" />
 ```
-## Removal of "sw-loader":
+#### Removal of "sw-loader":
 The old "sw-loader" component will be removed in the next major version. Please use the new "mt-loader" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-loader" component.
@@ -2027,7 +2062,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-loader" is removed
+##### "sw-loader" is removed
 Replace all component names from "sw-loader" with "mt-loader"
 
 Before:
@@ -2038,7 +2073,7 @@ After:
 ```html
 <mt-loader />
 ```
-## Removal of "sw-checkbox-field":
+#### Removal of "sw-checkbox-field":
 The old "sw-checkbox-field" component will be removed in the next major version. Please use the new "mt-checkbox" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-checkbox" component.
@@ -2047,7 +2082,7 @@ If you don't want to use the codemod, you can manually replace all occurrences o
 
 Following changes are necessary:
 
-### "sw-checkbox-field" is removed
+##### "sw-checkbox-field" is removed
 Replace all component names from "sw-checkbox-field" with "mt-checkbox"
 
 Before:
@@ -2059,7 +2094,7 @@ After:
 <mt-checkbox />
 ```
 
-### "mt-checkbox" has no property "value" anymore
+##### "mt-checkbox" has no property "value" anymore
 Replace all occurrences of the "value" prop with "checked"
 
 Before:
@@ -2071,7 +2106,7 @@ After:
 <mt-checkbox :checked="myValue" />
 ```
 
-### "mt-checkbox" has changed the v-model usage
+##### "mt-checkbox" has changed the v-model usage
 Replace all occurrences of the "v-model" directive with "v-model:checked"
 
 Before:
@@ -2083,7 +2118,7 @@ After:
 <mt-checkbox v-model:checked="isCheckedValue" />
 ```
 
-### "mt-checkbox" has changed the slot "label" usage
+##### "mt-checkbox" has changed the slot "label" usage
 Replace all occurrences of the "label" slot with the "label" prop
 
 Before:
@@ -2101,7 +2136,7 @@ After:
 </mt-checkbox>
 ```
 
-### "mt-checkbox" has removed the slot "hint"
+##### "mt-checkbox" has removed the slot "hint"
 The "hint" slot was removed without replacement
 
 Before:
@@ -2113,7 +2148,7 @@ Before:
 </sw-checkbox-field>
 ```
 
-### "mt-checkbox" has removed the property "id"
+##### "mt-checkbox" has removed the property "id"
 The "id" prop was removed without replacement
 
 Before:
@@ -2121,7 +2156,7 @@ Before:
 <sw-checkbox-field id="checkbox-id" />
 ```
 
-### "mt-checkbox" has removed the property "ghostValue"
+##### "mt-checkbox" has removed the property "ghostValue"
 The "ghostValue" prop was removed without replacement
 
 Before:
@@ -2129,7 +2164,7 @@ Before:
 <sw-checkbox-field ghostValue="yes" />
 ```
 
-### "mt-checkbox" has changed the property "partlyChecked"
+##### "mt-checkbox" has changed the property "partlyChecked"
 Replace all occurrences of the "partlyChecked" prop with "partial"
 
 Before:
@@ -2141,7 +2176,7 @@ After:
 <mt-checkbox partial />
 ```
 
-### "mt-checkbox" has removed the property "padded"
+##### "mt-checkbox" has removed the property "padded"
 The "padded" prop was removed without replacement
 
 Before:
@@ -2149,7 +2184,7 @@ Before:
 <sw-checkbox-field padded />
 ```
 
-### "mt-checkbox" has changed the event "update:value"
+##### "mt-checkbox" has changed the event "update:value"
 Replace all occurrences of the "update:value" event with "update:checked"
 
 Before:
@@ -2160,50 +2195,135 @@ After:
 ```html
 <mt-checkbox @update:checked="updateValue" />
 ```
+</details>
 
-## Introduced in 6.6.1.0
-## TreeUpdater::batchUpdate
+### Storefront
+#### ThemeFileImporterInterface & ThemeFileImporter Removal
+Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
 
-We added a new optional parameter `bool $recursive` to `TreeUpdater::batchUpdate`.
-If you extend the `TreeUpdater` class, you should properly handle the new parameter in your custom implementation.
+`getBasePath` & `setBasePath` methods and `basePath` property on `StorefrontPluginConfiguration` are removed. If you need to get the absolute path you should ask for a filesystem instance via `\Shopware\Storefront\Theme\ThemeFilesystemResolver::getFilesystemForStorefrontConfig()` passing in the config object.
+This filesystem instance can read files via a relative path and also return the absolute path of a file. Eg:
+
 ```php
-<?php
-
-class CustomTreeUpdater extends TreeUpdater
-{
-    public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
-    {
-        parent::batchUpdate($updateIds, $entity, $context, $recursive);
-    }
+$fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($storefrontPluginConfig);
+foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
+    $absolutePath = $fs->path('Resources', $relativePath);
 }
 ```
-## \Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand:
-`\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand` instead.
 
-## \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator:
-`\Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator` instead.
-## Replace `isEmailUsed` with `isEmailAlreadyInUse`:
-* Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
+#### Removal of deprecated product review loading logic in Storefront
+* The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
+* The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
+* The hook `\Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook` instead.
+* The struct `\Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult` instead.
 
+#### Removal of Storefront `sw-skin-alert` SCSS mixin
+The mixin `sw-skin-alert` will be removed in v6.7.0. Instead of styling the alert manually with CSS selectors and the custom mixin `sw-skin-alert`,
+we modify the appearance inside the `alert-*` modifier classes directly with the Bootstrap CSS variables like it is documented: https://getbootstrap.com/docs/5.3/components/alerts/#sass-loops
 
-## Introduced in 6.6.0.0
+Before:
+```scss
+@each $color, $value in $theme-colors {
+  .alert-#{$color} {
+    @include sw-skin-alert($value, $white);
+  }
+}
+```
 
-## Replace `isEmailUsed` with `isEmailAlreadyInUse`:
-* Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
+After:
+```scss
+@each $state, $value in $theme-colors {
+  .alert-#{$state} {
+    --#{$prefix}alert-border-color: #{$value};
+    --#{$prefix}alert-bg: #{$white};
+    --#{$prefix}alert-color: #{$body-color};
+  }
+}
+```
 
-## AccountService refactoring
+#### Removal of Storefront alert class `alert-has-icon` styling
+When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the class `alert-has-icon` will be removed. Helper classes `d-flex align-items-center` will be used instead.
 
-The `Shopware\Core\Checkout\Customer\SalesChannel\AccountService::login` method is removed. Use `AccountService::loginByCredentials` or `AccountService::loginById` instead.
+```diff
+- <div class="alert alert-info alert-has-icon">
++ <div class="alert alert-info d-flex align-items-center">
+    {% sw_icon 'info' %}
+    <div class="alert-content-container">
+        An important info
+    </div>
+</div>
+```
 
-Unused constant `Shopware\Core\Checkout\Customer\CustomerException::CUSTOMER_IS_INACTIVE` and unused method `Shopware\Core\Checkout\Customer\CustomerException::inactiveCustomer` are removed.
-## Deprecated comparison methods:
-* `floatMatch` and `arrayMatch` methods in `src/Core/Framework/Rule/CustomFieldRule.php` will be removed for Shopware 6.7.0.0
+#### Removal of Storefront alert inner container `alert-content`
+As of v6.7.0, the superfluous inner container `alert-content` will be removed to have lesser elements and be more aligned with Bootstraps alert structure.
+When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the inner container `alert-content` will no longer be present in the HTML output.
 
-## Introduced in 6.5.7.0
-## New `technicalName` property for payment and shipping methods
-The `technicalName` property will be required for payment and shipping methods in the API.
-The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
+The general usage of `Resources/views/storefront/utilities/alert.html.twig` and all include parameters remain the same.
 
-Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+Before:
+```html
+<div role="alert" class="alert alert-info d-flex align-items-center">
+    <span class="icon icon-info"><svg></svg></span>                                                    
+    <div class="alert-content-container">
+        <div class="alert-content">                                                    
+            Your shopping cart is empty.
+        </div>                
+    </div>
+</div>
+```
 
-Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
+After:
+```html
+<div role="alert" class="alert alert-info d-flex align-items-center">
+    <span class="icon icon-info"><svg></svg></span>                                                    
+    <div class="alert-content-container">
+        Your shopping cart is empty.
+    </div>
+</div>
+```
+
+### App System
+
+#### Payment: payment states
+* For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
+
+#### Payment: finalize step
+* The `finalize` step now transmits the `queryParameters` under the object key `requestData` as other payment calls
+
+#### Payment: onlyAvailable flag removed from CheckoutGatewayRoute
+* The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request is removed. The route always filters the payment and shipping methods before calling the checkout gateway based on availability.
+
+### Hosting & Configuration
+#### Config keys changes due to improved redis connection handling
+
+Next configuration keys are deprecated and will be removed in the next major version:
+* `shopware.cache.invalidation.delay_options.dsn`
+* `shopware.increment.<increment_name>.config.url`
+* `shopware.number_range.redis_url`
+* `shopware.number_range.config.dsn`
+* `shopware.cart.redis_url`
+* `cart.storage.config.dsn`
+
+To prepare for migration:
+
+1.  For all different redis connections (different DSNs) that are used in the project, add a separate record in the `config/packages/shopware.yaml` file under the `shopware` section, as in upgrade section of this document.
+2.  Replace deprecated dsn/url keys with corresponding connection names in the configuration files.
+* `shopware.cache.invalidation.delay_options.dsn` -> `shopware.cache.invalidation.delay_options.connection`
+* `shopware.increment.<increment_name>.config.url` -> `shopware.increment.<increment_name>.config.connection`
+* `shopware.number_range.redis_url` -> `shopware.number_range.config.connection`
+* `shopware.number_range.config.dsn` -> `shopware.number_range.config.connection`
+* `shopware.cart.redis_url` -> `cart.storage.config.connection`
+* `cart.storage.config.dsn` -> `cart.storage.config.connection`
+
+#### Message queue size limit
+
+Any message queue message bigger than 256KB will be now rejected by default.
+To reduce the size of your messages you should only store the ID of an entity in the message and fetch it later in the message handler.
+This can be disabled again with:
+
+```yaml
+shopware:
+    messenger:
+        enforce_message_size: false
+
+```

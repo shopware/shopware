@@ -182,11 +182,7 @@ class SchemaBuilder
                 continue;
             }
 
-            if ($field instanceof EnumField) {
-                $fieldType = $field->getType();
-            }
-
-            $fieldType ??= $this->getFieldType($field);
+            $fieldType = $this->getFieldType($field);
 
             $table->addColumn(
                 $field->getStorageName(),
@@ -211,6 +207,10 @@ class SchemaBuilder
 
     private function getFieldType(Field $field): string
     {
+        if ($field instanceof EnumField) {
+            return $field->getType();
+        }
+
         foreach (self::$fieldMapping as $class => $type) {
             if ($field instanceof $class) {
                 return self::$fieldMapping[$field::class];

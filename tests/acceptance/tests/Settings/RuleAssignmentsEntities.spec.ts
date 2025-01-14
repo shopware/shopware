@@ -20,4 +20,4 @@ test('As an admin user, I want to filter and add rule assignments, to easily add
     await AdminRuleDetail.shippingMethodAvailabilityRulesCardSearchField.fill(shippingMethod1.name);
     await ShopAdmin.expects(AdminRuleDetail.shippingMethodAvailabilityRulesCardTable).toContainText(shippingMethod1.name);
     await ShopAdmin.expects(AdminRuleDetail.shippingMethodAvailabilityRulesCardTable).not.toContainText(shippingMethod2.name);
-})
+});

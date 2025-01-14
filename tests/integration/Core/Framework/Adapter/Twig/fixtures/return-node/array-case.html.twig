@@ -1,7 +1,11 @@
 {% apply spaceless %}
-    {% macro foo(index) %}
+    {% macro foo(index = null) %}
         {% set arr = [1, 2] %}
-        {{ arr[index] }}
+        {% if index is not null %}
+            {{ arr[index] }}
+        {% else %}
+            {{ arr|join(', ') }}
+        {% endif %}
     {% endmacro %}
 
     {% if _self.foo(1) is empty %}

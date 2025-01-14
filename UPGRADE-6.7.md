@@ -346,25 +346,6 @@ We made some breaks in the API, which might affect your plugins or custom integr
 <details>
   <summary>Detailed Changes</summary>
 
-## Deletes by filter over the Sync API
-The sync API allows now to add a filter to the delete request to delete multiple entities at once. This is useful if you want to delete all entities that match a certain criteria:
-```json
-[
-  {
-    "action": "delete",
-    "entity": "product",
-    "payload": [],
-    "filter": [
-      {
-        "field": "name",
-        "type": "equals",
-        "value": "test"
-      }
-    ]
-  }
-]
-```
-
 ## Removal of /api/oauth/authorize route
 Removed API route `/api/oauth/authorize` (`\Core\Framework\Api\Controller\AuthController::authorize` method) without replacement.
 </details>

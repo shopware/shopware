@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
- * @deprecated tag:v6.7.0 - Will be removed without replacement and is not needed anymore - reason:remove-subscriber
+ * @deprecated tag:v6.7.0 - Will be removed without replacement and is not needed anymore
  */
 #[Package('core')]
 class CacheIdLoader

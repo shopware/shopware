@@ -48,7 +48,7 @@ class SalesChannelExceptionTest extends TestCase
             'exception' => SalesChannelException::invalidLanguageId(),
             'statusCode' => Response::HTTP_PRECONDITION_FAILED,
             'errorCode' => SalesChannelException::LANGUAGE_INVALID_EXCEPTION,
-            'message' => 'Provided languageId is not a valid uuid',
+            'message' => 'Provided language ID is not a valid UUID',
         ];
 
         yield SalesChannelException::NO_CONTEXT_DATA_EXCEPTION => [

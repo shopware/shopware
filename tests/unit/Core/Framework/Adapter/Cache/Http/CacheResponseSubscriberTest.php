@@ -487,7 +487,7 @@ class CacheResponseSubscriberTest extends TestCase
      */
     public static function notCacheableRequestProvider(): iterable
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->assign(['customer' => null]);
 
         $postRequest = new Request([], [], [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext]);
@@ -532,7 +532,7 @@ class CacheResponseSubscriberTest extends TestCase
      */
     public static function cookiesUntouchedProvider(): iterable
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->assign(['customer' => null]);
 
         $salesChannelRequest = new Request([], [], [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext]);
@@ -729,7 +729,7 @@ class CacheResponseSubscriberTest extends TestCase
     public function testRequestContextGetsUpdatedWhileLogout(): void
     {
         $customer = new CustomerEntity();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => $customer]);
         $event = new CustomerLogoutEvent($context, $customer);
 

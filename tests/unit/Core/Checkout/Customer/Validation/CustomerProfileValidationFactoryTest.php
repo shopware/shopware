@@ -3,13 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -18,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -56,7 +55,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             $this->accountTypes,
         );
 
-        $salesChannelContext = $this->mockSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContext();
         $actual = $customerProfileValidationFactory->create($salesChannelContext);
         $expected = new DataValidationDefinition('customer.profile.create');
         $this->addConstraintsSalesChannelContext($expected, $salesChannelContext);
@@ -76,7 +75,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             $this->accountTypes,
         );
 
-        $salesChannelContext = $this->mockSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContext();
         $actual = $customerProfileValidationFactory->create($salesChannelContext);
         $expected = new DataValidationDefinition('customer.profile.create');
         $this->addConstraintsSalesChannelContext($expected, $salesChannelContext);
@@ -99,7 +98,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             $this->accountTypes,
         );
 
-        $salesChannelContext = $this->mockSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContext();
         $actual = $customerProfileValidationFactory->create($salesChannelContext);
         $expected = new DataValidationDefinition('customer.profile.create');
         $this->addConstraintsSalesChannelContext($expected, $salesChannelContext);
@@ -122,7 +121,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             $this->accountTypes,
         );
 
-        $salesChannelContext = $this->mockSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContext();
         $actual = $customerProfileValidationFactory->create($salesChannelContext);
         $expected = new DataValidationDefinition('customer.profile.create');
         $this->addConstraintsSalesChannelContext($expected, $salesChannelContext);
@@ -139,7 +138,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             $this->accountTypes,
         );
 
-        $salesChannelContext = $this->mockSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContext();
         $actual = $customerProfileValidationFactory->update($salesChannelContext);
         $expected = new DataValidationDefinition('customer.profile.update');
         $this->addConstraintsSalesChannelContext($expected, $salesChannelContext);
@@ -159,7 +158,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             $this->accountTypes,
         );
 
-        $salesChannelContext = $this->mockSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContext();
         $actual = $customerProfileValidationFactory->update($salesChannelContext);
         $expected = new DataValidationDefinition('customer.profile.update');
         $this->addConstraintsSalesChannelContext($expected, $salesChannelContext);
@@ -182,7 +181,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             $this->accountTypes,
         );
 
-        $salesChannelContext = $this->mockSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContext();
         $actual = $customerProfileValidationFactory->update($salesChannelContext);
         $expected = new DataValidationDefinition('customer.profile.update');
         $this->addConstraintsSalesChannelContext($expected, $salesChannelContext);
@@ -205,7 +204,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             $this->accountTypes,
         );
 
-        $salesChannelContext = $this->mockSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContext();
         $actual = $customerProfileValidationFactory->update($salesChannelContext);
         $expected = new DataValidationDefinition('customer.profile.update');
         $this->addConstraintsSalesChannelContext($expected, $salesChannelContext);
@@ -214,18 +213,15 @@ class CustomerProfileValidationFactoryTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
-    private function mockSalesChannelContext(): SalesChannelContext&MockObject
+    private function getSalesChannelContext(): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
-        $context = Context::createDefaultContext();
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getContext')->willReturn($context);
-        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
-
-        return $salesChannelContext;
+        return Generator::generateSalesChannelContext(
+            salesChannel: $salesChannel,
+        );
     }
 
     private function addConstraintsSalesChannelContext(DataValidationDefinition $definition, SalesChannelContext $context): void

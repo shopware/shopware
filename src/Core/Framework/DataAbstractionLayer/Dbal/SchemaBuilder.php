@@ -159,6 +159,8 @@ class SchemaBuilder
     public function buildSchemaOfDefinition(EntityDefinition $definition): Table
     {
         $table = (new Schema())->createTable($definition->getEntityName());
+        $table->addOption('charset', 'utf8mb4');
+        $table->addOption('collate', 'utf8mb4_unicode_ci');
 
         /** @var Field $field */
         foreach ($definition->getFields() as $field) {
@@ -304,6 +306,10 @@ class SchemaBuilder
                 if ($field instanceof ParentAssociationField) {
                     $columns[] = 'version_id';
                 } else {
+                    if ($versionField === null) {
+                        throw DataAbstractionLayerException::versionFieldNotFound($field->getPropertyName());
+                    }
+
                     /** @var ReferenceVersionField $versionField */
                     $columns[] = $versionField->getStorageName();
                 }

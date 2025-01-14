@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -83,6 +84,27 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('attribute_entity_currency.repository'));
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('attribute_entity_agg.repository'));
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('attribute_entity_translation.repository'));
+    }
+
+    public function testAssociationDefinitions(): void
+    {
+        $definition = static::getContainer()->get('attribute_entity_agg.definition');
+
+        static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
+        static::assertNotNull($definition->getFields()->get('ownColumn'));
+        static::assertNotNull($definition->getFields()->get('attributeEntity'));
+
+        $field = $definition->getFields()->get('ownColumn');
+        static::assertInstanceOf(ManyToOneAssociationField::class, $field);
+        static::assertSame('attribute_entity_id', $field->getStorageName());
+        static::assertSame('id', $field->getReferenceField());
+        static::assertSame('attribute_entity', $field->getReferenceEntity());
+
+        $field = $definition->getFields()->get('attributeEntity');
+        static::assertInstanceOf(ManyToOneAssociationField::class, $field);
+        static::assertSame('attribute_entity_id', $field->getStorageName());
+        static::assertSame('id', $field->getReferenceField());
+        static::assertSame('attribute_entity', $field->getReferenceEntity());
     }
 
     public function testCrudRoot(): void

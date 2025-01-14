@@ -55,7 +55,7 @@ class CartPersisterTest extends TestCase
         $e = null;
 
         try {
-            $persister->load('not_existing_token', Generator::createSalesChannelContext());
+            $persister->load('not_existing_token', Generator::generateSalesChannelContext());
         } catch (\Exception $e) {
         }
 
@@ -75,7 +75,7 @@ class CartPersisterTest extends TestCase
             );
 
         $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
-        $cart = $persister->load('existing', Generator::createSalesChannelContext());
+        $cart = $persister->load('existing', Generator::generateSalesChannelContext());
 
         static::assertEquals(new Cart('existing'), $cart);
     }
@@ -95,7 +95,7 @@ class CartPersisterTest extends TestCase
 
         $cart = new Cart('existing');
 
-        $persister->save($cart, Generator::createSalesChannelContext());
+        $persister->save($cart, Generator::generateSalesChannelContext());
     }
 
     public function testEmptyCartWithManualShippingCostsExtensionIsSaved(): void

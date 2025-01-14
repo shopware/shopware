@@ -14,6 +14,6 @@ class SalesChannelShippingMethodDefinition extends ShippingMethodDefinition impl
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $context->getSalesChannelId()));
     }
 }

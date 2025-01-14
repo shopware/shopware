@@ -394,6 +394,8 @@
             "priceDesc": "Price absteigend",
             "creationDateAsc": "Erstellungsdatum aufsteigend",
             "creationDateDesc": "Erstellungsdatum absteigend",
+            "releaseDateAsc": "Erscheinungsdatum aufsteigend",
+            "releaseDateDesc": "Erscheinungsdatum absteigend",
             "random": "Zufällig"
           },
           "textProductStreamPreviewLink": "Vorschau dynamische Produktgruppe",

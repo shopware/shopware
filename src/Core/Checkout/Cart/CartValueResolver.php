@@ -16,9 +16,8 @@ class CartValueResolver implements ValueResolverInterface
     /**
      * @internal
      */
-    public function __construct(private CartService $cartService)
+    public function __construct(private readonly CartService $cartService)
     {
-        $this->cartService = $cartService;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator

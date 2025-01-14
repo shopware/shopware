@@ -40,7 +40,7 @@ class AddCartErrorCommandHandlerTest extends TestCase
         $firstCommand = new AddCartErrorCommand('Test Error', true, Error::LEVEL_ERROR);
         $secondCommand = new AddCartErrorCommand('A notice', false, Error::LEVEL_NOTICE);
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $handler = new AddCartErrorCommandHandler();
         $handler->handle($firstCommand, $response, $context);

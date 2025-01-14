@@ -52,7 +52,7 @@ class AddShippingMethodExtensionsCommandHandlerTest extends TestCase
         );
 
         $handler = new AddShippingMethodExtensionsCommandHandler($this->createMock(ExceptionLogger::class));
-        $handler->handle($command, $response, Generator::createSalesChannelContext());
+        $handler->handle($command, $response, Generator::generateSalesChannelContext());
 
         static::assertCount(2, $response->getAvailableShippingMethods());
 
@@ -98,6 +98,6 @@ class AddShippingMethodExtensionsCommandHandlerTest extends TestCase
             );
 
         $handler = new AddShippingMethodExtensionsCommandHandler($logger);
-        $handler->handle($command, $response, Generator::createSalesChannelContext());
+        $handler->handle($command, $response, Generator::generateSalesChannelContext());
     }
 }

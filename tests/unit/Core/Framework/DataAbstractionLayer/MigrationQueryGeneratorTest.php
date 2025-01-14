@@ -49,8 +49,9 @@ class MigrationQueryGeneratorTest extends TestCase
 
         $queries = $this->generator->generateQueries($entityDefinition);
 
-        static::assertCount(1, $queries);
-        static::assertContains('ALTER TABLE test ADD priority INT NOT NULL', $queries);
+        static::assertCount(2, $queries);
+        static::assertStringContainsString('ALTER TABLE test ADD test2_id VARCHAR(255) NOT NULL, ADD priority INT NOT NULL', $queries[0]);
+        static::assertStringContainsString('ALTER TABLE test ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
     }
 
     public function testGenerateQueriesForNewTable(): void
@@ -63,8 +64,9 @@ class MigrationQueryGeneratorTest extends TestCase
 
         $queries = $this->generator->generateQueries($entityDefinition);
 
-        static::assertCount(1, $queries);
-        static::assertStringContainsString('CREATE TABLE test (id VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, priority INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY(id))', $queries[0]);
+        static::assertCount(2, $queries);
+        static::assertStringContainsString('CREATE TABLE test (id VARCHAR(255) NOT NULL, test2_id VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, priority INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB', $queries[0]);
+        static::assertStringContainsString('ALTER TABLE test ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
     }
 
     private function getOriginalTable(): Table
@@ -92,7 +94,9 @@ class MigrationQueryGeneratorTest extends TestCase
         $table->addColumn('priority', 'integer');
         $table->addColumn('created_at', 'datetime');
         $table->addColumn('updated_at', 'datetime');
+        $table->addColumn('test2_id', 'string');
 
+        $table->addForeignKeyConstraint('test2', ['test2_id'], ['id'], [], 'fk_column_id');
         $table->setPrimaryKey(['id']);
 
         $table->addIndex(['priority']);

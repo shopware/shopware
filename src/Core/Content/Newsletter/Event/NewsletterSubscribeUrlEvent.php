@@ -44,7 +44,7 @@ class NewsletterSubscribeUrlEvent extends Event implements ShopwareSalesChannelE
 
     public function getSalesChannelId(): string
     {
-        return $this->salesChannelContext->getSalesChannel()->getId();
+        return $this->salesChannelContext->getSalesChannelId();
     }
 
     public function getHashedEmail(): string

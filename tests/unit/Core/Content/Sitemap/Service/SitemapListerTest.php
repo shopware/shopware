@@ -22,11 +22,11 @@ class SitemapListerTest extends TestCase
 {
     public function testListsFilesWithoutDomainId(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $filesystem = $this->createMock(FilesystemOperator::class);
         $filesystem->method('listContents')->willReturn(new DirectoryListing([
-            new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannel()->getId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId(), 0, null, null, null),
+            new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId(), 0, null, null, null),
         ]));
 
         $package = $this->createMock(Package::class);
@@ -43,7 +43,7 @@ class SitemapListerTest extends TestCase
 
     public function testSitemapWithMultipleDomainsUseCorrectDomains(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $domains = new SalesChannelDomainCollection();
 
@@ -70,8 +70,8 @@ class SitemapListerTest extends TestCase
 
         $filesystem = $this->createMock(FilesystemOperator::class);
         $filesystem->method('listContents')->willReturn(new DirectoryListing([
-            new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannel()->getId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId() . '-' . $defaultDomainId, 0, null, null, null),
-            new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannel()->getId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId() . '-' . $domainId, 0, null, null, null),
+            new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId() . '-' . $defaultDomainId, 0, null, null, null),
+            new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId() . '-' . $domainId, 0, null, null, null),
         ]));
 
         $package = $this->createMock(Package::class);

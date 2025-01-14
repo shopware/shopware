@@ -25,7 +25,7 @@ class SitemapLister implements SitemapListerInterface
      */
     public function getSitemaps(SalesChannelContext $salesChannelContext): array
     {
-        $files = $this->filesystem->listContents('sitemap/salesChannel-' . $salesChannelContext->getSalesChannel()->getId() . '-' . $salesChannelContext->getLanguageId());
+        $files = $this->filesystem->listContents('sitemap/salesChannel-' . $salesChannelContext->getSalesChannelId() . '-' . $salesChannelContext->getLanguageId());
 
         $sitemaps = [];
 

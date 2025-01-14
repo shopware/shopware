@@ -86,7 +86,7 @@ class CartContextHasherTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('id');
 
-        $this->context = Generator::createSalesChannelContext(
+        $this->context = Generator::generateSalesChannelContext(
             paymentMethod: $paymentMethod,
             shippingMethod: $shippingMethod
         );

@@ -31,7 +31,10 @@ test('As a new customer, I cannot register as a commercial customer without prov
     Register,
     TestDataService,
     DefaultSalesChannel,
+    InstanceMeta,
 }) => {
+    test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
+
     await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
     const country = await TestDataService.createCountry({ vatIdRequired: true });
     await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, country.id);
@@ -44,4 +47,3 @@ test('As a new customer, I cannot register as a commercial customer without prov
     await ShopCustomer.expects(StorefrontAccountLogin.page.locator('label[for="vatIds"]')).toContainText('VAT Reg.No. *')
     await ShopCustomer.expects(StorefrontAccountLogin.page.getByText('I\'m a new customer!')).toBeVisible();
 });
-

@@ -840,8 +840,8 @@ class AttributeEntityIntegrationTest extends TestCase
         $search = $this->repository('attribute_entity_with_hydrator')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
-        /** @var AttributeEntityWithHydrator $record */
         $record = $search->get($ids->get('first-key'));
+        static::assertInstanceOf(AttributeEntityWithHydrator::class, $record);
         static::assertSame('code-number', $record->number);
     }
 

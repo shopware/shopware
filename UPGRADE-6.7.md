@@ -302,9 +302,13 @@ The hidden radio input will no longer be in the HTML. The current page value wil
 ```
 </details>
 
-# Other Changes
+# Further Changes
 
 # Changed Functionality
+Some functionality changed in a way that might be noticeable for merchants. Additionally, this means that changes over the administration (e.g. adjusting configured flows, mail templates) might be needed to adjust to the new behavior.
+<details>
+  <summary>Detailed Changes</summary>
+
 ## Vat Ids will be validated case sensitive
 Vat Ids will now be checked for case sensitivity, which means that most Vat Ids will now have to be upper case, depending on their validation pattern.
 For customers without a company, this check will only be done on entry, so it is still possible to checkout with an existing lower case Vat Id.
@@ -335,8 +339,13 @@ The `technical_name` column will be made non-nullable for the `payment_method` a
 Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
 
 Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
+</details>
 
 # API
+We made some breaks in the API, which might affect your plugins or custom integrations.
+<details>
+  <summary>Detailed Changes</summary>
+
 ## Deletes by filter over the Sync API
 The sync API allows now to add a filter to the delete request to delete multiple entities at once. This is useful if you want to delete all entities that match a certain criteria:
 ```json
@@ -358,8 +367,13 @@ The sync API allows now to add a filter to the delete request to delete multiple
 
 ## Removal of /api/oauth/authorize route
 Removed API route `/api/oauth/authorize` (`\Core\Framework\Api\Controller\AuthController::authorize` method) without replacement.
+</details>
 
 # Core
+We made some changes in the PHP core, which might affect your plugins.
+<details>
+  <summary>Detailed Changes</summary>
+
 ## Native types for PHP class properties
 All PHP class properties now have a native type.
 If you have extended classes with properties, which didn't have a native type before, make sure you now add them as well.
@@ -505,8 +519,13 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
 </details>
+</details>
 
 # Administration
+We made some changes in the administration, which might affect your plugins.
+<details>
+  <summary>Detailed Changes</summary>
+
 ## Administration removed associations
 * Removed `calculationRule` association in `shippingMethodCriteria()` in `sw-settings-shipping-detail`.
 * Removed `conditions` association in `ruleFilterCriteria()` and `shippingRuleFilterCriteria()` in `sw-settings-shipping-price-matrix`
@@ -2197,8 +2216,13 @@ After:
 <mt-checkbox @update:checked="updateValue" />
 ```
 </details>
+</details>
 
 # Storefront
+We made some changes in the administration, which might affect your plugins and themes.
+<details>
+  <summary>Detailed Changes</summary>
+
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
 
@@ -2282,8 +2306,12 @@ After:
     </div>
 </div>
 ```
+</details>
 
 # App System
+We made some changes in the app-system, which might affect your apps.
+<details>
+  <summary>Detailed Changes</summary>
 
 ## Payment: payment states
 For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
@@ -2293,8 +2321,13 @@ The `finalize` step now transmits the `queryParameters` under the object key `re
 
 ## Payment: onlyAvailable flag removed from CheckoutGatewayRoute
 The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request is removed. The route always filters the payment and shipping methods before calling the checkout gateway based on availability.
+</details>
 
 # Hosting & Configuration
+We made some changes in the configuration and setup, which might affect your project setups.
+<details>
+  <summary>Detailed Changes</summary>
+
 ## Config keys changes due to improved redis connection handling
 
 Next configuration keys are deprecated and will be removed in the next major version:
@@ -2328,3 +2361,4 @@ shopware:
         enforce_message_size: false
 
 ```
+</details>

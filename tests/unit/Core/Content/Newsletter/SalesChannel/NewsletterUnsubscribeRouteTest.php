@@ -31,7 +31,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = Generator::createSalesChannelContext();
+        $this->salesChannelContext = Generator::generateSalesChannelContext();
     }
 
     public function testUnsubscribe(): void

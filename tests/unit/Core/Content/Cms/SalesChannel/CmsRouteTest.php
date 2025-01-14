@@ -56,7 +56,7 @@ class CmsRouteTest extends TestCase
 
         $searchResult = $this->getSearchResult($expectedCmsPage);
         $criteria = $this->getExpectedCriteria($request->get('slots'));
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
@@ -87,7 +87,7 @@ class CmsRouteTest extends TestCase
 
         $searchResult = $this->getSearchResult($expectedCmsPage);
         $criteria = $this->getExpectedCriteria($expectedSlots);
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
@@ -109,7 +109,7 @@ class CmsRouteTest extends TestCase
 
         $searchResult = $this->getSearchResult($expectedCmsPage);
         $criteria = new Criteria([$this->ids->get('cms-page')]);
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
@@ -132,7 +132,7 @@ class CmsRouteTest extends TestCase
         $searchResult = $this->getSearchResult();
 
         $criteria = new Criteria([$this->ids->get('cms-page')]);
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader

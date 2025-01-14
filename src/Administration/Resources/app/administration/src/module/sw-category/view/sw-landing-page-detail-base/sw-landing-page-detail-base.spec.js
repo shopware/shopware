@@ -60,7 +60,7 @@ async function createWrapper(state = {}) {
                     props: ['disabled'],
                 },
                 'sw-entity-multi-select': true,
-                'sw-alert': true,
+                'mt-banner': true,
                 'sw-textarea-field': true,
                 'sw-custom-field-set-renderer': true,
             },

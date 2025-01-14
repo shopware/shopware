@@ -21,17 +21,18 @@ class Uuid
     private static ?UnixTimeGenerator $generator = null;
 
     /**
-     * @return non-empty-string
+     * @return non-falsy-string
      */
     public static function randomHex(): string
     {
+        /** @var non-falsy-string */
         return bin2hex(self::randomBytes());
     }
 
     /**
      * same as Ramsey\Uuid\UuidFactory->uuidFromBytesAndVersion without using a transfer object
      *
-     * @return non-empty-string
+     * @return non-falsy-string
      */
     public static function randomBytes(): string
     {
@@ -52,7 +53,7 @@ class Uuid
 
         $bytes = substr_replace($bytes, $timeHiAndVersion, 6, 2);
         $bytes = substr_replace($bytes, $clockSeqHiAndReserved, 8, 2);
-        \assert($bytes !== '');
+        \assert(!empty($bytes));
 
         return $bytes;
     }
@@ -61,7 +62,7 @@ class Uuid
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
      *
-     * @return non-empty-string
+     * @return non-falsy-string
      */
     public static function fromBytesToHex(string $bytes): string
     {
@@ -74,7 +75,7 @@ class Uuid
             throw new InvalidUuidException($uuid);
         }
 
-        \assert($uuid !== '');
+        \assert(!empty($uuid));
 
         return $uuid;
     }
@@ -82,7 +83,7 @@ class Uuid
     /**
      * @param array<string> $bytesList
      *
-     * @return array<non-empty-string>
+     * @return array<non-falsy-string>
      */
     public static function fromBytesToHexList(array $bytesList): array
     {
@@ -97,7 +98,7 @@ class Uuid
     /**
      * @param array<array-key, string> $uuids
      *
-     * @return array<array-key, non-empty-string>
+     * @return array<array-key, non-falsy-string>
      */
     public static function fromHexToBytesList(array $uuids): array
     {
@@ -112,7 +113,7 @@ class Uuid
     /**
      * @throws InvalidUuidException
      *
-     * @return non-empty-string
+     * @return non-falsy-string
      */
     public static function fromHexToBytes(string $uuid): string
     {

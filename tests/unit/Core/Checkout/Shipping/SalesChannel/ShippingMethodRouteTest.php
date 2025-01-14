@@ -38,7 +38,7 @@ class ShippingMethodRouteTest extends TestCase
     public function testLoad(): void
     {
         $request = new Request();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $criteria = new Criteria();
 
         $expectedCriteria = clone $criteria;

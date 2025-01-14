@@ -45,7 +45,7 @@ export default class AdminNotificationWorker {
                 }
             })
             .catch((error) => {
-                this.createNotification('error', error.message);
+                console.error('Error while fetching notifications', error);
             });
 
         this._notiticationTimeoutId = setTimeout(() => {

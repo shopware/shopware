@@ -86,7 +86,7 @@ class RegisterControllerTest extends TestCase
 
     public function testAccountRegister(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
         $request = new Request();
         $request->attributes->set('_route', 'frontend.account.register.page');
@@ -110,7 +110,7 @@ class RegisterControllerTest extends TestCase
 
     public function testCheckoutRegister(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
         $request = new Request();
         $request->attributes->set('_route', 'frontend.checkout.register.page');
@@ -140,7 +140,7 @@ class RegisterControllerTest extends TestCase
 
     public function testCustomerGroupRegistration(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
         $request = new Request();
         $request->attributes->set('_route', 'frontend.account.customer-group-registration.page');
@@ -166,7 +166,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterSuccess(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -183,7 +183,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithValueConfirmation(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -210,7 +210,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithDoubleOptIn(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -234,7 +234,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithDoubleOptInGuest(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -260,7 +260,7 @@ class RegisterControllerTest extends TestCase
     {
         static::expectExceptionMessage('Parameter "errorRoute" is missing.');
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -275,7 +275,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithErrorRouteParamEmpty(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -295,7 +295,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithViolation(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -314,7 +314,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithAffiliateTracking(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = new Request();

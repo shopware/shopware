@@ -22,10 +22,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: test
+        env:
+          PR_DEBUG_DATA: ${{ toJSON(github.event.pull_request.user) }}
         run: |
-          echo "${{ github.event.pull_request.author_association }}"
-          echo "${{ toJson(github.event.pull_request) }}"
-          echo "${{ toJson(github.event.pull_request.user) }}"
+          echo "${PR_DEBUG_DATA}"
+          echo "${{ github.event.pull_request.user.organizations_url }}"
       - name: Rufus
         uses: shopware/github-actions/downstream@main
         if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' || github.event.pull_request.author_association == 'OWNER' }}

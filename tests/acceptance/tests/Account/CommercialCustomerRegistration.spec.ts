@@ -38,7 +38,7 @@ test('As a new customer, I cannot register as a commercial customer without prov
     await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
     const country = await TestDataService.createCountry({ vatIdRequired: true });
     await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, country.id);
-    const customer = { country: country.name, vatRegNo: '' };
+    const customer = { country: country.name, vatRegNo: '', isEu: true };
 
     await ShopCustomer.goesTo(StorefrontAccountLogin.url());
     await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
@@ -59,6 +59,7 @@ test('As a new customer, I should not be able to register as a commercial custom
 }) => {
     test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
     test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40297');
+    // TODO: Use a new country created by the TestDataService after this bug is fixed: https://shopware.atlassian.net/browse/NEXT-40285
 
     await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
     const country = await TestDataService.getCountryId('DE');

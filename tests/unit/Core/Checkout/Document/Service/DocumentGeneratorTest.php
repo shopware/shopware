@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
@@ -62,11 +63,14 @@ class DocumentGeneratorTest extends TestCase
         $mockTypeRenderer = $this->createMock(AbstractDocumentTypeRenderer::class);
         $fileRenderer = new DocumentFileRendererRegistry([$mockTypeRenderer]);
 
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([]);
+
         $generator = new DocumentGenerator(
             $registry,
             $fileRenderer,
             $this->createMock(MediaService::class),
-            new StaticEntityRepository([]),
+            $documentRepository,
             $this->createMock(Connection::class),
         );
 
@@ -129,11 +133,14 @@ class DocumentGeneratorTest extends TestCase
         $registry = new DocumentRendererRegistry([$mockRenderer]);
         $fileRenderer = new DocumentFileRendererRegistry([$mockTypeRenderer]);
 
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([]);
+
         $generator = new DocumentGenerator(
             $registry,
             $fileRenderer,
             $this->createMock(MediaService::class),
-            new StaticEntityRepository([]),
+            $documentRepository,
             $this->createMock(Connection::class),
         );
 

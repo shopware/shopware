@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class HtmlRenderer extends AbstractDocumentTypeRenderer
 {
     public const FILE_EXTENSION = 'html';

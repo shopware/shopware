@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(DocumentFileRendererRegistry::class)]
 class DocumentFileRendererRegistryTest extends TestCase
 {

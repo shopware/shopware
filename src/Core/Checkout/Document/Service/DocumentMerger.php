@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Document\Service;
 
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tfpdf\Fpdi;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -14,7 +13,6 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -46,11 +44,7 @@ final class DocumentMerger
 
         $criteria = new Criteria($documentIds);
         $criteria->addAssociation('documentType');
-        $criteria->addAssociation('documentMediaFiles.media');
         $criteria->addSorting(new FieldSorting('order.orderNumber'));
-
-        $criteria->getAssociation('documentMediaFiles')
-            ->addFilter(new EqualsFilter('fileExtension', PdfRenderer::FILE_EXTENSION));
 
         /** @var DocumentCollection $documents */
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
@@ -117,10 +111,9 @@ final class DocumentMerger
 
     private function ensureDocumentMediaFileGenerated(DocumentEntity $document, Context $context): ?string
     {
-        /** @var ?DocumentMediaEntity $documentMedia */
-        $documentMedia = $document->getDocumentMediaFiles()?->first();
-        if ($documentMedia?->getMediaId() !== null || $document->isStatic()) {
-            return $documentMedia?->getMediaId();
+        $documentMediaId = $document->getDocumentMediaFileId();
+        if ($documentMediaId !== null || $document->isStatic()) {
+            return $documentMediaId;
         }
 
         $operation = new DocumentGenerateOperation(
@@ -148,18 +141,12 @@ final class DocumentMerger
         }
 
         $criteria = new Criteria([$document->getId()]);
-        $criteria->addAssociation('documentType');
-        $criteria->addAssociation('documentMediaFiles');
-
-        $criteria->getAssociation('documentMediaFiles')
-            ->addFilter(new EqualsFilter('fileExtension', PdfRenderer::FILE_EXTENSION));
+        $criteria->addAssociation('documentType')
+            ->addAssociation('documentMediaFile');
 
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search($criteria, $context)->get($document->getId());
 
-        /** @var ?DocumentMediaEntity $documentMedia */
-        $documentMedia = $document->getDocumentMediaFiles()?->first();
-
-        return $documentMedia?->getMediaId();
+        return $document->getDocumentMediaFileId();
     }
 }

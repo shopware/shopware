@@ -17,7 +17,7 @@
                                     {% set attributes = {
                                         'class': 'cms-image',
                                         'alt': element.translated.config.isDecorative.value ? ' ' : (element.data.media.translated.alt ?: ''),
-                                        'title': (element.data.media.translated.title ?: ''),
+                                        'title': element.translated.config.isDecorative.value ? '' : (element.data.media.translated.title ?: ''),
                                         'loading': 'lazy'
                                     } %}
 

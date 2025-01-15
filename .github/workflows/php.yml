@@ -2,21 +2,6 @@ name: PHP checks
 
 on:
   pull_request:
-    paths:
-      - "**/composer.json"
-      - changelog/**/*.md
-      - src/**/*.php
-      - src/Core/**/*
-      - src/Elasticsearch/**/*
-      - src/Storefront/DependencyInjection/*
-      - src/**/snippet/**/*.json
-      - .github/workflows/php.yml
-      - .bc-exclude.php
-      - .php-cs-fixer.dist.php
-      - phpstan.neon.dist
-      - phpstan-baseline.neon
-      - phpstan-v67-baseline.neon
-      - phpunit.xml.dist
   workflow_dispatch:
   workflow_call:
 
@@ -156,7 +141,6 @@ jobs:
 
   phpunit:
     name: "PHPUnit for ${{ matrix.suite }}"
-    continue-on-error: ${{ !matrix.stable }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -186,6 +170,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          php-version: 8.4
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
@@ -249,3 +234,22 @@ jobs:
       - name: Composer audit
         run: |
           composer audit
+
+  php-check:
+    if: always()
+    needs:
+    - lint
+    - phpstan
+    - openapi-lint
+    - phpunit
+    - license-check
+    - composer-audit
+
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        # allowed-failures: docs, linters
+        # allowed-skips: non-voting-flaky-job
+        jobs: ${{ toJSON(needs) }}

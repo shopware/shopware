@@ -48,7 +48,7 @@
                                         {% set attributes = {
                                             'class': 'img-fluid image-slider-image',
                                             'alt': element.config.isDecorative.value ? ' ' : (image.media.translated.alt ?: ''),
-                                            'title': (image.media.translated.title ?: ''),
+                                            'title': element.config.isDecorative.value ? '' : (image.media.translated.title ?: ''),
                                             'tabindex': (image.url ? '-1' : '0')
                                         } %}
 

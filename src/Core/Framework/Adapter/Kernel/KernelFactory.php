@@ -60,13 +60,11 @@ class KernelFactory
 
         $pluginLoader = $pluginLoader ?? new DbalKernelPluginLoader($classLoader, null, $connection);
 
-        $cacheId = EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', 'live');
+        $cacheId = EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', '');
 
-        if (!Feature::isActive('v6.7.0.0')) {
+        if ($cacheId === '' && !Feature::isActive('v6.7.0.0')) {
             $storage = new MySQLKeyValueStorage($connection);
-            $cacheId = Feature::silent('v6.7.0.0', function () use ($storage): string {
-                return (new CacheIdLoader($storage))->load();
-            });
+            $cacheId = (new CacheIdLoader($storage))->load();
         }
 
         /** @var KernelInterface $kernel */

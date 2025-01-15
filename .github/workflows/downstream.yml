@@ -37,8 +37,25 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - uses: octo-sts/action@v1.0.0
+        id: sts-collaborator
+        with:
+          scope: shopware
+          identity: ReadCollaborators
+      - name: Is collaborator
+        id: collaborator
+        env:
+          GH_TOKEN: ${{ steps.sts-collaborator.outputs.token }}
+        run: |
+          if gh api /repos/shopware/Rufus/collaborators/${{ github.triggering_actor }}; then
+            echo "IS_COLLABORATOR=1" >> $GITHUB_OUTPUT
+          else
+            echo "IS_COLLABORATOR=0" >> $GITHUB_OUTPUT
+          fi
+          ${{ github.triggering_actor }}
       - name: Rufus
         uses: shopware/github-actions/downstream@main
+        if: ${{ steps.collaborator.outputs.IS_COLLABORATOR }}
         with:
           repo: shopware/rufus
           workflow: Downstream

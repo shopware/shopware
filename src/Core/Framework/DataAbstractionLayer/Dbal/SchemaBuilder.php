@@ -126,7 +126,6 @@ class SchemaBuilder
         BoolField::class => Types::BOOLEAN,
         LockedField::class => Types::BOOLEAN,
 
-        EnumField::class => 'defined-by-field',
         PasswordField::class => Types::STRING,
         StringField::class => Types::STRING,
         TimeZoneField::class => Types::STRING,

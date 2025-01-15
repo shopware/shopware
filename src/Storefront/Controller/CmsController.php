@@ -47,6 +47,9 @@ class CmsController extends StorefrontController
     ) {
     }
 
+    /**
+     * Rendering a CMS Layout as a widget without the base page layout.
+     */
     #[Route(path: '/widgets/cms/{id}', name: 'frontend.cms.page', defaults: ['id' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -59,6 +62,32 @@ class CmsController extends StorefrontController
         $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
 
         $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
+    }
+
+    /**
+     * Basically the same as 'frontend.cms.page', but as a full page, not just the CMS page layout.
+     * This is achieved by using the storefront/page/content/index.html.twig template instead,
+     * which extends the base layout and is then using the detail.html.twig template internally.
+     */
+    #[Route(path: '/page/cms/{id}', name: 'frontend.cms.page.full', defaults: ['id' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    public function pageFull(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    {
+        if (!$id) {
+            throw RoutingException::missingRequestParameter('id');
+        }
+
+        $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
+
+        $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
+
+        $pageObject = [
+            'cmsPage' => $page,
+        ];
+
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $pageObject]);
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;

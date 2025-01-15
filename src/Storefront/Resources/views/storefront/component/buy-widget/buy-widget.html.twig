@@ -110,13 +110,22 @@
 
                             <p class="product-detail-tax">
                                 {% block buy_widget_tax_link %}
-                                    <a class="product-detail-tax-link"
-                                       href="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
-                                       title="{{ taxText }}"
-                                       data-ajax-modal="true"
-                                       data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
-                                        {{ taxText }}
-                                    </a>
+                                    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                                        <a
+                                            href="{{ path('frontend.cms.page.full', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
+                                            title="{{ taxText }}"
+                                            target="_blank">
+                                            {{ taxText }}
+                                        </a>
+                                    {%- else -%}
+                                        <a
+                                            href="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
+                                            title="{{ taxText }}"
+                                            data-ajax-modal="true"
+                                            data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+                                            {{ taxText }}
+                                        </a>
+                                    {%- endif -%}
                                 {% endblock %}
                             </p>
                         </div>

@@ -467,7 +467,9 @@
     "confirmSubmit": "Submit order",
     "confirmTermsHeader": "Terms and conditions and cancellation policy",
     "confirmRevocationNotice": "Please note our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Cancellation policy\">cancellation policy</a>.",
+    "confirmRevocationNoticePage": "Please note our <a href=\"%url%\" target=\"_blank\" title=\"Cancellation policy\">cancellation policy</a>.",
     "confirmTermsText": "I have read and accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "confirmTermsTextPage": "I have read and accepted the <a href=\"%url%\" target=\"_blank\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "confirmRevocationTerms": "I want immediate access to the digital content and I acknowledge that thereby I waive my right to cancel.",
     "confirmRevocationReminder": "You have already declared that you waive the right of withdrawal.",
@@ -710,10 +712,13 @@
     "newsletterHeadline": "Newsletter",
     "serviceHotline": "Support and counselling via: <a href=\"tel:+49180000000\">0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
     "serviceContactText": "Or via our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Contact form\">contact form</a>.",
+    "serviceContactTextPage": "Or via our <a href=\"%url%\" target=\"_blank\" title=\"Contact form\">contact form</a>.",
     "newsletterInput": "Email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
     "includeVatText": "* All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "includeVatTextPage": "* All prices incl. VAT plus <a href=\"%url%\" target=\"_blank\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "excludeVatText": "* All prices excl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "excludeVatTextPage": "* All prices excl. VAT plus <a href=\"%url%\" target=\"_blank\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "copyrightInfo": "Realised with Shopware"
   },
   "captcha": {
@@ -724,6 +729,7 @@
   },
   "cookie": {
     "messageText": "This website uses cookies to ensure the best experience possible. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
+    "messageTextPage": "This website uses cookies to ensure the best experience possible. <a href=\"%url%\" target=\"_blank\" title=\"More information\">More information...</a>",
     "deny": "Only technically required",
     "configure": "Configure",
     "configuration": "Settings",

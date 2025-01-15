@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
@@ -45,7 +46,7 @@ class CartRestorerTest extends TestCase
 
     private CartService $cartService;
 
-    private CartPersister $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     /**
      * @var array<string, Event>
@@ -265,7 +266,7 @@ class CartRestorerTest extends TestCase
         static::assertInstanceOf(LineItem::class, $customerLineItem1);
         static::assertInstanceOf(LineItem::class, $customerLineItem2);
 
-        $this->connection->executeStatement(<<<SQL
+        $this->connection->executeStatement(<<<'SQL'
             UPDATE sales_channel_api_context
             SET updated_at = DATE_SUB(updated_at, INTERVAL 7 DAY)
             WHERE token = :token

@@ -47,7 +47,7 @@
 $cart-grid-gutter-width: $spacer-sm;
 
 // @deprecated tag:v6.7.0 - Using gutter variable `g-1` in template instead.
-@if not feature('ACCESSIBILITY_TWEAKS') {
+@if not feature('v6.7.0.0') {
     .cart-header-row,
     .line-item-row {
         margin-right: -$cart-grid-gutter-width / 2;

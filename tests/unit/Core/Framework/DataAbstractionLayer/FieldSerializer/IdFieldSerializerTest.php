@@ -87,7 +87,7 @@ class IdFieldSerializerTest extends TestCase
     }
 
     #[DataProvider('idShouldBeGeneratedCasesProvider')]
-    public function testSerializerGeneratesValue(Field $field, ?string $value): void
+    public function testSerializerGeneratesValueWhenNullIsPassed(Field $field): void
     {
         $validator = $this->createMock(ValidatorInterface::class);
 
@@ -97,7 +97,7 @@ class IdFieldSerializerTest extends TestCase
         );
 
         $existence = EntityExistence::createEmpty();
-        $kv = new KeyValuePair($field->getPropertyName(), $value, true);
+        $kv = new KeyValuePair($field->getPropertyName(), null, true);
         $params = new WriteParameterBag(
             new ProductDefinition(),
             WriteContext::createFromContext(Context::createDefaultContext()),
@@ -116,17 +116,14 @@ class IdFieldSerializerTest extends TestCase
     {
         yield 'field is pk and not explicitly passed' => [
             'field' => (new IdField('media_id', 'mediaId'))->addFlags(new PrimaryKey()),
-            'value' => null,
         ];
 
         yield 'field is required and not explicitly passed' => [
             'field' => (new IdField('media_id', 'mediaId'))->addFlags(new Required()),
-            'value' => null,
         ];
 
         yield 'field is pk and required and not explicitly passed' => [
             'field' => (new IdField('media_id', 'mediaId'))->addFlags(new PrimaryKey(), new Required()),
-            'value' => null,
         ];
     }
 }

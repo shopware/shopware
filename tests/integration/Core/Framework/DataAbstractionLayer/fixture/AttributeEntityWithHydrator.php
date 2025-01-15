@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 /**
  * @internal
  */
-#[Entity('attribute_entity_with_hydrator', hydratorClass: DummyHydrator::class)]
+#[Entity('attribute_entity_with_hydrator', since: '6.6.10.0', hydratorClass: DummyHydrator::class)]
 class AttributeEntityWithHydrator extends EntityStruct
 {
     #[PrimaryKey]

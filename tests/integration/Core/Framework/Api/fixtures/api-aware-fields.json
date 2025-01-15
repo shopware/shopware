@@ -1539,5 +1539,8 @@
     "attribute_entity_translation.attributeEntityId",
     "attribute_entity_translation.languageId",
     "attribute_entity_agg.createdAt",
-    "attribute_entity_agg.updatedAt"
+    "attribute_entity_agg.updatedAt",
+    "attribute_entity_with_hydrator.number",
+    "attribute_entity_with_hydrator.createdAt",
+    "attribute_entity_with_hydrator.updatedAt"
 ]

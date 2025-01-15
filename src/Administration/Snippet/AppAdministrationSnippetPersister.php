@@ -16,7 +16,7 @@ use Shopware\Core\System\Locale\LocaleException;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('discovery')]
 class AppAdministrationSnippetPersister
 {
     public function __construct(

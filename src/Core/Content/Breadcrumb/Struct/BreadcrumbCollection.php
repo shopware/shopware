@@ -3,37 +3,23 @@
 namespace Shopware\Core\Content\Breadcrumb\Struct;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @experimental stableVersion:v6.7.0 feature:BREADCRUMB_STORE_API
+ *
+ * @extends Collection<Breadcrumb>
  */
 #[Package('inventory')]
-class BreadcrumbCollection extends Struct
+class BreadcrumbCollection extends Collection
 {
-    /**
-     * @param array<int, Breadcrumb> $breadcrumbs
-     */
-    public function __construct(
-        public array $breadcrumbs
-    ) {
-    }
-
-    public function getBreadcrumb(int $index): ?Breadcrumb
-    {
-        return $this->breadcrumbs[$index] ?? null;
-    }
-
-    /**
-     * @return array<int, Breadcrumb>
-     */
-    public function getBreadcrumbs(): array
-    {
-        return $this->breadcrumbs;
-    }
-
     public function getApiAlias(): string
     {
         return 'breadcrumb_collection';
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return Breadcrumb::class;
     }
 }

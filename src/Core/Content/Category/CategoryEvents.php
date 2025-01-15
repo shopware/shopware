@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Category;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryEvents
 {
     final public const CATEGORY_WRITTEN_EVENT = 'category.written';

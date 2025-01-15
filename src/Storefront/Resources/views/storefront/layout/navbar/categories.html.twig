@@ -4,9 +4,9 @@
     {% if not level %}
         {% set level = 0 %}
     {% endif %}
-    {% set activeId = page.header.navigation.active.id %}
+    {% set activeId = shopware.navigation.id %}
 
-    {% set activePath = page.header.navigation.active.path %}
+    {% set activePath = shopware.navigation.path %}
 
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
         {% for treeItem in navigationTree %}

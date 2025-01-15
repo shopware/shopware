@@ -11,6 +11,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
+use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
 /**
  * @internal
@@ -20,15 +22,15 @@ class ShopConfiguratorTest extends TestCase
 {
     private ShopConfigurator $shopConfigurator;
 
-    /**
-     * @var Connection&MockObject
-     */
-    private Connection $connection;
+    private Connection&MockObject $connection;
+
+    private CollectingEventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->shopConfigurator = new ShopConfigurator($this->connection);
+        $this->eventDispatcher = new CollectingEventDispatcher();
+        $this->shopConfigurator = new ShopConfigurator($this->connection, $this->eventDispatcher);
     }
 
     public function testUpdateBasicInformation(): void
@@ -79,11 +81,14 @@ class ShopConfiguratorTest extends TestCase
         });
 
         $this->shopConfigurator->setDefaultLanguage('vi-VN');
+
+        static::assertCount(1, $this->eventDispatcher->getEvents());
+        static::assertInstanceOf(SystemLanguageChangeEvent::class, $this->eventDispatcher->getEvents()[0]);
     }
 
     public function testSetDefaultLanguageMatchCurrentLocale(): void
     {
-        $currentLocaleId = Uuid::randomHex();
+        $currentLocaleId = Uuid::randomBytes();
 
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
@@ -123,7 +128,7 @@ class ShopConfiguratorTest extends TestCase
         $this->expectException(MaintenanceException::class);
         $this->expectExceptionMessage('Locale with iso-code "vi-VN" not found');
 
-        $currentLocaleId = Uuid::randomHex();
+        $currentLocaleId = Uuid::randomBytes();
 
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
@@ -167,7 +172,8 @@ class ShopConfiguratorTest extends TestCase
         int $expectedInsertCall,
         callable $insertCallback
     ): void {
-        $currentLocaleId = Uuid::randomHex();
+        $currentLocaleId = Uuid::randomBytes();
+        $languageId = Uuid::randomBytes();
 
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
@@ -184,9 +190,12 @@ class ShopConfiguratorTest extends TestCase
             return ['id' => $currentLocaleId, 'code' => 'en-GB'];
         });
 
-        $viLocaleId = Uuid::randomHex();
+        $viLocaleId = Uuid::randomBytes();
 
-        $this->connection->expects(static::atLeast(2))->method('fetchOne')->willReturn($viLocaleId);
+        $this->connection->expects(static::atLeast(2))->method('fetchOne')->willReturnOnConsecutiveCalls(
+            $viLocaleId,
+            $languageId
+        );
 
         $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], static fn (array $item) => $item !== []));
 

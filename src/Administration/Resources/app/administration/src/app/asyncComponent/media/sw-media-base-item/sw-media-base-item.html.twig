@@ -6,7 +6,7 @@
     role="button"
     tabindex="0"
     @click="handleItemClick"
-    @keydown.enter="handleItemClick"
+    @keydown.enter.self="handleItemClick"
 >
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -35,7 +35,7 @@
             {% block sw_media_base_item_slot_media_preview %}{% endblock %}
         </slot>
 
-        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
         {% block sw_media_base_spatial_label_indicator %}
         <div
             v-if="isSpatial"

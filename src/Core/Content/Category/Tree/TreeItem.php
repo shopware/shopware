@@ -7,7 +7,7 @@ use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class TreeItem extends Struct
 {
     /**

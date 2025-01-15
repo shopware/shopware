@@ -45,14 +45,14 @@ class CartRestorer
     {
         $customerPayload = $this->contextPersister->load(
             $token,
-            $currentContext->getSalesChannel()->getId(),
+            $currentContext->getSalesChannelId(),
         );
 
         if (empty($customerPayload) || !empty($customerPayload['permissions'])) {
             return $this->replaceContextToken($customerId, $currentContext, $token);
         }
 
-        $customerContext = $this->factory->create($customerPayload['token'], $currentContext->getSalesChannel()->getId(), $customerPayload);
+        $customerContext = $this->factory->create($customerPayload['token'], $currentContext->getSalesChannelId(), $customerPayload);
         if ($customerPayload['expired'] ?? false) {
             $customerContext = $this->replaceContextToken($customerId, $customerContext, $token);
         }
@@ -69,7 +69,7 @@ class CartRestorer
     {
         $customerPayload = $this->contextPersister->load(
             $currentContext->getToken(),
-            $currentContext->getSalesChannel()->getId(),
+            $currentContext->getSalesChannelId(),
             $customerId
         );
 
@@ -77,7 +77,7 @@ class CartRestorer
             return $this->replaceContextToken($customerId, $currentContext);
         }
 
-        $customerContext = $this->factory->create($customerPayload['token'], $currentContext->getSalesChannel()->getId(), $customerPayload);
+        $customerContext = $this->factory->create($customerPayload['token'], $currentContext->getSalesChannelId(), $customerPayload);
         if ($customerPayload['expired'] ?? false) {
             $customerContext = $this->replaceContextToken($customerId, $customerContext);
         }
@@ -137,7 +137,7 @@ class CartRestorer
                 'shippingAddressId' => null,
                 'permissions' => [],
             ],
-            $currentContext->getSalesChannel()->getId(),
+            $currentContext->getSalesChannelId(),
             ($originalToken === null) ? $customerId : null,
         );
 

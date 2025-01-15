@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class MaxUsage
 {
     final public const APPLIER_ALL = 'ALL';

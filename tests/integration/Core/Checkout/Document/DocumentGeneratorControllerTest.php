@@ -484,7 +484,7 @@ class DocumentGeneratorControllerTest extends TestCase
             [
                 'documentIds' => $documentIds,
             ],
-            ['documentIds' => ArrayParameterType::BINARY]
+            ['documentIds' => ArrayParameterType::STRING]
         );
     }
 

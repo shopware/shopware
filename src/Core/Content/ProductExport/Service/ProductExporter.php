@@ -48,7 +48,7 @@ class ProductExporter implements ProductExporterInterface
             ->addAssociation('salesChannelDomain.salesChannel')
             ->addAssociation('salesChannelDomain.language.locale')
             ->addAssociation('productStream.filters.queries')
-            ->addFilter(new EqualsFilter('storefrontSalesChannelId', $context->getSalesChannel()->getId()));
+            ->addFilter(new EqualsFilter('storefrontSalesChannelId', $context->getSalesChannelId()));
 
         if (!$behavior->includeInactive()) {
             $criteria->addFilter(new EqualsFilter('salesChannel.active', true));

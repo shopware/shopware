@@ -1,7 +1,7 @@
 import './acl';
 
 /**
- * @package checkout
+ * @package discovery
  */
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */

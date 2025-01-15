@@ -9,7 +9,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LanguageLocaleCodeProvider implements ResetInterface
 {
     /**

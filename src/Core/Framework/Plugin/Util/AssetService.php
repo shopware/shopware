@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Util;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
@@ -147,7 +148,9 @@ class AssetService
         $manifest[$bundleOrAppName] = $localBundleManifest;
         $this->writeManifest($manifest);
 
-        $this->cacheInvalidator->invalidate(['asset-metaData'], true);
+        if (!EnvironmentHelper::getVariable('SHOPWARE_SKIP_ASSET_INSTALL_CACHE_INVALIDATION', false)) {
+            $this->cacheInvalidator->invalidate(['asset-metaData'], true);
+        }
     }
 
     /**

@@ -21,8 +21,6 @@ test('As an admin user, I want to have an overview of my assigned rules, so that
     await ShopAdmin.expects(AdminShippingDetail.header).toHaveText(shippingMethod.name);
     await ShopAdmin.expects(AdminShippingDetail.nameField).toHaveValue(shippingMethod.name);
     await ShopAdmin.expects(AdminShippingDetail.availabilityRuleField).toHaveText(rule.name);
-
-    // remove if flaky
     await AdminShippingDetail.availabilityRuleField.click();
     await ShopAdmin.expects(AdminShippingDetail.getRuleSelectionCheckmark(rule.name)).toBeVisible();
 })

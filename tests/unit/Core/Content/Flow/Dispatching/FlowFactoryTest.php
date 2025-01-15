@@ -30,7 +30,7 @@ class FlowFactoryTest extends TestCase
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 
@@ -59,7 +59,7 @@ class FlowFactoryTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 

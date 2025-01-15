@@ -31,7 +31,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
 {
     public function testRequest(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $cart = Generator::createCart();
         $paymentMethods = ['paymentMethod-1', 'paymentMethod-2'];
         $shippingMethods = ['shippingMethod-1', 'shippingMethod-2'];
@@ -76,7 +76,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
 
     public function testRequestAppThrowsException(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $cart = Generator::createCart();
         $paymentMethods = ['paymentMethod-1', 'paymentMethod-2'];
         $shippingMethods = ['shippingMethod-1', 'shippingMethod-2'];

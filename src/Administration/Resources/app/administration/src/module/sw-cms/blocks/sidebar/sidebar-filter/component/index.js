@@ -2,7 +2,7 @@ import template from './sw-cms-block-sidebar-filter.html.twig';
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 export default {
     template,

@@ -96,7 +96,7 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
 
     public function getSalesChannelId(): string
     {
-        return $this->salesChannelContext->getSalesChannel()->getId();
+        return $this->salesChannelContext->getSalesChannelId();
     }
 
     public function getResetUrl(): string

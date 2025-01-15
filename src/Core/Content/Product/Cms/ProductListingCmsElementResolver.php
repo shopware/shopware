@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 {
     private const FILTER_REQUEST_PARAMS = [

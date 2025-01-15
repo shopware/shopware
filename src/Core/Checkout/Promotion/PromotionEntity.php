@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionEntity extends Entity
 {
     use EntityCustomFieldsTrait;

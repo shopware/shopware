@@ -1,17 +1,17 @@
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 Shopware.Component.register('sw-cms-block-html', () => import('./component'));
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 Shopware.Component.register('sw-cms-preview-html', () => import('./preview'));
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'html',

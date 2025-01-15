@@ -91,7 +91,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
         $processor->process(
             $this->ids->get('test-order'),
             new RequestDataBag(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
     }
 
@@ -155,7 +155,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
         $processor->process(
             $this->ids->get('test-order'),
             new RequestDataBag(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
     }
 
@@ -170,7 +170,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
         $order->setTransactions(new OrderTransactionCollection([$transaction]));
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $requestDataBag = new RequestDataBag();
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);

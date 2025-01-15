@@ -230,11 +230,11 @@ class AttributeEntityCompiler
     {
         if ($field->column) {
             $column = $field->column;
+            $fk = $column;
         } else {
             $column = $this->converter->normalize($property->getName());
+            $fk = $column . '_id';
         }
-
-        $fk = $column . '_id';
 
         return match (true) {
             $field instanceof State => [$column, $property->getName(), $field->machine, $field->scopes],

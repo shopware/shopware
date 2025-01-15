@@ -6,6 +6,7 @@ test('As an admin, I can create and verify customer groups in the admin.', { tag
     AdminCustomerGroupListing,
     AdminCustomerGroupDetail,
     DefaultSalesChannel,
+    InstanceMeta,
 }) => {
     const customerGroup = await TestDataService.createCustomerGroup();
 
@@ -38,6 +39,7 @@ test('As a customer, I must be able to register under a customer group in the St
     Register,
     CustomerGroupActivation,
 }) => {
+
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
     const customerGroup = await TestDataService.createCustomerGroup();
 
@@ -68,6 +70,7 @@ test('As a commercial customer, I must be able to register under a customer grou
     Register,
     CustomerGroupActivation,
 }) => {
+
     const uuid = IdProvider.getIdPair().uuid;
     const customer = { email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
     const commercialCustomerGroup = await TestDataService.createCustomerGroup({ registrationOnlyCompanyRegistration: true });

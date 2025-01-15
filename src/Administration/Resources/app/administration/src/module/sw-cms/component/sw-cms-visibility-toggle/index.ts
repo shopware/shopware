@@ -3,7 +3,7 @@ import './sw-cms-visibility-toggle.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 export default {
     template,

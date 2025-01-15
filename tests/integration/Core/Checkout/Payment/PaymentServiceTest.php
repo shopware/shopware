@@ -87,7 +87,7 @@ class PaymentServiceTest extends TestCase
     public function testHandlePaymentByOrderWithInvalidOrderId(): void
     {
         $orderId = Uuid::randomHex();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage(\sprintf('The order with id %s is invalid or could not be found.', $orderId));

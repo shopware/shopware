@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelCmsPageLoader::class)]
 class SalesChannelCmsPageLoaderTest extends TestCase
 {
@@ -42,7 +42,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
             $this->createMock(EventDispatcher::class)
         );
 
-        $result = $loader->load(new Request(), new Criteria(), Generator::createSalesChannelContext());
+        $result = $loader->load(new Request(), new Criteria(), Generator::generateSalesChannelContext());
 
         $elements = $result->getElements();
         static::assertContainsOnlyInstancesOf(CmsPageEntity::class, $elements);
@@ -78,7 +78,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $result = $loader->load(
             new Request(),
             new Criteria(),
-            Generator::createSalesChannelContext(),
+            Generator::generateSalesChannelContext(),
             $config
         );
 

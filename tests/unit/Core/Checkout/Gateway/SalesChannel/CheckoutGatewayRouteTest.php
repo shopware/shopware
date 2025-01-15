@@ -64,7 +64,7 @@ class CheckoutGatewayRouteTest extends TestCase
     {
         $request = new Request();
         $cart = new Cart('hatoken');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId(Uuid::randomHex());
@@ -146,7 +146,7 @@ class CheckoutGatewayRouteTest extends TestCase
     {
         $request = new Request();
         $cart = new Cart('hatoken');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId(Uuid::randomHex());
@@ -248,7 +248,7 @@ class CheckoutGatewayRouteTest extends TestCase
         $paymentMethod->setId(Uuid::randomHex());
         $paymentMethod->addTranslated('name', 'Bar');
 
-        $context = Generator::createSalesChannelContext(paymentMethod: $paymentMethod);
+        $context = Generator::generateSalesChannelContext(paymentMethod: $paymentMethod);
 
         $paymentMethods = new PaymentMethodRouteResponse(
             new EntitySearchResult(

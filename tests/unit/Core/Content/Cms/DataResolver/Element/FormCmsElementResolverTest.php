@@ -39,7 +39,7 @@ class FormCmsElementResolverTest extends TestCase
         $formCmsElementResolver = new FormCmsElementResolver($this->getSalutationRoute($salutationCollection));
 
         $formElement = $this->getCmsFormElement();
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $formCmsElementResolver->enrich(
             $formElement,
@@ -56,7 +56,7 @@ class FormCmsElementResolverTest extends TestCase
         $formCmsElementResolver = new FormCmsElementResolver($this->getSalutationRoute($salutationCollection));
 
         $formElement = $this->getCmsFormElement();
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $formCmsElementResolver->enrich(
             $formElement,
@@ -74,7 +74,7 @@ class FormCmsElementResolverTest extends TestCase
 
     public function testCollectReturnsNull(): void
     {
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
         $salutationRoute = $this->createMock(AbstractSalutationRoute::class);
 
         $formCmsElementResolver = new FormCmsElementResolver($salutationRoute);

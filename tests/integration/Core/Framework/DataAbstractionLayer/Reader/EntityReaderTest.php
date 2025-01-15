@@ -2659,8 +2659,4 @@ class EntityReaderTest extends TestCase
             'variant-main',
         ];
     }
-
-    public function testNonPkIdFieldIsNotAutofilled(): void
-    {
-    }
 }

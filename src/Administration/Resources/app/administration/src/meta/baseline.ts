@@ -115,7 +115,6 @@ const missingTests = [
     'src/app/decorator/index.js',
     'src/app/directive/index.ts',
     'src/app/directive/popover.directive.ts',
-    'src/app/directive/tooltip.directive.ts',
     'src/app/filter/index.ts',
     'src/app/init/directive.init.ts',
     'src/app/init/index.ts',

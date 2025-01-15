@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
@@ -323,8 +322,6 @@ class MediaEntity extends Entity
     protected ?ProductDownloadCollection $productDownloads = null;
 
     protected ?OrderLineItemDownloadCollection $orderLineItemDownloads = null;
-
-    protected ?DocumentMediaCollection $documentMediaFiles = null;
 
     /**
      * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
@@ -839,15 +836,5 @@ class MediaEntity extends Entity
     public function isSpatialObject(): bool
     {
         return $this->mediaType instanceof SpatialObjectType;
-    }
-
-    public function getDocumentMediaFiles(): ?DocumentMediaCollection
-    {
-        return $this->documentMediaFiles;
-    }
-
-    public function setDocumentMediaFiles(DocumentMediaCollection $mediaCollection): void
-    {
-        $this->documentMediaFiles = $mediaCollection;
     }
 }

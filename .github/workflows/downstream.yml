@@ -13,26 +13,10 @@ on:
         default: ""
 
 jobs:
-  member-state:
-    runs-on: ubuntu-24.04
-    outputs:
-      org-member: ${{ steps.member-state.outputs.MEMBER }}
-    env:
-      GH_TOKEN: ${{ github.token }}
-    steps:
-      - id: member-state
-        run: |
-          LOGIN=$(gh api /user -q '.login')
-          echo $LOGIN
-          gh api /orgs/shopware/memberships/$LOGIN
-          # test external
-          gh api /orgs/shopware/memberships/akf-bw 
 
   rufus:
     name: "Rufus"
     runs-on: ubuntu-24.04
-    needs:
-      -  member-state
     permissions:
       contents: read
       id-token: write
@@ -67,8 +51,6 @@ jobs:
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
-    needs:
-      -  member-state
     permissions:
       contents: read
       id-token: write

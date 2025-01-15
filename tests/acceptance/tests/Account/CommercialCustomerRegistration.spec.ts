@@ -60,7 +60,6 @@ test('As a new customer, I should not be able to register as a commercial custom
     test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
     test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40297');
 
-    // Enable
     await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
     const country = await TestDataService.getCountryId('DE');
     const uuid = IdProvider.getIdPair().uuid;
@@ -75,7 +74,7 @@ test('As a new customer, I should not be able to register as a commercial custom
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
         await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
 
-        // Attempt registration with an invalid VAT ID
+        // Attempt to register the customer with the invalid VAT ID.
         await ShopCustomer.attemptsTo(Register(customer, true));
 
         await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');

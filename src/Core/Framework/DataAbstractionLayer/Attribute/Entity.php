@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class Entity
+final class Entity
 {
     /**
      * @var class-string

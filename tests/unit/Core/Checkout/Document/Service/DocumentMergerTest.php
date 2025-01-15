@@ -6,8 +6,6 @@ use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tfpdf\Fpdi;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -15,6 +13,7 @@ use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -39,10 +38,6 @@ class DocumentMergerTest extends TestCase
         $documentType->setId(Uuid::randomHex());
         $documentType->setTechnicalName('invoice');
 
-        $documentMediaEntity = new DocumentMediaEntity();
-        $documentMediaEntity->setId(Uuid::randomHex());
-        $documentMediaEntity->setMediaId(Uuid::randomHex());
-
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setOrderId($orderId);
@@ -52,8 +47,6 @@ class DocumentMergerTest extends TestCase
         $document->setConfig([]);
 
         $documentWithMedia = clone $document;
-        $documentMediaEntity->setDocumentId($documentWithMedia->getId());
-        $documentWithMedia->setDocumentMediaFiles(new DocumentMediaCollection([$documentMediaEntity]));
 
         $documentRepository = $this->createMock(EntityRepository::class);
         $documentRepository->expects(static::exactly(2))->method('search')->willReturnOnConsecutiveCalls(
@@ -103,13 +96,13 @@ class DocumentMergerTest extends TestCase
 
         $orderId = Uuid::randomHex();
 
+        $mediaEntity = new MediaEntity();
+        $mediaEntity->setId(Uuid::randomHex());
+        $mediaEntity->setFileExtension('pdf');
+
         $documentType = new DocumentTypeEntity();
         $documentType->setId(Uuid::randomHex());
         $documentType->setTechnicalName('invoice');
-
-        $documentMediaEntity = new DocumentMediaEntity();
-        $documentMediaEntity->setId(Uuid::randomHex());
-        $documentMediaEntity->setMediaId(Uuid::randomHex());
 
         $firstDocument = new DocumentEntity();
         $firstDocument->setId(Uuid::randomHex());
@@ -118,9 +111,8 @@ class DocumentMergerTest extends TestCase
         $firstDocument->setDocumentType($documentType);
         $firstDocument->setStatic(false);
         $firstDocument->setConfig([]);
-
-        $documentMediaEntity->setDocumentId($firstDocument->getId());
-        $firstDocument->setDocumentMediaFiles(new DocumentMediaCollection([$documentMediaEntity]));
+        $firstDocument->setDocumentMediaFileId($mediaEntity->getId());
+        $firstDocument->setDocumentMediaFile($mediaEntity);
 
         $secondDocument = new DocumentEntity();
         $secondDocument->setId(Uuid::randomHex());
@@ -141,7 +133,6 @@ class DocumentMergerTest extends TestCase
         ]);
 
         $documentGenerator = $this->createMock(DocumentGenerator::class);
-        $documentGenerator->expects(static::never())->method('generate');
 
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->expects(static::once())

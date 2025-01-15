@@ -8,8 +8,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentMedia\DocumentMediaEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
@@ -28,6 +26,7 @@ use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
@@ -261,28 +260,17 @@ class DocumentGeneratorTest extends TestCase
                 'config' => [],
                 'documentMediaFileId' => null,
                 'deepLinkCode' => Random::getAlphanumericString(32),
+                'documentA11yMediaFileId' => null,
             ]], $this->context);
         }
 
         if (!$static) {
-            $criteria = new Criteria([$documentId]);
-            $criteria->addAssociation('documentMediaFiles');
-
-            /** @var ?DocumentEntity $document */
-            $document = $this->documentRepository->search($criteria, $this->context)->get($documentId);
-
-            static::assertInstanceOf(DocumentMediaCollection::class, $document?->getDocumentMediaFiles());
-
             $this->documentRepository->update([[
                 'id' => $documentId,
                 'documentMediaFileId' => null,
+                'documentA11yMediaFileId' => null,
                 'static' => false,
             ]], $this->context);
-
-            $documentMediaRepository = static::getContainer()->get('document_media.repository');
-            $documentMediaRepository->delete(array_values(
-                $document->getDocumentMediaFiles()->fmap(fn (DocumentMediaEntity $media) => ['id' => $media->getId()]),
-            ), $this->context);
         }
 
         $this->documentGenerator->upload($documentId, $this->context, $uploadFileRequest);
@@ -778,6 +766,7 @@ class DocumentGeneratorTest extends TestCase
             'documentMediaFileId' => null,
             'config' => [],
             'deepLinkCode' => Random::getAlphanumericString(32),
+            'documentA11yMediaFileId' => null,
         ]], $this->context);
 
         $generatedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
@@ -809,6 +798,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($invoiceStruct);
         static::assertInstanceOf(DocumentIdStruct::class, $invoiceStruct);
         $documentMediaFileId = $invoiceStruct->getMediaId();
+        $documentA11yMediaFileId = $invoiceStruct->getA11yMediaId();
+
         $documentId = $invoiceStruct->getId();
 
         if ($static && $withMedia === false) {
@@ -837,10 +828,12 @@ class DocumentGeneratorTest extends TestCase
         }
 
         static::assertNotNull($documentMediaFileId);
+        static::assertNotNull($documentA11yMediaFileId);
 
         if ($withMedia === false) {
             $criteria = new Criteria([$documentId]);
-            $criteria->addAssociation('documentMediaFiles');
+            $criteria->addAssociation('documentMediaFile')
+                ->addAssociation('documentA11yMediaFile');
 
             $documentRepository = static::getContainer()->get('document.repository');
             /** @var DocumentEntity $document */
@@ -850,31 +843,39 @@ class DocumentGeneratorTest extends TestCase
 
             $fileSystem = static::getContainer()->get('shopware.filesystem.private');
             $mediaRepository = static::getContainer()->get('media.repository');
-            /** @var MediaEntity $media */
-            $media = $mediaRepository->search(new Criteria([$documentMediaFileId]), $this->context)->get($documentMediaFileId);
 
+            /** @var MediaCollection $mediaFiles */
+            $mediaFiles = $mediaRepository->search(new Criteria([$documentMediaFileId, $documentA11yMediaFileId]), $this->context);
+            static::assertNotNull($mediaFiles);
+
+            /** @var MediaEntity $media */
+            $media = $mediaFiles->get($documentMediaFileId);
             static::assertNotNull($media);
+
+            /** @var MediaEntity $mediaAyy1 */
+            $mediaAyy1 = $mediaFiles->get($documentA11yMediaFileId);
+            static::assertNotNull($mediaAyy1);
 
             $filePath = $media->getPath();
 
             static::assertTrue($fileSystem->has($filePath));
             $fileSystem->delete($filePath);
 
+            $filePathA11y = $mediaAyy1->getPath();
+
+            static::assertTrue($fileSystem->has($filePathA11y));
+            $fileSystem->delete($filePathA11y);
+
             $this->documentRepository->update([[
                 'id' => $documentId,
                 'documentMediaFileId' => null,
+                'documentA11yMediaFileId' => null,
             ]], $this->context);
 
-            static::assertInstanceOf(DocumentMediaCollection::class, $document->getDocumentMediaFiles());
-
-            $documentMediaRepository = static::getContainer()->get('document_media.repository');
-            $documentMediaRepository->delete(array_values(
-                $document->getDocumentMediaFiles()->fmap(fn (DocumentMediaEntity $media) => ['id' => $media->getId()])
-            ), $this->context);
-
-            $mediaRepository->delete(array_values(
-                $document->getDocumentMediaFiles()->fmap(fn (DocumentMediaEntity $media) => ['id' => $media->getMediaId()])
-            ), $this->context);
+            $mediaRepository->delete([
+                ['id' => $documentMediaFileId],
+                ['id' => $documentA11yMediaFileId],
+            ], $this->context);
         }
 
         $generatedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
@@ -911,7 +912,9 @@ class DocumentGeneratorTest extends TestCase
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
         $criteria = new Criteria([$documentStruct->getId()]);
-        $criteria->addAssociation('documentType');
+        $criteria->addAssociation('documentType')
+            ->addAssociation('documentMediaFile')
+            ->addAssociation('documentA11yMediaFile');
 
         /** @var DocumentEntity $document */
         $document = $this->documentRepository
@@ -960,8 +963,9 @@ class DocumentGeneratorTest extends TestCase
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
         $criteria = new Criteria([$documentStruct->getId()]);
-        $criteria->addAssociation('documentMediaFile');
-        $criteria->addAssociation('documentType');
+        $criteria->addAssociation('documentMediaFile')
+            ->addAssociation('documentA11yMediaFile')
+            ->addAssociation('documentType');
 
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search($criteria, $this->context)->get($documentStruct->getId());

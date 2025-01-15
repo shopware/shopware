@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('after-sales')]
-class DocumentGenerationException extends ShopwareHttpException
+class DocumentGenerationException extends DocumentException
 {
     public function __construct(string $message = '')
     {

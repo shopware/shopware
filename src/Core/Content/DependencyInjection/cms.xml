@@ -83,5 +83,9 @@
             <argument type="service" id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Content\Cms\Subscriber\CmsVersionMergeSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

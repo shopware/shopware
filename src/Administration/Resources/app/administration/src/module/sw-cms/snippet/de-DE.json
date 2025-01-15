@@ -207,16 +207,16 @@
             "displayModeCover": "Zugeschnitten",
             "displayModeStretch": "Skaliert",
             "displayModeContain": "Feste Höhe",
-            "autoSlide": "Automatischer Bildwechsel",
+            "autoSlide": "Automatischer Wechsel",
             "autoplayTimeout": "Verzögerung",
-            "speed": "Animationsverzögerung",
+            "speed": "Animationsdauer",
             "horizontalAlign": "Horizontale Ausrichtung",
             "horizontalAlignLeft": "Links",
             "horizontalAlignCenter": "Mitte",
             "horizontalAlignRight": "Rechts"
           },
           "helpText": {
-            "autoSlide": "Der Bilderwechsel erfolgt automatisch nach den hier gemachten Vorgaben.",
+            "autoSlide": "Wegen mangelnder Barrierefreiheit temporär deaktiviert.",
             "autoplayTimeout": "Die Anzeigezeit eines einzelnen Bildes in Millisekunden.",
             "speed": "Die Dauer der Wechselanimation in Millisekunden.",
             "displayMode": "<strong>Original:</strong> Das Bild wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.<br><br><strong>Skaliert:</strong> Das Bild wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.<br><br><strong>Zugeschnitten:</strong> Das Bild wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten."

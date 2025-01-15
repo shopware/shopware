@@ -7,7 +7,8 @@
     {%- endif -%}
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
-                {% for media in document.documentMediaFiles %}
+                {% set documentMediaFiles = [document.documentMediaFile, document.documentA11yMediaFile] %}
+                {% for media in documentMediaFiles %}
                     {% set documentLink = path('frontend.account.order.single.document', {
                         documentId: document.id,
                         deepLinkCode: document.deepLinkCode,

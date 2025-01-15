@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 abstract class AbstractDocumentTypeRenderer
 {
     abstract public function getContentType(): string;

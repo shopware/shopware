@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('after-sales')]
-class DocumentNumberAlreadyExistsException extends ShopwareHttpException
+class DocumentNumberAlreadyExistsException extends DocumentException
 {
     public function __construct(?string $number)
     {

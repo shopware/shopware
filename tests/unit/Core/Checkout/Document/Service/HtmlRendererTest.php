@@ -20,7 +20,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(HtmlRenderer::class)]
 class HtmlRendererTest extends TestCase
 {

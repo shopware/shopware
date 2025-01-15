@@ -31,8 +31,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(IdFieldSerializer::class)]
 class IdFieldSerializerTest extends TestCase
 {
-    #[DataProvider('valueProvider')]
-    public function testSerializer(Field $field, ?string $value, ?string $expected = null): void
+    #[DataProvider('idShouldNotBeGeneratedCasesProvider')]
+    public function testSerializerAcceptsValue(Field $field, ?string $value, ?string $expected): void
     {
         $validator = $this->createMock(ValidatorInterface::class);
 
@@ -54,48 +54,79 @@ class IdFieldSerializerTest extends TestCase
 
         static::assertArrayHasKey('media_id', $encoded);
 
-        if ($expected !== null) {
-            static::assertSame($expected, $encoded['media_id']);
-        } else {
-            static::assertTrue(Uuid::isValid(Uuid::fromBytesToHex($encoded['media_id'])));
-        }
+        static::assertSame($expected, $encoded['media_id']);
     }
 
-    public static function valueProvider(): \Generator
+    public static function idShouldNotBeGeneratedCasesProvider(): \Generator
     {
         $ids = new IdsCollection();
 
-        yield 'field is pk and not explicitly passed (should be generated)' => [
-            'field' => (new IdField('media_id', 'mediaId'))->addFlags(new PrimaryKey()),
-            'value' => null,
-        ];
-
-        yield 'field is required and not explicitly passed (should be generated)' => [
-            'field' => (new IdField('media_id', 'mediaId'))->addFlags(new Required()),
-            'value' => null,
-        ];
-
-        yield 'field is pk and required and not explicitly passed (should be generated)' => [
-            'field' => (new IdField('media_id', 'mediaId'))->addFlags(new PrimaryKey(), new Required()),
-            'value' => null,
-        ];
-
-        yield 'field is pk and specified (should not be generated)' => [
+        yield 'field is pk and specified' => [
             'field' => (new IdField('media_id', 'mediaId'))->addFlags(new PrimaryKey()),
             'value' => $ids->get('media-1'),
             'expected' => $ids->getBytes('media-1'),
         ];
 
-        yield 'field is required and specified (should not be generated)' => [
+        yield 'field is required and specified' => [
             'field' => (new IdField('media_id', 'mediaId'))->addFlags(new Required()),
             'value' => $ids->get('media-1'),
             'expected' => $ids->getBytes('media-1'),
         ];
 
-        yield 'field is pk and required and specified (should not be generated)' => [
+        yield 'field is pk and required and specified' => [
             'field' => (new IdField('media_id', 'mediaId'))->addFlags(new PrimaryKey(), new Required()),
             'value' => $ids->get('media-1'),
             'expected' => $ids->getBytes('media-1'),
+        ];
+
+        yield 'field is not required, nor pk (null should be accepted)' => [
+            'field' => new IdField('media_id', 'mediaId'),
+            'value' => null,
+            'expected' => null,
+        ];
+    }
+
+    #[DataProvider('idShouldBeGeneratedCasesProvider')]
+    public function testSerializerGeneratesValue(Field $field, ?string $value): void
+    {
+        $validator = $this->createMock(ValidatorInterface::class);
+
+        $serializer = new IdFieldSerializer(
+            $validator,
+            new StaticDefinitionInstanceRegistry([], $validator, $this->createMock(EntityWriteGatewayInterface::class))
+        );
+
+        $existence = EntityExistence::createEmpty();
+        $kv = new KeyValuePair($field->getPropertyName(), $value, true);
+        $params = new WriteParameterBag(
+            new ProductDefinition(),
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            '',
+            new WriteCommandQueue()
+        );
+
+        $encoded = iterator_to_array($serializer->encode($field, $existence, $kv, $params));
+
+        static::assertArrayHasKey('media_id', $encoded);
+
+        static::assertTrue(Uuid::isValid(Uuid::fromBytesToHex($encoded['media_id'])));
+    }
+
+    public static function idShouldBeGeneratedCasesProvider(): \Generator
+    {
+        yield 'field is pk and not explicitly passed' => [
+            'field' => (new IdField('media_id', 'mediaId'))->addFlags(new PrimaryKey()),
+            'value' => null,
+        ];
+
+        yield 'field is required and not explicitly passed' => [
+            'field' => (new IdField('media_id', 'mediaId'))->addFlags(new Required()),
+            'value' => null,
+        ];
+
+        yield 'field is pk and required and not explicitly passed' => [
+            'field' => (new IdField('media_id', 'mediaId'))->addFlags(new PrimaryKey(), new Required()),
+            'value' => null,
         ];
     }
 }

@@ -13,7 +13,6 @@ return [
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
         '**/src/Core/Framework/App/Source/AbstractTemporaryDirectoryFactory.php', // dropped (not released yet)
         '**/src/Core/Framework/App/Source/TemporaryDirectoryFactory.php', // dropped decorator (not released yet)
-        '**/src/Core/Framework/DataAbstractionLayer/Attribute/Entity.php', // never intended to be extended
     ],
     'errors' => [
         // ProductReviewLoader moved to core, the entire classes is deprecated, can be removed after 6.7.0.0 release
@@ -54,5 +53,9 @@ return [
 
         // Class is marked as @final
         'Parameter clearHttp was added to Method clear\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheClearer',
+
+        // Was not intended to be extended, declared as final
+        'Class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity became final',
+        'Parameter hydratorClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
     ],
 ];

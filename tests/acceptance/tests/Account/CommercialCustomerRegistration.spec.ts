@@ -58,6 +58,7 @@ test('As a new customer, I should not be able to register as a commercial custom
     AdminApiContext,
 }) => {
     test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40297');
 
     await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
     const country = await TestDataService.getCountryId('DE');

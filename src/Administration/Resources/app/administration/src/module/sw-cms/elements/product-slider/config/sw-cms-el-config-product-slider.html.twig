@@ -294,12 +294,14 @@
                 <div class="sw-cms-el-config-product-slider__tab-settings-rotate">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_rotate %}
+                    {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
                     <sw-switch-field
-                        v-model:value="element.config.rotate.value"
+                        :value="true"
                         class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
                         :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
                         :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
                         bordered
+                        disabled
                     />
                     {% endblock %}
                 </div>
@@ -313,7 +315,7 @@
                         number-type="int"
                         :min="0"
                         :max="3600000"
-                        :disabled="!element.config.rotate.value"
+                        :disabled="true"
                         :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
                         :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
                         :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
@@ -328,7 +330,7 @@
                         number-type="int"
                         :min="0"
                         :max="3600000"
-                        :disabled="!element.config.rotate.value"
+                        :disabled="true"
                         :label="$tc('sw-cms.elements.general.config.label.speed')"
                         :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
                         :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"

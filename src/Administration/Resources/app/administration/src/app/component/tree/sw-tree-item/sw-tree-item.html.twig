@@ -44,7 +44,10 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tree_item_element_toggle_icon %}
-            <sw-icon :name="opened ? 'regular-chevron-down-xxs' : 'regular-chevron-right-xxs'" />
+            <mt-icon
+                size="24px"
+                :name="opened ? 'regular-chevron-down-xxs' : 'regular-chevron-right-xxs'"
+            />
             {% endblock %}
         </div>
         {% endblock %}
@@ -70,22 +73,22 @@
                 v-if="item.childCount > 0"
                 class="sw-tree-item__icon"
             >
-                <sw-icon
+                <mt-icon
                     v-if="opened"
                     name="regular-folder-open"
-                    small
+                    size="16px"
                 />
-                <sw-icon
+                <mt-icon
                     v-else
                     name="regular-folder"
-                    small
+                    size="16px"
                 />
             </div>
             <div
                 v-else
                 class="sw-tree-item__icon"
             >
-                <sw-icon name="regular-circle-xxs" />
+                <mt-icon name="regular-circle-xxs" />
             </div>
         </slot>
         {% endblock %}
@@ -146,9 +149,9 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tree_items_active_state %}
-            <sw-icon
+            <mt-icon
                 v-if="shouldShowActiveState"
-                size="6"
+                size="6px"
                 :color="getActiveIconColor(item)"
                 name="solid-circle-xxxs"
             />
@@ -353,9 +356,9 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_items_transition_active_state %}
-                    <sw-icon
+                    <mt-icon
                         v-if="shouldShowActiveState"
-                        size="6"
+                        size="6px"
                         :color="getActiveIconColor(item)"
                         name="solid-circle-xxxs"
                     />

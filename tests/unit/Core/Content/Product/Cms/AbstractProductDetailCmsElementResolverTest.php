@@ -38,7 +38,7 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot->setFieldConfig($config);
 
         $context = new EntityResolverContext(
-            Generator::createSalesChannelContext(),
+            Generator::generateSalesChannelContext(),
             new Request(),
             new SalesChannelProductDefinition(),
             new SalesChannelProductEntity()
@@ -54,7 +54,7 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $resolver = new TestProductDetailCmsElementResolver();
         $collection = $resolver->collect($slot, $context);
@@ -71,7 +71,7 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $resolver = new TestProductDetailCmsElementResolver();
         $collection = $resolver->collect($slot, $context);

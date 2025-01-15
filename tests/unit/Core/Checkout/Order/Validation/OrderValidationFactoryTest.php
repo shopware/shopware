@@ -36,7 +36,7 @@ class OrderValidationFactoryTest extends TestCase
         $customer->setActiveShippingAddress($address);
         $customer->setActiveBillingAddress($address);
 
-        $this->salesChannelContext = Generator::createSalesChannelContext(customer: $customer);
+        $this->salesChannelContext = Generator::generateSalesChannelContext(customer: $customer);
     }
 
     public function testDefinitionRulesCreate(): void

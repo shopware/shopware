@@ -37,8 +37,16 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * Listen for WebhookEventMessage failures:
+     * 1. Increase the error count of the webhook
+     * 2. Mark the event log as failed
+     * 3. Disable the webhook completely when the total number of errors equals @see self::MAX_WEBHOOK_ERROR_COUNT
+     */
     public function failed(WorkerMessageFailedEvent $event): void
     {
+        // if this message is already flagged as retry (possibly by a custom retry strategy
+        // we ignore it here.
         if ($event->willRetry()) {
             return;
         }
@@ -55,15 +63,9 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 
         $this->markWebhookEventFailed($webhookEventLogId, $context);
 
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT active, error_count FROM webhook WHERE id = :id',
-            ['id' => $webhookId]
-        );
+        $webhook = $this->fetchWebhookIfActive($webhookId);
 
-        /** @var array{active: int, error_count: int} $webhook */
-        $webhook = current($rows);
-
-        if (!\is_array($webhook) || !$webhook['active']) {
+        if (!$webhook) {
             return;
         }
 
@@ -78,6 +80,26 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
         }
 
         $this->relatedWebhooks->updateRelated($webhookId, $params, $context);
+    }
+
+    /**
+     * @return array{active: int, error_count: int}|null
+     */
+    private function fetchWebhookIfActive(string $webhookId): ?array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT active, error_count FROM webhook WHERE id = :id',
+            ['id' => $webhookId]
+        );
+
+        /** @var array{active: int, error_count: int}|false $webhook */
+        $webhook = current($rows);
+
+        if (!\is_array($webhook) || !$webhook['active']) {
+            return null;
+        }
+
+        return $webhook;
     }
 
     private function markWebhookEventFailed(string $id, Context $context): void

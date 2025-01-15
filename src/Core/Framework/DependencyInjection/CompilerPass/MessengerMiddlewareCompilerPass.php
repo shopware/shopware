@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware;
+use Shopware\Core\Framework\Webhook\MessengerMiddleware\AddAdditionalInfoForWebhooksMiddleware;
 use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -26,6 +27,7 @@ class MessengerMiddlewareCompilerPass implements CompilerPassInterface
             0,
             new IteratorArgument([
                 new Reference(RoutingOverwriteMiddleware::class),
+                new Reference(AddAdditionalInfoForWebhooksMiddleware::class),
                 ...$middlewares->getValues(),
             ])
         );

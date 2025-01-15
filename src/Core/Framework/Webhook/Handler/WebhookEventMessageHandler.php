@@ -5,12 +5,14 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Event\WebhookFailedEvent;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
@@ -34,10 +36,11 @@ final class WebhookEventMessageHandler
         private readonly Client $client,
         private readonly EntityRepository $webhookEventLogRepository,
         private readonly RelatedWebhooks $relatedWebhooks,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
-    public function __invoke(WebhookEventMessage $message): void
+    public function __invoke(WebhookEventMessage $message, int $numRetries = 0): void
     {
         $shopwareVersion = $message->getShopwareVersion();
 
@@ -128,6 +131,8 @@ final class WebhookEventMessageHandler
             }
 
             $this->webhookEventLogRepository->update([$payload], $context);
+
+            $this->eventDispatcher->dispatch(new WebhookFailedEvent($message, $e, $numRetries + 1));
 
             if ($e instanceof BadResponseException && $message->getAppId()) {
                 throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $e);

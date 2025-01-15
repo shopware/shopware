@@ -70,6 +70,7 @@
             <argument type="service" id="shopware.app_system.guzzle"/>
             <argument type="service" id="webhook_event_log.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -97,5 +98,7 @@
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup"/>
             <tag name="messenger.message_handler"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Webhook\MessengerMiddleware\AddAdditionalInfoForWebhooksMiddleware"/>
     </services>
 </container>

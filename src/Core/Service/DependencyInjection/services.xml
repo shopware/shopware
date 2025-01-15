@@ -18,7 +18,6 @@
 
         <service id="Shopware\Core\Service\Command\Install">
             <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
-
             <tag name="console.command" />
         </service>
 
@@ -116,5 +115,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Service\EventListener\FailedWebhookListener">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_listener"/>
+        </service>
     </services>
 </container>

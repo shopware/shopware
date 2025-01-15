@@ -15,7 +15,7 @@ use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
  *
  * @template-extends StorefrontSearchResult<ProductReviewCollection>
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ReviewLoaderResult extends StorefrontSearchResult
 {
     /**

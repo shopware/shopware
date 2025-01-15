@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\Footer\FooterPagelet;
 use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
-#[Package('storefront')]
+#[Package('framework')]
 class Page extends Struct
 {
     /**

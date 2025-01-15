@@ -9,7 +9,7 @@ use Shopware\Storefront\Theme\AbstractScssCompiler;
 use Shopware\Storefront\Theme\CompilerConfiguration;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 
-#[Package('storefront')]
+#[Package('framework')]
 class SCSSValidator
 {
     /**

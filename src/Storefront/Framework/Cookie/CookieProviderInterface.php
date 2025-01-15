@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Framework\Cookie;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('storefront')]
+#[Package('framework')]
 interface CookieProviderInterface
 {
     /**

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<ThemeTranslationEntity>
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeTranslationCollection extends EntityCollection
 {
     /**

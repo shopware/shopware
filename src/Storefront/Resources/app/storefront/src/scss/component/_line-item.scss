@@ -420,8 +420,7 @@
             .line-item-unit-price-label,
             .line-item-total-price-label,
             .line-item-tax-price-label {
-                // display: none;
-                @include visually-hidden();
+                display: none;
             }
         }
     }
@@ -632,8 +631,7 @@
     }
 
     .line-item-unit-price-label {
-        // display: none;
-        @include visually-hidden();
+        display: none;
     }
 
     .line-item-tax-price-label {
@@ -648,8 +646,7 @@
 
     @include media-breakpoint-only(sm) {
         .line-item-unit-price-label {
-            // display: block;
-            @include not-visually-hidden();
+            display: block;
         }
     }
 
@@ -671,8 +668,7 @@
 
     .is-offcanvas {
         .line-item-unit-price-label {
-            @include visually-hidden();
-            //display: none;
+            display: none;
         }
 
         .line-item-total-price-label {

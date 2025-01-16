@@ -112,11 +112,7 @@ export default {
                 this.showRemovalModal = false;
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.removeExtension(
-                    this.extension.name,
-                    this.extension.type,
-                    removeData,
-                );
+                await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type, removeData);
                 this.extension.active = false;
                 await this.clearCacheAndReloadPage();
             } catch (e) {

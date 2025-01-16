@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\Flow;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(TransactionFailedException::class)]
 class TransactionFailedExceptionTest extends TestCase
 {

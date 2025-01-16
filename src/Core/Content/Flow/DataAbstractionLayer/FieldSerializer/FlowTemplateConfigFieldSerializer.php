@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 {
     public function encode(

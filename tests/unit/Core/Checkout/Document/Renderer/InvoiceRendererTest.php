@@ -50,7 +50,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool}
  * @phpstan-type InvoiceConfig array{displayAdditionalNoteDelivery: bool, deliveryCountries: array<string>}
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(InvoiceRenderer::class)]
 class InvoiceRendererTest extends TestCase
 {

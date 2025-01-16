@@ -1,7 +1,7 @@
 import template from './sw-newsletter-recipient-filter-switch.html.twig';
 
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

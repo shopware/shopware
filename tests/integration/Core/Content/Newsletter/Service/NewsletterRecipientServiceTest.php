@@ -27,7 +27,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class NewsletterRecipientServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

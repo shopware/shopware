@@ -237,13 +237,13 @@ class RegisterRoute extends AbstractRegisterRoute
                 'shippingAddressId' => null,
                 'domainId' => $context->getDomainId(),
             ],
-            $context->getSalesChannelId(),
+            $context->getSalesChannel()->getId(),
             $customerEntity->getId()
         );
 
         $new = $this->contextService->get(
             new SalesChannelContextServiceParameters(
-                $context->getSalesChannelId(),
+                $context->getSalesChannel()->getId(),
                 $newToken,
                 $context->getLanguageId(),
                 $context->getCurrencyId(),
@@ -610,7 +610,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         return str_replace(
             ['%%HASHEDEMAIL%%', '%%SUBSCRIBEHASH%%'],
-            [$emailHash, $customer->getHash()],
+            [$emailHash, (string) $customer->getHash()],
             $urlEvent->getConfirmUrl()
         );
     }

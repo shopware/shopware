@@ -8,7 +8,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @codeCoverageIgnore (see \Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaPathStorageTest)
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaPathStorageTest
  */
 #[Package('core')]
 class SqlMediaPathStorage implements MediaPathStorage

@@ -51,7 +51,6 @@ class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension,
             $getExpr,
             TypeCombinator::removeNull($scope->getType($getExpr)),
             $context,
-            false, // TODO NEXT-39412 Remove with update to PHPStan 2.0
             $scope
         );
 
@@ -60,7 +59,6 @@ class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension,
                 $getExpr,
                 new NullType(),
                 $context->negate(),
-                false, // TODO NEXT-39412 Remove with update to PHPStan 2.0
                 $scope
             )
         );

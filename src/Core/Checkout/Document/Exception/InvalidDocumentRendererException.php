@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed. Use DocumentException::guestNotAuthenticated instead
+ */
 #[Package('after-sales')]
 class InvalidDocumentRendererException extends DocumentException
 {

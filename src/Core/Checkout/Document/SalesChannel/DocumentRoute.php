@@ -2,9 +2,14 @@
 
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
+use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,9 +25,13 @@ final class DocumentRoute extends AbstractDocumentRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<DocumentCollection> $documentRepository
      */
-    public function __construct(private readonly DocumentGenerator $documentGenerator)
-    {
+    public function __construct(
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly EntityRepository $documentRepository,
+    ) {
     }
 
     public function getDecorated(): AbstractDocumentRoute
@@ -33,7 +42,20 @@ final class DocumentRoute extends AbstractDocumentRoute
     #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'document'])]
     public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = '', string $fileType = PdfRenderer::FILE_EXTENSION): Response
     {
-        if ($context->getCustomer() === null || ($context->getCustomer()->getGuest() && $deepLinkCode === '')) {
+        $criteria = new Criteria([$documentId]);
+        $criteria->addAssociation('order.orderCustomer.customer');
+        $criteria->addAssociation('order.billingAddress');
+
+        if (!$context->getCustomer()) {
+            $document = $this->documentRepository->search($criteria, $context->getContext())->first();
+            if (!$document instanceof DocumentEntity) {
+                throw DocumentException::documentNotFound($documentId);
+            }
+
+            $this->checkGuestAuth($document->getOrder(), $request);
+        }
+
+        if ($context->getCustomer()?->getGuest() && $deepLinkCode === '') {
             throw DocumentException::customerNotLoggedIn();
         }
 
@@ -68,5 +90,35 @@ final class DocumentRoute extends AbstractDocumentRoute
         $response->headers->set('Content-Disposition', $disposition);
 
         return $response;
+    }
+
+    private function checkGuestAuth(?OrderEntity $order, Request $request): void
+    {
+        if ($order === null) {
+            throw DocumentException::guestNotAuthenticated();
+        }
+
+        $orderCustomer = $order->getOrderCustomer();
+        if ($orderCustomer === null) {
+            throw DocumentException::customerNotLoggedIn();
+        }
+
+        $guest = $orderCustomer->getCustomer() !== null && $orderCustomer->getCustomer()->getGuest();
+        // Throw exception when customer is not guest
+        if (!$guest) {
+            throw DocumentException::customerNotLoggedIn();
+        }
+
+        // Verify email and zip code with this order
+        if ($request->get('email', false) && $request->get('zipcode', false)) {
+            $billingAddress = $order->getBillingAddress();
+            if ($billingAddress === null
+                || $request->get('email') !== $orderCustomer->getEmail()
+                || $request->get('zipcode') !== $billingAddress->getZipcode()) {
+                throw DocumentException::wrongGuestCredentials();
+            }
+        } else {
+            throw DocumentException::guestNotAuthenticated();
+        }
     }
 }

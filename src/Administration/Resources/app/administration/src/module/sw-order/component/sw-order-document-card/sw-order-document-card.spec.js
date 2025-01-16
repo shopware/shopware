@@ -211,6 +211,7 @@ async function createWrapper() {
             mocks: {
                 $route: {
                     query: '',
+                    name: 'sw.order.detail.documents'
                 },
             },
             directives: {

@@ -57,10 +57,6 @@ return [
         // Was not intended to be extended, declared as final
         'Class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity became final',
         'Parameter hydratorClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
-        // Added new optional parameter to those classes
-        'Parameter fileType was added to Method readDocument\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator',
-
-        'Parameter fileType was added to Method download\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\SalesChannel\\\\AbstractDocumentRoute',
 
         'Parameter a11yMediaId was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentIdStruct'
     ],

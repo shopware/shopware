@@ -47,8 +47,10 @@ merge 16.11.2020
             <meta http-equiv="Content-Security-Policy" content="script-src 'none'; base-uri 'self';">
             <meta name="date" content="{{ 'now'|date('c') }}">
         {% endblock %}
+
         {% block document_head %}
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
             {#{% if config.title %}#}
             <title>{% block document_title_tag %}{% endblock %}</title>
             {#{% endif %}#}

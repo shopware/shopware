@@ -106,6 +106,8 @@ class AccountOverviewPageLoader
             ->addAssociation('currency')
             ->addAssociation('stateMachineState')
             ->addAssociation('documents.documentType')
+            ->addAssociation('documents.documentMediaFile')
+            ->addAssociation('documents.documentA11yMediaFile')
             ->setLimit(1)
             ->addAssociation('orderCustomer');
 

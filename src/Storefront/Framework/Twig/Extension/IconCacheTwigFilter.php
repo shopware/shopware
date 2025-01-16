@@ -7,7 +7,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-#[Package('storefront')]
+#[Package('framework')]
 class IconCacheTwigFilter extends AbstractExtension
 {
     protected static bool $enabled = false;

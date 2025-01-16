@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     /**

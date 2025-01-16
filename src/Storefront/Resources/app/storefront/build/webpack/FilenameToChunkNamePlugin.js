@@ -1,3 +1,6 @@
+/**
+ * @sw-package framework
+ */
 const path = require('node:path');
 const allChunkNames = [];
 const debug = false;

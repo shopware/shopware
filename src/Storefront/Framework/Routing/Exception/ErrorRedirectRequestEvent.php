@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ErrorRedirectRequestEvent implements ShopwareEvent
 {
     public function __construct(

@@ -8,7 +8,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
+#[Package('framework')]
 class AddressDetailPage extends Page
 {
     /**

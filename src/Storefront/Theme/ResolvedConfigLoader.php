@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     /**

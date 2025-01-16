@@ -24,7 +24,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeService implements ResetInterface
 {
     public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';

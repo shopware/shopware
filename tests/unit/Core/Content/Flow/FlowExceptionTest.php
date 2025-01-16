@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('after-sales')]
 #[CoversClass(FlowException::class)]
 class FlowExceptionTest extends TestCase
 {

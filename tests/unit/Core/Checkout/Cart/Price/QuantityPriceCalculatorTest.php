@@ -41,7 +41,7 @@ class QuantityPriceCalculatorTest extends TestCase
             new NetPriceCalculator($taxCalculator, new CashRounding())
         );
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setItemRounding($config);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);

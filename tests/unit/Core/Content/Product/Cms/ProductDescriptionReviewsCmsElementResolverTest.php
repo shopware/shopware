@@ -41,7 +41,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
     {
         $resolver = $this->getResolver();
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request([
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request([
             'success' => true,
         ]));
 
@@ -82,7 +82,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
     {
         $resolver = $this->getResolver();
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');

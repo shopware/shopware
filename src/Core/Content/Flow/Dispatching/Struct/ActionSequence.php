@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class ActionSequence extends Sequence
 {
     public string $action;

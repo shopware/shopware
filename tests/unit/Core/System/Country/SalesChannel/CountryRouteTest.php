@@ -35,7 +35,7 @@ class CountryRouteTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
 
-        $this->salesChannelContext = Generator::createSalesChannelContext(
+        $this->salesChannelContext = Generator::generateSalesChannelContext(
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
             salesChannel: $salesChannel
         );

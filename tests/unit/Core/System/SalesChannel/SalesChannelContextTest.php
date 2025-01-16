@@ -18,7 +18,7 @@ class SalesChannelContextTest extends TestCase
 {
     public function testGetRuleIdsByAreas(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $idA = Uuid::randomHex();
         $idB = Uuid::randomHex();

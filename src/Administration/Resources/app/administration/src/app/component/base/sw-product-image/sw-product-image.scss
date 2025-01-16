@@ -26,7 +26,7 @@
         }
     }
 
-    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    // @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
     .sw-product-image__spatial-label {
         position: absolute;
         bottom: 5px;
@@ -101,12 +101,12 @@
         border: 2px solid $color-shopware-brand-500;
     }
 
-    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    // @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
     &.is--cover.is--spatial .sw-product-image__spatial-label {
         bottom: 32px;
     }
 
-    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    // @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
     &.is--drag-element .sw-media-preview-v2__placeholder {
         object-fit: contain;
         max-width: 64px;

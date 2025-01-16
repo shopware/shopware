@@ -28,7 +28,7 @@ class CartContextHashEventTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = Generator::createSalesChannelContext();
+        $this->salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->cart = new Cart('token');
 

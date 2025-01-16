@@ -65,7 +65,7 @@ class ProductDetailRouteTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->context = Generator::createSalesChannelContext();
+        $this->context = Generator::generateSalesChannelContext();
         $this->idsCollection = new IdsCollection();
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->systemConfig = $this->createMock(SystemConfigService::class);

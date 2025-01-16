@@ -55,7 +55,7 @@ class CrossSellingCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $result = $this->createMock(EntitySearchResult::class);
 
@@ -90,7 +90,7 @@ class CrossSellingCmsElementResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
         $data = new ElementDataCollection();
 
         $resolver->enrich($slot, $context, $data);

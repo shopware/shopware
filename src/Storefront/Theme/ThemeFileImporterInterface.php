@@ -10,7 +10,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @deprecated tag:v6.7.0 Will be removed.
  */
-#[Package('storefront')]
+#[Package('framework')]
 interface ThemeFileImporterInterface
 {
     public function fileExists(string $filePath): bool;

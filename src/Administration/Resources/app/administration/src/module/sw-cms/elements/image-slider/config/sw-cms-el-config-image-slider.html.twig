@@ -187,13 +187,14 @@
                     {% endblock %}
 
                     <div class="sw-cms-el-config-image-slider__setting-slide">
+                        {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
                         <sw-switch-field
-                            v-model:value="element.config.autoSlide.value"
+                            :value="false"
                             class="sw-cms-el-config-image-slider__setting-auto-slide"
                             :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
                             :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
                             bordered
-                            @update:value="onChangeAutoSlide"
+                            disabled
                         />
                     </div>
 
@@ -205,7 +206,7 @@
                                 number-type="int"
                                 :min="0"
                                 :max="3600000"
-                                :disabled="!showSlideConfig || undefined"
+                                :disabled="true"
                                 :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
                                 :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
                                 :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
@@ -218,7 +219,7 @@
                                 number-type="int"
                                 :min="0"
                                 :max="3600000"
-                                :disabled="!showSlideConfig || undefined"
+                                :disabled="true"
                                 :label="$tc('sw-cms.elements.general.config.label.speed')"
                                 :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
                                 :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"

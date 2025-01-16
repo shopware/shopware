@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('storefront')]
+#[Package('framework')]
 abstract class AbstractCaptcha
 {
     /**

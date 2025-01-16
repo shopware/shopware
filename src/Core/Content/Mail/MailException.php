@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class MailException extends HttpException
 {
     final public const GIVEN_OPTION_INVALID = 'MAIL__GIVEN_OPTION_INVALID';

@@ -21,7 +21,7 @@ Shopware.Component.extend(
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-mail-template', {

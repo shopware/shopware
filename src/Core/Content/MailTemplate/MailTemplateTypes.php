@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\MailTemplate;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailTemplateTypes
 {
     final public const MAILTYPE_NEWSLETTER = 'newsletter';

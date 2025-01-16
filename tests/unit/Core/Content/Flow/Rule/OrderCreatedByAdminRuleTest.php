@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(OrderCreatedByAdminRule::class)]
 #[Group('rules')]
 class OrderCreatedByAdminRuleTest extends TestCase

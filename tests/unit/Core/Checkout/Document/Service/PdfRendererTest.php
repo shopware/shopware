@@ -17,7 +17,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(PdfRenderer::class)]
 class PdfRendererTest extends TestCase
 {

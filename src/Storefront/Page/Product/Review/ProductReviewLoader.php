@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @deprecated tag:v6.7.0 - Will be removed. Use \Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader instead
  */
-#[Package('storefront')]
+#[Package('after-sales')]
 class ProductReviewLoader
 {
     /**

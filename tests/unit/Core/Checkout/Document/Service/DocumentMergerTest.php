@@ -24,7 +24,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(DocumentMerger::class)]
 class DocumentMergerTest extends TestCase
 {

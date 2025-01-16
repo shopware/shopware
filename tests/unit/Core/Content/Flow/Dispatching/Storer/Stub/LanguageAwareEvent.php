@@ -7,10 +7,12 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\LanguageAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 class LanguageAwareEvent implements FlowEventAware, LanguageAware
 {
     public function __construct(private readonly ?string $languageId)

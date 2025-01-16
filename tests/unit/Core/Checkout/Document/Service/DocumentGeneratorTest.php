@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  */
 #[CoversClass(DocumentGenerator::class)]
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentGeneratorTest extends TestCase
 {
     public function testPreviewErrorThrowsDocumentException(): void

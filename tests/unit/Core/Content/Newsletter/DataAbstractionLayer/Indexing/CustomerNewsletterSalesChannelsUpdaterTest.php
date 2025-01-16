@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(CustomerNewsletterSalesChannelsUpdater::class)]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {

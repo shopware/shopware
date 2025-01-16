@@ -23,7 +23,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPl
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeLifecycleService
 {
     /**

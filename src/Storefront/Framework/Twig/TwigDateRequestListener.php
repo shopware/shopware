@@ -14,7 +14,7 @@ use Twig\Extension\CoreExtension;
 /**
  * @deprecated tag:v6.7.0 - reason:becomes-internal - This event listener will be internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class TwigDateRequestListener implements EventSubscriberInterface
 {
     final public const TIMEZONE_COOKIE = 'timezone';

@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-#[Package('storefront')]
+#[Package('framework')]
 class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     /**

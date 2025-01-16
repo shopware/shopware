@@ -1,3 +1,5 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_product_download_form %}
 <div
     class="sw-product-download-form"
     :class="{ 'is--disabled': disabled }"
@@ -73,3 +75,4 @@
     </div>
     <sw-loader v-else />
 </div>
+{% endblock %}

@@ -108,19 +108,19 @@ PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-sel
 PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-modal.plugin'), '[data-ajax-modal][data-url]');
 
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 PluginManager.register('SpatialGallerySliderViewer', () => import('src/plugin/spatial/spatial-gallery-slider-viewer.plugin'), '[data-spatial-gallery-slider-viewer]');
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 PluginManager.register('SpatialZoomGallerySliderViewer', () => import('src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin'), '[data-spatial-zoom-gallery-slider-viewer]');
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 PluginManager.register('SpatialArViewer', () => import('src/plugin/spatial/spatial-ar-viewer-plugin'), '[data-spatial-ar-viewer]');
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 PluginManager.register('PageQrcodeGenerator', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
 

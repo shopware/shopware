@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('inventory')]
+#[Package('after-sales')]
 abstract class AbstractProductReviewSaveRoute
 {
     abstract public function getDecorated(): AbstractProductReviewSaveRoute;

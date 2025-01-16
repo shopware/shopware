@@ -20,7 +20,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class ProductReviewsWidgetLoadedHook extends PageLoadedHook implements DeprecatedHook
 {
     use SalesChannelContextAwareTrait;

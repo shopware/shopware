@@ -18,7 +18,7 @@ use Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer\Stub\NonLanguageAwa
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(LanguageStorer::class)]
 class LanguageStorerTest extends TestCase
 {

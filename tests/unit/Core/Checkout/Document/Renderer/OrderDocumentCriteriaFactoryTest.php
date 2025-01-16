@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(OrderDocumentCriteriaFactory::class)]
 class OrderDocumentCriteriaFactoryTest extends TestCase
 {

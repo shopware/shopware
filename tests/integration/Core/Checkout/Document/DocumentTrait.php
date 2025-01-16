@@ -30,7 +30,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 trait DocumentTrait
 {
     use IntegrationTestBehaviour;

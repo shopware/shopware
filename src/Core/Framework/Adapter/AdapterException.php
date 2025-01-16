@@ -31,7 +31,6 @@ class AdapterException extends HttpException
     public const REDIS_MISSING_CONNECTION_PARAMETER = 'FRAMEWORK__REDIS_MISSING_CONNECTION_PARAMETER';
     public const INVALID_ASSET_URL = 'FRAMEWORK__INVALID_ASSET_URL';
     final public const INVALID_ARGUMENT = 'FRAMEWORK__INVALID_ARGUMENT_EXCEPTION';
-    final public const REGEX_COMPILE_ERROR = 'FRAMEWORK__REGEX_COMPILE_ERROR';
 
     public static function unexpectedTwigExpression(AbstractExpression $expression): self
     {
@@ -173,18 +172,6 @@ class AdapterException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ARGUMENT,
             $message
-        );
-    }
-
-    public static function couldNotProcessRegexp(string $message): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::REGEX_COMPILE_ERROR,
-            'Could not process regular expression: {{ message }}',
-            [
-                'message' => $message,
-            ]
         );
     }
 }

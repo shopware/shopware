@@ -1,3 +1,6 @@
+/**
+ * @sw-package framework
+ */
 const stylelint = require('stylelint');
 
 const ruleName = 'shopware/object-fit-polyfill';

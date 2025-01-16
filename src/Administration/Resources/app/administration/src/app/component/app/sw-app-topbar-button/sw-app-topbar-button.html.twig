@@ -1,3 +1,5 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_app_topbar_button %}
 <div class="sw-app-topbar-button">
     <sw-button
         v-for="button in topBarButtons"
@@ -13,3 +15,4 @@
         {{  button.label }}
     </sw-button>
 </div>
+{% endblock %}

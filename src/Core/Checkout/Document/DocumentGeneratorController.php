@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentGeneratorController extends AbstractController
 {
     /**

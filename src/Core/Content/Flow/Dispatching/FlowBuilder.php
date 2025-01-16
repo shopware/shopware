@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowBuilder
 {
     public function build(string $id, array $flowSequences): Flow

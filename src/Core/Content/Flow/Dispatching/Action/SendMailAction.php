@@ -31,7 +31,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SendMailAction extends FlowAction implements DelayableAction
 {
     final public const ACTION_NAME = 'action.mail.send';

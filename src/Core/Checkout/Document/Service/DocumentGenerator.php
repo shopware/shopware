@@ -32,7 +32,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @final
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentGenerator
 {
     /**

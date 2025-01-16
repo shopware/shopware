@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mime\Email;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 abstract class AbstractMailSender
 {
     abstract public function getDecorated(): AbstractMailSender;

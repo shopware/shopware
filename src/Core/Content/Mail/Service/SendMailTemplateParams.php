@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Part\DataPart;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SendMailTemplateParams extends Struct
 {
     /**

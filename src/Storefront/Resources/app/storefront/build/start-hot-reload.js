@@ -1,4 +1,8 @@
 /* eslint no-console: 0 */
+
+/**
+ * @sw-package framework
+ */
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const nodeServerHttp = require('node:http');
 const nodeServerHttps = require('node:https');

@@ -86,7 +86,10 @@
             >
                 <div class="sw-order-address-selection__information">
                     <p>{{ item.firstName }} {{ item.lastName }}</p>
-                    <p v-if="item.company" class="text-gray">
+                    <p
+                        v-if="item.company"
+                        class="text-gray"
+                    >
                         {{ item.company }}<span v-if="item.department"> - {{ item.department }}</span>
                     </p>
                     <p class="text-gray">

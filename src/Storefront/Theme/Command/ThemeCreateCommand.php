@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
     name: 'theme:create',
     description: 'Create a new theme',
 )]
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeCreateCommand extends Command
 {
     /**

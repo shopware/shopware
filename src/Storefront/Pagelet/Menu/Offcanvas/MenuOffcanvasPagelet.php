@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Pagelet\NavigationPagelet;
 
-#[Package('storefront')]
+#[Package('framework')]
 class MenuOffcanvasPagelet extends NavigationPagelet
 {
     public function setNavigation(Tree $navigation): void

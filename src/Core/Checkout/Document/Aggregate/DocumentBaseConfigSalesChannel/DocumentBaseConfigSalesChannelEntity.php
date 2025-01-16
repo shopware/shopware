@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentBaseConfigSalesChannelEntity extends Entity
 {
     use EntityIdTrait;

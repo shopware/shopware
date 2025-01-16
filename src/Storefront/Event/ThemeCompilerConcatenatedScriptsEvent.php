@@ -9,7 +9,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.7.0 - Will be removed because it is not used anymore. The concatenation of scripts is not happening anymore.
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeCompilerConcatenatedScriptsEvent extends Event
 {
     public function __construct(

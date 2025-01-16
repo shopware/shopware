@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Changelog;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
@@ -16,6 +18,18 @@ class ChangelogParserTest extends TestCase
 {
     use ChangelogTestBehaviour;
     use KernelTestBehaviour;
+
+    #[Before]
+    public function before(): void
+    {
+        $_SERVER['CHANGELOG_DISABLE_GIT'] = true;
+    }
+
+    #[After]
+    public function after(): void
+    {
+        unset($_SERVER['CHANGELOG_DISABLE_GIT']);
+    }
 
     /**
      * @return list<array{0: string, 1: array<string, string|null>, 2: string, 3: int}>

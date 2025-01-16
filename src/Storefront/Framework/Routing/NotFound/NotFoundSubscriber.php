@@ -31,7 +31,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
 {
     private const ALL_TAG = 'error-page';

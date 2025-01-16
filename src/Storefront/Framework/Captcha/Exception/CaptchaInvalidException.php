@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - Will be removed, use CaptchaException::invalid instead
  */
-#[Package('storefront')]
+#[Package('framework')]
 class CaptchaInvalidException extends CaptchaException
 {
     public function __construct(AbstractCaptcha $captcha)

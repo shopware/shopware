@@ -6,7 +6,7 @@ import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.ut
 let xhr = null;
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class AjaxOffCanvas extends OffCanvas {
 

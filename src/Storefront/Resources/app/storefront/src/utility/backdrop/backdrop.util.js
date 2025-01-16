@@ -12,7 +12,7 @@ export const BACKDROP_EVENT = {
 };
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 class BackdropSingleton {
 

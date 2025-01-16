@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'sales-channel:create:storefront',
     description: 'Creates a new storefront sales channel',
 )]
-#[Package('storefront')]
+#[Package('framework')]
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
     /**

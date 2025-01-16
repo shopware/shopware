@@ -16,6 +16,9 @@ trait DatabaseTransactionBehaviour
 
     private static bool $nextNestTransactionsWithSavepoints = true;
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed without replacement
+     */
     public function disableNestTransactionsWithSavepointsForNextTest(): void
     {
         self::$nextNestTransactionsWithSavepoints = false;

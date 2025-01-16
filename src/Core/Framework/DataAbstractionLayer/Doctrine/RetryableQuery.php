@@ -19,6 +19,8 @@ class RetryableQuery
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will be changed to int|string
+     *
      * @param array<string, mixed> $params
      */
     public function execute(array $params = []): int

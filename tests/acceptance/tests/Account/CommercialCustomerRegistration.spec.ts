@@ -1,4 +1,4 @@
-import { test } from '@fixtures/AcceptanceTest';
+import { test, expect } from '@fixtures/AcceptanceTest';
 
 test('As a new customer, I must be able to register as a commercial customer in the Storefront.', { tag: '@Registration' }, async ({
     ShopCustomer,
@@ -46,4 +46,45 @@ test('As a new customer, I cannot register as a commercial customer without prov
     await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
     await ShopCustomer.expects(StorefrontAccountLogin.page.locator('label[for="vatIds"]')).toContainText('VAT Reg.No. *')
     await ShopCustomer.expects(StorefrontAccountLogin.page.getByText('I\'m a new customer!')).toBeVisible();
+});
+
+test('As a new customer, I should not be able to register as a commercial customer without providing a valid VAT Reg.No.', { tag: '@Registration' }, async ({
+    ShopCustomer,
+    StorefrontAccountLogin,
+    IdProvider,
+    Register,
+    TestDataService,
+    InstanceMeta,
+    AdminApiContext,
+}) => {
+    test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40297');
+    // TODO: Use a new country created by the TestDataService after this bug is fixed: https://shopware.atlassian.net/browse/NEXT-40285
+
+    await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
+    const country = await TestDataService.getCountryId('DE');
+    const uuid = IdProvider.getIdPair().uuid;
+    const customer = { vatRegNo: `${uuid}-VatId` };
+
+    const newSettings = await AdminApiContext.patch(`./country/${country.id}`, {
+        data: { checkVatIdPattern: true },
+    });
+    expect(newSettings.ok()).toBeTruthy();
+
+    try {
+        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
+
+        // Attempt to register the customer with the invalid VAT ID.
+        await ShopCustomer.attemptsTo(Register(customer, true));
+
+        await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+        await ShopCustomer.expects(StorefrontAccountLogin.page.locator('.invalid-feedback')).toContainText('The VAT Reg.No. you have entered does not have the correct format.');
+        await ShopCustomer.expects(StorefrontAccountLogin.page.getByText('I\'m a new customer!')).toBeVisible();
+    } finally {
+        const revertSettings = await AdminApiContext.patch(`./country/${country.id}`, {
+            data: { checkVatIdPattern: false },
+        });
+        expect(revertSettings.ok()).toBeTruthy();
+    }
 });

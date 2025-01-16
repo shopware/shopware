@@ -25,9 +25,14 @@ jobs:
           - ''
         php-version:
           - '8.2'
+          - '8.4'
         include:
           - name: 'Platform'
             major: 'major'
+            php-version: 8.2
+          - name: 'Platform'
+            major: 'major'
+            php-version: 8.4
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"
@@ -77,6 +82,7 @@ jobs:
           install-storefront: ${{ matrix.name != 'Install' }}
           env: prod
           composer-root-version: ${{ matrix.major == 'major' && '6.7.9999999-dev' || '.auto' }}
+          php-version: ${{ matrix.php-version }}
 
       - name: Build js
         if: ${{ matrix.name == 'Install' }}
@@ -128,7 +134,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.name }}${{ matrix.major == 'major' && '-major' || '' }}
+          name: playwright-report-${{ matrix.name }}-php${{ matrix.php-version }}-${{ matrix.major == 'major' && '-major' || '' }}
           path: tests/acceptance/test-results/
           retention-days: 3
 

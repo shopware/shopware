@@ -47,8 +47,17 @@ class DocumentGenerator
     ) {
     }
 
-    public function readDocument(string $documentId, Context $context, string $deepLinkCode = '', string $fileType = PdfRenderer::FILE_EXTENSION): ?RenderedDocument
-    {
+    /**
+     * @deprecated tag:v6.7.0 - Parameter $fileType will be added - reason:new-optional-parameter
+     */
+    public function readDocument(
+        string $documentId,
+        Context $context,
+        string $deepLinkCode = '',
+        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
+    ): ?RenderedDocument {
+        $fileType = \func_get_args()[3] ?? PdfRenderer::FILE_EXTENSION;
+
         $criteria = new Criteria([$documentId]);
 
         if ($deepLinkCode !== '') {

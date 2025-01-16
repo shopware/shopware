@@ -55,7 +55,7 @@ class DocumentFileRendererRegistryTest extends TestCase
     public function testThrowException(): void
     {
         static::expectException(DocumentException::class);
-        static::expectExceptionMessage('Invalid file extension: "pdf"');
+        static::expectExceptionMessage('File extension not supported: xml');
 
         $registry = new DocumentFileRendererRegistry([]);
 
@@ -63,6 +63,9 @@ class DocumentFileRendererRegistryTest extends TestCase
             '',
             '1001',
             'invoice',
+            'xml',
+            [],
+            'application/xml'
         ));
     }
 

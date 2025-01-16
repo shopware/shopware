@@ -39,6 +39,8 @@ class DocumentException extends HttpException
 
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
 
+    public const FILE_EXTENSION_NOT_SUPPORTED = 'DOCUMENT__FILE_EXTENSION_NOT_SUPPORTED';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new InvalidDocumentGeneratorTypeException(
@@ -165,9 +167,6 @@ class DocumentException extends HttpException
         return new InvalidDocumentRendererException($type);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return self
-     */
     public static function invalidDocumentRendererFileExtension(string $fileExtension): self
     {
         return new self(
@@ -178,9 +177,6 @@ class DocumentException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return self
-     */
     public static function documentMediaFileNotFound(string $documentId, string $fileExtension): self
     {
         return new self(
@@ -194,9 +190,6 @@ class DocumentException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return self
-     */
     public static function invalidRequestParameter(string $name): self
     {
         return new self(
@@ -237,5 +230,15 @@ class DocumentException extends HttpException
         }
 
         return new WrongGuestCredentialsException();
+    }
+
+    public static function unsupportedDocumentFileExtension(string $fileExtension): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FILE_EXTENSION_NOT_SUPPORTED,
+            'File extension not supported: {{ fileExtension }}',
+            ['fileExtension' => $fileExtension]
+        );
     }
 }

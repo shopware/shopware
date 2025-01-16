@@ -63,7 +63,7 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
 
         $dompdf->setOptions($options);
         $dompdf->setPaper($document->getPageSize(), $document->getPageOrientation());
-        $dompdf->loadHtml($this->getHtml($document, $document->getHtml()));
+        $dompdf->loadHtml($this->getHtml($document));
 
         /*
          * Dompdf creates and destroys a lot of objects. The garbage collector slows the process down by ~50% for
@@ -83,22 +83,17 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
             gc_enable();
         }
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $document->setContentType(self::FILE_CONTENT_TYPE);
-            $document->setFileExtension(self::FILE_EXTENSION);
-        }
-
         return (string) $dompdf->output();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:parameter-change - $html will be removed
-     */
-    private function getHtml(RenderedDocument $document, string $html = ''): string
+    private function getHtml(RenderedDocument $document): string
     {
         if (!Feature::isActive('v6.7.0.0')) {
-            return $html;
+            return $document->getHtml();
         }
+
+        $document->setContentType(self::FILE_CONTENT_TYPE);
+        $document->setFileExtension(self::FILE_EXTENSION);
 
         if (!$document->getOrder() || !$document->getContext()) {
             throw DocumentException::documentGenerationException('No options provided for rendering the document.');

@@ -23,6 +23,7 @@ class TwigEnvironment extends Environment
     {
         // There is no Symfony configuration yet to toggle this feature
         $options['use_yield'] = true;
+        $options['debug'] = false;
 
         parent::__construct($loader, $options);
     }
@@ -34,14 +35,34 @@ class TwigEnvironment extends Environment
         }
 
         $source = $this->compiler->compile($node)->getSource();
+        $source = $this->addMacroResultCall($source);
 
         $replaces = [
             'CoreExtension::getAttribute(' => 'SwTwigFunction::getAttribute(',
-            'CoreExtension::callMacro(' => 'SwTwigFunction::callMacro(',
             'twig_escape_filter(' => 'SwTwigFunction::escapeFilter(',
             'use Twig\Environment;' => "use Twig\Environment;\nuse Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;",
         ];
 
         return str_replace(array_keys($replaces), array_values($replaces), $source);
+    }
+
+    private function addMacroResultCall(string $source): string
+    {
+        if (str_contains($source, 'getTemplateForMacro') && !str_contains($source, 'CoreExtension::getAttribute')) {
+            $lines = explode("\n", $source);
+            foreach ($lines as $index => $line) {
+                if (str_contains($line, 'getTemplateForMacro')) {
+                    $lineNumber = $index;
+                    break;
+                }
+            }
+            if (isset($lineNumber)) {
+                $callMacroResult = 'yield SwTwigFunction::$macroResult;';
+                array_splice($lines, $lineNumber + 1, 0, $callMacroResult);
+                $updatedSource = implode("\n", $lines);
+            }
+        }
+
+        return $updatedSource ?? $source;
     }
 }

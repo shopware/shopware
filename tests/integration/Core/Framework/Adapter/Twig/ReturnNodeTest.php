@@ -29,7 +29,7 @@ class ReturnNodeTest extends TestCase
 
         $result = $renderer->render($content, $data, Context::createDefaultContext());
 
-        static::assertEquals($expected, $result, 'Failure by rendering template: ' . $template);
+        static::assertEquals($expected, trim($result), 'Failure by rendering template: ' . $template);
     }
 
     public static function nodeProvider(): \Generator

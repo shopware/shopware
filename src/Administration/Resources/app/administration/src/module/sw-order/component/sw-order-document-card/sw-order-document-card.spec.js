@@ -43,6 +43,14 @@ const documentFixture = {
     },
     id: 'document1',
     deepLinkCode: 'abcd',
+    documentMediaFile: {
+        id: '1234',
+        fileExtension: 'pdf',
+    },
+    documentA11yMediaFile: {
+        id: '12345',
+        fileExtension: 'html',
+    },
 };
 
 const documentTypeFixture = [
@@ -478,7 +486,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
 
-        const sendDocumentButton = wrapper.findAll('.sw-context-menu-item')[2];
+        const sendDocumentButton = wrapper.findAll('.sw-context-menu-item')[4];
         await sendDocumentButton.trigger('click');
 
         const sendDocumentModal = wrapper.find('sw-order-send-document-modal-stub');
@@ -498,15 +506,15 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         let columns = wrapper.findAll('.sw-data-grid__cell--header');
         // 4 data columns + 1 action column
-        expect(columns).toHaveLength(5);
+        expect(columns).toHaveLength(6);
 
         await wrapper.setProps({
             attachView: true,
         });
 
         columns = wrapper.findAll('.sw-data-grid__cell--header');
-        expect(columns).toHaveLength(5);
-        expect(columns[4].text()).toBe('sw-order.documentCard.labelAttach');
+        expect(columns).toHaveLength(6);
+        expect(columns[5].text()).toBe('sw-order.documentCard.labelAttach');
     });
 
     it('should show card filter when order has document', async () => {
@@ -546,13 +554,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeTruthy();
 
         // Mark as sent option is disabled
-        expect(contextMenu[3].attributes('disabled')).toBe('true');
+        expect(contextMenu[5].attributes('disabled')).toBe('true');
 
         // Mark as unsent
-        await contextMenu[4].trigger('click');
+        await contextMenu[6].trigger('click');
 
         expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeFalsy();
-        expect(contextMenu[4].attributes('disabled')).toBe('true');
+        expect(contextMenu[6].attributes('disabled')).toBe('true');
     });
 
     it('should change sent status when click on "Mark as sent" context menu', async () => {
@@ -574,13 +582,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeFalsy();
 
         // Mark as unsent option is disabled
-        expect(contextMenu.at(4).attributes('disabled')).toBe('true');
+        expect(contextMenu.at(6).attributes('disabled')).toBe('true');
 
         // Mark as unsent
-        await contextMenu.at(3).trigger('click');
+        await contextMenu.at(5).trigger('click');
 
         expect(spyMarkDocumentAsSent).toHaveBeenCalledTimes(1);
-        expect(contextMenu.at(3).attributes('disabled')).toBe('true');
+        expect(contextMenu.at(5).attributes('disabled')).toBe('true');
     });
 
     it('should show Send mail modal when choosing option Create and send in Create document modal', async () => {
@@ -686,5 +694,47 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 },
             },
         ]);
+    });
+
+    it('should render the only pdf on available formats column', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                { ...documentFixture, config: { fileTypes: ['pdf'] } },
+            ]),
+        });
+
+        await flushPromises();
+
+        const row = wrapper.find('.sw-data-grid__row--0');
+        const fileTypes = row.find('.sw-data-grid__cell--fileTypes');
+
+        expect(fileTypes.text()).toBe('sw-order.documentCard.labelOnlyPdf');
+    });
+
+    it('should render html and pdf on available formats column', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                {
+                    ...documentFixture,
+                    config: {
+                        fileTypes: [
+                            'pdf',
+                            'html',
+                        ],
+                    },
+                },
+            ]),
+        });
+
+        await flushPromises();
+
+        const row = wrapper.find('.sw-data-grid__row--0');
+        const fileTypes = row.find('.sw-data-grid__cell--fileTypes');
+
+        expect(fileTypes.text()).toBe('PDF, HTML');
     });
 });

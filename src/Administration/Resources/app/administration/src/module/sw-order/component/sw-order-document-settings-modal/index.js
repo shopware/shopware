@@ -122,10 +122,6 @@ export default {
         },
 
         callDocumentCreate(additionalAction, referencedDocumentId = null) {
-            if (this.uploadDocument && this.selectedDocumentFile) {
-                this.documentConfig.isCustom = true;
-            }
-
             this.$emit(
                 'document-create',
                 this.documentConfig,

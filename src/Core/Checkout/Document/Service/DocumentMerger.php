@@ -54,7 +54,7 @@ final class DocumentMerger
         }
 
         $fileName = Random::getAlphanumericString(32) . '.' . PdfRenderer::FILE_EXTENSION;
-        $renderedDocument = new RenderedDocument('', '', $fileName);
+        $renderedDocument = new RenderedDocument(name: $fileName);
 
         if ($documents->count() === 1) {
             $document = $documents->first();

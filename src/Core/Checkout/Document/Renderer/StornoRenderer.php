@@ -30,8 +30,6 @@ final class StornoRenderer extends AbstractDocumentRenderer
     public const TYPE = 'storno';
 
     /**
-     * @decrecated tag:v6.7.0.0, DocumentTemplateRenderer will be removed
-     *
      * @internal
      */
     public function __construct(
@@ -137,6 +135,10 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     ),
                 ]);
 
+                if (!empty($config->getFileTypes())) {
+                    $operation->setFileTypes($config->getFileTypes());
+                }
+
                 if ($operation->isStatic()) {
                     $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                     $result->addSuccess($orderId, $doc);
@@ -153,43 +155,34 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 /** @var LocaleEntity $locale */
                 $locale = $language->getLocale();
 
-                // @deprecated tag:v6.7.0 - $html will be removed, instead the logic will be moved to the AbstractDocumentTypeRenderer
-                $html = $this->documentTemplateRenderer->render(
-                    $template,
-                    [
-                        'order' => $order,
-                        'config' => $config,
-                        'rootDir' => $this->rootDir,
-                        'context' => $context,
-                    ],
-                    $context,
-                    $order->getSalesChannelId(),
-                    $order->getLanguageId(),
-                    $locale->getCode(),
-                );
+                $html = '';
+                if (!Feature::isActive('v6.7.0.0')) {
+                    $html = $this->documentTemplateRenderer->render(
+                        $template,
+                        [
+                            'order' => $order,
+                            'config' => $config,
+                            'rootDir' => $this->rootDir,
+                            'context' => $context,
+                        ],
+                        $context,
+                        $order->getSalesChannelId(),
+                        $order->getLanguageId(),
+                        $locale->getCode(),
+                    );
+                }
 
                 $doc = new RenderedDocument(
-                    $html, // @deprecated tag:v6.7.0 - html argument will be removed
+                    $html,
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
                     $config->jsonSerialize(),
                 );
 
-                // set the template renderer to be able to render template
-                $doc->setTemplateOptions([
-                    $template,
-                    [
-                        'order' => $order,
-                        'config' => $config,
-                        'rootDir' => $this->rootDir,
-                        'context' => $context,
-                    ],
-                    $context,
-                    $order->getSalesChannelId(),
-                    $order->getLanguageId(),
-                    $locale->getCode(),
-                ]);
+                $doc->setTemplate($template);
+                $doc->setOrder($order);
+                $doc->setContext($context);
 
                 if (Feature::isActive('v6.7.0.0')) {
                     $doc->setContent($this->fileRendererRegistry->render($doc));

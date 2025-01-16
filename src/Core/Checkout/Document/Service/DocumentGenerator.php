@@ -75,12 +75,9 @@ class DocumentGenerator
         $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMedia->getId(), $context));
 
         $renderedDocument = new RenderedDocument(
-            '',
-            '',
-            $documentMedia->getFileName() . '.' . $documentMedia->getFileExtension(),
-            $documentMedia->getFileExtension() ?? $fileType,
-            [],
-            $documentMedia->getMimeType()
+            name: $documentMedia->getFileName() . '.' . $documentMedia->getFileExtension(),
+            fileExtension: $documentMedia->getFileExtension() ?? $fileType,
+            contentType: $documentMedia->getMimeType()
         );
         $renderedDocument->setContent($fileBlob);
 
@@ -95,6 +92,10 @@ class DocumentGenerator
         if (!empty($operation->getConfig()['custom']['invoiceNumber'])) {
             $invoiceNumber = (string) $operation->getConfig()['custom']['invoiceNumber'];
             $operation->setReferencedDocumentId($this->getReferenceId($operation->getOrderId(), $invoiceNumber));
+        }
+
+        if (!empty($operation->getConfig()['fileTypes'])) {
+            $operation->setFileTypes($operation->getConfig()['fileTypes']);
         }
 
         $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
@@ -325,6 +326,10 @@ class DocumentGenerator
             return null;
         }
 
+        if (!\in_array($document->getFileExtension(), $operation->getFileTypes(), true)) {
+            return null;
+        }
+
         try {
             $blob = $this->fileRendererRegistry->render($document);
         } catch (\Throwable) {
@@ -375,7 +380,7 @@ class DocumentGenerator
         $medias = array_filter([
             $document?->getDocumentMediaFile(),
             $document?->getDocumentA11yMediaFile(),
-        ], fn (?MediaEntity $media) => $media?->getFileExtension() === $fileType);
+        ], fn (?MediaEntity $media) => $media?->getFileExtension() === strtolower($fileType));
 
         return array_shift($medias) ?? null;
     }

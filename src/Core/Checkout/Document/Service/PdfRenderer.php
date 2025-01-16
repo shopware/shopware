@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
@@ -15,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 #[Package('after-sales')]
-final class PdfRenderer
+class PdfRenderer extends AbstractDocumentTypeRenderer
 {
     public const FILE_EXTENSION = 'pdf';
 
@@ -29,6 +31,7 @@ final class PdfRenderer
     public function __construct(
         private readonly array $dompdfOptions,
         private readonly DocumentTemplateRenderer $documentTemplateRenderer,
+        private readonly string $rootDir,
         private readonly ExtensionDispatcher $extensions
     ) {
     }
@@ -60,7 +63,7 @@ final class PdfRenderer
 
         $dompdf->setOptions($options);
         $dompdf->setPaper($document->getPageSize(), $document->getPageOrientation());
-        $dompdf->loadHtml($this->getHtml($document->getTemplateOptions(), $document->getHtml()));
+        $dompdf->loadHtml($this->getHtml($document, $document->getHtml()));
 
         /*
          * Dompdf creates and destroys a lot of objects. The garbage collector slows the process down by ~50% for
@@ -89,22 +92,37 @@ final class PdfRenderer
     }
 
     /**
-     * @decrecated tag:v6.7.0 - reason:parameter-change - $html will be removed
-     *
-     * @param array<mixed> $options
+     * @deprecated tag:v6.7.0 - reason:parameter-change - $html will be removed
      */
-    private function getHtml(array $options, string $html = ''): string
+    private function getHtml(RenderedDocument $document, string $html = ''): string
     {
         if (!Feature::isActive('v6.7.0.0')) {
             return $html;
         }
 
-        if (empty($options)) {
+        if (!$document->getOrder() || !$document->getContext()) {
             throw DocumentException::documentGenerationException('No options provided for rendering the document.');
         }
 
+        $config = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            $document->getConfig(),
+        );
+
+        $language = $document->getOrder()->getLanguage();
+
         return $this->documentTemplateRenderer->render(
-            ...$options,
+            $document->getTemplate(),
+            [
+                'order' => $document->getOrder(),
+                'config' => $config,
+                'rootDir' => $this->rootDir,
+                'context' => $document->getContext(),
+            ],
+            $document->getContext(),
+            $document->getOrder()->getSalesChannelId(),
+            $document->getOrder()->getLanguageId(),
+            $language?->getLocale()?->getCode(),
         );
     }
 

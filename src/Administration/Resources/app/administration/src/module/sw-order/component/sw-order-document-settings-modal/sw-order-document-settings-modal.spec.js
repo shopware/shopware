@@ -128,6 +128,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         await previewButton.trigger('click');
 
         expect(wrapper.emitted()['preview-show']).toBeTruthy();
+        expect(wrapper.emitted()['preview-show'][0][1]).toBe('pdf');
     });
 
     it('should show file or hide custom document file when toggling Upload custom document', async () => {

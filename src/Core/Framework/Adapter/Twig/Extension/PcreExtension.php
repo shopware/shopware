@@ -43,7 +43,7 @@ class PcreExtension extends AbstractExtension
 
     public function pregMatch(string $subject, string $pattern): bool
     {
-        $result = preg_match($pattern, $subject);
+        $result = @preg_match($pattern, $subject);
 
         if ($result === false) {
             throw new \RuntimeException(\sprintf('Error while processing Twig preg_match function. Error: %s', preg_last_error_msg()));

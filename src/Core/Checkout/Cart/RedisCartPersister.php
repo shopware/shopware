@@ -51,7 +51,7 @@ class RedisCartPersister extends AbstractCartPersister
         }
 
         try {
-            $value = \unserialize($value);
+            $value = @\unserialize($value);
         } catch (\Exception) {
             throw CartException::tokenNotFound($token);
         }

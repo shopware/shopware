@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(MediaUploadedEvent::class)]
 class MediaUploadedEventTest extends TestCase
 {

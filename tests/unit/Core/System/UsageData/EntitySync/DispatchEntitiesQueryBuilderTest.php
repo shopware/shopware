@@ -156,17 +156,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         static::assertContains(Uuid::fromHexToBytes('018a27bbfb0771e2a1344024f6634aa5'), $parameters);
     }
 
-    public function testWithUniquePersonalIdentifier(): void
-    {
-        static::assertSame($this->queryHelper, $this->queryHelper->withPersonalUniqueIdentifier());
-
-        static::assertCount(1, $this->queryHelper->getQueryBuilder()->getQueryPart('select'));
-        static::assertSame(
-            'SHA2(CONCAT(LOWER(`first_name`), LOWER(`last_name`), LOWER(`email`)), 512) AS `puid`',
-            $this->queryHelper->getQueryBuilder()->getQueryPart('select')[0],
-        );
-    }
-
     public function testExecute(): void
     {
         $this->connection->expects(static::once())

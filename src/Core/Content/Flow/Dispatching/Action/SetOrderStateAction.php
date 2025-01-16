@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SetOrderStateAction extends FlowAction implements DelayableAction, TransactionalAction
 {
     final public const FORCE_TRANSITION = 'force_transition';

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(InvalidDocumentRendererException::class)]
 class InvalidDocumentRendererExceptionTest extends TestCase
 {

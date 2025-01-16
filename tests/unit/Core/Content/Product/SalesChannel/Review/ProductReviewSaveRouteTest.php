@@ -78,7 +78,7 @@ class ProductReviewSaveRouteTest extends TestCase
         $salesChannel->setId('test');
 
         $salesChannelContext->expects(static::once())->method('getCustomer')->willReturn($customer);
-        $salesChannelContext->expects(static::exactly(3))->method('getSalesChannel')->willReturn($salesChannel);
+        $salesChannelContext->expects(static::exactly(3))->method('getSalesChannelId')->willReturn($salesChannel->getId());
         $salesChannelContext->expects(static::exactly(4))->method('getContext')->willReturn($context);
 
         $this->validator->expects(static::once())->method('getViolations')->willReturn(new ConstraintViolationList());

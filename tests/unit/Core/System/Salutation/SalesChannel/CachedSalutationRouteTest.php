@@ -31,7 +31,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  *
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(CachedSalutationRoute::class)]
 class CachedSalutationRouteTest extends TestCase
 {
@@ -51,7 +51,7 @@ class CachedSalutationRouteTest extends TestCase
         $this->decorated = $this->createMock(AbstractSalutationRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);
         $this->eventDispatcher = new EventDispatcher();
-        $this->context = Generator::createSalesChannelContext(
+        $this->context = Generator::generateSalesChannelContext(
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
         );
 

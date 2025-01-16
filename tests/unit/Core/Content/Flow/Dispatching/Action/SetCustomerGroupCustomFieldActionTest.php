@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(SetCustomerGroupCustomFieldAction::class)]
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {

@@ -28,5 +28,8 @@ class FrameworkMigrationReplacementCompilerPass implements CompilerPassInterface
 
         $migrationSourceV6 = $container->getDefinition(MigrationSource::class . '.core.V6_7');
         $migrationSourceV6->addMethodCall('addDirectory', [$bundleRoot . '/Migration/V6_7', 'Shopware\Core\Migration\V6_7']);
+
+        $migrationSourceV6 = $container->getDefinition(MigrationSource::class . '.core.V6_8');
+        $migrationSourceV6->addMethodCall('addDirectory', [$bundleRoot . '/Migration/V6_8', 'Shopware\Core\Migration\V6_8']);
     }
 }

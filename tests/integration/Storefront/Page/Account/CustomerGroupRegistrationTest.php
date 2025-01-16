@@ -49,7 +49,7 @@ class CustomerGroupRegistrationTest extends TestCase
                 'name' => 'foo',
                 'registrationActive' => true,
                 'registrationTitle' => 'test',
-                'registrationSalesChannels' => [['id' => $this->salesChannel->getSalesChannel()->getId()]],
+                'registrationSalesChannels' => [['id' => $this->salesChannel->getSalesChannelId()]],
             ],
         ], Context::createDefaultContext());
 

@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Shipping\ShippingException;
@@ -15,6 +17,8 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Exception\HookInjectionException;
+use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -69,6 +73,10 @@ class CartException extends HttpException
      */
     public const SALES_CHANNEL_NOT_SET = 'CHECKOUT__SALES_CHANNEL_NOT_SET';
     public const CART_EMPTY = 'CHECKOUT__CART_EMPTY';
+    public const HOOK_INJECTION_EXCEPTION = 'CHECKOUT__HOOK_INJECTION_EXCEPTION';
+    public const LINE_ITEM_GROUP_PACKAGER_NOT_FOUND = 'CHECKOUT__GROUP_PACKAGER_NOT_FOUND';
+    public const LINE_ITEM_GROUP_SORTER_NOT_FOUND = 'CHECKOUT__GROUP_SORTER_NOT_FOUND';
+    public const UNEXPECTED_VALUE_EXCEPTION = 'CHECKOUT__UNEXPECTED_VALUE_EXCEPTION';
 
     /**
      * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
@@ -549,5 +557,72 @@ class CartException extends HttpException
     public static function cartEmpty(): self|EmptyCartException
     {
         return new EmptyCartException();
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function hookInjectionException(Hook $hook, string $class, string $required): self|HookInjectionException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new HookInjectionException($hook, $class, $required);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::HOOK_INJECTION_EXCEPTION,
+            'Class {{ class }} is only executable in combination with hooks that implement the {{ required }} interface. Hook {{ hook }} does not implement this interface',
+            ['class' => $class, 'required' => $required, 'hook' => $hook]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function lineItemGroupPackagerNotFoundException(string $key): self|LineItemGroupPackagerNotFoundException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new LineItemGroupPackagerNotFoundException($key);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LINE_ITEM_GROUP_PACKAGER_NOT_FOUND,
+            'Packager "{{ key }}" has not been found!',
+            ['key' => $key]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function lineItemGroupSorterNotFoundException(string $key): self|LineItemGroupSorterNotFoundException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new LineItemGroupSorterNotFoundException($key);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LINE_ITEM_GROUP_SORTER_NOT_FOUND,
+            'Sorter "{{ key }}" has not been found!',
+            ['key' => $key]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function unexpectedValueException(string $message): self|\UnexpectedValueException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \UnexpectedValueException($message);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNEXPECTED_VALUE_EXCEPTION,
+            $message
+        );
     }
 }

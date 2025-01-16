@@ -1,7 +1,7 @@
 import { DiscountTypes } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 
 /**
- * @package buyers-experience
+ * @package checkout
  *
  * @private
  */

@@ -14,6 +14,6 @@ class SalesChannelCurrencyDefinition extends CurrencyDefinition implements Sales
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $context->getSalesChannelId()));
     }
 }

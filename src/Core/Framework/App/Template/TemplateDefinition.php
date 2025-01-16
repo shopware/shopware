@@ -53,6 +53,7 @@ class TemplateDefinition extends EntityDefinition
             (new StringField('path', 'path', 1024))->addFlags(new Required()),
             (new BoolField('active', 'active'))->addFlags(new Required()),
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),
+            new StringField('hash', 'hash', 32),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);
     }

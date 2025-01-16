@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapFileRoute
 {
     /**
@@ -74,7 +74,7 @@ class SitemapFileRoute
      */
     private function isRequestedFileValid(SalesChannelContext $salesChannelContext, string $filePath): bool
     {
-        $files = $this->fileSystem->listContents('sitemap/salesChannel-' . $salesChannelContext->getSalesChannel()->getId() . '-' . $salesChannelContext->getLanguageId());
+        $files = $this->fileSystem->listContents('sitemap/salesChannel-' . $salesChannelContext->getSalesChannelId() . '-' . $salesChannelContext->getLanguageId());
 
         foreach ($files as $file) {
             if ($filePath === $file->path()) {

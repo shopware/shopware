@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryNonExistentExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

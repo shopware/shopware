@@ -30,7 +30,7 @@ class ShippingMethodRouteResponseTest extends TestCase
             $collection = new ShippingMethodCollection([$shippingMethod]),
             null,
             new Criteria(),
-            Generator::createSalesChannelContext()->getContext()
+            Generator::generateSalesChannelContext()->getContext()
         );
 
         $response = new ShippingMethodRouteResponse($result);

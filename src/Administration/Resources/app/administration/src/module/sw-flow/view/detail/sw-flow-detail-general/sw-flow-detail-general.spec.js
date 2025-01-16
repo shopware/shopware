@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 import flowState from 'src/module/sw-flow/state/flow.state';

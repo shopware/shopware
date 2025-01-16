@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Util\Hasher;
  * A media path strategy is responsible to generate the path for a media or thumbnail.
  * It has to define a unique name, which can be used to configure this strategy in the configuration.
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 abstract class AbstractMediaPathStrategy
 {
     /**

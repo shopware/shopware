@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Sitemap\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class UnknownFileException extends ShopwareHttpException
 {
     public function getErrorCode(): string

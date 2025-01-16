@@ -31,7 +31,7 @@
                 <template #description>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_condition_line_item_custom_field_field_description %}
-                    {{ getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name }}
+                    {{ truncateFilter((getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name), 20) }}
                     {% endblock %}
                 </template>
             </sw-select-result>

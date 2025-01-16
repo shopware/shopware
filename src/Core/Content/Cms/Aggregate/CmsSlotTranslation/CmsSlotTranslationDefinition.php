@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsSlotTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'cms_slot_translation';

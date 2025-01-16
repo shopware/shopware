@@ -25,9 +25,7 @@ class BreadcrumbCollectionTest extends TestCase
             2 => $breadcrumb2,
         ];
 
-        $breadcrumbCollection = new BreadcrumbCollection($breadcrumbsCollection);
-
-        $result = $breadcrumbCollection->getBreadcrumb(0);
+        $result = (new BreadcrumbCollection($breadcrumbsCollection))->first();
 
         static::assertSame($breadcrumb0, $result);
     }
@@ -41,7 +39,7 @@ class BreadcrumbCollectionTest extends TestCase
 
         $breadcrumbCollection = new BreadcrumbCollection($breadcrumbsCollection);
 
-        static::assertNull($breadcrumbCollection->getBreadcrumb(1));
+        static::assertNull($breadcrumbCollection->getAt(1));
     }
 
     public function testGetBreadcrumbsReturnsAllBreadcrumbs(): void
@@ -54,18 +52,14 @@ class BreadcrumbCollectionTest extends TestCase
             1 => $breadcrumb1,
         ];
 
-        $breadcrumbCollection = new BreadcrumbCollection($breadcrumbsCollection);
-
-        $result = $breadcrumbCollection->getBreadcrumbs();
+        $result = (new BreadcrumbCollection($breadcrumbsCollection))->getElements();
 
         static::assertSame($breadcrumbsCollection, $result);
     }
 
     public function testGetApiAliasReturnsCorrectAlias(): void
     {
-        $breadcrumbCollection = new BreadcrumbCollection([]);
-
-        $result = $breadcrumbCollection->getApiAlias();
+        $result = (new BreadcrumbCollection([]))->getApiAlias();
 
         static::assertSame('breadcrumb_collection', $result);
     }

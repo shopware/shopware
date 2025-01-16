@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -35,7 +36,7 @@ class IteratorFactory
         $entity = $definition->getEntityName();
 
         $escaped = EntityDefinitionQueryHelper::escape($entity);
-        $query = $this->connection->createQueryBuilder();
+        $query = new QueryBuilder($this->connection);
         $query->from($escaped);
         $query->setMaxResults($limit);
 

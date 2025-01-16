@@ -798,7 +798,6 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($invoiceStruct);
         static::assertInstanceOf(DocumentIdStruct::class, $invoiceStruct);
         $documentMediaFileId = $invoiceStruct->getMediaId();
-        $documentA11yMediaFileId = $invoiceStruct->getA11yMediaId();
 
         $documentId = $invoiceStruct->getId();
 
@@ -828,9 +827,11 @@ class DocumentGeneratorTest extends TestCase
         }
 
         static::assertNotNull($documentMediaFileId);
-        static::assertNotNull($documentA11yMediaFileId);
 
         if ($withMedia === false) {
+            $documentA11yMediaFileId = $invoiceStruct->getA11yMediaId();
+            static::assertNotNull($documentA11yMediaFileId);
+
             $criteria = new Criteria([$documentId]);
             $criteria->addAssociation('documentMediaFile')
                 ->addAssociation('documentA11yMediaFile');

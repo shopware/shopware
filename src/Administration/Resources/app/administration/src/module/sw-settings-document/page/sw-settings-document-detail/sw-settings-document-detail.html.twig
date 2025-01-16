@@ -225,7 +225,7 @@
                                 :key="`formField-${index}`"
                             >
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                    {% block sw_settings_document_detail_content_form_field_renderer %}
+                                {% block sw_settings_document_detail_content_form_field_renderer %}
                                 <sw-form-field-renderer
                                     v-if="formField"
                                     v-model:value="documentConfig.config[formField.name]"
@@ -237,7 +237,7 @@
                                     v-else
                                     :key="`else-formField-${index}`"
                                 ></div>
-                                    {% endblock %}
+                                {% endblock %}
                             </template>
                         </template>
                         {% endblock %}

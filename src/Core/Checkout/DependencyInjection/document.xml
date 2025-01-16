@@ -116,6 +116,7 @@
         <service id="Shopware\Core\Checkout\Document\Service\PdfRenderer">
             <argument>%shopware.dompdf.options%</argument>
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
+            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
 
             <tag name="document_type.renderer" key="pdf"/>
@@ -147,10 +148,12 @@
 
         <service id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
+            <argument type="service" id="document.repository" />
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Service\HtmlRenderer">
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
+            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
 
             <tag name="document_type.renderer" key="html"/>

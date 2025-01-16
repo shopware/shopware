@@ -121,6 +121,10 @@ class InvoiceRendererTest extends TestCase
         static::assertArrayHasKey($orderId, $successResults);
         static::assertInstanceOf(RenderedDocument::class, $successResults[$orderId]);
 
+        static::assertNotNull($successResults[$orderId]->getOrder());
+        static::assertNotNull($successResults[$orderId]->getContext());
+        static::assertSame($successResults[$orderId]->getTemplate(), '@Framework/documents/invoice.html.twig');
+
         if ($expectedResult) {
             static::assertTrue($successResults[$orderId]->getConfig()['intraCommunityDelivery']);
         } else {
@@ -279,6 +283,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => true,
         ];
@@ -293,6 +298,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -307,6 +313,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -321,6 +328,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -335,6 +343,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => false,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -349,6 +358,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -363,6 +373,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];

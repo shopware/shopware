@@ -100,11 +100,14 @@ class DocumentApiService extends ApiService {
             });
     }
 
-    getDocument(documentId, documentDeepLink, context, download = false) {
-        return this.httpClient.get(`/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`, {
-            responseType: 'blob',
-            headers: this.getBasicHeaders(),
-        });
+    getDocument(documentId, documentDeepLink, context, download = false, fileType = 'pdf') {
+        return this.httpClient.get(
+            `/_action/document/${documentId}/${documentDeepLink}?fileType=${fileType}${download ? '&download=1' : ''}`,
+            {
+                responseType: 'blob',
+                headers: this.getBasicHeaders(),
+            },
+        );
     }
 
     createDocumentEvent(action, payload) {

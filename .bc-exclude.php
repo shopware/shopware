@@ -60,6 +60,8 @@ return [
         // Added new optional parameter to those classes
         'Parameter fileType was added to Method readDocument\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator',
 
-        'Parameter fileType was added to Method download\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\SalesChannel\\\\AbstractDocumentRoute'
+        'Parameter fileType was added to Method download\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\SalesChannel\\\\AbstractDocumentRoute',
+
+        'Parameter a11yMediaId was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentIdStruct'
     ],
 ];

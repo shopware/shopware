@@ -67,7 +67,7 @@ class PaymentControllerTest extends TestCase
             ->with('test-token')
             ->willReturn($tokenStruct);
 
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $order = new OrderEntity();
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
@@ -104,7 +104,7 @@ class PaymentControllerTest extends TestCase
             ->with('test-token')
             ->willReturn($tokenStruct);
 
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $order = new OrderEntity();
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
@@ -142,7 +142,7 @@ class PaymentControllerTest extends TestCase
             ->with('test-token')
             ->willReturn($tokenStruct);
 
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $order = new OrderEntity();
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));

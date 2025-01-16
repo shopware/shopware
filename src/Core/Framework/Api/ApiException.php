@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api;
 
+use Shopware\Administration\Notification\Exception\NotificationThrottledException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
@@ -62,6 +63,8 @@ class ApiException extends HttpException
     public const API_INVALID_SCOPE_ACCESS_TOKEN = 'FRAMEWORK__INVALID_SCOPE_ACCESS_TOKEN';
 
     public const API_ROUTES_ARE_LOADED_ALREADY = 'FRAMEWORK__API_ROUTES_ARE_LOADED_ALREADY';
+
+    public const API_NOTIFICATION_THROTTLED = 'FRAMEWORK__NOTIFICATION_THROTTLED';
 
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
@@ -430,6 +433,24 @@ class ApiException extends HttpException
             self::API_INVALID_SCOPE_ACCESS_TOKEN,
             'This access token does not have the scope "{{ scope }}" to process this Request',
             ['scope' => $identifier]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function notificationThrottled(int $waitTime, \Throwable $e): self|NotificationThrottledException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new NotificationThrottledException($waitTime, $e);
+        }
+
+        return new self(
+            Response::HTTP_TOO_MANY_REQUESTS,
+            self::API_NOTIFICATION_THROTTLED,
+            'Notification throttled for {{ seconds }} seconds.',
+            ['seconds' => $waitTime],
+            $e
         );
     }
 }

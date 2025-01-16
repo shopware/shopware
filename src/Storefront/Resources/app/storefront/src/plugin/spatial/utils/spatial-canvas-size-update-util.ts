@@ -3,7 +3,7 @@ import type SpatialBaseViewerPlugin from '../spatial-base-viewer.plugin';
 /**
  * @package innovation
  *
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  *
  * The canvas size update util.
  * This util is responsible for updating the canvas size if the parent element size has changed.

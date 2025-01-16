@@ -51,7 +51,7 @@ class RemovePaymentMethodCommandHandlerTest extends TestCase
         $command = new RemovePaymentMethodCommand('test-1');
 
         $handler = new RemovePaymentMethodCommandHandler();
-        $handler->handle($command, $response, Generator::createSalesChannelContext());
+        $handler->handle($command, $response, Generator::generateSalesChannelContext());
 
         static::assertCount(1, $response->getAvailablePaymentMethods());
         static::assertNotNull($response->getAvailablePaymentMethods()->first());

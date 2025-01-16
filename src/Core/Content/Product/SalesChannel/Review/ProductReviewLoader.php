@@ -21,7 +21,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('inventory')]
+#[Package('after-sales')]
 class ProductReviewLoader extends AbstractProductReviewLoader
 {
     private const PARAMETER_NAME_PAGE = 'p';

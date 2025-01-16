@@ -96,7 +96,7 @@ class DiscountProcessorTest extends TestCase
 
     public static function processorProvider(): \Generator
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setTaxState(CartPrice::TAX_STATE_GROSS);
         $context->setItemRounding(new CashRoundingConfig(2, 0.01, true));
 

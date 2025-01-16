@@ -38,7 +38,7 @@ class AccountServiceTest extends TestCase
 {
     public function testLoginByValidCredentials(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $customer = $salesChannelContext->getCustomer();
         static::assertNotNull($customer);
         $customer->setActive(true);
@@ -59,7 +59,7 @@ class AccountServiceTest extends TestCase
             ),
         ]);
 
-        $loggedinSalesChannelContext = Generator::createSalesChannelContext();
+        $loggedinSalesChannelContext = Generator::generateSalesChannelContext();
         $cartRestorer = $this->createMock(CartRestorer::class);
         $cartRestorer->expects(static::once())
             ->method('restore')
@@ -110,7 +110,7 @@ class AccountServiceTest extends TestCase
 
     public function testLoginFailsByInvalidCredentials(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $customer = $salesChannelContext->getCustomer();
         static::assertNotNull($customer);
         $customer->setActive(true);
@@ -149,7 +149,7 @@ class AccountServiceTest extends TestCase
 
     public function testGetCustomerByIdThrowsPasswordPoliciesChangedException(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $customer = $salesChannelContext->getCustomer();
         static::assertNotNull($customer);
         $customer->setActive(true);
@@ -204,7 +204,7 @@ class AccountServiceTest extends TestCase
 
     public function testGetCustomerByIdIgnoresOtherWriteViolations(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $customer = $salesChannelContext->getCustomer();
         static::assertNotNull($customer);
         $customer->setActive(true);

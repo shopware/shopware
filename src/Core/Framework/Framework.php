@@ -149,12 +149,15 @@ class Framework extends Bundle
         // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
         MeterProvider::bindMeter($this->container);
 
-        $this->container
-            ->get(ExtensionRegistry::class)
-            ->configureExtensions(
-                $this->container->get(DefinitionInstanceRegistry::class),
-                $this->container->get(SalesChannelDefinitionInstanceRegistry::class)
-            );
+        // @deprecated tag:v6.7.0 - remove complete if condition
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->container
+                ->get(ExtensionRegistry::class)
+                ->configureExtensions(
+                    $this->container->get(DefinitionInstanceRegistry::class),
+                    $this->container->get(SalesChannelDefinitionInstanceRegistry::class)
+                );
+        }
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');

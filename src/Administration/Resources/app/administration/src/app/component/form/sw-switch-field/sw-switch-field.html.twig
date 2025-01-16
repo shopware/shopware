@@ -1,5 +1,7 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-switch component #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_switch_field %}
 <mt-switch
     v-if="useMeteorComponent"
     v-bind="$attrs"
@@ -9,9 +11,12 @@
 >
     <slot></slot>
 </mt-switch>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_switch_field_deprecated %}
 <sw-switch-field-deprecated
     v-else
     v-bind="$attrs"
@@ -21,3 +26,4 @@
 >
     <slot></slot>
 </sw-switch-field-deprecated>
+{% endblock %}

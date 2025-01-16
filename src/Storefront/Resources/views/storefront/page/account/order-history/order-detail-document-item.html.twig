@@ -23,9 +23,7 @@
                         {% endblock %}
 
                         {% block page_account_order_document_item_detail_file_name_value %}
-                            {{ document.documentType.translated.name|replace({' ' : '-'}) }}_
-                            {{ document.config.documentNumber }}_
-                            {{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ media.fileExtension }}
+                            {{ document.config.filenamePrefix }}{{ document.config.documentNumber }}{{ document.config.filenameSuffix is not empty? document.config.filenameSuffix ~ '_': '_' }}{{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ media.fileExtension }}
                         {% endblock %}
                     </a><br>
                 {% endfor %}

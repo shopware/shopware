@@ -199,7 +199,6 @@ const missingTests = [
     'src/core/service/api/integration.api.service.js',
     'src/core/service/api/known-ips.api.service.js',
     'src/core/service/api/language-plugin.api.service.js',
-    'src/core/service/api/mail.api.service.js',
     'src/core/service/api/media-folder.api.service.js',
     'src/core/service/api/message-queue.api.service.ts',
     'src/core/service/api/number-range.api.service.js',

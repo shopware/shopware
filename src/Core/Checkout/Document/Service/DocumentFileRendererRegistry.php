@@ -27,6 +27,6 @@ class DocumentFileRendererRegistry
             return $renderer->render($document);
         }
 
-        throw DocumentException::invalidDocumentRendererFileExtension($document->getFileExtension());
+        throw DocumentException::unsupportedDocumentFileExtension($document->getFileExtension());
     }
 }

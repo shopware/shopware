@@ -214,6 +214,12 @@ export default {
                                 document: this.document,
                                 a11yDocuments: this.a11yDocuments,
                             },
+                            null,
+                            null,
+                            {
+                                ...Shopware.Context.api,
+                                ...(this.order.languageId && { languageId: this.order.languageId }),
+                            },
                         )
                         .catch(() => {
                             this.createNotificationError({

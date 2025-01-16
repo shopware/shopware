@@ -167,12 +167,6 @@ export default {
                     allowResize: false,
                 },
                 {
-                    property: 'fileTypes',
-                    dataIndex: 'fileTypes',
-                    label: 'sw-order.documentCard.labelAvailableFormats',
-                    allowResize: false,
-                },
-                {
                     property: 'sent',
                     dataIndex: 'sent',
                     label: 'sw-order.documentCard.labelSent',
@@ -180,6 +174,15 @@ export default {
                     align: 'center',
                 },
             ];
+
+            if (this.$route.name === 'sw.order.detail.documents') {
+                columns.splice(3, 0,   {
+                    property: 'fileTypes',
+                    dataIndex: 'fileTypes',
+                    label: 'sw-order.documentCard.labelAvailableFormats',
+                    allowResize: false,
+                })
+            }
 
             if (this.attachView) {
                 columns.push({

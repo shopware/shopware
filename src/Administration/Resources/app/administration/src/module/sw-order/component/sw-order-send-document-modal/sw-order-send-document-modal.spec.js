@@ -376,6 +376,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
                     },
                 ],
             },
+            null,
+            null,
+            Shopware.Context.api,
         );
         expect(wrapper.emitted('document-sent')).toHaveLength(1);
     });

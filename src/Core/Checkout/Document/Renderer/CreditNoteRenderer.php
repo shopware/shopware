@@ -33,8 +33,6 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
     public const TYPE = 'credit_note';
 
     /**
-     * @decrecated tag:v6.7.0.0, DocumentTemplateRenderer will be removed
-     *
      * @internal
      */
     public function __construct(
@@ -165,23 +163,25 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 /** @var LocaleEntity $locale */
                 $locale = $language->getLocale();
 
-                // @deprecated tag:v6.7.0 - $html will be removed, instead the logic will be moved to the AbstractDocumentTypeRenderer
-                $html = $this->documentTemplateRenderer->render(
-                    $template,
-                    [
-                        'order' => $order,
-                        'creditItems' => $creditItems,
-                        'price' => $price->getTotalPrice() * -1,
-                        'amountTax' => $price->getCalculatedTaxes()->getAmount(),
-                        'config' => $config,
-                        'rootDir' => $this->rootDir,
-                        'context' => $context,
-                    ],
-                    $context,
-                    $order->getSalesChannelId(),
-                    $order->getLanguageId(),
-                    $locale->getCode(),
-                );
+                $html = '';
+                if (!Feature::isActive('v6.7.0.0')) {
+                    $html = $this->documentTemplateRenderer->render(
+                        $template,
+                        [
+                            'order' => $order,
+                            'creditItems' => $creditItems,
+                            'price' => $price->getTotalPrice() * -1,
+                            'amountTax' => $price->getCalculatedTaxes()->getAmount(),
+                            'config' => $config,
+                            'rootDir' => $this->rootDir,
+                            'context' => $context,
+                        ],
+                        $context,
+                        $order->getSalesChannelId(),
+                        $order->getLanguageId(),
+                        $locale->getCode(),
+                    );
+                }
 
                 $doc = new RenderedDocument(
                     $html,
@@ -191,23 +191,9 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     $config->jsonSerialize(),
                 );
 
-                // set the template renderer to be able to render template
-                $doc->setTemplateOptions([
-                    $template,
-                    [
-                        'order' => $order,
-                        'creditItems' => $creditItems,
-                        'price' => $price->getTotalPrice() * -1,
-                        'amountTax' => $price->getCalculatedTaxes()->getAmount(),
-                        'config' => $config,
-                        'rootDir' => $this->rootDir,
-                        'context' => $context,
-                    ],
-                    $context,
-                    $order->getSalesChannelId(),
-                    $order->getLanguageId(),
-                    $locale->getCode(),
-                ]);
+                $doc->setTemplate($template);
+                $doc->setOrder($order);
+                $doc->setContext($context);
 
                 if (Feature::isActive('v6.7.0.0')) {
                     $doc->setContent($this->fileRendererRegistry->render($doc));

@@ -101,7 +101,26 @@ export default {
                         label: this.$tc('sw-settings-document.detail.labelItemsPerPage'),
                     },
                 },
-                null,
+                {
+                    name: 'fileTypes',
+                    type: 'radio',
+                    config: {
+                        componentName: 'sw-single-select',
+                        labelProperty: 'name',
+                        valueProperty: 'id',
+                        options: [
+                            {
+                                id: 'pdf',
+                                name: this.$tc('sw-settings-document.detail.labelFileTypesPdf'),
+                            },
+                            {
+                                id: 'all',
+                                name: this.$tc('sw-settings-document.detail.labelFileTypesPdfAndHtml'),
+                            },
+                        ],
+                        label: this.$tc('sw-settings-document.detail.labelFileTypes'),
+                    },
+                },
                 {
                     name: 'displayHeader',
                     type: 'bool',
@@ -429,6 +448,9 @@ export default {
             this.documentConfig.salesChannels.forEach((salesChannelAssoc) => {
                 this.documentConfigSalesChannels.push(salesChannelAssoc.id);
             });
+
+            this.onChangeFileTypes();
+
             this.isLoading = false;
         },
 
@@ -536,6 +558,19 @@ export default {
             this.isLoading = true;
             this.onChangeSalesChannel();
 
+            this.isSaveSuccessful = true;
+
+            if (this.documentConfig.config.fileTypes === 'all') {
+                this.documentConfig.config.fileTypes = [
+                    'pdf',
+                    'html',
+                ];
+            }
+
+            if (this.documentConfig.config.fileTypes === 'pdf') {
+                this.documentConfig.config.fileTypes = ['pdf'];
+            }
+
             return this.documentBaseConfigRepository
                 .save(this.documentConfig)
                 .then(() => {
@@ -580,6 +615,17 @@ export default {
                     this.documentConfigSalesChannelOptionsCollection.push(option);
                 }
             });
+        },
+
+        onChangeFileTypes() {
+            const fileTypes = this.documentConfig.config.fileTypes ?? [];
+            if (fileTypes.includes('pdf') && fileTypes.includes('html')) {
+                this.documentConfig.config.fileTypes = 'all';
+
+                return;
+            }
+
+            this.documentConfig.config.fileTypes = 'pdf';
         },
     },
 };

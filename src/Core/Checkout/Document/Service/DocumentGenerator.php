@@ -75,12 +75,9 @@ class DocumentGenerator
         $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMedia->getId(), $context));
 
         $renderedDocument = new RenderedDocument(
-            '',
-            '',
-            $documentMedia->getFileName() . '.' . $documentMedia->getFileExtension(),
-            $documentMedia->getFileExtension() ?? $fileType,
-            [],
-            $documentMedia->getMimeType()
+            name: $documentMedia->getFileName() . '.' . $documentMedia->getFileExtension(),
+            fileExtension: $documentMedia->getFileExtension() ?? $fileType,
+            contentType: $documentMedia->getMimeType()
         );
         $renderedDocument->setContent($fileBlob);
 
@@ -375,7 +372,7 @@ class DocumentGenerator
         $medias = array_filter([
             $document?->getDocumentMediaFile(),
             $document?->getDocumentA11yMediaFile(),
-        ], fn (?MediaEntity $media) => $media?->getFileExtension() === $fileType);
+        ], fn (?MediaEntity $media) => $media?->getFileExtension() === strtolower($fileType));
 
         return array_shift($medias) ?? null;
     }

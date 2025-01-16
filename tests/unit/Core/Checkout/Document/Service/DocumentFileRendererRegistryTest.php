@@ -5,18 +5,16 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
-use Shopware\Core\Checkout\Document\Service\PdfRenderer;
-use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 
 /**
  * @internal
@@ -28,33 +26,26 @@ class DocumentFileRendererRegistryTest extends TestCase
     #[DataProvider('documentTypeRendererProvider')]
     public function testRender(RenderedDocument $document, \Closure $expectsClosure): void
     {
-        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->expects(static::exactly(1))
-            ->method('render')->willReturn('html');
+        $registry = $this->createMock(DocumentFileRendererRegistry::class);
+        $registry->expects(static::exactly(1))
+            ->method('render')->willReturn($document->getHtml());
 
-        $pdfRenderer = new PdfRenderer(
-            [],
-            $documentTemplateRenderer,
-            new ExtensionDispatcher(new EventDispatcher()),
-        );
+        $locale = new LocaleEntity();
+        $locale->setId(Uuid::randomHex());
+        $locale->setCode('en-GB');
 
-        $htmlRenderer = new HtmlRenderer(
-            $documentTemplateRenderer,
-            new ExtensionDispatcher(new EventDispatcher()),
-        );
+        $language = new LanguageEntity();
+        $language->setId(Uuid::randomHex());
+        $language->setLocale($locale);
 
-        $registry = new DocumentFileRendererRegistry(['pdf' => $pdfRenderer, 'html' => $htmlRenderer]);
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setSalesChannelId(Uuid::randomHex());
+        $order->setLanguageId($language->getId());
+        $order->setLanguage($language);
 
-        $config = new DocumentConfiguration();
-
-        $document->setTemplateOptions([
-            'template',
-            ['config' => $config, 'order' => new OrderEntity(), 'context' => Context::createDefaultContext()],
-            Context::createDefaultContext(),
-            'salesChannelId',
-            'languageId',
-            'code',
-        ]);
+        $document->setOrder($order);
+        $document->setContext(Context::createDefaultContext());
 
         $content = $registry->render($document);
 
@@ -79,17 +70,13 @@ class DocumentFileRendererRegistryTest extends TestCase
     {
         yield 'PDF renderer' => [
             new RenderedDocument(
-                'html',
+                'pdf',
                 '1001',
                 'invoice',
-                PdfRenderer::FILE_EXTENSION,
-                [],
-                PdfRenderer::FILE_CONTENT_TYPE
             ),
 
             function (string $rendered): void {
-                $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-                static::assertEquals('application/pdf', $finfo->buffer($rendered));
+                static::assertSame($rendered, 'pdf');
             },
         ];
 

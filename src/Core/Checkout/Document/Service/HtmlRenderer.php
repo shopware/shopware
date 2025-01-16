@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Service;
 
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\HtmlRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
@@ -27,7 +28,8 @@ class HtmlRenderer extends AbstractDocumentTypeRenderer
      */
     public function __construct(
         private readonly DocumentTemplateRenderer $documentTemplateRenderer,
-        private readonly ExtensionDispatcher $extensions
+        private readonly string $rootDir,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -50,39 +52,47 @@ class HtmlRenderer extends AbstractDocumentTypeRenderer
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * Gets the content for the document based on the provided options.
-     *
-     * @param array<mixed> $options The options for rendering the document.
-     *
-     * @return string The content of the document.
-     */
-    private function getContent(array $options): string
+    private function getContent(RenderedDocument $document): string
     {
-        if (empty($options)) {
+        if (!$document->getOrder() || !$document->getContext()) {
             throw DocumentException::documentGenerationException('No options provided for rendering the document.');
         }
 
-        // override the config to set the correct file type
-        foreach ($options as $option) {
-            if (isset($option['config']) && $option['config'] instanceof DocumentConfiguration) {
-                $option['config']->merge([
-                    'fileType' => self::FILE_EXTENSION, // we need to add the config to adjust the CSS from twig file
-                    'itemsPerPage' => 1000, // we need to render the whole document at once
-                ]);
+        $config = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            $document->getConfig(),
+        );
 
-                break;
-            }
-        }
+        $config->merge([
+            'fileType' => self::FILE_EXTENSION,
+            'itemsPerPage' => 1000,
+        ]);
+
+        $language = $document->getOrder()->getLanguage();
 
         return $this->documentTemplateRenderer->render(
-            ...$options,
+            $document->getTemplate(),
+            [
+                'order' => $document->getOrder(),
+                'config' => $config,
+                'rootDir' => $this->rootDir,
+                'context' => $document->getContext(),
+            ],
+            $document->getContext(),
+            $document->getOrder()->getSalesChannelId(),
+            $document->getOrder()->getLanguageId(),
+            $language?->getLocale()?->getCode(),
         );
     }
 
     private function _render(RenderedDocument $document): string
     {
-        $content = $this->getContent($document->getTemplateOptions());
+        $fileTypes = $document->getConfig()['fileTypes'] ?? [self::FILE_EXTENSION];
+        if (!\in_array(self::FILE_EXTENSION, $fileTypes, true)) {
+            return '';
+        }
+
+        $content = $this->getContent($document);
 
         $document->setContentType(self::FILE_CONTENT_TYPE);
         $document->setFileExtension(self::FILE_EXTENSION);

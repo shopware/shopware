@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
@@ -129,11 +130,15 @@ class DocumentEntity extends Entity
 
     public function getFileType(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use getDocumentMediaFile()->getFileExtension() instead.');
+
         return $this->fileType;
     }
 
     public function setFileType(string $fileType): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use getDocumentMediaFile()->getFileExtension() instead.');
+
         $this->fileType = $fileType;
     }
 

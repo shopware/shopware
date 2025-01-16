@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\DevOps\Test\Command;
 
-use PHPStan\BetterReflection\BetterReflection;
-use PHPStan\BetterReflection\Reflector\DefaultReflector;
-use PHPStan\BetterReflection\SourceLocator\Type\SingleFileSourceLocator;
 use PHPUnit\TextUI\XmlConfiguration\Loader;
+use Roave\BetterReflection\BetterReflection;
+use Roave\BetterReflection\Reflector\DefaultReflector;
+use Roave\BetterReflection\SourceLocator\Type\SingleFileSourceLocator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;

@@ -49,7 +49,7 @@ export default {
             subject: '',
             recipient: '',
             content: '',
-            mailA11yTemplate: null,
+            a11yDocuments: [],
         };
     },
 
@@ -106,6 +106,8 @@ export default {
             this.recipient = this.order.orderCustomer.email;
 
             this.setEmailTemplateAccordingToDocumentType();
+
+            this.loadTheLinksForA11y();
         },
 
         setEmailTemplateAccordingToDocumentType() {
@@ -114,48 +116,30 @@ export default {
                 credit_note: 'credit_note_mail',
                 delivery_note: 'delivery_mail',
                 storno: 'cancellation_mail',
-                a11y: 'a11y_mail',
             };
 
             if (!documentMailTemplateMapping.hasOwnProperty(this.document.documentType.technicalName)) {
                 return;
             }
 
-            const criteria = new Criteria(1, 25);
-            criteria
-                .addAssociation('mailTemplateType')
-                .addFilter(
-                    Criteria.equalsAny('mailTemplateType.technicalName', [
-                        'delivery_mail',
-                        'invoice_mail',
-                        'credit_note_mail',
-                        'cancellation_mail',
-                        'a11y_mail',
-                    ]));
+            this.mailTemplateRepository
+                .search(this.mailTemplateCriteria, { ...Shopware.Context.api, languageId: this.order.languageId })
+                .then((result) => {
+                    const mailTemplate = result
+                        .filter(
+                            (t) =>
+                                t.mailTemplateType.technicalName ===
+                                documentMailTemplateMapping[this.document.documentType.technicalName],
+                        )
+                        .first();
 
-            this.mailTemplateRepository.search(
-                criteria,
-                { ...Shopware.Context.api, languageId: this.order.languageId },
-            ).then((result) => {
-                const mailTemplate = result
-                    .filter(
-                        (t) =>
-                            t.mailTemplateType.technicalName ===
-                            documentMailTemplateMapping[this.document.documentType.technicalName],
-                    )
-                    .first();
+                    if (!mailTemplate) {
+                        return;
+                    }
 
-                this.mailA11yTemplate = result.find(
-                    (t) => t.mailTemplateType.technicalName === documentMailTemplateMapping.a11y,
-                );
-
-                if (!mailTemplate) {
-                    return;
-                }
-
-                this.mailTemplateId = mailTemplate.id;
-                this.onMailTemplateChange(mailTemplate.id, mailTemplate);
-            });
+                    this.mailTemplateId = mailTemplate.id;
+                    this.onMailTemplateChange(mailTemplate.id, mailTemplate);
+                });
         },
 
         onMailTemplateChange(mailTemplateId, mailTemplate) {
@@ -205,7 +189,8 @@ export default {
                     this.mailTemplateId,
                     { ...Shopware.Context.api, languageId: this.order.languageId },
                     this.mailTemplateSendCriteria,
-                ).then((mailTemplate) => {
+                )
+                .then((mailTemplate) => {
                     this.mailService
                         .sendMailTemplate(
                             this.recipient,
@@ -226,6 +211,8 @@ export default {
                             {
                                 order: this.order,
                                 salesChannel: this.order.salesChannel,
+                                document: this.document,
+                                a11yDocuments: this.a11yDocuments,
                             },
                         )
                         .catch(() => {
@@ -236,8 +223,6 @@ export default {
                         })
                         .then(() => {
                             this.$emit('document-sent');
-
-                            this.onSendDocumentForA11y();
                         })
                         .finally(() => {
                             this.isLoading = false;
@@ -245,33 +230,16 @@ export default {
                 });
         },
 
-        onSendDocumentForA11y() {
-            if (!this.mailA11yTemplate) {
-                return Promise.resolve();
+        loadTheLinksForA11y() {
+            if (!this.document?.documentA11yMediaFile) {
+                return;
             }
 
-            return this.mailService
-                .sendMailTemplate(
-                    this.recipient,
-                    `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
-                    {
-                        ...this.mailA11yTemplate,
-                        ...{
-                            recipient: this.recipient,
-                        },
-                    },
-                    {
-                        getIds: () => {},
-                    },
-                    this.order.salesChannelId,
-                    false,
-                    [],
-                    {
-                        order: this.order,
-                        salesChannel: this.order.salesChannel,
-                        document: this.document,
-                    },
-                );
+            this.a11yDocuments.push({
+                documentId: this.document.id,
+                deepLinkCode: this.document.deepLinkCode,
+                fileExtension: this.document.documentA11yMediaFile.fileExtension,
+            });
         },
     },
 };

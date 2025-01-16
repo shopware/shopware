@@ -7,8 +7,6 @@ import { mount } from '@vue/test-utils';
 async function createWrapper(errors = {}, options = {}) {
     Shopware.Store.get('error').api = errors;
 
-    Shopware.State.getters['error/getAllApiErrors'] = () => [errors];
-
     return mount(await wrapTestComponent('sw-error-summary', { sync: true }), {
         attachTo: document.body,
         global: {

@@ -47,8 +47,8 @@ describe('src/app/store/in-app-purchase-checkout.store.ts', () => {
             active: true,
         };
 
-        Shopware.State._store.state.extensions = {};
-        Shopware.State.commit('extensions/addExtension', extension);
+        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').addExtension(extension);
 
         store.request(checkoutRequest, extensionName);
 
@@ -62,7 +62,7 @@ describe('src/app/store/in-app-purchase-checkout.store.ts', () => {
         };
         const extensionName = 'TestExtension';
 
-        Shopware.State._store.state.extensions = {};
+        Shopware.Store.get('extensions').extensionsState = {};
 
         expect(() => {
             store.request(checkoutRequest, extensionName);

@@ -521,7 +521,6 @@ Shopware.Directive.register('tooltip', {
             tooltip!.hideTooltip();
         }
 
-
         // Remove the tooltip from the registry
         tooltipRegistry.delete(el.getAttribute('tooltip-id')!);
     },

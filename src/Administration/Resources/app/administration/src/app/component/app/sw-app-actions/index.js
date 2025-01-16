@@ -131,7 +131,7 @@ Component.register('sw-app-actions', {
         // that the actions are executed on the wrong entities.
         // Only reset when a entity exists
         if (this.entity) {
-            Shopware.State.commit('shopwareApps/setSelectedIds', []);
+            Shopware.Store.get('shopwareApps').selectedIds = [];
         }
     },
 

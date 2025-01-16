@@ -42,7 +42,7 @@ class ChangelogParser
 
     private function findIssueIdInCommit(string $path, string $rootDir): ?string
     {
-        if (EnvironmentHelper::getVariable('CHANGELOG_DISABLE_GIT', false)) {
+        if (EnvironmentHelper::getVariable('TESTS_RUNNING', false)) {
             return null;
         }
 

@@ -1,6 +1,7 @@
 name: Downstream
 
 on:
+  merge_group:
   workflow_dispatch:
     inputs:
       nightly:

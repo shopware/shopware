@@ -62,7 +62,7 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         /** @var array<PaymentMethodEntity> $methods */
         $methods = $event->getEntities();
 
-        static::assertContainsOnly(PaymentMethodEntity::class, $methods);
+        static::assertContainsOnlyInstancesOf(PaymentMethodEntity::class, $methods);
         static::assertCount(5, $methods);
 
         static::assertSame('handler_shopware_synchronouspaymenthandlerinterface', $methods[0]->getFormattedHandlerIdentifier());
@@ -124,7 +124,7 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         /** @var array<PaymentMethodEntity> $methods */
         $methods = $event->getEntities();
 
-        static::assertContainsOnly(PaymentMethodEntity::class, $methods);
+        static::assertContainsOnlyInstancesOf(PaymentMethodEntity::class, $methods);
         static::assertCount(1, $methods);
 
         static::assertSame('handler_shopware_apppaymenthandler', $methods[0]->getFormattedHandlerIdentifier());
@@ -148,7 +148,7 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         /** @var array<PaymentMethodEntity> $methods */
         $methods = $event->getEntities();
 
-        static::assertContainsOnly(PaymentMethodEntity::class, $methods);
+        static::assertContainsOnlyInstancesOf(PaymentMethodEntity::class, $methods);
         static::assertCount(1, $methods);
 
         static::assertSame('foo', $methods[0]->getFormattedHandlerIdentifier());
@@ -197,7 +197,7 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         /** @var array<PaymentMethodEntity> $methods */
         $methods = $event->getEntities();
 
-        static::assertContainsOnly(PaymentMethodEntity::class, $methods);
+        static::assertContainsOnlyInstancesOf(PaymentMethodEntity::class, $methods);
         static::assertCount(5, $methods);
 
         static::assertSame('handler_shopware_synchronouspaymenthandlerinterface', $methods[0]->getFormattedHandlerIdentifier());

@@ -16,7 +16,6 @@ export default function initializeInAppPurchaseCheckout(): void {
             throw new Error(`Extension with the origin "${_event_.origin}" not found.`);
         }
 
-        const store = Shopware.Store.get('inAppPurchaseCheckout');
-        store.request(entry, extension);
+        Shopware.Store.get('inAppPurchaseCheckout').request(entry, extension.name);
     });
 }

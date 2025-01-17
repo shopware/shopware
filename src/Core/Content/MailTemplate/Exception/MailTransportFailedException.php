@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - Will be removed in v6.7.0.0. Use MailException::mailTransportFailedException instead
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailTransportFailedException extends ShopwareHttpException
 {
     public function __construct(

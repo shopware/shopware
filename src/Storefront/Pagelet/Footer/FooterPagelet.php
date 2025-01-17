@@ -10,7 +10,7 @@ use Shopware\Storefront\Pagelet\NavigationPagelet;
 /**
  * @codeCoverageIgnore
  */
-#[Package('storefront')]
+#[Package('framework')]
 class FooterPagelet extends NavigationPagelet
 {
     /**

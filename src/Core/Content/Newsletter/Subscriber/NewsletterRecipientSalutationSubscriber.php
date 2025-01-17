@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterRecipientSalutationSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly Connection $connection)

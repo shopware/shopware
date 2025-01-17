@@ -43,7 +43,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;

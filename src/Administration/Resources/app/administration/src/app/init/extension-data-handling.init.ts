@@ -2,8 +2,6 @@
  * @package admin
  */
 
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from '../../core/data/entity-collection.data';
 import type Repository from '../../core/data/repository.data';
 
 function getRepository(

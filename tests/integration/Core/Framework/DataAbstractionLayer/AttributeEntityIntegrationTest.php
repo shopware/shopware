@@ -31,6 +31,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityCollection;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithHydrator;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\DummyHydrator;
 
 /**
  * @internal
@@ -68,6 +70,9 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertTrue(static::getContainer()->has('attribute_entity_agg.repository'));
         static::assertTrue(static::getContainer()->has('attribute_entity_agg.definition'));
 
+        static::assertTrue(static::getContainer()->has('attribute_entity_with_hydrator.repository'));
+        static::assertTrue(static::getContainer()->has('attribute_entity_with_hydrator.definition'));
+
         static::assertTrue(static::getContainer()->has('attribute_entity_currency.definition'));
 
         static::assertTrue(static::getContainer()->has('attribute_entity_translation.repository'));
@@ -75,8 +80,14 @@ class AttributeEntityIntegrationTest extends TestCase
 
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity.definition'));
         static::assertSame(AttributeEntityCollection::class, static::getContainer()->get('attribute_entity.definition')->getCollectionClass());
+
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity_agg.definition'));
         static::assertSame(EntityCollection::class, static::getContainer()->get('attribute_entity_agg.definition')->getCollectionClass());
+
+        static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity_with_hydrator.definition'));
+        static::assertSame(EntityCollection::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getCollectionClass());
+        static::assertSame(DummyHydrator::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getHydratorClass());
+
         static::assertInstanceOf(AttributeMappingDefinition::class, static::getContainer()->get('attribute_entity_currency.definition'));
         static::assertInstanceOf(AttributeTranslationDefinition::class, static::getContainer()->get('attribute_entity_translation.definition'));
 
@@ -809,6 +820,29 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertNotNull($record->orders);
         static::assertCount(1, $record->orders);
         static::assertArrayHasKey($ids->get('order-2'), $record->orders);
+    }
+
+    public function testHydrator(): void
+    {
+        $ids = new IdsCollection();
+
+        $data = [
+            'id' => $ids->get('first-key'),
+            'number' => 'number',
+        ];
+
+        $result = $this->repository('attribute_entity_with_hydrator')
+            ->create([$data], Context::createDefaultContext());
+
+        static::assertNotEmpty($result->getPrimaryKeys('attribute_entity_with_hydrator'));
+        static::assertContains($ids->get('first-key'), $result->getPrimaryKeys('attribute_entity_with_hydrator'));
+
+        $search = $this->repository('attribute_entity_with_hydrator')
+            ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
+
+        $record = $search->get($ids->get('first-key'));
+        static::assertInstanceOf(AttributeEntityWithHydrator::class, $record);
+        static::assertSame('code-number', $record->number);
     }
 
     private function repository(string $entity): EntityRepository

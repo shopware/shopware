@@ -10,6 +10,6 @@ test('As a new customer, I must be able to register in the Storefront.', { tag: 
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
 
     await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-    await ShopCustomer.attemptsTo(Register({ overrides: customer }));
+    await ShopCustomer.attemptsTo(Register(customer));
     await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
 });

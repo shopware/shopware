@@ -61,6 +61,9 @@ class Page extends Struct
         return $this->header;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, header is loaded via esi and will be rendered in an separate request
+     */
     public function setHeader(?HeaderPagelet $header): void
     {
         Feature::triggerDeprecationOrThrow(
@@ -70,6 +73,9 @@ class Page extends Struct
         $this->header = $header;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, footer is loaded via esi and will be rendered in an separate request
+     */
     public function getFooter(): ?FooterPagelet
     {
         Feature::triggerDeprecationOrThrow(
@@ -80,6 +86,9 @@ class Page extends Struct
         return $this->footer;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, footer is loaded via esi and will be rendered in an separate request
+     */
     public function setFooter(?FooterPagelet $footer): void
     {
         Feature::triggerDeprecationOrThrow(
@@ -89,6 +98,9 @@ class Page extends Struct
         $this->footer = $footer;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, as it is not needed anymore
+     */
     public function getSalesChannelShippingMethods(): ?ShippingMethodCollection
     {
         Feature::triggerDeprecationOrThrow(
@@ -99,6 +111,9 @@ class Page extends Struct
         return $this->salesChannelShippingMethods;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, as it is not needed anymore
+     */
     public function setSalesChannelShippingMethods(ShippingMethodCollection $salesChannelShippingMethods): void
     {
         Feature::triggerDeprecationOrThrow(
@@ -108,6 +123,9 @@ class Page extends Struct
         $this->salesChannelShippingMethods = $salesChannelShippingMethods;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, as it is not needed anymore
+     */
     public function getSalesChannelPaymentMethods(): ?PaymentMethodCollection
     {
         Feature::triggerDeprecationOrThrow(
@@ -118,6 +136,9 @@ class Page extends Struct
         return $this->salesChannelPaymentMethods;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, as it is not needed anymore
+     */
     public function setSalesChannelPaymentMethods(PaymentMethodCollection $salesChannelPaymentMethods): void
     {
         Feature::triggerDeprecationOrThrow(

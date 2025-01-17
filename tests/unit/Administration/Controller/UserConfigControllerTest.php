@@ -38,7 +38,7 @@ class UserConfigControllerTest extends TestCase
 
     private Context $context;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->userConfigRepository = new StaticEntityRepository([], new UserConfigDefinition());
         $this->userConfigController = new UserConfigController(

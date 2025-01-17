@@ -110,6 +110,9 @@ parameters:
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
             path: src/*/*Hydrator.php
         -
+            message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
+            path: tests/*/*Hydrator.php
+        -
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
 

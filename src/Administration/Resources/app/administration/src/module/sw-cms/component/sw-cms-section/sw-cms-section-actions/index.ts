@@ -13,7 +13,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         section: {
-            type: Object as PropType<EntitySchema.Entity<'cms_section'>>,
+            type: Object as PropType<Entity<'cms_section'>>,
             required: true,
         },
 

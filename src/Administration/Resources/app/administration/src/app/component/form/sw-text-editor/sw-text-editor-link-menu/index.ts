@@ -1,6 +1,5 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from 'src/core/data/repository.data';
-import type EntityCollectionType from 'src/core/data/entity-collection.data';
 import template from './sw-text-editor-link-menu.html.twig';
 import './sw-text-editor-link-menu.scss';
 
@@ -51,7 +50,7 @@ Component.register('sw-text-editor-link-menu', {
         displayAsButton: boolean;
         buttonVariant: ButtonVariant;
         linkCategory: LinkCategories;
-        categoryCollection?: EntityCollectionType<'category'>;
+        categoryCollection?: EntityCollection<'category'>;
         buttonVariantList: Array<{ id: ButtonVariant; name: string }>;
     } {
         return {
@@ -144,12 +143,12 @@ Component.register('sw-text-editor-link-menu', {
             this.$emit('mounted');
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollectionType<'category'>> {
+        getCategoryCollection(categoryId: string): Promise<EntityCollection<'category'>> {
             const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
 
-        getEmptyCategoryCollection(): EntityCollectionType<'category'> {
+        getEmptyCategoryCollection(): EntityCollection<'category'> {
             return new EntityCollection(
                 this.categoryRepository.route,
                 this.categoryRepository.entityName,

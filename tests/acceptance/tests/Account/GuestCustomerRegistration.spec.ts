@@ -13,7 +13,7 @@ test('Guest customer must be able to register in the Storefront.', { tag: '@Regi
     const product = await TestDataService.createBasicProduct();
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${ product.translated.name } | ${ product.productNumber }`);
+    await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
     await StorefrontCheckoutCart.goToCheckoutButton.click();
 
@@ -39,7 +39,7 @@ test('Guest commercial customer must be able to register in the Storefront.', { 
     const product = await TestDataService.createBasicProduct();
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${ product.translated.name } | ${ product.productNumber }`);
+    await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
     await StorefrontCheckoutCart.goToCheckoutButton.click();
 

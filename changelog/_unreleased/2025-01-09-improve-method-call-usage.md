@@ -6,4 +6,4 @@ author_github: akf-bw
 ---
 # Core
 * Changed `Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent` by adding `CustomerAware` to expose the `getCustomerId` method
-* Updated several files to reduce the use of method calls by directly accessing the needed fields
+* Changed several files to reduce the use of method calls by directly accessing the needed fields

@@ -40,9 +40,7 @@ class FooterPageletLoader implements FooterPageletLoaderInterface
 
         $tree = null;
         if ($footerId) {
-            $navigationId = $request->get('navigationId', $footerId);
-
-            $tree = $this->navigationLoader->load($navigationId, $salesChannelContext, $footerId);
+            $tree = $this->navigationLoader->load($footerId, $salesChannelContext, $footerId);
         }
 
         $pagelet = new FooterPagelet(

@@ -45,13 +45,9 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     public function load(Request $request, SalesChannelContext $context): HeaderPagelet
     {
         $salesChannel = $context->getSalesChannel();
-        $navigationId = (string) $request->get('navigationId', $salesChannel->getNavigationCategoryId());
-        if ($navigationId === '') {
-            throw RoutingException::missingRequestParameter('navigationId');
-        }
 
         $navigation = $this->navigationLoader->load(
-            $navigationId,
+            $salesChannel->getNavigationCategoryId(),
             $context,
             $salesChannel->getNavigationCategoryId(),
             $salesChannel->getNavigationCategoryDepth()

@@ -57,5 +57,9 @@ return [
         // Was not intended to be extended, declared as final
         'Class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity became final',
         'Parameter hydratorClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
+
+        // twig upgrade
+        'Method Twig\\\\Cache\\\\FilesystemCache#remove\\(\\) was removed',
+        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\ConfigurableFilesystemCache have been removed: .*',
     ],
 ];

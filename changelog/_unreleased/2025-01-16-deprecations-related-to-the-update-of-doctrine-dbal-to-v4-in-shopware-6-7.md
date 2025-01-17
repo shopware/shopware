@@ -15,11 +15,11 @@ OffsetQuery && LastIdQuery now accept \Shopware\Core\Framework\DataAbstractionLa
 If you are creating those classes manually, you need to change creating code:
 ```php
 $queryBuilder = $this->connection->createQueryBuilder();
-$lastIdQuery = new LastIdQuery($query);
-$offsetQuery = new OffsetQuery($query);
+$lastIdQuery = new LastIdQuery($queryBuilder);
+$offsetQuery = new OffsetQuery($queryBuilder);
 ```
 to
-``` php
+```php
 $queryBuilder = new \Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder($this->connection);
 $lastIdQuery = new LastIdQuery($queryBuilder);
 $offsetQuery = new OffsetQuery($queryBuilder);

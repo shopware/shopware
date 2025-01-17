@@ -52,7 +52,7 @@ class NullConnection extends Connection
      */
     public function executeUpdate(string $sql, array $params = [], array $types = []): int
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'executeUpdate() is deprecated. Use executeStatement() instead.');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0', 'executeStatement'));
 
         return 0;
     }

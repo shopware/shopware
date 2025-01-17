@@ -261,7 +261,7 @@ class DataAbstractionLayerException extends HttpException
      */
     public static function databasePlatformInvalid(): self
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0'));
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
 
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,

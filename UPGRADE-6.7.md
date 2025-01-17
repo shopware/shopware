@@ -17,7 +17,7 @@ For more information please take a look at the [docs](https://developer.shopware
 The Vue 2 compatibility layer has been removed from the administration. This means that all components that still rely on Vue 2 features need to be updated.
 This ensures that our administration stays future-proof and we can make use of the most recent Vue 3 features.
 
-**What does that mean, can we link to a guide or something?**
+For detailed explanation of what was covered by the compatibility layer and what needs to be updated, please refer to the [Vue docs](https://v3-migration.vuejs.org/migration-build.html).
 
 **Note:** This change can be activated separately with the `DISABLE_VUE_COMPAT` feature flag.
 
@@ -26,7 +26,57 @@ For Vue 3 the default state management library has become Pinia, therefore we ar
 When you use default stores in your plugin you need to switch from `Shopware.State` (Vuex) to `Shopware.Store` (Pinia).
 Adding your own Vuex stores is still possible, however it is recommended that you switch to Pinia as well.
 
-**TBD, can we have a realistic example how this looked like before and what actually needs to change?
+Here is an example of how to switch from Vuex to Pinia:
+```ts
+// Old Vuex implementation
+Shopware.State.registerModule('example', {
+    state: {
+        id: '',
+    },
+    getters: {
+        idStart(state) {
+            return state.id.substring(0, 4);
+        }
+    },
+    mutations: {
+        setId(state, id) {
+            state.id = id;
+        }
+    },
+    actions: {
+        async asyncFoo({ commit }, id) {
+            // Do some async stuff
+            return Promise.resolve(() => {
+                commit('setId', id);
+                
+                return id;
+            });
+        }
+    }
+});
+
+// New Pinia implementation
+// Notice that the mutation setId was removed! You can directly modify a Pinia store state after retrieving it with Shopware.Store.get.
+Shopware.Store.register({
+    id: 'example',
+    state: () => ({
+        id: '',
+    }),
+    getters: {
+        idStart: () => this.id.substring(0, 4),
+    },
+    actions: {
+        async asyncFoo(id) {
+            // Do some async stuff
+            return Promise.resolve(() => {
+                this.id = id;
+
+                return id;
+            });
+        }
+    }
+});
+```
 
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 

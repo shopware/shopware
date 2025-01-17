@@ -2,15 +2,11 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test('Guest customer must be able to register in the Storefront.', { tag: '@Registration' }, async ({
     ShopCustomer,
-    StorefrontCheckoutConfirm,
-    StorefrontCheckoutFinish,
     StorefrontCheckoutCart,
     StorefrontProductDetail,
+    StorefrontHome,
+    StorefrontAccountLogin,
     AddProductToCart,
-    ConfirmTermsAndConditions,
-    SelectInvoicePaymentOption,
-    SelectStandardShippingOption,
-    SubmitOrder,
     TestDataService,
     Register,
 }) => {
@@ -22,29 +18,20 @@ test('Guest customer must be able to register in the Storefront.', { tag: '@Regi
     await StorefrontCheckoutCart.goToCheckoutButton.click();
 
     await ShopCustomer.attemptsTo(Register({ isGuest: true }));
+    await ShopCustomer.goesTo(StorefrontHome.url());
+    await StorefrontHome.accountMenuButton.click();
+    await StorefrontHome.closeGuestSessionButton.click();
+    await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
 
-    await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-    await ShopCustomer.attemptsTo(SelectStandardShippingOption());
-    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText('€10.00*');
-    await ShopCustomer.attemptsTo(SubmitOrder());
-    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toHaveText('€10.00*');
-
-    const orderId = StorefrontCheckoutFinish.getOrderId();
-    TestDataService.addCreatedRecord('order', orderId);
 });
 
 test('Guest commercial customer must be able to register in the Storefront.', { tag: '@Registration' }, async ({
     ShopCustomer,
-    StorefrontCheckoutConfirm,
-    StorefrontCheckoutFinish,
+    StorefrontHome,
     StorefrontCheckoutCart,
     StorefrontProductDetail,
+    StorefrontAccountLogin,
     AddProductToCart,
-    ConfirmTermsAndConditions,
-    SelectInvoicePaymentOption,
-    SelectStandardShippingOption,
-    SubmitOrder,
     TestDataService,
     Register,
 }) => {
@@ -57,14 +44,8 @@ test('Guest commercial customer must be able to register in the Storefront.', { 
     await StorefrontCheckoutCart.goToCheckoutButton.click();
 
     await ShopCustomer.attemptsTo(Register({ isCommercial: true, isGuest: true }));
-
-    await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-    await ShopCustomer.attemptsTo(SelectStandardShippingOption());
-    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText('€10.00*');
-    await ShopCustomer.attemptsTo(SubmitOrder());
-    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toHaveText('€10.00*');
-
-    const orderId = StorefrontCheckoutFinish.getOrderId();
-    TestDataService.addCreatedRecord('order', orderId);
+    await ShopCustomer.goesTo(StorefrontHome.url());
+    await StorefrontHome.accountMenuButton.click();
+    await StorefrontHome.closeGuestSessionButton.click();
+    await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
 });

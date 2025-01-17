@@ -13,6 +13,7 @@ enum FieldType: string
     public const INT = 'int';
     public const FLOAT = 'float';
     public const BOOL = 'bool';
+    public const ENUM = 'enum';
     public const JSON = 'json';
     public const DATETIME = 'datetime';
     public const DATE = 'date';

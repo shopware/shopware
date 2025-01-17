@@ -3,10 +3,11 @@
         {% block element_category_navigation_element %}
             <div class="category-navigation-box">
                 {% block element_category_navigation_box %}
-                    {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {
-                        navigationTree: page.header.navigation.tree,
-                        activeResult: page.header.navigation.active
-                    } only %}
+{#                    TODO The category data needs to be populated to the element #}
+{#                    {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {#}
+{#                        navigationTree: page.header.navigation.tree,#}
+{#                        activeResult: page.header.navigation.active#}
+{#                    } only %}#}
                 {% endblock %}
             </div>
         {% endblock %}

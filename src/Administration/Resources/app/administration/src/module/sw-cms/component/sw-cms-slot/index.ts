@@ -21,7 +21,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         element: {
-            type: Object as PropType<EntitySchema.Entity<'cms_slot'>>,
+            type: Object as PropType<Entity<'cms_slot'>>,
             required: true,
         },
 

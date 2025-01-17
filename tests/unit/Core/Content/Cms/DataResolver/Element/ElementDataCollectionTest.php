@@ -32,6 +32,6 @@ class ElementDataCollectionTest extends TestCase
         ));
 
         static::assertCount(1, $collection);
-        static::assertContainsOnly(EntitySearchResult::class, $collection);
+        static::assertContainsOnlyInstancesOf(EntitySearchResult::class, $collection);
     }
 }

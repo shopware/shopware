@@ -39,7 +39,7 @@
         {% endblock %}
 
         {% if feature('cache_rework') %}
-            {{ render_esi(url('frontend.header', { 'navigationId': shopware.navigation.id })) }}
+            {{ render_esi(url('frontend.header')) }}
 
             {% block base_navigation_styling %}
                 {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}

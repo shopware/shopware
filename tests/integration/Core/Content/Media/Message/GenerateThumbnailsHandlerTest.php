@@ -193,12 +193,12 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $updateMessage1 = new UpdateThumbnailsMessage();
         $updateMessage1->setMediaIds($testEntities2->getIds());
-        $updateMessage1->setIsStrict(true);
+        $updateMessage1->setStrict(true);
         $updateMessage1->setContext($this->context);
 
         $updateMessage2 = new UpdateThumbnailsMessage();
         $updateMessage2->setMediaIds($testEntities3->getIds());
-        $updateMessage2->setIsStrict(false);
+        $updateMessage2->setStrict(false);
         $updateMessage2->setContext($this->context);
 
         $thumbnailServiceMock->expects(static::once())

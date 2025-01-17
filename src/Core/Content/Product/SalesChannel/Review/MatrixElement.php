@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('after-sales')]
 class MatrixElement
 {
     public function __construct(

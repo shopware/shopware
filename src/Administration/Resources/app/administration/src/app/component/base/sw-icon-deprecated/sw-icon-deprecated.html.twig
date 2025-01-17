@@ -1,3 +1,5 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_icon_deprecated %}
 <span
     class="sw-icon sw-icon--fill"
     :class="classes"
@@ -7,3 +9,4 @@
     v-on="listeners"
     v-html="iconSvgData"
 ></span>
+{% endblock %}

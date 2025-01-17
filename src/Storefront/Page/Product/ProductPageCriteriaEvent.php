@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ProductPageCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     public function __construct(

@@ -709,14 +709,14 @@ class OrderConverterTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext(
             salesChannel: $salesChannel,
             paymentMethod: $paymentMethod,
+            itemRounding: $this->cashRoundingConfig,
+            totalRounding: $this->cashRoundingConfig,
+            areaRuleIds: [RuleAreas::PAYMENT_AREA => ['rule-id']],
             customer: $loginCustomer ? $this->getCustomer($customerWithoutBillingAddress) : null,
             overrides: $loginCustomer ? [] : ['customer' => null]
         );
 
-        $salesChannelContext->setItemRounding($this->cashRoundingConfig);
-        $salesChannelContext->setTotalRounding($this->cashRoundingConfig);
         $salesChannelContext->setRuleIds(['order-rule-id-1', 'order-rule-id-2']);
-        $salesChannelContext->setAreaRuleIds([RuleAreas::PAYMENT_AREA => ['rule-id']]);
 
         return $salesChannelContext;
     }
@@ -1315,7 +1315,7 @@ class OrderConverterTest extends TestCase
                 'regulationPrice' => null,
                 'extensions' => [],
             ],
-            'currencyId' => '4c8eba11bd3546d786afbed481a6e665',
+            'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'lineItems' => [

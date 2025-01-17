@@ -8,7 +8,7 @@ Component.register('sw-settings-document-detail', () => import('./page/sw-settin
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-document', {

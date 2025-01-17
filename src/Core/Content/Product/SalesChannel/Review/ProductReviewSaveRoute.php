@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('after-sales')]
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
     /**

@@ -6,7 +6,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class OffcanvasMenuPlugin extends Plugin {
 

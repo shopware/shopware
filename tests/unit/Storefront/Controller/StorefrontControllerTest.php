@@ -44,7 +44,7 @@ use Twig\Error\SyntaxError;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 #[CoversClass(StorefrontController::class)]
 class StorefrontControllerTest extends TestCase
 {

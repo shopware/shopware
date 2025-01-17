@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class TestStorefrontController extends StorefrontController
 {
     /**

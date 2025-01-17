@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('inventory')]
+#[Package('after-sales')]
 class ProductReviewEntity extends Entity
 {
     use EntityCustomFieldsTrait;

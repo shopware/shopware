@@ -38,7 +38,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentGeneratorControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

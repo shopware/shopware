@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ResponseHeaderListener implements EventSubscriberInterface
 {
     private const REMOVAL_HEADERS = [

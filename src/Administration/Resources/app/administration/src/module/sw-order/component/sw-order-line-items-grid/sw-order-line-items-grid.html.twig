@@ -260,14 +260,14 @@
             {% block sw_order_line_items_grid_grid_columns_quantity_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit && !isCreditItem(item.id)"
-                v-model:value="item.quantity"
+                :value="item.quantity"
                 name="sw-field--item-quantity"
                 number-type="int"
                 :min="1"
                 size="small"
                 placeholder="0"
                 number-align-end
-                @update:value="updateItemQuantity(item)"
+                @update:value="updateItemQuantity(item, $event)"
             />
             {% endblock %}
 

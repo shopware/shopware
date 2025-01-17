@@ -758,7 +758,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ENUM_FIELD,
-            '"Expected {{ field }}" to be a BackedEnum. Got {{ actualType }} instead.',
+            'Expected "{{ field }}" to be a BackedEnum. Got "{{ actualType }}" instead.',
             ['field' => $field, 'actualType' => $actualType]
         );
     }

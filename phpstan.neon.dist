@@ -271,3 +271,8 @@ parameters:
             message: '#Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with .* and .* will always evaluate to true.#'
             identifier: staticMethod.alreadyNarrowedType
             path: tests/devops/Core/DefaultsTest.php
+
+        - # The test intentionally uses a union type instead of a native type
+            message: '#Property Shopware\\Tests\\Integration\\Core\\Framework\\DataAbstractionLayer\\fixture\\AttributeEntityUnionEnum::\$enum has unresolvable native type.#'
+            paths:
+                - tests/integration/Core/Framework/DataAbstractionLayer/fixture/AttributeEntityUnionEnum.php

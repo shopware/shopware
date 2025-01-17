@@ -12,9 +12,11 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -31,6 +33,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityCollection;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityInvalidEnum;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityUnionEnum;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithHydrator;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\DummyHydrator;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\StringEnum;
@@ -326,6 +330,24 @@ class AttributeEntityIntegrationTest extends TestCase
             'translations' => null,
             'customFields' => null,
         ], $json);
+    }
+
+    public function testInvalidEnumsFail(): void
+    {
+        $attributeCompiler = new AttributeEntityCompiler();
+        try {
+            $attributeCompiler->compile(AttributeEntityUnionEnum::class);
+        } catch (\Throwable $e) {
+            static::assertInstanceOf(DataAbstractionLayerException::class, $e);
+            static::assertSame('Expected "enum" to be a BackedEnum. Got "Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\StringEnum&Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\IntEnum" instead.', $e->getMessage());
+        }
+
+        try {
+            $attributeCompiler->compile(AttributeEntityInvalidEnum::class);
+        } catch (\Throwable $e) {
+            static::assertInstanceOf(DataAbstractionLayerException::class, $e);
+            static::assertSame('Expected "enum" to be a BackedEnum. Got "string" instead.', $e->getMessage());
+        }
     }
 
     public function testOneToOne(): void

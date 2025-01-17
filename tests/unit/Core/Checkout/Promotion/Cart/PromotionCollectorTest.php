@@ -60,7 +60,7 @@ class PromotionCollectorTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
 
-        $this->context = Generator::createSalesChannelContext(customer: $customer);
+        $this->context = Generator::generateSalesChannelContext(customer: $customer);
     }
 
     public function testCollectWithExistingPromotionAndDifferentDiscount(): void

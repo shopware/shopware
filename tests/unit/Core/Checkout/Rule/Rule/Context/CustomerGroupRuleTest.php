@@ -27,7 +27,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-1');
 
-        $context = Generator::createSalesChannelContext(currentCustomerGroup: $group);
+        $context = Generator::generateSalesChannelContext(currentCustomerGroup: $group);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -43,7 +43,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-3');
 
-        $context = Generator::createSalesChannelContext(currentCustomerGroup: $group);
+        $context = Generator::generateSalesChannelContext(currentCustomerGroup: $group);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -59,7 +59,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-5');
 
-        $context = Generator::createSalesChannelContext(currentCustomerGroup: $group);
+        $context = Generator::generateSalesChannelContext(currentCustomerGroup: $group);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))

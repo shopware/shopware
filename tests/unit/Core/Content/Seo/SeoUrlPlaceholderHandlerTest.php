@@ -37,7 +37,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
 
-        $this->salesChannelContext = Generator::createSalesChannelContext();
+        $this->salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->seoUrlPlaceholderHandler = new SeoUrlPlaceholderHandler(
             $this->createMock(RequestStack::class),

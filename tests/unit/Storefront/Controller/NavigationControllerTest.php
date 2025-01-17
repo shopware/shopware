@@ -10,6 +10,8 @@ use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\NavigationController;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,12 +28,18 @@ class NavigationControllerTest extends TestCase
 
     private NavigationControllerTestClass $controller;
 
+    private HeaderPageletLoaderInterface&MockObject $headerLoader;
+
+    private FooterPageletLoaderInterface&MockObject $footerLoader;
+
     protected function setUp(): void
     {
         $this->pageLoader = $this->createMock(NavigationPageLoaderInterface::class);
         $this->offCanvasLoader = $this->createMock(MenuOffcanvasPageletLoaderInterface::class);
+        $this->headerLoader = $this->createMock(HeaderPageletLoaderInterface::class);
+        $this->footerLoader = $this->createMock(FooterPageletLoaderInterface::class);
 
-        $this->controller = new NavigationControllerTestClass($this->pageLoader, $this->offCanvasLoader);
+        $this->controller = new NavigationControllerTestClass($this->pageLoader, $this->offCanvasLoader, $this->headerLoader, $this->footerLoader);
     }
 
     public function testHomeRendersStorefront(): void

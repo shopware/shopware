@@ -1,4 +1,4 @@
-{% if not header is defined and page is defined %}
+{% if not feature('cache_rework') and not header is defined and page is defined %}
     {% set header = page.header %}
 {% endif %}
 

@@ -55,9 +55,12 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
 
         $activeNavigationId = (string) $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+        $navigationPath = $this->getNavigationPath($activeNavigationId);
+        $navigationPathIdList = array_values(array_filter(explode('|', $navigationPath)));
         $navigationInfo = new NavigationInfo(
             $activeNavigationId,
-            $this->getNavigationPath($activeNavigationId),
+            $navigationPath,
+            $navigationPathIdList,
         );
 
         $globalTemplateData = [

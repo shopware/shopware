@@ -61,7 +61,7 @@ export default Mixin.register('discard-detail-page-changes', (...entityNames: Ar
                     // @ts-expect-error - we check if the entity exists on the component
                     // eslint-disable-next-line max-len
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-                    const entity: EntitySchema.Entity<any> = this[entityName];
+                    const entity: Entity<any> = this[entityName];
 
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     if (entity && typeof entity.discardChanges === 'function') {

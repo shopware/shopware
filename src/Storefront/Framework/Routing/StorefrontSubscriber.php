@@ -28,7 +28,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class StorefrontSubscriber implements EventSubscriberInterface
 {
     /**

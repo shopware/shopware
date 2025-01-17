@@ -49,7 +49,13 @@ describe('src/app/component/structure/sw-in-app-purchase-checkout', () => {
             featureId: 'Test Feature',
         };
 
-        Shopware.Store.get('inAppPurchaseCheckout').request(requestCheckout);
+        Shopware.Context.app.config.bundles = {
+            'TestExtension': {
+                identifier: 'TestExtension',
+            }
+        };
+
+        Shopware.Store.get('inAppPurchaseCheckout').request(requestCheckout, 'TestExtension');
 
         await flushPromises();
 
@@ -68,7 +74,13 @@ describe('src/app/component/structure/sw-in-app-purchase-checkout', () => {
             featureId: 'Test Feature',
         };
 
-        Shopware.Store.get('inAppPurchaseCheckout').request(requestCheckout);
+        Shopware.Context.app.config.bundles = {
+            'TestExtension': {
+                identifier: 'TestExtension',
+            }
+        };
+
+        Shopware.Store.get('inAppPurchaseCheckout').request(requestCheckout, 'TestExtension');
 
         await flushPromises();
 

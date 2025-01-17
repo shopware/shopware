@@ -1,7 +1,7 @@
 import MemoryStorage from 'src/helper/storage/memory-storage.helper';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class AppClientService {
     private readonly name: string;

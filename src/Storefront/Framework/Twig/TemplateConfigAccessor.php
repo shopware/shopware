@@ -8,7 +8,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
 
-#[Package('storefront')]
+#[Package('framework')]
 class TemplateConfigAccessor
 {
     /**

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @internal
  */
-class NonIdPrimaryKeyTestDefinition extends EntityDefinition
+class NonIdFieldNamePrimaryKeyTestDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'non_id_primary_key_test';
 
@@ -30,7 +30,7 @@ class NonIdPrimaryKeyTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('test_field', 'testField'))->addFlags(new ApiAware(), new PrimaryKey()),
-
+            new IdField('non_pk', 'nonPk'),
             new StringField('name', 'name'),
         ]);
     }

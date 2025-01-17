@@ -322,7 +322,7 @@ class EntityReaderTest extends TestCase
     }
 
     /**
-     * @param list<string> $languageIdChain
+     * @param non-empty-list<string> $languageIdChain
      */
     private static function createLocalizedContext(array $languageIdChain): Context
     {

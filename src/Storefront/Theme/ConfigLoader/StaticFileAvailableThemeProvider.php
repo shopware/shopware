@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-#[Package('storefront')]
+#[Package('framework')]
 class StaticFileAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
     final public const THEME_INDEX = 'theme-config/index.json';

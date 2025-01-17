@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 
-#[Package('storefront')]
+#[Package('framework')]
 class TemplateDataExtension extends AbstractExtension implements GlobalsInterface
 {
     /**

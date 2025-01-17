@@ -173,11 +173,15 @@ export default class ExtensionStoreActionService extends ApiService {
         );
     }
 
-    public removeExtension(technicalName: string, type: ExtensionType): Promise<AxiosResponse<void>> {
-        return this.httpClient.delete(`_action/${this.getApiBasePath()}/remove/${type}/${technicalName}`, {
-            headers: this.storeHeaders(),
-            version: 3,
-        });
+    public removeExtension(technicalName: string, type: ExtensionType, removeData: boolean): Promise<AxiosResponse<void>> {
+        return this.httpClient.post(
+            `_action/${this.getApiBasePath()}/remove/${type}/${technicalName}`,
+            { keepUserData: !removeData },
+            {
+                headers: this.storeHeaders(),
+                version: 3,
+            },
+        );
     }
 
     public cancelLicense(licenseId: number): Promise<void> {

@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends Extension<string>
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 final class PdfRendererExtension extends Extension
 {
     public const NAME = 'pdf-renderer';

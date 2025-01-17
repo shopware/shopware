@@ -94,7 +94,7 @@ class SalesChannelContextFactoryTest extends TestCase
                     static::assertCount(2, $criteria->getFilters());
                     static::assertEquals([
                         new EqualsFilter('active', 1),
-                        new EqualsFilter('salesChannels.id', $baseContext->getSalesChannel()->getId()),
+                        new EqualsFilter('salesChannels.id', $baseContext->getSalesChannelId()),
                     ], $criteria->getFilters());
 
                     return new EntitySearchResult(

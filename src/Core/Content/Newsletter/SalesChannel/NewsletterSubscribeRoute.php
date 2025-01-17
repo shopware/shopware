@@ -41,7 +41,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
     final public const STATUS_NOT_SET = 'notSet';
@@ -160,7 +160,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $recipient = $this->getNewsletterRecipient('email', $data['email'], $context);
 
         if (!$this->isNewsletterDoi($context)) {
-            $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
+            $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannelId());
             $this->eventDispatcher->dispatch($event);
 
             return new NoContentResponse();
@@ -169,7 +169,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $hashedEmail = Hasher::hash($data['email'], 'sha1');
         $url = $this->getSubscribeUrl($context, $hashedEmail, $data['hash'], $data, $recipient);
 
-        $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());
+        $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();
@@ -226,7 +226,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
         $data['id'] = $id ?: Uuid::randomHex();
         $data['languageId'] = $context->getContext()->getLanguageId();
-        $data['salesChannelId'] = $context->getSalesChannel()->getId();
+        $data['salesChannelId'] = $context->getSalesChannelId();
         $data['status'] = $this->getOptionSelection($context)[$data['option']];
         $data['hash'] = Uuid::randomHex();
 
@@ -239,7 +239,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $criteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_AND, [
                 new EqualsFilter('email', $email),
-                new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+                new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
             ]),
         );
         $criteria->setLimit(1);

@@ -19,7 +19,7 @@ class LandingPageLoadedHookTest extends TestCase
     public function testLandingPageLoadedHook(): void
     {
         $page = new LandingPage();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $hook = new LandingPageLoadedHook($page, $context);
         static::assertSame('landing-page-loaded', $hook->getName());

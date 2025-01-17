@@ -37,7 +37,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SetOrderStateActionTest extends TestCase
 {
     use OrderActionTrait;
@@ -192,7 +192,7 @@ class SetOrderStateActionTest extends TestCase
             ]),
         ];
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $this->createOrder($customerId, ['deliveries' => $orderDeliveries, 'id' => $orderId]);
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->first();
@@ -233,7 +233,7 @@ class SetOrderStateActionTest extends TestCase
         $this->connection->beginTransaction();
 
         $orderId = Uuid::randomHex();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $orderData = $this->getOrderData($orderId, $context->getContext());
         $orderData[0]['deliveries'] = [];

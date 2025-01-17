@@ -41,9 +41,19 @@ class BaseContext
         return $this->currentCustomerGroup;
     }
 
+    public function getCurrencyId(): string
+    {
+        return $this->currency->getId();
+    }
+
     public function getCurrency(): CurrencyEntity
     {
         return $this->currency;
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannel->getId();
     }
 
     public function getSalesChannel(): SalesChannelEntity
@@ -89,11 +99,6 @@ class BaseContext
     public function getItemRounding(): CashRoundingConfig
     {
         return $this->itemRounding;
-    }
-
-    public function getCurrencyId(): string
-    {
-        return $this->getCurrency()->getId();
     }
 
     public function getLanguageInfo(): LanguageInfo

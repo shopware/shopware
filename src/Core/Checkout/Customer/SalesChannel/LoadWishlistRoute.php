@@ -56,7 +56,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
             $criteria->setTitle('wishlist::load-products');
         }
 
-        if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
+        if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannelId())) {
             throw CustomerException::customerWishlistNotActivated();
         }
 
@@ -72,7 +72,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         $criteria->setLimit(1);
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('customerId', $customerId),
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+            new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
         ]));
 
         $wishlist = $this->wishlistRepository->search($criteria, $context->getContext());

@@ -88,7 +88,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
         $criteria->setTitle('landing-page::data');
 
         $criteria->addFilter(new EqualsFilter('active', true));
-        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
 
         $landingPage = $this->landingPageRepository
             ->search($criteria, $context)

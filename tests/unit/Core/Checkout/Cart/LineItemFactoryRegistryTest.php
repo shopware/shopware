@@ -40,7 +40,7 @@ class LineItemFactoryRegistryTest extends TestCase
             $this->createMock(DataValidator::class),
             $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class)
         );
-        $this->context = Generator::createSalesChannelContext();
+        $this->context = Generator::generateSalesChannelContext();
     }
 
     public function testCreate(): void

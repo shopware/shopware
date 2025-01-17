@@ -121,7 +121,7 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param array<string, string[]> $areaRuleIds
+     * @param array<string, array<string>> $areaRuleIds
      *
      * @deprecated tag:v6.7.0 - Parameter 'languageInfo' will be required and not nullable. It will also be the second last parameter
      */
@@ -187,15 +187,17 @@ class SalesChannelContext extends Struct
     {
         $tax = $this->taxRules->get($taxId);
 
-        if ($tax === null || $tax->getRules() === null) {
+        if ($tax?->getRules() === null) {
             throw SalesChannelException::taxNotFound($taxId);
         }
 
-        if ($tax->getRules()->first() !== null) {
+        $firstTaxRule = $tax->getRules()->first();
+
+        if ($firstTaxRule) {
             // NEXT-21735 - This is covered randomly
             // @codeCoverageIgnoreStart
             return new TaxRuleCollection([
-                new TaxRule($tax->getRules()->first()->getTaxRate(), 100),
+                new TaxRule($firstTaxRule->getTaxRate(), 100),
             ]);
             // @codeCoverageIgnoreEnd
         }
@@ -231,11 +233,11 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getRuleIds(): array
     {
-        return $this->getContext()->getRuleIds();
+        return $this->context->getRuleIds();
     }
 
     /**
@@ -243,13 +245,13 @@ class SalesChannelContext extends Struct
      */
     public function setRuleIds(array $ruleIds): void
     {
-        $this->getContext()->setRuleIds($ruleIds);
+        $this->context->setRuleIds($ruleIds);
     }
 
     /**
      * @internal
      *
-     * @return array<string, string[]>
+     * @return array<string, array<string>>
      */
     public function getAreaRuleIds(): array
     {
@@ -259,9 +261,9 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param string[] $areas
+     * @param array<string> $areas
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getRuleIdsByAreas(array $areas): array
     {
@@ -281,7 +283,7 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param array<string, string[]> $areaRuleIds
+     * @param array<string, array<string>> $areaRuleIds
      */
     public function setAreaRuleIds(array $areaRuleIds): void
     {
@@ -290,7 +292,7 @@ class SalesChannelContext extends Struct
 
     public function lockRules(): void
     {
-        $this->getContext()->lockRules();
+        $this->context->lockRules();
     }
 
     public function lockPermissions(): void
@@ -315,7 +317,7 @@ class SalesChannelContext extends Struct
 
     public function getTaxCalculationType(): string
     {
-        return $this->getSalesChannel()->getTaxCalculationType();
+        return $this->salesChannel->getTaxCalculationType();
     }
 
     /**
@@ -350,7 +352,7 @@ class SalesChannelContext extends Struct
 
     public function getSalesChannelId(): string
     {
-        return $this->getSalesChannel()->getId();
+        return $this->salesChannel->getId();
     }
 
     public function addState(string ...$states): void
@@ -369,7 +371,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getStates(): array
     {
@@ -387,7 +389,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return non-empty-list<string>
      */
     public function getLanguageIdChain(): array
     {
@@ -431,7 +433,7 @@ class SalesChannelContext extends Struct
 
     public function getCurrencyId(): string
     {
-        return $this->getCurrency()->getId();
+        return $this->currency->getId();
     }
 
     public function ensureLoggedIn(bool $allowGuest = true): void

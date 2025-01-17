@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @phpstan-type MailAttachments array<int, array{id?: string, content: string, fileName: string, mimeType: string|null}>
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class MailAttachmentsBuilder
 {
     /**

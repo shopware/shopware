@@ -18,7 +18,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('storefront')]
+#[Package('framework')]
 class CheckoutInfoWidgetLoadedHook extends PageLoadedHook implements CartAware
 {
     use SalesChannelContextAwareTrait;

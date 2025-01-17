@@ -1,6 +1,8 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-loader component #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_loader %}
 <mt-loader
     v-if="useMeteorComponent"
     v-bind="$attrs"
@@ -18,9 +20,12 @@
     </template>
     <slot></slot>
 </mt-loader>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_loader_deprecated %}
 <sw-loader-deprecated
     v-else
     v-bind="$attrs"
@@ -37,3 +42,4 @@
         </slot>
     </template>
 </sw-loader-deprecated>
+{% endblock %}

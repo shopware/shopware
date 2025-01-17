@@ -2,7 +2,7 @@
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/en/configuration.html
  *
- * @package storefront
+ * @sw-package framework
  */
 
 const path = require('path');

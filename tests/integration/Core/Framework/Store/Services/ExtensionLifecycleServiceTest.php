@@ -104,7 +104,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
 
         $this->lifecycleService->uninstall('app', 'TestApp', false, $this->context);
-        $this->lifecycleService->remove('app', 'TestApp', $this->context);
+        $this->lifecycleService->remove('app', 'TestApp', false, $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -312,7 +312,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
         rename($oldName, $newName);
 
-        $this->lifecycleService->remove('app', 'TestAppTheme', Context::createDefaultContext());
+        $this->lifecycleService->remove('app', 'TestAppTheme', true, Context::createDefaultContext());
 
         static::assertFileDoesNotExist($newName);
     }

@@ -261,7 +261,7 @@ class AbstractCmsElementResolverTest extends TestCase
         }
 
         return new EntityResolverContext(
-            Generator::createSalesChannelContext(),
+            Generator::generateSalesChannelContext(),
             new Request(),
             $definition ?? $this->definition,
             $product

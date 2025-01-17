@@ -16,7 +16,7 @@ use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(ReferenceInvoiceLoader::class)]
 class ReferenceInvoiceLoaderTest extends TestCase
 {

@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * This route is used to confirm the newsletter registration
  * The required parameters are: "hash" (received from the mail) and "email"
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 abstract class AbstractNewsletterConfirmRoute
 {
     abstract public function getDecorated(): AbstractNewsletterConfirmRoute;

@@ -30,7 +30,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class MailService extends AbstractMailService
 {
     /**

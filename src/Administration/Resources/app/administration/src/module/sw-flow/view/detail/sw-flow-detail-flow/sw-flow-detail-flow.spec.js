@@ -3,7 +3,7 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const sequenceFixture = {

@@ -42,7 +42,7 @@ class DiscountAbsoluteCalculatorTest extends TestCase
     #[DataProvider('priceProvider')]
     public function testCalculate(float $discountIn, float $packageSum, float $discountOut): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $rounding = new CashRounding();
 
@@ -80,7 +80,7 @@ class DiscountAbsoluteCalculatorTest extends TestCase
     #[DisabledFeatures(['v6.7.0.0'])]
     public function testInvalidPriceDefinitionThrowWithDisabledFeatures(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $rounding = new CashRounding();
 
@@ -106,7 +106,7 @@ class DiscountAbsoluteCalculatorTest extends TestCase
 
     public function testInvalidPriceDefinitionThrow(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $rounding = new CashRounding();
 

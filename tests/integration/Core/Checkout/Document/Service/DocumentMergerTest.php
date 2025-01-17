@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[Group('slow')]
 class DocumentMergerTest extends TestCase
 {

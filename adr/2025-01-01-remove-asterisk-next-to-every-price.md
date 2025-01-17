@@ -1,5 +1,5 @@
 ---
-title: Remove the asterisk `*` next to every price and replace it with actual text
+title: Remove the asterisk next to every price and replace it with actual text
 date: 2025-01-01
 area: framework
 tags: [storefront, prices, accessibility]

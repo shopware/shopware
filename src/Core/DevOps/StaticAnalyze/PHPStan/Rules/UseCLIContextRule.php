@@ -53,7 +53,7 @@ class UseCLIContextRule implements Rule
             if ($classReflection->isSubclassOf($baseClass)) {
                 return [
                     RuleErrorBuilder::message('Method Context::createDefaultContext() should not be used in CLI context. Use Context::createCLIContext() instead.')
-                        ->line($node->getLine())
+                        ->line($node->getStartLine())
                         ->identifier('shopware.cliContext')
                         ->build(),
                 ];

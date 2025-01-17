@@ -77,6 +77,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_DATE_FORMAT = 'FRAMEWORK__INVALID_DATE_FORMAT';
     public const INVALID_DATE_HISTOGRAM_INTERVAL = 'FRAMEWORK__INVALID_DATE_HISTOGRAM_INTERVAL';
     public const INVALID_TIMEZONE = 'FRAMEWORK__INVALID_TIMEZONE';
+    public const INVALID_ENUM_FIELD = 'FRAMEWORK__INVALID_ENUM_FIELD';
     public const CANNOT_FIND_PARENT_STORAGE_FIELD = 'FRAMEWORK__CAN_NOT_FIND_PARENT_STORAGE_FIELD';
     public const INVALID_PARENT_ASSOCIATION_EXCEPTION = 'FRAMEWORK__INVALID_PARENT_ASSOCIATION_EXCEPTION';
     public const PARENT_FIELD_KEY_CONSTRAINT_MISSING = 'FRAMEWORK__PARENT_FIELD_KEY_CONSTRAINT_MISSING';
@@ -749,6 +750,16 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_TIMEZONE,
             'Given "{{ timeZone }}" is not a valid timezone',
             ['timeZone' => $timeZone]
+        );
+    }
+
+    public static function invalidEnumField(string $field, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_ENUM_FIELD,
+            'Expected "{{ field }}" to be a BackedEnum. Got "{{ actualType }}" instead.',
+            ['field' => $field, 'actualType' => $actualType]
         );
     }
 

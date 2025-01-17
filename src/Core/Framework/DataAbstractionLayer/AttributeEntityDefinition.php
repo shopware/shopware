@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -42,6 +43,14 @@ class AttributeEntityDefinition extends EntityDefinition
     public function getCollectionClass(): string
     {
         return $this->meta['collection_class'];
+    }
+
+    /**
+     * @return class-string<EntityHydrator>
+     */
+    public function getHydratorClass(): string
+    {
+        return $this->meta['hydrator_class'];
     }
 
     protected function getParentDefinitionClass(): ?string

@@ -1,5 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { I18n } from 'vue-i18n';
 import {
     ACTION,

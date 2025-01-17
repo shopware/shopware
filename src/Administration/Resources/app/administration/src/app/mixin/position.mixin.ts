@@ -5,7 +5,6 @@
  */
 import type Repository from 'src/core/data/repository.data';
 import Criteria from 'src/core/data/criteria.data';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import { defineComponent } from 'vue';
 
 /**

@@ -14,6 +14,7 @@ use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
@@ -32,6 +33,7 @@ class ThemeDumpCommandTest extends TestCase
 
     private ThemeFileResolver&MockObject $themeFileResolver;
 
+    /** @var EntityRepository<ThemeCollection>&MockObject */
     private EntityRepository&MockObject $themeRepository;
 
     private ThemeFilesystemResolver&MockObject $themeFilesystemResolver;

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
@@ -37,6 +39,9 @@ class AddressControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     private string $addressId;
@@ -71,7 +76,7 @@ class AddressControllerTest extends TestCase
 
         $criteria = new Criteria([$id2]);
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<CustomerAddressCollection> $repository */
         $repository = static::getContainer()->get('customer_address.repository');
         $address = $repository->search($criteria, $context->getContext())
             ->get($id2);
@@ -82,7 +87,7 @@ class AddressControllerTest extends TestCase
 
         $criteria = new Criteria([$id1]);
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<CustomerAddressCollection> $repository */
         $repository = static::getContainer()->get('customer_address.repository');
         $exists = $repository
             ->search($criteria, $context->getContext())
@@ -224,9 +229,7 @@ class AddressControllerTest extends TestCase
 
         $criteria = new Criteria([$customerId]);
 
-        /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search($criteria, $context->getContext())
-            ->get($customerId);
+        $customer = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame($vatIds, $customer->getVatIds());
@@ -565,7 +568,7 @@ class AddressControllerTest extends TestCase
 
     private function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<CountryCollection> $repository */
         $repository = static::getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(1)

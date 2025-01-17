@@ -40,14 +40,11 @@ class AppCookieProvider implements CookieProviderInterface
             )
         );
 
-        $result = $this->appRepository->search(
-            $criteria,
-            Context::createDefaultContext()
-        )->getEntities();
+        $result = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         $cookies = array_values($this->inner->getCookieGroups());
 
-        if ($result->count() < 1) {
+        if ($result->count() === 0) {
             return $cookies;
         }
 

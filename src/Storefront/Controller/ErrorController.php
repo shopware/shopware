@@ -63,7 +63,7 @@ class ErrorController extends StorefrontController
             } else {
                 $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
 
-                if (!$request->isXmlHttpRequest()) {
+                if (!$request->isXmlHttpRequest() && !Feature::isActive('cache_rework')) {
                     $header = $this->headerPageletLoader->load($request, $context);
                     $footer = $this->footerPageletLoader->load($request, $context);
                     $errorTemplate->setHeader($header);

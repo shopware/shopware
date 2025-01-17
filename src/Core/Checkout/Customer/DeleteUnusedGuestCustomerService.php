@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -40,7 +41,11 @@ class DeleteUnusedGuestCustomerService
             ->setLimit(1)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        return $this->customerRepository->search($criteria, $context)->getTotal();
+        if (!Feature::isActive('v6.7.0.0')) {
+            return $this->customerRepository->search($criteria, $context)->getTotal();
+        }
+
+        return $this->customerRepository->searchIds($criteria, $context)->getTotal();
     }
 
     /**

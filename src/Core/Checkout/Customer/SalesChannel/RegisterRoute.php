@@ -566,13 +566,25 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool
     {
-        $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
+        if (!Feature::isActive('v6.7.0.0')) {
+            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
 
-        if (!$country instanceof CountryEntity) {
+            if (!$country instanceof CountryEntity) {
+                throw CustomerException::countryNotFound($countryId);
+            }
+
+            return $country->getVatIdRequired();
+        }
+
+        $countryCriteria = (new Criteria([$countryId]))
+            ->addFields(['vatIdRequired']);
+
+        $country = $this->countryRepository->search($countryCriteria, $context)->getEntities()->first();
+        if (!$country) {
             throw CustomerException::countryNotFound($countryId);
         }
 
-        return $country->getVatIdRequired();
+        return $country->get('vatIdRequired');
     }
 
     private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string

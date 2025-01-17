@@ -62,6 +62,9 @@ class AttributeEntity extends EntityStruct
     #[AutoIncrement]
     public int $autoIncrement;
 
+    #[Field(type: FieldType::ENUM)]
+    public ?StringEnum $enum = null;
+
     /**
      * @var array<string, mixed>|null
      */

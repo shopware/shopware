@@ -19,7 +19,7 @@ class StorefrontSearchBench extends AbstractBenchCase
 {
     public function setUp(): void
     {
-        parent::setup();
+        parent::setUp();
 
         $rulePayload = [];
 
@@ -47,7 +47,7 @@ class StorefrontSearchBench extends AbstractBenchCase
         static::getContainer()->get(CartRuleLoader::class)->loadByToken($this->context, 'bench');
     }
 
-    #[BeforeMethods(['setup'])]
+    #[BeforeMethods(['setUp'])]
     #[AfterMethods(['tearDown'])]
     #[Bench\Assert('mode(variant.time.avg) < 120ms +/- 10ms')]
     public function bench_searching_with_1500_active_rules(): void

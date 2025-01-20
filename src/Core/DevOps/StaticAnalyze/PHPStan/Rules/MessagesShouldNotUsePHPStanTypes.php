@@ -2,17 +2,12 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use phpDocumentor\Reflection\DocBlock;
+use phpDocumentor\Reflection\DocBlockFactory;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
-use PHPStan\PhpDocParser\Lexer\Lexer;
-use PHPStan\PhpDocParser\Parser\ConstExprParser;
-use PHPStan\PhpDocParser\Parser\PhpDocParser;
-use PHPStan\PhpDocParser\Parser\TokenIterator;
-use PHPStan\PhpDocParser\Parser\TypeParser;
-use PHPStan\PhpDocParser\ParserConfig;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -90,16 +85,10 @@ class MessagesShouldNotUsePHPStanTypes implements Rule
         return $errors;
     }
 
-    private function parsePhpDoc(string $tokens): PhpDocNode
+    private function parsePhpDoc(string $tokens): DocBlock
     {
-        $parserConfig = new ParserConfig([]);
-        $lexer = new Lexer($parserConfig);
-        $constExprParser = new ConstExprParser($parserConfig);
-        $typeParser = new TypeParser($parserConfig, $constExprParser);
-        $phpDocParser = new PhpDocParser($parserConfig, $typeParser, $constExprParser);
+        $phpDocParser = DocBlockFactory::createInstance();
 
-        $tokenIterator = new TokenIterator($lexer->tokenize($tokens));
-
-        return $phpDocParser->parse($tokenIterator);
+        return $phpDocParser->create($tokens);
     }
 }

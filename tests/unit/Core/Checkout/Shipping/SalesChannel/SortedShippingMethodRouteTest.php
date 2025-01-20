@@ -47,7 +47,7 @@ class SortedShippingMethodRouteTest extends TestCase
         $salesChannel->setShippingMethodId(Uuid::randomHex());
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId($salesChannel->getShippingMethodId());
-        $this->context = Generator::createSalesChannelContext(
+        $this->context = Generator::generateSalesChannelContext(
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
             salesChannel: $salesChannel,
             shippingMethod: $shippingMethod,

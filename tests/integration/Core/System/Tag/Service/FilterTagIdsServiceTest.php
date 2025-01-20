@@ -34,7 +34,7 @@ class FilterTagIdsServiceTest extends TestCase
 
     private FilterTagIdsService $filterTagIdsService;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->ids = new IdsCollection();
         $this->filterTagIdsService = static::getContainer()->get(FilterTagIdsService::class);

@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Cart\CartContextHasher;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RuleLoaderResult;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -27,7 +29,7 @@ class CartCalculatorTest extends TestCase
 
     public function testCalculate(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
         $cart = $this->getCart();
         $result = new RuleLoaderResult($cart, new RuleCollection());
@@ -52,7 +54,17 @@ class CartCalculatorTest extends TestCase
 
     public function testSetHash(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId('19d144ffe15f4772860d59fca7f207c1');
+
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
+
+        $context = Generator::generateSalesChannelContext(
+            paymentMethod: $paymentMethod,
+            shippingMethod: $shippingMethod,
+        );
+
         $behavior = new CartBehavior($context->getPermissions());
         $cart = $this->getCart();
         $result = new RuleLoaderResult($cart, new RuleCollection());

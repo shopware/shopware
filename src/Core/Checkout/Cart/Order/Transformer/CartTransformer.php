@@ -36,7 +36,7 @@ class CartTransformer
             'stateId' => $stateId,
             'currencyId' => $currency->getId(),
             'currencyFactor' => $currency->getFactor(),
-            'salesChannelId' => $context->getSalesChannel()->getId(),
+            'salesChannelId' => $context->getSalesChannelId(),
             'lineItems' => [],
             'deliveries' => [],
             'deepLinkCode' => Random::getBase64UrlString(32),

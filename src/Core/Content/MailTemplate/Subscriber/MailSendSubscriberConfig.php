@@ -6,7 +6,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailSendSubscriberConfig extends Struct
 {
     /**

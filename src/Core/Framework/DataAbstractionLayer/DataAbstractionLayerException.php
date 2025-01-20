@@ -27,6 +27,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedAr
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Exception\HookInjectionException;
+use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -75,6 +77,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_DATE_FORMAT = 'FRAMEWORK__INVALID_DATE_FORMAT';
     public const INVALID_DATE_HISTOGRAM_INTERVAL = 'FRAMEWORK__INVALID_DATE_HISTOGRAM_INTERVAL';
     public const INVALID_TIMEZONE = 'FRAMEWORK__INVALID_TIMEZONE';
+    public const INVALID_ENUM_FIELD = 'FRAMEWORK__INVALID_ENUM_FIELD';
     public const CANNOT_FIND_PARENT_STORAGE_FIELD = 'FRAMEWORK__CAN_NOT_FIND_PARENT_STORAGE_FIELD';
     public const INVALID_PARENT_ASSOCIATION_EXCEPTION = 'FRAMEWORK__INVALID_PARENT_ASSOCIATION_EXCEPTION';
     public const PARENT_FIELD_KEY_CONSTRAINT_MISSING = 'FRAMEWORK__PARENT_FIELD_KEY_CONSTRAINT_MISSING';
@@ -82,6 +85,8 @@ class DataAbstractionLayerException extends HttpException
     public const PRIMARY_KEY_NOT_PROVIDED = 'FRAMEWORK__PRIMARY_KEY_NOT_PROVIDED';
     public const NO_GENERATOR_FOR_FIELD_TYPE = 'FRAMEWORK__NO_GENERATOR_FOR_FIELD_TYPE';
     public const FOREIGN_KEY_NOT_FOUND_IN_DEFINITION = 'FRAMEWORK__FOREIGN_KEY_NOT_FOUND_IN_DEFINITION';
+    public const HOOK_INJECTION_EXCEPTION = 'FRAMEWORK__HOOK_INJECTION_EXCEPTION';
+    public const FRAMEWORK_DEPRECATED_DEFINITION_CALL = 'FRAMEWORK__DEPRECATED_DEFINITION_CALL';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -748,6 +753,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    public static function invalidEnumField(string $field, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_ENUM_FIELD,
+            'Expected "{{ field }}" to be a BackedEnum. Got "{{ actualType }}" instead.',
+            ['field' => $field, 'actualType' => $actualType]
+        );
+    }
+
     public static function invalidWriteConstraintViolation(ConstraintViolationList $violationList, string $getPath): WriteConstraintViolationException
     {
         return new WriteConstraintViolationException($violationList, $getPath);
@@ -770,6 +785,47 @@ class DataAbstractionLayerException extends HttpException
             self::FOREIGN_KEY_NOT_FOUND_IN_DEFINITION,
             'Foreign key for association "{{ association }}" not found. Please add one to "{{ entityDefinition }}"',
             ['association' => $association, 'entityDefinition' => $entityDefinition]
+        );
+    }
+
+    public static function versionFieldNotFound(string $field): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FIELD_NOT_FOUND,
+            'Field "{{ field }}" is missing a reference version field',
+            ['field' => $field]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function hookInjectionException(Hook $hook, string $class, string $required): self|HookInjectionException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new HookInjectionException($hook, $class, $required);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::HOOK_INJECTION_EXCEPTION,
+            'Class {{ class }} is only executable in combination with hooks that implement the {{ required }} interface. Hook {{ hook }} does not implement this interface',
+            ['class' => $class, 'required' => $required, 'hook' => $hook]
+        );
+    }
+
+    /**
+     * @internal
+     *
+     * @deprecated tag:v6.7.0 - reason:remove-subscriber - remove method completely not used anymore
+     */
+    public static function deprecatedDefinitionCall(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FRAMEWORK_DEPRECATED_DEFINITION_CALL,
+            'Method getDefinitionClass is deprecated. Use getEntityName instead.'
         );
     }
 }

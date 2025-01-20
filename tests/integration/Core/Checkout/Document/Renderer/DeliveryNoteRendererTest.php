@@ -25,7 +25,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DeliveryNoteRendererTest extends TestCase
 {
     use DocumentTrait;

@@ -12,7 +12,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(DocumentGenerateOperation::class)]
 class DocumentGenerateOperationTest extends TestCase
 {

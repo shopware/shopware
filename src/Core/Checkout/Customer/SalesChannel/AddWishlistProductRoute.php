@@ -44,7 +44,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
     #[Route(path: '/store-api/customer/wishlist/add/{productId}', name: 'store-api.customer.wishlist.add', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function add(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
-        if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
+        if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannelId())) {
             throw CustomerException::customerWishlistNotActivated();
         }
 
@@ -55,7 +55,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
             [
                 'id' => $wishlistId,
                 'customerId' => $customer->getId(),
-                'salesChannelId' => $context->getSalesChannel()->getId(),
+                'salesChannelId' => $context->getSalesChannelId(),
                 'products' => [
                     [
                         'productId' => $productId,
@@ -76,7 +76,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
         $criteria->setLimit(1);
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('customerId', $customerId),
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+            new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
         ]));
 
         $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());

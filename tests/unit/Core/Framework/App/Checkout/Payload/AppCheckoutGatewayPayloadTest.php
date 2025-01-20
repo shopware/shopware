@@ -18,7 +18,7 @@ class AppCheckoutGatewayPayloadTest extends TestCase
 {
     public function testApi(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $cart = Generator::createCart();
         $paymentMethods = ['paymentMethod-1', 'paymentMethod-2'];
         $shippingMethods = ['shippingMethod-1', 'shippingMethod-2'];

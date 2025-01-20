@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageletLoader. Always use a store-api route to get or put data.
  */
-#[Package('storefront')]
+#[Package('framework')]
 class HeaderPageletLoader implements HeaderPageletLoaderInterface
 {
     /**
@@ -104,7 +104,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         $criteria->setTitle('header::languages');
 
         $criteria->addFilter(
-            new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannel()->getId())
+            new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannelId())
         );
 
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));

@@ -187,7 +187,7 @@ class StateMachineActionControllerTest extends TestCase
             ],
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
             'stock' => 10,
             'price' => [
@@ -255,7 +255,7 @@ class StateMachineActionControllerTest extends TestCase
             ],
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 18],
             'manufacturer' => [

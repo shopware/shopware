@@ -48,7 +48,7 @@ class CachedProductSuggestRouteTest extends TestCase
         $this->decorated = $this->createMock(AbstractProductSuggestRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);
         $this->eventDispatcher = new EventDispatcher();
-        $this->context = Generator::createSalesChannelContext(
+        $this->context = Generator::generateSalesChannelContext(
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
         );
 

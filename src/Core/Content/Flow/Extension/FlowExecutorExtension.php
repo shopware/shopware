@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 final class FlowExecutorExtension extends Extension
 {
     public const NAME = 'flow.executor';

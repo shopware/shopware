@@ -24,7 +24,7 @@ class SalesChannelRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        return RuleComparison::uuids([$scope->getSalesChannelContext()->getSalesChannel()->getId()], $this->salesChannelIds, $this->operator);
+        return RuleComparison::uuids([$scope->getSalesChannelContext()->getSalesChannelId()], $this->salesChannelIds, $this->operator);
     }
 
     public function getConstraints(): array

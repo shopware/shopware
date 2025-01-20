@@ -9,6 +9,8 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('core')]
 abstract class AbstractTokenFilter implements ResetInterface
 {
+    final public const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
+
     public function reset(): void
     {
         $this->getDecorated()->reset();

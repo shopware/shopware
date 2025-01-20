@@ -82,7 +82,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->hreflangLoader->expects(static::never())->method('load');
@@ -95,13 +95,13 @@ class TemplateDataSubscriberTest extends TestCase
         $request = new Request();
         $request->attributes->set('_route', 'frontend.home');
         $request->attributes->set('_route_params', ['param' => 'value']);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::createSalesChannelContext());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
 
         $event = new StorefrontRenderEvent(
             'test',
             [],
             $request,
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->hreflangLoader
@@ -120,7 +120,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->activeAppsLoader
@@ -140,7 +140,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->activeAppsLoader
@@ -161,7 +161,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->activeAppsLoader
@@ -184,7 +184,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->themeRegistry
@@ -203,7 +203,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             $request,
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->themeRegistry
@@ -223,7 +223,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             $request,
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $themeConfig = new StorefrontPluginConfiguration('Storefront');
@@ -250,7 +250,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             $request,
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $themeConfig = new StorefrontPluginConfiguration('Storefront');

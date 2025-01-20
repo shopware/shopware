@@ -21,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'theme:prepare-icons',
     description: 'Prepare the theme icons',
 )]
-#[Package('storefront')]
+#[Package('framework')]
 class ThemePrepareIconsCommand extends Command
 {
     private SymfonyStyle $io;

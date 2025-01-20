@@ -1,3 +1,5 @@
+{# @sw-package framework #}
+
 {% block component_pagination_nav %}
     {% set currentPage = currentPage ?? entities.page %}
     {# @deprecated tag:v6.7.0 - variable `totalEntities` will be removed and the variable `total` will be removed and not considered anymore, set `totalPages` instead #}
@@ -17,6 +19,10 @@
         {% set href = true %}
     {% endif %}
 
+    {% if href and pageParameter is not defined %}
+        {% set pageParameter = 'p' %}
+    {% endif %}
+
     {% set searchQuery = '' %}
     {% if feature('ACCESSIBILITY_TWEAKS') and searchResult.currentFilters.search %}
         {% set searchQuery = '&search=' ~ searchResult.currentFilters.search %}
@@ -31,7 +37,7 @@
                         {# @deprecated tag:v6.7.0 - Pagination items will use anchor elements instead of radio inputs and labels. #}
                         {% if feature('ACCESSIBILITY_TWEAKS') %}
                             {% block component_pagination_first_link_element %}
-                                <a href="{{ href ? '?p=1' ~ searchQuery : '#' }}" class="page-link" data-page="1" aria-label="{{ 'general.first'|trans|striptags }}" data-focus-id="first"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                <a href="{{ href ? '?' ~ pageParameter ~ '=1' ~ searchQuery : '#' }}" class="page-link" data-page="1" aria-label="{{ 'general.first'|trans|striptags }}" data-focus-id="first"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
                                     {% block component_pagination_first_link_icon %}
                                         {% sw_icon 'arrow-medium-double-left' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
                                     {% endblock %}
@@ -67,7 +73,7 @@
                         {# @deprecated tag:v6.7.0 - Pagination items will use anchor elements instead of radio inputs and labels. #}
                         {% if feature('ACCESSIBILITY_TWEAKS') %}
                             {% block component_pagination_prev_link_element %}
-                                <a href="{{ href ? '?p=' ~ (currentPage - 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage - 1 }}" aria-label="{{ 'general.pagination.prev'|trans|striptags }}" data-focus-id="prev"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage - 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage - 1 }}" aria-label="{{ 'general.pagination.prev'|trans|striptags }}" data-focus-id="prev"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
                                     {% block component_pagination_prev_link_icon %}
                                         {% sw_icon 'arrow-medium-left' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
                                     {% endblock %}
@@ -125,7 +131,7 @@
                                 {# @deprecated tag:v6.7.0 - Pagination items will use anchor elements instead of radio inputs and labels. #}
                                 {% if feature('ACCESSIBILITY_TWEAKS') %}
                                     {% block component_pagination_item_link_element %}
-                                        <a href="{{ href ? '?p=' ~ page ~ searchQuery : '#' }}" class="page-link" data-page="{{ page }}" data-focus-id="{{ page }}">
+                                        <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ page ~ searchQuery : '#' }}" class="page-link" data-page="{{ page }}" data-focus-id="{{ page }}">
                                             {% block component_pagination_item_link_text %}
                                                 <span class="visually-hidden">{{ 'general.pagination.page'|trans|sw_sanitize }}</span> {{ page }}
                                             {% endblock %}
@@ -167,7 +173,7 @@
                         {# @deprecated tag:v6.7.0 - Pagination items will use anchor elements instead of radio inputs and labels. #}
                         {% if feature('ACCESSIBILITY_TWEAKS') %}
                             {% block component_pagination_next_link_element %}
-                                <a href="{{ href ? '?p=' ~ (currentPage + 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage + 1 }}" aria-label="{{ 'general.pagination.next'|trans|striptags }}" data-focus-id="next"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage + 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage + 1 }}" aria-label="{{ 'general.pagination.next'|trans|striptags }}" data-focus-id="next"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
                                     {% block component_pagination_next_link_icon %}
                                         {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
                                     {% endblock %}
@@ -206,7 +212,7 @@
                         {# @deprecated tag:v6.7.0 - Pagination items will use anchor elements instead of radio inputs and labels. #}
                         {% if feature('ACCESSIBILITY_TWEAKS') %}
                             {% block component_pagination_last_link_element %}
-                                <a href="{{ href ? '?p=' ~ totalPages ~ searchQuery : '#' }}" class="page-link" data-page="{{ totalPages }}" aria-label="{{ 'general.pagination.last'|trans|striptags }}" data-focus-id="last"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ totalPages ~ searchQuery : '#' }}" class="page-link" data-page="{{ totalPages }}" aria-label="{{ 'general.pagination.last'|trans|striptags }}" data-focus-id="last"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
                                     {% block component_pagination_last_link_icon %}
                                         {% sw_icon 'arrow-medium-double-right' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
                                     {% endblock %}

@@ -59,7 +59,7 @@ class CartTransformerTest extends TestCase
             'stateId' => $stateId,
             'currencyId' => $currency->getId(),
             'currencyFactor' => $currency->getFactor(),
-            'salesChannelId' => $salesChannelContextMock->getSalesChannel()->getId(),
+            'salesChannelId' => $salesChannelContextMock->getSalesChannelId(),
             'lineItems' => [],
             'deliveries' => [],
             'customerComment' => 'customerCommentTest',

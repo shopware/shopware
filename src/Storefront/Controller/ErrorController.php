@@ -22,7 +22,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ErrorController extends StorefrontController
 {
     /**
@@ -51,7 +51,7 @@ class ErrorController extends StorefrontController
 
             $request->attributes->set('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 
-            $salesChannelId = $context->getSalesChannel()->getId();
+            $salesChannelId = $context->getSalesChannelId();
             $cmsErrorLayoutId = $this->systemConfigService->getString('core.basicInformation.http404Page', $salesChannelId);
             if ($cmsErrorLayoutId !== '' && $is404StatusCode) {
                 $errorPage = $this->errorPageLoader->load($cmsErrorLayoutId, $request, $context);

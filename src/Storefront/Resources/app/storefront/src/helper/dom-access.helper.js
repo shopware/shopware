@@ -1,7 +1,7 @@
 import StringHelper from 'src/helper/string.helper';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class DomAccess {
 

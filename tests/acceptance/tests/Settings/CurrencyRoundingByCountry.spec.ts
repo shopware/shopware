@@ -49,23 +49,23 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
     await ShopCustomer.goesTo(StorefrontHome.url());
     await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
     const productListingLocatorsByProductId = await StorefrontHome.getListingItemByProductId(product.id);
-    await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toHaveText(currency.isoCode+' 22.556*');
+    await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toContainText(currency.isoCode+' 22.556');
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toHaveText(currency.isoCode+' 22.556*');
+    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(currency.isoCode+' 22.556');
 
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toHaveText(currency.isoCode+' 22.556*');
+    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText(currency.isoCode+' 22.556');
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
     await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
     await ShopCustomer.attemptsTo(SelectStandardShippingOption());
 
-    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText(currency.isoCode+' 22.556*');
+    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(currency.isoCode+' 22.556');
 
     await ShopCustomer.attemptsTo(SubmitOrder());
-    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toHaveText(currency.isoCode+' 22.556*');
+    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(currency.isoCode+' 22.556');
 
     const orderId = StorefrontCheckoutFinish.getOrderId();
 

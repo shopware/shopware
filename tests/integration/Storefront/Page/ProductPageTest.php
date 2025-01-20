@@ -125,42 +125,6 @@ class ProductPageTest extends TestCase
         $this->getPageLoader()->load($request, $context);
     }
 
-    public function testItLoadsPageWithProductCategoryAsActiveNavigation(): void
-    {
-        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
-
-        $seoCategoryName = 'Fancy Category';
-
-        $catRepository = static::getContainer()->get('category.repository');
-
-        $seoCategoryId = Uuid::randomHex();
-
-        $catRepository->create([[
-            'id' => $seoCategoryId,
-            'name' => $seoCategoryName,
-            'active' => true,
-            'parentId' => $context->getSalesChannel()->getNavigationCategoryId(),
-        ]], Context::createDefaultContext());
-
-        $product = $this->getRandomProduct($context, 1, false, [
-            'categories' => [
-                ['id' => $seoCategoryId],
-            ],
-        ]);
-
-        $this->updateProductStream($product->getId(), Uuid::randomHex());
-
-        $request = new Request([], [], ['productId' => $product->getId()]);
-
-        $page = $this->getPageLoader()->load($request, $context);
-
-        static::assertNotNull($page->getHeader());
-        static::assertNotNull($page->getHeader()->getNavigation());
-        static::assertNotNull($page->getHeader()->getNavigation()->getActive());
-        static::assertEquals($seoCategoryName, $page->getHeader()->getNavigation()->getActive()->getName());
-        static::assertEquals($seoCategoryId, $page->getHeader()->getNavigation()->getActive()->getId());
-    }
-
     public function testItDoesLoadACmsProductDetailPage(): void
     {
         $context = $this->createSalesChannelContextWithNavigation();

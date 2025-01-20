@@ -54,6 +54,7 @@ async function createWrapper(propsData = {}) {
                 'sw-data-grid-inline-edit': true,
                 'router-link': true,
                 'sw-button-group': true,
+                'sw-provide': true,
             },
         },
     });

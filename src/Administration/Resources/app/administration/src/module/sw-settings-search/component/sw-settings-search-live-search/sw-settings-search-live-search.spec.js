@@ -121,6 +121,7 @@ async function createWrapper() {
                     'sw-data-grid-inline-edit': true,
                     'router-link': true,
                     'sw-data-grid-skeleton': true,
+                    'sw-provide': true,
                 },
 
                 provide: {

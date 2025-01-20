@@ -62,6 +62,7 @@ async function createWrapper(privileges = [], props = {}) {
                 'sw-data-grid-settings': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 repositoryFactory: {

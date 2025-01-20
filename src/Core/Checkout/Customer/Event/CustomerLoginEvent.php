@@ -81,7 +81,7 @@ class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSal
 
     public function getCustomerId(): string
     {
-        return $this->getCustomer()->getId();
+        return $this->customer->getId();
     }
 
     public function getMailStruct(): MailRecipientStruct

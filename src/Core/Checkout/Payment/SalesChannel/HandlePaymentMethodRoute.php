@@ -51,12 +51,12 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         /** @var array{orderId: string, finishUrl: ?string, errorUrl: ?string} $data */
         $orderCurrencyId = $this->getCurrencyFromOrder($data['orderId'], $context->getContext());
 
-        if ($context->getCurrency()->getId() !== $orderCurrencyId) {
+        if ($context->getCurrencyId() !== $orderCurrencyId) {
             $context = $this->contextService->get(
                 new SalesChannelContextServiceParameters(
                     $context->getSalesChannelId(),
                     $context->getToken(),
-                    $context->getContext()->getLanguageId(),
+                    $context->getLanguageId(),
                     $orderCurrencyId,
                 )
             );

@@ -53,6 +53,7 @@ class SwTwigFunction
                             }
                         }
                     }
+
                     // @phpstan-ignore-next-line
                     return $object->$item(...$arguments);
                 }

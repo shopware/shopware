@@ -116,6 +116,7 @@ async function createWrapper() {
                     'sw-data-grid-skeleton': true,
                     'sw-help-text': true,
                     'sw-ai-copilot-badge': true,
+                    'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                 },
             },
         },

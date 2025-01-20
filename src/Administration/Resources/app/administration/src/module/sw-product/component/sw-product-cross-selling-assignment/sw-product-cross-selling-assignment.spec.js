@@ -76,6 +76,7 @@ async function createWrapper() {
                     'sw-button': true,
                     'sw-data-grid-skeleton': true,
                     'sw-highlight-text': true,
+                    'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                 },
                 provide: {
                     repositoryFactory: {

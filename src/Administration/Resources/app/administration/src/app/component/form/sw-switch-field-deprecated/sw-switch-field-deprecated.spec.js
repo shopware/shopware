@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { ref } from 'vue';
 
 const createWrapper = async () => {
     const baseComponent = {
@@ -176,5 +177,32 @@ describe('app/component/form/sw-switch-field-deprecated', () => {
         expect(checkboxContentWrappers.at(1).classes()).toContain('sw-field--switch-padded');
         expect(checkboxContentWrappers.at(2).classes()).toContain('sw-field--switch-bordered');
         expect(checkboxContentWrappers.at(2).classes()).toContain('sw-field--switch-padded');
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = mount(
+            { template: `<sw-switch-field-deprecated />` },
+            {
+                global: {
+                    stubs: {
+                        'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': {
+                            template: '<div></div>',
+                        },
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                    },
+                    provide: {
+                        ariaLabel: ref('Aria Label'),
+                    },
+                },
+            },
+        );
+
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

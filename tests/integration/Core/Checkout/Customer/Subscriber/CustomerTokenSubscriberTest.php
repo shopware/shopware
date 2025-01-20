@@ -82,7 +82,7 @@ class CustomerTokenSubscriberTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getToken')->willReturn('test');
-        $context->method('getCustomer')->willReturn((new CustomerEntity())->assign(['id' => $customerId]));
+        $context->method('getCustomerId')->willReturn($customerId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
 
         static::getContainer()->get('request_stack')->push($request);

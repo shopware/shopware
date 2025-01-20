@@ -55,12 +55,12 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
 
     private function verify(string $orderId, SalesChannelContext $context): void
     {
-        if ($context->getCustomer() === null) {
+        if (!$context->getCustomer()) {
             throw OrderException::customerNotLoggedIn();
         }
 
         $criteria = new Criteria([$orderId]);
-        $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomer()->getId()));
+        $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomerId()));
 
         if ($this->orderRepository->searchIds($criteria, $context->getContext())->firstId() === null) {
             throw OrderException::orderNotFound($orderId);

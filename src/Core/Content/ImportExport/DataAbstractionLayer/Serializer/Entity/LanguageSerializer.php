@@ -80,7 +80,7 @@ class LanguageSerializer extends EntitySerializer implements ResetInterface
         if ($language instanceof LanguageEntity && $language->getLocale() !== null) {
             $this->cacheLanguages[$code] = [
                 'id' => $language->getId(),
-                'locale' => ['id' => $language->getLocale()->getId()],
+                'locale' => ['id' => $language->getLocaleId()],
             ];
         }
 

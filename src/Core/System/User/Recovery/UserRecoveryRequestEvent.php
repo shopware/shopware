@@ -91,6 +91,6 @@ class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, Sc
 
     public function getUserId(): string
     {
-        return $this->getUserRecovery()->getId();
+        return $this->userRecovery->getId();
     }
 }

@@ -61,7 +61,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $customer = $context->getCustomer();
         \assert($customer instanceof CustomerEntity);
 
-        $languageId = $context->getContext()->getLanguageId();
+        $languageId = $context->getLanguageId();
         $salesChannelId = $context->getSalesChannelId();
 
         $customerId = $customer->getId();

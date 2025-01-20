@@ -366,7 +366,7 @@ class SalesChannelProxyController extends AbstractController
         $isSwitchNewCustomer = true;
         if ($context->getCustomer()) {
             // Check if customer switch to another customer or not
-            $isSwitchNewCustomer = $context->getCustomer()->getId() !== $parameters[self::CUSTOMER_ID];
+            $isSwitchNewCustomer = $context->getCustomerId() !== $parameters[self::CUSTOMER_ID];
         }
 
         if (!$isSwitchNewCustomer) {

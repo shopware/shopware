@@ -201,5 +201,9 @@
                  parent="Shopware\Administration\LoginConfig\ConfigBuilder\Handler\AbstractLoginConfigHandler">
             <tag name="shopware.login.config.handler" key="swsso"/>
         </service>
+
+        <service id="Shopware\Administration\Login\TestGrantType">
+            <tag name="league.oauth2_server.authorization_server.grant"/>
+        </service>
     </services>
 </container>

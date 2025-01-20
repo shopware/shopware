@@ -74,6 +74,8 @@ class ApiException extends HttpException
 
     public const API_INVALID_JWT_TOKEN = 'FRAMEWORK__INVALID_JWT_TOKEN';
 
+    public const API_JWT_USER_NOT_FOUND = 'FRAMEWORK__JWT_USER_NOT_FOUND';
+
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
      */
@@ -486,6 +488,15 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_INVALID_JWT_TOKEN,
             'Invalid JWT token'
+        );
+    }
+
+    public static function userNotFound(): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::API_JWT_USER_NOT_FOUND,
+            'User not found'
         );
     }
 }

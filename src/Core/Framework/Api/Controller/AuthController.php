@@ -2,12 +2,19 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Cassandra\Date;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
 use League\OAuth2\Server\AuthorizationServer;
+use pq\DateTime;
+use Shopware\Administration\Login\TestGrantType;
 use Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\OAuth\AccessTokenRepository;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -15,7 +22,9 @@ use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -87,7 +96,7 @@ class AuthController extends AbstractController
     }
 
     #[Route(path: '/api/oauth/sso/code', name: 'api.oauth.sso.code', defaults: ['auth_required' => false], methods: ['GET'])]
-    public function code(Request $request): Response
+    public function code(Request $request, Context $context): Response
     {
         $storedState = $request->getSession()->get('SSO_swsso');
         $state = $request->get('rdm');
@@ -97,7 +106,6 @@ class AuthController extends AbstractController
         }
 
         $code = $request->get('code');
-
         if (!$this->loginConfigService instanceof LoginConfigService) {
             throw ApiException::loginConfigServiceNotAvailable();
         }
@@ -116,10 +124,100 @@ class AuthController extends AbstractController
         ]);
 
         $json = json_decode($tokenResponse->getContent(), true);
+        $userData = $this->getUserData($json['id_token'], $context);
 
-        // the following code is just an example and should be replaced with real user handling
-        $this->userRepository->search(new Criteria(), Context::createDefaultContext());
+        $response = new Response();
+        $request->headers->set('grant_type', 'test_grant');
+        $request->request->set('grant_type', 'test_grant');
+        $request->request->set('user_id', $userData->user->getId());
 
-        return new Response($json);
+        $psr7Request = $this->psrHttpFactory->createRequest($request);
+        $psr7Response = $this->psrHttpFactory->createResponse($response);
+        $this->authorizationServer->enableGrantType(new TestGrantType(new AccessTokenRepository(), $this->container->get('shopware.jwt_config')));
+        $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
+
+        // TODO: Rate limit the response here
+
+        $resp = (new HttpFoundationFactory())->createResponse($response);
+
+        $data = json_decode($resp->getContent(), true);
+        $uri = '/admin';
+
+        $redResp = new RedirectResponse($uri, Response::HTTP_FOUND);
+
+        $dt = strtotime('+' . $data['expires_in'] . ' seconds')  * 1000;
+
+        $redResp->headers->setCookie(new Cookie(
+            'bearerAuth',
+            \json_encode(
+                [
+                    'access' => $data['access_token'],
+                    'refresh' => $data['refresh_token'],
+                    'expiry' => $dt,
+                ]
+            ),
+            (int) $dt,
+            '/',
+            null,
+            false,
+            false,
+            false
+        ));
+
+        return $redResp;
+    }
+
+    private function getUserData(string $idToken, Context $context): \stdClass
+    {
+        $parser = new Parser(new JoseEncoder());
+        $jwt = $parser->parse($idToken);
+        // TODO: We need to validate the JWT here! For this its required we have the public key of the auth server
+
+        /**
+         * Example JWT claims:
+         *
+         * array: [
+         *      "aud" => array: [
+         *          0 => "ffffffff-ffff-ffff-ffff-ffffffffffff"
+         *      ]
+         *      "iss" => string: "https://api.shopware.com"
+         *      "iat" => DateTimeImmutable: {
+         *          date: 1970-01-01 00:00:00.0 +00:00
+         *      }
+         *      "exp" => DateTimeImmutable: {
+         *          date: 1970-01-01 00:00:00.0 +00:00
+         *      }
+         *      "sub" => string: "123456"
+         *      "email" => string: "test@shopware.com"
+         * ]
+         */
+        $data = $jwt->claims();
+
+        $email = $data->get('email');
+        $sub = $data->get('sub');
+        $exp = $data->get('exp');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('email', $email));
+        $userSearchResult = $this->userRepository->search($criteria, $context);
+        $user = $userSearchResult->first();
+        if ($user === null) {
+            throw ApiException::userNotFound();
+        }
+
+        // TODO: IMPORTANT
+        // 1: Add sub property to user entity
+        // 2: Search for user by sub property
+        // 3: If user not found, search for user by email
+        // 4: If user found and sub property is empty, update user entity with sub property else throw exception
+
+        // TODO: create a nice return type for this
+        $ret = new \stdClass();
+        $ret->email = $email;
+        $ret->sub = $sub;
+        $ret->exp = $exp;
+        $ret->user = $user;
+
+        return $ret;
     }
 }

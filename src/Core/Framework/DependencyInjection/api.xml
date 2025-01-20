@@ -248,7 +248,8 @@
             <deprecated package="shopware/core" version="6.7.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 without replacement</deprecated>
         </service>
 
-        <service id="shopware.jwt_config" class="Lcobucci\JWT\Configuration">
+<!--        TODO REMOVE PUBLIC=TRUE AND INJECT -->
+        <service id="shopware.jwt_config" class="Lcobucci\JWT\Configuration" public="true">
             <factory class="Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory"
                      method="createJWTConfiguration"/>
 

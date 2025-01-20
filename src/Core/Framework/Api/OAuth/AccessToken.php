@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AccessToken implements AccessTokenEntityInterface
 {
+    // TODO HERE
     use AccessTokenTrait;
     use EntityTrait;
     use RefreshTokenTrait;

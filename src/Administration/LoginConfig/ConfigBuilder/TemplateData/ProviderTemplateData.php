@@ -25,14 +25,6 @@ class ProviderTemplateData implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return $this->toArray();
-    }
-
-    /**
-     * @return array{key: string, snippet_key: string, icon: string, class: string, url: string}
-     */
-    private function toArray(): array
-    {
         return [
             'key' => $this->key,
             'snippet_key' => $this->snippetKey,

@@ -74,7 +74,7 @@ class SwTwigFunction
             }
 
             return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;

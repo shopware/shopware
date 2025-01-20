@@ -70,7 +70,7 @@ class OrderRoute extends AbstractOrderRoute
             || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;
 
         if ($context->getCustomer()) {
-            $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
+            $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomerId()));
         } elseif ($deepLinkFilter === null) {
             throw CartException::customerNotLoggedIn();
         }

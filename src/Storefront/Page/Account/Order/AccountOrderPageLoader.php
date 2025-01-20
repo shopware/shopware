@@ -67,7 +67,7 @@ class AccountOrderPageLoader
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
         $firstOrder = $page->getOrders()->getEntities()->first();
-        $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomer()?->getId();
+        $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomerId();
         if ($request->get('deepLinkCode') && $orderCustomerId !== null) {
             $this->accountService->loginById($orderCustomerId, $salesChannelContext);
         }

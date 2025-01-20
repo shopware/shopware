@@ -103,6 +103,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-inheritance-switch': true,
                         'sw-ai-copilot-badge': true,
                         'sw-help-text': true,
+                        'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     },
                 },
             },

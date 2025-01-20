@@ -53,6 +53,7 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     'sw-bulk-edit-modal': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
+                    'sw-provide': true,
                 },
                 mocks: {
                     $route: {

@@ -50,6 +50,11 @@ async function createWrapper(loginSuccessfull) {
 
                         localStorage.setItem('rememberMe', `${+duration}`);
                     },
+                    getLoginTemplateConfig: () => {
+                        return new Promise((resolve) => {
+                            resolve({ useDefault: true, ssoProviders: [] });
+                        });
+                    }
                 },
                 userService: {},
                 licenseViolationService: {},

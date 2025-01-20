@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -275,17 +274,5 @@ class ProductPageTest extends TestCase
     protected function getPageLoader(): ProductPageLoader
     {
         return static::getContainer()->get(ProductPageLoader::class);
-    }
-
-    private function updateProductStream(string $productId, string $streamId): void
-    {
-        $connection = static::getContainer()->get(Connection::class);
-        $connection->executeStatement(
-            'UPDATE `product` SET `stream_ids` = :streamIds WHERE `id` = :id',
-            [
-                'streamIds' => json_encode([$streamId], \JSON_THROW_ON_ERROR),
-                'id' => Uuid::fromHexToBytes($productId),
-            ]
-        );
     }
 }

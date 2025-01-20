@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -205,6 +206,10 @@ class SchemaBuilder
 
     private function getFieldType(Field $field): string
     {
+        if ($field instanceof EnumField) {
+            return $field->getType();
+        }
+
         foreach (self::$fieldMapping as $class => $type) {
             if ($field instanceof $class) {
                 return self::$fieldMapping[$field::class];

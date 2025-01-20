@@ -44,7 +44,16 @@ class SwTwigFunction
                 self::$macroResult = null;
             }
             if ($object instanceof Struct) {
-                if ($type === Template::METHOD_CALL) { // @phpstan-ignore-next-line
+                if ($type === Template::METHOD_CALL) {
+                    if (self::$macroResult !== null && \is_object(self::$macroResult)) {
+                        foreach ($arguments as $key => $argument) {
+                            if ($argument instanceof Markup) {
+                                // replace the markup object with the actual shopware object
+                                $arguments[$key] = self::$macroResult;
+                            }
+                        }
+                    }
+                    // @phpstan-ignore-next-line
                     return $object->$item(...$arguments);
                 }
 
@@ -53,15 +62,19 @@ class SwTwigFunction
 
                 if (method_exists($object, $getter)) { // @phpstan-ignore-next-line
                     return $object->$getter();
-                } elseif (method_exists($object, $isGetter)) { // @phpstan-ignore-next-line
+                }
+
+                if (method_exists($object, $isGetter)) { // @phpstan-ignore-next-line
                     return $object->$isGetter();
-                } elseif (method_exists($object, $item)) { // @phpstan-ignore-next-line
+                }
+
+                if (method_exists($object, $item)) { // @phpstan-ignore-next-line
                     return $object->$item();    // property()
                 }
             }
 
             return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;

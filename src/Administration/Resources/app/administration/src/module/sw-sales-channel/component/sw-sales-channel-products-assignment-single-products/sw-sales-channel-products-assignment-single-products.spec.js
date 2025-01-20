@@ -78,6 +78,7 @@ async function createWrapper() {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
+                'sw-provide': true,
             },
             provide: {
                 repositoryFactory: {

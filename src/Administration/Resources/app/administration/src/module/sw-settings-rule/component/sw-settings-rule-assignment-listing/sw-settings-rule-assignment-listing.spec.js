@@ -80,6 +80,7 @@ async function createWrapper(props = defaultProps) {
                     'sw-help-text': true,
                     'sw-loader': true,
                     'router-link': true,
+                    'sw-provide': true,
                 },
             },
         },

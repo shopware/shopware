@@ -69,16 +69,16 @@ jobs:
       - name: Generate Schema
         run: composer run framework:schema:dump
 
-      - name: "Restore result cache"
-        uses: actions/cache/restore@v4
-        with:
-          path: var/cache/phpstan
-          key: "phpstan-result-cache-${{ github.run_id }}"
-          restore-keys: |
-            phpstan-result-cache-
+#      - name: "Restore result cache"
+#        uses: actions/cache/restore@v4
+#        with:
+#          path: var/cache/phpstan
+#          key: "phpstan-result-cache-${{ github.run_id }}"
+#          restore-keys: |
+#            phpstan-result-cache-
 
       - name: PHPStan
-        run: composer run phpstan -- --error-format=github --no-progress
+        run: composer run phpstan -- --error-format=table --no-progress
 
       - name: "Save result cache"
         uses: actions/cache/save@v4

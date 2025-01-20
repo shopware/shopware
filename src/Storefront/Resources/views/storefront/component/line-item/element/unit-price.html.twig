@@ -1,7 +1,7 @@
 {% block component_line_item_unit_price %}
     {% block component_line_item_unit_price_label %}
         <div class="line-item-unit-price-label">
-            {{ 'checkout.cartHeaderUnitPrice'|trans|sw_sanitize }}
+            {{ 'checkout.cartHeaderUnitPrice'|trans|sw_sanitize }}:
         </div>
     {% endblock %}
 
@@ -12,7 +12,8 @@
             {% else %}
                 {{ lineItem.price.unitPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
             {% endif %}
-            <span class="line-item-unit-price-value-descriptor"> / {{ 'checkout.lineItemUnitPriceDescriptor'|trans|sw_sanitize }}</span>
+            {# Setting aria-hidden="true" because for screen reader it is already labelled by "line-item-unit-price-label" #}
+            <span class="line-item-unit-price-value-descriptor" aria-hidden="true"> / {{ 'checkout.lineItemUnitPriceDescriptor'|trans|sw_sanitize }}</span>
         </div>
      {% endblock %}
 {% endblock %}

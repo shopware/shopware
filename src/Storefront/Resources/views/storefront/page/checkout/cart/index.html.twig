@@ -28,6 +28,9 @@
         {% block page_checkout_cart_header %}
             <h1 class="cart-main-header">
                 {{ 'checkout.cartHeader'|trans|sw_sanitize }}
+                <small class="cart-main-header-item-counter">
+                    ({{- 'checkout.itemCounter'|trans({'%count%': page.cart.lineItems|length})|sw_sanitize -}})
+                </small>
             </h1>
         {% endblock %}
 

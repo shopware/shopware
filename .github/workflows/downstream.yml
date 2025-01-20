@@ -5,9 +5,14 @@ on:
     inputs:
       nightly:
         default: ""
+      downstream_ref:
+        default: ""
   workflow_call:
     inputs:
       nightly:
+        type: string
+        default: ""
+      downstream_ref:
         type: string
         default: ""
 
@@ -26,11 +31,11 @@ jobs:
         with:
           repo: shopware/rufus
           workflow: Downstream
-          ref: trunk
+          ref: ${{ inputs.downstream_ref != '' && inputs.downstream_ref || 'trunk' }}
           timeout: 15m
           env:
             NIGHTLY=${{ inputs.nightly }}
-  
+
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
@@ -41,7 +46,7 @@ jobs:
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream
-          ref: trunk
+          ref: ${{ inputs.downstream_ref != '' && inputs.downstream_ref || 'trunk' }}
           timeout: 20m
           env:
             NIGHTLY=${{ inputs.nightly }}

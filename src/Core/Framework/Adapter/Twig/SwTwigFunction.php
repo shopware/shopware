@@ -23,7 +23,7 @@ class SwTwigFunction
      *
      * @param mixed $object The object or array from where to get the item
      * @param mixed $item The item to get from the array or object
-     * @param array $arguments An array of arguments to pass if the item is an object method
+     * @param array<int|mixed> $arguments An array of arguments to pass if the item is an object method
      * @param string $type The type of attribute (@see \Twig\Template constants)
      * @param bool $isDefinedTest Whether this is only a defined check
      * @param bool $ignoreStrictCheck Whether to ignore the strict attribute check or not
@@ -35,7 +35,7 @@ class SwTwigFunction
      *
      * @internal
      */
-    public static function getAttribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, $sandboxed = false, int $lineno = -1)
+    public static function getAttribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, bool $sandboxed = false, int $lineno = -1)
     {
         try {
             FieldVisibility::$isInTwigRenderingContext = true;

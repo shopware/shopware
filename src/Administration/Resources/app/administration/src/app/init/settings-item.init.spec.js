@@ -4,19 +4,12 @@
 import initializeSettingItems from 'src/app/init/settings-item.init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 
-let stateDispatchBackup = null;
 describe('src/app/init/settings-item.init.ts', () => {
     beforeAll(() => {
         initializeSettingItems();
-        stateDispatchBackup = Shopware.State.dispatch;
     });
 
     beforeEach(() => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: stateDispatchBackup,
-            writable: true,
-            configurable: true,
-        });
         Shopware.Store.get('extensionSdkModules').modules = [];
         Shopware.Store.get('settingsItems').settingsGroups = {
             shop: [],

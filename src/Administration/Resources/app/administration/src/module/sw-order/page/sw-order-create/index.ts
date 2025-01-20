@@ -8,7 +8,7 @@ import './sw-order-create.scss';
  * @sw-package checkout
  */
 
-const { Context, State, Store, Mixin } = Shopware;
+const { Context, Store, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -188,7 +188,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         removeInvalidCode() {
-            State.commit('swOrder/removeInvalidPromotionCodes');
+            Store.get('swOrder').removeInvalidPromotionCodes();
             this.closeInvalidCodeModal();
         },
 

@@ -60,7 +60,7 @@ export default {
         },
     },
 
-    methods:{
+    methods: {
         showProductCard(key) {
             return Shopware.Store.get('swProductDetail').showProductCard(key);
         },

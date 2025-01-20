@@ -79,7 +79,7 @@ export default function initializeContext(): void {
             return Promise.reject(new Error(`Could not find a extension with the given event origin "${_event_.origin}"`));
         }
 
-        if (!extension[1]?.permissions?.read?.includes('user')) {
+        if (!(extension[1]?.permissions?.read as string[])?.includes('user')) {
             return Promise.reject(new Error(`Extension "${extension[0]}" does not have the permission to read users`));
         }
 

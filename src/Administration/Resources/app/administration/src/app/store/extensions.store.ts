@@ -2,7 +2,6 @@
  * @package admin
  * @private
  */
-import type { extension } from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges';
 import { setExtensions } from '@shopware-ag/meteor-admin-sdk/es/channel';
 
 /**
@@ -11,7 +10,7 @@ import { setExtensions } from '@shopware-ag/meteor-admin-sdk/es/channel';
 export interface Extension {
     name: string;
     baseUrl: string;
-    permissions: extension['permissions'];
+    permissions: Record<string, unknown>;
     version?: string;
     type: 'app' | 'plugin';
     integrationId?: string;

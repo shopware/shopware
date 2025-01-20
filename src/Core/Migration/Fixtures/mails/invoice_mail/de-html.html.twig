@@ -8,7 +8,7 @@
     <br><br>
 
     {% if a11yDocuments %}
-        For better accessibility we also provide an HTML version of the documents here:<br><br>
+        Folgend stellen wir barrierefreie Dokumente als HTML-Version zur Verfügung:<br><br>
 
         {% for a11y in a11yDocuments %}
             {% set documentLink = rawUrl(
@@ -23,7 +23,8 @@
 
             - <a href="{{ documentLink }}" target="_blank">{{ documentLink }}</a> <br>
         {% endfor %}<br>
-        For data protection reasons the HTML version requires a login. <br><br>
-        In case of a guest order, you can use your mail address and postal code of the billing address.<br>
+
+        Aus Datenschutzgründen ist für die HTML-Version ein Login erforderlich.<br><br>
+        Im Falle einer Gastbestellung können Sie Ihre Postanschrift und die Postleitzahl der Rechnungsanschrift verwenden.<br>
     {% endif %}
 </div>

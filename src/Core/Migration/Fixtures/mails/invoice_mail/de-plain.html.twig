@@ -5,7 +5,7 @@ Im Anhang dieser E-Mail finden Sie die Rechnung für Ihre Bestellung mit der Num
 Sollten Sie Fragen haben, zögern Sie nicht, uns zu kontaktieren.
 
 {% if a11yDocuments %}
-For better accessibility we also provide an HTML version of the documents here:
+Folgend stellen wir barrierefreie Dokumente als HTML-Version zur Verfügung:
 
 {% for a11y in a11yDocuments %}
     {% set documentLink = rawUrl(
@@ -21,7 +21,7 @@ For better accessibility we also provide an HTML version of the documents here:
     - {{ documentLink }}
 {% endfor %}
 
-For data protection reasons the HTML version requires a login.
+Aus Datenschutzgründen ist für die HTML-Version ein Login erforderlich.
 
-In case of a guest order, you can use your mail address and postal code of the billing address.
+Im Falle einer Gastbestellung können Sie Ihre Postanschrift und die Postleitzahl der Rechnungsanschrift verwenden.
 {% endif %}

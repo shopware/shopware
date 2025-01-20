@@ -38,6 +38,8 @@ class Migration1736824370MigrationMailTemplateForDocument extends MigrationStep
             MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE,
         ];
 
+        $templateMapping = $this->getTemplateMapping();
+
         foreach ($documentTypeTranslationMapping as $technicalName) {
             $mailTemplateId = $connection->fetchOne('
                 SELECT `mail_template`.`id`
@@ -57,15 +59,15 @@ class Migration1736824370MigrationMailTemplateForDocument extends MigrationStep
                     'mail_template_id' => $mailTemplateId,
                     'sender_name' => '{{ salesChannel.name }}',
                     'subject' => 'Neues Dokument für Ihre Bestellung',
-                    'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, true),
-                    'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, false),
+                    'content_html' => $this->getMailTemplateContent($templateMapping, $technicalName, self::LOCALE_DE_DE, true),
+                    'content_plain' => $this->getMailTemplateContent($templateMapping, $technicalName, self::LOCALE_DE_DE, false),
                 ],
                 [
                     'mail_template_id' => $mailTemplateId,
                     'sender_name' => '{{ salesChannel.name }}',
                     'subject' => 'New document for your order',
-                    'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, true),
-                    'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, false),
+                    'content_html' => $this->getMailTemplateContent($templateMapping, $technicalName, self::LOCALE_EN_GB, true),
+                    'content_plain' => $this->getMailTemplateContent($templateMapping, $technicalName, self::LOCALE_EN_GB, false),
                 ],
             );
 
@@ -73,7 +75,10 @@ class Migration1736824370MigrationMailTemplateForDocument extends MigrationStep
         }
     }
 
-    private function getMailTemplateContent(string $technicalName, string $locale, bool $html): string
+    /**
+     * @return array<string, array<string, array<string, string|false>>>
+     */
+    private function getTemplateMapping(): array
     {
         $invoiceEnHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/invoice_mail/en-html.html.twig');
         $invoiceEnPlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/invoice_mail/en-plain.html.twig');
@@ -92,7 +97,7 @@ class Migration1736824370MigrationMailTemplateForDocument extends MigrationStep
         $cancellationInvoiceDeHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/cancellation_mail/de-html.html.twig');
         $cancellationInvoiceDePlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/cancellation_mail/de-plain.html.twig');
 
-        $templateContentMapping = [
+        return [
             MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [
                 self::LOCALE_EN_GB => [
                     'html' => $invoiceEnHtml,
@@ -134,11 +139,17 @@ class Migration1736824370MigrationMailTemplateForDocument extends MigrationStep
                 ],
             ],
         ];
+    }
 
-        if (!\is_string($templateContentMapping[$technicalName][$locale][$html ? 'html' : 'plain'])) {
+    /**
+     * @param array<string, array<string, array<string, string|false>>> $templateMapping
+     */
+    private function getMailTemplateContent(array $templateMapping, string $technicalName, string $locale, bool $html): string
+    {
+        if (!\is_string($templateMapping[$technicalName][$locale][$html ? 'html' : 'plain'])) {
             return '';
         }
 
-        return $templateContentMapping[$technicalName][$locale][$html ? 'html' : 'plain'];
+        return $templateMapping[$technicalName][$locale][$html ? 'html' : 'plain'];
     }
 }

@@ -502,11 +502,8 @@ export default {
 
         availableFormatsFilter(item) {
             const fileTypesArray = Object.values({ ...item.config?.fileTypes });
-            if (fileTypesArray.includes('pdf') && fileTypesArray.includes('html')) {
-                return fileTypesArray.join(', ').toUpperCase();
-            }
 
-            return this.$tc('sw-order.documentCard.labelOnlyPdf');
+            return fileTypesArray.join(', ').toUpperCase();
         },
     },
 };

@@ -99,6 +99,10 @@ export default {
     },
 
     methods: {
+        onChangeType(type) {
+            this.currentCustomField.config.customFieldType = type;
+        },
+
         createdComponent() {
             this.fieldTypes = this.customFieldDataProviderService.getTypes();
 

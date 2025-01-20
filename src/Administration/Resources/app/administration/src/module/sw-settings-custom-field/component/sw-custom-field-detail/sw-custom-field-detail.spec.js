@@ -109,7 +109,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         ]);
         await flushPromises();
 
-        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
+        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type');
+
         const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
@@ -124,12 +125,12 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
+        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type');
         const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
-        expect(modalTypeField.attributes('disabled')).toBeDefined();
+        expect(modalTypeField.classes('is--disabled')).toBeDefined();
         expect(technicalNameField.attributes('disabled')).toBeDefined();
         expect(modalPositionField.attributes('disabled')).toBeDefined();
         expect(modalSaveButton.attributes('disabled')).toBeDefined();
@@ -139,8 +140,9 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const wrapper = await createWrapper(['custom_field.editor']);
         await flushPromises();
 
-        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
+        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type .mt-select-selection-list__input');
         await modalTypeField.setValue('select');
+
         await flushPromises();
 
         expect(wrapper.vm.currentCustomField.config).toEqual(

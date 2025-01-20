@@ -4,19 +4,12 @@
 import initMenuItems from 'src/app/init/menu-item.init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 
-let stateDispatchBackup = null;
 describe('src/app/init/menu-item.init.ts', () => {
     beforeAll(() => {
         initMenuItems();
-        stateDispatchBackup = Shopware.State.dispatch;
     });
 
     beforeEach(() => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: stateDispatchBackup,
-            writable: true,
-            configurable: true,
-        });
         Shopware.Store.get('extensionSdkModules').modules = [];
 
         Shopware.Store.get('extensions').extensionsState = {};

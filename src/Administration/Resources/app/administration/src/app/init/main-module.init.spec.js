@@ -4,20 +4,12 @@
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 import initMainModules from 'src/app/init/main-module.init';
 
-let stateDispatchBackup = null;
-
 describe('src/app/init/main-module.init.ts', () => {
     beforeAll(() => {
         initMainModules();
-        stateDispatchBackup = Shopware.State.dispatch;
     });
 
     beforeEach(() => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: stateDispatchBackup,
-            writable: true,
-            configurable: true,
-        });
         Shopware.Store.get('extensionSdkModules').modules = [];
 
         Shopware.Store.get('extensions').extensionsState = {};

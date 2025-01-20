@@ -42,7 +42,7 @@ test('Guest commercial customer must be able to register in the Storefront.', { 
     await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
     await StorefrontCheckoutCart.goToCheckoutButton.click();
-
+    await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
     await ShopCustomer.attemptsTo(Register({ isCommercial: true, isGuest: true }));
     await ShopCustomer.goesTo(StorefrontHome.url());
     await StorefrontHome.accountMenuButton.click();

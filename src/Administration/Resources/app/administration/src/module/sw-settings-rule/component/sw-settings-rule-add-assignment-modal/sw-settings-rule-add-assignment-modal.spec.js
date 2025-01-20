@@ -117,6 +117,7 @@ async function createWrapper(props = defaultProps) {
                     'sw-field-error': true,
                     'sw-inheritance-switch': true,
                     'sw-help-text': true,
+                    'sw-provide': true,
                 },
                 provide: {
                     repositoryFactory: {

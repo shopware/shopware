@@ -82,12 +82,12 @@ class PaymentService
             throw PaymentException::invalidOrder($orderId);
         }
 
-        if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
+        if ($context->getCurrencyId() !== $order->getCurrencyId()) {
             $context = $this->contextService->get(
                 new SalesChannelContextServiceParameters(
                     $context->getSalesChannelId(),
                     $context->getToken(),
-                    $context->getContext()->getLanguageId(),
+                    $context->getLanguageId(),
                     $order->getCurrencyId()
                 )
             );

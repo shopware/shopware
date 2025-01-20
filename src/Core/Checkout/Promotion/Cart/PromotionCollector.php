@@ -106,7 +106,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
             // check if max allowed redemption of promotion have been reached or not
             // if max redemption has been reached promotion will not be added
-            $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer()?->getId(), $currentOrderId);
+            $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomerId(), $currentOrderId);
 
             $discountLineItems = [];
             $foundCodes = [];
@@ -387,7 +387,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 $code,
                 $promotion,
                 $discount,
-                $context->getCurrency()->getId(),
+                $context->getCurrencyId(),
                 $factor
             );
 

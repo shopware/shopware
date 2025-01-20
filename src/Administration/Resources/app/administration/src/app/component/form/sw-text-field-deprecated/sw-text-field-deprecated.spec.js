@@ -4,8 +4,9 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-field';
+import { ref } from 'vue';
 
-async function createWrapper(options = {}) {
+async function createWrapper({ provide, ...options } = {}) {
     const wrapper = mount(await wrapTestComponent('sw-text-field-deprecated', { sync: true }), {
         global: {
             stubs: {
@@ -21,6 +22,7 @@ async function createWrapper(options = {}) {
             },
             provide: {
                 validationService: {},
+                ...provide,
             },
         },
         ...options,
@@ -124,5 +126,16 @@ describe('src/app/component/form/sw-text-field', () => {
         });
 
         expect(wrapper.find('label').text()).toBe('Label from slot');
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = await createWrapper({
+            provide: {
+                ariaLabel: ref('Aria Label'),
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

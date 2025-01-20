@@ -39,5 +39,10 @@ class ReturnNodeTest extends TestCase
         yield 'Test if case' => ['if-case.html.twig', '1', ['x' => 1]];
         yield 'Test else case' => ['if-case.html.twig', '2', ['x' => 2]];
         yield 'Test array case' => ['array-case.html.twig', '2'];
+        yield 'Test call (new syntax)' => ['new-syntax/call-case.html.twig', '1'];
+        yield 'Test assign (new syntax)' => ['new-syntax/assign-case.html.twig', '1'];
+        yield 'Test if case (new syntax)' => ['new-syntax/if-case.html.twig', '1', ['x' => 1]];
+        yield 'Test else case (new syntax)' => ['new-syntax/if-case.html.twig', '2', ['x' => 2]];
+        yield 'Test array case (new syntax)' => ['new-syntax/array-case.html.twig', '2', ['x' => 2]];
     }
 }

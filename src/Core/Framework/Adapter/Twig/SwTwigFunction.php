@@ -39,8 +39,9 @@ class SwTwigFunction
     {
         try {
             FieldVisibility::$isInTwigRenderingContext = true;
-            if ($object instanceof Markup && self::$macroResult !== null && $type === 'array') {
-                return self::$macroResult[$item];
+            if ($object instanceof Markup && self::$macroResult !== null) {
+                $object = self::$macroResult;
+                self::$macroResult = null;
             }
             if ($object instanceof Struct) {
                 if ($type === Template::METHOD_CALL) { // @phpstan-ignore-next-line

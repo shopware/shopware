@@ -1,6 +1,6 @@
-{% macro foo() %}
+{% macro assignCase() %}
     {% return 1 %}
 {% endmacro %}
 
-{% set var = _self.foo() %}
+{% set var = _self.assignCase() %}
 {{ var }}

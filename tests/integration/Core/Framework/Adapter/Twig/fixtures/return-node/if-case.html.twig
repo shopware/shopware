@@ -1,4 +1,4 @@
-{% macro foo(x) %}
+{% macro ifCase(x) %}
     {% if x == 1 %}
         {% return 1 %}
     {% else %}
@@ -6,4 +6,4 @@
     {% endif %}
 {% endmacro %}
 
-{{ _self.foo(x) }}
+{{ _self.ifCase(x) }}

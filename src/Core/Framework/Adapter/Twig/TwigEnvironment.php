@@ -48,7 +48,11 @@ class TwigEnvironment extends Environment
 
     private function addMacroResultCall(string $source): string
     {
-        if (str_contains($source, 'getTemplateForMacro') && !str_contains($source, 'CoreExtension::getAttribute')) {
+        if (
+            str_contains($source, 'getTemplateForMacro')
+            && str_contains($source, 'SwTwigFunction::$macroResult =')
+            && !str_contains($source, 'CoreExtension::getAttribute')
+        ) {
             $lines = explode("\n", $source);
             foreach ($lines as $index => $line) {
                 if (str_contains($line, 'getTemplateForMacro')) {

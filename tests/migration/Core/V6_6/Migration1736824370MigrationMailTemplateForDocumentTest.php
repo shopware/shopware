@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Migration\Core\V6_6;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
-use Shopware\Core\Migration\Traits\Translations;
 use Shopware\Core\Migration\V6_6\Migration1736824370MigrationMailTemplateForDocument;
 
 /**
@@ -19,7 +19,6 @@ use Shopware\Core\Migration\V6_6\Migration1736824370MigrationMailTemplateForDocu
 #[CoversClass(Migration1736824370MigrationMailTemplateForDocument::class)]
 class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
 {
-    use ImportTranslationsTrait;
     use KernelTestBehaviour;
 
     private Connection $connection;
@@ -29,18 +28,24 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
-    public function testMigration(): void
+    public function testDuplicateMigration(): void
     {
-        $this->prepareData();
+        $migration = new Migration1736824370MigrationMailTemplateForDocument();
+        static::assertSame(1736824370, $migration->getCreationTimestamp());
+
+        // make sure a migration can run multiple times without failing
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+    }
+
+    #[DataProvider('mailTypeProvider')]
+    public function testMigration(string $mailType): void
+    {
+        $this->prepareData($mailType);
 
         $this->executeMigration();
 
-        $documentTypeTranslationMapping = [
-            MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE,
-            MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE,
-            MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE,
-            MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE,
-        ];
+        $documentTypeTranslationMapping = $this->getMailTemplateType();
 
         foreach ($documentTypeTranslationMapping as $technicalName) {
             $mailTemplateId = $this->connection->fetchOne('
@@ -68,7 +73,7 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
 
             static::assertNotNull($mailTemplate);
 
-            if ($technicalName === MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE) {
+            if ($technicalName === $mailType) {
                 static::assertStringNotContainsString('{% if a11yDocuments', $mailTemplate['content_html']);
                 static::assertStringNotContainsString('{% if a11yDocuments', $mailTemplate['content_plain']);
             } else {
@@ -81,6 +86,19 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array<string>>
+     */
+    public static function mailTypeProvider(): array
+    {
+        return [
+            MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE],
+            MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE],
+            MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE],
+            MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE],
+        ];
+    }
+
     private function executeMigration(): void
     {
         $migration = new Migration1736824370MigrationMailTemplateForDocument();
@@ -88,8 +106,48 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
         $migration->update($this->connection);
     }
 
-    private function prepareData(): void
+    private function prepareData(string $mailType): void
     {
+        $documentTypeTranslationMapping = $this->getMailTemplateType();
+
+        $this->connection->executeStatement(
+            '
+                UPDATE `mail_template`
+                SET `updated_at` = :updatedAt
+                WHERE `mail_template_type_id` IN (
+                    SELECT `id`
+                    FROM `mail_template_type`
+                    WHERE `technical_name` IN (:technicalNames)
+                )',
+            [
+                'updatedAt' => null,
+                'technicalNames' => $documentTypeTranslationMapping,
+            ],
+            ['technicalNames' => ArrayParameterType::STRING],
+        );
+
+        $this->connection->executeStatement(
+            '
+            UPDATE `mail_template_translation`
+            SET `content_html` = :contentHtml,
+                `content_plain` = :contentPlain
+            WHERE `mail_template_id` IN (
+                SELECT `id`
+                FROM `mail_template`
+                WHERE `mail_template_type_id` IN (
+                    SELECT `id`
+                    FROM `mail_template_type`
+                    WHERE `technical_name` IN (:technicalNames)
+                )
+            )',
+            [
+                'contentHtml' => 'html content',
+                'contentPlain' => 'plain content',
+                'technicalNames' => $documentTypeTranslationMapping,
+            ],
+            ['technicalNames' => ArrayParameterType::STRING],
+        );
+
         $this->connection->executeStatement('
             UPDATE `mail_template`
             SET `updated_at` = :updatedAt
@@ -100,34 +158,20 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
             )
         ', [
             'updatedAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'technicalName' => MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE,
+            'technicalName' => $mailType,
         ]);
+    }
 
-        $mailTemplateId = $this->connection->fetchOne('
-            SELECT `mail_template`.`id`
-            FROM `mail_template`
-            INNER JOIN `mail_template_type`
-                ON `mail_template`.`mail_template_type_id` = `mail_template_type`.`id`
-                AND `mail_template_type`.`technical_name` = :technicalName
-        ', ['technicalName' => MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE]);
-
-        $translations = new Translations(
-            [
-                'mail_template_id' => $mailTemplateId,
-                'sender_name' => '{{ salesChannel.name }}',
-                'subject' => 'Neues Dokument für Ihre Bestellung',
-                'content_html' => 'html content',
-                'content_plain' => 'plain content',
-            ],
-            [
-                'mail_template_id' => $mailTemplateId,
-                'sender_name' => '{{ salesChannel.name }}',
-                'subject' => 'New document for your order',
-                'content_html' => 'html content',
-                'content_plain' => 'plain content',
-            ],
-        );
-
-        $this->importTranslation('mail_template_translation', $translations, $this->connection);
+    /**
+     * @return array<string>
+     */
+    private function getMailTemplateType(): array
+    {
+        return [
+            MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE,
+            MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE,
+            MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE,
+            MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE,
+        ];
     }
 }

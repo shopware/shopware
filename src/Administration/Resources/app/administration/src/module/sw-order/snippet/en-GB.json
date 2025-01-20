@@ -350,7 +350,6 @@
       "labelMarkAsUnsent": "Mark as unsent",
       "labelCreateNew": "Create new document",
       "labelAvailableFormats": "Available Formats",
-      "labelOnlyPdf": "Only PDF",
       "messageEmptyTitle": "No documents created yet",
       "messageNoDocumentFound": "No documents found",
       "messageEmptySubline": "Manage documents here.",
@@ -408,7 +407,7 @@
       "labelHighlightedItemsEntry": "Total",
       "labelNoItems": "No credit shown",
       "fileInputLabel": "Upload custom document",
-      "labelPreviewOnlyHtml": "Preview of the HTML document"
+      "labelPreviewOnlyHtml": "HTML preview"
     },
     "documentSendModal": {
       "labelNumber": "Number",

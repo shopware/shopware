@@ -184,10 +184,15 @@ export default {
         onSendDocument() {
             this.isLoading = true;
 
+            const apiContext = {
+                ...Shopware.Context.api,
+                languageId: this.order.languageId || Shopware.Context.api.languageId,
+            };
+
             this.mailTemplateRepository
                 .get(
                     this.mailTemplateId,
-                    { ...Shopware.Context.api, languageId: this.order.languageId },
+                    apiContext,
                     this.mailTemplateSendCriteria,
                 )
                 .then((mailTemplate) => {
@@ -216,10 +221,7 @@ export default {
                             },
                             null,
                             null,
-                            {
-                                ...Shopware.Context.api,
-                                ...(this.order.languageId && { languageId: this.order.languageId }),
-                            },
+                            apiContext,
                         )
                         .catch(() => {
                             this.createNotificationError({

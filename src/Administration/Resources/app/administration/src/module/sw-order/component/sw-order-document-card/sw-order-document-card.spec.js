@@ -488,7 +488,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
 
-        const sendDocumentButton = wrapper.findAll('.sw-context-menu-item')[4];
+        const sendDocumentButton = wrapper.find('.sw-order-document-card__context-button-send');
         await sendDocumentButton.trigger('click');
 
         const sendDocumentModal = wrapper.find('sw-order-send-document-modal-stub');
@@ -507,7 +507,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         let columns = wrapper.findAll('.sw-data-grid__cell--header');
-        // 4 data columns + 1 action column
+        // 5 data columns + 1 action column
         expect(columns).toHaveLength(6);
 
         await wrapper.setProps({
@@ -551,18 +551,18 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        const contextMenu = wrapper.findAll('.sw-context-menu-item');
-
         expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeTruthy();
 
         // Mark as sent option is disabled
-        expect(contextMenu[5].attributes('disabled')).toBe('true');
+        const markSentButton = wrapper.find('.sw-order-document-card__context-button-mark-sent');
+        expect(markSentButton.attributes('disabled')).toBe('true');
 
         // Mark as unsent
-        await contextMenu[6].trigger('click');
+        const markUnsentButton = wrapper.find('.sw-order-document-card__context-button-mark-unsent');
+        await markUnsentButton.trigger('click');
 
         expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeFalsy();
-        expect(contextMenu[6].attributes('disabled')).toBe('true');
+        expect(markUnsentButton.attributes('disabled')).toBe('true');
     });
 
     it('should change sent status when click on "Mark as sent" context menu', async () => {
@@ -579,18 +579,19 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         const spyMarkDocumentAsSent = jest.spyOn(wrapper.vm, 'markDocumentAsSent');
-        const contextMenu = wrapper.findAll('.sw-context-menu-item');
 
         expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeFalsy();
 
         // Mark as unsent option is disabled
-        expect(contextMenu.at(6).attributes('disabled')).toBe('true');
+        const markUnsentButton = wrapper.find('.sw-order-document-card__context-button-mark-unsent');
+        expect(markUnsentButton.attributes('disabled')).toBe('true');
 
         // Mark as unsent
-        await contextMenu.at(5).trigger('click');
+        const markSentButton = wrapper.find('.sw-order-document-card__context-button-mark-sent');
+        await markSentButton.trigger('click');
 
         expect(spyMarkDocumentAsSent).toHaveBeenCalledTimes(1);
-        expect(contextMenu.at(5).attributes('disabled')).toBe('true');
+        expect(markSentButton.attributes('disabled')).toBe('true');
     });
 
     it('should show Send mail modal when choosing option Create and send in Create document modal', async () => {
@@ -712,7 +713,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const row = wrapper.find('.sw-data-grid__row--0');
         const fileTypes = row.find('.sw-data-grid__cell--fileTypes');
 
-        expect(fileTypes.text()).toBe('sw-order.documentCard.labelOnlyPdf');
+        expect(fileTypes.text()).toBe('PDF');
     });
 
     it('should render html and pdf on available formats column', async () => {

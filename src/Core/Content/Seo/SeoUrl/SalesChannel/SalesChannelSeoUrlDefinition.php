@@ -15,7 +15,7 @@ class SalesChannelSeoUrlDefinition extends SeoUrlDefinition implements SalesChan
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('languageId', $context->getContext()->getLanguageId()));
+        $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
             new EqualsFilter('salesChannelId', null),

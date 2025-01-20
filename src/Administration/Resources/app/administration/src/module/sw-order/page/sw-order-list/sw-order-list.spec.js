@@ -88,6 +88,7 @@ async function createWrapper() {
                 'sw-sidebar': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 stateStyleDataProviderService: {

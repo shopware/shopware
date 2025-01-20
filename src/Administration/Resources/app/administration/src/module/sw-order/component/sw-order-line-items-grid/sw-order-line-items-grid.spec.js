@@ -292,6 +292,7 @@ async function createWrapper() {
                 'sw-field-error': true,
                 'sw-icon-deprecated': true,
                 'sw-highlight-text': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
                 $tc: (t, count, value) => {

@@ -76,6 +76,7 @@ async function createWrapper(profiles = null) {
                     'sw-data-grid-inline-edit': true,
                     'sw-data-grid-skeleton': true,
                     'sw-pagination': true,
+                    'sw-provide': true,
                 },
                 provide: {
                     importExport: new ImportExportService(),

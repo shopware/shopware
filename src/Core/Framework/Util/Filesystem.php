@@ -15,7 +15,7 @@ use Symfony\Component\Finder\SplFileInfo;
  *
  * @see \Shopware\Tests\Integration\Core\Framework\Util\FilesystemTest
  */
-#[Package('core')]
+#[Package('framework')]
 class Filesystem
 {
     public function __construct(

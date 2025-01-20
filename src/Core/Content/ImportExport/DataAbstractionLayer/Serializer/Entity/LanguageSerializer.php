@@ -14,7 +14,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class LanguageSerializer extends EntitySerializer implements ResetInterface
 {
     /**

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @phpstan-type WebhookRecord array{name: string, event_name: string, url: string, only_live_version: int, app_id: string, active: int, error_count: int}
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookPersister
 {
     public function __construct(private readonly Connection $connection)

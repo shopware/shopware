@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ServiceOutdatedSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly ServiceLifecycle $serviceLifecycle)

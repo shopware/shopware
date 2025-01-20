@@ -14,7 +14,7 @@ use Symfony\Component\Intl\Currencies;
 /**
  * @deprecated tag:v6.7.0 - reason:becomes-internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ShopConfigurator
 {
     /**

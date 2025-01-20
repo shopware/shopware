@@ -7,7 +7,7 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\Abs
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class SerializerRegistry
 {
     /**

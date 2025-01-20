@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<Stub>
  */
-#[Package('core')]
+#[Package('framework')]
 class StubCollection extends Collection
 {
     /**

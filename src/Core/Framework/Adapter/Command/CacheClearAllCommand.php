@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[Package('core')]
+#[Package('framework')]
 #[AsCommand(name: 'cache:clear:all', description: 'Clear all caches/pools, invalidates expired tags, removes old system and twig cache directories')]
 class CacheClearAllCommand extends Command
 {

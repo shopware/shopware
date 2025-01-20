@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @deprecated tag:v6.7.0 - reason:becomes-internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[AsCommand(
     name: 'system:is-installed',
     description: 'Checks if the system is installed and returns exit code 0 if Shopware is installed',

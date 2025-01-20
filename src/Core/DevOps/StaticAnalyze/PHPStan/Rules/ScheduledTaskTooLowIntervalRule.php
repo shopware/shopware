@@ -19,7 +19,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ScheduledTaskTooLowIntervalRule implements Rule
 {
     private const EXCEPTION_CLASSES = [

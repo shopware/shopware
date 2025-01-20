@@ -4,7 +4,7 @@ namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class FieldFactory
 {
     private const MAPPING = [

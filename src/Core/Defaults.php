@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 final class Defaults
 {
     /**

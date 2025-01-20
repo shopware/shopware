@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
+#[Package('framework')]
 class DummyEvent extends Event implements FlowEventAware
 {
     public static function getAvailableData(): EventDataCollection

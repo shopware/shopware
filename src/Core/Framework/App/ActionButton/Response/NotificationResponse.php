@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class NotificationResponse extends ActionButtonResponse
 {
     final public const ACTION_TYPE = 'notification';

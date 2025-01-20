@@ -35,7 +35,7 @@ use Symfony\Component\String\Inflector\EnglishInflector;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class DefinitionValidator
 {
     private const IGNORE_FIELDS = [

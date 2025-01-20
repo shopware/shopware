@@ -16,7 +16,7 @@ use Shopware\Core\Migration\Traits\Translations;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1626696809AddImportExportCustomerProfile extends MigrationStep
 {
     use ImportTranslationsTrait;

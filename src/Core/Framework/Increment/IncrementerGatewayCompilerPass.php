@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class IncrementerGatewayCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

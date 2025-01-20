@@ -17,7 +17,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheClearer
 {
     /**

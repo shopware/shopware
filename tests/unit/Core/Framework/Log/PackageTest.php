@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Package::class)]
 class PackageTest extends TestCase
 {
@@ -55,7 +55,7 @@ class NoPackage
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class WithPackage
 {
 }

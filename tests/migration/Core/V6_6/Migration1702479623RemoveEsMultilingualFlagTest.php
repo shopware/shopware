@@ -13,7 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1702479623RemoveEsMultilingualFlag;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1702479623RemoveEsMultilingualFlag::class)]
 class Migration1702479623RemoveEsMultilingualFlagTest extends TestCase
 {

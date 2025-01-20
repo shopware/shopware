@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1716285861AddAppSourceType extends MigrationStep
 {
     public function getCreationTimestamp(): int

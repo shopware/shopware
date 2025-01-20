@@ -18,7 +18,7 @@ use Symfony\Component\Console\Command\Command;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class UseCLIContextRule implements Rule
 {
     /**

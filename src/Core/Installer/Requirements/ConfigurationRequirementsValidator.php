@@ -11,7 +11,7 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ConfigurationRequirementsValidator implements RequirementsValidatorInterface
 {
     private const MAX_EXECUTION_TIME_REQUIREMENT = 30;

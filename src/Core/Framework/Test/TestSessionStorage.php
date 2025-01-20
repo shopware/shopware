@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestSessionStorage implements SessionStorageInterface
 {
     private static array $data = [];

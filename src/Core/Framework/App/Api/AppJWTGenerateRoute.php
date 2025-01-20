@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('core')]
+#[Package('framework')]
 class AppJWTGenerateRoute
 {
     public function __construct(

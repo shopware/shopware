@@ -46,6 +46,7 @@
             :value="unicodeUriFilter(currentUrlValue)"
             :placeholder="placeholder"
             :disabled="disabled"
+            :aria-label="ariaLabel && $tc(ariaLabel)"
             @focus="setFocusClass"
             @blur="onBlur($event); removeFocusClass();"
         >

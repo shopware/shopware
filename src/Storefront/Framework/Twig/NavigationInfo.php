@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class NavigationInfo
 {
     /**
-     * @param list<string>|null $pathIdList
+     * @param list<string> $pathIdList
      */
     public function __construct(
         public string $id,

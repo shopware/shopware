@@ -13,6 +13,7 @@ return [
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
         '**/src/Core/Framework/App/Source/AbstractTemporaryDirectoryFactory.php', // dropped (not released yet)
         '**/src/Core/Framework/App/Source/TemporaryDirectoryFactory.php', // dropped decorator (not released yet)
+        '**/src/Storefront/Framework/Twig/NavigationInfo.php', // new class (not released yet)
     ],
     'errors' => [
         // ProductReviewLoader moved to core, the entire classes is deprecated, can be removed after 6.7.0.0 release

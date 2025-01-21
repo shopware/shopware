@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class IndexingControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

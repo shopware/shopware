@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class BusinessEventDefinition extends Struct
 {
     /**

@@ -10,7 +10,7 @@ use Symfony\Component\Messenger\Event\WorkerRunningEvent;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class EarlyReturnMessagesListener implements EventSubscriberInterface
 {
     private bool $handled = false;

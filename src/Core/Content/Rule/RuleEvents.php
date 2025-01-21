@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleEvents
 {
     final public const RULE_WRITTEN_EVENT = 'rule.written';

@@ -9,7 +9,7 @@ const ApiService = Shopware.Classes.ApiService;
  * Gateway for the API end point "update"
  * @class
  * @extends ApiService
- * @package services-settings
+ * @sw-package framework
  */
 class UpdateService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'update') {

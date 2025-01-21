@@ -29,7 +29,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 trait OrderActionTrait
 {
     use CountryAddToSalesChannelTestBehaviour;

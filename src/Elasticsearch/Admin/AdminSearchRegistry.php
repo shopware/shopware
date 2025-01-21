@@ -26,7 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @final
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 #[AsMessageHandler(handles: AdminSearchIndexingMessage::class)]
 class AdminSearchRegistry implements EventSubscriberInterface
 {

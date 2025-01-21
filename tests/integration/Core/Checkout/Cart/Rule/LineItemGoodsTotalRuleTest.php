@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[Group('rules')]
 class LineItemGoodsTotalRuleTest extends TestCase
 {

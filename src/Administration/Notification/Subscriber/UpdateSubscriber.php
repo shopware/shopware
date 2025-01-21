@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class UpdateSubscriber implements EventSubscriberInterface
 {
     /**

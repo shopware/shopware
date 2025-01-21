@@ -27,7 +27,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigFacadeTest extends TestCase
 {
     use AppSystemTestBehaviour;

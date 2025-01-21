@@ -56,6 +56,8 @@
 
     {% set defaultEnableAugmentedReality = config('core.media.defaultEnableAugmentedReality') %}
 
+    {% set blockId = block.id %}
+
     <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
         {% block element_image_gallery_alignment %}
             {% if config.verticalAlign.value %}
@@ -134,6 +136,13 @@
             {% endif %}
 
             {% block element_image_gallery_inner %}
+                {% block element_image_gallery_inner_skip_gallery %}
+                    {% sw_include '@Storefront/storefront/component/skip-target.html.twig' with {
+                        targetId: blockId,
+                        snippet: 'component.cms.imageGallery.skipImageGallery',
+                    } %}
+                {% endblock %}
+
                 <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% else %} is-loading{% endif %} js-gallery-zoom-modal-container"
                     {% if zoom %}
                         data-magnifier="true"
@@ -157,6 +166,21 @@
                                 {% block element_image_gallery_inner_wrapper %}
                                     {% if imageCount > 1 %}
                                         {% block element_image_gallery_inner_multiple_slides %}
+                                            {% block element_image_gallery_inner_previous_control %}
+                                                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                    {% if navigationArrows != "none" %}
+                                                        <button class="base-slider-controls-prev gallery-slider-controls-prev{% if navigationArrows == "outside" %} is-nav-prev-outside{% elseif navigationArrows == "inside" %} is-nav-prev-inside{% endif %}"
+                                                            aria-label="{{ 'general.previous'|trans|striptags }}"
+                                                            data-gallery-slider-control-prev="{% if navigationArrows %}true{% else %}false{% endif %}"
+                                                        >
+                                                            {% block element_image_gallery_inner_previous_control_icon %}
+                                                                {% sw_icon 'arrow-head-left' %}
+                                                            {% endblock %}
+                                                        </button>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endblock %}
+
                                             {% block element_image_gallery_inner_container %}
                                                 <div class="gallery-slider-container"
                                                      data-gallery-slider-container="true">
@@ -273,30 +297,47 @@
                                                 </div>
                                             {% endblock %}
 
-                                            {% block element_image_gallery_inner_controls %}
-                                                {% if navigationArrows != "none" %}
-                                                    <div class="gallery-slider-controls"
-                                                         data-gallery-slider-controls="true">
-                                                        {% block element_image_gallery_inner_control_items %}
-                                                            {% block element_image_gallery_inner_control_prev %}
-                                                                <button class="base-slider-controls-prev gallery-slider-controls-prev{% if navigationArrows == "outside" %} is-nav-prev-outside{% elseif navigationArrows == "inside" %} is-nav-prev-inside{% endif %}"
-                                                                        aria-label="{{ 'general.previous'|trans|striptags }}">
-                                                                    {% block element_image_gallery_inner_control_prev_icon %}
-                                                                        {% sw_icon 'arrow-head-left' %}
-                                                                    {% endblock %}
-                                                                </button>
+                                            {% block element_image_gallery_inner_next_control %}
+                                                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                    {% if navigationArrows != "none" %}
+                                                        <button class="base-slider-controls-next gallery-slider-controls-next{% if navigationArrows == "outside" %} is-nav-next-outside{% elseif navigationArrows == "inside" %} is-nav-next-inside{% endif %}"
+                                                            aria-label="{{ 'general.next'|trans|striptags }}"
+                                                            data-gallery-slider-control-next="{% if navigationArrows %}true{% else %}false{% endif %}"
+                                                        >
+                                                            {% block element_image_gallery_inner_next_control_icon %}
+                                                                {% sw_icon 'arrow-head-right' %}
                                                             {% endblock %}
+                                                        </button>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endblock %}
 
-                                                            {% block element_image_gallery_inner_control_next %}
-                                                                <button class="base-slider-controls-next gallery-slider-controls-next{% if navigationArrows == "outside" %} is-nav-next-outside{% elseif navigationArrows == "inside" %} is-nav-next-inside{% endif %}"
-                                                                        aria-label="{{ 'general.next'|trans|striptags }}">
-                                                                    {% block element_image_gallery_inner_control_next_icon %}
-                                                                        {% sw_icon 'arrow-head-right' %}
-                                                                    {% endblock %}
-                                                                </button>
+                                            {% block element_image_gallery_inner_controls %}
+                                                {% if not feature('ACCESSIBILITY_TWEAKS') %}
+                                                    {% if navigationArrows != "none" %}
+                                                        <div class="gallery-slider-controls"
+                                                             data-gallery-slider-controls="true">
+                                                            {% block element_image_gallery_inner_control_items %}
+                                                                {% block element_image_gallery_inner_control_prev %}
+                                                                    <button class="base-slider-controls-prev gallery-slider-controls-prev{% if navigationArrows == "outside" %} is-nav-prev-outside{% elseif navigationArrows == "inside" %} is-nav-prev-inside{% endif %}"
+                                                                            aria-label="{{ 'general.previous'|trans|striptags }}">
+                                                                        {% block element_image_gallery_inner_control_prev_icon %}
+                                                                            {% sw_icon 'arrow-head-left' %}
+                                                                        {% endblock %}
+                                                                    </button>
+                                                                {% endblock %}
+
+                                                                {% block element_image_gallery_inner_control_next %}
+                                                                    <button class="base-slider-controls-next gallery-slider-controls-next{% if navigationArrows == "outside" %} is-nav-next-outside{% elseif navigationArrows == "inside" %} is-nav-next-inside{% endif %}"
+                                                                            aria-label="{{ 'general.next'|trans|striptags }}">
+                                                                        {% block element_image_gallery_inner_control_next_icon %}
+                                                                            {% sw_icon 'arrow-head-right' %}
+                                                                        {% endblock %}
+                                                                    </button>
+                                                                {% endblock %}
                                                             {% endblock %}
-                                                        {% endblock %}
-                                                    </div>
+                                                        </div>
+                                                    {% endif %}
                                                 {% endif %}
                                             {% endblock %}
                                         {% endblock %}
@@ -433,7 +474,7 @@
 
                     {% block element_image_gallery_inner_thumbnails_col %}
                         {% if imageCount > 1 %}
-                            <div class="gallery-slider-thumbnails-col{% if galleryPosition == "left" %} col-0 col-md-auto order-2 order-md-1 is-left{% elseif galleryPosition == "underneath" %} col-12 order-2 is-underneath{% endif %}">
+                            <div class="gallery-slider-thumbnails-col{% if galleryPosition == "left" %} col-0 col-md-auto order-2 order-md-1 is-left{% elseif galleryPosition == "underneath" %} col-12 order-2 is-underneath{% endif %}" aria-hidden="true">
                                 <div class="gallery-slider-thumbnails-container{% if galleryPosition == "underneath" %} is-underneath{% endif %}">
                                     {% block element_image_gallery_inner_thumbnails %}
                                         <div class="gallery-slider-thumbnails{% if galleryPosition == "underneath" %} is-underneath{% endif %}"
@@ -596,6 +637,21 @@
                                                                     </div>
                                                                 {% endblock %}
 
+                                                                {% block element_image_gallery_inner_zoom_modal_slider_preivous_control %}
+                                                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                                        {% if imageCount > 1 %}
+                                                                            <button class="base-slider-controls-prev gallery-slider-controls-prev"
+                                                                                    aria-label="{{ 'general.previous'|trans|striptags }}"
+                                                                                    data-gallery-slider-control-prev="true"
+                                                                            >
+                                                                                {% block element_image_gallery_inner_zoom_modal_slider_previous_control_icon %}
+                                                                                    {% sw_icon 'arrow-head-left' %}
+                                                                                {% endblock %}
+                                                                            </button>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                {% endblock %}
+
                                                                 {% block element_image_gallery_inner_zoom_modal_slider %}
                                                                     <div class="gallery-slider"
                                                                          data-gallery-slider-container=true>
@@ -703,28 +759,45 @@
                                                                     </div>
                                                                 {% endblock %}
 
-                                                                {% block element_image_gallery_inner_zoom_modal_slider_controls %}
-                                                                    {% if imageCount > 1 %}
-                                                                        <div class="gallery-slider-controls"
-                                                                             data-gallery-slider-controls="true">
-                                                                            {% block element_image_gallery_inner_zoom_modal_slider_control_prev %}
-                                                                                <button class="base-slider-controls-prev gallery-slider-controls-prev"
-                                                                                        aria-label="{{ 'general.previous'|trans|striptags }}">
-                                                                                    {% block element_image_gallery_inner_zoom_modal_slider_control_prev_icon %}
-                                                                                        {% sw_icon 'arrow-head-left' %}
-                                                                                    {% endblock %}
-                                                                                </button>
-                                                                            {% endblock %}
+                                                                {% block element_image_gallery_inner_zoom_modal_slider_next_control %}
+                                                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                                        {% if imageCount > 1 %}
+                                                                            <button class="base-slider-controls-next gallery-slider-controls-next"
+                                                                                aria-label="{{ 'general.next'|trans|striptags }}"
+                                                                                data-gallery-slider-control-next="true"
+                                                                            >
+                                                                                {% block element_image_gallery_inner_zoom_modal_slider_next_control_icon %}
+                                                                                    {% sw_icon 'arrow-head-right' %}
+                                                                                {% endblock %}
+                                                                            </button>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                {% endblock %}
 
-                                                                            {% block element_image_gallery_inner_zoom_modal_slider_control_next %}
-                                                                                <button class="base-slider-controls-next gallery-slider-controls-next"
-                                                                                        aria-label="{{ 'general.next'|trans|striptags }}">
-                                                                                    {% block element_image_gallery_inner_zoom_modal_slider_control_next_icon %}
-                                                                                        {% sw_icon 'arrow-head-right' %}
-                                                                                    {% endblock %}
-                                                                                </button>
-                                                                            {% endblock %}
-                                                                        </div>
+                                                                {% block element_image_gallery_inner_zoom_modal_slider_controls %}
+                                                                    {% if not feature('ACCESSIBILITY_TWEAKS') %}
+                                                                        {% if imageCount > 1 %}
+                                                                            <div class="gallery-slider-controls"
+                                                                                 data-gallery-slider-controls="true">
+                                                                                {% block element_image_gallery_inner_zoom_modal_slider_control_prev %}
+                                                                                    <button class="base-slider-controls-prev gallery-slider-controls-prev"
+                                                                                            aria-label="{{ 'general.previous'|trans|striptags }}">
+                                                                                        {% block element_image_gallery_inner_zoom_modal_slider_control_prev_icon %}
+                                                                                            {% sw_icon 'arrow-head-left' %}
+                                                                                        {% endblock %}
+                                                                                    </button>
+                                                                                {% endblock %}
+
+                                                                                {% block element_image_gallery_inner_zoom_modal_slider_control_next %}
+                                                                                    <button class="base-slider-controls-next gallery-slider-controls-next"
+                                                                                            aria-label="{{ 'general.next'|trans|striptags }}">
+                                                                                        {% block element_image_gallery_inner_zoom_modal_slider_control_next_icon %}
+                                                                                            {% sw_icon 'arrow-head-right' %}
+                                                                                        {% endblock %}
+                                                                                    </button>
+                                                                                {% endblock %}
+                                                                            </div>
+                                                                        {% endif %}
                                                                     {% endif %}
                                                                 {% endblock %}
                                                             </div>
@@ -824,4 +897,8 @@
             {% endif %}
         {% endblock %}
     </div>
+
+    {% block element_image_gallery_target_after_gallery %}
+        <div id="content-after-target-{{ blockId }}"></div>
+    {% endblock %}
 {% endblock %}

@@ -5,12 +5,15 @@ import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helpe
 import Iterator from 'src/helper/iterator.helper';
 import BaseSliderPlugin from 'src/plugin/slider/base-slider.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
+import Feature from 'src/helper/feature.helper';
 
 export default class GallerySliderPlugin extends BaseSliderPlugin {
     static options = deepmerge(BaseSliderPlugin.options, {
         containerSelector: '[data-gallery-slider-container=true]',
         thumbnailsSelector: '[data-gallery-slider-thumbnails=true]',
         controlsSelector: '[data-gallery-slider-controls=true]',
+        controlPrevSelector: '[data-gallery-slider-control-prev=true]',
+        controlNextSelector: '[data-gallery-slider-control-next=true]',
         thumbnailControlsSelector: '[data-thumbnail-slider-controls=true]',
         baseSliderWrapperClass: 'base-slider',
         dotActiveClass: 'tns-nav-active',
@@ -190,7 +193,12 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
 
         const container = this.el.querySelector(this.options.containerSelector);
         const navContainer = this.el.querySelector(this.options.thumbnailsSelector);
-        const controlsContainer = this.el.querySelector(this.options.controlsSelector);
+        const controls = Feature.isActive('ACCESSIBILITY_TWEAKS') ? {
+            prevButton: DomAccess.querySelector(this.el, this.options.controlPrevSelector, false),
+            nextButton: DomAccess.querySelector(this.el, this.options.controlNextSelector, false),
+        } : {
+            controlsContainer: this.el.querySelector(this.options.controlsSelector),
+        };
 
         const hasThumbnails = (!!navContainer);
 
@@ -214,8 +222,8 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
                 container.style.display = '';
 
                 this._slider = tns({
+                    ...controls,
                     container,
-                    controlsContainer,
                     navContainer,
                     onInit,
                     ...this._sliderSettings,

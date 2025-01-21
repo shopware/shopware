@@ -18,7 +18,7 @@ use Shopware\Core\Migration\V6_6\Migration1737105721MigrateOrderStateChangeDocum
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('after-sales')]
 #[CoversClass(Migration1737105721MigrateOrderStateChangeDocumentToA11Y::class)]
 class Migration1737105721MigrateOrderStateChangeDocumentToA11YTest extends TestCase
 {

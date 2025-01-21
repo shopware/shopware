@@ -33,10 +33,6 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_INVALID_RENDERER_TYPE = 'DOCUMENT__INVALID_RENDERER_TYPE';
 
-    public const DOCUMENT_INVALID_RENDERER_FILE_EXTENSION = 'DOCUMENT__INVALID_RENDERER_FILE_EXTENSION';
-
-    public const DOCUMENT_MEDIA_FILE_NOT_FOUND = 'DOCUMENT__MEDIA_FILE_NOT_FOUND';
-
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
 
     public const FILE_EXTENSION_NOT_SUPPORTED = 'DOCUMENT__FILE_EXTENSION_NOT_SUPPORTED';
@@ -165,29 +161,6 @@ class DocumentException extends HttpException
         }
 
         return new InvalidDocumentRendererException($type);
-    }
-
-    public static function invalidDocumentRendererFileExtension(string $fileExtension): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::DOCUMENT_INVALID_RENDERER_FILE_EXTENSION,
-            'Invalid file extension: "{{ fileExtension }}"',
-            ['fileExtension' => $fileExtension]
-        );
-    }
-
-    public static function documentMediaFileNotFound(string $documentId, string $fileExtension): self
-    {
-        return new self(
-            Response::HTTP_NOT_FOUND,
-            self::DOCUMENT_MEDIA_FILE_NOT_FOUND,
-            'The media file for the document "{{ documentId }}" with file extension "{{ fileExtension }}" is invalid or could not be found.',
-            [
-                'documentId' => $documentId,
-                'fileExtension' => $fileExtension,
-            ]
-        );
     }
 
     public static function invalidRequestParameter(string $name): self

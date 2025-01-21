@@ -13,7 +13,7 @@ use Shopware\Core\Migration\Traits\Translations;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('after-sales')]
 class Migration1736824370MigrationMailTemplateForDocument extends MigrationStep
 {
     use ImportTranslationsTrait;

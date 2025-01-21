@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('after-sales')]
 class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable extends MigrationStep
 {
     public function getCreationTimestamp(): int

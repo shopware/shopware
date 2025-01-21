@@ -70,7 +70,6 @@
             :is-loading="isLoading"
             :allow-column-edit="false"
             :allow-inline-edit="false"
-            :context-button-menu-width="240"
             identifier="sw-order-document-grid"
         >
 
@@ -138,21 +137,7 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_card_grid_action_open_label %}
-                    {{ $tc('sw-order.documentCard.labelOpenDocument', 0, { fileType: 'PDF' }) }}
-                    {% endblock %}
-                </sw-context-menu-item>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_document_card_grid_action_open_html %}
-                <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer') || !item?.documentA11yMediaFile"
-                    class="sw-order-document-card__context-button-open-html"
-                    @click="onOpenDocument(item.id, item.deepLinkCode, 'html')"
-                >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_document_card_grid_action_open_label %}
-                    {{ $tc('sw-order.documentCard.labelOpenDocument', 0, { fileType: 'HTML' }) }}
+                    {{ $tc('sw-order.documentCard.labelOpenDocument') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
@@ -166,21 +151,7 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_card_grid_action_download_label %}
-                    {{ $tc('sw-order.documentCard.labelDownloadPdf', 0, { fileType: 'PDF' }) }}
-                    {% endblock %}
-                </sw-context-menu-item>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_document_card_grid_action_download_html %}
-                <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer') || !item?.documentA11yMediaFile"
-                    class="sw-order-document-card__context-button-download-html"
-                    @click="onDownload(item.id, item.deepLinkCode, 'html')"
-                >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_document_card_grid_action_download_html_label %}
-                    {{ $tc('sw-order.documentCard.labelDownloadPdf', 0, { fileType: 'HTML' }) }}
+                    {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}

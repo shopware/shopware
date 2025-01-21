@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('after-sales')]
 class Migration1736831335AddGenerateDocumentTypesForDocumentConfig extends MigrationStep
 {
     public function getCreationTimestamp(): int

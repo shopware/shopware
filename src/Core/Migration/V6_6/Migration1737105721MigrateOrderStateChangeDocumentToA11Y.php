@@ -13,7 +13,7 @@ use Shopware\Core\Migration\Traits\Translations;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('after-sales')]
 class Migration1737105721MigrateOrderStateChangeDocumentToA11Y extends MigrationStep
 {
     use ImportTranslationsTrait;

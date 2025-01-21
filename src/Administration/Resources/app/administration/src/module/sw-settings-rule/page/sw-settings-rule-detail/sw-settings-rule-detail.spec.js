@@ -3,7 +3,7 @@ import { kebabCase } from 'lodash';
 import { createRouter, createWebHistory } from 'vue-router';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const { EntityCollection, Criteria } = Shopware.Data;

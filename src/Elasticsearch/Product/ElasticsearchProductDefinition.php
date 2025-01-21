@@ -21,7 +21,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
     /**

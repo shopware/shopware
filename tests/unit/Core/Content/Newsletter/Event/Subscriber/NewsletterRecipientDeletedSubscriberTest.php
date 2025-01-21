@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterRecipientDeletedSubscriber::class)]
 class NewsletterRecipientDeletedSubscriberTest extends TestCase
 {

@@ -20,7 +20,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 final class InvoiceRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'invoice';

@@ -41,7 +41,7 @@ class PromotionLineItemFactoryTest extends TestCase
             'referencedId' => 'test-referenced-id',
         ];
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $lineItem = $factory->create($data, $context);
 
@@ -64,7 +64,7 @@ class PromotionLineItemFactoryTest extends TestCase
 
         $factory = new PromotionLineItemFactory();
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $lineItem = new LineItem('hatoken', 'promotion');
 

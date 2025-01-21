@@ -10,12 +10,14 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[CoversClass(MailBeforeValidateEvent::class)]
+#[Package('after-sales')]
 class MailBeforeValidateEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

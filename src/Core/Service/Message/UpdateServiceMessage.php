@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class UpdateServiceMessage implements AsyncMessageInterface
 {
     public function __construct(public string $name)

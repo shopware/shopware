@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[Group('slow')]
 class RedisContainerWiringTest extends TestCase
 {

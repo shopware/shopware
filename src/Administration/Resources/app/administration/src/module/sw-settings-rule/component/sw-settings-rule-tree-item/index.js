@@ -2,7 +2,7 @@ import template from './sw-settings-rule-tree-item.html.twig';
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default {
     template,

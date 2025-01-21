@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal only for use by the app-system
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
+#[Package('framework')]
 class AppUrlChangeController extends AbstractController
 {
     public function __construct(

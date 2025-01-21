@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @implements \ArrayAccess<array-key, mixed>
  * @implements \IteratorAggregate<array-key, mixed>
  */
-#[Package('core')]
+#[Package('framework')]
 class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**

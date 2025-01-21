@@ -12,7 +12,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class ConfigValidator extends AbstractManifestValidator
 {
     private const ALLOWED_APP_CONFIGURATION_COMPONENTS = [

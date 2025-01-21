@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * Used to invalidate the cached media urls from the reverse proxy
  * If you are using fastly as cdn, you should configure shopware.cdn.fastly.enabled to true
  */
-#[Package('core')]
+#[Package('discovery')]
 interface MediaReverseProxy
 {
     public function enabled(): bool;

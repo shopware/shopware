@@ -35,7 +35,7 @@ class ProductExportRendererTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = Generator::createSalesChannelContext();
+        $this->context = Generator::generateSalesChannelContext();
     }
 
     #[DataProvider('renderHeaderProvider')]

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Flow;
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowEvents
 {
     final public const FLOW_WRITTEN_EVENT = 'flow.written';

@@ -10,7 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * This event is also called on cached responses.
  */
-#[Package('core')]
+#[Package('framework')]
 class BeforeSendResponseEvent extends Event
 {
     /**

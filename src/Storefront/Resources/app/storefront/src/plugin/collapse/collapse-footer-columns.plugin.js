@@ -4,7 +4,7 @@ import ViewportDetection from 'src/helper/viewport-detection.helper';
 import Iterator from 'src/helper/iterator.helper';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class CollapseFooterColumnsPlugin extends Plugin {
 

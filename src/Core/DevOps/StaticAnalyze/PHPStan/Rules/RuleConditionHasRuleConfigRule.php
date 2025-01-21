@@ -45,7 +45,7 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RuleConditionHasRuleConfigRule implements Rule
 {
     /**

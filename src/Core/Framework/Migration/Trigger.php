@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Migration;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class Trigger
 {
     final public const TIME_BEFORE = 'BEFORE';

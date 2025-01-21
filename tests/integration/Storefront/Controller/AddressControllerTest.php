@@ -206,7 +206,7 @@ class AddressControllerTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
 
         static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
-        static::assertSame($customerId, $context->getCustomer()->getId());
+        static::assertSame($customerId, $context->getCustomerId());
 
         $controller = static::getContainer()->get(AddressController::class);
 

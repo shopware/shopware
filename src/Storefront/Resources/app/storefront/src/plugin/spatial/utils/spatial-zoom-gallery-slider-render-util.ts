@@ -6,7 +6,7 @@ import type SpatialZoomGallerySliderViewerPlugin from '../spatial-zoom-gallery-s
 /**
  * @package innovation
  *
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  *
  * This util is responsible for starting and stopping the rendering of the viewer when the slide is active or not.
  * It also listens to the rebuild event of the slider and reinitializes the viewer when needed.

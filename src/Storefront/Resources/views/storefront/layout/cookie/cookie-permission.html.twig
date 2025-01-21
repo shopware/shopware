@@ -1,3 +1,5 @@
+{# @sw-package framework #}
+
 {% set useDefaultCookieConsent = config('core.basicInformation.useDefaultCookieConsent') == true %}
 {% if useDefaultCookieConsent %}
     {% block layout_cookie_permission_inner %}

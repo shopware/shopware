@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1623305620ChangeSalutationIdNullable extends MigrationStep
 {
     final public const TABLES = [

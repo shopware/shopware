@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Script\Facade;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class WrittenEventScriptFacade
 {
     public function __construct(private readonly EntityWrittenContainerEvent $containerEvent)

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1591259559AddMissingCurrency extends MigrationStep
 {
     private ?string $deLanguage = null;

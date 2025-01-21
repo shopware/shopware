@@ -20,7 +20,7 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
  *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
-#[Package('core')]
+#[Package('framework')]
 class ShopConfigurationService
 {
     public function __construct(

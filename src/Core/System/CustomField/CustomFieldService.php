@@ -23,7 +23,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomFieldService implements EventSubscriberInterface, ResetInterface
 {
     // Custom field names should be valid twig variable names (https://github.com/twigphp/Twig/blob/21df1ad7824ced2abcbd33863f04c6636674481f/src/Lexer.php#L46)

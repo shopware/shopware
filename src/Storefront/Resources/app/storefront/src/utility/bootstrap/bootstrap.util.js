@@ -2,7 +2,7 @@ const TOOLTIP_SELECTOR = '[data-bs-toggle="tooltip"]';
 const POPOVER_SELECTOR = '[data-bs-toggle="popover"]';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class BootstrapUtil {
 

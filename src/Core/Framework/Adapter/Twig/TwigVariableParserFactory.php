@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 
-#[Package('core')]
+#[Package('framework')]
 class TwigVariableParserFactory
 {
     public function getParser(Environment $twig): TwigVariableParser

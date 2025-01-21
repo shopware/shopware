@@ -10,7 +10,7 @@ use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-#[Package('storefront')]
+#[Package('framework')]
 final class ThumbnailTokenParser extends AbstractTokenParser
 {
     /**

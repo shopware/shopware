@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class MetricConfig
 {
     /**

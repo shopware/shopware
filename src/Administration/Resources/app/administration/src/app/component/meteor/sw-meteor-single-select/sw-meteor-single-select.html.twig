@@ -1,4 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_meteor_single_select %}
 <div class="sw-meteor-single-select">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_meteor_single_select_preview %}
     <div
         class="sw-meteor-single-select__preview"
         role="button"
@@ -16,7 +20,10 @@
 
         <sw-icon name="regular-chevron-down-xxs" />
     </div>
+    {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_meteor_single_select_result_list %}
     <div class="sw-meteor-single-select__result-list">
         <sw-select-result-list
             v-if="isExpanded"
@@ -80,4 +87,6 @@
             </template>
         </sw-select-result-list>
     </div>
+    {% endblock %}
 </div>
+{% endblock %}

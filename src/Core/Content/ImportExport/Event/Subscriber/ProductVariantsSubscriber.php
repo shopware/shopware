@@ -26,7 +26,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @phpstan-type CombinationPayload list<array{id: string, parentId: string, productNumber: string, stock: int, options: list<array{id: string, name: string, group: array{id: string, name: string}}>}>
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterface
 {
     /**

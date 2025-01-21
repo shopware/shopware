@@ -421,15 +421,18 @@ class EntityHydratorTest extends TestCase
     }
 
     /**
-     * @param string[] $additionalLanguages
+     * @param list<non-falsy-string> $additionalLanguages
      */
     private function createContext(bool $inheritance = true, array $additionalLanguages = []): Context
     {
+        $languageIdChain = array_values(array_filter([Uuid::randomHex(), ...$additionalLanguages, Defaults::LANGUAGE_SYSTEM]));
+        static::assertNotEmpty($languageIdChain);
+
         return new Context(
             new SystemSource(),
             [],
             Defaults::CURRENCY,
-            [Uuid::randomHex(), ...$additionalLanguages, Defaults::LANGUAGE_SYSTEM],
+            $languageIdChain,
             Defaults::LIVE_VERSION,
             1.0,
             $inheritance

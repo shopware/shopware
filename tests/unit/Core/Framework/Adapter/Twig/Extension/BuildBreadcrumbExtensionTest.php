@@ -34,7 +34,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
 
     public function testGetFullBreadcrumbNoSeoBreadCrumb(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $breadCrumb = $this->getBuildBreadcrumbExtension()
             ->getFullBreadcrumb(['context' => $salesChannelContext], new CategoryEntity(), $salesChannelContext->getContext());
@@ -44,7 +44,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
 
     public function testGetFullBreadcrumbWithEmptySeoBreadCrumb(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
         $categoryBreadcrumbBuilder->method('build')->willReturn([]);
@@ -57,7 +57,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
 
     public function testGetFullBreadcrumbWithSeoBreadCrumb(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $categoryId = Uuid::randomHex();
         $notConsideredCategoryId = Uuid::randomHex();
 
@@ -74,7 +74,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
 
     public function testGetFullBreadcrumbByIdWithNonExistingCategoryId(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $breadCrumb = $this->getBuildBreadcrumbExtension()
             ->getFullBreadcrumbById(['context' => $salesChannelContext], Uuid::randomHex(), $salesChannelContext->getContext());
@@ -84,7 +84,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
 
     public function testGetFullBreadcrumbById(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $categoryId = Uuid::randomHex();
         $notConsideredCategoryId = Uuid::randomHex();
 

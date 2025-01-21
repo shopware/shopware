@@ -23,7 +23,7 @@ use Symfony\Component\VarDumper\Cloner\Data;
  * @phpstan-type SanitizedQueryInfo array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace}
  * @phpstan-type SanitizedQueryInfoGroup array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace, count: int, index: int, executionPercent?: float}
  */
-#[Package('core')]
+#[Package('framework')]
 class ConnectionProfiler extends DataCollector implements LateDataCollectorInterface
 {
     private ?BacktraceDebugDataHolder $dataHolder = null;

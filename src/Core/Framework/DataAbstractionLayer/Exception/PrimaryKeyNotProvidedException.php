@@ -12,7 +12,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @deprecated tag:v6.7.0 - Will be removed. Use DataAbstractionLayerException::primaryKeyNotProvided instead
  */
-#[Package('core')]
+#[Package('framework')]
 class PrimaryKeyNotProvidedException extends ShopwareHttpException
 {
     public function __construct(

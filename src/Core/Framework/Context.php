@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
-#[Package('core')]
+#[Package('framework')]
 class Context extends Struct
 {
     use StateAwareTrait;
@@ -23,11 +23,6 @@ class Context extends Struct
     final public const CRUD_API_SCOPE = 'crud';
 
     final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
-
-    /**
-     * @var non-empty-list<string>
-     */
-    protected array $languageIdChain;
 
     protected string $scope = self::USER_SCOPE;
 
@@ -40,14 +35,14 @@ class Context extends Struct
     protected $extensions = [];
 
     /**
-     * @param array<string> $languageIdChain
+     * @param non-empty-list<string> $languageIdChain
      * @param array<string> $ruleIds
      */
     public function __construct(
         protected ContextSource $source,
         protected array $ruleIds = [],
         protected string $currencyId = Defaults::CURRENCY,
-        array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
+        protected array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         protected string $versionId = Defaults::LIVE_VERSION,
         protected float $currencyFactor = 1.0,
         protected bool $considerInheritance = false,
@@ -61,6 +56,7 @@ class Context extends Struct
             $this->scope = self::SYSTEM_SCOPE;
         }
 
+        // Should be already a valid language chain, but we will ensure it anyway
         $languageIdChain = array_values(array_filter($languageIdChain));
         if (empty($languageIdChain)) {
             throw FrameworkException::invalidArgumentException('Argument "languageIdChain" must not be empty');

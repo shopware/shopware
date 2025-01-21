@@ -27,7 +27,7 @@ class ProductGatewayTest extends TestCase
             Uuid::randomHex(),
         ];
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $repository = $this->createMock(SalesChannelRepository::class);
         $emptySearchResult = new EntitySearchResult(

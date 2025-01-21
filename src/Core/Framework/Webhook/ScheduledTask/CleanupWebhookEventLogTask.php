@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CleanupWebhookEventLogTask extends ScheduledTask
 {
     public static function getTaskName(): string

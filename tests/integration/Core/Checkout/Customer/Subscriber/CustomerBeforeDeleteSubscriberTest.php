@@ -55,7 +55,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
         foreach ($caughtEvents as $event) {
             static::assertInstanceOf(CustomerDeletedEvent::class, $event);
-            static::assertContains($event->getCustomer()->getId(), [$customerId1, $customerId2]);
+            static::assertContains($event->getCustomerId(), [$customerId1, $customerId2]);
         }
     }
 

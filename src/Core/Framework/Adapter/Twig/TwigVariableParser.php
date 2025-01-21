@@ -12,7 +12,7 @@ use Twig\Node\Expression\NameExpression;
 use Twig\Node\ForNode;
 use Twig\Node\Node;
 
-#[Package('core')]
+#[Package('framework')]
 class TwigVariableParser
 {
     /**

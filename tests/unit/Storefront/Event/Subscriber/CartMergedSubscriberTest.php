@@ -22,7 +22,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 #[CoversClass(CartMergedSubscriber::class)]
 class CartMergedSubscriberTest extends TestCase
 {
@@ -115,7 +115,7 @@ class CartMergedSubscriberTest extends TestCase
     private function createCartMergedEvent(): CartMergedEvent
     {
         $currentContextToken = 'currentToken';
-        $currentContext = Generator::createSalesChannelContext(token: $currentContextToken);
+        $currentContext = Generator::generateSalesChannelContext(token: $currentContextToken);
 
         // Create Guest cart
         $previousCart = new Cart($currentContextToken);

@@ -30,7 +30,7 @@ class StatementHelper
     }
 
     /**
-     * @param array<string|int, mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     public static function bindParameters(Statement $stmt, array $parameters): void
     {

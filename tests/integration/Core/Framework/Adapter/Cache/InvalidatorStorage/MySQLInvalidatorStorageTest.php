@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorSto
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -165,6 +166,10 @@ class MySQLInvalidatorStorageTest extends TestCase
             ->with('Cache tags could not be fetched or removed from storage. Possible deadlock encountered. If the error persists, try the redis adapter. Error: Deadlock');
 
         $connection = $this->createMock(Connection::class);
+
+        $connection
+            ->method('getTransactionIsolation')
+            ->willReturn(TransactionIsolationLevel::READ_COMMITTED);
 
         $connection->expects(static::once())
             ->method('fetchAllAssociative')

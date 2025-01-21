@@ -81,7 +81,7 @@ class VersionManagerTest extends TestCase
         $this->connection->beginTransaction();
 
         // reboot kernel to create a new container since we manipulated the original one
-        KernelLifecycleManager::bootKernel();
+        KernelLifecycleManager::bootKernel(false);
     }
 
     public function testWhenAddAnExtensionWithFKIdThenFKIdShouldBeCloned(): void

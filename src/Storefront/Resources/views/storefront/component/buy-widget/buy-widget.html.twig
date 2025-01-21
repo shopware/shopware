@@ -110,22 +110,18 @@
 
                             <p class="product-detail-tax">
                                 {% block buy_widget_tax_link %}
-                                    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
-                                        <a
-                                            href="{{ path('frontend.cms.page.full', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
-                                            title="{{ taxText }}"
-                                            target="_blank">
-                                            {{ taxText }}
-                                        </a>
-                                    {%- else -%}
-                                        <a
-                                            href="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
-                                            title="{{ taxText }}"
+                                    {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
+
+                                    <a
+                                        href="{{ cmsPath }}"
+                                        title="{{ taxText }}"
+                                        {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
                                             data-ajax-modal="true"
-                                            data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
-                                            {{ taxText }}
-                                        </a>
-                                    {%- endif -%}
+                                            data-url="{{ cmsPath }}"
+                                        {%- endif -%}
+                                    >
+                                        {{ taxText }}
+                                    </a>
                                 {% endblock %}
                             </p>
                         </div>

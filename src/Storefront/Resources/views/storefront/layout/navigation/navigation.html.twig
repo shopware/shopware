@@ -31,7 +31,7 @@
                         {% endblock %}
 
                         {% block layout_main_navigation_menu_items %}
-                            {% set activePath = shopware.navigation.path %}
+                            {% set activePath = '|' ~ shopware.navigation.pathIdList|join('|') ~ '|' %}
 
                             {% for treeItem in header.navigation.tree %}
                                 {% set category = treeItem.category %}

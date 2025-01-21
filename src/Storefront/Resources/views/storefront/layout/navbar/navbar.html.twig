@@ -17,10 +17,8 @@
 
                         {% block layout_navbar_menu_home %}
                             {% if context.salesChannel.translated.homeEnabled %}
-                                {% set homeIsActiveCategory = context.salesChannel.navigationCategoryId is same as shopware.navigation.id %}
-
                                 <li class="nav-item nav-item-{{ context.salesChannel.navigationCategoryId }}">
-                                    <a class="nav-link main-navigation-link home-link p-2{% if homeIsActiveCategory %} root nav-item-{{ context.salesChannel.navigationCategoryId }}-link{% endif %}"
+                                    <a class="nav-link main-navigation-link home-link root nav-item-{{ context.salesChannel.navigationCategoryId }}-link"
                                        href="{{ path('frontend.home.page') }}"
                                        itemprop="url"
                                        title="{{ homeLabel|striptags }}">
@@ -33,7 +31,7 @@
                         {% block layout_navbar_menu_items %}
                             {# @deprecated tag:v6.7.0 - variable `activePath` will be removed #}
                             {% if not feature('v6.7.0.0') %}
-                                {% set activePath = shopware.navigation.path %}
+                                {% set activePath = '|' ~ shopware.navigation.pathIdList|join('|') ~ '|' %}
                             {% endif %}
 
                             {% for treeItem in header.navigation.tree %}

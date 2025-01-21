@@ -55,11 +55,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
 
         $activeNavigationId = (string) $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
-        $navigationPath = $this->getNavigationPath($activeNavigationId);
-        $navigationPathIdList = array_values(array_filter(explode('|', $navigationPath)));
+        $navigationPathIdList = $this->getNavigationPath($activeNavigationId, $context);
         $navigationInfo = new NavigationInfo(
             $activeNavigationId,
-            $navigationPath,
             $navigationPathIdList,
         );
 
@@ -119,12 +117,22 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         return $min ?: AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
     }
 
-    private function getNavigationPath(string $activeNavigationId): string
+    /**
+     * @return list<string>
+     */
+    private function getNavigationPath(string $activeNavigationId, SalesChannelContext $context): array
     {
-        return $this->connection->fetchOne(
+        $path = $this->connection->fetchOne(
             'SELECT path FROM category WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($activeNavigationId)]
         ) ?: '';
+
+        $navigationPathIdList = array_filter(explode('|', $path));
+        if (Feature::isActive('cache_rework')) {
+            $navigationPathIdList = array_diff($navigationPathIdList, [$context->getSalesChannel()->getNavigationCategoryId()]);
+        }
+
+        return array_values($navigationPathIdList);
     }
 
     private function getLanguageInfo(Context $context): LanguageInfo

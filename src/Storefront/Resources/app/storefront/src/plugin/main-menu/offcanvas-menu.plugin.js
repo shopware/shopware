@@ -98,28 +98,25 @@ export default class OffcanvasMenuPlugin extends Plugin {
             const initialContentElement = DomAccess.querySelector(document, this.options.initialContentSelector);
             this._content = initialContentElement.innerHTML;
 
-            if (initialContentElement.classList.contains('is-root')) {
-                this._cache[this.options.navigationUrl] = this._content;
+            if (window.Feature.isActive('CACHE_REWORK')) {
+                const url = `${this.options.navigationUrl}?navigationId=${this.options.activeNavigationId}`;
 
-                return this._openMenu(event);
+                return this._fetchMenu(url, (htmlResponse) => {
+                    const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);
+                    navigationContainer.innerHTML = htmlResponse;
+
+                    this._content = initialContentElement.innerHTML;
+
+                    return this._openMenu(event);
+                });
             } else {
-                if (window.Feature.isActive('CACHE_REWORK')) {
-                    const url = `${this.options.navigationUrl}?navigationId=${this.options.activeNavigationId}`;
-
-                    return this._fetchMenu(url, (htmlResponse) => {
-                        const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);
-                        navigationContainer.innerHTML = htmlResponse;
-
-                        this._content = initialContentElement.innerHTML;
-
-                        return this._openMenu(event);
-                    });
+                if (initialContentElement.classList.contains('is-root')) {
+                    this._cache[this.options.navigationUrl] = this._content;
                 } else {
                     // fetch home menu to warm the cache
                     this._fetchMenu(this.options.navigationUrl);
-
-                    return this._openMenu(event);
                 }
+                return this._openMenu(event);
             }
         }
 

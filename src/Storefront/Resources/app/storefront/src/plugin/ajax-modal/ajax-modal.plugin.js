@@ -1,3 +1,4 @@
+// @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead.
 import HttpClient from 'src/service/http-client.service';
 import Plugin from 'src/plugin-system/plugin.class';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
@@ -33,6 +34,7 @@ export default class AjaxModalPlugin extends Plugin {
         centerLoadingIndicatorClass: 'text-center',
     };
 
+    // @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead.
     httpClient = new HttpClient();
 
     init() {
@@ -105,9 +107,13 @@ export default class AjaxModalPlugin extends Plugin {
 
         modalBodyEl.classList.add(this.options.centerLoadingIndicatorClass);
 
-        this.httpClient.get(url, (response) => {
-            this._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl);
-        });
+        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }})
+            .then(response => response.text())
+            .then(response => this._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl));
+
+        // this.httpClient.get(url, (response) => {
+        //     this._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl);
+        // });
     }
 
     /**

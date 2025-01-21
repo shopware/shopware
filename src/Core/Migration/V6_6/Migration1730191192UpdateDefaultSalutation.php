@@ -12,7 +12,7 @@ use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1730191192UpdateDefaultSalutation extends MigrationStep
 {
     use ImportTranslationsTrait;

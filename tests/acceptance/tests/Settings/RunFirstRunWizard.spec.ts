@@ -1,17 +1,17 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { isSaaSInstance } from '@fixtures/AcceptanceTest';
 
+/**
+ * @sw-package fundamentals@after-sales
+ */
 test('Merchant is able to be guided through the First Run Wizard.', { tag: '@FirstRunWizard' }, async ({
     FRWSalesChannelSelectionPossibility,
     ShopAdmin,
     DefaultSalesChannel,
     AdminFirstRunWizard,
     AdminApiContext,
-    InstanceMeta,
 }) => {
     test.skip(await isSaaSInstance(AdminApiContext),'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
-
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40160');
 
     await ShopAdmin.goesTo(AdminFirstRunWizard.url());
 
@@ -41,7 +41,15 @@ test('Merchant is able to be guided through the First Run Wizard.', { tag: '@Fir
     await AdminFirstRunWizard.smtpServerButton.click();
     await AdminFirstRunWizard.nextButton.click();
     await ShopAdmin.expects(AdminFirstRunWizard.smtpServerTitle).toBeVisible();
-    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerFields).toHaveCount(8);
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerHostInput).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerPortInput).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerUsernameInput).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerPasswordInput).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerEncryptionInput).toHaveCount(1);
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerSenderAddressInput).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerDeliveryAddressInput).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerDisableEmailDeliveryCheckbox).toBeVisible();
+
     await AdminFirstRunWizard.configureLaterButton.click();
 
     // PayPal setup part

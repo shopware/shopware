@@ -72,6 +72,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                         'sw-data-grid-column-boolean': true,
                         'sw-data-grid-inline-edit': true,
                         'sw-data-grid-skeleton': true,
+                        'sw-provide': true,
                         i18n: true,
                     },
                     provide: {

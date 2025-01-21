@@ -8,9 +8,6 @@ test('As an admin, I can create and verify customer groups in the admin.', { tag
     DefaultSalesChannel,
     InstanceMeta,
 }) => {
-
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0, ticket: https://shopware.atlassian.net/browse/NEXT-40162');
-
     const customerGroup = await TestDataService.createCustomerGroup();
 
     await test.step('Verify the created customer group in the admin', async () => {

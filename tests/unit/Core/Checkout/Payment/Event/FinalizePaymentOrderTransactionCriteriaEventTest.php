@@ -18,7 +18,7 @@ class FinalizePaymentOrderTransactionCriteriaEventTest extends TestCase
     public function testEvent(): void
     {
         $transactionId = Uuid::randomHex();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $criteria = new Criteria();
 
         $event = new FinalizePaymentOrderTransactionCriteriaEvent($transactionId, $criteria, $context);

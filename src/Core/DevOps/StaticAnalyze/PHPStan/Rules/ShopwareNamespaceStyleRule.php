@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ShopwareNamespaceStyleRule implements Rule
 {
     public function getNodeType(): string
@@ -44,7 +44,7 @@ class ShopwareNamespaceStyleRule implements Rule
         if (\count($namespaceParts) > 0 && $namespaceParts[0] !== 'Shopware') {
             return [
                 RuleErrorBuilder::message('Namespace must start with Shopware')
-                    ->line($namespaceNode->getLine())
+                    ->line($namespaceNode->getStartLine())
                     ->identifier('shopware.namespace')
                     ->build(),
             ];
@@ -57,7 +57,7 @@ class ShopwareNamespaceStyleRule implements Rule
         if ($namespaceParts[2] === 'Command') {
             return [
                 RuleErrorBuilder::message('No global Command directories allowed, put your commands in the right domain directory')
-                    ->line($namespaceNode->getLine())
+                    ->line($namespaceNode->getStartLine())
                     ->identifier('shopware.namespace')
                     ->build(),
             ];
@@ -66,7 +66,7 @@ class ShopwareNamespaceStyleRule implements Rule
         if ($namespaceParts[2] === 'Exception') {
             return [
                 RuleErrorBuilder::message('No global Exception directories allowed, put your exceptions in the right domain directory')
-                    ->line($namespaceNode->getLine())
+                    ->line($namespaceNode->getStartLine())
                     ->identifier('shopware.namespace')
                     ->build(),
             ];

@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler(handles: UpdateAppsTask::class)]
-#[Package('core')]
+#[Package('framework')]
 final class UpdateAppsHandler extends ScheduledTaskHandler
 {
     /**

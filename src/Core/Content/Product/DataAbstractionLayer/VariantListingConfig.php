@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 class VariantListingConfig extends Struct
 {
     /**

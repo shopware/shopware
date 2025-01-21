@@ -8,7 +8,7 @@ use Symfony\Component\Stopwatch\Stopwatch as SymfonyStopwatch;
 /**
  * @internal experimental atm
  */
-#[Package('core')]
+#[Package('framework')]
 class Stopwatch implements ProfilerInterface
 {
     public function __construct(private readonly ?SymfonyStopwatch $stopwatch)

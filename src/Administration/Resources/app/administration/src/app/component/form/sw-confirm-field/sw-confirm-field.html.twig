@@ -7,7 +7,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_confirm_field_input_field %}
     <mt-text-field
-        v-model="draft"
+        v-model:model-value="draft"
         v-bind="$attrs"
         :required="required"
         :disabled="disabled"

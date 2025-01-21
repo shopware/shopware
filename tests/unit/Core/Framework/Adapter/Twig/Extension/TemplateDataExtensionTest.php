@@ -47,7 +47,7 @@ class TemplateDataExtensionTest extends TestCase
 
     public function testGetGlobals(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $activeRoute = 'frontend.home.page';
         $controller = NavigationController::class;
         $themeId = Uuid::randomHex();

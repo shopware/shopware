@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @deprecated tag:v6.7.0 - will be removed without replacement use `EntitySearchResult` instead, all methods are now contained in the `EntitySearchResult` and the sorting was not in use anymore
  */
-#[Package('storefront')]
+#[Package('framework')]
 class StorefrontSearchResult extends EntitySearchResult
 {
     /**

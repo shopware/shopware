@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractSalesChannelContextFactory
 {
     abstract public function getDecorated(): AbstractSalesChannelContextFactory;

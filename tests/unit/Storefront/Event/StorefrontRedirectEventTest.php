@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 #[CoversClass(StorefrontRedirectEvent::class)]
 class StorefrontRedirectEventTest extends TestCase
 {

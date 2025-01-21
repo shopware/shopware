@@ -3,7 +3,7 @@ import querystring from 'query-string';
 import deepmerge from 'deepmerge';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 class HistoryUtilSingleton {
     constructor() {

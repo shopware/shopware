@@ -53,14 +53,10 @@ class CrossSellingRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = Generator::createSalesChannelContext(
-            null,
-            null,
-            (new SalesChannelEntity())->assign([
-                'id' => TestDefaults::SALES_CHANNEL,
-                'taxCalculationType' => SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
-            ])
-        );
+        $this->salesChannelContext = Generator::generateSalesChannelContext(salesChannel: (new SalesChannelEntity())->assign([
+            'id' => TestDefaults::SALES_CHANNEL,
+            'taxCalculationType' => SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
+        ]));
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->route = static::getContainer()->get(ProductCrossSellingRoute::class);
 

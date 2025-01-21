@@ -20,7 +20,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('storefront')]
+#[Package('framework')]
 final class CompileThemeHandler
 {
     public function __construct(

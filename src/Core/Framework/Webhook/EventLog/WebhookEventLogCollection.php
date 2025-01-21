@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<WebhookEventLogEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookEventLogCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

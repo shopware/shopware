@@ -25,7 +25,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractPluginLifecycleCommand extends Command
 {
     public function __construct(

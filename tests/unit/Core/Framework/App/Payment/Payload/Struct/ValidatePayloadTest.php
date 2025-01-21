@@ -22,7 +22,7 @@ class ValidatePayloadTest extends TestCase
     {
         $cart = new Cart('testToken');
         $requestData = ['foo' => 'bar'];
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $source = new Source('foo', 'bar', '1.0.0');
 
         $payload = new ValidatePayload($cart, $requestData, $salesChannelContext);

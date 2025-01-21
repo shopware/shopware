@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractAppUpdater
 {
     abstract public function updateApps(Context $context): void;

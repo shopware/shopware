@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1646397836UpdateRolePrivilegesOfOrderCreator extends MigrationStep
 {
     final public const NEW_PRIVILEGES = [

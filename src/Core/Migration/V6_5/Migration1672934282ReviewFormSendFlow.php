@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1672934282ReviewFormSendFlow extends MigrationStep
 {
     public function getCreationTimestamp(): int

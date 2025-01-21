@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - reason:remove-exception - Will be removed. Use \Shopware\Core\System\SalesChannel\SalesChannelException::contextPermissionsLocked instead
  */
-#[Package('core')]
+#[Package('framework')]
 class ContextPermissionsLockedException extends ShopwareHttpException
 {
     public function __construct()

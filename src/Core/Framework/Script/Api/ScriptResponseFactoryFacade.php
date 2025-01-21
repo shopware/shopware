@@ -15,7 +15,7 @@ use Symfony\Component\Routing\RouterInterface;
  *
  * @script-service custom_endpoint
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptResponseFactoryFacade
 {
     /**

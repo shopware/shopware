@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private const API_URL = 'https://api.fastly.com';

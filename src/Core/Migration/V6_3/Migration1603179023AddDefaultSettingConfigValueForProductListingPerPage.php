@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage extends MigrationStep
 {
     final public const CONFIG_KEY = 'core.listing.productsPerPage';

@@ -15,7 +15,7 @@ use Twig\Source;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface, ResetInterface
 {
     /**

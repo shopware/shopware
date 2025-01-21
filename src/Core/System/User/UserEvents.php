@@ -4,7 +4,7 @@ namespace Shopware\Core\System\User;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class UserEvents
 {
     final public const USER_WRITTEN_EVENT = 'user.written';

@@ -99,7 +99,7 @@ class ProductPageLoaderTest extends TestCase
             ->addAssociation('options.group')
             ->addAssociation('properties.group')
             ->addAssociation('mainCategories.category')
-            ->addAssociation('media');
+            ->addAssociation('media.media');
 
         $criteria->getAssociation('media')->addSorting(
             new FieldSorting('position')
@@ -137,7 +137,7 @@ class ProductPageLoaderTest extends TestCase
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId('salesChannelId');
 
-        return Generator::createSalesChannelContext(
+        return Generator::generateSalesChannelContext(
             salesChannel: $salesChannelEntity,
         );
     }

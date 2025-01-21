@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('storefront')]
+#[Package('framework')]
 final class DeleteThemeFilesHandler
 {
     public function __construct(

@@ -814,6 +814,7 @@ const createWrapper = async (options = {}) => {
                 'sw-data-grid-inline-edit': true,
                 'router-link': true,
                 'sw-ai-copilot-badge': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
                 $tc: (key, pluralization) => {

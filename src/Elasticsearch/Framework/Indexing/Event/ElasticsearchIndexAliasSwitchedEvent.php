@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchIndexAliasSwitchedEvent
 {
     /**

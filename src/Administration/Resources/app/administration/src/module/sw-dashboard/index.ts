@@ -11,7 +11,7 @@ Shopware.Component.register(
 );
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  *
  * @private
  */

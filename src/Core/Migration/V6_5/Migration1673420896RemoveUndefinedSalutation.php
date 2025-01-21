@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1673420896RemoveUndefinedSalutation extends MigrationStep
 {
     private const ASSOCIATION_TABLES = [

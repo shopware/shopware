@@ -14,7 +14,7 @@ use Symfony\Component\Lock\LockFactory;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(CustomEntitySchemaUpdater::class)]
 class CustomEntitySchemaUpdaterTest extends TestCase
 {

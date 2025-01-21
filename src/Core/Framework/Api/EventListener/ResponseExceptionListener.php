@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ResponseExceptionListener implements EventSubscriberInterface
 {
     /**

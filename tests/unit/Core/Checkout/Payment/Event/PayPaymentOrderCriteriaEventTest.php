@@ -18,7 +18,7 @@ class PayPaymentOrderCriteriaEventTest extends TestCase
     public function testEvent(): void
     {
         $orderId = Uuid::randomHex();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $criteria = new Criteria();
 
         $event = new PayPaymentOrderCriteriaEvent($orderId, $criteria, $context);

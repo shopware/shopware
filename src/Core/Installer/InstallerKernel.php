@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class InstallerKernel extends HttpKernel
 {
     use MicroKernelTrait;

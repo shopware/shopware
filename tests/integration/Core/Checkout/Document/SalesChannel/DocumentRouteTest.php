@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[Group('store-api')]
 class DocumentRouteTest extends TestCase
 {

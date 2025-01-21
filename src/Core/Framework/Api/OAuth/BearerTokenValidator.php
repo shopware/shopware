@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @deprecated tag:v6.7.0 - reason:class-hierarchy-change - class will be removed
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class BearerTokenValidator implements AuthorizationValidatorInterface
 {
     /**

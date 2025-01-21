@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Defines that the data of this field is stored in an Entity::$extension and are not part of the struct itself.
  */
-#[Package('core')]
+#[Package('framework')]
 class Extension extends Flag
 {
     public function parse(): \Generator

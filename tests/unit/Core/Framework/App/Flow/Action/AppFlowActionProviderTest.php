@@ -62,7 +62,7 @@ class AppFlowActionProviderTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 

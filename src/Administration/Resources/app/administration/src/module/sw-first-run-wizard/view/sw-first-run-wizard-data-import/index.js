@@ -4,7 +4,8 @@ import './sw-first-run-wizard-data-import.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 export default {

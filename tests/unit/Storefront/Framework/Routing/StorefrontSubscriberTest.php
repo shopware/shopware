@@ -259,7 +259,7 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testStartSession(): void
     {
-        $request = new Request([], [], [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true, PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::createSalesChannelContext()], [], [], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
+        $request = new Request([], [], [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true, PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::generateSalesChannelContext()], [], [], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
         $request->setSession(new Session(new MockArraySessionStorage()));
         $requestStack = new RequestStack();
 

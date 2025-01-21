@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'system:configure-shop',
     description: 'Configure shop',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemConfigureShopCommand extends Command
 {
     public function __construct(

@@ -176,6 +176,7 @@ async function createWrapper(
                     'sw-data-grid-skeleton': true,
                     'sw-settings-rule-add-assignment-listing': true,
                     'sw-settings-rule-category-tree': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
                 provide: {
                     ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,

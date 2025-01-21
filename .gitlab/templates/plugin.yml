@@ -186,7 +186,7 @@ default:
 build and validate zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.4.44
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.63
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:

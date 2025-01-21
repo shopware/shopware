@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\Acl\Role;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AclRoleEvents
 {
     final public const ACL_ROLE_WRITTEN_EVENT = 'acl_role.written';

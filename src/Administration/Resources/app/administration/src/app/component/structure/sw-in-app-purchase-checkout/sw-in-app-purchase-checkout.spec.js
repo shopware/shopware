@@ -50,9 +50,9 @@ describe('src/app/component/structure/sw-in-app-purchase-checkout', () => {
         };
 
         Shopware.Context.app.config.bundles = {
-            'TestExtension': {
+            TestExtension: {
                 identifier: 'TestExtension',
-            }
+            },
         };
 
         Shopware.Store.get('inAppPurchaseCheckout').request(requestCheckout, 'TestExtension');
@@ -75,9 +75,9 @@ describe('src/app/component/structure/sw-in-app-purchase-checkout', () => {
         };
 
         Shopware.Context.app.config.bundles = {
-            'TestExtension': {
+            TestExtension: {
                 identifier: 'TestExtension',
-            }
+            },
         };
 
         Shopware.Store.get('inAppPurchaseCheckout').request(requestCheckout, 'TestExtension');

@@ -79,6 +79,7 @@ import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
+import type BusinessEventsApiService from './core/service/api/business-events.api.service';
 import type { FileValidationService } from './app/service/file-validation.service';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
@@ -120,6 +121,7 @@ import type { PaymentOverviewCardStore } from './module/sw-settings-payment/stor
 import type { SwProductDetailStore } from './module/sw-product/page/sw-product-detail/store';
 import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store';
 import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
+import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -261,6 +263,7 @@ declare global {
         configService: ConfigApiService;
         importExport: ImportExportService;
         fileValidationService: FileValidationService;
+        businessEventService: BusinessEventsApiService;
     }
 
     interface MixinContainer {
@@ -389,6 +392,7 @@ declare global {
         swProductDetail: SwProductDetailStore;
         swProfile: SwProfileStore;
         swPromotionDetail: SwPromotionDetailStore;
+        swFlow: SwFlowStore;
     }
 
     /**

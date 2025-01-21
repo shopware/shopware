@@ -1,8 +1,8 @@
 import template from './sw-flow-detail-general.html.twig';
 import './sw-flow-detail-general.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors, mapVuexState } = Component.getComponentHelper();
+const { Component, Store } = Shopware;
+const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -74,7 +74,7 @@ export default {
             return this.$route.query?.type === 'template';
         },
 
-        ...mapVuexState('swFlowState', ['flow']),
+        ...mapState(() => Store.get('swFlow'), ['flow']),
         ...mapPropertyErrors('flow', ['name']),
     },
 };

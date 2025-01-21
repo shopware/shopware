@@ -667,10 +667,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.pageUpdate();
         },
 
-        onSetSectionBackgroundMedia(
-            [mediaItem]: [Entity<'media'>],
-            section: Entity<'cms_section'>,
-        ) {
+        onSetSectionBackgroundMedia([mediaItem]: [Entity<'media'>], section: Entity<'cms_section'>) {
             section.backgroundMediaId = mediaItem.id;
             section.backgroundMedia = mediaItem;
 

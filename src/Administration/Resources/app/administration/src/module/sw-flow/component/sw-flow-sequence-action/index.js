@@ -3,11 +3,11 @@ import sortBy from 'lodash/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, Store, Mixin } = Shopware;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 const { ShopwareError } = Shopware.Classes;
-const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 const { snakeCase } = utils.string;
 
 /**
@@ -149,24 +149,25 @@ export default {
             return Shopware.Store.get('session').currentLocale;
         },
 
-        ...mapVuexState('swFlowState', [
-            'invalidSequences',
-            'stateMachineState',
-            'documentTypes',
-            'mailTemplates',
-            'customerGroups',
-            'customFieldSets',
-            'customFields',
-            'triggerEvent',
-            'triggerActions',
-        ]),
-        ...mapVuexGetters('swFlowState', [
-            'availableActions',
-            'actionGroups',
-            'sequences',
-            'appActions',
-            'getSelectedAppAction',
-        ]),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'invalidSequences',
+                'stateMachineState',
+                'documentTypes',
+                'mailTemplates',
+                'customerGroups',
+                'customFieldSets',
+                'customFields',
+                'triggerEvent',
+                'triggerActions',
+                'availableActions',
+                'actionGroups',
+                'sequences',
+                'appActions',
+                'getSelectedAppAction',
+            ],
+        ),
     },
 
     watch: {
@@ -250,7 +251,7 @@ export default {
                     data.appFlowActionId = appAction.id;
                 }
 
-                State.commit('swFlowState/updateSequence', data);
+                Store.get('swFlow').updateSequence(data);
             } else {
                 const lastSequence = this.sequenceData[this.sequenceData.length - 1];
 
@@ -272,7 +273,7 @@ export default {
                 }
 
                 sequence = Object.assign(sequence, newSequence);
-                State.commit('swFlowState/addSequence', sequence);
+                Store.get('swFlow').addSequence(sequence);
             }
 
             this.removeFieldError();
@@ -283,7 +284,7 @@ export default {
                 return;
             }
 
-            State.commit('swFlowState/updateSequence', {
+            Store.get('swFlow').updateSequence({
                 id: this.currentSequence.id,
                 actionName: action.name,
                 config: action.config,
@@ -298,7 +299,7 @@ export default {
                 );
 
                 sequencesInGroup.forEach((item, index) => {
-                    State.commit('swFlowState/updateSequence', {
+                    Store.get('swFlow').updateSequence({
                         id: item.id,
                         position: index + 1,
                     });
@@ -307,7 +308,7 @@ export default {
 
             if (this.isAppDisabled(this.getSelectedAppAction(this.sequence[id]?.actionName))) return;
 
-            State.commit('swFlowState/removeSequences', [id]);
+            Store.get('swFlow').removeSequences([id]);
         },
 
         actionsWithoutStopFlow() {
@@ -341,11 +342,11 @@ export default {
             const moveAction = type === 'up' ? actions[currentIndex - 1] : actions[currentIndex + 1];
             const moveActionClone = cloneDeep(moveAction);
 
-            State.commit('swFlowState/updateSequence', {
+            Store.get('swFlow').updateSequence({
                 id: moveAction.id,
                 position: action.position,
             });
-            State.commit('swFlowState/updateSequence', {
+            Store.get('swFlow').updateSequence({
                 id: action.id,
                 position: moveActionClone.position,
             });
@@ -388,7 +389,7 @@ export default {
         removeActionContainer() {
             const removeSequences = this.sequence.id ? [this.sequence.id] : Object.keys(this.sequence);
 
-            State.commit('swFlowState/removeSequences', removeSequences);
+            Store.get('swFlow').removeSequences(removeSequences);
         },
 
         getActionTitle(actionName) {
@@ -461,8 +462,7 @@ export default {
             }
 
             this.fieldError = null;
-            const invalidSequences = this.invalidSequences?.filter((id) => this.sequence.id !== id);
-            State.commit('swFlowState/setInvalidSequences', invalidSequences);
+            Store.get('swFlow').invalidSequences = this.invalidSequences?.filter((id) => this.sequence.id !== id);
         },
 
         isNotStopFlow(item) {

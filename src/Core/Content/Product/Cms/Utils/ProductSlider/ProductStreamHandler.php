@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ProductStreamHandler extends AbstractProductSliderHandler
 {
     private const FALLBACK_LIMIT = 50;
@@ -88,9 +88,11 @@ class ProductStreamHandler extends AbstractProductSliderHandler
             $resolverContext->getSalesChannelContext()->getContext()
         );
 
+        $limit = $elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT;
+
         $criteria = new Criteria();
         $criteria->addFilter(...$filters);
-        $criteria->setLimit($elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT);
+        $criteria->setLimit($limit);
 
         if (!Feature::isActive('v6.7.0.0')) {
             $criteria->addAssociations(self::PRODUCT_ASSOCIATIONS);
@@ -143,9 +145,10 @@ class ProductStreamHandler extends AbstractProductSliderHandler
                 continue;
             }
 
-            $finalProductIds[] = (
-                $variantConfig->getDisplayParent() ? $product->getParentId() : $variantConfig->getMainVariantId()
-            ) ?? $product->getId();
+            $productId = $variantConfig->getDisplayParent()
+                ? $product->getParentId() : $variantConfig->getMainVariantId();
+
+            $finalProductIds[] = $productId ?? $product->getId();
         }
 
         return array_unique($finalProductIds);

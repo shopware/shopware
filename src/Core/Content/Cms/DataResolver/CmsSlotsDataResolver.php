@@ -177,9 +177,6 @@ class CmsSlotsDataResolver
     private function fetchByCriteria(array $searches, SalesChannelContext $context): array
     {
         $searchResults = [];
-
-        // maybe improve performance and move the fetchByCriteria fetch to the specific resolver.
-        // Then we do not need to determine the repository and fetch in a loop.
         foreach ($searches as $definitionClass => $criteriaObjects) {
             foreach ($criteriaObjects as $criteriaHash => $criteria) {
                 $definition = $this->definitionRegistry->get($definitionClass);

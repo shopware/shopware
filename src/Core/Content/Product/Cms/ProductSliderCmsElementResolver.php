@@ -21,6 +21,8 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
     /**
      * @internal
+     *
+     * @param iterable<AbstractProductSliderHandler> $handlers
      */
     public function __construct(
         iterable $handlers,

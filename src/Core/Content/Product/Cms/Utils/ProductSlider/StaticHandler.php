@@ -13,9 +13,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class StaticHandler extends AbstractProductSliderHandler
 {
     private const STATIC_SEARCH_KEY = 'product-slider';
@@ -63,7 +64,8 @@ class StaticHandler extends AbstractProductSliderHandler
         }
 
         $context = $resolverContext->getSalesChannelContext();
-        if ($this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $context->getSalesChannel()->getId())) {
+
+        if ($this->hideUnavailableProducts($context)) {
             $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
         }
 
@@ -71,5 +73,13 @@ class StaticHandler extends AbstractProductSliderHandler
         $slider->setProducts($products);
 
         $slot->setData($slider);
+    }
+
+    protected function hideUnavailableProducts(SalesChannelContext $context): bool
+    {
+        return $this->systemConfigService->get(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        );
     }
 }

@@ -9,7 +9,9 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('discovery')]
 abstract class AbstractProductSliderHandler
 {
     protected const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';

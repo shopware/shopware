@@ -72,7 +72,7 @@ class MigrationException extends HttpException
     public static function migrationDirectoryNotCreated(string $directory): self|\RuntimeException
     {
         if (!Feature::isActive('v6.7.0.0')) {
-            throw new \RuntimeException(\sprintf('Migration directory "%s" could not be created', $directory));
+            return new \RuntimeException(\sprintf('Migration directory "%s" could not be created', $directory));
         }
 
         return new self(
@@ -93,7 +93,7 @@ class MigrationException extends HttpException
     public static function moreThanOnePluginFound(string $pluginName, array $pluginBundles): self|\RuntimeException
     {
         if (!Feature::isActive('v6.7.0.0')) {
-            throw new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
+            return new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
         }
 
         return new self(
@@ -113,7 +113,7 @@ class MigrationException extends HttpException
     public static function pluginNotFound(string $pluginName): self|\RuntimeException
     {
         if (!Feature::isActive('v6.7.0.0')) {
-            throw new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
+            return new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
         }
 
         return new self(

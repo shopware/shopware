@@ -32,7 +32,7 @@ A screen reader will always read "50 euros star" without further context. For a 
 ## Decision
 
 The asterisk `*` next to every price will be removed because of the reasons mentioned above.
-In most areas of the Storefront the information that the asterisk `*` is referring to is already given, and it was therefore redundant.
+In most areas of the Storefront, the information that the asterisk `*` refers to is already given, and it is therefore redundant.
 In areas where the asterisk `*` was actually needed, it will be replaced by the actual text "Prices incl. VAT plus shipping costs" instead to resolve the accessibility issues.
 
 ### Affected areas

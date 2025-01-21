@@ -73,7 +73,7 @@ class VersionManagerTest extends TestCase
             ALTER TABLE `product`
             DROP FOREIGN KEY `fk.product.many_to_one_id`;
         ');
-        $this->connection->executeStatement('DROP TABLE `many_to_one_product`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `many_to_one_product`');
         $this->connection->executeStatement('
             ALTER TABLE `product`
             DROP COLUMN `many_to_one_id`
@@ -81,7 +81,7 @@ class VersionManagerTest extends TestCase
         $this->connection->beginTransaction();
 
         // reboot kernel to create a new container since we manipulated the original one
-        KernelLifecycleManager::bootKernel(false);
+        KernelLifecycleManager::bootKernel();
     }
 
     public function testWhenAddAnExtensionWithFKIdThenFKIdShouldBeCloned(): void

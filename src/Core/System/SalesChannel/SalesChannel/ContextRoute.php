@@ -8,7 +8,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('core')]
+#[Package('framework')]
 class ContextRoute extends AbstractContextRoute
 {
     public function getDecorated(): AbstractContextRoute

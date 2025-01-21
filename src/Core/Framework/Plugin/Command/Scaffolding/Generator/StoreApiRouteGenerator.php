@@ -12,7 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class StoreApiRouteGenerator implements ScaffoldingGenerator
 {
     use AddScaffoldConfigDefaultBehaviour;

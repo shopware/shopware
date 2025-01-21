@@ -16,7 +16,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(SalesChannelListCommand::class)]
 class SalesChannelListCommandTest extends TestCase
 {

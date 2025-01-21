@@ -10,7 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * @phpstan-import-type ShopId from ShopIdProvider
  */
-#[Package('core')]
+#[Package('framework')]
 class ShopIdChangedEvent extends Event
 {
     /**

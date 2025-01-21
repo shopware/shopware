@@ -89,7 +89,7 @@ async function createWrapper(activeTab = 'content') {
                         },
                         navigationDots: {
                             source: 'static',
-                            value: null,
+                            value: 'none',
                         },
                         galleryPosition: {
                             source: 'static',

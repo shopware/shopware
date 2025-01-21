@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest
  */
-#[Package('core')]
+#[Package('framework')]
 class RelatedWebhooks
 {
     public function __construct(

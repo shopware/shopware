@@ -12,7 +12,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @deprecated tag:v6.7.0 - will be removed, use \Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException::decodeHandledByHydrator instead
  */
-#[Package('core')]
+#[Package('framework')]
 class DecodeByHydratorException extends ShopwareHttpException
 {
     public function __construct(Field $field)

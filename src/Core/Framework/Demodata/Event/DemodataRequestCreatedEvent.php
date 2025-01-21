@@ -11,7 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class DemodataRequestCreatedEvent extends Event
 {
     public function __construct(

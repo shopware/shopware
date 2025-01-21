@@ -17,7 +17,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class LockValidator implements EventSubscriberInterface
 {
     final public const VIOLATION_LOCKED = 'FRAMEWORK__ENTITY_IS_LOCKED';

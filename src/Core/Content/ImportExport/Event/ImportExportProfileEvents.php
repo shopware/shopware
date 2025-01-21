@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportProfileEvents
 {
     final public const IMPORT_EXPORT_PROFILE_WRITTEN_EVENT = 'import_export_profile.written';

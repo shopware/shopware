@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 interface ApiContextRouteScopeDependant
 {
 }

@@ -11,7 +11,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class ShippingMethod extends XmlElement
 {
     protected const REQUIRED_FIELDS = [

@@ -431,8 +431,8 @@ class RegisterRoute extends AbstractRegisterRoute
                 $context->getSalesChannelId()
             ),
             'salesChannelId' => $context->getSalesChannelId(),
-            'languageId' => $context->getContext()->getLanguageId(),
-            'groupId' => $context->getCurrentCustomerGroup()->getId(),
+            'languageId' => $context->getLanguageId(),
+            'groupId' => $context->getCustomerGroupId(),
             'requestedGroupId' => $data->get('requestedGroupId', null),
             'salutationId' => $data->get('salutationId'),
             'firstName' => $data->get('firstName'),

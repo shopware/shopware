@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @phpstan-import-type PluginInfo from KernelPluginLoader
  */
-#[Package('core')]
+#[Package('framework')]
 class DbalKernelPluginLoader extends KernelPluginLoader
 {
     public function __construct(

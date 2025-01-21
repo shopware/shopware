@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
  *
  * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
  */
-#[Package('core')]
+#[Package('framework')]
 class TestKernel extends Kernel
 {
     /**

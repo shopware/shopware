@@ -30,7 +30,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RuleGenerator implements DemodataGeneratorInterface
 {
     private Generator $faker;

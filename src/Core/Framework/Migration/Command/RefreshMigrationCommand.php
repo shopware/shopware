@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'database:refresh-migration',
     description: 'Refreshes the migration state',
 )]
-#[Package('core')]
+#[Package('framework')]
 class RefreshMigrationCommand extends Command
 {
     protected function configure(): void

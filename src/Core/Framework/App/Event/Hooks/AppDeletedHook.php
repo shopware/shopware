@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
  *
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class AppDeletedHook extends AppLifecycleHook implements AppSpecificHook
 {
     final public const HOOK_NAME = 'app-deleted';

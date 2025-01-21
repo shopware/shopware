@@ -10,9 +10,10 @@
 
 		{% set currentListPage = reviews.page %}
 
-		{% set productReviewCount = reviews.totalReviews %}
+		{% set productReviewCount = reviews.total %}
+        {% set totalReviewCount = reviews.matrix.totalReviewCount %}
 
-		{% if productReviewCount > 0 %}
+		{% if totalReviewCount > 0 %}
             {% set productAvgRating = reviews.matrix.averageRating|round(2, 'common') %}
 		{% endif %}
 
@@ -172,13 +173,16 @@
                                             {% block component_review_list_counter %}
                                                 <hr/>
 
-                                                {% set listReviewsCount = reviews.total %}
+                                                {# @deprecated tag:v6.7.0 - Unused variable `listReviewsCount` will be removed, use `productReviewCount` instead #}
+                                                {% if not feature('v6.7.0.0') %}
+                                                    {% set listReviewsCount = reviews.total %}
+                                                {% endif %}
 
                                                 <p class="text-right product-detail-review-counter">
-                                                    {% if (listReviewsCount > 1 and listReviewsCount > reviewsPerListPage) %}
-                                                        <small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ 'detail.reviewCountBefore'|trans|sw_sanitize }} <strong>{{ listReviewsCount }}</strong> {{ 'detail.reviewCountAfter'|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
-                                                    {% elseif listReviewsCount > 0 %}
-                                                        <small><strong>{{ listReviewsCount }}</strong> {{ 'detail.reviewCountAfter'|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
+                                                    {% if (productReviewCount > 1 and productReviewCount > reviewsPerListPage) %}
+                                                        <small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ 'detail.reviewCountBefore'|trans|sw_sanitize }} <strong>{{ productReviewCount }}</strong> {{ 'detail.reviewCountAfter'|trans({'%count%': productReviewCount })|sw_sanitize }}</small>
+                                                    {% elseif productReviewCount > 0 %}
+                                                        <small><strong>{{ productReviewCount }}</strong> {{ 'detail.reviewCountAfter'|trans({'%count%': productReviewCount })|sw_sanitize }}</small>
                                                     {% endif %}
                                                 </p>
                                             {% endblock %}

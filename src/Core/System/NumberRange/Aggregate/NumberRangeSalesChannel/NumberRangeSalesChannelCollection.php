@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<NumberRangeSalesChannelEntity>
  */
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeSalesChannelCollection extends EntityCollection
 {
     public function getApiAlias(): string

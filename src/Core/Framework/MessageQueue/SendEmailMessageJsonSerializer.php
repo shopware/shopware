@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  * That is a workaround for the issue with the SendEmailMessage class which is not json serializable.
  * See issue in symfony/symfony repository since 2019: https://github.com/symfony/symfony/issues/33394
  */
-#[Package('core')]
+#[Package('framework')]
 class SendEmailMessageJsonSerializer implements NormalizerInterface, DenormalizerInterface
 {
     /**

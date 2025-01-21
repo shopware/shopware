@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @see \Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaPathStorageTest
  */
-#[Package('core')]
+#[Package('discovery')]
 class SqlMediaPathStorage implements MediaPathStorage
 {
     /**

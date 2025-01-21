@@ -72,15 +72,18 @@
                                                         {{ 'listing.listingTextFrom'|trans|sw_sanitize }}
                                                     {% endif %}
                                                     <span class="search-suggest-product-price">
-                                                        {{ price.unitPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
+                                                        {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is only needed adjecent to "add to cart" buttons. #}
+                                                        {{ price.unitPrice|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
                                                     </span>
 
                                                     {% if price.referencePrice is not null %}
-                                                        <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ 'general.star'|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
+                                                        {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is only needed adjecent to "add to cart" buttons. #}
+                                                        <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
                                                     {% endif %}
 
                                                     {% if price.regulationPrice.price is not null %}
-                                                        <small class="search-suggest-product-list-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}{{ 'general.star'|trans|sw_sanitize }}</small>
+                                                        {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is only needed adjecent to "add to cart" buttons. #}
+                                                        <small class="search-suggest-product-list-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</small>
                                                     {% endif %}
                                                 </div>
                                             {% endblock %}

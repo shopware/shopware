@@ -42,6 +42,7 @@
             :disabled="disabled"
             :value="currentValue"
             :placeHolder="placeholder"
+            :aria-label="ariaLabel && $tc(ariaLabel)"
             @input="onInput"
             @change="onChange"
             @focus="setFocusClass"

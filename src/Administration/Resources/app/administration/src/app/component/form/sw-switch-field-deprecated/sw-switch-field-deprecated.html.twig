@@ -16,6 +16,7 @@
                 :name="formFieldName || identification"
                 :checked="inputState"
                 :disabled="disabled || undefined"
+                :aria-label="ariaLabel && $tc(ariaLabel)"
                 @change="onChange"
             >
             <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->

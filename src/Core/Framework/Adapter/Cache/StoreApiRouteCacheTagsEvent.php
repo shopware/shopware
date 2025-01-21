@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
+#[Package('framework')]
 class StoreApiRouteCacheTagsEvent extends Event
 {
     public function __construct(

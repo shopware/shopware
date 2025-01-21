@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1600156989AddProductSalesField extends MigrationStep
 {
     public function getCreationTimestamp(): int

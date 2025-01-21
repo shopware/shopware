@@ -87,6 +87,7 @@ async function createWrapper(propsOverride) {
                     },
                     navigationDots: {
                         source: 'static',
+                        value: 'none',
                     },
                 },
                 ...propsOverride,

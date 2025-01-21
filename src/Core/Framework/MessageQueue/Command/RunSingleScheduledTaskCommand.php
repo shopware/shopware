@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'scheduled-task:run-single',
     description: 'Allows to run one single scheduled task regardless of its schedule.',
 )]
-#[Package('core')]
+#[Package('framework')]
 class RunSingleScheduledTaskCommand extends Command
 {
     /**

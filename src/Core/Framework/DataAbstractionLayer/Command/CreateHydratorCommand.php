@@ -43,7 +43,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'dal:create:hydrators',
     description: 'Creates the hydrator classes',
 )]
-#[Package('core')]
+#[Package('framework')]
 class CreateHydratorCommand extends Command
 {
     private readonly string $dir;

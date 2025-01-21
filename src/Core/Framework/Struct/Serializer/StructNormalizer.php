@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 {
     /**

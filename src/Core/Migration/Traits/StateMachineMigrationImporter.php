@@ -12,7 +12,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 
-#[Package('core')]
+#[Package('framework')]
 class StateMachineMigrationImporter
 {
     use ImportTranslationsTrait;

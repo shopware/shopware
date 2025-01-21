@@ -21,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'system:generate-jwt-secret',
     description: 'Generates a new JWT secret',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemGenerateJwtSecretCommand extends Command
 {
     public function __construct(

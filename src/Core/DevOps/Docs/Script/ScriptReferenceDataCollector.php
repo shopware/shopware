@@ -10,7 +10,7 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptReferenceDataCollector
 {
     /**

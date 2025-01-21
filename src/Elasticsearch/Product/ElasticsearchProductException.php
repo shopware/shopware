@@ -7,7 +7,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchProductException extends HttpException
 {
     public const ES_PRODUCT_CONFIG_NOT_FOUND = 'ELASTICSEARCH_PRODUCT__CONFIGURATION_NOT_FOUND';

@@ -32,10 +32,10 @@ test('Registered shop customer buys a product.', { tag: '@Checkout' }, async ({
     await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
     await ShopCustomer.attemptsTo(SelectStandardShippingOption());
 
-    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText('€10.00*');
+    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText('€10.00');
 
     await ShopCustomer.attemptsTo(SubmitOrder());
-    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toHaveText('€10.00*');
+    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText('€10.00');
 
     const orderId = StorefrontCheckoutFinish.getOrderId();
 

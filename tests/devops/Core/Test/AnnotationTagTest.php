@@ -15,7 +15,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversNothing]
 class AnnotationTagTest extends TestCase
 {

@@ -14,7 +14,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CachedBaseContextFactory extends AbstractBaseContextFactory
 {
     /**

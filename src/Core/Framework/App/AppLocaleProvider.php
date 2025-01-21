@@ -12,7 +12,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('core')]
+#[Package('framework')]
 class AppLocaleProvider
 {
     /**

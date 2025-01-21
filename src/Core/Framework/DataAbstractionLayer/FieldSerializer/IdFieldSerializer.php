@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class IdFieldSerializer extends AbstractFieldSerializer
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array

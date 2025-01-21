@@ -67,7 +67,7 @@
                     navPosition: 'bottom',
                     speed: 500,
                     gutter: gutter ? gutter : 0,
-                    controls: navigationArrows ? true : false,
+                    controls: navigationArrows != "none",
                     autoHeight: false,
                     startIndex: startIndexThumbnails ? startIndexThumbnails : null
                 },
@@ -274,9 +274,9 @@
                                             {% endblock %}
 
                                             {% block element_image_gallery_inner_controls %}
-                                                {% if navigationArrows %}
+                                                {% if navigationArrows != "none" %}
                                                     <div class="gallery-slider-controls"
-                                                         data-gallery-slider-controls="{% if navigationArrows %}true{% else %}false{% endif %}">
+                                                         data-gallery-slider-controls="true">
                                                         {% block element_image_gallery_inner_control_items %}
                                                             {% block element_image_gallery_inner_control_prev %}
                                                                 <button class="base-slider-controls-prev gallery-slider-controls-prev{% if navigationArrows == "outside" %} is-nav-prev-outside{% elseif navigationArrows == "inside" %} is-nav-prev-inside{% endif %}"
@@ -410,7 +410,7 @@
                                 {% endblock %}
 
                                 {% block element_image_gallery_slider_dots %}
-                                    {% if imageCount > 1 and navigationDots %}
+                                    {% if imageCount > 1 and navigationDots != "none" %}
                                         <div class="base-slider-dots {% if imageCount > maxItemsToShowNav %} hide-dots{% elseif imageCount > maxItemsToShowMobileNav %} hide-dots-mobile{% endif %}">
                                             {% block element_image_gallery_slider_dots_buttons %}
                                                 {% for image in mediaItems %}

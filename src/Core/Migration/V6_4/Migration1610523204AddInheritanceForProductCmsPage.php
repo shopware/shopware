@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1610523204AddInheritanceForProductCmsPage extends MigrationStep
 {
     use InheritanceUpdaterTrait;

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Util\UtilException;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Hasher::class)]
 class HasherTest extends TestCase
 {

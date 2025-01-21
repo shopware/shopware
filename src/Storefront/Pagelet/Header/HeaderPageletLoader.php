@@ -66,9 +66,9 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             ->load($event->getStoreApiRequest(), $context, $criteria)
             ->getCurrencies();
 
-        $contextLanguage = $languages->get($context->getContext()->getLanguageId());
+        $contextLanguage = $languages->get($context->getLanguageId());
         if (!$contextLanguage) {
-            throw new \RuntimeException(\sprintf('Context language with id %s not found', $context->getContext()->getLanguageId()));
+            throw new \RuntimeException(\sprintf('Context language with id %s not found', $context->getLanguageId()));
         }
 
         $page = new HeaderPagelet(

@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
  *
  * Contains all registered entity extensions in the system and attaches them to the corresponding entity definitions
  */
-#[Package('core')]
+#[Package('framework')]
 class ExtensionRegistry
 {
     private bool $is67;

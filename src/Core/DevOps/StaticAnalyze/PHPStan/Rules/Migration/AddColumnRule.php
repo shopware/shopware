@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AddColumnRule implements Rule
 {
     use InMigrationClassTrait;

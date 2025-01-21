@@ -12,7 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestsGenerator implements ScaffoldingGenerator
 {
     public function hasCommandOption(): bool

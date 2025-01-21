@@ -14,7 +14,7 @@ use Shopware\Core\Migration\V6_6\Migration1710493619ScheduleMediaPathIndexer;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1710493619ScheduleMediaPathIndexer::class)]
 class Migration1710493619ScheduleMediaPathIndexerTest extends TestCase
 {

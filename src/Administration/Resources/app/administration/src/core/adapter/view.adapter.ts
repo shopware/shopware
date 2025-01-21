@@ -54,9 +54,9 @@ export default abstract class ViewAdapter {
     /**
      * Initializes all core components as Vue components.
      */
-    abstract initComponents(renderElement: string, router: Router, providers: unknown[]): void;
+    abstract initComponents(renderElement: string, router: Router, providers: unknown[]): Promise<unknown> | void;
 
-    abstract initDependencies(): void;
+    abstract initDependencies(): Promise<void> | void;
 
     /**
      * Returns the component as a Vue component.

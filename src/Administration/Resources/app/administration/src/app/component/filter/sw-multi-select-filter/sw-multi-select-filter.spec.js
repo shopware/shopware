@@ -27,7 +27,10 @@ async function createWrapper(slots) {
             stubs: {
                 'sw-base-filter': {
                     template: '<div class="sw-base-filter"><slot></slot></div>',
-                    props: ['showResetButton'],
+                    props: [
+                        'showResetButton',
+                        'active',
+                    ],
                 },
                 'sw-entity-multi-select': {
                     template:

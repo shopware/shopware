@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1653376989ResetDefaultAlwaysValidConditionValue extends MigrationStep
 {
     public function getCreationTimestamp(): int

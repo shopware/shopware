@@ -30,7 +30,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(InfoController::class)]
 class InfoControllerTest extends TestCase
 {

@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'docs:generate-scripts-reference',
     description: 'Generate the script reference',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ScriptReferenceGeneratorCommand extends Command
 {
     /**

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class EntityTranslationDefinition extends EntityDefinition
 {
     public function getParentDefinition(): EntityDefinition

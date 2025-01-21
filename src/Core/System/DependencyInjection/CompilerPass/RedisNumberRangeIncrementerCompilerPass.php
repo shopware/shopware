@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @deprecated tag:v6.7.0 - reason:becomes-internal - can be renamed to NumberRangeIncrementStorageCompilerPass
  */
-#[Package('core')]
+#[Package('framework')]
 class RedisNumberRangeIncrementerCompilerPass implements CompilerPassInterface
 {
     private const DEPRECATED_MAPPING = [

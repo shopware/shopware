@@ -14,7 +14,7 @@ use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 use Twig\TokenStream;
 
-#[Package('core')]
+#[Package('framework')]
 final class ExtendsTokenParser extends AbstractTokenParser
 {
     public function __construct(

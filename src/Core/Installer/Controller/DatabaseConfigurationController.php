@@ -19,7 +19,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class DatabaseConfigurationController extends InstallerController
 {
     private readonly string $jwtDir;

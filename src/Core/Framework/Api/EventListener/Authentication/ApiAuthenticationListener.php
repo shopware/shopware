@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ApiAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;

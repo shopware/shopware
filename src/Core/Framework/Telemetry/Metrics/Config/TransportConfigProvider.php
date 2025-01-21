@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
  *
  * @phpstan-import-type MetricDefinition from MetricConfig
  */
-#[Package('core')]
+#[Package('framework')]
 class TransportConfigProvider
 {
     public function __construct(private readonly MetricConfigProvider $metricConfigProvider)

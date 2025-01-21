@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('core')]
+#[Package('framework')]
 trait RouteScopeCheckTrait
 {
     abstract protected function getScopeRegistry(): RouteScopeRegistry;

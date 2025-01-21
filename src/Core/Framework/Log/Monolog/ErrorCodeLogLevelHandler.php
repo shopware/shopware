@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
-#[Package('core')]
+#[Package('framework')]
 class ErrorCodeLogLevelHandler extends AbstractHandler
 {
     /**

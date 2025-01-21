@@ -32,7 +32,7 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
  * @internal
  */
 #[CoversClass(LicenseSyncSubscriber::class)]
-#[Package('core')]
+#[Package('framework')]
 class LicenseSyncSubscriberTest extends TestCase
 {
     /**

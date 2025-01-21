@@ -10,7 +10,7 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MessageSizeCalculator
 {
     /**

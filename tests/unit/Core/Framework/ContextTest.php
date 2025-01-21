@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Context::class)]
 class ContextTest extends TestCase
 {

@@ -13,7 +13,7 @@ use Symfony\Component\Lock\LockFactory;
 /**
  * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
  */
-#[Package('checkout')]
+#[Package('framework')]
 class IncrementRedisStorage extends AbstractIncrementStorage
 {
     /**

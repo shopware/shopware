@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class NullConnection extends Connection
 {
     final public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';

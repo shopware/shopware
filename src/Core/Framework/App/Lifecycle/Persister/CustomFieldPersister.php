@@ -19,7 +19,7 @@ use Shopware\Core\System\CustomField\CustomFieldCollection;
  *
  * @phpstan-import-type CustomFieldSetArray from CustomFieldSet
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomFieldPersister
 {
     /**

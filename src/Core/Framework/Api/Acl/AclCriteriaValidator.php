@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-#[Package('core')]
+#[Package('framework')]
 class AclCriteriaValidator
 {
     /**

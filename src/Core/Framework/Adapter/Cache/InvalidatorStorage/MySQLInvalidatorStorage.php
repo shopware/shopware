@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorageTest
  */
-#[Package('core')]
+#[Package('framework')]
 class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 {
     private const TABLE_NAME = 'invalidation_tags';

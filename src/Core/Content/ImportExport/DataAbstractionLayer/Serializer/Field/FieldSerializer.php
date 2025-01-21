@@ -30,7 +30,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class FieldSerializer extends AbstractFieldSerializer
 {
     /**

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelApiSource implements ContextSource, \JsonSerializable
 {
     use JsonSerializableTrait;

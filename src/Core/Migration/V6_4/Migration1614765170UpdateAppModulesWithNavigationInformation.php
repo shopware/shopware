@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1614765170UpdateAppModulesWithNavigationInformation extends MigrationStep
 {
     public function getCreationTimestamp(): int

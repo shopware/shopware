@@ -9,7 +9,7 @@ use Symfony\Bundle\TwigBundle\TemplateIterator as TwigBundleIterator;
 /**
  * @implements \IteratorAggregate<int, string>
  */
-#[Package('core')]
+#[Package('framework')]
 class TemplateIterator implements \IteratorAggregate
 {
     /**

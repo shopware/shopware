@@ -76,6 +76,7 @@ class TwigEnvironment extends Environment
                 break;
             }
         }
+
         return [$lines, $lineNumber ?? null];
     }
 }

@@ -3,6 +3,7 @@ title: Remove the asterisk next to every price
 issue: NEXT-39225
 ---
 # Storefront
+* Added new block `component_product_box_price_tax_info` in `Resources/views/storefront/component/product/card/price-unit.html.twig` to display the tax and shipping information like on the product detail page.
 * Deprecated the asterisk (*) next to every price in the following templates. The tax and shipping costs information is either already shown in the current context or will be replaced with an actual text.
     * Cart and order line items (Info already shown in the cart summary)
         - `Resources/views/storefront/component/line-item/element/total-price.html.twig` 

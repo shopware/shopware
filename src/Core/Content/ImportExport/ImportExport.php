@@ -39,7 +39,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @phpstan-type ImportData array{record: array<string, mixed>, original: array<string, mixed>}
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';

@@ -8,7 +8,7 @@ const PSEUDO_MODAL_TEMPLATE_TITLE_CLASS = 'js-pseudo-modal-template-title-elemen
 const PSEUDO_MODAL_TEMPLATE_ROOT_CLASS = 'js-pseudo-modal-template-root-element';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class PseudoModalUtil {
     constructor(

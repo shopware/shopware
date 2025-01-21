@@ -41,7 +41,7 @@ async function createWrapper(plugin, showDescription) {
 }
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
     it('displays correct icon and basic information', async () => {

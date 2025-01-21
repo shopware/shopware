@@ -6,7 +6,7 @@ use Monolog\Level;
 use Shopware\Core\Framework\Event\IsFlowEventAware;
 
 #[IsFlowEventAware]
-#[Package('core')]
+#[Package('framework')]
 interface LogAware
 {
     /**

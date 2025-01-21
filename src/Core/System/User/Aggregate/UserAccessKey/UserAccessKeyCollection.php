@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<UserAccessKeyEntity>
  */
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class UserAccessKeyCollection extends EntityCollection
 {
     public function getUserIds(): array

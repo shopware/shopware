@@ -8,8 +8,9 @@ import 'src/app/component/form/sw-password-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
+import { ref } from 'vue';
 
-async function createWrapper(additionalOptions = {}) {
+async function createWrapper({ provide, ...additionalOptions } = {}) {
     return mount(await wrapTestComponent('sw-password-field-deprecated', { sync: true }), {
         global: {
             stubs: {
@@ -28,6 +29,7 @@ async function createWrapper(additionalOptions = {}) {
             },
             provide: {
                 validationService: {},
+                ...provide,
             },
         },
         ...additionalOptions,
@@ -123,5 +125,16 @@ describe('components/form/sw-password-field', () => {
         await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from slot');
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = await createWrapper({
+            provide: {
+                ariaLabel: ref('Aria Label'),
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

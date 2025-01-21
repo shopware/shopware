@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[CoversClass(Gateways::class)]
-#[Package('core')]
+#[Package('framework')]
 class GatewaysTest extends TestCase
 {
     public function testParse(): void

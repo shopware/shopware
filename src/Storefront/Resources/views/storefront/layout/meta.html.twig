@@ -1,3 +1,5 @@
+{# @sw-package framework #}
+
 {% block layout_head_inner %}
     {% set metaInformation = page.metaInformation %}
     {% set basicConfig = config('core.basicInformation') %}
@@ -201,6 +203,10 @@
             <script>
                 window.themeAssetsPublicPath = '{{ asset('assets/', 'theme') }}';
             </script>
+        {% endblock %}
+
+        {% block layout_head_form_validation_messages %}
+            {% sw_include '@Storefront/storefront/utilities/form-validation-config.html.twig' %}
         {% endblock %}
 
         {% block layout_head_javascript_hmr_mode %}

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 abstract class AbstractMediaSerializer extends EntitySerializer
 {
     abstract public function persistMedia(EntityWrittenEvent $event): void;

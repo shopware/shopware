@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[Package('core')]
+#[Package('framework')]
 class ShopwareStyle extends SymfonyStyle
 {
     public function createProgressBar(int $max = 0): ProgressBar

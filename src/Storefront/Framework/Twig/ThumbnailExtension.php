@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Twig\TokenParser\ThumbnailTokenParser;
 use Twig\Extension\AbstractExtension;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThumbnailExtension extends AbstractExtension
 {
     /**

@@ -15,7 +15,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1580746806AddPaymentStates extends MigrationStep
 {
     public function getCreationTimestamp(): int

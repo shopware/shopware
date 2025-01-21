@@ -30,7 +30,7 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
 
-#[Package('core')]
+#[Package('framework')]
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array

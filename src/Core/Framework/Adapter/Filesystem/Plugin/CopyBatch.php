@@ -7,7 +7,7 @@ use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class CopyBatch
 {
     public static function copy(FilesystemOperator $filesystem, CopyBatchInput ...$files): void

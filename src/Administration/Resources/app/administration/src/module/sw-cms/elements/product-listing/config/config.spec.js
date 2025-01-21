@@ -93,6 +93,7 @@ async function createWrapper(activeTab = 'sorting') {
                     'router-link': true,
                     'sw-button': true,
                     'sw-data-grid-skeleton': true,
+                    'sw-provide': true,
                 },
                 provide: {
                     cmsService: {

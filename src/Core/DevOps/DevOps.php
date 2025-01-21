@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class DevOps extends Bundle
 {
     /**

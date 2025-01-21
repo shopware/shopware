@@ -30,7 +30,7 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
 
-#[Package('core')]
+#[Package('framework')]
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;

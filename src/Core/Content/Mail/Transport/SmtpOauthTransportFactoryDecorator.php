@@ -12,7 +12,7 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SmtpOauthTransportFactoryDecorator implements TransportFactoryInterface
 {
     public const OPTION_KEY_USE_OAUTH = 'use_oauth';

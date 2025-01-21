@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
@@ -76,6 +76,7 @@ async function createWrapper(profiles = null) {
                     'sw-data-grid-inline-edit': true,
                     'sw-data-grid-skeleton': true,
                     'sw-pagination': true,
+                    'sw-provide': true,
                 },
                 provide: {
                     importExport: new ImportExportService(),

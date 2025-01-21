@@ -13,7 +13,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ProfilerController
 {
     /**

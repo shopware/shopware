@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class IdsCollection
 {
     /**

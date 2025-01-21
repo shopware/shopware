@@ -20,7 +20,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(DocumentConfigLoader::class)]
 class DocumentConfigLoaderTest extends TestCase
 {

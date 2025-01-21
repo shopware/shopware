@@ -48,7 +48,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentGeneratorTest extends TestCase
 {
     use AppSystemTestBehaviour;

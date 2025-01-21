@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelCreatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

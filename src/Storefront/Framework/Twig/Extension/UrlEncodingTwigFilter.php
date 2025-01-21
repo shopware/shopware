@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-#[Package('storefront')]
+#[Package('framework')]
 class UrlEncodingTwigFilter extends AbstractExtension
 {
     /**

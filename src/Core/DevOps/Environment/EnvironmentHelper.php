@@ -4,7 +4,7 @@ namespace Shopware\Core\DevOps\Environment;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class EnvironmentHelper
 {
     /**

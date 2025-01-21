@@ -1,7 +1,7 @@
 import convertUnit from './unit-conversion.utils';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 describe('src/module/sw-promotion/utils/unit-conversion.utils.js', () => {
     describe('weights', () => {

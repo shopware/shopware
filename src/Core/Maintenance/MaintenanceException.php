@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class MaintenanceException extends HttpException
 {
     final public const MAINTENANCE_SYMFONY_CONSOLE_APPLICATION_NOT_FOUND = 'MAINTENANCE__SYMFONY_CONSOLE_APPLICATION_NOT_FOUND';

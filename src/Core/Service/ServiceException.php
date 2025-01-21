@@ -10,7 +10,7 @@ use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class ServiceException extends HttpException
 {
     public const NOT_FOUND = 'SERVICE__NOT_FOUND';

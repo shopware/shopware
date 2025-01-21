@@ -1,7 +1,7 @@
 import template from './sw-first-run-wizard-shopware-base.html.twig';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

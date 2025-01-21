@@ -53,7 +53,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class GenerateDocumentActionTest extends TestCase
 {
     use AdminApiTestBehaviour;

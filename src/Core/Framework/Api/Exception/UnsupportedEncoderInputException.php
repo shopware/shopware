@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @deprecated tag:v6.7.0 - Will be removed. Use ApiException::unsupportedEncoderInput instead
  */
-#[Package('core')]
+#[Package('framework')]
 class UnsupportedEncoderInputException extends ShopwareHttpException
 {
     /**

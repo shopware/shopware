@@ -1,3 +1,5 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_external_link %}
 <a
     v-if="$attrs.hasOwnProperty('href')"
     v-bind="$attrs"
@@ -30,3 +32,4 @@
         :name="icon"
     />
 </span>
+{% endblock %}

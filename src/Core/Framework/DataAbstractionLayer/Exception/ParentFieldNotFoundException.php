@@ -11,7 +11,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @deprecated tag:v6.7.0 - Will be removed. Use DataAbstractionLayerException::parentFieldNotFound instead
  */
-#[Package('core')]
+#[Package('framework')]
 class ParentFieldNotFoundException extends ShopwareHttpException
 {
     public function __construct(EntityDefinition $definition)

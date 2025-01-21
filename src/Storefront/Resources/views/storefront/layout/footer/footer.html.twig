@@ -222,8 +222,10 @@
                         {%- endif -%}
 
                         <p>
+                            {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
                             {{ shippingSnippetKey|trans({
-                                '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
                             })|raw }}
                         </p>
                     </div>

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.7.0 - Will be removed without replacement
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ControllerInfo
 {
     private ?string $action = null;

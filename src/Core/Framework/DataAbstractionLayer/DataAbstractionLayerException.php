@@ -33,7 +33,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('core')]
+#[Package('framework')]
 class DataAbstractionLayerException extends HttpException
 {
     public const INVALID_FIELD_SERIALIZER_CODE = 'FRAMEWORK__INVALID_FIELD_SERIALIZER';
@@ -77,6 +77,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_DATE_FORMAT = 'FRAMEWORK__INVALID_DATE_FORMAT';
     public const INVALID_DATE_HISTOGRAM_INTERVAL = 'FRAMEWORK__INVALID_DATE_HISTOGRAM_INTERVAL';
     public const INVALID_TIMEZONE = 'FRAMEWORK__INVALID_TIMEZONE';
+    public const INVALID_ENUM_FIELD = 'FRAMEWORK__INVALID_ENUM_FIELD';
     public const CANNOT_FIND_PARENT_STORAGE_FIELD = 'FRAMEWORK__CAN_NOT_FIND_PARENT_STORAGE_FIELD';
     public const INVALID_PARENT_ASSOCIATION_EXCEPTION = 'FRAMEWORK__INVALID_PARENT_ASSOCIATION_EXCEPTION';
     public const PARENT_FIELD_KEY_CONSTRAINT_MISSING = 'FRAMEWORK__PARENT_FIELD_KEY_CONSTRAINT_MISSING';
@@ -84,6 +85,7 @@ class DataAbstractionLayerException extends HttpException
     public const PRIMARY_KEY_NOT_PROVIDED = 'FRAMEWORK__PRIMARY_KEY_NOT_PROVIDED';
     public const NO_GENERATOR_FOR_FIELD_TYPE = 'FRAMEWORK__NO_GENERATOR_FOR_FIELD_TYPE';
     public const FOREIGN_KEY_NOT_FOUND_IN_DEFINITION = 'FRAMEWORK__FOREIGN_KEY_NOT_FOUND_IN_DEFINITION';
+    public const INVALID_CHUNK_SIZE = 'FRAMEWORK__INVALID_CHUNK_SIZE';
     public const HOOK_INJECTION_EXCEPTION = 'FRAMEWORK__HOOK_INJECTION_EXCEPTION';
     public const FRAMEWORK_DEPRECATED_DEFINITION_CALL = 'FRAMEWORK__DEPRECATED_DEFINITION_CALL';
 
@@ -752,6 +754,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    public static function invalidEnumField(string $field, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_ENUM_FIELD,
+            'Expected "{{ field }}" to be a BackedEnum. Got "{{ actualType }}" instead.',
+            ['field' => $field, 'actualType' => $actualType]
+        );
+    }
+
     public static function invalidWriteConstraintViolation(ConstraintViolationList $violationList, string $getPath): WriteConstraintViolationException
     {
         return new WriteConstraintViolationException($violationList, $getPath);
@@ -774,6 +786,16 @@ class DataAbstractionLayerException extends HttpException
             self::FOREIGN_KEY_NOT_FOUND_IN_DEFINITION,
             'Foreign key for association "{{ association }}" not found. Please add one to "{{ entityDefinition }}"',
             ['association' => $association, 'entityDefinition' => $entityDefinition]
+        );
+    }
+
+    public static function invalidChunkSize(int $size): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CHUNK_SIZE,
+            'Parameter $chunkSize needs to be a positive integer starting with 1, "{{ size }}" given',
+            ['size' => $size]
         );
     }
 

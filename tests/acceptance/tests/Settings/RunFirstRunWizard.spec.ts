@@ -1,6 +1,9 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { isSaaSInstance } from '@fixtures/AcceptanceTest';
 
+/**
+ * @sw-package fundamentals@after-sales
+ */
 test('Merchant is able to be guided through the First Run Wizard.', { tag: '@FirstRunWizard' }, async ({
     FRWSalesChannelSelectionPossibility,
     ShopAdmin,

@@ -58,7 +58,7 @@ use Symfony\Component\Mime\Part\DataPart;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SendMailActionTest extends TestCase
 {
     use IntegrationTestBehaviour;

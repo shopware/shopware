@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AppDownloadException extends AppException
 {
     public const APP_DOWNLOAD_WRITE_FAILED = 'FRAMEWORK__APP_DOWNLOAD_WRITE_FAILED';

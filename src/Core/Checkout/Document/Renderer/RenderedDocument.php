@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 final class RenderedDocument extends Struct
 {
     private string $content;

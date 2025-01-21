@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[AsCommand(name: 'feature:disable', description: 'Disable feature flags')]
 final class FeatureDisableCommand extends Command
 {

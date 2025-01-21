@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\RateLimiter\Storage\CacheStorage;
 
-#[Package('core')]
+#[Package('framework')]
 class RateLimiterCompilerPass implements CompilerPassInterface
 {
     private const DEFAULT_ENABLED_STATE = true;

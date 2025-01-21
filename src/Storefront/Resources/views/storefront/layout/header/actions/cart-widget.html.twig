@@ -8,6 +8,7 @@
         <span class="badge bg-primary header-cart-badge">{{ page.cart.lineItems|length }}</span>
     {% endif %}
     <span class="header-cart-total">
-        {{ page.cart.price.positionPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
+        {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is only needed adjecent to "add to cart" buttons. #}
+        {{ page.cart.price.positionPrice|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
     </span>
 {% endblock %}

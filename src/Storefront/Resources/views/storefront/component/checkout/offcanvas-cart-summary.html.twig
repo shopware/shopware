@@ -10,7 +10,8 @@
 
                 {% block component_offcanvas_summary_total_value %}
                     <dd class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-4{% else %}col-5{% endif %} summary-value summary-total">
-                        <strong>{{ page.cart.price.positionPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}</strong>
+                        {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+                        <strong>{{ page.cart.price.positionPrice|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</strong>
                     </dd>
                 {% endblock %}
             {% endblock %}
@@ -35,7 +36,8 @@
 
                         <span class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-4{% else %}col-5{% endif %} pb-2 shipping-value shipping-cost">
                             {% set shippingTotalPrice = activeShipping.shippingCosts.totalPrice ?? 0 %}
-                            <strong>{{ shippingTotalPrice < 0 ? '&minus;' : '+' }} {{ shippingTotalPrice|abs|currency }}{{ 'general.star'|trans|sw_sanitize }}</strong>
+                            {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+                            <strong>{{ shippingTotalPrice < 0 ? '&minus;' : '+' }} {{ shippingTotalPrice|abs|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</strong>
                         </span>
                     </div>
                 {% endblock %}
@@ -78,7 +80,9 @@
     {% block component_offcanvas_summary_tax_info %}
         <p class="offcanvas-cart-tax">
             <small>
-                {{ 'general.star'|trans|sw_sanitize }}
+                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+                {% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
+
                 {% if page.cart.price.taxStatus == 'gross' %}
                     {{ 'general.grossTaxInformation'|trans|sw_sanitize }}
                 {% else %}

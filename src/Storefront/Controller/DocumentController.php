@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('framework')]
 class DocumentController extends StorefrontController
 {
     /**

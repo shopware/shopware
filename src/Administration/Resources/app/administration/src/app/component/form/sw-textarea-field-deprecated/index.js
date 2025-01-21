@@ -1,3 +1,4 @@
+import { inject } from 'vue';
 import template from './sw-textarea-field.html.twig';
 import './sw-textarea-field.scss';
 
@@ -45,6 +46,14 @@ Component.register('sw-textarea-field-deprecated', {
             type: String,
             required: false,
             default: null,
+        },
+
+        ariaLabel: {
+            type: String,
+            required: false,
+            default() {
+                return inject('ariaLabel', null)?.value;
+            },
         },
     },
 

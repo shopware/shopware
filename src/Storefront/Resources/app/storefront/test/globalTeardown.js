@@ -8,7 +8,7 @@ import xml2js from 'xml2js';
  * in the cobertura file to the classes directly. This is needed because GitLab
  * has no support for the <sources> yet.
  *
- * @package storefront
+ * @sw-package framework
  */
 module.exports = function testTeardown(globalConfig) {
 

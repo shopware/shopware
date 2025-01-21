@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ManyToOneProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToOneProductExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -73,15 +72,14 @@ class VersionManagerTest extends TestCase
             ALTER TABLE `product`
             DROP FOREIGN KEY `fk.product.many_to_one_id`;
         ');
-        $this->connection->executeStatement('DROP TABLE `many_to_one_product`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `many_to_one_product`');
         $this->connection->executeStatement('
             ALTER TABLE `product`
             DROP COLUMN `many_to_one_id`
         ');
         $this->connection->beginTransaction();
 
-        // reboot kernel to create a new container since we manipulated the original one
-        KernelLifecycleManager::bootKernel();
+        parent::tearDown();
     }
 
     public function testWhenAddAnExtensionWithFKIdThenFKIdShouldBeCloned(): void

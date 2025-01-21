@@ -274,7 +274,6 @@ class VersionManagerTest extends TestCase
             ProductDefinition::class,
             ToOneProductExtension::class
         );
-        $this->connection->rollBack();
 
         $this->connection->executeStatement('
             DROP TABLE IF EXISTS `many_to_one_product`;

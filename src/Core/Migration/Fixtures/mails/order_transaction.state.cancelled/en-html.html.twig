@@ -148,7 +148,7 @@ You have not completed your payment with {{ order.transactions.first.paymentMeth
     You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
     </br>
     If you have any questions, do not hesitate to contact us.
-
+    <br><br>
     {% if a11yDocuments %}
         For better accessibility we also provide an HTML version of the documents here:<br><br>
 

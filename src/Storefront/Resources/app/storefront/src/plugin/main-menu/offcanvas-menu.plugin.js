@@ -16,7 +16,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
         /** @deprecated tag:v6.7.0 - property "tiggerEvent" will be removed. Use "triggerEvent" instead */
         tiggerEvent: 'click',
         triggerEvent: 'click',
-        activeNavigationId: null,
 
         additionalOffcanvasClass: 'navigation-offcanvas',
         linkSelector: '.js-navigation-offcanvas-link',
@@ -99,7 +98,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
             this._content = initialContentElement.innerHTML;
 
             if (window.Feature.isActive('CACHE_REWORK')) {
-                const url = `${this.options.navigationUrl}?navigationId=${this.options.activeNavigationId}`;
+                const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
 
                 return this._fetchMenu(url, (htmlResponse) => {
                     const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);

@@ -1,3 +1,5 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_iframe_renderer %}
 <div :class="classes">
     <template v-if="componentName">
         <component :is="componentName" />
@@ -23,3 +25,4 @@
         :height="iFrameHeight"
     ></iframe>
 </div>
+{% endblock %}

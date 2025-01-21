@@ -210,16 +210,16 @@
             "displayModeCover": "Cropped",
             "displayModeStretch": "Scaled",
             "displayModeContain": "Fixed height",
-            "autoSlide": "Automatic image transition",
+            "autoSlide": "Automatic transition",
             "autoplayTimeout": "Delay",
-            "speed": "Animation delay",
+            "speed": "Animation duration",
             "horizontalAlign": "Horizontal align",
             "horizontalAlignLeft": "Left",
             "horizontalAlignCenter": "Center",
             "horizontalAlignRight": "Right"
           },
           "helpText": {
-            "autoSlide": "The images transition automatically.",
+            "autoSlide": "Temporarily disabled due to lack of accessibility.",
             "autoplayTimeout": "The millisecond duration for how long the slide should stay still.",
             "speed": "The millisecond duration of the sliding animation.",
             "displayMode": "<strong>Original:</strong> The image is displayed in its original resolution or shrunk down to current CMS page's width.<br><br><strong>Scaled:</strong> The image is scaled to the CMS page's width without any height restrictions.<br><br><strong>Cropped:</strong> The image is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured maximum height."

@@ -26,7 +26,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'theme:dump',
     description: 'Dump the theme configuration',
 )]
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeDumpCommand extends Command
 {
     private readonly Context $context;

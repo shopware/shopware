@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 class FirstRunWizardClient
 {
     public function __construct(

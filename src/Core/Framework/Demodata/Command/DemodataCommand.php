@@ -42,7 +42,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
     name: 'framework:demodata',
     description: 'Generates demo data',
 )]
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class DemodataCommand extends Command
 {
     /**

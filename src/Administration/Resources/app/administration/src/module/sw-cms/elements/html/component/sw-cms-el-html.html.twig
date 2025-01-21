@@ -1,3 +1,5 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_el_html %}
 <div class="sw-cms-el-html">
     <sw-code-editor
         v-model:value="element.config.content.value"
@@ -5,3 +7,4 @@
         :editor-config="editorConfig"
     />
 </div>
+{% endblock %}

@@ -145,6 +145,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                     'router-link': true,
                     'sw-select-field': true,
                     'sw-loader': true,
+                    'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                 },
                 provide: {
                     stateStyleDataProviderService: {

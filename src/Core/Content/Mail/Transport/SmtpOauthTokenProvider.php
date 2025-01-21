@@ -13,7 +13,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SmtpOauthTokenProvider
 {
     private const GRANT_TYPE = 'client_credentials';

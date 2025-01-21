@@ -44,12 +44,13 @@ class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAwa
     public function getMailStruct(): MailRecipientStruct
     {
         if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
-            if ($this->order->getOrderCustomer() === null) {
+            $orderCustomer = $this->order->getOrderCustomer();
+            if (!$orderCustomer) {
                 throw new MailEventConfigurationException('Data for mailRecipientStruct not available.', self::class);
             }
 
             $this->mailRecipientStruct = new MailRecipientStruct([
-                $this->order->getOrderCustomer()->getEmail() => $this->order->getOrderCustomer()->getFirstName() . ' ' . $this->order->getOrderCustomer()->getLastName(),
+                $orderCustomer->getEmail() => $orderCustomer->getFirstName() . ' ' . $orderCustomer->getLastName(),
             ]);
         }
 
@@ -73,17 +74,17 @@ class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAwa
 
     public function getOrderId(): string
     {
-        return $this->getOrder()->getId();
+        return $this->order->getId();
     }
 
     public function getCustomerId(): string
     {
-        $customer = $this->getOrder()->getOrderCustomer();
+        $orderCustomer = $this->order->getOrderCustomer();
 
-        if ($customer === null || $customer->getCustomerId() === null) {
-            throw OrderException::orderCustomerDeleted($this->getOrderId());
+        if (!$orderCustomer?->getCustomerId()) {
+            throw OrderException::orderCustomerDeleted($this->order->getId());
         }
 
-        return $customer->getCustomerId();
+        return $orderCustomer->getCustomerId();
     }
 }

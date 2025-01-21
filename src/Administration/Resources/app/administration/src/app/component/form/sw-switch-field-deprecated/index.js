@@ -1,3 +1,4 @@
+import { inject } from 'vue';
 import template from './sw-switch-field-deprecated.html.twig';
 import './sw-switch-field-deprecated.scss';
 
@@ -45,6 +46,13 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
                     'medium',
                     'default',
                 ].includes(val);
+            },
+        },
+        ariaLabel: {
+            type: String,
+            required: false,
+            default() {
+                return inject('ariaLabel', null)?.value;
             },
         },
     },

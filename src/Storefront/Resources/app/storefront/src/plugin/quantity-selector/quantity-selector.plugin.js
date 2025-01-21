@@ -1,5 +1,5 @@
 /*
- * @package storefront
+ * @sw-package framework
  */
 
 import Plugin from 'src/plugin-system/plugin.class';

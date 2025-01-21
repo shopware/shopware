@@ -32,7 +32,7 @@ class ProductDetailRouteBench extends AbstractBenchCase
         static::getContainer()->get(Connection::class)->beginTransaction();
     }
 
-    #[Bench\BeforeMethods(['setup'])]
+    #[Bench\BeforeMethods(['setUp'])]
     #[Bench\Groups(['custom-pricing'])]
     #[Bench\Assert('mean(variant.time.avg) < 30ms +/- 5ms')]
     public function bench_load_product_detail_route_with_logged_out_user(): void

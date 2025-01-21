@@ -1,5 +1,5 @@
 /*
- * @package storefront
+ * @sw-package framework
  *
  * @experimental stableVersion:v6.8.0 feature:SPECULATION_RULES
  */

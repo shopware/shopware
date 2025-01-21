@@ -81,7 +81,7 @@ class CheckoutGatewayRouteTest extends TestCase
         );
 
         $ruleId = Uuid::randomHex();
-        $context->getContext()->setRuleIds([$ruleId]);
+        $context->setRuleIds([$ruleId]);
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
@@ -163,7 +163,7 @@ class CheckoutGatewayRouteTest extends TestCase
         );
 
         $ruleId = Uuid::randomHex();
-        $context->getContext()->setRuleIds([$ruleId]);
+        $context->setRuleIds([$ruleId]);
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());

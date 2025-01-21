@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class HttpException extends ShopwareHttpException
 {
     protected static string $couldNotFindMessage = 'Could not find {{ entity }} with {{ field }} "{{ value }}"';

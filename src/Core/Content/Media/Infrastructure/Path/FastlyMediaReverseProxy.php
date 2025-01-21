@@ -12,7 +12,7 @@ use Shopware\Core\Content\Media\Core\Application\MediaReverseProxy;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('discovery')]
 class FastlyMediaReverseProxy implements MediaReverseProxy
 {
     private const API_URL = 'https://api.fastly.com';

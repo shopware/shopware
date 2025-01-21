@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-#[Package('core')]
+#[Package('framework')]
 class BuildBreadcrumbExtension extends AbstractExtension
 {
     /**

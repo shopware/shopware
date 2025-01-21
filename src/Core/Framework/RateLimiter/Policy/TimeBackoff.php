@@ -11,7 +11,7 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
  *
  * @phpstan-type TimeBackoffLimit array{limit: int, interval: string}
  */
-#[Package('core')]
+#[Package('framework')]
 class TimeBackoff implements LimiterStateInterface
 {
     private int $attempts;

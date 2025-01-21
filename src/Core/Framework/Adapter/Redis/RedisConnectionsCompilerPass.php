@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Reference;
  *
  * @phpstan-type ConnectionConfiguration array{dsn: string}
  */
-#[Package('core')]
+#[Package('framework')]
 class RedisConnectionsCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

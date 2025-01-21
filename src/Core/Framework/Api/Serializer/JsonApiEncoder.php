@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 
-#[Package('core')]
+#[Package('framework')]
 class JsonApiEncoder
 {
     /**

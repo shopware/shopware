@@ -63,7 +63,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @deprecated tag:v6.7.0 - Will be removed with \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(SchemaGenerator::class)]
 class SchemaGeneratorTest extends TestCase
 {

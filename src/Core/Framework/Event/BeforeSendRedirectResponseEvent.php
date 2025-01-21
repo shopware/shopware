@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class BeforeSendRedirectResponseEvent extends BeforeSendResponseEvent
 {
 }

@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PluginManagementService
 {
     final public const PLUGIN = 'plugin';

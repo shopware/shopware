@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
 import createHTTPClient from 'src/core/factory/http.factory';

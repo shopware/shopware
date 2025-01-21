@@ -71,7 +71,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchDateHistogramAggregation;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Sort\CountSort;
 
-#[Package('core')]
+#[Package('framework')]
 class CriteriaParser
 {
     /**

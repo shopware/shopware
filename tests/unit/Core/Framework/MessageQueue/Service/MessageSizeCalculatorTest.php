@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(MessageSizeCalculator::class)]
 class MessageSizeCalculatorTest extends TestCase
 {

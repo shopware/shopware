@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class PrefixFilter extends SingleFieldFilter
 {
     protected readonly string $value;

@@ -9,7 +9,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class Storefront extends XmlElement
 {
     protected int $templateLoadPriority = 0;

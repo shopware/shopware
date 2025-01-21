@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(AppRegistrationService::class)]
 class AppRegistrationServiceTest extends TestCase
 {

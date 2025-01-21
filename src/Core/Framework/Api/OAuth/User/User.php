@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\OAuth\User;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class User implements UserEntityInterface
 {
     public function __construct(private readonly string $userId)

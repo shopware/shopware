@@ -225,7 +225,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $id = $this->getNewsletterRecipientId($data['email'], $context);
 
         $data['id'] = $id ?: Uuid::randomHex();
-        $data['languageId'] = $context->getContext()->getLanguageId();
+        $data['languageId'] = $context->getLanguageId();
         $data['salesChannelId'] = $context->getSalesChannelId();
         $data['status'] = $this->getOptionSelection($context)[$data['option']];
         $data['hash'] = Uuid::randomHex();

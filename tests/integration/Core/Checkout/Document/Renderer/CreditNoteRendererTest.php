@@ -334,7 +334,7 @@ class CreditNoteRendererTest extends TestCase
 
         static::getContainer()->get('customer.repository')->update([
             [
-                'id' => $this->salesChannelContext->getCustomer()->getId(),
+                'id' => $this->salesChannelContext->getCustomerId(),
                 'groupId' => $groupNet ? $this->createNetCustomerGroup() : $this->createGrossCustomerGroup(),
             ],
         ], $this->salesChannelContext->getContext());

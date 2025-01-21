@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class SynchronousPostUpdateIndexer extends PostUpdateIndexer
 {
 }

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigTest;
 
-#[Package('core')]
+#[Package('framework')]
 class InstanceOfExtension extends AbstractExtension
 {
     public function getTests(): array

@@ -16,7 +16,7 @@ use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestSkippedSubsc
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FeatureFlagExtension implements Extension
 {
     private const DEFAULT_TEST_NAMESPACE_PREFIX = 'Shopware\\Tests\\Unit\\';

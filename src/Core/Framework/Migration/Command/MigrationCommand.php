@@ -21,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'database:migrate',
     description: 'Executes all migrations',
 )]
-#[Package('core')]
+#[Package('framework')]
 class MigrationCommand extends Command
 {
     /**

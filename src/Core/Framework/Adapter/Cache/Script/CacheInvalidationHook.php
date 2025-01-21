@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Script\Execution\Hook;
  *
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheInvalidationHook extends Hook
 {
     final public const HOOK_NAME = 'cache-invalidation';

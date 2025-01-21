@@ -18,7 +18,7 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'user.recovery.request';
@@ -91,6 +91,6 @@ class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, Sc
 
     public function getUserId(): string
     {
-        return $this->getUserRecovery()->getId();
+        return $this->userRecovery->getId();
     }
 }

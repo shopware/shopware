@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class VersionCommitDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'version_commit';

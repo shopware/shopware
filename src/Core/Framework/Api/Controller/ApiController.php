@@ -53,7 +53,7 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
  * @phpstan-type EntityPathSegment array{entity: string, value: ?string, definition: EntityDefinition, field: ?Field}
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
+#[Package('framework')]
 class ApiController extends AbstractController
 {
     final public const WRITE_UPDATE = 'update';

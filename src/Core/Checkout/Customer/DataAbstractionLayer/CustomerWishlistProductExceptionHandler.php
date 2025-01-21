@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('checkout')]
 class CustomerWishlistProductExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

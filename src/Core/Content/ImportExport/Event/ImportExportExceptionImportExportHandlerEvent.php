@@ -6,7 +6,7 @@ use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportExceptionImportExportHandlerEvent extends Event
 {
     public function __construct(

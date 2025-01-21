@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Events;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class InvalidateProductCache implements ProductChangedEventInterface
 {
     /**

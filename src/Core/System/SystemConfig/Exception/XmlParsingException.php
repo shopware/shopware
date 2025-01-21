@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - will be removed, use domain specific xmlParsingExceptions instead
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class XmlParsingException extends ShopwareHttpException
 {
     public function __construct(

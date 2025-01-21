@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @codeCoverageIgnore It's not possible to test without hacky solutions and relying on internals
  */
-#[Package('core')]
+#[Package('framework')]
 class RemoveDevServices implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

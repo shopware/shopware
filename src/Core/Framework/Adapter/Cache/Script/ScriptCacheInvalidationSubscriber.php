@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptCacheInvalidationSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly ScriptExecutor $scriptExecutor)

@@ -55,7 +55,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class VersionManager
 {
     final public const DISABLE_AUDIT_LOG = 'disable-audit-log';

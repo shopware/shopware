@@ -29,7 +29,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigService implements ResetInterface
 {
     /**

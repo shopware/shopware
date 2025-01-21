@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationSource;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MigrationCollectionFactory
 {
     public function __construct(private readonly string $projectDir)

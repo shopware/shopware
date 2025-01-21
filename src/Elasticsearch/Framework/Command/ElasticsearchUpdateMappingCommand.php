@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'es:mapping:update',
     description: 'Update the Elasticsearch indices mapping',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchUpdateMappingCommand extends Command
 {
     /**

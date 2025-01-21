@@ -51,15 +51,9 @@ class TwigEnvironment extends Environment
         if (
             str_contains($source, 'getTemplateForMacro')
             && str_contains($source, 'SwTwigFunction::$macroResult =')
-            && !str_contains($source, 'CoreExtension::getAttribute')
+            && (!str_contains($source, 'CoreExtension::getAttribute') || str_contains($source, 'ComparisonExtension'))
         ) {
-            $lines = explode("\n", $source);
-            foreach ($lines as $index => $line) {
-                if (str_contains($line, 'getTemplateForMacro')) {
-                    $lineNumber = $index;
-                    break;
-                }
-            }
+            [$lines, $lineNumber] = $this->extractLinesAndNumber($source);
             if (isset($lineNumber)) {
                 $callMacroResult = 'yield SwTwigFunction::$macroResult;';
                 array_splice($lines, $lineNumber + 1, 0, $callMacroResult);
@@ -68,5 +62,20 @@ class TwigEnvironment extends Environment
         }
 
         return $updatedSource ?? $source;
+    }
+
+    /**
+     * @return array{array<string>, int|null}
+     */
+    private function extractLinesAndNumber(string $source): array
+    {
+        $lines = explode("\n", $source);
+        foreach ($lines as $index => $line) {
+            if (str_contains($line, 'getTemplateForMacro')) {
+                $lineNumber = $index;
+                break;
+            }
+        }
+        return [$lines, $lineNumber ?? null];
     }
 }

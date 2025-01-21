@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class RangeFilter extends SingleFieldFilter
 {
     final public const LTE = 'lte';

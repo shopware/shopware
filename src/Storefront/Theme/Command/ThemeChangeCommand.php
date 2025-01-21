@@ -26,7 +26,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'theme:change',
     description: 'Change the active theme for a sales channel',
 )]
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeChangeCommand extends Command
 {
     private readonly Context $context;

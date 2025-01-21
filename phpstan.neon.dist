@@ -15,7 +15,7 @@ parameters:
     # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:
         constantHassers: false
-        containerXmlPath: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
+        containerXmlPath: 'var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
 
     excludePaths:
@@ -109,6 +109,9 @@ parameters:
         -
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
             path: src/*/*Hydrator.php
+        -
+            message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
+            path: tests/*/*Hydrator.php
         -
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
@@ -268,3 +271,8 @@ parameters:
             message: '#Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with .* and .* will always evaluate to true.#'
             identifier: staticMethod.alreadyNarrowedType
             path: tests/devops/Core/DefaultsTest.php
+
+        - # The test intentionally uses a union type instead of a native type
+            message: '#Property Shopware\\Tests\\Integration\\Core\\Framework\\DataAbstractionLayer\\fixture\\AttributeEntityUnionEnum::\$enum has unresolvable native type.#'
+            paths:
+                - tests/integration/Core/Framework/DataAbstractionLayer/fixture/AttributeEntityUnionEnum.php

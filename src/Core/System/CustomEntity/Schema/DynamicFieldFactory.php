@@ -45,7 +45,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  *
  * @phpstan-import-type CustomEntityField from CustomEntitySchemaUpdater
  */
-#[Package('core')]
+#[Package('framework')]
 class DynamicFieldFactory
 {
     /**

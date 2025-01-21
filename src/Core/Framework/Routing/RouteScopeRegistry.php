@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Contains all registered RouteScopes in the system
  */
-#[Package('core')]
+#[Package('framework')]
 class RouteScopeRegistry
 {
     /**

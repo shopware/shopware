@@ -23,7 +23,7 @@ class UserConfigControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
     }

@@ -12,7 +12,7 @@ use Symfony\Component\Filesystem\Path;
  * This happens only with the WebInstaller as we don't use the Flex Git feature.
  * Therefore, we need to remove files that are not part of the recipe anymore.
  */
-#[Package('core')]
+#[Package('checkout')]
 class CleanupFiles
 {
     /**

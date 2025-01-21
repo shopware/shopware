@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 final class ReferenceInvoiceLoader
 {
     /**

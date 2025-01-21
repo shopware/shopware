@@ -4,7 +4,7 @@ namespace Shopware\Core;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 final class PlatformRequest
 {
     /**

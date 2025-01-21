@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1654839361ProductDownload extends MigrationStep
 {
     public function getCreationTimestamp(): int

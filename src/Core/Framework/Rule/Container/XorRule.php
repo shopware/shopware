@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * XorRule returns true, if exactly one child rule is true
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class XorRule extends Container
 {
     final public const RULE_NAME = 'xorContainer';

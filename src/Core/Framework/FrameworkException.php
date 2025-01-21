@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
 /**
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class FrameworkException extends HttpException
 {
     private const PROJECT_DIR_NOT_EXISTS = 'FRAMEWORK__PROJECT_DIR_NOT_EXISTS';

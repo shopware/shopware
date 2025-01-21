@@ -40,7 +40,7 @@ class CustomerDoubleOptInRegistrationEventTest extends TestCase
 
     public function testCrud(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $customer = new CustomerEntity();
         $customer->setId('test-id');
 

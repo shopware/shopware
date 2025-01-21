@@ -1,9 +1,8 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package after-sales
  */
-
 const documentBaseConfigRepositoryMock = {
     create: () => {
         return Promise.resolve({});

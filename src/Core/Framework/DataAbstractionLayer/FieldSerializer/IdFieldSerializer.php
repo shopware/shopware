@@ -18,11 +18,16 @@ use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class IdFieldSerializer extends AbstractFieldSerializer
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
+        if (!$field->is(PrimaryKey::class)) {
+            // we only need to save the reference to the entity into the context if it is a primary key
+            return $data;
+        }
+
         $key = $field->getPropertyName();
         if (!isset($data[$key])) {
             $data[$key] = Uuid::randomHex();

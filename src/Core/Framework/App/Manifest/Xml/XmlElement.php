@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  *
  * @phpstan-consistent-constructor
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class XmlElement extends Struct
 {
     protected const REQUIRED_FIELDS = [];

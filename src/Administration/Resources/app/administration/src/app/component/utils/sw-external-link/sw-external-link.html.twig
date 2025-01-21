@@ -1,5 +1,7 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-external-link component #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_external_link %}
 <mt-external-link
     v-if="useMeteorComponent"
     v-bind="$attrs"
@@ -16,9 +18,12 @@
     </template>
     <slot></slot>
 </mt-external-link>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_external_link_deprecated %}
 <sw-external-link-deprecated
     v-else
     v-bind="$attrs"
@@ -36,3 +41,4 @@
     </template>
     <slot></slot>
 </sw-external-link-deprecated>
+{% endblock %}

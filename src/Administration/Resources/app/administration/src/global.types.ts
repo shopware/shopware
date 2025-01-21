@@ -27,7 +27,7 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
-import type { App } from 'vue';
+import type { App, ComponentInternalInstance } from 'vue';
 import type { I18n } from 'vue-i18n';
 import type { Slots } from '@vue/runtime-core';
 import type { Store, mapActions, mapGetters, mapMutations, mapState } from 'vuex';
@@ -96,6 +96,7 @@ import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
 import type { AdminMenuStore } from './app/store/admin-menu.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
+import type { BlockOverrideStore } from './app/store/block-override.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -154,6 +155,9 @@ declare global {
      * Make the Shopware object globally available
      */
     const Shopware: ShopwareClass;
+
+    type Entity<EntityName extends keyof EntitySchema.Entities> = EntitySchema.Entity<EntityName>;
+    type EntityCollection<EntityName extends keyof EntitySchema.Entities> = EntitySchema.EntityCollection<EntityName>;
 
     interface CustomShopwareProperties {}
 
@@ -350,6 +354,7 @@ declare global {
         teaserPopover: TeaserPopoverStore;
         adminMenu: AdminMenuStore;
         inAppPurchaseCheckout: InAppPurchasesStore;
+        blockOverride: BlockOverrideStore;
     }
 
     /**
@@ -437,6 +442,7 @@ interface CustomProperties extends ServiceContainer, LegacyPublicProperties {
     $tc: I18n<{}, {}, {}, string, true>['global']['tc'];
     // eslint-disable-next-line @typescript-eslint/ban-types
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
+    $dataScope: () => ComponentInternalInstance['proxy'];
 }
 
 declare module 'vue' {

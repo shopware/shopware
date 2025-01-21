@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class LicenseController extends InstallerController
 {
     public function __construct(private readonly LicenseFetcher $licenseFetcher)

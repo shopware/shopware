@@ -16,7 +16,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CountrySerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

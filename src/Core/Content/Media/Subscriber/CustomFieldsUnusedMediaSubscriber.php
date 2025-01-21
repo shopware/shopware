@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  *  * @codeCoverageIgnore This would be useless as a unit test. It is integration tested here: \Shopware\Tests\Integration\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriberTest
  */
-#[Package('core')]
+#[Package('discovery')]
 class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
 {
     public function __construct(

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class CustomFieldSetRelationDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'custom_field_set_relation';

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class CascadeDeleteCommand extends DeleteCommand
 {
     public function isValid(): bool

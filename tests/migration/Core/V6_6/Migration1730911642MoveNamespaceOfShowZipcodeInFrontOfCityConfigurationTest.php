@@ -13,7 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1730911642MoveNamespaceOfShowZipcodeIn
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1730911642MoveNamespaceOfShowZipcodeInFrontOfCityConfiguration::class)]
 class Migration1730911642MoveNamespaceOfShowZipcodeInFrontOfCityConfigurationTest extends TestCase
 {

@@ -12,7 +12,7 @@ use Shopware\Core\System\Country\CountryDefinition;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1658786605AddAddressFormatIntoCountryTranslation extends MigrationStep
 {
     public function getCreationTimestamp(): int

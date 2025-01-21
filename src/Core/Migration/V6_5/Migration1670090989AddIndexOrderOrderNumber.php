@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1670090989AddIndexOrderOrderNumber extends MigrationStep
 {
     public function getCreationTimestamp(): int

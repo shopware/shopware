@@ -17,7 +17,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[AsCommand(
     name: 'open-api:validate',
     description: 'Validates the OpenAPI schema',

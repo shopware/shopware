@@ -24,7 +24,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class LicenseSyncSubscriber implements EventSubscriberInterface
 {
     public const CONFIG_STORE_LICENSE_KEY = 'core.store.licenseKey';

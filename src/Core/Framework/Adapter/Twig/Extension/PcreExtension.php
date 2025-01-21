@@ -7,7 +7,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-#[Package('core')]
+#[Package('framework')]
 class PcreExtension extends AbstractExtension
 {
     /**

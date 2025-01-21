@@ -14,7 +14,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(StaticSourceResolver::class)]
 class StaticSourceResolverTest extends TestCase
 {

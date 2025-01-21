@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validation;
 
-#[Package('core')]
+#[Package('framework')]
 class ValidatorFactory
 {
     /**

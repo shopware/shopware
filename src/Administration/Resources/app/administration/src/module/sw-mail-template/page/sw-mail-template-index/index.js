@@ -2,7 +2,7 @@ import template from './sw-mail-template-index.html.twig';
 import './sw-mail-template-index.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -1,7 +1,7 @@
 /**
- * @internal
+ * @sw-package fundamentals@after-sales
  *
- * @package checkout
+ * @internal
  */
 
 import { mount } from '@vue/test-utils';

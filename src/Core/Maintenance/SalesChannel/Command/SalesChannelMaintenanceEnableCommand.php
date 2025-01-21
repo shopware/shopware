@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'sales-channel:maintenance:enable',
     description: 'Enable maintenance mode for a sales channel',
 )]
-#[Package('core')]
+#[Package('discovery')]
 class SalesChannelMaintenanceEnableCommand extends Command
 {
     protected bool $setMaintenanceMode = true;

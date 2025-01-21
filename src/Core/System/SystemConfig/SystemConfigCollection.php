@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<SystemConfigEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class SystemConfigCollection extends EntityCollection
 {
     public function fieldNameInCollection(string $fieldName): bool

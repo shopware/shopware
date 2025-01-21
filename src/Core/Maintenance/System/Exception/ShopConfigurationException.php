@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-ignore shopware.internalClass
  */
-#[Package('core')]
+#[Package('framework')]
 class ShopConfigurationException extends \RuntimeException
 {
 }

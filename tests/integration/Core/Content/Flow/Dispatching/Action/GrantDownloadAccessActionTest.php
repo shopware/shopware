@@ -48,7 +48,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class GrantDownloadAccessActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -315,7 +315,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 ob_start();
                 $response->send();
                 $content = ob_get_clean();
-                static::assertSame($download->getMedia()->getId(), $content);
+                static::assertSame($download->getMediaId(), $content);
             }
         }
     }

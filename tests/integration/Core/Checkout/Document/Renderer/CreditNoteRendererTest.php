@@ -43,7 +43,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -334,7 +334,7 @@ class CreditNoteRendererTest extends TestCase
 
         static::getContainer()->get('customer.repository')->update([
             [
-                'id' => $this->salesChannelContext->getCustomer()->getId(),
+                'id' => $this->salesChannelContext->getCustomerId(),
                 'groupId' => $groupNet ? $this->createNetCustomerGroup() : $this->createGrossCustomerGroup(),
             ],
         ], $this->salesChannelContext->getContext());

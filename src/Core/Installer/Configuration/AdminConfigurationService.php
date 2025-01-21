@@ -12,7 +12,7 @@ use Shopware\Core\Maintenance\User\Service\UserProvisioner;
  *
  * @phpstan-import-type AdminUser from ShopConfigurationController
  */
-#[Package('core')]
+#[Package('framework')]
 class AdminConfigurationService
 {
     /**

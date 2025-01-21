@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EnvironmentHelperTransformer2 implements EnvironmentHelperTransformerInterface
 {
     public static function transform(EnvironmentHelperTransformerData $data): void

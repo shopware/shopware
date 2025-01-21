@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1723193659UpdateVatPatternForCountry extends MigrationStep
 {
     private const VAT_PATTERNS = [

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-exporter.html.twig';
 import './sw-import-export-exporter.scss';

@@ -55,6 +55,7 @@ async function createWrapper() {
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
                     'router-link': true,
+                    'sw-provide': true,
                 },
             },
 

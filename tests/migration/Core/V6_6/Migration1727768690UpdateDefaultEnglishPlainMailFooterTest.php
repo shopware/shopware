@@ -15,7 +15,7 @@ use Shopware\Core\Migration\V6_6\Migration1727768690UpdateDefaultEnglishPlainMai
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1727768690UpdateDefaultEnglishPlainMailFooter::class)]
 class Migration1727768690UpdateDefaultEnglishPlainMailFooterTest extends TestCase
 {

@@ -10,7 +10,7 @@ use Symfony\Contracts\Service\ServiceProviderInterface;
  *
  * @implements ServiceProviderInterface<mixed>
  */
-#[Package('core')]
+#[Package('framework')]
 class TaggedServiceLocator implements ServiceProviderInterface
 {
     /**

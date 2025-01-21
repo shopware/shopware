@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AdminModuleGenerator implements ScaffoldingGenerator
 {
     use AddScaffoldConfigDefaultBehaviour;

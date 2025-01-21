@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(EntityNotExists::class)]
 class EntityNotExistsTest extends TestCase
 {

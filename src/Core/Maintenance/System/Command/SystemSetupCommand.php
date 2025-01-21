@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Validation;
     name: 'system:setup',
     description: 'Setup the system',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemSetupCommand extends Command
 {
     public function __construct(

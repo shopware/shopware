@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 
-#[Package('core')]
+#[Package('framework')]
 class UuidException extends HttpException
 {
     public static function invalidUuid(string $uuid): ShopwareHttpException

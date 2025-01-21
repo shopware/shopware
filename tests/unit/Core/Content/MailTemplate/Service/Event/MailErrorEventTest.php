@@ -10,11 +10,13 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(MailErrorEvent::class)]
+#[Package('after-sales')]
 class MailErrorEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

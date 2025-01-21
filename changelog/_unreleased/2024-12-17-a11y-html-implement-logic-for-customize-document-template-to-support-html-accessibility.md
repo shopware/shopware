@@ -29,6 +29,9 @@ issue: NEXT-40059
 * Changed `Shopware\Core\Checkout\Document\Service\PdfRenderer` to use `documentTemplateRenderer` render the document.
 * Changed `Shopware\Core\Checkout\Document\Controller\DocumentController::downloadDocument` to add the `fileType` configuration to the `DocumentGenerator`.
 * Changed `src/Core/Framework/Resources/views/documents/base.html.twig` to implement accessibility for HTML documents.
+* Added `Shopware\Core\Framework\Event\A11yRenderedDocumentAware` to provide the document ids to render the A11y document.
+* Added `Shopware\Core\Content\Flow\Dispatching\Storer\A11yRenderedDocumentStorer` to store the document ids and documents to render the A11y documents.
+* Changed `Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent` to implements `A11yRenderedDocumentAware`
 ___
 # Administration
 * Changed method `getDocumentPreview` in `document.api.service` service to add the `fileType` like <html or pdf> attributes.

@@ -45,4 +45,8 @@
     .sw-field--checkbox {
         margin-bottom: 22px;
     }
+
+    .sw-multi-select .sw-select-selection-list__input-wrapper > .sw-select-selection-list__input {
+        min-width: 0;
+    }
 }

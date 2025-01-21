@@ -8,6 +8,7 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
 use League\OAuth2\Server\Entities\Traits\RefreshTokenTrait;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -79,10 +80,11 @@ class AccessToken implements AccessTokenEntityInterface
 
     public function initJwtConfiguration(): void
     {
-        if ($this->privateKey instanceof FakeCryptKey) {
-            $this->jwtConfiguration = $this->privateKey->configuration;
+        if (!$this->privateKey instanceof FakeCryptKey) {
+            $jwtConfig = JWTConfigurationFactory::createJWTConfiguration();
+            $this->privateKey = new FakeCryptKey($jwtConfig);
         }
 
-        $this->jwtConfiguration = JWTConfigurationFactory::createJWTConfiguration();
+        $this->jwtConfiguration = $this->privateKey->configuration;
     }
 }

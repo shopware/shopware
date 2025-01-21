@@ -7,7 +7,7 @@
         >
     {% endif %}
     {% block component_address_address_editor_modal_create_address_wrapper %}
-        <div class="card address-editor-create-address-{{ address ? "edit" : "new" }}-wrapper">
+        <div class="card address-editor-create-address-wrapper address-editor-create-address-{{ address ? "edit" : "new" }}-wrapper">
             {% block component_address_address_editor_modal_create_address_title %}
                 <div class="card-title create-address-title{% if feature('v6.7.0.0') %} border-0{% endif %}">
                     {% block component_address_address_editor_modal_create_address_title_text %}

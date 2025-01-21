@@ -7,14 +7,14 @@
         >
     {% endif %}
     {% block component_address_address_editor_modal_create_address_wrapper %}
-        <div class="card address-editor-create-address-wrapper">
+        <div class="card address-editor-create-address-{{ address ? "edit" : "new" }}-wrapper">
             {% block component_address_address_editor_modal_create_address_title %}
                 <div class="card-title create-address-title{% if feature('v6.7.0.0') %} border-0{% endif %}">
                     {% block component_address_address_editor_modal_create_address_title_text %}
                         {% if address %}
-                            {{ "account.addressEditWelcome"|trans|sw_sanitize }}
+                            {{ "account.addressEditWelcome"|trans|sw_sanitize }}test
                         {% else %}
-                            {{ "account.addressCreateWelcome"|trans|sw_sanitize }}
+                            {{ "account.addressCreateWelcome"|trans|sw_sanitize }}test
                         {% endif %}
                     {% endblock %}
                 </div>
@@ -65,7 +65,7 @@
                                     'showFormCompany': true,
                                     'showNoShippingPostfix': true,
                                     'showVatIdField': changeBilling and context.customer and context.customer.guest ? true : false,
-                                    scopeElementSelector: '.address-editor-create-address-wrapper',
+                                    scopeElementSelector: '.address-editor-create-address-' ~ (address ? "edit" : "new") ~ '-wrapper',
                                 } %}
                             {% endblock %}
 

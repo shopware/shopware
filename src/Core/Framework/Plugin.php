@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class Plugin extends Bundle
 {
     /**

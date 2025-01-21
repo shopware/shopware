@@ -20,7 +20,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheStore implements StoreInterface
 {
     final public const TAG_HEADER = 'sw-cache-tags';

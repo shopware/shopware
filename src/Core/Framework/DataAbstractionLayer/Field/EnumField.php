@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Stores a PHP Enum
  */
-#[Package('core')]
+#[Package('framework')]
 class EnumField extends Field implements StorageAware
 {
     private string $type;

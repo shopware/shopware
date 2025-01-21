@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityRegistrar
 {
     public function __construct(private readonly ContainerInterface $container)

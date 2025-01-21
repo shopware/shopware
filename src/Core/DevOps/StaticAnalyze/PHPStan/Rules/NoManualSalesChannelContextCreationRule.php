@@ -26,7 +26,7 @@ use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKey
  *
  * @implements Rule<New_>
  */
-#[Package('core')]
+#[Package('framework')]
 class NoManualSalesChannelContextCreationRule implements Rule
 {
     /**

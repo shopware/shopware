@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @phpstan-ignore-next-line cannot be final, as it is extended, also designed to be used directly
  */
-#[Package('core')]
+#[Package('framework')]
 class BucketResult extends AggregationResult
 {
     /**

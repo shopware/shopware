@@ -4,7 +4,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Package('core')]
+#[Package('framework')]
 #[Route(defaults: false)]
 class InvalidAclRouteInRouteAttributeController extends StorefrontController
 {

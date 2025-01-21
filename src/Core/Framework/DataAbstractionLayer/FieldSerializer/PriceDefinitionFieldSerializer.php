@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 {
     /**

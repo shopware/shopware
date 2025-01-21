@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * MatchAllLineItemsRule returns true, if all rules are true for all line items
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class MatchAllLineItemsRule extends Container
 {
     final public const RULE_NAME = 'allLineItemsContainer';

@@ -9,7 +9,7 @@ use Shopware\Core\Kernel;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class VersionParser
 {
     /**

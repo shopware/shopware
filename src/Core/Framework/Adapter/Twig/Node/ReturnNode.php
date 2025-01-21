@@ -8,7 +8,7 @@ use Twig\Compiler;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 
-#[Package('core')]
+#[Package('framework')]
 #[YieldReady]
 class ReturnNode extends Node implements NodeOutputInterface
 {

@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @phpstan-type ComposerRepository array{type: string, url: string, options: array{symlink: bool}}
  */
-#[Package('core')]
+#[Package('framework')]
 class FlexMigrator
 {
     private const REMOVE_FILES = [

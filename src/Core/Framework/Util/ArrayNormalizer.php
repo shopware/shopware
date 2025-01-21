@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Flattens or expands arrays by concatenating string keys
  */
-#[Package('core')]
+#[Package('framework')]
 class ArrayNormalizer
 {
     /**

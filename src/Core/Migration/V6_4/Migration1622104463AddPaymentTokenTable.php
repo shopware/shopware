@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1622104463AddPaymentTokenTable extends MigrationStep
 {
     public function getCreationTimestamp(): int

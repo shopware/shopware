@@ -15,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheInvalidator
 {
     /**

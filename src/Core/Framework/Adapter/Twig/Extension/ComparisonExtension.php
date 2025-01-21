@@ -12,7 +12,7 @@ use Twig\TwigFunction;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ComparisonExtension extends AbstractExtension
 {
     public function getFunctions(): array

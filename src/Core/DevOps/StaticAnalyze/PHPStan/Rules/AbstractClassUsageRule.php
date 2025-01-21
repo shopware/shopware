@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements Rule<InClassNode>
  */
-#[Package('core')]
+#[Package('framework')]
 class AbstractClassUsageRule implements Rule
 {
     use InTestClassTrait;

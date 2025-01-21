@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 
-#[Package('core')]
+#[Package('framework')]
 class SystemConfigChangedHook implements Hookable
 {
     public const EVENT_NAME = 'app.config.changed';

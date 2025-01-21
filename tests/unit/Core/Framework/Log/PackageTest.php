@@ -9,14 +9,14 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Package::class)]
 class PackageTest extends TestCase
 {
     public function testConstructor(): void
     {
-        $package = new Package('core');
-        static::assertSame('core', $package->package);
+        $package = new Package('framework');
+        static::assertSame('framework', $package->package);
     }
 
     public function testNonExistingClass(): void
@@ -31,12 +31,12 @@ class PackageTest extends TestCase
 
     public function testPackage(): void
     {
-        static::assertSame('core', Package::getPackageName(WithPackage::class));
+        static::assertSame('framework', Package::getPackageName(WithPackage::class));
     }
 
     public function testParentPackage(): void
     {
-        static::assertSame('core', Package::getPackageName(WithParentPackage::class, true));
+        static::assertSame('framework', Package::getPackageName(WithParentPackage::class, true));
     }
 
     public function testParentPackageWithoutFlag(): void
@@ -55,7 +55,7 @@ class NoPackage
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class WithPackage
 {
 }

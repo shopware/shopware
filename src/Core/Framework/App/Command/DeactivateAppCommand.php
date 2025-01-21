@@ -15,7 +15,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
     name: 'app:deactivate',
     description: 'Deactivates an app',
 )]
-#[Package('core')]
+#[Package('framework')]
 class DeactivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'deactivate';

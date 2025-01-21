@@ -13,6 +13,12 @@ author_github: @BrocksiNet
 ___
 # Upgrade Information
 
+## Adjust duplicate async JS file names
+
+We have made changes to have more consistent JavaScript filenames in the storefront. If we have duplicate filenames, we will append the chunk id (numeric value, length of 5) to the filename.
+
+### Examples
+
 Filenames **before** this change in different modes  
 Hot-Reloading: `http://localhost:9999/storefront/plugin_scroll-up_scroll-up_plugin_js.js`  
 Development: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/scroll-up.plugin.0ce767.js`  

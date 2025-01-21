@@ -2,7 +2,7 @@ import template from './sw-cms-block-image-gallery.html.twig';
 
 /**
  * @private
- * @package buyers-experience
+ * @package discovery
  */
 export default {
     template,

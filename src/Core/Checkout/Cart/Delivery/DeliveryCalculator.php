@@ -200,7 +200,7 @@ class DeliveryCalculator
     private function getCurrencyPrice(PriceCollection $priceCollection, SalesChannelContext $context): float
     {
         /** @var Price $price */
-        $price = $priceCollection->getCurrencyPrice($context->getCurrency()->getId());
+        $price = $priceCollection->getCurrencyPrice($context->getCurrencyId());
 
         $value = $this->getPriceForTaxState($price, $context);
 

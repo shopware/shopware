@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryIndexingMessage extends EntityIndexingMessage
 {
 }

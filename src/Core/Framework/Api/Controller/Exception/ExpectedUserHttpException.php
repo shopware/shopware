@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - Will be removed. Use ApiException::userNotLoggedIn instead
  */
-#[Package('core')]
+#[Package('framework')]
 class ExpectedUserHttpException extends ShopwareHttpException
 {
     public function __construct()

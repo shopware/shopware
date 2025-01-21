@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package discovery
  */
 
 import { mount } from '@vue/test-utils';

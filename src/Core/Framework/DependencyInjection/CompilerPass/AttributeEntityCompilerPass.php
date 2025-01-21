@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-#[Package('core')]
+#[Package('framework')]
 class AttributeEntityCompilerPass implements CompilerPassInterface
 {
     public function __construct(private readonly AttributeEntityCompiler $compiler)

@@ -208,4 +208,23 @@ class StoreClientTest extends TestCase
 
         static::assertSame([], $returnedUserInfo);
     }
+
+    public function testCancelExtensionAlreadyCancelled(): void
+    {
+        $errorInfo = [
+            'success' => false,
+            'code' => StoreClient::EXTENSION_LICENSE_IS_ALREADY_CANCELLED,
+            'title' => 'Error',
+            'description' => 'The license is already cancelled',
+        ];
+        $this->getStoreRequestHandler()->append(new Response(400, [], \json_encode($errorInfo, \JSON_THROW_ON_ERROR)));
+
+        $this->storeClient->cancelSubscription(123, $this->storeContext);
+
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
+
+        static::assertEquals('/swplatform/pluginlicenses/123/cancel', $lastRequest->getUri()->getPath());
+        static::assertEquals('POST', $lastRequest->getMethod());
+    }
 }

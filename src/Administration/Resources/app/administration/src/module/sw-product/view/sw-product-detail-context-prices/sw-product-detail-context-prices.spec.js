@@ -53,6 +53,7 @@ const createWrapper = async () => {
                     'sw-data-grid-skeleton': true,
                     'sw-field-copyable': true,
                     'sw-maintain-currencies-modal': true,
+                    'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                 },
                 provide: {
                     repositoryFactory: {

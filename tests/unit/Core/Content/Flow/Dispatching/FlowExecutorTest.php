@@ -52,7 +52,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(FlowExecutor::class)]
 class FlowExecutorTest extends TestCase
 {

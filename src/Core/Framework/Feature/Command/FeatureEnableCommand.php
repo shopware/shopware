@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[AsCommand(name: 'feature:enable', description: 'Enable feature flags')]
 final class FeatureEnableCommand extends Command
 {

@@ -68,7 +68,7 @@ class RecalculationServiceTest extends TestCase
                 $salesChannel = new SalesChannelEntity();
                 $salesChannel->setId(Uuid::randomHex());
 
-                return Generator::createSalesChannelContext(
+                return Generator::generateSalesChannelContext(
                     baseContext: $context,
                     salesChannel: $salesChannel
                 );

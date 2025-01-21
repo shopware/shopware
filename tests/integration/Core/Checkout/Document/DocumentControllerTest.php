@@ -42,7 +42,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -583,7 +583,7 @@ class DocumentControllerTest extends TestCase
             [
                 'documentIds' => $documentIds,
             ],
-            ['documentIds' => ArrayParameterType::BINARY]
+            ['documentIds' => ArrayParameterType::STRING]
         );
     }
 

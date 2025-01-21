@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'es:index:cleanup',
     description: 'Clean outdated indices',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchCleanIndicesCommand extends Command
 {
     /**

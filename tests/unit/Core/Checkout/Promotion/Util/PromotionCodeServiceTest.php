@@ -20,7 +20,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionCodeService::class)]
 class PromotionCodeServiceTest extends TestCase
 {

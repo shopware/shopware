@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeDependencies extends Struct
 {
     /**

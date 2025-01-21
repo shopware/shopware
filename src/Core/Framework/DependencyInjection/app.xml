@@ -90,6 +90,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateLoader"/>
             <argument type="service" id="app_template.repository"/>
             <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateLoader">
@@ -166,6 +167,7 @@
 
         <service id="Shopware\Core\Framework\App\Template\TemplateStateService" public="true">
             <argument type="service" id="app_template.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService">

@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'database:create-migration',
     description: 'Creates a new migration file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class CreateMigrationCommand extends Command
 {
     /**

@@ -44,7 +44,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityGenerator
 {
     private string $classTemplate = <<<EOF
@@ -93,7 +93,7 @@ namespace #domain#;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @package core
+ * @package framework
  * @method void                add(#entityClass# \$entity)
  * @method void                set(string \$key, #entityClass# \$entity)
  * @method #entityClass#[]    getIterator()

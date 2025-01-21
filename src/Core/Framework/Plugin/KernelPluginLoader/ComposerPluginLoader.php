@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 /**
  * @phpstan-import-type PluginInfo from KernelPluginLoader
  */
-#[Package('core')]
+#[Package('framework')]
 class ComposerPluginLoader extends KernelPluginLoader
 {
     /**

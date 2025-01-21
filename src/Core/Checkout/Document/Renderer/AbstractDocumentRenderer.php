@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 abstract class AbstractDocumentRenderer
 {
     abstract public function supports(): string;

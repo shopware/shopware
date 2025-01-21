@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customer gets a special product price depending on the amount of products bought.', {
+test.skip('Customer gets a special product price depending on the amount of products bought. Skipped because it fails every other day. ticket: https://shopware.atlassian.net/browse/NEXT-40213', {
     tag: ['@Product', '@Checkout'],
 }, async ({
     ShopCustomer,

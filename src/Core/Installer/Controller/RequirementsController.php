@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RequirementsController extends InstallerController
 {
     /**

@@ -10,48 +10,7 @@
     <coverage includeUncoveredFiles="true"/>
     <source>
         <include>
-            <!--
-                      DO NOT change this to a more generic structure.
-                      The phpunit file traversal is really inefficient for our test structure. A naive definition results in
-                      more than 70000 files being traversed, which has to be done for each thread/process.
-                  -->
-            <directory suffix=".php">src/Core/Checkout</directory>
-            <directory suffix=".php">src/Core/Content</directory>
-            <directory suffix=".php">src/Core/Framework</directory>
-            <directory suffix=".php">src/Core/DevOps</directory>
-            <directory suffix=".php">src/Core/Installer</directory>
-            <directory suffix=".php">src/Core/Maintenance</directory>
-            <directory suffix=".php">src/Core/Profiling</directory>
-            <directory suffix=".php">src/Core/System</directory>
-            <directory suffix=".php">src/Core/Service</directory>
-            <file>src/Core/Defaults.php</file>
-            <file>src/Core/HttpKernel.php</file>
-            <file>src/Core/HttpKernelResult.php</file>
-            <file>src/Core/Kernel.php</file>
-            <file>src/Core/PlatformRequest.php</file>
-            <file>src/Core/SalesChannelRequest.php</file>
-            <directory suffix=".php">src/Elasticsearch</directory>
-            <directory suffix=".php">src/Administration/Controller</directory>
-            <directory suffix=".php">src/Administration/DependencyInjection</directory>
-            <directory suffix=".php">src/Administration/Events</directory>
-            <directory suffix=".php">src/Administration/Framework</directory>
-            <directory suffix=".php">src/Administration/Notification</directory>
-            <directory suffix=".php">src/Administration/Service</directory>
-            <directory suffix=".php">src/Administration/Snippet</directory>
-            <directory suffix=".php">src/Administration/System</directory>
-            <file>src/Administration/Administration.php</file>
-            <directory suffix=".php">src/Storefront/Checkout</directory>
-            <directory suffix=".php">src/Storefront/Controller</directory>
-            <directory suffix=".php">src/Storefront/DependencyInjection</directory>
-            <directory suffix=".php">src/Storefront/Event</directory>
-            <directory suffix=".php">src/Storefront/Exception</directory>
-            <directory suffix=".php">src/Storefront/Framework</directory>
-            <directory suffix=".php">src/Storefront/Page</directory>
-            <directory suffix=".php">src/Storefront/Pagelet</directory>
-            <directory suffix=".php">src/Storefront/Theme</directory>
-            <file>src/Storefront/Storefront.php</file>
-            <file>src/Core/Test/FeatureFlagExtension.php</file>
-            <file>src/Core/Test/Annotation/ActiveFeatures.php</file>
+            <directory suffix=".php">src</directory>
         </include>
         <exclude>
             <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
@@ -142,7 +101,7 @@
         <server name="HTTPS" value="off"/>
         <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
         <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;ignoreFile=./deprecation.ignore" />
     </php>
     <testsuites>
         <testsuite name="unit">

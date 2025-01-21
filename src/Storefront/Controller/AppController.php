@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('framework')]
 final class AppController
 {
     public function __construct(private readonly AppJWTGenerateRoute $appJWTGenerateRoute)

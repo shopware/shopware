@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelContextCreatedEvent::class)]
 class SalesChannelContextCreatedEventTest extends TestCase
 {

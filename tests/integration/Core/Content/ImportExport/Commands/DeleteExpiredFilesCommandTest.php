@@ -19,7 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class DeleteExpiredFilesCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

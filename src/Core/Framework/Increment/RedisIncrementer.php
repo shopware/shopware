@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
  */
-#[Package('core')]
+#[Package('framework')]
 class RedisIncrementer extends AbstractIncrementer
 {
     /**

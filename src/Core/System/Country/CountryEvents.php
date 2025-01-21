@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class CountryEvents
 {
     final public const COUNTRY_WRITTEN_EVENT = 'country.written';

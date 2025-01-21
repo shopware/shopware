@@ -88,7 +88,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
@@ -144,7 +144,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
@@ -198,7 +198,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(['order-transaction-id']);
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $response = $this->processor->pay(
             'order-id',
@@ -217,7 +217,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch([]);
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The order with id order-id is invalid or could not be found.');
@@ -238,7 +238,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->paymentHandlerRegistry->expects(static::once())
             ->method('getPaymentMethodHandler')
@@ -274,7 +274,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->paymentHandlerRegistry->expects(static::once())
             ->method('getPaymentMethodHandler')
@@ -313,7 +313,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $handler = $this->createMock(SynchronousPaymentHandlerInterface::class);
         $this->paymentHandlerRegistry->expects(static::once())
@@ -346,7 +346,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
@@ -389,7 +389,7 @@ class PaymentProcessorTest extends TestCase
         $this->processor->finalize(
             new TokenStruct(),
             new Request(),
-            Generator::createSalesChannelContext(),
+            Generator::generateSalesChannelContext(),
         );
     }
 
@@ -401,7 +401,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->paymentHandlerRegistry->expects(static::once())
             ->method('getPaymentMethodHandler')
@@ -437,7 +437,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $handler = $this->createMock(AsynchronousPaymentHandlerInterface::class);
         $this->paymentHandlerRegistry->expects(static::once())
@@ -475,7 +475,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
@@ -524,7 +524,7 @@ class PaymentProcessorTest extends TestCase
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
@@ -568,7 +568,7 @@ class PaymentProcessorTest extends TestCase
     public function testValidate(): void
     {
         $requestDataBag = new RequestDataBag();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $cart = new Cart(Uuid::randomHex());
         $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
 
@@ -597,7 +597,7 @@ class PaymentProcessorTest extends TestCase
     public function testValidateWithoutHandler(): void
     {
         $requestDataBag = new RequestDataBag();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getPaymentMethod()->setId('payment-method-id');
         $cart = new Cart(Uuid::randomHex());
         $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
@@ -622,7 +622,7 @@ class PaymentProcessorTest extends TestCase
     public function testValidateWithInvalidInterface(): void
     {
         $requestDataBag = new RequestDataBag();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getPaymentMethod()->setId('payment-method-id');
         $cart = new Cart(Uuid::randomHex());
         $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
@@ -642,7 +642,7 @@ class PaymentProcessorTest extends TestCase
     public function testValidateFails(): void
     {
         $requestDataBag = new RequestDataBag();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getPaymentMethod()->setId('payment-method-id');
         $cart = new Cart(Uuid::randomHex());
         $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));

@@ -15,6 +15,7 @@
  *
  * Configuration changes are pushed to the global (document) event "CookieConfiguration_Update"
  *
+ * @sw-package framework
  */
 
 /* global PluginManager */

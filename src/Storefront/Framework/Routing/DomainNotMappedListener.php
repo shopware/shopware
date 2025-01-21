@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 readonly class DomainNotMappedListener
 {
     public function __construct(private ContainerInterface $container)

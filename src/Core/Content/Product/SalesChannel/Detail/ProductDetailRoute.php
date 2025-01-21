@@ -127,10 +127,10 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     private function addFilters(SalesChannelContext $context, Criteria $criteria): void
     {
         $criteria->addFilter(
-            new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK)
+            new ProductAvailableFilter($context->getSalesChannelId(), ProductVisibilityDefinition::VISIBILITY_LINK)
         );
 
-        $salesChannelId = $context->getSalesChannel()->getId();
+        $salesChannelId = $context->getSalesChannelId();
 
         $hideCloseoutProductsWhenOutOfStock = $this->config->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
 
@@ -157,7 +157,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             AND version_id = :versionId',
             [
                 'id' => Uuid::fromHexToBytes($productId),
-                'versionId' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
+                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
             ]
         );
 

@@ -81,7 +81,7 @@ class AddressControllerTest extends TestCase
 
     public function testAddressBook(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $request = new Request();
         $dataBag = new RequestDataBag();
 
@@ -102,7 +102,7 @@ class AddressControllerTest extends TestCase
 
     public function testAddressBookWithConstraintViolation(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $request = new Request();
         $dataBag = new RequestDataBag();
         $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
@@ -129,7 +129,7 @@ class AddressControllerTest extends TestCase
 
     public function testAddressBookWithException(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $request = new Request();
         $dataBag = new RequestDataBag();
         $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));

@@ -97,6 +97,7 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-loader': true,
             'mt-floating-ui': true,
             'mt-switch': true,
+            'sw-provide': true,
         };
 
         return mount(await wrapTestComponent('sw-data-grid', { sync: true }), {

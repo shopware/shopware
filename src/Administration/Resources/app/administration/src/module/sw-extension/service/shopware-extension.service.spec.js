@@ -124,6 +124,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
                 [
                     'someExtension',
                     'app',
+                    true,
                 ],
             ],
         ])('delegates %s correctly', async (lifecycleMethod, parameters) => {

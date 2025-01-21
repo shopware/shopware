@@ -50,7 +50,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 abstract class AbstractImportExportTestCase extends TestCase
 {
     use CacheTestBehaviour;

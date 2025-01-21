@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 function getCollection(entity, collection) {
@@ -155,6 +155,7 @@ async function createWrapper() {
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-media-modal-v2': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 documentService: {

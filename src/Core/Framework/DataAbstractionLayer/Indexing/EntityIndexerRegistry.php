@@ -19,7 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @final
  */
 #[AsMessageHandler]
-#[Package('core')]
+#[Package('framework')]
 class EntityIndexerRegistry
 {
     final public const EXTENSION_INDEXER_SKIP = 'indexer-skip';

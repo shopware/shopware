@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
 {
     public function __construct(private readonly AbsolutePriceCalculator $priceCalculator)

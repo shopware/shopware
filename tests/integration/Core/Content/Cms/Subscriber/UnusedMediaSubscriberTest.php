@@ -18,7 +18,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class UnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(RedisConnectionsCompilerPass::class)]
 class RedisConnectionsCompilerPassTest extends TestCase
 {

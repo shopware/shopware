@@ -18,7 +18,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class DatabaseConfigurationController extends InstallerController
 {
     public function __construct(

@@ -16,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class HttpCacheKernel extends HttpCache
 {
     final public const MAINTENANCE_WHITELIST_HEADER = 'sw-maintenance-whitelist';

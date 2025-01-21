@@ -16,7 +16,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(FlysystemLastModifiedVersionStrategy::class)]
 class FlysystemLastModifiedVersionStrategyTest extends TestCase
 {

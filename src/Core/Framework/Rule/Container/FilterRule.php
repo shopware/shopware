@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Rule\Container;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 abstract class FilterRule extends Rule implements ContainerInterface
 {
     /**

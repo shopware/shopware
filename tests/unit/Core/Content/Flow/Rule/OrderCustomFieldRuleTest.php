@@ -17,7 +17,7 @@ use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(OrderCustomFieldRule::class)]
 #[Group('rules')]
 class OrderCustomFieldRuleTest extends TestCase

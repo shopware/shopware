@@ -9,7 +9,7 @@ use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
-#[Package('storefront')]
+#[Package('framework')]
 class StorefrontExtension extends Extension
 {
     /**

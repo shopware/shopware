@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapHandle implements SitemapHandleInterface
 {
     private const MAX_URLS = 49999;
@@ -112,7 +112,7 @@ class SitemapHandle implements SitemapHandleInterface
 
     private function getPath(SalesChannelContext $salesChannelContext): string
     {
-        return 'sitemap/salesChannel-' . $salesChannelContext->getSalesChannel()->getId() . '-' . $salesChannelContext->getLanguageId() . '/';
+        return 'sitemap/salesChannel-' . $salesChannelContext->getSalesChannelId() . '-' . $salesChannelContext->getLanguageId() . '/';
     }
 
     private function getTmpFilePath(SalesChannelContext $salesChannelContext): string
@@ -123,14 +123,14 @@ class SitemapHandle implements SitemapHandleInterface
     private function getFileName(SalesChannelContext $salesChannelContext, ?int $index = null): string
     {
         if ($this->domainName === null) {
-            return \sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, null, $index ?? $this->index);
+            return \sprintf($salesChannelContext->getSalesChannelId() . '-' . self::SITEMAP_NAME_PATTERN, null, $index ?? $this->index);
         }
 
         if ($this->domainId === null) {
-            return \sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, '-' . $this->domainName, $index ?? $this->index);
+            return \sprintf($salesChannelContext->getSalesChannelId() . '-' . self::SITEMAP_NAME_PATTERN, '-' . $this->domainName, $index ?? $this->index);
         }
 
-        return \sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . $this->domainId . '-' . self::SITEMAP_NAME_PATTERN, '-' . $this->domainName, $index ?? $this->index);
+        return \sprintf($salesChannelContext->getSalesChannelId() . '-' . $this->domainId . '-' . self::SITEMAP_NAME_PATTERN, '-' . $this->domainName, $index ?? $this->index);
     }
 
     private function printHeader(): void

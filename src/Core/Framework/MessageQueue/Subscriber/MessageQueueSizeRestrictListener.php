@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
 use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 
-#[Package('core')]
+#[Package('framework')]
 readonly class MessageQueueSizeRestrictListener
 {
     /**

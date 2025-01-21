@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowSendMailActionEvent implements ShopwareEvent
 {
     public function __construct(

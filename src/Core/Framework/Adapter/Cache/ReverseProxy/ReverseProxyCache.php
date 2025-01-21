@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
  *
  * @template TCachedContent
  */
-#[Package('core')]
+#[Package('framework')]
 class ReverseProxyCache implements StoreInterface
 {
     /**

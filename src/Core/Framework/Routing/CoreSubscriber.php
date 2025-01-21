@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class CoreSubscriber implements EventSubscriberInterface
 {
     /**

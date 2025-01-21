@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportException extends HttpException
 {
     final public const CONTENT_IMPORT_EXPORT_COULD_NOT_OPEN_FILE = 'CONTENT__IMPORT_EXPORT__COULD_NOT_OPEN_FILE';

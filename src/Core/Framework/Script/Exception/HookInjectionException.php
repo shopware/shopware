@@ -5,7 +5,10 @@ namespace Shopware\Core\Framework\Script\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 
-#[Package('core')]
+/**
+ * @deprecated tag:v6.7.0 - Will be removed, use Shopware\Core\Checkout\Cart\CartException::hookInjectionException or Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException::hookInjectionException instead
+ */
+#[Package('framework')]
 class HookInjectionException extends \RuntimeException
 {
     public function __construct(

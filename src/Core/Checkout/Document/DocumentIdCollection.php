@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<DocumentIdStruct>
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentIdCollection extends Collection
 {
     public function getApiAlias(): string

@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class Counter
 {
     private int $counter = 0;

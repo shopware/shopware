@@ -22,7 +22,7 @@ use Symfony\Component\Messenger\Test\Middleware\MiddlewareTestCase;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(RoutingOverwriteMiddleware::class)]
 class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
 {

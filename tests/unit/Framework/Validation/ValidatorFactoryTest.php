@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Validation\ValidatorFactory;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(ValidatorFactory::class)]
 class ValidatorFactoryTest extends TestCase
 {

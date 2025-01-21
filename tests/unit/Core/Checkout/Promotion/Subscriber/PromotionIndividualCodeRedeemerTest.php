@@ -25,7 +25,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionIndividualCodeRedeemer::class)]
 class PromotionIndividualCodeRedeemerTest extends TestCase
 {
@@ -60,7 +60,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $order = new OrderEntity();
         $order->setLineItems(new OrderLineItemCollection([$lineItem]));
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $event = new CheckoutOrderPlacedEvent($context, $order);
 
@@ -114,7 +114,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
 
         $order->setLineItems(new OrderLineItemCollection([$lineItem1, $lineItem2]));
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $event = new CheckoutOrderPlacedEvent($context, $order);
 

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class Entity
+final class Entity
 {
     /**
      * @var class-string
@@ -16,6 +17,7 @@ class Entity
 
     /**
      * @param class-string<EntityCollection> $collectionClass
+     * @param class-string<EntityHydrator> $hydratorClass
      *
      * @phpstan-ignore missingType.generics (At this point it is not really possible to determine the correct entity class)
      */
@@ -24,6 +26,7 @@ class Entity
         public ?string $parent = null,
         public ?string $since = null,
         public string $collectionClass = EntityCollection::class,
+        public string $hydratorClass = EntityHydrator::class,
     ) {
     }
 }

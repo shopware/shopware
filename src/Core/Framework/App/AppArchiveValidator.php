@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\App\AppArchiveValidatorTest
  */
-#[Package('core')]
+#[Package('framework')]
 class AppArchiveValidator
 {
     public function validate(\ZipArchive $archive, ?string $expectedAppName = null): void

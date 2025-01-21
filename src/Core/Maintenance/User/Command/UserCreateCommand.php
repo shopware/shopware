@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'user:create',
     description: 'Creates a new user',
 )]
-#[Package('core')]
+#[Package('framework')]
 class UserCreateCommand extends Command
 {
     public function __construct(private readonly UserProvisioner $userProvisioner)

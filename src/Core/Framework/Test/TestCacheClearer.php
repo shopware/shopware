@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestCacheClearer
 {
     protected CacheClearerInterface $cacheClearer;

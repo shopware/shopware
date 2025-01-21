@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @codeCoverageIgnore all the underlying dependencies are tested.
  */
 #[AsCommand(name: 'system:check', description: 'Check the shopware application system health')]
-#[Package('core')]
+#[Package('framework')]
 class SystemCheckCommand extends Command
 {
     private const OUTPUT_FORMATS = ['table', 'json'];

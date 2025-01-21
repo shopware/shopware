@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @package discovery
  */
 
 import { mount } from '@vue/test-utils';

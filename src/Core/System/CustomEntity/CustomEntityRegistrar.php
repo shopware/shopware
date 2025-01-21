@@ -5,6 +5,7 @@ namespace Shopware\Core\System\CustomEntity;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -18,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityRegistrar
 {
     public function __construct(private readonly ContainerInterface $container)
@@ -56,7 +57,7 @@ class CustomEntityRegistrar
             $definitions[] = $definition;
 
             $this->container->set($definition->getEntityName(), $definition);
-            $this->container->set($definition->getEntityName() . '.repository', $this->createRepository($definition));
+            $this->container->set($definition->getEntityName() . '.repository', self::createRepository($this->container, $definition));
             $registry->register($definition, $definition->getEntityName());
         }
 
@@ -66,16 +67,18 @@ class CustomEntityRegistrar
         }
     }
 
-    private function createRepository(DynamicEntityDefinition $definition): EntityRepository
+    public static function createRepository(ContainerInterface $container, EntityDefinition $definition): EntityRepository
     {
-        return new EntityRepository(
-            $definition,
-            $this->container->get(EntityReaderInterface::class),
-            $this->container->get(VersionManager::class),
-            $this->container->get(EntitySearcherInterface::class),
-            $this->container->get(EntityAggregatorInterface::class),
-            $this->container->get('event_dispatcher'),
-            $this->container->get(EntityLoadedEventFactory::class)
-        );
+        return EntityRepository::createLazyGhost(function (EntityRepository $instance) use ($definition, $container): void {
+            $instance->__construct(
+                $definition,
+                $container->get(EntityReaderInterface::class),
+                $container->get(VersionManager::class),
+                $container->get(EntitySearcherInterface::class),
+                $container->get(EntityAggregatorInterface::class),
+                $container->get('event_dispatcher'),
+                $container->get(EntityLoadedEventFactory::class)
+            );
+        });
     }
 }

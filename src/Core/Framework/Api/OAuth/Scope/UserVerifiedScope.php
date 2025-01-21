@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\OAuth\Scope;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class UserVerifiedScope implements ScopeEntityInterface
 {
     final public const IDENTIFIER = 'user-verified';

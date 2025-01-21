@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(AppTelemetrySubscriber::class)]
 class AppTelemetrySubscriberTest extends TestCase
 {

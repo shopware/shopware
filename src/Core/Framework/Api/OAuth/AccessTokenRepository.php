@@ -8,7 +8,7 @@ use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
     /**

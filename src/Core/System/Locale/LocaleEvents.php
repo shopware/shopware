@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LocaleEvents
 {
     final public const LOCALE_WRITTEN_EVENT = 'locale.written';

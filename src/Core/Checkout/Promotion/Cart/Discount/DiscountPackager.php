@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 abstract class DiscountPackager
 {
     /**

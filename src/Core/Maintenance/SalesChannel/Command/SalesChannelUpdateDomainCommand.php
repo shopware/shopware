@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'sales-channel:update:domain',
     description: 'Updates a sales channel domain',
 )]
-#[Package('core')]
+#[Package('discovery')]
 class SalesChannelUpdateDomainCommand extends Command
 {
     /**

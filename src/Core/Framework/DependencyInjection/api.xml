@@ -71,6 +71,7 @@
 
         <service id="Shopware\Core\Framework\Api\Command\DumpSchemaCommand">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
+            <argument type="service" id="cache.object"/>
 
             <tag name="console.command"/>
         </service>
@@ -172,6 +173,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
+            <argument type="service" id="shopware.filesystem.asset"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

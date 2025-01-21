@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1703850843FixSearchConfig extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\Log;
 /**
  * @internal
  *
- * @phpstan-type PackageString 'buyers-experience'|'services-settings'|'inventory'|'content'|'sales-channel'|'customer-order'|'checkout'|'merchant-services'|'storefront'|'core'|'administration'|'data-services'|'innovation'
+ * @phpstan-type PackageString 'buyers-experience'|'services-settings'|'inventory'|'checkout'|'after-sales'|'framework'|'administration'|'data-services'|'innovation'|'discovery'|'b2b'|'fundamentals@framework'|'fundamentals@discovery'|'fundamentals@checkout'|'fundamentals@after-sales'
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
-#[Package('core')]
+#[Package('framework')]
 final class Package
 {
     public const PACKAGE_TRACE_ATTRIBUTE_KEY = 'pTrace';

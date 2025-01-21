@@ -237,13 +237,13 @@ class RegisterRoute extends AbstractRegisterRoute
                 'shippingAddressId' => null,
                 'domainId' => $context->getDomainId(),
             ],
-            $context->getSalesChannel()->getId(),
+            $context->getSalesChannelId(),
             $customerEntity->getId()
         );
 
         $new = $this->contextService->get(
             new SalesChannelContextServiceParameters(
-                $context->getSalesChannel()->getId(),
+                $context->getSalesChannelId(),
                 $newToken,
                 $context->getLanguageId(),
                 $context->getCurrencyId(),
@@ -428,11 +428,11 @@ class RegisterRoute extends AbstractRegisterRoute
             'customerNumber' => $this->numberRangeValueGenerator->getValue(
                 $this->customerRepository->getDefinition()->getEntityName(),
                 $context->getContext(),
-                $context->getSalesChannel()->getId()
+                $context->getSalesChannelId()
             ),
-            'salesChannelId' => $context->getSalesChannel()->getId(),
-            'languageId' => $context->getContext()->getLanguageId(),
-            'groupId' => $context->getCurrentCustomerGroup()->getId(),
+            'salesChannelId' => $context->getSalesChannelId(),
+            'languageId' => $context->getLanguageId(),
+            'groupId' => $context->getCustomerGroupId(),
             'requestedGroupId' => $data->get('requestedGroupId', null),
             'salutationId' => $data->get('salutationId'),
             'firstName' => $data->get('firstName'),
@@ -488,7 +488,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $validation = $this->accountValidationFactory->create($context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
         $validation->add('requestedGroupId', new EntityExists([
             'entity' => 'customer_group',

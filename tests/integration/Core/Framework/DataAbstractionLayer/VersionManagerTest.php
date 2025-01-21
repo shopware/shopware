@@ -77,6 +77,7 @@ class VersionManagerTest extends TestCase
             ALTER TABLE `product`
             DROP COLUMN `many_to_one_id`
         ');
+        $this->connection->beginTransaction();
 
         parent::tearDown();
     }

@@ -27,7 +27,7 @@ In some areas, the asterisk `*` referring to the footer text is more confusing t
 ### Accessibility issues
 
 The asterisk `*` is only plain text at the moment and has no actual relationship to its corresponding footer info text.
-A screen reader will always read "50 euros star" without further context. For a screen reader user the star is not accessible.
+A screen reader will always read "50 euros star" without further context. For a screen reader user, the asterisk is not accessible.
 
 ## Decision
 

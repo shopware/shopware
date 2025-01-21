@@ -47,7 +47,6 @@ class SystemInstallCommand extends Command
             ->addOption('shop-email', null, InputOption::VALUE_REQUIRED, 'Shop email address')
             ->addOption('shop-locale', null, InputOption::VALUE_REQUIRED, 'Default language locale of the shop')
             ->addOption('shop-currency', null, InputOption::VALUE_REQUIRED, 'Iso code for the default currency of the shop')
-            ->addOption('skip-jwt-keys-generation', null, InputOption::VALUE_NONE, 'Skips generation of jwt private and public key')
             ->addOption('skip-assets-install', null, InputOption::VALUE_NONE, 'Skips installing of assets')
         ;
     }
@@ -100,16 +99,6 @@ class SystemInstallCommand extends Command
                 'command' => 'plugin:refresh',
             ],
         ];
-
-        if (!$input->getOption('skip-jwt-keys-generation') && !Feature::isActive('v6.7.0.0')) {
-            array_unshift(
-                $commands,
-                [
-                    'command' => 'system:generate-jwt',
-                    'allowedToFail' => true,
-                ]
-            );
-        }
 
         $application = $this->getConsoleApplication();
         if ($application->has('theme:refresh')) {

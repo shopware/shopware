@@ -49,8 +49,6 @@ class SystemSetupCommand extends Command
             ->addOption('database-ssl-cert', null, InputOption::VALUE_OPTIONAL, 'Database SSL Cert path', $this->getDefault('DATABASE_SSL_CERT', ''))
             ->addOption('database-ssl-key', null, InputOption::VALUE_OPTIONAL, 'Database SSL Key path', $this->getDefault('DATABASE_SSL_KEY', ''))
             ->addOption('database-ssl-dont-verify-cert', null, InputOption::VALUE_OPTIONAL, 'Database Don\'t verify server cert', $this->getDefault('DATABASE_SSL_DONT_VERIFY_SERVER_CERT', ''))
-            ->addOption('generate-jwt-keys', null, InputOption::VALUE_NONE, 'Generate jwt private and public key')
-            ->addOption('jwt-passphrase', null, InputOption::VALUE_OPTIONAL, 'JWT private key passphrase', 'shopware')
             ->addOption('composer-home', null, InputOption::VALUE_REQUIRED, 'Set the composer home directory otherwise the environment variable $COMPOSER_HOME will be used or the project dir as fallback', $this->getDefault('COMPOSER_HOME', ''))
             ->addOption('app-env', null, InputOption::VALUE_OPTIONAL, 'Application environment', $this->getDefault('APP_ENV', 'prod'))
             ->addOption('app-url', null, InputOption::VALUE_OPTIONAL, 'Application URL', $this->getDefault('APP_URL', 'http://localhost'))

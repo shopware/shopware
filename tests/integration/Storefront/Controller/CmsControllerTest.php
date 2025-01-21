@@ -14,7 +14,7 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

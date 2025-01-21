@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class StorefrontMediaUploaderTest extends TestCase
 {
     use KernelTestBehaviour;

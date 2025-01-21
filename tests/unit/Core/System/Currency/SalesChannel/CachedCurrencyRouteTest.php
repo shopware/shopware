@@ -31,7 +31,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  *
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(CachedCurrencyRoute::class)]
 class CachedCurrencyRouteTest extends TestCase
 {

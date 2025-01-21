@@ -30,7 +30,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  *
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CachedLandingPageRoute::class)]
 class CachedLandingPageRouteTest extends TestCase
 {

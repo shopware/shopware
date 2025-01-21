@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 {
     final public const CONFIG_KEY = 'sales-channel-favorites';

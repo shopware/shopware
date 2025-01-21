@@ -6,7 +6,7 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class StatementHelper
 {
     /**
@@ -30,7 +30,7 @@ class StatementHelper
     }
 
     /**
-     * @param array<string, mixed> $parameters
+     * @param array<string|int, mixed> $parameters
      */
     public static function bindParameters(Statement $stmt, array $parameters): void
     {

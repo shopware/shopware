@@ -36,7 +36,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             ],
         ]);
 
-        $this->connection->expects(static::never())->method('executeUpdate');
+        $this->connection->expects(static::never())->method('executeStatement');
 
         $indexing = new CustomerNewsletterSalesChannelsUpdater($this->connection);
         $indexing->updateCustomersRecipient([Uuid::randomHex()]);

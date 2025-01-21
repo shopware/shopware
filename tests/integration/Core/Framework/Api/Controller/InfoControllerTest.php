@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
@@ -352,6 +353,8 @@ class InfoControllerTest extends TestCase
                     lcfirst((new \ReflectionClass(OrderAware::class))->getShortName()),
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
+                    A11yRenderedDocumentAware::class,
+                    lcfirst((new \ReflectionClass(A11yRenderedDocumentAware::class))->getShortName()),
                 ],
             ],
         ];

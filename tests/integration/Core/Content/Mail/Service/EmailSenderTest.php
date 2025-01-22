@@ -46,7 +46,9 @@ class EmailSenderTest extends TestCase
         $subject = 'mail create test';
         $sender = ['testSender@example.org' => 'Sales Channel'];
         $recipients = ['testReceiver@example.org' => 'Receiver name', 'null-name@example.org' => null];
-        $contents = ['text/html' => 'Message'];
+        // We need a large text, otherwise the mail will not be stored in the filesystem, but sent directly
+        $text = str_repeat('a', 1024 * 256 + 1);
+        $contents = ['text/html' => $text];
         $attachments = ['test'];
 
         $additionalData = [

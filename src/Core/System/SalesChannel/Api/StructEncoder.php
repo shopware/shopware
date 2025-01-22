@@ -78,7 +78,7 @@ class StructEncoder implements ResetInterface
 
                 $entity = $struct->get($key);
                 if (!$entity instanceof Struct) {
-                    throw SalesChannelException::encodingInvalidStructException(\sprintf('Aggregation %s is not an valid struct', $key));
+                    throw SalesChannelException::encodingInvalidStructException(\sprintf('Aggregation "%s" is not a valid struct', $key));
                 }
 
                 $mapped[$key] = $this->encodeStruct($entity, $fields, $data[$index]);
@@ -96,7 +96,7 @@ class StructEncoder implements ResetInterface
                 foreach (\array_values($data['elements']) as $index => $value) {
                     $entity = $struct->getAt($index);
                     if (!$entity instanceof Struct) {
-                        throw SalesChannelException::encodingInvalidStructException(\sprintf('Entity at index %d is not an valid struct', $index));
+                        throw SalesChannelException::encodingInvalidStructException(\sprintf('Entity at index "%d" is not a valid struct', $index));
                     }
 
                     $entities[] = $this->encodeStruct($entity, $fields, $value);

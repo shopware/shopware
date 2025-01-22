@@ -29,6 +29,7 @@ class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
     {
         $this->rollback();
         $this->executeMigration();
+        $this->executeMigration();
         $columns = $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `custom_field`');
         $columnNames = array_column($columns, 'Field');
 
@@ -38,10 +39,10 @@ class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
             static::fail('Column "store_api_aware" not found in "custom_field" table');
         }
 
-        static::assertEquals('store_api_aware', $columns[$storeApiAwareColumnKey]['Field']);
-        static::assertEquals('tinyint(1)', $columns[$storeApiAwareColumnKey]['Type']);
-        static::assertEquals('NO', $columns[$storeApiAwareColumnKey]['Null']);
-        static::assertEquals('1', $columns[$storeApiAwareColumnKey]['Default']);
+        static::assertSame('store_api_aware', $columns[$storeApiAwareColumnKey]['Field']);
+        static::assertSame('tinyint(1)', $columns[$storeApiAwareColumnKey]['Type']);
+        static::assertSame('NO', $columns[$storeApiAwareColumnKey]['Null']);
+        static::assertSame('1', $columns[$storeApiAwareColumnKey]['Default']);
     }
 
     private function executeMigration(): void
@@ -51,6 +52,15 @@ class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
 
     private function rollback(): void
     {
+        $columns = $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `custom_field`');
+        $columnNames = array_column($columns, 'Field');
+
+        $storeApiAwareColumnKey = array_search('store_api_aware', $columnNames, true);
+
+        if ($storeApiAwareColumnKey === false) {
+            return;
+        }
+
         $this->connection->executeStatement('ALTER TABLE `custom_field` DROP COLUMN `store_api_aware`');
     }
 }

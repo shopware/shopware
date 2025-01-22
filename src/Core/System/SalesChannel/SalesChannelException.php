@@ -228,12 +228,8 @@ class SalesChannelException extends HttpException
         );
     }
 
-    public static function encodingInvalidStructException(string $context): self|\RuntimeException
+    public static function encodingInvalidStructException(string $context): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \RuntimeException($context);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::ENCODING_INVALID_STRUCT_EXCEPTION,
@@ -242,12 +238,8 @@ class SalesChannelException extends HttpException
         );
     }
 
-    public static function encodingMissingAggregationException(int|string $key, int $index): self|\RuntimeException
+    public static function encodingMissingAggregationException(int|string $key, int $index): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \RuntimeException(\sprintf('Can not find encoded aggregation %s for data index %d', $key, $index));
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::ENCODING_MISSING_AGGREGATION_EXCEPTION,

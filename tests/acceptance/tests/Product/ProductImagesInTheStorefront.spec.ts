@@ -22,7 +22,6 @@ test('Shop customer should be able to see the product image in the Storefront.',
     OpenSearchSuggestPage,
     Login,
     Logout,
-    InstanceMeta,
 }) => {
 
     const product = await TestDataService.createBasicProduct();

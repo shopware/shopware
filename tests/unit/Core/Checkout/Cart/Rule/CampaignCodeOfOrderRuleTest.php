@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CampaignCodeOfOrderRule::class)]
 #[Group('rules')]
 class CampaignCodeOfOrderRuleTest extends TestCase

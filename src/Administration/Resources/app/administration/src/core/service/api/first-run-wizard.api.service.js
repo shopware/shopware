@@ -142,6 +142,6 @@ class FirstRunWizardApiService extends ApiService {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default FirstRunWizardApiService;

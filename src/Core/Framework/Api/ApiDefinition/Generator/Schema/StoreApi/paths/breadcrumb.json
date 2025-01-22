@@ -4,23 +4,10 @@
     "components": {
         "schemas": {
             "BreadcrumbCollection": {
-                "type": "object",
-                "properties": {
-                    "breadcrumbs": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Breadcrumb"
-                        }
-                    },
-                    "apiAlias": {
-                        "type": "string",
-                        "enum": ["breadcrumb_collection"]
-                    }
-                },
-                "required": [
-                    "breadcrumbs",
-                    "apiAlias"
-                ]
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Breadcrumb"
+                }
             }
         }
     },
@@ -50,7 +37,13 @@
                         "in": "query",
                         "description": "Type: category or product (optional - default: product)",
                         "required": false,
-                        "schema": { "type": "string", "enum": ["product", "category"] }
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "product",
+                                "category"
+                            ]
+                        }
                     },
                     {
                         "name": "referrerCategoryId",
@@ -74,7 +67,9 @@
                             }
                         }
                     },
-                    "400": { "$ref": "#/components/responses/400" }
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    }
                 },
                 "security": [
                     {

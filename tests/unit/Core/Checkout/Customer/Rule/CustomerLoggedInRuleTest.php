@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerLoggedInRule::class)]
 #[Group('rules')]
 class CustomerLoggedInRuleTest extends TestCase

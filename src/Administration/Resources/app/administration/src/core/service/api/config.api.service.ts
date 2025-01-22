@@ -10,7 +10,7 @@ import type { LoginService } from '../login.service';
  * Gateway for the API end point "config"
  * @class
  * @extends ApiService
- * @package services-settings
+ * @sw-package framework
  */
 class ConfigApiService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'config') {

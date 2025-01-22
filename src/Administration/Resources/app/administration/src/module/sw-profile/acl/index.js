@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package fundamentals@framework
  */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'additional_permissions',

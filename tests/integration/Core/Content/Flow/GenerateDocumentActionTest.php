@@ -529,7 +529,7 @@ class GenerateDocumentActionTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class CustomDocRenderer extends AbstractDocumentRenderer
 {
     final public const TYPE = 'customDoc';

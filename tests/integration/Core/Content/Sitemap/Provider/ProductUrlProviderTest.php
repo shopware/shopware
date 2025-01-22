@@ -29,7 +29,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class ProductUrlProviderTest extends TestCase
 {
     use AdminApiTestBehaviour;

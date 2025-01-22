@@ -70,15 +70,23 @@ class NotificationControllerTest extends TestCase
         static::assertNotFalse($json);
 
         if (!$isSuccess) {
-            $this->appendNewResponse(new Response(500));
             $client->request('POST', $url, [], [], [], $json);
 
             return;
         }
 
-        $this->appendNewResponse(new Response(200));
-
         $client->request('POST', $url, [], [], [], $json);
+
+        if (!$isSuccess) {
+            static::assertSame(500, $client->getResponse()->getStatusCode());
+
+            $criteria = (new Criteria())->setLimit(1);
+
+            $notifications = $this->notificationRepository->search($criteria, $this->context)->getEntities();
+            static::assertCount(0, $notifications);
+
+            return;
+        }
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 

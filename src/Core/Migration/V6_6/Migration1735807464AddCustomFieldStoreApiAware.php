@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1735807464AddCustomFieldStoreApiAware extends MigrationStep
 {
     public function getCreationTimestamp(): int

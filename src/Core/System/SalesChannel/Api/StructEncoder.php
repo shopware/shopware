@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -53,7 +54,7 @@ class StructEncoder implements ResetInterface
         $array = $this->serializer->normalize($struct);
 
         if (!\is_array($array)) {
-            throw new \RuntimeException('Normalized struct must be an array');
+            throw SalesChannelException::encodingInvalidStructException('Normalized struct must be an array');
         }
 
         return $this->loop($struct, $fields, $array);
@@ -72,12 +73,12 @@ class StructEncoder implements ResetInterface
             $mapped = [];
             foreach (\array_keys($struct->getElements()) as $index => $key) {
                 if (!isset($data[$index]) || !\is_array($data[$index])) {
-                    throw new \RuntimeException(\sprintf('Can not find encoded aggregation %s for data index %d', $key, $index));
+                    throw SalesChannelException::encodingMissingAggregationException($key, $index);
                 }
 
                 $entity = $struct->get($key);
                 if (!$entity instanceof Struct) {
-                    throw new \RuntimeException(\sprintf('Aggregation %s is not an struct', $key));
+                    throw SalesChannelException::encodingInvalidStructException(\sprintf('Aggregation %s is not an valid struct', $key));
                 }
 
                 $mapped[$key] = $this->encodeStruct($entity, $fields, $data[$index]);
@@ -95,7 +96,7 @@ class StructEncoder implements ResetInterface
                 foreach (\array_values($data['elements']) as $index => $value) {
                     $entity = $struct->getAt($index);
                     if (!$entity instanceof Struct) {
-                        throw new \RuntimeException(\sprintf('Entity at index %d is not an struct', $index));
+                        throw SalesChannelException::encodingInvalidStructException(\sprintf('Entity at index %d is not an valid struct', $index));
                     }
 
                     $entities[] = $this->encodeStruct($entity, $fields, $value);

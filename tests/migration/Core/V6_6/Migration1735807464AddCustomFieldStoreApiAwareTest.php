@@ -12,7 +12,7 @@ use Shopware\Core\Migration\V6_6\Migration1735807464AddCustomFieldStoreApiAware;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1735807464AddCustomFieldStoreApiAware::class)]
 class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
 {

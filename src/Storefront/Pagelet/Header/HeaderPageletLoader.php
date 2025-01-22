@@ -46,8 +46,25 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     {
         $salesChannel = $context->getSalesChannel();
 
+        $navigationId = null;
+        if (!Feature::isActive('cache_rework')) {
+            $navigationId = $request->get('navigationId');
+            if ($navigationId !== null) {
+                Feature::triggerDeprecationOrThrow(
+                    'cache_rework',
+                    'The parameter "navigationId" is deprecated and will not be considered anymore with the next major release.'
+                );
+            }
+            $navigationId = (string) $navigationId;
+            if ($navigationId === '') {
+                throw RoutingException::missingRequestParameter('navigationId');
+            }
+        }
+
+        $navigationId ??= $salesChannel->getNavigationCategoryId();
+
         $navigation = $this->navigationLoader->load(
-            $salesChannel->getNavigationCategoryId(),
+            $navigationId,
             $context,
             $salesChannel->getNavigationCategoryId(),
             $salesChannel->getNavigationCategoryDepth()

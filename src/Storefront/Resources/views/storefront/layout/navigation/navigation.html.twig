@@ -1,5 +1,5 @@
 {# @deprecated tag:v6.7.0 - This template will be removed, use src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig #}
-{% if not feature('cache_rework') and not header is defined and page is defined %}
+{% if not header is defined and page is defined %}
     {% set header = page.header %}
 {% endif %}
 

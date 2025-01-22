@@ -1,74 +1,111 @@
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
+import FormValidation from 'src/helper/form-validation.helper';
+import Feature from 'src/helper/feature.helper';
 
 describe('BasicCaptchaPlugin tests', () => {
-    let basicCaptchaPlugin = undefined;
-    let spyInit = jest.fn();
-    let spyInitializePlugins = jest.fn();
+    let basicCaptchaPlugin;
+    let captchaElement;
 
-    beforeEach(() => {
-        const mockElement = document.createElement('form');
-        const mockDiv = document.createElement('div');
-        mockDiv.innerHTML += '<div>' +
-            '<div id="basic-captcha-content-image"></div>' +
-            '<a id="basic-captcha-content-refresh-icon">Icon</a>' +
-            '<input id="basic-captcha-input">' +
-            '<input id="-precheck">' +
-            '</div>';
-        mockElement.appendChild(mockDiv);
+    beforeEach(async () => {
+        document.body.innerHTML = `
+            <form>
+                <div id="basic-captcha">
+                    <div id="basic-captcha-content-image"></div>
+                    <a id="basic-captcha-content-refresh-icon">Refresh</a>
+                    <label for="basic-captcha-input">Captcha</label>
+                    <input id="basic-captcha-input" aria-describedby="basic-captcha-input-feedback">
+                    <div id="basic-captcha-input-feedback"></div>
+                </div>
+            </form>
+        `;
 
-        // mock basic captcha plugins
-        basicCaptchaPlugin = new BasicCaptchaPlugin(mockElement);
+        window.Feature = Feature;
+        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': true });
 
-        // create spy elements
-        window.PluginManager.initializePlugins = spyInitializePlugins;
+        window.validationMessages = {
+            required: 'Input should not be empty.',
+            email: 'Invalid email address.',
+            confirmation: 'Confirmation field does not match.',
+            minLength: 'Input is too short.',
+        };
+
+        window.formValidation = new FormValidation();
+
+        // Create spy elements
+        window.PluginManager.initializePlugins = jest.fn();
+
+        captchaElement = document.getElementById('basic-captcha');
     });
 
-    afterEach(() => {
-        basicCaptchaPlugin = undefined;
-        spyInit.mockClear();
-        spyInitializePlugins.mockClear();
-        window.PluginManager.initializePlugins = undefined;
+    test('Captcha should be loaded on initialization', () => {
+        const loadBasicCaptchaSpy  = jest.spyOn(BasicCaptchaPlugin.prototype, '_onLoadBasicCaptcha');
+
+        basicCaptchaPlugin = new BasicCaptchaPlugin(captchaElement);
+
+        expect(loadBasicCaptchaSpy).toHaveBeenCalled();
     });
 
-    test('basicCaptchaPlugin exists', () => {
-        expect(typeof basicCaptchaPlugin).toBe('object');
+    test('Captcha should be updated if reload button is clicked', () => {
+        const captchaReloadSpy = jest.spyOn(BasicCaptchaPlugin.prototype, '_onLoadBasicCaptcha');
+
+        basicCaptchaPlugin = new BasicCaptchaPlugin(captchaElement);
+
+        const httpClientSpy = jest.spyOn(basicCaptchaPlugin._httpClient, 'get');
+        const reloadButton = basicCaptchaPlugin.el.querySelector(basicCaptchaPlugin.options.captchaRefreshIconId);
+
+        reloadButton.click();
+
+        // One call on initialization and one on reload button click.
+        expect(captchaReloadSpy).toHaveBeenCalledTimes(2);
+        expect(httpClientSpy).toHaveBeenCalled();
     });
 
-    test('_onLoadBasicCaptcha should get called', () => {
-        const a  = jest.spyOn(basicCaptchaPlugin, '_onLoadBasicCaptcha');
-        basicCaptchaPlugin.init();
-        expect(a).toHaveBeenCalled();
-    });
+    test('Form submit should be prevented if captcha is invalid', async () => {
+        const validationSpy = jest.spyOn(BasicCaptchaPlugin.prototype, 'validateCaptcha');
 
-    test('_onLoadBasicCaptcha and _httpClient.get should get called when click', () => {
-        const btn = basicCaptchaPlugin.el.querySelector(basicCaptchaPlugin.options.captchaRefreshIconId);
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                json: () => Promise.resolve({
+                    type: 'danger',
+                    error: 'invalid_captcha',
+                }),
+            })
+        );
 
-        const spyOnLoad = jest.spyOn(basicCaptchaPlugin, '_onLoadBasicCaptcha');
-        const spyCallApi = jest.spyOn(basicCaptchaPlugin._httpClient, 'get');
-        btn.click();
-        basicCaptchaPlugin.init();
-
-        expect(spyOnLoad).toHaveBeenCalled();
-        expect(spyCallApi).toHaveBeenCalled();
-    });
-
-    test('onFormSubmit should get called', () => {
+        basicCaptchaPlugin = new BasicCaptchaPlugin(captchaElement);
         basicCaptchaPlugin._form.submit = jest.fn();
 
-        basicCaptchaPlugin._form.checkValidity = () => { return true };
+        const captchaInput = basicCaptchaPlugin._form.querySelector(basicCaptchaPlugin.options.basicCaptchaInputId);
 
-        basicCaptchaPlugin.onFormSubmit('kyln');
+        await basicCaptchaPlugin.validateCaptcha(new Event('submit'));
 
-        expect(basicCaptchaPlugin._form.submit).toHaveBeenCalled();
+        await expect(validationSpy).toHaveBeenCalledTimes(1);
+        await expect(basicCaptchaPlugin._form.submit).toHaveBeenCalledTimes(0);
+
+        expect(captchaInput.classList).toContain(window.formValidation.config.invalidClass);
     });
 
-    test('onFormSubmit should not get called when the form invalid', () => {
+    test('Form should be submitted if captcha is valid', async () => {
+        const validationSpy = jest.spyOn(BasicCaptchaPlugin.prototype, 'validateCaptcha');
+
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                json: () => Promise.resolve({
+                    session: {},
+                }),
+            })
+        );
+
+        basicCaptchaPlugin = new BasicCaptchaPlugin(captchaElement);
         basicCaptchaPlugin._form.submit = jest.fn();
 
-        basicCaptchaPlugin._form.checkValidity = () => { return false };
+        const captchaInput = basicCaptchaPlugin._form.querySelector(basicCaptchaPlugin.options.basicCaptchaInputId);
 
-        basicCaptchaPlugin.onFormSubmit('kyln');
+        await basicCaptchaPlugin.validateCaptcha(new Event('submit'));
 
-        expect(basicCaptchaPlugin._form.submit).not.toHaveBeenCalled();
+        await expect(validationSpy).toHaveBeenCalledTimes(1);
+        await expect(basicCaptchaPlugin._form.submit).toHaveBeenCalledTimes(1);
+
+        expect(captchaInput.classList).not.toContain(window.formValidation.config.invalidClass);
     });
 });

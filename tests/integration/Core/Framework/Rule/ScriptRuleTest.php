@@ -38,7 +38,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[RunTestsInSeparateProcesses]
 class ScriptRuleTest extends TestCase
 {

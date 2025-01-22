@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Util;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
 
-#[Package('core')]
+#[Package('framework')]
 class FloatComparator
 {
     private const EPSILON = 0.00000001;

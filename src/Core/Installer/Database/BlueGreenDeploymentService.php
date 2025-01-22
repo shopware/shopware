@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class BlueGreenDeploymentService
 {
     final public const ENV_NAME = 'BLUE_GREEN_DEPLOYMENT';

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'es:test:analyzer',
     description: 'Test the elasticsearch analyzer',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchTestAnalyzerCommand extends Command
 {
     private ?ShopwareStyle $io = null;

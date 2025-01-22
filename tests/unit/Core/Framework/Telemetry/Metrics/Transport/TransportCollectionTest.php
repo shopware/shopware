@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(TransportCollection::class)]
 class TransportCollectionTest extends TestCase
 {

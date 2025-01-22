@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class KernelTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\PlatformRequest;
 
-#[Package('core')]
+#[Package('framework')]
 class ContextTokenResponse extends StoreApiResponse
 {
     /**

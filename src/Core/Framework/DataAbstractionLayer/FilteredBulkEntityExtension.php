@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FilteredBulkEntityExtension extends EntityExtension
 {
     public function __construct(private readonly string $entityName, private readonly BulkEntityExtension $bulkExtension)

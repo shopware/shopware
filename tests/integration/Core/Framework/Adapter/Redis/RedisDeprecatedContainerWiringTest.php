@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  *
  * @deprecated tag:v6.7.0 - Remove full class and redis_deprecated_test.yaml config file
  */
-#[Package('core')]
+#[Package('framework')]
 #[Group('legacy')]
 #[Group('slow')]
 class RedisDeprecatedContainerWiringTest extends TestCase

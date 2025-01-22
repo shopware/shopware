@@ -7,7 +7,7 @@ use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\Node;
 
-#[Package('core')]
+#[Package('framework')]
 #[YieldReady]
 class FeatureCallSilentToken extends Node
 {

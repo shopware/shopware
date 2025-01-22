@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 
-#[Package('core')]
+#[Package('framework')]
 class MigrationRuntime
 {
     /**

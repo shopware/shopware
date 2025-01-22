@@ -8,7 +8,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 interface SalesChannelContextServiceInterface
 {
     public function get(SalesChannelContextServiceParameters $parameters): SalesChannelContext;

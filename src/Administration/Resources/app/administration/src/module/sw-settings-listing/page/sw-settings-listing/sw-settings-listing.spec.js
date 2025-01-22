@@ -540,6 +540,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-loader': true,
                         'sw-select-field': true,
                         'sw-ai-copilot-badge': true,
+                        'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     },
                     mocks: {
                         $tc: (param) => {

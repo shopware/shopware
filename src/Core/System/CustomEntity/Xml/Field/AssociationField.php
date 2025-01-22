@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AssociationField extends Field
 {
     public const SET_NULL = 'set-null';

@@ -35,7 +35,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @phpstan-import-type Webhook from WebhookLoader
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookManager implements ResetInterface
 {
     /**

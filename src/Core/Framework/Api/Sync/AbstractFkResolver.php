@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Sync;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractFkResolver
 {
     /**

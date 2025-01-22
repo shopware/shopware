@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'sync:composer:version',
     description: 'Syncs the composer version with the shopware version',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SyncComposerVersionCommand extends Command
 {
     /**

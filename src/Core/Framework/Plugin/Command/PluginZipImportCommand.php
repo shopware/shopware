@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'plugin:zip-import',
     description: 'Imports a plugin from a zip file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class PluginZipImportCommand extends Command
 {
     /**

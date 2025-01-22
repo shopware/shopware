@@ -79,8 +79,8 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
         $criteria = new Criteria();
 
         $reviewFilters[] = new EqualsFilter('status', true);
-        if ($context->getCustomer() !== null) {
-            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomer()->getId());
+        if ($context->getCustomer()) {
+            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomerId());
         }
 
         $criteria->addFilter(

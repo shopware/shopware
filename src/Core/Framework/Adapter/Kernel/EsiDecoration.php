@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\HttpCache\Esi;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class EsiDecoration extends Esi
 {
     /**

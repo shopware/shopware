@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PromotionGenerator implements DemodataGeneratorInterface
 {
     private SymfonyStyle $io;

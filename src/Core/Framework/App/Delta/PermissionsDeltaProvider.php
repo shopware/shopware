@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class PermissionsDeltaProvider extends AbstractAppDeltaProvider
 {
     final public const DELTA_NAME = 'permissions';

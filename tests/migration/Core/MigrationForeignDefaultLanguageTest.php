@@ -19,7 +19,7 @@ use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[Group('slow')]
 #[CoversClass(MigrationCollection::class)]
 class MigrationForeignDefaultLanguageTest extends TestCase

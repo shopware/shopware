@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<IntegrationEntity>
  */
-#[Package('core')]
+#[Package('fundamentals@framework')]
 class IntegrationCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements Rule<ClassMethod>
  */
-#[Package('core')]
+#[Package('framework')]
 class NoDropStatementInUpdateRule implements Rule
 {
     use InMigrationClassTrait;

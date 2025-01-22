@@ -14,7 +14,7 @@ use Shopware\Core\Migration\Traits\Translations;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1672931011ReviewFormMailTemplate extends MigrationStep
 {
     use ImportTranslationsTrait;

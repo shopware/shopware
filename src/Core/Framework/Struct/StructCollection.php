@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends Collection<TElement>
  */
-#[Package('core')]
+#[Package('framework')]
 class StructCollection extends Collection
 {
     public function getApiAlias(): string

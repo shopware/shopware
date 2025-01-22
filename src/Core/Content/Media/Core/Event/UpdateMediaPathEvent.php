@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * This event can be dispatch, to generate the path for a media afterward and store it in the database.
  * The `MediaSubscriber` will listen to this event and generate the path for the media.
  */
-#[Package('core')]
+#[Package('discovery')]
 class UpdateMediaPathEvent implements \IteratorAggregate
 {
     /**

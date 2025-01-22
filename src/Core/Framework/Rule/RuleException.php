@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\ScriptException;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleException extends HttpException
 {
     public static function scriptExecutionFailed(string $hook, string $scriptName, \Throwable $previous): ScriptException

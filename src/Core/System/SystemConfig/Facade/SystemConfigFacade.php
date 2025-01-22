@@ -14,7 +14,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @script-service miscellaneous
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigFacade
 {
     private const PRIVILEGE = 'system_config:read';

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<NumberRangeTranslationEntity>
  */
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeTranslationCollection extends EntityCollection
 {
     /**

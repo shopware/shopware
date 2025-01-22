@@ -19,7 +19,7 @@ use Symfony\Contracts\Cache\CacheInterface;
     name: 'framework:schema',
     description: 'Dumps the schema of the given entity',
 )]
-#[Package('core')]
+#[Package('framework')]
 class DumpSchemaCommand extends Command
 {
     /**

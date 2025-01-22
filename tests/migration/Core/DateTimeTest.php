@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(MigrationCollectionLoader::class)]
 class DateTimeTest extends TestCase
 {

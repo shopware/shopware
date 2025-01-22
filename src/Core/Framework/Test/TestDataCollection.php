@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestDataCollection extends IdsCollection
 {
 }

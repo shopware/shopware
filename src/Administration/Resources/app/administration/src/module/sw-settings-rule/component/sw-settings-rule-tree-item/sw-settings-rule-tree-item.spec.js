@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import getTreeItems from 'src/app/component/tree/sw-tree/fixtures/treeItems';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const testAssociationName = 'testAssociation';

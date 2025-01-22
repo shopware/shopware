@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const { Criteria } = Shopware.Data;
@@ -176,6 +176,7 @@ async function createWrapper(
                     'sw-data-grid-skeleton': true,
                     'sw-settings-rule-add-assignment-listing': true,
                     'sw-settings-rule-category-tree': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
                 provide: {
                     ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,

@@ -107,7 +107,7 @@ export default function createLoginService(
                 {
                     grant_type: 'password',
                     client_id: 'administration',
-                    scopes: 'write',
+                    scope: 'write',
                     username: user,
                     password: pass,
                 },
@@ -147,7 +147,7 @@ export default function createLoginService(
                 {
                     grant_type: 'refresh_token',
                     client_id: 'administration',
-                    scopes: 'write',
+                    scope: 'write',
                     refresh_token: token,
                 },
                 {

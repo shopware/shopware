@@ -23,7 +23,6 @@ class TwigEnvironment extends Environment
     {
         // There is no Symfony configuration yet to toggle this feature
         $options['use_yield'] = true;
-        $options['debug'] = false;
 
         parent::__construct($loader, $options);
     }

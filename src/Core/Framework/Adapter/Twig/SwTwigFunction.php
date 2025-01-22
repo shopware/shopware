@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
@@ -116,6 +117,27 @@ class SwTwigFunction
         }
 
         $strings[$string][$strategy] = $result;
+
+        return $result;
+    }
+
+    /**
+     * @param array<array-key, mixed> $args
+     * @param array<array-key, mixed> $context
+     *
+     * @return mixed
+     *
+     * @deprecated tag:v6.7.0 - Will be removed
+     */
+    public static function callMacro(Template $template, string $method, array $args, int $lineno, array $context, Source $source)
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The callMacro method is deprecated and will be removed. Replaced by TwigEnvironment::addMacroResult.');
+        $result = CoreExtension::callMacro($template, $method, $args, $lineno, $context, $source);
+
+        if (self::$macroResult !== null) {
+            $result = self::$macroResult;
+            self::$macroResult = null;
+        }
 
         return $result;
     }

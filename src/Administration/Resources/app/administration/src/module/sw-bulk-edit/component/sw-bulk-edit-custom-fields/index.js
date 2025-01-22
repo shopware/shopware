@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-bulk-edit-custom-fields.html.twig';
 import './sw-bulk-edit-custom-fields.scss';

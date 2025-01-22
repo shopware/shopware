@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 const { Module } = Shopware;
 const ModuleFactory = Module;

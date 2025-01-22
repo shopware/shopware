@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class TestRuleScope extends RuleScope
 {
     public function __construct(private readonly SalesChannelContext $salesChannelContext)

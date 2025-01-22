@@ -18,7 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class IsGuestCustomerRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

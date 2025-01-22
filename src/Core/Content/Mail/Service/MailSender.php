@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Envelope;
-use Symfony\Component\Mailer\Transport\TransportInterface;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\Email;
 
@@ -19,6 +19,7 @@ use Symfony\Component\Mime\Email;
 class MailSender extends AbstractMailSender
 {
     public const DISABLE_MAIL_DELIVERY = 'core.mailerSettings.disableDelivery';
+    private const MESSAGE_SIZE_LIMIT = 1024 * 256;
 
     private const BASE_FILE_SYSTEM_PATH = 'mail-data/';
 
@@ -26,7 +27,7 @@ class MailSender extends AbstractMailSender
      * @internal
      */
     public function __construct(
-        private readonly TransportInterface $transport,
+        private readonly MailerInterface $mailer,
         private readonly FilesystemOperator $filesystem,
         private readonly SystemConfigService $configService,
         private readonly int $maxContentLength,
@@ -62,7 +63,7 @@ class MailSender extends AbstractMailSender
 
         if ($this->messageBus === null) {
             try {
-                $this->transport->send($email);
+                $this->mailer->send($email);
             } catch (\Throwable $e) {
                 throw MailException::mailTransportFailedException($e);
             }
@@ -71,6 +72,16 @@ class MailSender extends AbstractMailSender
         }
 
         $mailData = serialize($email);
+        if (\strlen($mailData) <= self::MESSAGE_SIZE_LIMIT) {
+            try {
+                $this->mailer->send($email);
+            } catch (\Throwable $e) {
+                throw MailException::mailTransportFailedException($e);
+            }
+
+            return;
+        }
+
         $mailDataPath = self::BASE_FILE_SYSTEM_PATH . Hasher::hash($mailData);
 
         $this->filesystem->write($mailDataPath, $mailData);

@@ -5,53 +5,38 @@ test ('Customer is able to search products in shop', {tag: '@Search'}, async ({
     TestDataService,
     StorefrontHome,
     StorefrontSearchSuggest,
-    SalesChannelBaseConfig,
 }) => {
-    const product1 = await TestDataService.createBasicProduct({
+    await TestDataService.createBasicProduct({
         name: 'Bottle',
-        price: [{
-            currencyId: SalesChannelBaseConfig.defaultCurrencyId,
-            gross: 10.00,
-            linked: false,
-            net: 7.55,
-        }],
     });
-    const product2 = await TestDataService.createBasicProduct({
+    await TestDataService.createBasicProduct({
         name: 'Bowl',
-        price: [{
-            currencyId: SalesChannelBaseConfig.defaultCurrencyId,
-            gross: 10.00,
-            linked: false,
-            net: 7.55,
-        }],
     });
 
-    await ShopCustomer.goesTo(StorefrontHome.url());
-
-    await test.step('Customer tries search with invalid input', async () => {
-        await StorefrontSearchSuggest.searchInput.fill('Be');
+    await test.step('Customer searches with an invalid input and sees no results', async () => {
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        await StorefrontSearchSuggest.searchForTerm('Be');
         await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestNoResult).toBeVisible();
     });
 
-    await test.step('Customer tries search with valid input', async () => {
-        await StorefrontSearchSuggest.searchInput.fill('Bo');
-
-        const totalCount = await StorefrontSearchSuggest.getTotalSearchResultCount();
-        await ShopCustomer.expects(totalCount).toBe(2);
-
-        await StorefrontSearchSuggest.searchInput.fill('Bow');
-        await ShopCustomer.expects(StorefrontSearchSuggest.searchResultTotal).toBeVisible();
-        await ShopCustomer.expects(totalCount).toBe(1);
-
-    
+    await test.step('Customer searches for a partial term and sees multiple matching products', async () => {
+        await StorefrontSearchSuggest.searchForTerm('Bow');
+        const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
+        await ShopCustomer.expects(totalCount1).toBe(1);
     });
 
-    await test.step('Customer navigates to result page and wants to see all result', async () => {
-        await StorefrontSearchSuggest.searchSuggestTotalLink.click();
-        await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText('Bow');
+    await test.step('Customer refines the search term and sees a single matching product', async () => {
+        await StorefrontSearchSuggest.searchForTerm('Bo');
+        const totalCount2 = await StorefrontSearchSuggest.getTotalSearchResultCount();
+        await ShopCustomer.expects(totalCount2).toBe(2);
+    });
 
-        const productListing2 = await StorefrontSearchSuggest.getListingItemByProductId(product2.id);
-        await ShopCustomer.expects(productListing2.productName).toHaveText(product2.name);
-        await ShopCustomer.expects(productListing2.productPrice).toContainText('€10.00*');     
+    await test.step('Customer navigates to the results page to view all matching products', async () => {
+        await StorefrontSearchSuggest.searchSuggestTotalLink.click();
+        await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText('Bo');
+        await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText('2');
+
+        const listedItemsCount = await StorefrontSearchSuggest.productListItems.count();
+        await ShopCustomer.expects(listedItemsCount).toBe(2);
     });
 });

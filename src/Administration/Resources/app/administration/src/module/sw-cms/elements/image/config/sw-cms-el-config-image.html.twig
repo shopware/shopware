@@ -131,6 +131,13 @@
     </div>
     {% endblock %}
 
+    <mt-switch
+        class="sw-cms-el-config-image__is-decorative"
+        :checked="element.config.isDecorative.value"
+        :label="$tc('sw-cms.elements.image.config.label.isDecorative')"
+        @change="onChangeIsDecorative"
+    />
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_media_modal %}
     <sw-media-modal-v2

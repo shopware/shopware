@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class Migration1692277552FixCustomerReviewCount extends MigrationStep
 {
     public function getCreationTimestamp(): int

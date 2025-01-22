@@ -14,7 +14,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * @phpstan-import-type Compatibility from ExtensionCompatibility
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class ExtensionCompatibilitiesResolvedEvent extends Event
 {
     /**

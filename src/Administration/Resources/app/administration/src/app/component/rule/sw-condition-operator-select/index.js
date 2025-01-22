@@ -5,7 +5,7 @@ const { Component } = Shopware;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.register('sw-condition-operator-select', {
     template: template,

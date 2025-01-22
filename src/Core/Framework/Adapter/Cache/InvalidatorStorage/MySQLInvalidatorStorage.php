@@ -85,9 +85,12 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
         $query = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare(\sprintf('DELETE FROM %s WHERE id BETWEEN ? AND ?', self::TABLE_NAME))
+            $this->connection->prepare(\sprintf('DELETE FROM %s WHERE id BETWEEN :firstTagId AND :lastTagId', self::TABLE_NAME))
         );
-        $query->execute([$firstTagId, $lastTagId]);
+        $query->execute([
+            'firstTagId' => $firstTagId,
+            'lastTagId' => $lastTagId,
+        ]);
 
         return array_column($rows, 'tag');
     }

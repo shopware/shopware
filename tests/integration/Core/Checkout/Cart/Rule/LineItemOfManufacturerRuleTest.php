@@ -20,7 +20,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[Group('rules')]
 class LineItemOfManufacturerRuleTest extends TestCase
 {

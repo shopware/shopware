@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[AsCommand(name: 'feature:list', description: 'List all registered features')]
 final class FeatureListCommand extends Command
 {

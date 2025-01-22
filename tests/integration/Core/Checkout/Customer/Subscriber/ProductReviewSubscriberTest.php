@@ -19,7 +19,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(ProductReviewSubscriber::class)]
 class ProductReviewSubscriberTest extends TestCase
 {

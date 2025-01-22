@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Migration;
 
-use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -23,6 +22,7 @@ class MigrationException extends HttpException
     final public const FRAMEWORK_MIGRATION_PLUGIN_COULD_NOT_BE_FOUND = 'FRAMEWORK__MIGRATION_PLUGIN_COULD_NOT_BE_FOUND';
     final public const FRAMEWORK_MIGRATION_MORE_THAN_ONE_PLUGIN_FOUND = 'FRAMEWORK__MIGRATION_MORE_THAN_ONE_PLUGIN_FOUND';
     final public const FRAMEWORK_MIGRATION_DIRECTORY_COULD_NOT_BE_CREATED = 'FRAMEWORK__MIGRATION_DIRECTORY_COULD_NOT_BE_CREATED';
+    final public const INVALID_ARGUMENT = 'FRAMEWORK__MIGRATION_INVALID_ARGUMENT_EXCEPTION';
 
     /**
      * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
@@ -35,7 +35,7 @@ class MigrationException extends HttpException
 
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            AdapterException::INVALID_ARGUMENT,
+            self::INVALID_ARGUMENT,
             $message
         );
     }
@@ -66,19 +66,12 @@ class MigrationException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function migrationDirectoryNotCreated(string $directory): self|\RuntimeException
+    public static function migrationDirectoryNotCreated(string $directory): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \RuntimeException(\sprintf('Migration directory "%s" could not be created', $directory));
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::FRAMEWORK_MIGRATION_DIRECTORY_COULD_NOT_BE_CREATED,
-            'Migration directory "{{ $directory }}" could not be created',
+            'Migration directory "{{ directory }}" could not be created',
             [
                 'directory' => $directory,
             ]
@@ -87,19 +80,13 @@ class MigrationException extends HttpException
 
     /**
      * @param array<string> $pluginBundles
-     *
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
      */
-    public static function moreThanOnePluginFound(string $pluginName, array $pluginBundles): self|\RuntimeException
+    public static function moreThanOnePluginFound(string $pluginName, array $pluginBundles): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::FRAMEWORK_MIGRATION_MORE_THAN_ONE_PLUGIN_FOUND,
-            'More than one plugin name starting with "%s" was found: %s',
+            'More than one plugin name starting with "{{ pluginName }}" was found: {{ plugins }}',
             [
                 'pluginName' => $pluginName,
                 'plugins' => implode(';', $pluginBundles),
@@ -107,19 +94,12 @@ class MigrationException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function pluginNotFound(string $pluginName): self|\RuntimeException
+    public static function pluginNotFound(string $pluginName): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::FRAMEWORK_MIGRATION_PLUGIN_COULD_NOT_BE_FOUND,
-            'Plugin "{{ $pluginName }}" could not be found.',
+            'Plugin "{{ pluginName }}" could not be found.',
             [
                 'pluginName' => $pluginName,
             ]

@@ -81,7 +81,10 @@ class CreateMigrationCommandTest extends TestCase
 
         $input = ['--plugin' => 'SimplePlugin'];
 
-        $this->expectExceptionObject(MigrationException::moreThanOnePluginFound('SimplePlugin', array_keys($kernelPluginCollection->all())));
+        $this->expectExceptionObject(MigrationException::moreThanOnePluginFound(
+            'SimplePlugin',
+            array_keys($kernelPluginCollection->all())
+        ));
 
         $commandTester->execute($input);
     }
@@ -89,8 +92,7 @@ class CreateMigrationCommandTest extends TestCase
     public function testExecuteThrowsExceptionWhenMigrationDirectoryNotCreated(): void
     {
         $kernelPluginCollection = new KernelPluginCollection();
-        $plugin1 = new SimplePlugin(true, '');
-        $kernelPluginCollection->add($plugin1);
+        $kernelPluginCollection->add(new SimplePlugin(true, ''));
 
         $command = new CreateMigrationCommand(
             $kernelPluginCollection,
@@ -100,9 +102,10 @@ class CreateMigrationCommandTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $input = ['--plugin' => 'SimplePlugin'];
-        $fileName = '/tests/unit/Storefront/Theme/fixtures/SimplePlugin/Migration';
 
-        $this->expectExceptionObject(MigrationException::migrationDirectoryNotCreated($fileName));
+        $this->expectExceptionObject(MigrationException::migrationDirectoryNotCreated(
+            '/tests/unit/Storefront/Theme/fixtures/SimplePlugin/Migration'
+        ));
 
         $commandTester->execute($input);
     }

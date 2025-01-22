@@ -103,19 +103,19 @@ export default {
                 },
                 {
                     name: 'fileTypes',
-                    type: 'radio',
+                    type: 'array',
                     config: {
-                        componentName: 'sw-single-select',
+                        componentName: 'sw-multi-select',
                         labelProperty: 'name',
                         valueProperty: 'id',
                         options: [
                             {
                                 id: 'pdf',
-                                name: this.$tc('sw-settings-document.detail.labelFileTypesPdf'),
+                                name: 'PDF',
                             },
                             {
-                                id: 'all',
-                                name: this.$tc('sw-settings-document.detail.labelFileTypesPdfAndHtml'),
+                                id: 'html',
+                                name: 'HTML',
                             },
                         ],
                         label: this.$tc('sw-settings-document.detail.labelFileTypes'),
@@ -391,6 +391,14 @@ export default {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        fileTypesSelected() {
+            if (!this.documentConfig?.config?.fileTypes) {
+                return [];
+            }
+
+            return this.documentConfig.config.fileTypes;
+        },
     },
 
     created() {
@@ -448,8 +456,6 @@ export default {
             this.documentConfig.salesChannels.forEach((salesChannelAssoc) => {
                 this.documentConfigSalesChannels.push(salesChannelAssoc.id);
             });
-
-            this.onChangeFileTypes();
 
             this.isLoading = false;
         },
@@ -560,17 +566,6 @@ export default {
 
             this.isSaveSuccessful = true;
 
-            if (this.documentConfig.config.fileTypes === 'all') {
-                this.documentConfig.config.fileTypes = [
-                    'pdf',
-                    'html',
-                ];
-            }
-
-            if (this.documentConfig.config.fileTypes === 'pdf') {
-                this.documentConfig.config.fileTypes = ['pdf'];
-            }
-
             return this.documentBaseConfigRepository
                 .save(this.documentConfig)
                 .then(() => {
@@ -617,15 +612,18 @@ export default {
             });
         },
 
-        onChangeFileTypes() {
-            const fileTypes = this.documentConfig.config.fileTypes ?? [];
-            if (fileTypes.includes('pdf') && fileTypes.includes('html')) {
-                this.documentConfig.config.fileTypes = 'all';
-
-                return;
+        onRemoveDocumentType(type) {
+            let fileTypes = this.documentConfig.config.fileTypes ?? [];
+            if (fileTypes.length === 1) {
+               return;
             }
 
-            this.documentConfig.config.fileTypes = 'pdf';
+            fileTypes = fileTypes.filter((fileType) => fileType !== type.id);
+            this.documentConfig.config.fileTypes = fileTypes;
+        },
+
+        onAddDocumentType(type) {
+            this.documentConfig.config.fileTypes.push(type.id);
         },
     },
 };

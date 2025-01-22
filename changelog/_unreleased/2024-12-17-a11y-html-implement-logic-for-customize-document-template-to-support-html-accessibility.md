@@ -42,8 +42,6 @@ ___
   * `getDocumentColumns` computed to add new column `fileTypes`.
 * Added method `availableFormatsFilter` in `sw-order-document-card` component to filter the available formats.
 * Added block `sw_order_document_card_grid_column_avaiable_formats` in `sw-order-document-card.html.twig` to show the available formats column.
-* Added block `sw_order_document_card_grid_action_open_html` in `sw-order-document-card.html.twig` to show the open html action.
-* Added block `sw_order_document_card_grid_action_download_html` in `sw-order-document-card.html.twig` to show the download html action.
 * Changed method `onPreview` in `sw-order-document-settings-modal` component to add new `fileType` attribute.
 * Changed method `onPreview` in `sw-order-document-settings-credit-note-modal` component to add new `fileType` attribute.
 * Changed method `onPreview` in `sw-order-document-settings-delivery-note-modal` component to add new `fileType` attribute.
@@ -52,8 +50,9 @@ ___
 * Added method `loadTheLinksForA11y` in `sw-order-send-document-modal` component to load the HTML links for a11y.
 * Changed method `onSendDocument` in `sw-order-send-document-modal` component to add `a11yDocuments` attribute for `mailService.sendMailTemplate`.
 * Changed data `generalFormFields` in `sw-settings-document-detail` component to add `config` `fileTypes` to show formats like <pdf, html>.
-* Added method `onChangeFileTypes` in `sw-settings-document-detail` component to format the input to display in UI.
-* Changed method `onSave` in `sw-settings-document-detail` component to reformat the `fileTypes` before save DB.
+* Added method `onRemoveDocumentType` in `sw-settings-document-detail` component to remove item with `sw-multi-select` component.
+* Added method `onAddDocumentType` in `sw-settings-document-detail` component to add item with `sw-multi-select` component.
+* Added block `sw_settings_document_detail_content_form_field_renderer_multi_select` in `sw-settings-document-detail.html.twig` to show the multi select component.
 ___
 # Storefront
 * Changed block `page_account_order_document_item_detail_file_name` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document-item.html.twig` to add the link to render `html` document.

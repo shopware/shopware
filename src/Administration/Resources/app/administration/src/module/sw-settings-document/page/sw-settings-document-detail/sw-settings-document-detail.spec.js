@@ -57,6 +57,11 @@ const documentBaseConfigRepositoryMock = {
         return Promise.resolve({
             id: id,
             documentTypeId: 'documentTypeId',
+            config: {
+                fileTypes: [
+                    'pdf',
+                ],
+            },
         });
     },
 };
@@ -155,7 +160,7 @@ const createWrapper = async (customOptions, privileges = []) => {
                         props: ['disabled'],
                     },
                     'sw-multi-select': {
-                        template: '<div id="documentSalesChannel"/>',
+                        template: '<div id="documentSalesChannel" @click="$emit(\'click\')"/>',
                         props: ['disabled'],
                     },
                     'sw-skeleton': true,
@@ -443,23 +448,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');
     });
 
-    it('should be have config files type with html and pdf', async () => {
-        const wrapper = await createWrapper(
-            {
-                props: { documentConfigId: 'documentConfigWithDocumentFileTypes' },
-            },
-            ['document.editor'],
-        );
-
-        await flushPromises();
-
-        const filesTypeLabel = wrapper.find('sw-form-field-renderer-stub[name="fileTypes"]');
-
-        expect(filesTypeLabel).toBeTruthy();
-        expect(wrapper.vm.documentConfig.config.fileTypes).toBe('all');
-    });
-
-    it('should be have config files type only show pdf', async () => {
+    it('should be have config file formats only show pdf', async () => {
         const wrapper = await createWrapper(
             {
                 props: { documentConfigId: 'documentId' },
@@ -469,13 +458,20 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await flushPromises();
 
-        const filesTypeLabel = wrapper.find('sw-form-field-renderer-stub[name="fileTypes"]');
+        let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
-        expect(filesTypeLabel).toBeTruthy();
-        expect(wrapper.vm.documentConfig.config.fileTypes).toBe('pdf');
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf');
+
+        await wrapper.vm.onRemoveDocumentType({ id: 'pdf' });
+
+        multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf');
     });
 
-    it('should be save with config files type', async () => {
+    it('should be have config file formats with pdf and html', async () => {
         const wrapper = await createWrapper(
             {
                 props: { documentConfigId: 'documentConfigWithDocumentFileTypes' },
@@ -483,17 +479,25 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             ['document.editor'],
         );
 
-        wrapper.vm.documentBaseConfigRepository.save = jest.fn(() => Promise.resolve());
-
         await flushPromises();
 
-        expect(wrapper.vm.documentConfig.config.fileTypes).toBe('all');
+        let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
-        await wrapper.vm.onSave();
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf,html');
 
-        expect(wrapper.vm.documentConfig.config.fileTypes).toEqual([
-            'pdf',
-            'html',
-        ]);
+        await wrapper.vm.onRemoveDocumentType({ id: 'html' });
+
+        multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf');
+
+        await wrapper.vm.onAddDocumentType({ id: 'html' });
+
+        multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf,html');
     });
 });

@@ -704,7 +704,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         await wrapper.setData({
             documents: getCollection('document', [
-                { ...documentFixture, config: { fileTypes: ['pdf'] } },
+                { ...documentFixture, documentMediaFile: { fileExtension: 'pdf' }, documentA11yMediaFile: null },
             ]),
         });
 
@@ -723,12 +723,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             documents: getCollection('document', [
                 {
                     ...documentFixture,
-                    config: {
-                        fileTypes: [
-                            'pdf',
-                            'html',
-                        ],
+                    documentMediaFile: {
+                        fileExtension: 'pdf'
                     },
+                    documentA11yMediaFile: {
+                        fileExtension: 'html'
+                    }
                 },
             ]),
         });

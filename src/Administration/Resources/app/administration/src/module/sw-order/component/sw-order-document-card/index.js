@@ -501,7 +501,10 @@ export default {
         },
 
         availableFormatsFilter(item) {
-            const fileTypesArray = Object.values({ ...item.config?.fileTypes });
+            const fileTypesArray = [
+                item.documentMediaFile?.fileExtension,
+                item.documentA11yMediaFile?.fileExtension,
+            ].filter((fileType) => fileType);
 
             return fileTypesArray.join(', ').toUpperCase();
         },

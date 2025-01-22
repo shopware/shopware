@@ -39,7 +39,7 @@
                                         {% if nestingLevel < 1 %}
                                             {% block component_line_item_type_product_image %}
                                                 <div class="col-auto line-item-info-img">
-                                                    <div class="line-item-img-container">
+                                                    <div class="line-item-img-container" aria-hidden="true">
                                                         {% block component_line_item_type_product_image_inner %}
                                                             {% sw_include '@Storefront/storefront/component/line-item/element/image.html.twig' with {
                                                                 lineItemLink: displayMode !== 'order' or lineItem.productId ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,

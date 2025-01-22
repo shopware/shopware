@@ -406,11 +406,7 @@
             margin-bottom: 0;
         }
 
-        .line-item-quantity-label,
-        //.line-item-unit-price-label,
-        //.line-item-total-price-label,
-        //.line-item-tax-price-label
-        {
+        .line-item-quantity-label {
             display: none;
         }
     }
@@ -621,47 +617,20 @@ a.line-item-label {
     text-align: right;
 }
 
-//.line-item-unit-price-label {
-//    display: none;
-//}
-
 .line-item-tax-price-label {
     display: inline;
     font-weight: normal;
     margin-right: 5px;
 }
 
-//.line-item-total-price-label {
-//    display: none;
-//}
-
-//@include media-breakpoint-only(sm) {
-//    .line-item-unit-price-label {
-//        display: block;
-//    }
-//}
-
 @include media-breakpoint-only(xs) {
-    //.line-item-unit-price-label {
-    //    display: block;
-    //}
-
-    .line-item-row {
-        background: lightcoral;
-    }
-
     .line-item-unit-price-label,
-    .line-item-tax-price-label,
     .line-item-total-price-label {
         @include visually-hidden();
     }
 }
 
 @include media-breakpoint-up(md) {
-    .line-item-row {
-        background: lightgreen;
-    }
-
     .line-item-unit-price-label,
     .line-item-tax-price-label,
     .line-item-total-price-label {
@@ -674,10 +643,6 @@ a.line-item-label {
         display: none;
     }
 
-    //.line-item-total-price-label {
-    //    display: block;
-    //}
-
     .line-item-tax-price-label {
         display: block;
         font-weight: bold;
@@ -686,14 +651,6 @@ a.line-item-label {
 }
 
 .is-offcanvas {
-    //.line-item-unit-price-label {
-    //    display: none;
-    //}
-
-    //.line-item-total-price-label {
-    //    display: none;
-    //}
-
     .line-item-unit-price-value-descriptor {
         display: inline;
     }

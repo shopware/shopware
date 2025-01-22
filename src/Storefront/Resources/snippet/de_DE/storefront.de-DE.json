@@ -428,6 +428,7 @@
     "lineItemShowMore": "mehr",
     "lineItemShowLess": "weniger",
     "lineItemUnitPriceDescriptor": "Stück",
+    "lineItemLabelDescriptor": "Produkt-Informationen",
     "cartEmpty": "Ihr Warenkorb ist leer.",
     "cartHeaderInfo": "Produkt",
     "cartHeaderQuantity": "Anzahl",

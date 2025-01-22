@@ -20,7 +20,7 @@ class CreateMigrationCommandTest extends TestCase
     public function testExecuteThrowsExceptionIfNameContainsForbiddenCharacters(): void
     {
         $command = new CreateMigrationCommand(
-            $this->createMock(KernelPluginCollection::class),
+            new KernelPluginCollection(),
             'coreDir',
             'shopwareVersion'
         );
@@ -36,7 +36,7 @@ class CreateMigrationCommandTest extends TestCase
     public function testExecuteThrowsExceptionWhenDirectoryIsSpecifiedButNoNamespace(): void
     {
         $command = new CreateMigrationCommand(
-            $this->createMock(KernelPluginCollection::class),
+            new KernelPluginCollection(),
             'coreDir',
             'shopwareVersion'
         );
@@ -52,7 +52,7 @@ class CreateMigrationCommandTest extends TestCase
     public function testExecuteThrowsExceptionWhenPluginIsNotFound(): void
     {
         $command = new CreateMigrationCommand(
-            $this->createMock(KernelPluginCollection::class),
+            new KernelPluginCollection(),
             'coreDir',
             'shopwareVersion'
         );

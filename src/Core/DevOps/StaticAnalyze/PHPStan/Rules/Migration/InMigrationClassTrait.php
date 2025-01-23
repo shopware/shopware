@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 trait InMigrationClassTrait
 {
     protected function isInMigrationClass(Scope $scope): bool

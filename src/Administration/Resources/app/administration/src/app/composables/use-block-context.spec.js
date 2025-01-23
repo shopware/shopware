@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 describe('use-block-context', () => {
     let useBlockContext;
     beforeEach(async () => {

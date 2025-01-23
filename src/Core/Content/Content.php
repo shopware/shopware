@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Content extends Bundle
 {
     /**

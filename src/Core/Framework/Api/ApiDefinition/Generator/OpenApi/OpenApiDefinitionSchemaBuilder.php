@@ -42,7 +42,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-#[Package('core')]
+#[Package('framework')]
 class OpenApiDefinitionSchemaBuilder
 {
     private CamelCaseToSnakeCaseNameConverter $converter;

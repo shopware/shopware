@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PasswordFieldSerializer extends AbstractFieldSerializer
 {
     public const CONFIG_MIN_LENGTH_FOR = [

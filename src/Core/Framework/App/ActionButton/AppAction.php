@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class AppAction
 {
     /**

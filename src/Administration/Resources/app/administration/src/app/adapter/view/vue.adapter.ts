@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';

@@ -10,7 +10,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 
-#[Package('core')]
+#[Package('framework')]
 class IndexMappingUpdater
 {
     /**

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount, RouterLinkStub } from '@vue/test-utils';

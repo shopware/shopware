@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('checkout')]
+#[Package('framework')]
 class IncrementSqlStorage extends AbstractIncrementStorage
 {
     /**

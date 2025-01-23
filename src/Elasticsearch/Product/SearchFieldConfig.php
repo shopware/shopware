@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Product;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class SearchFieldConfig
 {
     private float $ranking;

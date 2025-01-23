@@ -1,4 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type { Module } from 'vuex';
 import type { AxiosResponse } from 'axios';
 import type {
@@ -12,7 +11,7 @@ import type {
 } from '../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Service } = Shopware;

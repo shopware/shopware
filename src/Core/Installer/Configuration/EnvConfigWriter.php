@@ -13,7 +13,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
  *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
-#[Package('core')]
+#[Package('framework')]
 class EnvConfigWriter
 {
     private const FLEX_DOTENV = <<<'EOT'

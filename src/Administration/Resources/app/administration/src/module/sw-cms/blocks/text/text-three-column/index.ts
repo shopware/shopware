@@ -1,17 +1,17 @@
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-preview-text-three-column', () => import('./preview'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-block-text-three-column', () => import('./component'));
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-three-column',

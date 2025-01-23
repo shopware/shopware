@@ -349,6 +349,7 @@
       "labelMarkAsSent": "Mark as sent",
       "labelMarkAsUnsent": "Mark as unsent",
       "labelCreateNew": "Create new document",
+      "labelAvailableFormats": "Available Formats",
       "messageEmptyTitle": "No documents created yet",
       "messageNoDocumentFound": "No documents found",
       "messageEmptySubline": "Manage documents here.",
@@ -405,7 +406,8 @@
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Total",
       "labelNoItems": "No credit shown",
-      "fileInputLabel": "Upload custom document"
+      "fileInputLabel": "Upload custom document",
+      "labelPreviewOnlyHtml": "HTML preview"
     },
     "documentSendModal": {
       "labelNumber": "Number",

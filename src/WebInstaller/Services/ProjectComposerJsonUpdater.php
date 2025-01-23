@@ -11,7 +11,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ProjectComposerJsonUpdater
 {
     public function __construct(private readonly HttpClientInterface $httpClient)

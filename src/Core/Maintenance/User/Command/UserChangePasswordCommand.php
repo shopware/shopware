@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Validation;
     name: 'user:change-password',
     description: 'Change the password of a user',
 )]
-#[Package('core')]
+#[Package('framework')]
 class UserChangePasswordCommand extends Command
 {
     /**

@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-detail.html.twig';
 import errorConfig from './error-config.json';

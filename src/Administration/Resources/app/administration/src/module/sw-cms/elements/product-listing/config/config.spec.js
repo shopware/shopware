@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
@@ -93,6 +93,7 @@ async function createWrapper(activeTab = 'sorting') {
                     'router-link': true,
                     'sw-button': true,
                     'sw-data-grid-skeleton': true,
+                    'sw-provide': true,
                 },
                 provide: {
                     cmsService: {

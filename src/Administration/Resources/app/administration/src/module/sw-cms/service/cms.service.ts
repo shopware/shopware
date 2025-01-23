@@ -1,7 +1,5 @@
 import { reactive } from 'vue';
 import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 
 const { Application } = Shopware;
 
@@ -31,7 +29,7 @@ type CmsSlotData = {
     context?: unknown;
 };
 
-type RuntimeSlot = EntitySchema.Entity<'cms_slot'> & {
+type RuntimeSlot = Entity<'cms_slot'> & {
     config: CmsSlotConfig;
     data: {
         [key: string]: CmsSlotData;
@@ -550,7 +548,7 @@ function CmsElementEnrich<EntityName extends keyof EntitySchema.Entities>(
             slotData[configKey] = [];
 
             (slotConfigValue as unknown as string[]).forEach((value) => {
-                (slotData[configKey] as EntitySchema.Entity<EntityName>[]).push(collection.get(value) as Entity<EntityName>);
+                (slotData[configKey] as Entity<EntityName>[]).push(collection.get(value) as Entity<EntityName>);
             });
         } else {
             slotData[configKey] = collection.get(slotConfigValue);
@@ -562,6 +560,6 @@ Application.addServiceProvider('cmsService', () => new CmsService());
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export { CmsService, type CmsElementConfig, type CmsBlockConfig, type CmsSlotConfig, type RuntimeSlot };

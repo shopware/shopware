@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedField
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-#[Package('core')]
+#[Package('framework')]
 class TranslatedField extends Field
 {
     final public const PRIORITY = 100;

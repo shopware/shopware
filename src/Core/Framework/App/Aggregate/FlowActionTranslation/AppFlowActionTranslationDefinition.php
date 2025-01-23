@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AppFlowActionTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'app_flow_action_translation';

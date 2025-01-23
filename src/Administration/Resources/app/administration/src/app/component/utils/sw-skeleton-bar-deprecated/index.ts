@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-skeleton-bar-deprecated.html.twig';
 import './sw-skeleton-bar.scss';
 

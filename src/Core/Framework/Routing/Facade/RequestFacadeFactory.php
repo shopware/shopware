@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RequestFacadeFactory extends HookServiceFactory
 {
     public function __construct(private readonly RequestStack $requestStack)

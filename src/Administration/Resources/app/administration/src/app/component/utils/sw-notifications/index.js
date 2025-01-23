@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
 

@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import './in-app-purchase-checkout.store';
 
@@ -19,41 +19,17 @@ describe('src/app/store/in-app-purchase-checkout.store.ts', () => {
         const checkoutRequest = {
             featureId: 'TestFeature',
         };
-        const extension = {
-            name: 'TestExtension',
-            baseUrl: 'http://example.com',
-            permissions: [],
-            type: 'app',
+
+        Shopware.Context.app.config.bundles = {
+            TestExtension: {
+                identifier: 'TestExtension',
+            },
         };
 
-        store.request(checkoutRequest, extension);
+        store.request(checkoutRequest, 'TestExtension');
 
         expect(store.entry).toEqual(checkoutRequest);
-        expect(store.extension).toEqual(extension);
-    });
-
-    it('should open the modal with the correct data when extension is a string', () => {
-        const checkoutRequest = {
-            featureId: 'TestFeature',
-        };
-        const extensionName = 'TestExtension';
-        const extension = {
-            name: extensionName,
-            baseUrl: 'http://example.com',
-            permissions: [],
-            version: '1.0.0',
-            type: 'plugin',
-            integrationId: '123',
-            active: true,
-        };
-
-        Shopware.State._store.state.extensions = {};
-        Shopware.State.commit('extensions/addExtension', extension);
-
-        store.request(checkoutRequest, extensionName);
-
-        expect(store.entry).toEqual(checkoutRequest);
-        expect(store.extension).toEqual(extension);
+        expect(store.extension).toBe('TestExtension');
     });
 
     it('should throw an error if the extension is not found', () => {
@@ -62,7 +38,7 @@ describe('src/app/store/in-app-purchase-checkout.store.ts', () => {
         };
         const extensionName = 'TestExtension';
 
-        Shopware.State._store.state.extensions = {};
+        Shopware.Context.app.config.bundles = {};
 
         expect(() => {
             store.request(checkoutRequest, extensionName);

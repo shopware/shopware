@@ -8,7 +8,7 @@ const usageDataService = {
 };
 
 /**
- * @package data-services
+ * @sw-package data-services
  */
 async function createWrapper(canBeHidden = false, isPrivileged = true) {
     const wrapper = mount(

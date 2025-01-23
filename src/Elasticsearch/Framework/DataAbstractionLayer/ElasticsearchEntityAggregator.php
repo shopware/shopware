@@ -16,7 +16,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEnt
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {
     final public const RESULT_STATE = 'loaded-by-elastic';

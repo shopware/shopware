@@ -4,12 +4,30 @@ import ApiService from '../api.service';
  * Gateway for the API end point "mail"
  * @class
  * @extends ApiService
- * @package services-settings
+ * @sw-package framework
  */
 class MailApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'mail-template') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'mailService';
+    }
+
+    getBasicHeaders(additionalHeaders) {
+        const apiContext = {
+            ...Shopware.Context.api,
+            ...additionalHeaders,
+        };
+
+        let languageIdHeader = {};
+
+        // eslint-disable-next-line no-restricted-globals
+        if (self?.Shopware && typeof apiContext.languageId === 'string') {
+            languageIdHeader = {
+                'sw-language-id': apiContext.languageId,
+            };
+        }
+
+        return super.getBasicHeaders(languageIdHeader);
     }
 
     sendMailTemplate(
@@ -23,6 +41,7 @@ class MailApiService extends ApiService {
         templateData = null,
         mailTemplateTypeId = null,
         mailTemplateId = null,
+        additionalHeaders = {},
     ) {
         const apiRoute = `/_action/${this.getApiBasePath()}/send`;
 
@@ -45,7 +64,7 @@ class MailApiService extends ApiService {
                     mailTemplateId,
                 },
                 {
-                    headers: this.getBasicHeaders(),
+                    headers: this.getBasicHeaders(additionalHeaders),
                 },
             )
             .then((response) => {

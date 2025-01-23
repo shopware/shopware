@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1690456899AddCustomFieldPrivilegeForSaleUnitViewer extends MigrationStep
 {
     final public const NEW_PRIVILEGES = [

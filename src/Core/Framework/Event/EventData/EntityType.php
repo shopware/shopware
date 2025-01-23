@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class EntityType implements EventDataType
 {
     final public const TYPE = 'entity';

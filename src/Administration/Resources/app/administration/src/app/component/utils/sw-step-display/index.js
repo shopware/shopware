@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-step-display.html.twig';
 
 const { Component } = Shopware;

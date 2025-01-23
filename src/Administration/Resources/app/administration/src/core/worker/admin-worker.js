@@ -4,7 +4,7 @@ import MessageQueueService from 'src/core/service/api/message-queue.api.service'
 import Axios from 'axios';
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  *
  * @module core/worker/admin-worker

@@ -1,16 +1,16 @@
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-preview-image-slider', () => import('./preview'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-config-image-slider', () => import('./config'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-image-slider', () => import('./component'));
 
@@ -23,12 +23,12 @@ type ImageSliderItemConfig = {
 type ImageSliderItem = {
     newTab: boolean;
     url: string;
-    media: EntitySchema.Entity<'media'> | null;
+    media: Entity<'media'> | null;
 };
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-slider',
@@ -77,6 +77,10 @@ Shopware.Service('cmsService').registerCmsElement({
             value: 5000,
             source: 'static',
         },
+        isDecorative: {
+            source: 'static',
+            value: false,
+        },
     },
     enrich: function enrich(slot, data) {
         if (Object.keys(data).length < 1) {
@@ -113,7 +117,7 @@ Shopware.Service('cmsService').registerCmsElement({
                 const item: ImageSliderItem = {
                     newTab: sliderItem.newTab,
                     url: sliderItem.url,
-                    media: data[entityKey].get(sliderItem.mediaId) as EntitySchema.Entity<'media'> | null,
+                    media: data[entityKey].get(sliderItem.mediaId) as Entity<'media'> | null,
                 };
 
                 items.push(item);

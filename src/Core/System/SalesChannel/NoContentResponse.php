@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
-#[Package('core')]
+#[Package('framework')]
 class NoContentResponse extends StoreApiResponse
 {
     /**

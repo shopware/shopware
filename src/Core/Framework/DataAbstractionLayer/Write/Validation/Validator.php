@@ -9,7 +9,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class Validator
 {
     private array $data = [];

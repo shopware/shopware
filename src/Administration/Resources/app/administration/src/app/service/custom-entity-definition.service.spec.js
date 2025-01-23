@@ -107,7 +107,7 @@ function createCustomEntityDefinitionService() {
 let service;
 
 /**
- * @package content
+ * @sw-package content
  */
 describe('src/app/service/custom-entity-definition.service', () => {
     beforeEach(() => {

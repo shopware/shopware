@@ -19,7 +19,7 @@ interface UserInfoResponse {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package framework
  * Gateway for the API end point "store"
  */
 export default class StoreApiService extends ApiService {
@@ -88,6 +88,6 @@ export default class StoreApiService extends ApiService {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package framework
  */
 export type { StoreApiService, UserInfo };

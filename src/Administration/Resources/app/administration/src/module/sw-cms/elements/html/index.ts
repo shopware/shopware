@@ -1,22 +1,22 @@
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-html', () => import('./component'));
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-preview-html', () => import('./preview'));
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-config-html', () => import('./config'));
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'html',

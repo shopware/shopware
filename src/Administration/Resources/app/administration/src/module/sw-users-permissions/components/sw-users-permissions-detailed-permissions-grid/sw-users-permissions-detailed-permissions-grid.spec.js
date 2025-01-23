@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 // eslint-disable-next-line
 import fs from 'fs';

@@ -61,7 +61,7 @@ class ProductPricingHookTest extends TestCase
         $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $salesChannelContext->getContext()->setRuleIds([$ids->get('rule-A')]);
+        $salesChannelContext->setRuleIds([$ids->get('rule-A')]);
 
         $products = static::getContainer()->get('sales_channel.product.repository')
             ->search(new Criteria($ids->getList(['p1', 'p2', 'p3.1'])), $salesChannelContext);

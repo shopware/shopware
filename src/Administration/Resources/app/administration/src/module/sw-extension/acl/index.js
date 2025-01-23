@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'additional_permissions',

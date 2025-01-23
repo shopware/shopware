@@ -1,4 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import template from './sw-order-create-details.html.twig';
 // eslint-disable-next-line max-len
 import type {
@@ -15,7 +14,7 @@ import type Repository from '../../../../core/data/repository.data';
 import { get } from '../../../../core/service/utils/object.utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component, Mixin, State } = Shopware;

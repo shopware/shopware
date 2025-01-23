@@ -11,7 +11,7 @@ use Twig\Node\Node;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TwigEnvironment extends Environment
 {
     private ?Compiler $compiler = null;

@@ -24,7 +24,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 {
     /**

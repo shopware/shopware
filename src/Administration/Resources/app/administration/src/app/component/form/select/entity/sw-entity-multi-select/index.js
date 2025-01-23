@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-entity-multi-select.html.twig';
 import './sw-entity-multi-select.scss';
 

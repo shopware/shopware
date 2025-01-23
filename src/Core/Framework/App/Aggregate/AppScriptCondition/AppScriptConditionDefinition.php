@@ -28,7 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AppScriptConditionDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'app_script_condition';

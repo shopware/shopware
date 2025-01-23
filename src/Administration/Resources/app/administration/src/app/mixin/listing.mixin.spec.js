@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import 'src/app/mixin/listing.mixin';
 import { mount, config } from '@vue/test-utils';

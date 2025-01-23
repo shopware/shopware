@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -56,6 +56,7 @@ async function createWrapper() {
                 'router-link': true,
                 'sw-button': true,
                 'sw-data-grid-skeleton': true,
+                'sw-provide': true,
             },
         },
     });

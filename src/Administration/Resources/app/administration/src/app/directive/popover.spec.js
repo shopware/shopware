@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import popover from 'src/app/directive/popover.directive';
 import { mount } from '@vue/test-utils';

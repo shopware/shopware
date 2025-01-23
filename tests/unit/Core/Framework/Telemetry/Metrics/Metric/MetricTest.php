@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
  * @internal
  */
 #[CoversClass(Metric::class)]
-#[Package('core')]
+#[Package('framework')]
 class MetricTest extends TestCase
 {
     public function testInvokeRemovesDisallowedLabels(): void

@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(NumberOfReviewsRule::class)]
 #[Group('rules')]
 class NumberOfReviewsRuleTest extends TestCase

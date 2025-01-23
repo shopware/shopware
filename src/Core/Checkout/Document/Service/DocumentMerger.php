@@ -7,7 +7,6 @@ use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaService;
@@ -30,7 +29,7 @@ final class DocumentMerger
         private readonly EntityRepository $documentRepository,
         private readonly MediaService $mediaService,
         private readonly DocumentGenerator $documentGenerator,
-        private readonly Fpdi $fpdi
+        private readonly Fpdi $fpdi,
     ) {
     }
 
@@ -47,6 +46,7 @@ final class DocumentMerger
         $criteria->addAssociation('documentType');
         $criteria->addSorting(new FieldSorting('order.orderNumber'));
 
+        /** @var DocumentCollection $documents */
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
 
         if ($documents->count() === 0) {
@@ -54,6 +54,7 @@ final class DocumentMerger
         }
 
         $fileName = Random::getAlphanumericString(32) . '.' . PdfRenderer::FILE_EXTENSION;
+        $renderedDocument = new RenderedDocument(name: $fileName);
 
         if ($documents->count() === 1) {
             $document = $documents->first();
@@ -62,23 +63,20 @@ final class DocumentMerger
             }
 
             $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
-
             if ($documentMediaId === null) {
                 return null;
             }
 
             $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
-
-            $renderedDocument = new RenderedDocument('', '', $fileName);
             $renderedDocument->setContent($fileBlob);
 
             return $renderedDocument;
         }
 
         $totalPage = 0;
+
         foreach ($documents as $document) {
             $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
-
             if ($documentMediaId === null) {
                 continue;
             }
@@ -105,11 +103,8 @@ final class DocumentMerger
             return null;
         }
 
-        $renderedDocument = new RenderedDocument('', '', $fileName);
-
         $renderedDocument->setContent($this->fpdi->Output($fileName, 'S'));
         $renderedDocument->setContentType(PdfRenderer::FILE_CONTENT_TYPE);
-        $renderedDocument->setName($fileName);
 
         return $renderedDocument;
     }
@@ -117,14 +112,13 @@ final class DocumentMerger
     private function ensureDocumentMediaFileGenerated(DocumentEntity $document, Context $context): ?string
     {
         $documentMediaId = $document->getDocumentMediaFileId();
-
         if ($documentMediaId !== null || $document->isStatic()) {
             return $documentMediaId;
         }
 
         $operation = new DocumentGenerateOperation(
             $document->getOrderId(),
-            FileTypes::PDF,
+            PdfRenderer::FILE_EXTENSION,
             $document->getConfig(),
             $document->getReferencedDocumentId()
         );
@@ -146,9 +140,13 @@ final class DocumentMerger
             return null;
         }
 
-        $documentMediaId = $documentStruct->getMediaId();
-        $document->setDocumentMediaFileId($documentMediaId);
+        $criteria = new Criteria([$document->getId()]);
+        $criteria->addAssociation('documentType')
+            ->addAssociation('documentMediaFile');
 
-        return $documentMediaId;
+        /** @var DocumentEntity $document */
+        $document = $this->documentRepository->search($criteria, $context)->get($document->getId());
+
+        return $document->getDocumentMediaFileId();
     }
 }

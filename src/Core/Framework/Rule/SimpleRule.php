@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class SimpleRule extends Rule
 {
     final public const RULE_NAME = 'simple';

@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-extension-sdk-module.html.twig';
 import './sw-extension-sdk-module.scss';
 

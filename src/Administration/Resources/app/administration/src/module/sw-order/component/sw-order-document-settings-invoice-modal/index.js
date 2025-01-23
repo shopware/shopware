@@ -1,7 +1,7 @@
 import template from './sw-order-document-settings-invoice-modal.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -25,10 +25,10 @@ export default {
             this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
         },
 
-        onPreview() {
+        onPreview(fileType = 'pdf') {
             this.$emit('loading-preview');
             this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
-            this.$super('onPreview');
+            this.$super('onPreview', fileType);
         },
     },
 };

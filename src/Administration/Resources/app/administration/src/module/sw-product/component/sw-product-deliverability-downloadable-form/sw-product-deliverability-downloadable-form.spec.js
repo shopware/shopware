@@ -4,7 +4,7 @@ import { createStore } from 'vuex';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 const { Utils } = Shopware;

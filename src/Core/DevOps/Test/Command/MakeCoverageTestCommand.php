@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
     name: 'make:coverage',
     description: 'Generate PHP Unit test file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class MakeCoverageTestCommand extends Command
 {
     public function __construct(

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionE
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AppScriptConditionTranslationEntity extends TranslationEntity
 {
     protected ?string $name = null;

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class GenericStoreApiResponse extends StoreApiResponse
 {
     public function __construct(

@@ -1,5 +1,4 @@
 import type ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type Repository from 'src/core/data/repository.data';
 import type { PropType } from 'vue';
 
@@ -15,7 +14,7 @@ interface CmsSlotOverrides {
 
 /**
  * @private
- * @package content
+ * @sw-package content
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

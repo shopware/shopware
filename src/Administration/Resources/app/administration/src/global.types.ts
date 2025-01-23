@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -155,6 +155,9 @@ declare global {
      * Make the Shopware object globally available
      */
     const Shopware: ShopwareClass;
+
+    type Entity<EntityName extends keyof EntitySchema.Entities> = EntitySchema.Entity<EntityName>;
+    type EntityCollection<EntityName extends keyof EntitySchema.Entities> = EntitySchema.EntityCollection<EntityName>;
 
     interface CustomShopwareProperties {}
 

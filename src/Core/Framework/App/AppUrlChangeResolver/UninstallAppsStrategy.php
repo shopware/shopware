@@ -19,7 +19,7 @@ use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
  * and the shopId should be regenerated, meaning the old shops and old apps work like before
  * apps in the current installation will be uninstalled without informing them about that (as they still run on the old installation)
  */
-#[Package('core')]
+#[Package('framework')]
 class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
     final public const STRATEGY_NAME = 'uninstall-apps';

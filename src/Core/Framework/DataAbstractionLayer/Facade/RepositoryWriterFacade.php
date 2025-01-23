@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @script-service custom_endpoint
  */
-#[Package('core')]
+#[Package('framework')]
 class RepositoryWriterFacade
 {
     /**

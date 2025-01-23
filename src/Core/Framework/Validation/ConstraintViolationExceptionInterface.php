@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('core')]
+#[Package('framework')]
 interface ConstraintViolationExceptionInterface extends ShopwareException
 {
     public function getViolations(): ConstraintViolationList;

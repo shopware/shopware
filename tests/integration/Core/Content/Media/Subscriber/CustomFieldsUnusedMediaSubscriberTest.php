@@ -21,7 +21,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(CustomFieldsUnusedMediaSubscriber::class)]
 class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 {

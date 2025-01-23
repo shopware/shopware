@@ -3,7 +3,7 @@ import '../store/cms-page.store';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default Shopware.Mixin.register(
     'cms-state',
@@ -18,7 +18,7 @@ export default Shopware.Mixin.register(
                     return this.cmsPageState.selectedBlock;
                 },
 
-                set(block: EntitySchema.Entity<'cms_block'>) {
+                set(block: Entity<'cms_block'>) {
                     this.cmsPageState.setSelectedBlock(block);
                 },
             },
@@ -28,7 +28,7 @@ export default Shopware.Mixin.register(
                     return this.cmsPageState.selectedSection;
                 },
 
-                set(section: EntitySchema.Entity<'cms_section'>) {
+                set(section: Entity<'cms_section'>) {
                     this.cmsPageState.setSelectedSection(section);
                 },
             },

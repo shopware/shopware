@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { runGenericCmsTest } from 'src/module/sw-cms/test-utils';
 import component from './index';

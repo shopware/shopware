@@ -34,7 +34,7 @@ class NavigationController extends StorefrontController
     }
 
     #[Route(path: '/', name: 'frontend.home.page', options: ['seo' => true], defaults: ['_httpCache' => true], methods: ['GET'])]
-    public function home(Request $request, SalesChannelContext $context): ?Response
+    public function home(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->navigationPageLoader->load($request, $context);
 

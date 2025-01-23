@@ -34,7 +34,6 @@ class TwigEnvironment extends Environment
         }
 
         $source = $this->compiler->compile($node)->getSource();
-        //$source = $this->addMacroResultCall($source);
 
         $replaces = [
             'CoreExtension::getAttribute(' => 'SwTwigFunction::getAttribute(',
@@ -43,42 +42,5 @@ class TwigEnvironment extends Environment
         ];
 
         return str_replace(array_keys($replaces), array_values($replaces), $source);
-    }
-
-    private function shouldAddMacroResult(string $source): bool
-    {
-        return
-            str_contains($source, 'getTemplateForMacro')
-            && str_contains($source, 'SwTwigFunction::$macroResult =')
-            && (!str_contains($source, 'CoreExtension::getAttribute') || str_contains($source, 'ComparisonExtension'))
-        ;
-    }
-
-    private function addMacroResult(string $source): string
-    {
-        [$lines, $lineNumber] = $this->extractLinesAndNumber($source);
-        if (isset($lineNumber)) {
-            $callMacroResult = 'yield SwTwigFunction::$macroResult;';
-            array_splice($lines, $lineNumber + 1, 0, $callMacroResult);
-            $updatedSource = implode("\n", $lines);
-        }
-
-        return $updatedSource ?? $source;
-    }
-
-    /**
-     * @return array{array<string>, int|null}
-     */
-    private function extractLinesAndNumber(string $source): array
-    {
-        $lines = explode("\n", $source);
-        foreach ($lines as $index => $line) {
-            if (str_contains($line, 'getTemplateForMacro')) {
-                $lineNumber = $index;
-                break;
-            }
-        }
-
-        return [$lines, $lineNumber ?? null];
     }
 }

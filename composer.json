@@ -35,11 +35,6 @@
         "chat": "https://slack.shopware.com"
     },
     "extra": {
-        "patches": {
-            "twig/twig": [
-                "patches/twig-twig-src-tokenparser-macrotokenparser-php.patch"
-            ]
-        },
         "bamarni-bin": {
             "bin-links": false,
             "forward-command": false
@@ -181,7 +176,6 @@
         "ext-xmlwriter": "*",
         "bamarni/composer-bin-plugin": "^1.8.2",
         "brianium/paratest": "^7.3",
-        "cweagans/composer-patches": "^1.7",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
         "friendsofphp/php-cs-fixer": "3.64.0",
@@ -211,8 +205,7 @@
         "symfony/expression-language": "~7.2.0",
         "symfony/phpunit-bridge": "~7.2.0",
         "symfony/var-dumper": "~7.2.0",
-        "symplify/phpstan-rules": "13.0.1",
-        "symplify/vendor-patches": "^11.3"
+        "symplify/phpstan-rules": "13.0.1"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",

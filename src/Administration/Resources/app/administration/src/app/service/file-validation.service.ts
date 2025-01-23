@@ -9,7 +9,7 @@ type FileValidationService = {
 };
 
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  * @method fileHelperService
  * @returns FileHelperServiceType

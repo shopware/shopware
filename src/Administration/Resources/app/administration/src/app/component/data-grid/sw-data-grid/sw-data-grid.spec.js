@@ -1043,4 +1043,10 @@ describe('components/data-grid/sw-data-grid', () => {
 
         expect(row.classes()).toContain('is--disabled');
     });
+
+    it('should sets default context button menu width', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.props().contextButtonMenuWidth).toBe(220);
+    });
 });

@@ -5,5 +5,26 @@
     Im Anhang dieser E-Mail finden Sie die Rechnung für Ihre Bestellung mit der Nummer: {{ order.orderNumber }}<br>
     <br>
     Sollten Sie Fragen haben, zögern Sie nicht, uns zu kontaktieren.
-    <br>
+    <br><br>
+
+    {% if a11yDocuments %}
+        Folgend stellen wir barrierefreie Dokumente als HTML-Version zur Verfügung:<br><br>
+
+        {% for a11y in a11yDocuments %}
+            {% set documentLink = rawUrl(
+                'frontend.account.order.single.document.a11y',
+                {
+                    documentId: a11y.documentId,
+                    deepLinkCode: a11y.deepLinkCode,
+                    fileType: a11y.fileExtension,
+                },
+                salesChannel.domains|first.url
+            )%}
+
+            - <a href="{{ documentLink }}" target="_blank">{{ documentLink }}</a> <br>
+        {% endfor %}<br>
+
+        Aus Datenschutzgründen ist für die HTML-Version ein Login erforderlich.<br><br>
+        Im Falle einer Gastbestellung können Sie Ihre Postanschrift und die Postleitzahl der Rechnungsanschrift verwenden.<br>
+    {% endif %}
 </div>

@@ -99,18 +99,41 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_order_document_settings_modal_form_document_footer_preview %}
-        <sw-button
-            class="sw-order-document-settings-modal__preview-button"
-            size="small"
-            :disabled="isLoadingDocument"
-            :is-loading="isLoadingPreview"
-            @click="onPreview"
-        >
-            {{ $tc('sw-order.documentModal.labelPreview') }}
-        </sw-button>
-        {% endblock %}
+        <sw-button-group split-button>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_order_document_settings_modal_form_document_footer_preview %}
+            <sw-button
+                class="sw-order-document-settings-modal__preview-button"
+                size="small"
+                :disabled="isLoadingDocument"
+                :is-loading="isLoadingPreview"
+                @click="onPreview()"
+            >
+                {{ $tc('sw-order.documentModal.labelPreview') }}
+            </sw-button>
+            {% endblock %}
+
+            <sw-context-button menu-width="160">
+                <template #button>
+                    <sw-button
+                        square
+                        size="small"
+                    >
+                        <sw-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </sw-button>
+                </template>
+
+                <sw-context-menu-item
+                    class="sw-order-document-settings-modal__preview-button-html"
+                    @click="onPreview('html')"
+                >
+                    {{ $tc('sw-order.documentModal.labelPreviewOnlyHtml') }}
+                </sw-context-menu-item>
+            </sw-context-button>
+        </sw-button-group>
 
         <div>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

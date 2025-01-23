@@ -4,7 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "check-email-unique"
  * @class
  * @extends ApiService
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 class UserValidationApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'check-email-unique') {

@@ -12,15 +12,25 @@ https://getbootstrap.com/docs/5.2/forms/overview
 
 // @deprecated tag:v6.7.0 - The focus outline of valid and invalid fields will be unified to have the same appearance.
 @if feature('ACCESSIBILITY_TWEAKS') {
-    .was-validated {
-        .form-control,
-        .form-select {
-            &:invalid:focus,
-            &.is-invalid:focus,
-            &:valid:focus,
-            &.is-valid:focus {
-                box-shadow: $input-btn-focus-box-shadow;
-            }
+    .was-validated .form-control,
+    .was-validated .form-select,
+    .form-control,
+    .form-select {
+        &:invalid:focus,
+        &.is-invalid:focus,
+        &:valid:focus,
+        &.is-valid:focus {
+            box-shadow: $input-btn-focus-box-shadow;
         }
+    }
+}
+
+.form-required-label {
+    color: $sw-color-danger;
+}
+
+.form-field-feedback {
+    .invalid-feedback {
+        display: block;
     }
 }

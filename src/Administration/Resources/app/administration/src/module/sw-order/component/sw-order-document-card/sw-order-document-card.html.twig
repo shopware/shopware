@@ -84,6 +84,16 @@
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_order_document_card_grid_column_avaiable_formats %}
+            <template #column-fileTypes="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_document_card_grid_column_available_formats_label %}
+                {{ availableFormatsFilter(item) }}
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_document_card_grid_column_sent %}
             <template #column-sent="{ item }">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -122,6 +132,7 @@
                 {% block sw_order_document_card_grid_action_open %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
+                    class="sw-order-document-card__context-button-open-pdf"
                     @click="onOpenDocument(item.id, item.deepLinkCode)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -135,6 +146,7 @@
                 {% block sw_order_document_card_grid_action_download %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
+                    class="sw-order-document-card__context-button-download-pdf"
                     @click="onDownload(item.id, item.deepLinkCode)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -148,6 +160,7 @@
                 {% block sw_order_document_card_grid_action_send %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
+                    class="sw-order-document-card__context-button-send"
                     @click="onSendDocument(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -161,6 +174,7 @@
                 {% block sw_order_document_card_grid_action_mark_sent %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || item.sent"
+                    class="sw-order-document-card__context-button-mark-sent"
                     @click="onMarkDocumentAsSent(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -174,6 +188,7 @@
                 {% block sw_order_document_card_grid_action_mark_unsent %}
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || !item.sent"
+                    class="sw-order-document-card__context-button-mark-unsent"
                     @click="onMarkDocumentAsUnsent(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

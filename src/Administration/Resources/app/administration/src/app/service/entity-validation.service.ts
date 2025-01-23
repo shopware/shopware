@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * @package services-settings
+ * @sw-package framework
  * @module app/entity-validation-service
  */
 import type ChangesetGenerator from 'src/core/data/changeset-generator.data';

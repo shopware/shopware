@@ -66,7 +66,7 @@ type awarenessConfiguration = {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @memberOf module:app/service/rule-condition
  * @constructor
  * @method createConditionService

@@ -225,9 +225,25 @@
                                 :key="`formField-${index}`"
                             >
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                    {% block sw_settings_document_detail_content_form_field_renderer %}
+                                {% block sw_settings_document_detail_content_form_field_renderer_multi_select %}
+                                <sw-multi-select
+                                    v-if="formField && formField.name === 'fileTypes'"
+                                    class="sw-settings-document-detail__multi-select"
+                                    :disabled="!acl.can('document.editor') || undefined"
+                                    :label="formField.config.label"
+                                    :options="formField.config.options"
+                                    :value-property="formField.config.valueProperty"
+                                    :label-property="formField.config.labelProperty"
+                                    v-model:value="fileTypesSelected"
+                                    @item-remove="onRemoveDocumentType"
+                                    @item-add="onAddDocumentType"
+                                />
+                                {% endblock %}
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_document_detail_content_form_field_renderer %}
                                 <sw-form-field-renderer
-                                    v-if="formField"
+                                    v-else-if="formField"
                                     v-model:value="documentConfig.config[formField.name]"
                                     :disabled="!acl.can('document.editor') || undefined"
                                     class="sw-settings-document-detail__form-field-renderer"
@@ -237,7 +253,7 @@
                                     v-else
                                     :key="`else-formField-${index}`"
                                 ></div>
-                                    {% endblock %}
+                                {% endblock %}
                             </template>
                         </template>
                         {% endblock %}

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Administration\Controller;
 
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationCollection;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -69,16 +69,10 @@ class NotificationControllerTest extends TestCase
         $json = \json_encode($data, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        if (!$isSuccess) {
-            $client->request('POST', $url, [], [], [], $json);
-
-            return;
-        }
-
         $client->request('POST', $url, [], [], [], $json);
 
         if (!$isSuccess) {
-            static::assertSame(500, $client->getResponse()->getStatusCode());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
             $criteria = (new Criteria())->setLimit(1);
 

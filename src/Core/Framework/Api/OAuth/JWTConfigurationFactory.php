@@ -17,7 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class JWTConfigurationFactory
 {
-    public static function createJWTConfiguration(): Configuration {
+    public static function createJWTConfiguration(): Configuration
+    {
         /** @var non-empty-string $secret */
         $secret = (string) EnvironmentHelper::getVariable('APP_SECRET');
         $key = InMemory::plainText($secret);

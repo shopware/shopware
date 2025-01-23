@@ -73,7 +73,6 @@ readonly class SymfonyBearerTokenValidator
             $aud = array_shift($aud);
         }
 
-
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $aud);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES, $claims->get('scopes'));
 

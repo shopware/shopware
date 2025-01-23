@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package fundamentals@after-sales
  */
 
 import template from './sw-condition-unit-menu.html.twig';

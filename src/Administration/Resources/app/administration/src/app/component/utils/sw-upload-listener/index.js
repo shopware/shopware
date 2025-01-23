@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
 import { UploadEvents } from 'src/core/service/api/media.api.service';

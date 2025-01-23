@@ -4,7 +4,7 @@ import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-gen
 import 'src/app/component/base/sw-button-process';
 
 /**
- * @sw-package content
+ * @sw-package framework
  */
 
 Shopware.Component.register('sw-generic-custom-entity-detail', swGenericCustomEntityDetail);
@@ -262,7 +262,7 @@ const numberOfElementsDataProvider = [
 ];
 
 /**
- * @sw-package content
+ * @sw-package framework
  */
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     it('should render the correct number of tabs, tab-items and activeTabs with correct labels', async () => {

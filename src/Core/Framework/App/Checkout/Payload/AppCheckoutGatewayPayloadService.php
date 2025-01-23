@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-systems
  */
-#[Package('core')]
+#[Package('framework')]
 class AppCheckoutGatewayPayloadService
 {
     /**

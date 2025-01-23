@@ -11,7 +11,7 @@ import type {
 } from '../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Service } = Shopware;

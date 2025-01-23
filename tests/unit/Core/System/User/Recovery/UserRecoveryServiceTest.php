@@ -35,7 +35,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 #[CoversClass(UserRecoveryService::class)]
 class UserRecoveryServiceTest extends TestCase
 {

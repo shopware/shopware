@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import { shallowMount } from '@vue/test-utils';
 

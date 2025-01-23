@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(LongTextFieldSerializer::class)]
 class LongTextFieldSerializerTest extends TestCase
 {

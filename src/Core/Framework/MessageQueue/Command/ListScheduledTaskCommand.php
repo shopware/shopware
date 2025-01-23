@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'scheduled-task:list',
     description: 'List all scheduled tasks',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ListScheduledTaskCommand extends Command
 {
     /**

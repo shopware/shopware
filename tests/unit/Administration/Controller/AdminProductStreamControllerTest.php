@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(AdminProductStreamController::class)]
 class AdminProductStreamControllerTest extends TestCase
 {

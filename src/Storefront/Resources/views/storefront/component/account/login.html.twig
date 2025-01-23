@@ -13,7 +13,9 @@
                 <form class="login-form"
                       action="{{ path('frontend.account.login') }}"
                       method="post"
-                      data-form-validation="true">
+                      {# @deprecated tag:v6.7.0 - Form validation plugin is replaced by form handler plugin. #}
+                      {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+                      {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}>
                     {% block component_account_login_form_redirect %}
                         <input type="hidden"
                                name="redirectTo"
@@ -54,7 +56,21 @@
                     {% block component_account_login_form_fields %}
                         <div class="row g-2">
                             {% block component_account_login_form_mail %}
+                                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                        type: 'email',
+                                        label: 'account.loginMailLabel'|trans|sw_sanitize,
+                                        id: 'loginMail',
+                                        name: 'username',
+                                        autocomplete: 'username webauthn',
+                                        error: loginError,
+                                        validationRules: 'required,email',
+                                        additionalClass: 'col-md-6',
+                                    } %}
+
+                                {% else %}
                                 <div class="form-group col-md-6">
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_account_login_form_mail_label %}
                                         <label class="form-label"
                                                for="loginMail">
@@ -62,6 +78,7 @@
                                         </label>
                                     {% endblock %}
 
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_account_login_form_mail_input %}
                                         <input type="email"
                                                class="form-control{% if loginError %} is-invalid{% endif %}"
@@ -72,10 +89,25 @@
                                                required="required">
                                     {% endblock %}
                                 </div>
+                                {% endif %}
                             {% endblock %}
 
                             {% block component_account_login_form_password %}
+                                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                        type: 'password',
+                                        label: 'account.loginPasswordLabel'|trans|sw_sanitize,
+                                        id: 'loginPassword',
+                                        name: 'password',
+                                        autocomplete: 'current-password',
+                                        error: loginError,
+                                        validationRules: 'required',
+                                        additionalClass: 'col-md-6',
+                                    } %}
+
+                                {% else %}
                                 <div class="form-group col-md-6">
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_account_login_form_password_label %}
                                         <label class="form-label"
                                                for="loginPassword">
@@ -83,6 +115,7 @@
                                         </label>
                                     {% endblock %}
 
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_account_login_form_password_input %}
                                         <input type="password"
                                                class="form-control{% if loginError %} is-invalid{% endif %}"
@@ -93,6 +126,7 @@
                                                required="required">
                                     {% endblock %}
                                 </div>
+                                {% endif %}
                             {% endblock %}
                         </div>
                     {% endblock %}

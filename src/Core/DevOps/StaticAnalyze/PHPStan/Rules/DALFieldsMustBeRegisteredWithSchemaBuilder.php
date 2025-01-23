@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements Rule<InClassNode>
  */
-#[Package('core')]
+#[Package('framework')]
 class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
 {
     use InTestClassTrait;

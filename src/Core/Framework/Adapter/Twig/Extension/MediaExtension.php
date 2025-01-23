@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-#[Package('core')]
+#[Package('framework')]
 class MediaExtension extends AbstractExtension
 {
     /**

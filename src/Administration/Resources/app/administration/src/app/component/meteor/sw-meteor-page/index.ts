@@ -12,7 +12,7 @@ type ComponentData = {
 };
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

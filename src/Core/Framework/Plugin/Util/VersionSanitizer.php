@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Util;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class VersionSanitizer
 {
     public function sanitizePluginVersion(string $version): string

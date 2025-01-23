@@ -17,7 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(ShippingStreetRule::class)]
 class ShippingStreetRuleTest extends TestCase
 {

@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Stock;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('inventory')]
 final class StockAlteration
 {
     public function __construct(

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
-#[Package('core')]
+#[Package('framework')]
 class IndexMappingProvider
 {
     /**

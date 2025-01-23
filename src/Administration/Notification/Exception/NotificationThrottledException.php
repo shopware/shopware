@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - will be removed, use ApiException::notificationThrottled instead
  */
-#[Package('administration')]
+#[Package('framework')]
 class NotificationThrottledException extends ShopwareHttpException
 {
     public function __construct(

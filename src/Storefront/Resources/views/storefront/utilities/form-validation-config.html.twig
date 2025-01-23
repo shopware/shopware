@@ -1,0 +1,10 @@
+{% block form_validation_config %}
+<script>
+    window.validationMessages = {
+        'required': '{{ "error.VIOLATION::IS_BLANK_ERROR"|trans|sw_sanitize }}',
+        'email': '{{ "error.VIOLATION::INVALID_EMAIL_FORMAT_ERROR"|trans|sw_sanitize }}',
+        'confirmation': '{{ "error.VIOLATION::NOT_EQUAL_ERROR"|trans|sw_sanitize }}',
+        'minLength': '{{ "error.VIOLATION::TOO_SHORT_ERROR"|trans|sw_sanitize }}',
+    };
+</script>
+{% endblock %}

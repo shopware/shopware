@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FlowEventPersister
 {
     public function __construct(

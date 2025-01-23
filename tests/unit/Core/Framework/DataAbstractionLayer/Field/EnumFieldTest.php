@@ -14,7 +14,7 @@ use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field\EnumField\Test
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(EnumField::class)]
 #[Group('Field')]
 #[Group('DAL')]

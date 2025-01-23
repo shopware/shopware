@@ -29,7 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
     name: 'system:update:finish',
     description: 'Finishes the update process',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemUpdateFinishCommand extends Command
 {
     public function __construct(

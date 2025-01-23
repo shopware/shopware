@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
     private TypeSpecifier $typeSpecifier;

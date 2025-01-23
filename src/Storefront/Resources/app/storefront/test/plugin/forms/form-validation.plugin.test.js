@@ -2,6 +2,7 @@ import FormValidationPlugin from 'src/plugin/forms/form-validation.plugin';
 
 /**
  * @package content
+ * @deprecated tag:v6.8.0 - Use the `form-handler.plugin.js` instead.
  */
 describe('FormValidationPlugin tests', () => {
     let formValidationPlugin = null;

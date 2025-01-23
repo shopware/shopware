@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(MissingShopUrlException::class)]
 class MissingShopUrlExceptionTest extends TestCase
 {

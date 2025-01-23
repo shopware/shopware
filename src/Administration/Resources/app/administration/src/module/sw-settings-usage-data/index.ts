@@ -1,18 +1,18 @@
 const { Module } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  */
 Shopware.Component.register('sw-settings-usage-data', () => import('./page/sw-settings-usage-data'));
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  */
 Shopware.Component.register('sw-settings-usage-data-general', () => import('./component/sw-settings-usage-data-general'));
 
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  */
 Module.register('sw-settings-usage-data', {
@@ -60,7 +60,7 @@ Module.register('sw-settings-usage-data', {
 });
 
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  */
 export {};

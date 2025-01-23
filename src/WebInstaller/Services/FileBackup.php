@@ -8,7 +8,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FileBackup
 {
     public function __construct(private readonly string $filePath, private readonly Filesystem $filesystem = new Filesystem())

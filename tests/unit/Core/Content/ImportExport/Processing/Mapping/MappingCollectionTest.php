@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(MappingCollection::class)]
 class MappingCollectionTest extends TestCase
 {

@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler(handles: CleanupWebhookEventLogTask::class)]
-#[Package('core')]
+#[Package('framework')]
 final class CleanupWebhookEventLogTaskHandler extends ScheduledTaskHandler
 {
     /**

@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class LineItemWithQuantityRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

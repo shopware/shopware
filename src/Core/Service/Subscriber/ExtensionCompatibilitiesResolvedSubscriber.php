@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ExtensionCompatibilitiesResolvedSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly ServiceRegistryClient $serviceRegistryClient)

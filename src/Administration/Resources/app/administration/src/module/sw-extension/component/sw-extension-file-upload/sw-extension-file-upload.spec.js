@@ -68,7 +68,7 @@ function createFile(size = 44320, name = 'test-plugin.zip', type = 'application/
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     beforeAll(() => {

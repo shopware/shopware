@@ -2,7 +2,7 @@
 import type { default as FeatureType } from 'src/core/feature';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module app/feature-service
  */

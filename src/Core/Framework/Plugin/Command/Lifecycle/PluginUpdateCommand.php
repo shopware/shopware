@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'plugin:update',
     description: 'Updates a plugin',
 )]
-#[Package('core')]
+#[Package('framework')]
 class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'update';

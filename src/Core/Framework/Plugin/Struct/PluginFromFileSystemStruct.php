@@ -6,7 +6,7 @@ use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 class PluginFromFileSystemStruct extends Struct
 {
     /**

@@ -65,7 +65,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @phpstan-type FieldArray array{type?: string, name?: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}
  */
-#[Package('core')]
+#[Package('framework')]
 class AttributeEntityCompiler
 {
     private const FIELD_ATTRIBUTES = [

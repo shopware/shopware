@@ -11,7 +11,7 @@ use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SystemChecker
 {
     /**

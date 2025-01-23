@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -18,6 +19,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -41,7 +43,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly string $rootDir,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly DocumentFileRendererRegistry $fileRendererRegistry,
     ) {
     }
 
@@ -160,22 +163,25 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 /** @var LocaleEntity $locale */
                 $locale = $language->getLocale();
 
-                $html = $this->documentTemplateRenderer->render(
-                    $template,
-                    [
-                        'order' => $order,
-                        'creditItems' => $creditItems,
-                        'price' => $price->getTotalPrice() * -1,
-                        'amountTax' => $price->getCalculatedTaxes()->getAmount(),
-                        'config' => $config,
-                        'rootDir' => $this->rootDir,
-                        'context' => $context,
-                    ],
-                    $context,
-                    $order->getSalesChannelId(),
-                    $order->getLanguageId(),
-                    $locale->getCode()
-                );
+                $html = '';
+                if (!Feature::isActive('v6.7.0.0')) {
+                    $html = $this->documentTemplateRenderer->render(
+                        $template,
+                        [
+                            'order' => $order,
+                            'creditItems' => $creditItems,
+                            'price' => $price->getTotalPrice() * -1,
+                            'amountTax' => $price->getCalculatedTaxes()->getAmount(),
+                            'config' => $config,
+                            'rootDir' => $this->rootDir,
+                            'context' => $context,
+                        ],
+                        $context,
+                        $order->getSalesChannelId(),
+                        $order->getLanguageId(),
+                        $locale->getCode(),
+                    );
+                }
 
                 $doc = new RenderedDocument(
                     $html,
@@ -184,6 +190,14 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     $operation->getFileType(),
                     $config->jsonSerialize(),
                 );
+
+                $doc->setTemplate($template);
+                $doc->setOrder($order);
+                $doc->setContext($context);
+
+                if (Feature::isActive('v6.7.0.0')) {
+                    $doc->setContent($this->fileRendererRegistry->render($doc));
+                }
 
                 $result->addSuccess($orderId, $doc);
             } catch (\Throwable $exception) {

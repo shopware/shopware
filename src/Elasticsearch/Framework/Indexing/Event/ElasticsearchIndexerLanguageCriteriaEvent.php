@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchIndexerLanguageCriteriaEvent extends Event implements ShopwareEvent
 {
     public function __construct(

@@ -8,7 +8,7 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 interface RequirementsValidatorInterface
 {
     public function validateRequirements(RequirementsCheckCollection $checks): RequirementsCheckCollection;

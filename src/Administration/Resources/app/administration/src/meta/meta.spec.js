@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import * as fs from 'fs';
@@ -53,6 +53,9 @@ describe('Administration meta tests', () => {
             const specFileWithFolderName = whole.replace(fileName, `${lastFolder}.spec.js`);
             const specFileWithFolderNameExists = fs.existsSync(specFileWithFolderName);
 
+            const specTsFileWithFolderName = whole.replace(fileName, `${lastFolder}.spec.ts`);
+            const specTsFileWithFolderNameExists = fs.existsSync(specTsFileWithFolderName);
+
             let specFileAlternativeExtension = '';
             let specFileWithFolderNameAlternativeExtension = '';
             if (extension === 'js') {
@@ -72,6 +75,7 @@ describe('Administration meta tests', () => {
                 specFileExists ||
                 specTsFileExists ||
                 specFileWithFolderNameExists ||
+                specTsFileWithFolderNameExists ||
                 specFileAlternativeExtensionExists ||
                 specFileWithFolderNameAlternativeExtensionExists;
 

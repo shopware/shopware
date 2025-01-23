@@ -36,7 +36,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;

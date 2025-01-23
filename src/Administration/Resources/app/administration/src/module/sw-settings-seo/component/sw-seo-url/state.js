@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 

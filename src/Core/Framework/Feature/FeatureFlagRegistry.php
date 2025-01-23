@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
-#[Package('core')]
+#[Package('framework')]
 class FeatureFlagRegistry
 {
     public const STORAGE_KEY = 'feature.flags';

@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
@@ -103,6 +104,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             '',
             $connectionMock,
+            $this->createMock(DocumentFileRendererRegistry::class),
         );
 
         $operations = [
@@ -118,6 +120,10 @@ class InvoiceRendererTest extends TestCase
         static::assertCount(0, $result->getErrors());
         static::assertArrayHasKey($orderId, $successResults);
         static::assertInstanceOf(RenderedDocument::class, $successResults[$orderId]);
+
+        static::assertNotNull($successResults[$orderId]->getOrder());
+        static::assertNotNull($successResults[$orderId]->getContext());
+        static::assertSame($successResults[$orderId]->getTemplate(), '@Framework/documents/invoice.html.twig');
 
         if ($expectedResult) {
             static::assertTrue($successResults[$orderId]->getConfig()['intraCommunityDelivery']);
@@ -188,6 +194,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             '',
             $connectionMock,
+            $this->createMock(DocumentFileRendererRegistry::class),
         );
 
         $operations = [
@@ -246,6 +253,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             '',
             $connectionMock,
+            $this->createMock(DocumentFileRendererRegistry::class),
         );
 
         $operations = [
@@ -275,6 +283,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => true,
         ];
@@ -289,6 +298,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -303,6 +313,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -317,6 +328,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -331,6 +343,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => false,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -345,6 +358,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];
@@ -359,6 +373,7 @@ class InvoiceRendererTest extends TestCase
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
             ],
             'expectedResult' => false,
         ];

@@ -4,7 +4,7 @@ const { Component } = Shopware;
 const { createId, types } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

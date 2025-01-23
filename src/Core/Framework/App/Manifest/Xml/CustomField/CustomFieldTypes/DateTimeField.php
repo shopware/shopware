@@ -8,7 +8,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class DateTimeField extends CustomFieldType
 {
     protected function toEntityArray(): array

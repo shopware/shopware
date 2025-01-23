@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Entity from 'src/core/data/entity.data';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const { Criteria } = Shopware.Data;
@@ -117,6 +117,7 @@ async function createWrapper(props = defaultProps) {
                     'sw-field-error': true,
                     'sw-inheritance-switch': true,
                     'sw-help-text': true,
+                    'sw-provide': true,
                 },
                 provide: {
                     repositoryFactory: {

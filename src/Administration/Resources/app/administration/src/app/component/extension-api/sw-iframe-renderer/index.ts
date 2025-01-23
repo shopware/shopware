@@ -3,7 +3,7 @@ import template from './sw-iframe-renderer.html.twig';
 import './sw-iframe-renderer.scss';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description This component renders iFrame views for extensions

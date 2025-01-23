@@ -20,7 +20,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
 
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelContext extends Struct
 {
     use StateAwareTrait;

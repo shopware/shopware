@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AppArchiveValidationFailure extends AppException
 {
     public const APP_EMPTY = 'FRAMEWORK__APP_ARCHIVE_EMPTY';

@@ -284,7 +284,7 @@ class RegisterControllerTest extends TestCase
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $event);
 
-        $customer = $customerRepository->search(new Criteria([$event->getCustomer()->getId()]), $this->salesChannelContext->getContext())->getEntities();
+        $customer = $customerRepository->search(new Criteria([$event->getCustomerId()]), $this->salesChannelContext->getContext())->getEntities();
         $queryData = new QueryDataBag();
         $queryData->set('redirectTo', 'frontend.checkout.confirm.page');
         $queryData->set('hash', $customer->first()?->getHash());

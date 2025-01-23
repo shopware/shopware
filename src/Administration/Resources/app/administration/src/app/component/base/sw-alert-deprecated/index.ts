@@ -9,7 +9,7 @@ type CssClassesObject = { [key: string]: boolean };
 type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description

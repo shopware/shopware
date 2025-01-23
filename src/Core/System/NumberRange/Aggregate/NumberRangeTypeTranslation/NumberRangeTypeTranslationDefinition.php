@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeTypeTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'number_range_type_translation';

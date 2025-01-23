@@ -29,7 +29,7 @@ module.exports = {
         let hasPackageAnnotation = false;
 
         for (const comment of comments) {
-            if (comment.type === 'Block' && comment.value.includes('@package')) {
+            if (comment.type === 'Block' && comment.value.includes('@sw-package')) {
                 hasPackageAnnotation = true;
             }
         }

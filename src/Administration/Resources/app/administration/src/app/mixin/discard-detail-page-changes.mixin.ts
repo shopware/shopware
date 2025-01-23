@@ -4,7 +4,7 @@ const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  *
  * Mixin which resets entity changes on page leave or if the id of the entity changes.

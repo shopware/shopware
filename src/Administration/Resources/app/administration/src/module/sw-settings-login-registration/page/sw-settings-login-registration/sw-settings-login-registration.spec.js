@@ -8,7 +8,7 @@ const classes = {
 };
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 async function createWrapper() {
     return mount(

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
     name: 'app:activate',
     description: 'Activates an app',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ActivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'activate';

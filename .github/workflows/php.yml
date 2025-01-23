@@ -78,7 +78,7 @@ jobs:
             phpstan-result-cache-
 
       - name: PHPStan
-        run: composer run phpstan -- --error-format=github --no-progress
+        run: composer run phpstan -- --error-format=table --no-progress
 
       - name: "Save result cache"
         uses: actions/cache/save@v4

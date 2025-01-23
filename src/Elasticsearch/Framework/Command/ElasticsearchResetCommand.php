@@ -19,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'es:reset',
     description: 'Reset the elasticsearch index',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchResetCommand extends Command
 {
     /**

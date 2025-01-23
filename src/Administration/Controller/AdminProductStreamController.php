@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Package('administration')]
+#[Package('framework')]
 class AdminProductStreamController extends AbstractController
 {
     /**

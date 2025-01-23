@@ -17,7 +17,7 @@ interface ApiError {
 }
 
 /**
- * @package services-settings
+ * @sw-package framework
  *
  * @private
  */

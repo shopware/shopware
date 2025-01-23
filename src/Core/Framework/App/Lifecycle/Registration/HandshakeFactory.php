@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
  *
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class HandshakeFactory
 {
     public function __construct(

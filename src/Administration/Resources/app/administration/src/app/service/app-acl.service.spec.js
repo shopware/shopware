@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import AppAclService from 'src/app/service/app-acl.service';

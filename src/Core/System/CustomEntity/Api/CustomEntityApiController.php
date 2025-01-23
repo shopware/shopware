@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityApiController extends ApiController
 {
     #[Route(path: '/api/custom-entity-{entityName}/{path}', name: 'api.custom_entity_entity.detail', requirements: ['path' => '[0-9a-f]{32}(\/(extensions\/)?[a-zA-Z-]+\/[0-9a-f]{32})*\/?$'], methods: ['GET'])]

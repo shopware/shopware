@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends EntityCollection<ActionButtonEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class ActionButtonCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

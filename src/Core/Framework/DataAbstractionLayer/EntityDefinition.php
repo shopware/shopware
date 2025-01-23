@@ -28,7 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class EntityDefinition
 {
     protected ?CompiledFieldCollection $fields = null;

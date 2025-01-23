@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import PromotionCodeApiService from '../service/promotion-code.api.service';
 

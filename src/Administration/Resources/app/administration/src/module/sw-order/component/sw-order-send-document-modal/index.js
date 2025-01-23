@@ -2,14 +2,14 @@ import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

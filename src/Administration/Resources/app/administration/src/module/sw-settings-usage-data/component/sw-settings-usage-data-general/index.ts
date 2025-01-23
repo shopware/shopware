@@ -1,7 +1,7 @@
 import template from './sw-settings-usage-data-general.html.twig';
 
 /**
- * @package data-services
+ * @sw-package data-services
  *
  * @private
  */

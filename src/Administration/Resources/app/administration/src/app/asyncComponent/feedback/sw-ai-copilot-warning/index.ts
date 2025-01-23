@@ -2,7 +2,7 @@ import template from './sw-ai-copilot-warning.html.twig';
 import './sw-ai-copilot-warning.scss';
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({

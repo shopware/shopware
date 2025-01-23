@@ -1,5 +1,5 @@
 /**
- * @package data-services
+ * @sw-package data-services
  */
 import initializeUsageDataContext from 'src/app/init-post/usage-data.init';
 

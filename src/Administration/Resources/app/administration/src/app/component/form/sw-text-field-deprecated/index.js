@@ -4,7 +4,7 @@ import template from './sw-text-field-deprecated.html.twig';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Simple text field.

@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-settings-rule-selection.html.twig';
 

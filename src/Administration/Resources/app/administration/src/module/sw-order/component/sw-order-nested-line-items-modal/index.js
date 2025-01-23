@@ -2,7 +2,7 @@ import template from './sw-order-nested-line-items-modal.html.twig';
 import './sw-order-nested-line-items-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Filter } = Shopware;

@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import './mixin/media-grid-listener.mixin';
 import './mixin/media-sidebar-modal.mixin';

@@ -1,6 +1,6 @@
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     compatConfig: Shopware.compatConfig,

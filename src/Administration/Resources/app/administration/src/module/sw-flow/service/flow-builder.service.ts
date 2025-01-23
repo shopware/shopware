@@ -1,5 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { I18n } from 'vue-i18n';
 import {
     ACTION,
@@ -93,7 +91,7 @@ type ActionSequence = Entity<'flow_sequence'> & {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export type ActionContext = {
     data: ActionData;
@@ -103,7 +101,7 @@ export type ActionContext = {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default class FlowBuilderService {
     private $actionNames = { ...ACTION };

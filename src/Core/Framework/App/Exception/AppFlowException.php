@@ -10,7 +10,7 @@ use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 /**
  * @deprecated tag:v6.7.0 - will be removed, use AppException::errorFlowCreateFromXmlFile instead
  */
-#[Package('core')]
+#[Package('framework')]
 class AppFlowException extends XmlParsingException
 {
     public function __construct(

@@ -14,13 +14,6 @@ trait DatabaseTransactionBehaviour
 {
     public static ?string $lastTestCase = null;
 
-    private static bool $nextNestTransactionsWithSavepoints = true;
-
-    public function disableNestTransactionsWithSavepointsForNextTest(): void
-    {
-        self::$nextNestTransactionsWithSavepoints = false;
-    }
-
     #[Before]
     public function startTransactionBefore(): void
     {
@@ -32,7 +25,7 @@ trait DatabaseTransactionBehaviour
         );
 
         static::getContainer()->get(Connection::class)
-            ->setNestTransactionsWithSavepoints(self::$nextNestTransactionsWithSavepoints);
+            ->setNestTransactionsWithSavepoints(true);
 
         static::getContainer()
             ->get(Connection::class)
@@ -57,8 +50,6 @@ trait DatabaseTransactionBehaviour
         );
 
         $connection->rollBack();
-
-        self::$nextNestTransactionsWithSavepoints = true;
 
         if (static::$lastTestCase === $this->nameWithDataSet()) {
             static::$lastTestCase = null;

@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionCollector implements CartDataCollectorInterface
 {
     use PromotionCartInformationTrait;
@@ -106,7 +106,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
             // check if max allowed redemption of promotion have been reached or not
             // if max redemption has been reached promotion will not be added
-            $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer()?->getId(), $currentOrderId);
+            $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomerId(), $currentOrderId);
 
             $discountLineItems = [];
             $foundCodes = [];
@@ -244,7 +244,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // make sure to load it and assign it to
         // the code in our cache list.
         if (\count($codesToFetch) > 0) {
-            $salesChannelId = $context->getSalesChannel()->getId();
+            $salesChannelId = $context->getSalesChannelId();
 
             foreach ($codesToFetch as $currentCode) {
                 // try to find a global code first because
@@ -387,7 +387,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 $code,
                 $promotion,
                 $discount,
-                $context->getCurrency()->getId(),
+                $context->getCurrencyId(),
                 $factor
             );
 

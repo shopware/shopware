@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ProductDescriptionReviewsCmsElementResolver::class)]
 class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
 {
@@ -41,7 +41,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
     {
         $resolver = $this->getResolver();
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request([
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request([
             'success' => true,
         ]));
 
@@ -82,7 +82,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
     {
         $resolver = $this->getResolver();
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');

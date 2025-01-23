@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import type { AxiosInstance } from 'axios';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';

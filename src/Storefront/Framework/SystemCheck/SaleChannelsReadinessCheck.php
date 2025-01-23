@@ -21,7 +21,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class SaleChannelsReadinessCheck extends BaseCheck
 {
     private const INDEX_PAGE = 'frontend.home.page';

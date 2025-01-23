@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\InputOption;
     name: 'database:migrate-destructive',
     description: 'Executes all migrations',
 )]
-#[Package('core')]
+#[Package('framework')]
 class MigrationDestructiveCommand extends MigrationCommand
 {
     protected function configure(): void

@@ -75,7 +75,7 @@ class CartOrderRouteTest extends TestCase
             $this->cartContextHasher
         );
 
-        $this->context = Generator::createSalesChannelContext();
+        $this->context = Generator::generateSalesChannelContext();
     }
 
     public function testOrderResponseWithoutHash(): void

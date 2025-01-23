@@ -1,4 +1,3 @@
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 
@@ -48,7 +47,7 @@ interface ComponentData {
 }
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  * @deprecated tag:v6.7.0 - Will be removed without replacement
  *
  * @private

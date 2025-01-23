@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount, config } from '@vue/test-utils';
@@ -352,6 +352,7 @@ async function createWrapper() {
                     'sw-sidebar-filter-panel': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
             },
         }),

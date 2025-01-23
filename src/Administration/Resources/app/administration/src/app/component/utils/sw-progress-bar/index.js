@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-progress-bar.html.twig';
 import './sw-progress-bar.scss';
 

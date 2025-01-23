@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
@@ -111,6 +113,7 @@ class InfoControllerTest extends TestCase
                     'csv',
                     'xls',
                     'xlsx',
+                    'html',
                 ],
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,
@@ -350,6 +353,8 @@ class InfoControllerTest extends TestCase
                     lcfirst((new \ReflectionClass(OrderAware::class))->getShortName()),
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
+                    A11yRenderedDocumentAware::class,
+                    lcfirst((new \ReflectionClass(A11yRenderedDocumentAware::class))->getShortName()),
                 ],
             ],
         ];
@@ -369,6 +374,7 @@ class InfoControllerTest extends TestCase
         $kernelMock = $this->createMock(Kernel::class);
         $packagesMock = $this->createMock(Packages::class);
         $eventCollector = $this->createMock(FlowActionCollector::class);
+        $fileSystemOperatorMock = $this->createMock(FilesystemOperator::class);
         $infoController = new InfoController(
             $this->createMock(DefinitionService::class),
             new ParameterBag([
@@ -395,6 +401,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
+            $fileSystemOperatorMock,
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -434,6 +441,7 @@ class InfoControllerTest extends TestCase
         $kernelMock = $this->createMock(Kernel::class);
         $packagesMock = $this->createMock(Packages::class);
         $eventCollector = $this->createMock(FlowActionCollector::class);
+        $fileSystemOperatorMock = $this->createMock(FilesystemOperator::class);
         $infoController = new InfoController(
             $this->createMock(DefinitionService::class),
             new ParameterBag([
@@ -460,6 +468,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
+            $fileSystemOperatorMock,
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -506,6 +515,7 @@ class InfoControllerTest extends TestCase
 
         $kernelMock = $this->createMock(Kernel::class);
         $eventCollector = $this->createMock(FlowActionCollector::class);
+        $fileSystemOperatorMock = $this->createMock(FilesystemOperator::class);
 
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         static::assertIsString($appUrl);
@@ -539,6 +549,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
+            $fileSystemOperatorMock,
         );
 
         $infoController->setContainer($this->createMock(Container::class));

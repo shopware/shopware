@@ -19,7 +19,7 @@ use Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule;
  *
  * @implements Rule<ClassMethod>
  */
-#[Package('core')]
+#[Package('framework')]
 class NoReturnSetterMethodWithFluentSettersRule implements Rule
 {
     public function __construct(private NoReturnSetterMethodRule $baseRule)

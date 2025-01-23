@@ -10,7 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.7.0 - Will be removed as the service dispatching this event, will be removed
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class AttachmentLoaderCriteriaEvent extends Event
 {
     final public const EVENT_NAME = 'mail.after.create.message';

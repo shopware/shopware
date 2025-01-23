@@ -5,3 +5,25 @@ The new status is as follows: {{ order.transactions.first.stateMachineState.tran
 
 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
 However, in case you have purchased without a registration or a customer account, you do not have this option.
+
+{% if a11yDocuments %}
+    For better accessibility we also provide an HTML version of the documents here:
+
+    {% for a11y in a11yDocuments %}
+        {% set documentLink = rawUrl(
+            'frontend.account.order.single.document.a11y',
+            {
+                documentId: a11y.documentId,
+                'deepLinkCode': a11y.deepLinkCode,
+                fileType: a11y.fileExtension,
+            },
+            salesChannel.domains|first.url
+        )%}
+
+        - {{ documentLink }}
+    {% endfor %}
+
+    For data protection reasons the HTML version requires a login.
+
+    In case of a guest order, you can use your mail address and postal code of the billing address.
+{% endif %}

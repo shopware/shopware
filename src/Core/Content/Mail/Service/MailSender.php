@@ -15,7 +15,7 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\Email;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class MailSender extends AbstractMailSender
 {
     public const DISABLE_MAIL_DELIVERY = 'core.mailerSettings.disableDelivery';

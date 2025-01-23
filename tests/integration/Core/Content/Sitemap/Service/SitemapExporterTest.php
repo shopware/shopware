@@ -36,7 +36,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -250,7 +250,7 @@ class SitemapExporterTest extends TestCase
             $this->createMock(EventDispatcher::class)
         );
 
-        $salesChannel = Generator::createSalesChannelContext();
+        $salesChannel = Generator::generateSalesChannelContext();
         $salesChannel->getSalesChannel()->setDomains(new SalesChannelDomainCollection([
             (new SalesChannelDomainEntity())->assign(['id' => '11', 'url' => 'https://test.com/de', 'languageId' => Defaults::LANGUAGE_SYSTEM]),
         ]));

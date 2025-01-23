@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -73,6 +72,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -128,13 +128,8 @@ class OrderConverterTest extends TestCase
                     SalesChannelContextService::PAYMENT_METHOD_ID => 'order-transaction-payment-method-id',
                 ];
                 static::assertSame($expectedOptions, $options);
-                $salesChannelContext = $this->getSalesChannelContext(true);
-                $salesChannelContext->expects(static::once())->method('setItemRounding')->with($this->cashRoundingConfig);
-                $salesChannelContext->expects(static::once())->method('setTotalRounding')->with($this->cashRoundingConfig);
-                $salesChannelContext->expects(static::once())->method('setRuleIds')->with(['order-rule-id-1', 'order-rule-id-2']);
-                $salesChannelContext->expects(static::once())->method('setAreaRuleIds')->with([RuleAreas::PAYMENT_AREA => ['rule-id']]);
 
-                return $salesChannelContext;
+                return $this->getSalesChannelContext(true);
             }
         );
 
@@ -702,21 +697,26 @@ class OrderConverterTest extends TestCase
         $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
     }
 
-    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject&SalesChannelContext
+    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
-        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
-        if ($loginCustomer) {
-            $salesChannelContext->method('getCustomer')->willReturn($this->getCustomer($customerWithoutBillingAddress));
-        }
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('payment-method-id');
-        $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethod);
+
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            salesChannel: $salesChannel,
+            paymentMethod: $paymentMethod,
+            itemRounding: $this->cashRoundingConfig,
+            totalRounding: $this->cashRoundingConfig,
+            areaRuleIds: [RuleAreas::PAYMENT_AREA => ['rule-id']],
+            customer: $loginCustomer ? $this->getCustomer($customerWithoutBillingAddress) : null,
+            overrides: $loginCustomer ? [] : ['customer' => null]
+        );
+
+        $salesChannelContext->setRuleIds(['order-rule-id-1', 'order-rule-id-2']);
 
         return $salesChannelContext;
     }
@@ -1315,8 +1315,8 @@ class OrderConverterTest extends TestCase
                 'regulationPrice' => null,
                 'extensions' => [],
             ],
-            'currencyId' => '',
-            'currencyFactor' => 0,
+            'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'lineItems' => [
                 [
@@ -1396,8 +1396,18 @@ class OrderConverterTest extends TestCase
             'campaignCode' => null,
             'source' => null,
             'createdById' => null,
-            'itemRounding' => [],
-            'totalRounding' => [],
+            'itemRounding' => [
+                'decimals' => 2,
+                'extensions' => [],
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
+            'totalRounding' => [
+                'decimals' => 2,
+                'extensions' => [],
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
             'orderCustomer' => [
                 'company' => null,
                 'customFields' => null,
@@ -1416,7 +1426,10 @@ class OrderConverterTest extends TestCase
             ],
             'transactions' => [],
             'orderNumber' => '10000',
-            'ruleIds' => [],
+            'ruleIds' => [
+                'order-rule-id-1',
+                'order-rule-id-2',
+            ],
             'addresses' => [
                 [
                     'city' => 'billing-address-city',

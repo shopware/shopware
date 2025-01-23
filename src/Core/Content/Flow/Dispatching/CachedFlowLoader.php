@@ -13,7 +13,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface, ResetInterface
 {
     final public const KEY = 'flow-loader';

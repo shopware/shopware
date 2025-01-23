@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ContextTokenResponse::class)]
 class ContextTokenResponseTest extends TestCase
 {

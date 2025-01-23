@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 const { Filter } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', {
     template,

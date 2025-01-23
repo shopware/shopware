@@ -6,6 +6,6 @@ type CmsVisibility = {
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default CmsVisibility;

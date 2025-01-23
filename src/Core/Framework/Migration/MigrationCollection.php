@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
-#[Package('core')]
+#[Package('framework')]
 class MigrationCollection
 {
     /**
@@ -108,7 +108,7 @@ class MigrationCollection
         $activeMigrations = [];
 
         foreach ($this->getMigrationSteps() as $migration) {
-            $activeMigrations[] = $migration->getCreationTimestamp();
+            $activeMigrations[] = $migration->getPlausibleCreationTimestamp();
         }
 
         return $activeMigrations;
@@ -123,7 +123,7 @@ class MigrationCollection
     {
         return [
             'class' => $className,
-            'creation_timestamp' => $migrationStep->getCreationTimestamp(),
+            'creation_timestamp' => $migrationStep->getPlausibleCreationTimestamp(),
         ];
     }
 

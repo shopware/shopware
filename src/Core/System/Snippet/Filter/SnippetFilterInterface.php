@@ -8,7 +8,7 @@ use Shopware\Core\System\Snippet\SnippetService;
 /**
  * @phpstan-import-type SnippetArray from SnippetService
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 interface SnippetFilterInterface
 {
     public function getName(): string;

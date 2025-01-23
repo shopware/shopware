@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(RuleAreaUpdater::class)]
 class RuleAreaUpdaterTest extends TestCase
 {
@@ -199,7 +199,7 @@ class RuleAreaUpdaterTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleAreaDefinitionTest extends RuleDefinition
 {
     public function getEntityName(): string
@@ -222,7 +222,7 @@ class RuleAreaDefinitionTest extends RuleDefinition
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleAreaTestOneToOne extends EntityDefinition
 {
     public function getEntityName(): string
@@ -241,7 +241,7 @@ class RuleAreaTestOneToOne extends EntityDefinition
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleAreaTestOneToMany extends EntityDefinition
 {
     public function getEntityName(): string
@@ -261,7 +261,7 @@ class RuleAreaTestOneToMany extends EntityDefinition
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleAreaTestManyToOne extends EntityDefinition
 {
     public function getEntityName(): string
@@ -280,7 +280,7 @@ class RuleAreaTestManyToOne extends EntityDefinition
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleAreaTestManyToMany extends EntityDefinition
 {
     public function getEntityName(): string

@@ -1,3 +1,7 @@
+{% if not footer is defined and page is defined %}
+    {% set footer = page.footer %}
+{% endif %}
+
 {% block layout_footer_inner_container %}
     <div class="container">
         {% block layout_footer_navigation %}
@@ -56,7 +60,7 @@
                 {% endblock %}
 
                 {% block layout_footer_navigation_columns %}
-                    {% for root in page.footer.navigation.tree %}
+                    {% for root in footer.navigation.tree %}
                         {% block layout_footer_navigation_column %}
                             <div class="col-md-4 footer-column js-footer-column">
                                 {% block layout_footer_navigation_information_headline %}
@@ -188,7 +192,7 @@
                     {% block layout_footer_service_menu_content %}
                         {% apply spaceless %}
                             <ul class="footer-service-menu-list list-unstyled">
-                                {% for serviceMenuItem in page.header.serviceMenu %}
+                                {% for serviceMenuItem in footer.serviceMenu %}
                                     {% block layout_footer_service_menu_item %}
                                         <li class="footer-service-menu-item">
                                             <a class="footer-service-menu-link"
@@ -209,19 +213,21 @@
             {% block layout_footer_vat %}
                 {% if showVatNotice or showVatNotice is not defined %}
                     <div class="footer-vat">
-                        {% if context.taxState == 'gross' %}
-                            <p>
+                        <p>
+                            {% if context.taxState == 'gross' %}
+                                {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
                                 {{ 'footer.includeVatText'|trans({
-                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                    '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
                                 })|raw }}
-                            </p>
-                        {% else %}
-                            <p>
+                            {% else %}
+                                {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
                                 {{ 'footer.excludeVatText'|trans({
-                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                    '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
                                 })|raw }}
-                            </p>
-                        {% endif %}
+                            {% endif %}
+                        </p>
                     </div>
                 {% endif %}
             {% endblock %}

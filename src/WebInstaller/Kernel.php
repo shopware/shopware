@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;

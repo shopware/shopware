@@ -8,7 +8,7 @@ use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class MockSnippetFile extends AbstractSnippetFile
 {
     private readonly string $iso;

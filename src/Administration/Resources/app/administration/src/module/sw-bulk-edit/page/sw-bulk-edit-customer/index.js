@@ -9,7 +9,7 @@ const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
 
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

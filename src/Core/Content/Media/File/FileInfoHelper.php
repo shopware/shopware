@@ -9,7 +9,7 @@ use Symfony\Component\Mime\MimeTypes;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FileInfoHelper
 {
     private const MIME_TYPE_FOR_UNDETECTED_FORMATS = 'application/octet-stream';

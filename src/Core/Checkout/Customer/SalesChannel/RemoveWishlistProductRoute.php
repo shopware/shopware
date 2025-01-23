@@ -41,7 +41,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
     #[Route(path: '/store-api/customer/wishlist/delete/{productId}', name: 'store-api.customer.wishlist.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true])]
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
-        if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
+        if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannelId())) {
             throw CustomerException::customerWishlistNotActivated();
         }
 
@@ -66,7 +66,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
         $criteria->setLimit(1);
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('customerId', $customerId),
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+            new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
         ]));
 
         $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());

@@ -23,7 +23,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
     name: 'dal:migration:create',
     description: 'Creates migration for entity schema',
 )]
-#[Package('core')]
+#[Package('framework')]
 class CreateMigrationCommand extends Command
 {
     /**

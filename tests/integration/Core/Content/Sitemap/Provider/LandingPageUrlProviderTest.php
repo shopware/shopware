@@ -27,7 +27,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class LandingPageUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -96,7 +96,7 @@ class LandingPageUrlProviderTest extends TestCase
         $configHandler->method('get')->with(ConfigHandler::EXCLUDED_URLS_KEY)->willReturn([
             [
                 'resource' => LandingPageEntity::class,
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'identifier' => $excludedId,
             ],
         ]);
@@ -109,7 +109,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'active' => true,
                 'versionId' => Defaults::LIVE_VERSION,
                 'salesChannels' => [
-                    ['id' => $this->salesChannelContext->getSalesChannel()->getId()],
+                    ['id' => $this->salesChannelContext->getSalesChannelId()],
                 ],
             ],
             [
@@ -118,7 +118,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'active' => true,
                 'versionId' => Defaults::LIVE_VERSION,
                 'salesChannels' => [
-                    ['id' => $this->salesChannelContext->getSalesChannel()->getId()],
+                    ['id' => $this->salesChannelContext->getSalesChannelId()],
                 ],
             ],
         ], $this->salesChannelContext->getContext());
@@ -147,7 +147,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'active' => true,
                 'versionId' => Defaults::LIVE_VERSION,
                 'salesChannels' => [
-                    ['id' => $this->salesChannelContext->getSalesChannel()->getId()],
+                    ['id' => $this->salesChannelContext->getSalesChannelId()],
                 ],
             ],
         ], $this->salesChannelContext->getContext());
@@ -183,7 +183,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'foreignKey' => $id,
                 'pathInfo' => '/landingPage/1',
                 'seoPathInfo' => 'seo-landing-page-1',
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                 'isCanonical' => true,
                 'isModified' => true,
             ],
@@ -225,7 +225,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'active' => true,
                 'versionId' => Defaults::LIVE_VERSION,
                 'salesChannels' => [
-                    ['id' => $this->salesChannelContext->getSalesChannel()->getId()],
+                    ['id' => $this->salesChannelContext->getSalesChannelId()],
                 ],
             ];
         }
@@ -249,7 +249,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'active' => true,
                 'versionId' => Defaults::LIVE_VERSION,
                 'salesChannels' => [
-                    ['id' => $newSalesChannelContext->getSalesChannel()->getId()],
+                    ['id' => $newSalesChannelContext->getSalesChannelId()],
                 ],
             ],
             // not active
@@ -259,7 +259,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'active' => false,
                 'versionId' => Defaults::LIVE_VERSION,
                 'salesChannels' => [
-                    ['id' => $this->salesChannelContext->getSalesChannel()->getId()],
+                    ['id' => $this->salesChannelContext->getSalesChannelId()],
                 ],
             ],
             // not live version
@@ -269,7 +269,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'active' => true,
                 'versionId' => Uuid::randomHex(),
                 'salesChannels' => [
-                    ['id' => $this->salesChannelContext->getSalesChannel()->getId()],
+                    ['id' => $this->salesChannelContext->getSalesChannelId()],
                 ],
             ],
         ], Context::createDefaultContext());

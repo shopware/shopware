@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import AppUrlChangeService from 'src/core/service/api/app-url-change.service';
 import createLoginService from 'src/core/service/login.service';

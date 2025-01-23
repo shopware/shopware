@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(FlowSendMailActionEvent::class)]
 class FlowSendMailActionEventTest extends TestCase
 {

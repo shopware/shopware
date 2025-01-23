@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 class CachedProductSearchRoute extends AbstractProductSearchRoute
 {
     private const NAME = 'product-search-route';

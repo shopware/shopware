@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleException extends HttpException
 {
     public static function unsupportedCommandType(WriteCommand $command): HttpException

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionActionController::class)]
 class PromotionActionControllerTest extends TestCase
 {

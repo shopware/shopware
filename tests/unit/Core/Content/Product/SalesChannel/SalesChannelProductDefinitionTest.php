@@ -18,7 +18,7 @@ class SalesChannelProductDefinitionTest extends TestCase
     {
         $definition = new SalesChannelProductDefinition();
         $criteria = new Criteria();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $definition->processCriteria($criteria, $context);
 
@@ -35,7 +35,7 @@ class SalesChannelProductDefinitionTest extends TestCase
     {
         $definition = new SalesChannelProductDefinition();
         $criteria = new Criteria(nestingLevel: 1);
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $definition->processCriteria($criteria, $context);
 

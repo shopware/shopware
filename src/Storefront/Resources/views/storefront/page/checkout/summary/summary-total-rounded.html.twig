@@ -7,7 +7,8 @@
 
     {% block page_checkout_summary_total_rounded_value %}
         <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total-rounded">
-            {{ summary.price.totalPrice|currency(decimals=decimals) }}{{ 'general.star'|trans|sw_sanitize }}
+            {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+            {{ summary.price.totalPrice|currency(decimals=decimals) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
         </dd>
     {% endblock %}
 {% endblock %}

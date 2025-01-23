@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\Encoder\DecoderInterface;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(AdminSearchController::class)]
 class AdminSearchControllerTest extends TestCase
 {

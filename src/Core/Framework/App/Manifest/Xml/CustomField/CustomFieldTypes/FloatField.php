@@ -8,7 +8,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class FloatField extends CustomFieldType
 {
     protected const TRANSLATABLE_FIELDS = ['label', 'help-text', 'placeholder'];

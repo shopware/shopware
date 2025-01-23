@@ -25,7 +25,7 @@ use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'theme';

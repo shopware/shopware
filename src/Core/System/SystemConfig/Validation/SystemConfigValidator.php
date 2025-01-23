@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigValidator
 {
     /**

@@ -1,7 +1,7 @@
 import ApiService from '../api.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * Gateway for the API end point "order/document"
  * @private
  * @class

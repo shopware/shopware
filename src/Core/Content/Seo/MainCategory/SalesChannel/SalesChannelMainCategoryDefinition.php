@@ -14,6 +14,6 @@ class SalesChannelMainCategoryDefinition extends MainCategoryDefinition implemen
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()));
     }
 }

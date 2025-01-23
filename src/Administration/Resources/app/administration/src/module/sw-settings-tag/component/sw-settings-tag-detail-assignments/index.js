@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import utils from 'src/core/service/util.service';
 import template from './sw-settings-tag-detail-assignments.html.twig';

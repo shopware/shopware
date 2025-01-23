@@ -29,7 +29,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class ProductUrlProviderTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -333,7 +333,7 @@ class ProductUrlProviderTest extends TestCase
             'tax' => ['id' => $taxId],
             'manufacturer' => ['name' => 'test'],
             'visibilities' => [
-                ['salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
     }
@@ -367,7 +367,7 @@ class ProductUrlProviderTest extends TestCase
                 'name' => 'test 1',
                 'visibilities' => [
                     [
-                        'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                        'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                         'visibility' => ProductVisibilityDefinition::VISIBILITY_LINK,
                     ],
                 ],

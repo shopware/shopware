@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { fileSize, date, dateWithUserTimezone, toISODate } from 'src/core/service/utils/format.utils';

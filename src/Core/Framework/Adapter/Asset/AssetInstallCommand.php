@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
     name: 'assets:install',
     description: 'Installs bundles web assets under a public web directory',
 )]
-#[Package('core')]
+#[Package('framework')]
 class AssetInstallCommand extends Command
 {
     /**

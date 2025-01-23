@@ -160,7 +160,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $ids = array_values($crossSelling->getAssignedProducts()->getProductIds());
 
         $filter = new ProductAvailableFilter(
-            $context->getSalesChannel()->getId(),
+            $context->getSalesChannelId(),
             ProductVisibilityDefinition::VISIBILITY_LINK
         );
 
@@ -195,7 +195,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): Criteria
     {
-        $salesChannelId = $context->getSalesChannel()->getId();
+        $salesChannelId = $context->getSalesChannelId();
         $hide = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
 
         if (!$hide) {

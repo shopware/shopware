@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import createMenuService from 'src/app/service/menu.service';

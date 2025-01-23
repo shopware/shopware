@@ -10,7 +10,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @extends AbstractCacheTracer<mixed|null>
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheTracer extends AbstractCacheTracer
 {
     /**

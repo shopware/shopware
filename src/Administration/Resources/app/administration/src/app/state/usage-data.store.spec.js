@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import Vuex from 'vuex';
 import usageDataStoreModule from './usage-data.store';
 

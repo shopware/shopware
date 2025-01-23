@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type TFlows array<string, array<array{id: string, name: string, payload: array<mixed>}>>
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowLoader extends AbstractFlowLoader
 {
     public function __construct(

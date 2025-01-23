@@ -3,7 +3,7 @@ import template from './sw-switch-field.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -30,11 +30,7 @@ Component.register('sw-switch-field', {
 
     computed: {
         checkedValue() {
-            if (typeof this.checked === 'boolean') {
-                return this.checked;
-            }
-
-            return this.value;
+            return this.value || this.checked;
         },
 
         useMeteorComponent() {

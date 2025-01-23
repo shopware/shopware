@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 /**
  * used to delay the deletion of theme files
  */
-#[Package('storefront')]
+#[Package('framework')]
 class DeleteThemeFilesMessage implements AsyncMessageInterface
 {
     public function __construct(

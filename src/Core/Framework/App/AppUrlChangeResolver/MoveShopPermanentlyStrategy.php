@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * with the new appUrl so the apps can save the new URL and generate new Secrets
  * that way communication from the old shop to the app backend will be blocked in the future
  */
-#[Package('core')]
+#[Package('framework')]
 class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
 {
     final public const STRATEGY_NAME = 'move-shop-permanently';

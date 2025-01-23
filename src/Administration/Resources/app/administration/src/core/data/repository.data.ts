@@ -1,16 +1,14 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import Criteria from './criteria.data';
 import type EntityHydrator from './entity-hydrator.data';
 import type ChangesetGenerator from './changeset-generator.data';
 import type ErrorResolver from './error-resolver.data';
 import type EntityFactory from './entity-factory.data';
 import type EntityDefinition from './entity-definition.data';
-import type EntityCollection from './entity-collection.data';
 
 type options = {
     [key: string]: unknown;

@@ -67,7 +67,7 @@ class WishlistPageTest extends TestCase
         $product = $this->getRandomProduct($context);
         $customer = $context->getCustomer();
         static::assertInstanceOf(CustomerEntity::class, $customer);
-        $this->createCustomerWishlist($customer->getId(), $product->getId(), $context->getSalesChannel()->getId());
+        $this->createCustomerWishlist($customer->getId(), $product->getId(), $context->getSalesChannelId());
 
         $event = null;
         $this->catchEvent(WishlistPageLoadedEvent::class, $event);

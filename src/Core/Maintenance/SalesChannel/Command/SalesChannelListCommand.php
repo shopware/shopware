@@ -27,7 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'sales-channel:list',
     description: 'Lists all sales channels',
 )]
-#[Package('core')]
+#[Package('discovery')]
 class SalesChannelListCommand extends Command
 {
     /**

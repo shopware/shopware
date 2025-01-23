@@ -24,13 +24,13 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(CartScopeDiscountPackager::class)]
 class CartScopeDiscountPackagerTest extends TestCase
 {
     public function testGetMatchingItems(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $matchingLineItem = (new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 2))->setStackable(true);
         $cart = new Cart('foo');

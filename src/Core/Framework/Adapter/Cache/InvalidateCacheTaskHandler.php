@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler(handles: InvalidateCacheTask::class)]
-#[Package('core')]
+#[Package('framework')]
 final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(

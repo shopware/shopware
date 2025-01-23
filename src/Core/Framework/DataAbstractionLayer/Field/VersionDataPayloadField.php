@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class VersionDataPayloadField extends JsonField
 {
     protected function getSerializerClass(): string

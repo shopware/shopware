@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package discovery
  */
 
 import template from './sw-settings-sitemap.html.twig';

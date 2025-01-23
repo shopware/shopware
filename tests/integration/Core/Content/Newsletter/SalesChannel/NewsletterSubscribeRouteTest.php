@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterSubscribeRoute::class)]
 #[Group('store-api')]
 class NewsletterSubscribeRouteTest extends TestCase

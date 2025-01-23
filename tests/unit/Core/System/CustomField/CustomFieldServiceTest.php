@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[CoversClass(CustomFieldService::class)]
 class CustomFieldServiceTest extends TestCase
 {

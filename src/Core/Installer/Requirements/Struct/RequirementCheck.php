@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class RequirementCheck extends Struct
 {
     public const STATUS_SUCCESS = 'success';

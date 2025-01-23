@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageletLoader. Always use a store-api route to get or put data.
  */
-#[Package('storefront')]
+#[Package('discovery')]
 class GuestWishlistPageletLoader
 {
     private const LIMIT = 100;

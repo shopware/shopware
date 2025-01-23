@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-sidebar-filter-panel.html.twig';
 import './sw-sidebar-filter-panel.scss';
 

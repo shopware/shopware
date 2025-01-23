@@ -1,7 +1,7 @@
 const ApiService = Shopware.Classes.ApiService;
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  *
  * Gateway for the API end point "frw"
  * @private
@@ -142,6 +142,6 @@ class FirstRunWizardApiService extends ApiService {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default FirstRunWizardApiService;

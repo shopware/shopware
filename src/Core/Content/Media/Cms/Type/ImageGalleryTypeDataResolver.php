@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Cms\Type;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ImageGalleryTypeDataResolver extends ImageSliderTypeDataResolver
 {
     public function getType(): string

@@ -15,7 +15,7 @@ parameters:
     # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:
         constantHassers: false
-        containerXmlPath: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
+        containerXmlPath: 'var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
 
     excludePaths:
@@ -110,6 +110,9 @@ parameters:
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
             path: src/*/*Hydrator.php
         -
+            message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
+            path: tests/*/*Hydrator.php
+        -
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
 
@@ -174,9 +177,41 @@ parameters:
             count: 1
             path: src/Core/Content/Media/UnusedMediaPurger.php
 
-        # NEXT-29041 - Needs to be fixed with a script, rest goes to baseline
-        - '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
-        - '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
+        - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
+            message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
+            paths:
+                - src/Administration/**
+                - src/Core/Checkout/**
+                - src/Core/Content/**
+                - src/Core/Framework/**
+                - src/Core/Maintenance/**
+                - src/Core/Profiling/**
+                - src/Core/Service/**
+                - src/Core/System/**
+                - src/Core/Test/**
+                - src/Elasticsearch/**
+                - src/Storefront/**
+                - tests/integration/Administration/**
+                - tests/integration/Core/Checkout/**
+                - tests/integration/Core/Content/**
+                - tests/integration/Core/Framework/**
+                - tests/integration/Core/System/**
+                - tests/integration/Elasticsearch/**
+                - tests/integration/Storefront/**
+                - tests/unit/Administration/**
+                - tests/unit/Core/**
+                - tests/unit/Storefront/**
+
+        - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
+            message: '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
+            paths:
+                - src/Administration/**
+                - src/Core/Checkout/**
+                - src/Core/Content/**
+                - src/Core/System/**
+                - tests/integration/Core/**
+                - tests/unit/Administration/**
+                - tests/unit/Core/Content/**
 
         - # No need to fix for now, as the facades are only used in twig context
             message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult.*does not specify its types: TEntityCollection#'
@@ -236,3 +271,8 @@ parameters:
             message: '#Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with .* and .* will always evaluate to true.#'
             identifier: staticMethod.alreadyNarrowedType
             path: tests/devops/Core/DefaultsTest.php
+
+        - # The test intentionally uses a union type instead of a native type
+            message: '#Property Shopware\\Tests\\Integration\\Core\\Framework\\DataAbstractionLayer\\fixture\\AttributeEntityUnionEnum::\$enum has unresolvable native type.#'
+            paths:
+                - tests/integration/Core/Framework/DataAbstractionLayer/fixture/AttributeEntityUnionEnum.php

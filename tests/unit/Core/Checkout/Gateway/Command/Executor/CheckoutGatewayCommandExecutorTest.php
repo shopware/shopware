@@ -43,7 +43,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
         );
 
         $commands = new CheckoutGatewayCommandCollection([new TestCheckoutGatewayCommand(['test-1'])]);
-        $response = $executor->execute($commands, $response, Generator::createSalesChannelContext());
+        $response = $executor->execute($commands, $response, Generator::generateSalesChannelContext());
 
         static::assertCount(1, $response->getAvailablePaymentMethods());
         static::assertNotNull($response->getAvailablePaymentMethods()->first());
@@ -79,7 +79,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
         static::expectException(CheckoutGatewayException::class);
         static::expectExceptionMessage('Handler not found for command "this-one-throws"');
 
-        $executor->execute($commands, $response, Generator::createSalesChannelContext());
+        $executor->execute($commands, $response, Generator::generateSalesChannelContext());
     }
 
     public function testUnknownCommandLogsInProd(): void
@@ -114,6 +114,6 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
             $throwCommand,
         ]);
 
-        $executor->execute($commands, $response, Generator::createSalesChannelContext());
+        $executor->execute($commands, $response, Generator::generateSalesChannelContext());
     }
 }

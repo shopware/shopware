@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 
 Shopware.Service().register('shopwareDiscountCampaignService', () => {

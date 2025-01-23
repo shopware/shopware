@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import './teaser-popover.store';
 
 describe('teaser-popover.store', () => {

@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import { mount } from '@vue/test-utils';
 
 function createRuleMock(isNew) {

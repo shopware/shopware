@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('after-sales')]
 class MailerConfigurationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

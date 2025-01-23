@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchIndexConfigEvent implements ShopwareEvent
 {
     /**

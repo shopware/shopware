@@ -13,7 +13,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TagGenerator implements DemodataGeneratorInterface
 {
     /**

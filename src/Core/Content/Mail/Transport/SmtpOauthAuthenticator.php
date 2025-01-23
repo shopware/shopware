@@ -9,7 +9,7 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SmtpOauthAuthenticator implements AuthenticatorInterface
 {
     private const SMTP_RESPONSE_CODE_AUTH_SUCCESS = 235;

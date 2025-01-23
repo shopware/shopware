@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import template from './sw-settings-snippet-sidebar.html.twig';
 import './sw-settings-snippet-sidebar.scss';

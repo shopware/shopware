@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('core')]
+#[Package('framework')]
 class RegisterScheduledTaskHandler
 {
     /**

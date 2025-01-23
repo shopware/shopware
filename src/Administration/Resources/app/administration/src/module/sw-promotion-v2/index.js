@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import './init/services.init';
 import './acl';
@@ -163,7 +163,7 @@ Module.register('sw-promotion-v2', {
             label: 'global.sw-admin-menu.navigation.mainMenuItemMarketing',
             color: '#FFD700',
             icon: 'regular-megaphone',
-            position: 70,
+            position: 60,
             privilege: 'promotion.viewer',
         },
         {

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Demodata;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 interface DemodataGeneratorInterface
 {
     public function getDefinition(): string;

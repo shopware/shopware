@@ -20,7 +20,7 @@ interface TeaserSalesChannelConfig {
 }
 
 /**
- * @package customer-order
+ * @sw-package customer-order
  *
  * @private
  * @description A teaser sales channel for upselling service only, no public usage

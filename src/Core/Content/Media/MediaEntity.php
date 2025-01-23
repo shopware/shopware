@@ -36,7 +36,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool}}
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -324,7 +324,7 @@ class MediaEntity extends Entity
     protected ?OrderLineItemDownloadCollection $orderLineItemDownloads = null;
 
     /**
-     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
      *
      * @var MediaConfig|null
      */
@@ -811,7 +811,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
      *
      * @return MediaConfig|null
      */
@@ -821,7 +821,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
      *
      * @param MediaConfig|null $configuration
      */
@@ -831,7 +831,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
      */
     public function isSpatialObject(): bool
     {

@@ -17,7 +17,7 @@ use Shopware\Elasticsearch\TokenQueryBuilder;
 /**
  * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
  */
-#[Package('core')]
+#[Package('framework')]
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 {
     /**

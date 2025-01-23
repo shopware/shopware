@@ -33,7 +33,7 @@ export type stateStyleService = {
 };
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @memberOf module:core/service/login
  * @constructor

@@ -20,7 +20,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetInterface
 {
     /**

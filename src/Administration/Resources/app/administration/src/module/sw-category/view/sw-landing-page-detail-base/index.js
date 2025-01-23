@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
- * @package inventory
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -230,7 +230,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
-            $controller->removeExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
+            $controller->removeExtension('plugin', 'test', new Request(), Context::createDefaultContext())->getStatusCode()
         );
     }
 
@@ -340,7 +340,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         }
 
         try {
-            $controller->removeExtension('plugin', 'test', $context);
+            $controller->removeExtension('plugin', 'test', new Request(), $context);
         } catch (StoreException $e) {
             static::assertEquals(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }

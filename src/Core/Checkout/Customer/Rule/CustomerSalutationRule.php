@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CustomerSalutationRule extends Rule
 {
     final public const RULE_NAME = 'customerSalutation';

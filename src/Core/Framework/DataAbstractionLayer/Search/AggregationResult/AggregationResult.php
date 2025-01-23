@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AggregationResult extends Struct
 {
     public function __construct(protected string $name)

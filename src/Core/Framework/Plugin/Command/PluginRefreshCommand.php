@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'plugin:refresh',
     description: 'Refreshes the plugin list',
 )]
-#[Package('core')]
+#[Package('framework')]
 class PluginRefreshCommand extends Command
 {
     /**

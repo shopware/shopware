@@ -14,7 +14,7 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
  *
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
-#[Package('core')]
+#[Package('framework')]
 class WriteContext
 {
     use StateAwareTrait;

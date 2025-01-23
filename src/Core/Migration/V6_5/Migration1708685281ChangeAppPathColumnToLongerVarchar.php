@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1708685281ChangeAppPathColumnToLongerVarchar extends MigrationStep
 {
     public function getCreationTimestamp(): int

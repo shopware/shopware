@@ -1,7 +1,7 @@
 import template from './sw-category-detail-menu.html.twig';
 
 /**
- * @package inventory
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

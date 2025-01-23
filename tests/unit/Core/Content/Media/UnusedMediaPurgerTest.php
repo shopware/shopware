@@ -42,7 +42,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(UnusedMediaPurger::class)]
 class UnusedMediaPurgerTest extends TestCase
 {

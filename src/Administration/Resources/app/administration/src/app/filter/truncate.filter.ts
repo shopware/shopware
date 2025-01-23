@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * Filter which allows you to truncate a string.

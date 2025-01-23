@@ -190,43 +190,46 @@ class PaymentMethodIndexerTest extends TestCase
         // Setup payment method(s)
         /** @var EntityRepository $paymentRepository */
         $paymentRepository = static::getContainer()->get('payment_method.repository');
-        $context = Context::createFrom($this->context);
-        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE);
+
         $paymentMethodId = Uuid::randomHex();
-        $paymentRepository->create(
-            [
+
+        $this->context->state(function (Context $context) use ($paymentRepository, $paymentMethodId): void {
+            $paymentRepository->create(
                 [
-                    'id' => $paymentMethodId,
-                    'name' => [
-                        'en-GB' => 'Credit card',
-                        'de-DE' => 'Kreditkarte',
-                    ],
-                    'technicalName' => 'payment_creditcard_test',
-                    'active' => true,
-                    'plugin' => [
-                        'name' => 'Plugin',
-                        'baseClass' => 'Plugin\MyPlugin',
-                        'autoload' => [],
-                        'version' => '1.0.0',
-                        'label' => [
-                            'en-GB' => 'Plugin (English)',
-                            'de-DE' => 'Plugin (Deutsch)',
+                    [
+                        'id' => $paymentMethodId,
+                        'name' => [
+                            'en-GB' => 'Credit card',
+                            'de-DE' => 'Kreditkarte',
+                        ],
+                        'technicalName' => 'payment_creditcard_test',
+                        'active' => true,
+                        'plugin' => [
+                            'name' => 'Plugin',
+                            'baseClass' => 'Plugin\MyPlugin',
+                            'autoload' => [],
+                            'version' => '1.0.0',
+                            'label' => [
+                                'en-GB' => 'Plugin (English)',
+                                'de-DE' => 'Plugin (Deutsch)',
+                            ],
                         ],
                     ],
                 ],
-            ],
-            $context
-        );
+                $context
+            );
+        }, EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         // Run indexer
         $messageBus = static::getContainer()->get('messenger.bus.shopware');
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
         $messageBus->reset();
         $ids = [$paymentMethodId];
-        $contextWithQueue = Context::createFrom($this->context);
-        $contextWithQueue->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
-        $message = new PaymentMethodIndexingMessage($ids, null, $contextWithQueue);
-        $this->indexer->handle($message);
+
+        $this->context->state(function (Context $context) use ($ids): void {
+            $message = new PaymentMethodIndexingMessage($ids, null, $context);
+            $this->indexer->handle($message);
+        }, EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         // Check messenger if there is another new PaymentMethodIndexingMessage (it shouldn't)
         /** @var TraceableMessageBus $messageBus */

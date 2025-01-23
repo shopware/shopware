@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -24,6 +25,7 @@ use Symfony\Component\Translation\MessageCatalogue;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetService::class)]
 class SnippetServiceTest extends TestCase
 {

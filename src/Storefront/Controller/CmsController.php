@@ -61,21 +61,21 @@ class CmsController extends StorefrontController
 
         $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
 
-        if (Feature::isActive('ACCESSIBILITY_TWEAKS') && !$request->isXmlHttpRequest()) {
-            $template = '@Storefront/storefront/page/content/index.html.twig';
-            $params = ['page' => ['cmsPage' => $page]];
-        } else {
-            $template = '@Storefront/storefront/page/content/detail.html.twig';
-            $params = ['cmsPage' => $page];
-        }
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
 
-        $response = $this->renderStorefront($template, $params);
-
-        if (!$request->isXmlHttpRequest()) {
-            $response->headers->set('x-robots-tag', 'noindex');
-        }
+        $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;
+    }
+
+
+    #[Route(path: '/page/cms/{id}', name: 'frontend.cms.page.full', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    public function pageFull(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    {
+        $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
+        $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
+
+        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => ['cmsPage' => $page]]);
     }
 
     /**

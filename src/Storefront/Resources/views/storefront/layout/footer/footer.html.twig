@@ -2,6 +2,8 @@
     {% set footer = page.footer %}
 {% endif %}
 
+{% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+
 {% block layout_footer_inner_container %}
     <div class="container">
         {% block layout_footer_navigation %}
@@ -53,7 +55,7 @@
                                     {% set contactSnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'footer.serviceContactTextPage' : 'footer.serviceContactText' %}
 
                                     {{ contactSnippetKey|trans({
-                                        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.contactPage') })
+                                        '%url%': path(cmsPath, { id: config('core.basicInformation.contactPage') })
                                     })|raw }}
                                 </div>
                             </div>
@@ -224,7 +226,7 @@
                         <p>
                             {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
                             {{ shippingSnippetKey|trans({
-                                '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }),
                                 '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
                             })|raw }}
                         </p>

@@ -231,9 +231,10 @@
                                 {%- else -%}
                                    {% set taxSnippetKey = order.taxStatus == 'gross' ? 'includeVatText' : 'excludeVatText' %}
                                 {%- endif -%}
+                                {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
 
                                 {{ 'footer.%s'|format(taxSnippetKey)|trans({
-                                    '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                    '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') })
                                 })|raw }}
                             </div>
                         {% endblock %}

@@ -1,6 +1,6 @@
 /**
  * @private
- * @package services-settings
+ * @sw-package inventory
  */
 export default {
     TYPE_EQUALS: 'equals',

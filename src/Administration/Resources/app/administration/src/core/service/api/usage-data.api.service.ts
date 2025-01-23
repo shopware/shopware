@@ -12,7 +12,7 @@ type UsageDataContext = {
  *
  * @private
  *
- * @package data-services
+ * @sw-package data-services
  */
 export default class UsageDataApiService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'usage-data') {
@@ -54,6 +54,6 @@ export default class UsageDataApiService extends ApiService {
 
 /**
  * @private
- * @package data-services
+ * @sw-package data-services
  */
 export type { UsageDataApiService, UsageDataContext };

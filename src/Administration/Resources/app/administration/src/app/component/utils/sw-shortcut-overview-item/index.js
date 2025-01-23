@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-shortcut-overview-item.html.twig';
 import './sw-shortcut-overview-item.scss';
 

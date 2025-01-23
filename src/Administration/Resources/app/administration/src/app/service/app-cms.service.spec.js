@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package content
  */
 import { mount } from '@vue/test-utils';
 import AppCmsService from 'src/app/service/app-cms.service';

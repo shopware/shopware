@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 const utils = Shopware.Utils;
 
@@ -520,7 +520,6 @@ Shopware.Directive.register('tooltip', {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
             tooltip!.hideTooltip();
         }
-
 
         // Remove the tooltip from the registry
         tooltipRegistry.delete(el.getAttribute('tooltip-id')!);

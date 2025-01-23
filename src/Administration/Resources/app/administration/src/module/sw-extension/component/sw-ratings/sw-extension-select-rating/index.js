@@ -1,7 +1,7 @@
 import template from './sw-extension-select-rating.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {

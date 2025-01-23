@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import './sw-notification-center-item.scss';
 import template from './sw-notification-center-item.html.twig';
 

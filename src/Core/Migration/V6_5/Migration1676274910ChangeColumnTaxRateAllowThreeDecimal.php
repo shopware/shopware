@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class Migration1676274910ChangeColumnTaxRateAllowThreeDecimal extends MigrationStep
 {
     public function getCreationTimestamp(): int

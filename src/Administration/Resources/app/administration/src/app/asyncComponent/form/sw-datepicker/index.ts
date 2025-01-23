@@ -1,7 +1,7 @@
 import template from './sw-datepicker.html.twig';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

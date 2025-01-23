@@ -3,7 +3,7 @@ import { defineComponent } from 'vue';
 
 /**
  * @private
- * @package admin
+ * @sw-package framework
  *
  * @module app/mixin/validation
  */

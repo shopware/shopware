@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import type { FullState } from 'src/core/factory/state.factory';

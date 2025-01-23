@@ -4,7 +4,7 @@ import './sw-circle-icon.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Renders an icon from the icon library. For a list of available variants see sw-label.

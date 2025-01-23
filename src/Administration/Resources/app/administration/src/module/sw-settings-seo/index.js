@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */

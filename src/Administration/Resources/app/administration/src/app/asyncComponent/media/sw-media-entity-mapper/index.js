@@ -1,6 +1,6 @@
 /**
  * @private
- * @package content
+ * @sw-package content
  */
 export default {
     functional: true,

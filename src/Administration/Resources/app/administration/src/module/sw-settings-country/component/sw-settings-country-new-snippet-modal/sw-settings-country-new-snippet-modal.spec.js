@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package customer-order
  */
 async function createWrapper(customPropsData = {}) {
     return mount(

@@ -2,7 +2,7 @@
 import MD5 from 'md5-es';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/service/utils/format
  */

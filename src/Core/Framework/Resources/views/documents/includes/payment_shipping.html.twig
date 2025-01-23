@@ -11,7 +11,7 @@ All blocks of this template are available in the template which renders this tem
 
 {% block payment_shipping %}
     {% block document_payment_shipping %}
-        <div class="payment-shipping-container">
+        <div class="payment-shipping-container" tabindex="0">
             {% block document_payment_shipping_inner %}
                 {% block document_payment %}
                     {{ 'document.paymentShippingInfo.paymentMethod'|trans({'%paymentMethod%': order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}<br>

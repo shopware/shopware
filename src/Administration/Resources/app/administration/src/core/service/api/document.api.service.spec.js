@@ -4,7 +4,7 @@ import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 function getDocumentApiService() {
@@ -298,8 +298,9 @@ describe('documentService', () => {
         let didRequest = false;
         const documentId = '4a4a687257644d52bf481b4c20e59213';
         const deepLink = 'DEEP_LINK';
+        const fileType = 'pdf';
 
-        clientMock.onGet(`/_action/document/${documentId}/${deepLink}`).reply(() => {
+        clientMock.onGet(`/_action/document/${documentId}/${deepLink}?fileType=${fileType}`).reply(() => {
             didRequest = true;
 
             return [

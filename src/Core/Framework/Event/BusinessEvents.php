@@ -28,7 +28,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 final class BusinessEvents
 {
     public const CHECKOUT_CUSTOMER_BEFORE_LOGIN = CustomerBeforeLoginEvent::EVENT_NAME;

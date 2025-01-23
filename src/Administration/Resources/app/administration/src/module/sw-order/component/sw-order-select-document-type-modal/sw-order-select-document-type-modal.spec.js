@@ -5,7 +5,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const orderFixture = {

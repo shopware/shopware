@@ -6,7 +6,7 @@ const DocumentEvents = {
 };
 
 /**
- * @package checkout
+ * @sw-package checkout
  * Gateway for the API end point "document"
  * @class
  * @extends ApiService
@@ -83,12 +83,12 @@ class DocumentApiService extends ApiService {
             });
     }
 
-    getDocumentPreview(orderId, orderDeepLink, documentTypeName, params) {
+    getDocumentPreview(orderId, orderDeepLink, documentTypeName, params, additionalParams = {}) {
         const config = JSON.stringify(params);
 
         return this.httpClient
             .get(`/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview`, {
-                params: { config },
+                params: { config, ...additionalParams },
                 responseType: 'blob',
                 headers: this.getBasicHeaders(),
             })
@@ -100,11 +100,14 @@ class DocumentApiService extends ApiService {
             });
     }
 
-    getDocument(documentId, documentDeepLink, context, download = false) {
-        return this.httpClient.get(`/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`, {
-            responseType: 'blob',
-            headers: this.getBasicHeaders(),
-        });
+    getDocument(documentId, documentDeepLink, context, download = false, fileType = 'pdf') {
+        return this.httpClient.get(
+            `/_action/document/${documentId}/${documentDeepLink}?fileType=${fileType}${download ? '&download=1' : ''}`,
+            {
+                responseType: 'blob',
+                headers: this.getBasicHeaders(),
+            },
+        );
     }
 
     createDocumentEvent(action, payload) {

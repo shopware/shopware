@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
 
 {% block base_content %}
-    {% set actionUrl = path(redirectTo, { deepLinkCode: redirectParameters.deepLinkCode}) %}
+    {% set actionUrl = path(redirectTo, redirectParameters) %}
 
     {% block page_account_guest_auth %}
         <div class="account-guest-auth row justify-content-md-center">
@@ -11,7 +11,10 @@
                         <form method="post"
                               class="account-guest-auth-form card"
                               action="{{ actionUrl }}"
-                              data-form-validation="true">
+                              {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
+                              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+                              {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}>
+
                             {% block page_account_guest_auth_title %}
                                 <h1 class="card-title">
                                     {{ 'account.orderGuestLoginTitle'|trans }}
@@ -28,13 +31,30 @@
 
                                     <div class="row g-2">
                                         {% block page_account_guest_auth_mail %}
+
+                                            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                    type: 'email',
+                                                    label: 'account.profileCurrentMail'|trans|sw_sanitize,
+                                                    id: 'mail',
+                                                    name: 'email',
+                                                    autocomplete: 'section-personal email',
+                                                    violationPath: '/email',
+                                                    validationRules: 'required,email',
+                                                    additionalClass: 'col-md-8',
+                                                } %}
+
+                                            {% else %}
                                             <div class="form-group col-md-8">
+
+                                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                 {% block page_account_guest_auth_mail_label %}
                                                     <label class="form-label" for="mail">
                                                         {{ 'account.profileCurrentMail'|trans }}{{ 'general.required'|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
+                                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                 {% block page_account_guest_auth_mail_input %}
                                                     <input type="email"
                                                            class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
@@ -45,16 +65,36 @@
                                                            required="required">
                                                 {% endblock %}
                                             </div>
+                                            {% endif %}
                                         {% endblock %}
 
+                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                            {% block page_account_guest_auth_zipcode %}
+                                                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                    type: 'text',
+                                                    label: 'address.zipcodeLabel'|trans|sw_sanitize,
+                                                    id: 'zipcode',
+                                                    name: 'zipcode',
+                                                    autocomplete: 'section-personal zipcode',
+                                                    violationPath: '/zipcode',
+                                                    validationRules: 'required',
+                                                    additionalClass: 'col-md-4',
+                                                } %}
+                                            {% endblock %}
+
+                                        {% else %}
                                         <div class="form-group col-md-4">
+                                            {# @deprecated tag:v6.7.0 - Block will be removed. Use page_account_guest_auth_zipcode instead. #}
                                             {% block page_account_guest_auth_postcode %}
+
+                                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                 {% block page_account_guest_auth_postcode_label %}
-                                                    <label class="form-label" for="recoverMail2">
+                                                    <label class="form-label" for="zipcode">
                                                         {{ 'address.zipcodeLabel'|trans }}{{ 'general.required'|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
+                                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                 {% block page_account_guest_auth_postcode_input %}
                                                 <input type="text"
                                                        class="form-control"
@@ -66,6 +106,7 @@
                                                 {% endblock %}
                                             {% endblock %}
                                         </div>
+                                        {% endif %}
                                     </div>
 
                                     {% block page_account_guest_auth_actions %}

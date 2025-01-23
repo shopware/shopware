@@ -5,7 +5,7 @@ import settingCustomerGroupDetailCreateOverride from 'src/module/sw-settings-cus
 Shopware.Component.override('sw-settings-customer-group-detail', settingCustomerGroupDetailCreateOverride);
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 async function createWrapper() {
     return mount(

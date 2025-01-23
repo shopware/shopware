@@ -560,6 +560,6 @@ Application.addServiceProvider('cmsService', () => new CmsService());
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export { CmsService, type CmsElementConfig, type CmsBlockConfig, type CmsSlotConfig, type RuntimeSlot };

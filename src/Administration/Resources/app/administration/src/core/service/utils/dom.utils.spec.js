@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import dom from 'src/core/service/utils/dom.utils';

@@ -15,7 +15,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @phpstan-import-type VersionFixedVulnerabilities from Version
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class ApiClient
 {
     /**

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { flushPromises, mount } from '@vue/test-utils';

@@ -1,7 +1,10 @@
+/**
+ * @sw-package unknown
+ */
+
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 
 describe('src/core/worker/admin-notification-worker', () => {
-
     it('should log an error when the notification fetching fails', async () => {
         const notificationService = {
             fetchNotifications: jest.fn().mockRejectedValue(new Error('Unexpected error')),

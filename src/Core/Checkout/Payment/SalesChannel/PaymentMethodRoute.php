@@ -73,7 +73,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
             $paymentMethods = $paymentMethods->filterByActiveRules($context);
         }
 
-        $result->assign(['entities' => $paymentMethods, 'elements' => $paymentMethods, 'total' => $paymentMethods->count()]);
+        $result->assign(['entities' => $paymentMethods, 'elements' => $paymentMethods->getElements(), 'total' => $paymentMethods->count()]);
 
         if (Feature::isActive('cache_rework')) {
             $this->scriptExecutor->execute(new PaymentMethodRouteHook(

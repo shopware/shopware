@@ -69,7 +69,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             $hasWrite = true;
         }
 
-        if (!$hasWrite) {
+        if (!$hasWrite && $grantType !== 'refresh_token') {
             $scopes = $this->removeScope($scopes, WriteScope::class);
         }
 

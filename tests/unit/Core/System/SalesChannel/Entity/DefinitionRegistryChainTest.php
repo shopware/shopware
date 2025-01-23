@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundEx
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(DefinitionRegistryChain::class)]
 class DefinitionRegistryChainTest extends TestCase
 {

@@ -9,7 +9,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

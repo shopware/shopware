@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MigrationQueryGenerator
 {
     public function __construct(private readonly Connection $connection, private readonly SchemaBuilder $schemaBuilder)

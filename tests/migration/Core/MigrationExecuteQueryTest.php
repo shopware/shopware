@@ -15,7 +15,7 @@ use Shopware\Core\Migration\Test\NullConnection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(MigrationCollection::class)]
 class MigrationExecuteQueryTest extends TestCase
 {

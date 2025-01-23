@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @deprecated tag:v6.7.0 - reason:remove-phpstan-rule - Will be removed. Use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\AddColumnRule instead
  */
-#[Package('core')]
+#[Package('framework')]
 class AddColumnRule extends NewAddColumnRule
 {
 }

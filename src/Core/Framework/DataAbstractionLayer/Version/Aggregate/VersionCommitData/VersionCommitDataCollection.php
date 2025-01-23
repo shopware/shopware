@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<VersionCommitDataEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class VersionCommitDataCollection extends EntityCollection
 {
     public function filterByEntity(EntityDefinition $definition): self

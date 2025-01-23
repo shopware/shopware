@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1567431050ContactFormTemplate extends MigrationStep
 {
     public function getCreationTimestamp(): int

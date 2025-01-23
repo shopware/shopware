@@ -98,16 +98,16 @@
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT Reg.No. you have entered does not have the correct format.",
     "VIOLATION::ZIP_CODE_INVALID": "The postal code you have entered does not have the correct format.",
     "VIOLATION::INVALID_FORMAT_ERROR": "The input does not have the correct format.",
-    "VIOLATION::INVALID_EMAIL_FORMAT_ERROR": "Invalid email address. Email addresses must use this format `user@example.com` and include an `@` and an `.`.",
-    "VIOLATION::NOT_EQUAL_ERROR": "Your inputs do not match. Please try again.",
-    "VIOLATION::FIRST_NAME_IS_BLANK_ERROR": "Nothing entered. Please fill in this field with your first name.",
-    "VIOLATION::LAST_NAME_IS_BLANK_ERROR": "Nothing entered. Please fill in this field with your last name.",
-    "VIOLATION::STREET_IS_BLANK_ERROR": "Nothing entered. Please fill in this field with with the street from your address.",
-    "VIOLATION::CITY_IS_BLANK_ERROR": "Nothing entered. Please fill in this field with the city from your address.",
-    "VIOLATION::COUNTRY_IS_BLANK_ERROR": "Nothing entered. Please fill in this field with your country of residence.",
-    "VIOLATION::ADDITIONAL_ADDR1_IS_BLANK_ERROR": "Nothing entered. Please fill in this field with additional address information.",
-    "VIOLATION::ADDITIONAL_ADDR2_IS_BLANK_ERROR": "Nothing entered. Please fill in this field with additional address information.",
-    "VIOLATION::PHONE_NUMBER_IS_BLANK_ERROR": "Nothing entered. Please fill in this field with your phone number.",
+    "VIOLATION::INVALID_EMAIL_FORMAT_ERROR": "Invalid email address. Email addresses must use the format \"user@example.com\".",
+    "VIOLATION::NOT_EQUAL_ERROR": "Confirmation field does not match.",
+    "VIOLATION::FIRST_NAME_IS_BLANK_ERROR": "Please fill in your first name.",
+    "VIOLATION::LAST_NAME_IS_BLANK_ERROR": "Please fill in your last name.",
+    "VIOLATION::STREET_IS_BLANK_ERROR": "Please fill in your street of residence.",
+    "VIOLATION::CITY_IS_BLANK_ERROR": "Please fill in your city of residence.",
+    "VIOLATION::COUNTRY_IS_BLANK_ERROR": "Please fill in your country of residence.",
+    "VIOLATION::ADDITIONAL_ADDR1_IS_BLANK_ERROR": "Please fill in additional address information.",
+    "VIOLATION::ADDITIONAL_ADDR2_IS_BLANK_ERROR": "Please fill in additional address information.",
+    "VIOLATION::PHONE_NUMBER_IS_BLANK_ERROR": "Please fill in your phone number.",
     "VIOLATION::PHONE_NUMBER_IS_TOO_LONG": "Input too long. Please enter a valid phone number.",
     "VIOLATION::FIRST_NAME_IS_TOO_LONG": "Input too long. Please enter only your first name or a short form of it.",
     "VIOLATION::LAST_NAME_IS_TOO_LONG": "Input too long. Please enter a shorter form of your last name.",
@@ -399,7 +399,7 @@
     "companyNamePlaceholder": "Enter company...",
     "companyDepartmentLabel": "Department",
     "companyDepartmentPlaceholder": "Enter department...",
-    "companyVatLabel": "VAT Reg.No.",
+    "companyVatLabel": "VAT Registration Number",
     "companyVatPlaceholder": "VAT Reg.No."
   },
   "checkout": {
@@ -712,8 +712,8 @@
     "serviceContactText": "Or via our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Contact form\">contact form</a>.",
     "newsletterInput": "Email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
-    "includeVatText": "* All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
-    "excludeVatText": "* All prices excl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "includeVatText": "%star%All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "excludeVatText": "%star%All prices excl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "copyrightInfo": "Realised with Shopware"
   },
   "captcha": {
@@ -777,6 +777,9 @@
         "increaseOfProduct": "Increase quantity of %product%",
         "decrease": "Decrease quantity",
         "decreaseOfProduct": "Decrease quantity of %product%"
+      },
+      "configurator": {
+        "legend": "<span class=\"%hidden_cls%\">Select&nbsp;</span>%group_name%"
       }
     },
     "cms": {

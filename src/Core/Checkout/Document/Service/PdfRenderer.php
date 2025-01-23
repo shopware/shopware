@@ -5,13 +5,18 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 #[Package('after-sales')]
-final class PdfRenderer
+class PdfRenderer extends AbstractDocumentTypeRenderer
 {
     public const FILE_EXTENSION = 'pdf';
 
@@ -24,6 +29,8 @@ final class PdfRenderer
      */
     public function __construct(
         private readonly array $dompdfOptions,
+        private readonly DocumentTemplateRenderer $documentTemplateRenderer,
+        private readonly string $rootDir,
         private readonly ExtensionDispatcher $extensions
     ) {
     }
@@ -42,6 +49,11 @@ final class PdfRenderer
         );
     }
 
+    public function getDecorated(): AbstractDocumentTypeRenderer
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
     private function _render(RenderedDocument $document): string
     {
         $dompdf = new Dompdf();
@@ -50,7 +62,7 @@ final class PdfRenderer
 
         $dompdf->setOptions($options);
         $dompdf->setPaper($document->getPageSize(), $document->getPageOrientation());
-        $dompdf->loadHtml($document->getHtml());
+        $dompdf->loadHtml($this->getHtml($document));
 
         /*
          * Dompdf creates and destroys a lot of objects. The garbage collector slows the process down by ~50% for
@@ -71,6 +83,41 @@ final class PdfRenderer
         }
 
         return (string) $dompdf->output();
+    }
+
+    private function getHtml(RenderedDocument $document): string
+    {
+        if ($document->getHtml() !== '') {
+            return $document->getHtml();
+        }
+
+        $document->setContentType(self::FILE_CONTENT_TYPE);
+        $document->setFileExtension(self::FILE_EXTENSION);
+
+        if (!$document->getOrder() || !$document->getContext()) {
+            throw DocumentException::documentGenerationException('No options provided for rendering the document.');
+        }
+
+        $config = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            $document->getConfig(),
+        );
+
+        $language = $document->getOrder()->getLanguage();
+
+        return $this->documentTemplateRenderer->render(
+            $document->getTemplate(),
+            [
+                'order' => $document->getOrder(),
+                'config' => $config,
+                'rootDir' => $this->rootDir,
+                'context' => $document->getContext(),
+            ],
+            $document->getContext(),
+            $document->getOrder()->getSalesChannelId(),
+            $document->getOrder()->getLanguageId(),
+            $language?->getLocale()?->getCode(),
+        );
     }
 
     /**

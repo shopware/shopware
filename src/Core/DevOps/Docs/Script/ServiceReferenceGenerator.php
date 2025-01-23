@@ -23,7 +23,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ServiceReferenceGenerator implements ScriptReferenceGenerator
 {
     final public const GROUP_DATA_LOADING = 'data_loading';

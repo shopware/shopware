@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[CoversClass(MemoizedSystemConfigLoader::class)]
 class MemoizedSystemConfigLoaderTest extends TestCase
 {

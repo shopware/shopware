@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import template from './sw-users-permissions-permissions-grid.html.twig';
 import './sw-users-permissions-permissions-grid.scss';

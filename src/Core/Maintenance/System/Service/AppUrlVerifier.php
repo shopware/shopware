@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AppUrlVerifier
 {
     public function __construct(

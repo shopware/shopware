@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class CustomerFlowEventsSubscriber implements EventSubscriberInterface
 {
     /**

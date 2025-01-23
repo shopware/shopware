@@ -4,7 +4,7 @@ import orderStore from 'src/module/sw-order/state/order.store';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const addresses = [

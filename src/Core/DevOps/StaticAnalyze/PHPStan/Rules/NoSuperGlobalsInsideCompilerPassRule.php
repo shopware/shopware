@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
  *
  * @implements Rule<ArrayDimFetch>
  */
-#[Package('core')]
+#[Package('framework')]
 class NoSuperGlobalsInsideCompilerPassRule implements Rule
 {
     public function getNodeType(): string

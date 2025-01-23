@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import Store from 'src/app/store/index';
 import { reactive } from 'vue';

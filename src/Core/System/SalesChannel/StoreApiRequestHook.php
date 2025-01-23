@@ -12,7 +12,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 /**
  * @internal only rely on the concrete implementations
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class StoreApiRequestHook extends Hook implements SalesChannelContextAware
 {
     /**

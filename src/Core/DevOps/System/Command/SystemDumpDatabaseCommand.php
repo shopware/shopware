@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'system:dump',
     description: 'Dumps the database to a file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemDumpDatabaseCommand extends Command
 {
     public function __construct(

@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import { shallowMount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;

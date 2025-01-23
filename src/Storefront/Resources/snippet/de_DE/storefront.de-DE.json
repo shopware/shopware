@@ -98,16 +98,16 @@
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "Die eingegebene USt-IdNr. entspricht nicht der erwarteten Struktur.",
     "VIOLATION::ZIP_CODE_INVALID": "Die eingegebene Postleitzahl hat nicht das richtige Format.",
     "VIOLATION::INVALID_FORMAT_ERROR": "Die Eingabe entspricht nicht der erwarteten Struktur.",
-    "VIOLATION::INVALID_EMAIL_FORMAT_ERROR": "Keine gültige E-Mail-Adresse eingetragen. Bitte nutzen Sie das folgende Format `nutzer@beispiel.de` und achten Sie darauf, dass die Adresse ein `@` und einen `.` enthält.",
-    "VIOLATION::NOT_EQUAL_ERROR": "Ihre Eingaben sind nicht identisch. Bitte versuchen Sie es erneut.",
-    "VIOLATION::FIRST_NAME_IS_BLANK_ERROR": "Nichts eingegeben. Bitte tragen Sie Ihren Vornamen in dieses Feld ein.",
-    "VIOLATION::LAST_NAME_IS_BLANK_ERROR": "Nichts eingegeben. Bitte tragen Sie Ihren Nachnamen in dieses Feld ein.",
-    "VIOLATION::STREET_IS_BLANK_ERROR": "Nichts eingegeben. Bitte tragen Sie die Straße aus Ihrer Adresse in dieses Feld ein.",
-    "VIOLATION::CITY_IS_BLANK_ERROR": "Nichts eingegeben. Bitte tragen Sie die Stadt aus Ihrer Adresse in dieses Feld ein.",
-    "VIOLATION::COUNTRY_IS_BLANK_ERROR": "Nichts eingegeben. Bitte tragen Sie Ihr Wohnland in dieses Feld ein.",
-    "VIOLATION::ADDITIONAL_ADDR1_IS_BLANK_ERROR": "Nichts eingegeben. Bitte tragen Sie zusätzliche Adressinformationen in dieses Feld ein.",
-    "VIOLATION::ADDITIONAL_ADDR2_IS_BLANK_ERROR": "Nichts eingegeben. Bitte tragen Sie zusätzliche Adressinformationen in dieses Feld ein.",
-    "VIOLATION::PHONE_NUMBER_IS_BLANK_ERROR": "Nichts eingegeben. Bitte tragen Sie Ihre Telefonnummmer in dieses Feld ein.",
+    "VIOLATION::INVALID_EMAIL_FORMAT_ERROR": "Ungültige E-Mail-Adresse. Die E-Mail benötigt das Format \"nutzer@beispiel.de\".",
+    "VIOLATION::NOT_EQUAL_ERROR": "Ihre Eingaben sind nicht identisch.",
+    "VIOLATION::FIRST_NAME_IS_BLANK_ERROR": "Bitte tragen Sie Ihren Vornamen ein.",
+    "VIOLATION::LAST_NAME_IS_BLANK_ERROR": "Bitte tragen Sie Ihren Nachnamen ein.",
+    "VIOLATION::STREET_IS_BLANK_ERROR": "Bitte tragen Sie die Straße Ihrer Adresse ein.",
+    "VIOLATION::CITY_IS_BLANK_ERROR": "Bitte tragen Sie die Stadt Ihrer Adresse ein.",
+    "VIOLATION::COUNTRY_IS_BLANK_ERROR": "Bitte tragen Sie Ihr Wohnland ein.",
+    "VIOLATION::ADDITIONAL_ADDR1_IS_BLANK_ERROR": "Bitte tragen Sie zusätzliche Adressinformationen ein.",
+    "VIOLATION::ADDITIONAL_ADDR2_IS_BLANK_ERROR": "Bitte tragen Sie zusätzliche Adressinformationen ein.",
+    "VIOLATION::PHONE_NUMBER_IS_BLANK_ERROR": "Bitte tragen Sie Ihre Telefonnummmer ein.",
     "VIOLATION::PHONE_NUMBER_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie ein gültige Telefonnummer ein.",
     "VIOLATION::FIRST_NAME_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie nur Ihren Rufnamen oder eine Kurzform davon ein.",
     "VIOLATION::LAST_NAME_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie Ihren Namen in abgekürzter Form ein.",
@@ -712,8 +712,8 @@
     "serviceContactText": "Oder über unser <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "newsletterInput": "E-Mail-Adresse",
     "newsletter": "Abonnieren Sie jetzt unseren regelmäßig erscheinenden Newsletter, um rechtzeitig über neue Produkte und Angebote informiert zu werden.",
-    "includeVatText": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
-    "excludeVatText": "* Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
+    "includeVatText": "%star%Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
+    "excludeVatText": "%star%Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "copyrightInfo": "Realisiert mit Shopware"
   },
   "captcha": {
@@ -777,6 +777,9 @@
         "increaseOfProduct": "Erhöhe die Anzahl von %product%",
         "decrease": "Anzahl verringern",
         "decreaseOfProduct": "Verringere die Anzahl %product%"
+      },
+      "configurator": {
+        "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"
       }
     },
     "cms": {

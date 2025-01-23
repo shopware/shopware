@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-entity-many-to-many-select.html.twig';
 
 const { Component } = Shopware;

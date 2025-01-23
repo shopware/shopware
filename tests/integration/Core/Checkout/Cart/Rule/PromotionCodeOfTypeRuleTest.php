@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class PromotionCodeOfTypeRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

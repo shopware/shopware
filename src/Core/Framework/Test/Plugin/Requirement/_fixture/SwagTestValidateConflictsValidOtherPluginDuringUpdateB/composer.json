@@ -1,0 +1,24 @@
+{
+    "name": "swag/test-validate-conflicts-valid-other-plugin-during-update-b",
+    "description": "Test conflict handling",
+    "version": "v1.0.0",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG",
+            "role": "Manufacturer"
+        }
+    ],
+    "conflict": {
+        "swag/test-validate-conflicts-valid-other-plugin-during-update-a": "< 2.0.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "SwagTestValidateConflictsValidOtherPluginDuringUpdateB\\SwagTestValidateConflictsValidOtherPluginDuringUpdateB",
+        "copyright": "(c) by shopware AG",
+        "label": {
+            "de-DE": "Test für Konflikte-Handling",
+            "en-GB": "Test for conflict handling"
+        }
+    }
+}

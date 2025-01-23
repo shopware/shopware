@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1639992771MoveDataFromEventActionToFlow extends MigrationStep
 {
     public function getCreationTimestamp(): int

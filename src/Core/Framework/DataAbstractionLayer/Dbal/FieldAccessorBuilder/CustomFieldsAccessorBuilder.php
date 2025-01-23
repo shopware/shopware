@@ -13,7 +13,7 @@ use Shopware\Core\System\CustomField\CustomFieldService;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
 {
     /**

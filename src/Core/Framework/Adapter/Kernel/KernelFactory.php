@@ -27,7 +27,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  *
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class KernelFactory
 {
     /**

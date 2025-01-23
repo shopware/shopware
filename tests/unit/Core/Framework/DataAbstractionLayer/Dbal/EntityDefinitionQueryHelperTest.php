@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(EntityDefinitionQueryHelper::class)]
 class EntityDefinitionQueryHelperTest extends TestCase
 {

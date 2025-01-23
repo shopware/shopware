@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Telemetry\Metrics\Metric;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfig;
 
-#[Package('core')]
+#[Package('framework')]
 readonly class Metric
 {
     final private function __construct(

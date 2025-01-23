@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class Migration1689257577AddMissingTransactionMailFlow extends MigrationStep
 {
     public const AUTHORIZED_FLOW = 'Order enters status authorized';

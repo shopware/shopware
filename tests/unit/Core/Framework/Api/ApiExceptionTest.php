@@ -27,7 +27,7 @@ use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(ApiException::class)]
 class ApiExceptionTest extends TestCase
 {

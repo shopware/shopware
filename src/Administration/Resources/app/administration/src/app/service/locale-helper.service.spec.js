@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import LocaleHelperService from 'src/app/service/locale-helper.service';

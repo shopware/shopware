@@ -205,12 +205,15 @@
             </script>
         {% endblock %}
 
+        {% block layout_head_form_validation_messages %}
+            {% sw_include '@Storefront/storefront/utilities/form-validation-config.html.twig' %}
+        {% endblock %}
+
         {% block layout_head_javascript_hmr_mode %}
             {% if isHMRMode %}
                 {% block layout_head_javascript_hmr_dev %}
-                    {# Entry point for dev-server CSS #}
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/storefront/css.js" defer></script>
-
+                    {# Entry point for dev-server #}
+                    <script type="text/javascript" src="/_webpack_hot_proxy_/storefront/hot-reloading.js" defer></script>
                     {% for script in theme_scripts() %}
                         <script type="text/javascript" src="{{ script|replace({'js/': '/_webpack_hot_proxy_/'}) }}" defer></script>
                     {% endfor %}

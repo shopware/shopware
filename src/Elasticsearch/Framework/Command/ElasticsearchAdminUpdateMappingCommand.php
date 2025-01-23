@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'es:admin:mapping:update',
     description: 'Update the Elasticsearch indices mapping',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchAdminUpdateMappingCommand extends Command
 {
     /**

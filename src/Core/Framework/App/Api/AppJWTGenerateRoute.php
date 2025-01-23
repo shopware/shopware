@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('core')]
+#[Package('framework')]
 class AppJWTGenerateRoute
 {
     public function __construct(
@@ -62,11 +62,11 @@ class AppJWTGenerateRoute
         }
 
         if (\in_array('customer:read', $privileges, true)) {
-            $builder = $builder->withClaim('customerId', $context->getCustomer()->getId());
+            $builder = $builder->withClaim('customerId', $context->getCustomerId());
         }
 
         if (\in_array('currency:read', $privileges, true)) {
-            $builder = $builder->withClaim('currencyId', $context->getCurrency()->getId());
+            $builder = $builder->withClaim('currencyId', $context->getCurrencyId());
         }
 
         if (\in_array('language:read', $privileges, true)) {

@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityProtectionValidator implements EventSubscriberInterface
 {
     public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)

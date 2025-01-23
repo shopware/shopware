@@ -25,7 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'user:list',
     description: 'List current users',
 )]
-#[Package('core')]
+#[Package('framework')]
 class UserListCommand extends Command
 {
     /**

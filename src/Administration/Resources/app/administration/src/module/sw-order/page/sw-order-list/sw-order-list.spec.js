@@ -4,7 +4,7 @@ import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const mockItem = {
@@ -88,6 +88,7 @@ async function createWrapper() {
                 'sw-sidebar': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 stateStyleDataProviderService: {

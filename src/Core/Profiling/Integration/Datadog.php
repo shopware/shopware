@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal experimental atm
  */
-#[Package('core')]
+#[Package('framework')]
 class Datadog implements ProfilerInterface
 {
     private array $spans = [];

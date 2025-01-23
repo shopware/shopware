@@ -6,15 +6,30 @@
             {% block component_address_form_company_fields %}
                 <div class="row g-2">
                     {% block component_address_form_company_name %}
-                        <div class="form-group col-12">
-                            {% if formViolations.getViolations('/company') is not empty %}
-                                {% set violationPath = '/company' %}
-                            {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
-                                {% set violationPath = "/#{prefix}/company" %}
-                            {% else %}
-                                {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.companyNameLabel'|trans|sw_sanitize }) %}
-                            {% endif %}
+                        {% if formViolations.getViolations('/company') is not empty %}
+                            {% set violationPath = '/company' %}
+                        {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
+                            {% set violationPath = "/#{prefix}/company" %}
+                        {% else %}
+                            {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.companyNameLabel'|trans|sw_sanitize }) %}
+                        {% endif %}
 
+                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'address.companyNameLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'company',
+                                name: prefix ? prefix ~ '[company]' : 'company',
+                                value: address.get('company'),
+                                autocomplete: 'section-personal organization',
+                                violationPath: violationPath,
+                                validationRules: 'required',
+                                additionalClass: 'col-12',
+                            } %}
+
+                        {% else %}
+                        <div class="form-group col-12">
+
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_address_form_company_name_label %}
                                 <label class="form-label"
                                        for="{{ idPrefix ~ prefix }}company">
@@ -22,6 +37,7 @@
                                 </label>
                             {% endblock %}
 
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_address_form_company_name_input %}
                                 <input type="text"
                                        class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -35,23 +51,36 @@
                                        {% if accountTypeRequired %}required="required"{% endif %}>
                             {% endblock %}
 
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_address_form_company_name_input_error %}
                                 {% if violationPath %}
                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                                 {% endif %}
                             {% endblock %}
                         </div>
+                        {% endif %}
                     {% endblock %}
                 </div>
                 <div class="row g-2">
                     {% block component_address_form_company_department %}
-                        <div class="form-group col-md-6">
-                            {% if formViolations.getViolations('/department') is not empty %}
-                                {% set violationPath = '/department' %}
-                            {% elseif formViolations.getViolations("/#{prefix}/department") is not empty %}
-                                {% set violationPath = "/#{prefix}/department" %}
-                            {% endif %}
+                        {% if formViolations.getViolations('/department') is not empty %}
+                            {% set violationPath = '/department' %}
+                        {% elseif formViolations.getViolations("/#{prefix}/department") is not empty %}
+                            {% set violationPath = "/#{prefix}/department" %}
+                        {% endif %}
 
+                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'address.companyDepartmentLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'department',
+                                name: prefix ? prefix ~ '[department]' : 'department',
+                                value: address.get('department'),
+                                violationPath: violationPath,
+                                additionalClass: 'col-md-6',
+                            } %}
+                        {% else %}
+                        <div class="form-group col-md-6">
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_address_form_company_department_label %}
                                 <label class="form-label"
                                        for="{{ idPrefix ~ prefix }}department">
@@ -59,6 +88,7 @@
                                 </label>
                             {% endblock %}
 
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_address_form_company_department_input %}
                                 <input type="text"
                                        class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -68,22 +98,31 @@
                                        value="{{ address.get('department') }}">
                             {% endblock %}
 
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_address_form_company_department_input_error %}
                                 {% if violationPath %}
                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                                 {% endif %}
                             {% endblock %}
                         </div>
+                        {% endif %}
                     {% endblock %}
 
                     {# ludtwig-ignore twig-block-name-snake-case #}
                     {% block component_address_form_company_vatId %}
                         {% if prefix != 'shippingAddress' %}
+                            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                    vatIds: data.get('vatIds')
+                                } %}
+                            {% else %}
+                            {# @deprecated tag:v6.7.0 - Component already includes the form-group wrapper. #}
                             <div class="form-group col-md-6">
                                 {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
                                     vatIds: data.get('vatIds')
                                 } %}
                             </div>
+                            {% endif %}
                         {% endif %}
                     {% endblock %}
                 </div>

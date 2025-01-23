@@ -12,7 +12,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ServiceClient
 {
     public function __construct(

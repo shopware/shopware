@@ -16,7 +16,7 @@ All blocks of this template are available in the template which renders this tem
             {% set class = " nested level-" ~ level %}
         {% endif %}
 
-        <tr class="line-item{{ class }}{% if first %} first{% endif %}">
+        <tr class="line-item{{ class }}{% if first %} first{% endif %}" tabindex="0">
             {% block document_line_item_table_rows %}
                 {% block document_line_item_table_row_position %}
                     {% if config.displayLineItemPosition %}
@@ -26,7 +26,7 @@ All blocks of this template are available in the template which renders this tem
 
                 {% block document_line_item_table_row_product_number %}
                     {% if lineItem.payload.productNumber %}
-                        <td>{% block document_line_item_table_column_product_number %}{{ lineItem.payload.productNumber }}{% endblock %}</td>
+                        <td class="line-item-product-number">{% block document_line_item_table_column_product_number %}{{ lineItem.payload.productNumber }}{% endblock %}</td>
                     {% else %}
                         <td>{% block document_line_item_table_column_product_number_empty %}{% endblock %}</td>
                     {% endif %}

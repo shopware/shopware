@@ -3,7 +3,7 @@ import '../store/cms-page.store';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default Shopware.Mixin.register(
     'cms-state',

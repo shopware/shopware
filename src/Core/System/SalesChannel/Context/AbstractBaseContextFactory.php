@@ -8,7 +8,7 @@ use Shopware\Core\System\SalesChannel\BaseContext;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractBaseContextFactory
 {
     /**

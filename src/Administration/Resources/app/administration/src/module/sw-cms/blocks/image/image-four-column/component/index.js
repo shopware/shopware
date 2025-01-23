@@ -3,7 +3,7 @@ import './sw-cms-block-image-four-column.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,

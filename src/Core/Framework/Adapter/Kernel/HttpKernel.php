@@ -21,7 +21,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class HttpKernel extends SymfonyHttpKernel
 {
     protected EventDispatcherInterface $dispatcher;

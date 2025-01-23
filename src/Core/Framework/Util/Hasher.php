@@ -6,7 +6,7 @@ namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class Hasher
 {
     public const ALGO = 'xxh128';

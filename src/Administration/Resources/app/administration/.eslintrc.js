@@ -28,10 +28,10 @@ const baseRules = {
             'sw-extension-component-section',
         ],
     }],
-    'sw-core-rules/require-package-annotation': ['warn'],
+    'sw-core-rules/require-package-annotation': ['error'],
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
-    'filename-rules/match': [2, /^(?!.*\.spec\.ts$).*(?:\.js|\.ts|\.html|\.html\.twig)$/],
+    'filename-rules/match': [2, /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/],
     'vue/multi-word-component-names': ['error', {
         ignores: ['index.html'],
     }],

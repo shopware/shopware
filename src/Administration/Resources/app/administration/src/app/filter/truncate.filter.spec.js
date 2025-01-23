@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 describe('src/app/filter/truncate.filter.ts', () => {
     const truncateFilter = Shopware.Filter.getByName('truncate');

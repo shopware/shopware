@@ -15,7 +15,7 @@ use Shopware\Core\Migration\Traits\Translations;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1654839361ProductDownloadDelivery extends MigrationStep
 {
     use ImportTranslationsTrait;

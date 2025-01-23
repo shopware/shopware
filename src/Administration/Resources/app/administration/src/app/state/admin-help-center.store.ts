@@ -6,7 +6,7 @@ interface AdminHelpCenterState {
 /**
  * This file contains the store for the help center.
  *
- * @package buyers-experience
+ * @sw-package buyers-experience
  * @private
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */

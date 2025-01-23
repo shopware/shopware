@@ -27,7 +27,7 @@ use Symfony\Component\Routing\RouterInterface;
  * @internal
  */
 #[CoversClass(Executor::class)]
-#[Package('core')]
+#[Package('framework')]
 class ExecutorTest extends TestCase
 {
     public function testConnectionProblemsGotConverted(): void

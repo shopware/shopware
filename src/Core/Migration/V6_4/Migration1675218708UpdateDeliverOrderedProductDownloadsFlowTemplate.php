@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class Migration1675218708UpdateDeliverOrderedProductDownloadsFlowTemplate extends MigrationStep
 {
     public function getCreationTimestamp(): int

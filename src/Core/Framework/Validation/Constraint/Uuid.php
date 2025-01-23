@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Validation\Constraint;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
-#[Package('core')]
+#[Package('framework')]
 class Uuid extends Constraint
 {
     final public const INVALID_MESSAGE = 'The string "{{ string }}" is not a valid uuid.';

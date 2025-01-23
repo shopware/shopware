@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import { mount, config } from '@vue/test-utils';
 
 const subComponent = {

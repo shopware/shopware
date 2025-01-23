@@ -1,4 +1,8 @@
 /**
+ * @sw-package unknown
+ */
+
+/**
  * @package admin
  *
  * You can activate acl roles in the each test like this:

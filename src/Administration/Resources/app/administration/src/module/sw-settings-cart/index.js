@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

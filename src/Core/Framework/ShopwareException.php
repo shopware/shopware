@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 interface ShopwareException extends \Throwable
 {
     public function getErrorCode(): string;

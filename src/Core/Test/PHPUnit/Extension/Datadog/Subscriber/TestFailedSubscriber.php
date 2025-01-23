@@ -13,7 +13,7 @@ use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayloadCollection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestFailedSubscriber implements FailedSubscriber
 {
     public function __construct(

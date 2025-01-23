@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * In case the referenced association data will be deleted, the related data will be set to null and an Written event will be thrown
  */
-#[Package('core')]
+#[Package('framework')]
 class SetNullOnDelete extends Flag
 {
     /**

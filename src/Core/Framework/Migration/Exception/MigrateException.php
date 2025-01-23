@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Migration\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('core')]
+#[Package('framework')]
 class MigrateException extends ShopwareHttpException
 {
     public function __construct(

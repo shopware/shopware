@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initializeRouter from 'src/app/init/router.init';
 

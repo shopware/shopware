@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1612980753AddLinkSettingsToCategory extends MigrationStep
 {
     public function getCreationTimestamp(): int

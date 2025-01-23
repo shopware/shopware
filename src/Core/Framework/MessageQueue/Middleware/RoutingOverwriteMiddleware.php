@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RoutingOverwriteMiddleware implements MiddlewareInterface
 {
     /**

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-#[Package('core')]
+#[Package('framework')]
 class TemplateScopeDetector
 {
     public const SCOPES_ATTRIBUTE = '_templateScopes';

@@ -28,21 +28,21 @@ class Page extends Struct
     protected $footer;
 
     /**
-     * @var ShippingMethodCollection
+     * @var ShippingMethodCollection|null
      *
      * @deprecated tag:v6.7.0 - Will be removed, as it is not needed anymore
      */
     protected $salesChannelShippingMethods;
 
     /**
-     * @var PaymentMethodCollection
+     * @var PaymentMethodCollection|null
      *
      * @deprecated tag:v6.7.0 - Will be removed, as it is not needed anymore
      */
     protected $salesChannelPaymentMethods;
 
     /**
-     * @var MetaInformation
+     * @var MetaInformation|null
      *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */

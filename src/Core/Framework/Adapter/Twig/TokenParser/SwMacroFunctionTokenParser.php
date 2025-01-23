@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\MacroOverrideNode;
-use Shopware\Core\Framework\Adapter\Twig\Node\ReturnNode;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest;
 use Twig\Error\SyntaxError;
 use Twig\Node\BodyNode;
 use Twig\Node\EmptyNode;
@@ -24,8 +24,10 @@ use Twig\TokenParser\MacroTokenParser;
  *
  * @see MacroTokenParser -> basically copied, we use our own Macro node,
  * that returns the actual instance of returned value instead of the markup
+ *
+ * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
  */
-class SwFunctionTokenParser extends AbstractTokenParser
+class SwMacroFunctionTokenParser extends AbstractTokenParser
 {
     public function parse(Token $token): Node
     {
@@ -54,12 +56,12 @@ class SwFunctionTokenParser extends AbstractTokenParser
 
     public function decideBlockEnd(Token $token): bool
     {
-        return $token->test('endsw_function');
+        return $token->test('end_sw_macro_function');
     }
 
     public function getTag(): string
     {
-        return 'sw_function';
+        return 'sw_macro_function';
     }
 
     private function parseDefinition(): ArrayExpression

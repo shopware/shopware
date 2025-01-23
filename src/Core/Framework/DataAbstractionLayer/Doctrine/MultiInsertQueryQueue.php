@@ -39,24 +39,12 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @todo migrate to prepared statements or remove $types parameter
-     *
      * @param array<string, mixed> $data
      * @param array<string, ParameterType::*>|null $types
      */
     public function addInsert(string $table, array $data, ?array $types = null): void
     {
-        $columns = [];
-
         foreach ($data as $key => &$value) {
-            $columns[] = $key;
-
-            $type = ParameterType::STRING;
-
-            if ($types !== null && isset($types[$key])) {
-                $type = $types[$key];
-            }
-
             if ($value === null) {
                 $value = 'NULL';
             } else {
@@ -66,7 +54,6 @@ class MultiInsertQueryQueue
 
         $this->inserts[$table][] = [
             'data' => $data,
-            'columns' => $columns,
             'types' => $types,
         ];
     }
@@ -124,18 +111,10 @@ class MultiInsertQueryQueue
         }
 
         foreach ($this->inserts as $table => $rows) {
-            $tableTemplate = $template;
-            if ($this->updateFieldsOnDuplicateKey !== []) {
-                $values = [];
-                foreach ($this->updateFieldsOnDuplicateKey[$table] ?? [] as $field) {
-                    // see https://stackoverflow.com/a/2714653/10064036
-                    $values[] = \sprintf('%s = VALUES(%s)', EntityDefinitionQueryHelper::escape($field), EntityDefinitionQueryHelper::escape($field));
-                }
-
-                $tableTemplate .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $values);
-            }
-
-            $tableTemplate .= ';';
+            $tableTemplate =
+                $template
+                . $this->prepareOnDuplicateKeyUpdatePart($this->updateFieldsOnDuplicateKey[$table] ?? [])
+                . ';';
 
             $columns = $this->prepareColumns($rows);
             $data = $this->prepareValues($columns, $rows);
@@ -156,6 +135,19 @@ class MultiInsertQueryQueue
         return $queries;
     }
 
+    private function prepareOnDuplicateKeyUpdatePart(array $fieldsToUpdate): string {
+        if (count($fieldsToUpdate) === 0) {
+            return '';
+        }
+
+        foreach ($fieldsToUpdate as $field) {
+            // see https://stackoverflow.com/a/2714653/10064036
+            $updateParts[] = \sprintf('%s = VALUES(%s)', EntityDefinitionQueryHelper::escape($field), EntityDefinitionQueryHelper::escape($field));
+        }
+
+        return ' ON DUPLICATE KEY UPDATE ' . implode(', ', $updateParts);
+    }
+
     /**
      * @param list<array{columns: list<string>}> $rows
      *
@@ -165,7 +157,7 @@ class MultiInsertQueryQueue
     {
         $columns = [];
         foreach ($rows as $row) {
-            foreach ($row['columns'] as $column) {
+            foreach (array_keys($row['data']) as $column) {
                 $columns[$column] = 1;
             }
         }

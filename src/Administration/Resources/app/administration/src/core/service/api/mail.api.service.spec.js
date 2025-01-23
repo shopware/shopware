@@ -1,4 +1,8 @@
 /**
+ * @sw-package unknown
+ */
+
+/**
  * @package checkout
  */
 import MailApiService from 'src/core/service/api/mail.api.service';
@@ -49,7 +53,7 @@ describe('mailApiService', () => {
                 contentPlain: 'Test',
                 subject: 'Test Subject',
                 senderMail: 'sender@example.com',
-                senderName: 'Sender'
+                senderName: 'Sender',
             };
             const templateData = { test: 'data' };
             const mailTemplateMedia = { getIds: jest.fn().mockReturnValue(['media-id']) };
@@ -66,7 +70,7 @@ describe('mailApiService', () => {
                 templateData,
                 null,
                 null,
-                { languageId: 'language-id' }
+                { languageId: 'language-id' },
             );
 
             expect(clientMock.history.post[0].url).toBe(`/_action/mail-template/send`);
@@ -89,7 +93,7 @@ describe('mailApiService', () => {
                 contentPlain: 'Test',
                 subject: 'Test Subject',
                 senderMail: 'sender@example.com',
-                senderName: 'Sender'
+                senderName: 'Sender',
             };
 
             await mailApiService.buildRenderPreview('invoice', mailTemplate);

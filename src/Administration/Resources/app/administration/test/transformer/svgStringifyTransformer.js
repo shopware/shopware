@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 module.exports = {
     process(sourceText) {
         return {

@@ -176,12 +176,12 @@ export default {
             ];
 
             if (this.$route.name === 'sw.order.detail.documents') {
-                columns.splice(3, 0,   {
+                columns.splice(3, 0, {
                     property: 'fileTypes',
                     dataIndex: 'fileTypes',
                     label: 'sw-order.documentCard.labelAvailableFormats',
                     allowResize: false,
-                })
+                });
             }
 
             if (this.attachView) {

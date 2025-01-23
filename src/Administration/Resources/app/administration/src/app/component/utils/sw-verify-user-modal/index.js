@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-verify-user-modal.html.twig';
 
 const { Component, Mixin } = Shopware;

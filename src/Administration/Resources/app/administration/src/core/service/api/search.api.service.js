@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import { CanceledError } from 'axios';
 import ApiService from '../api.service';
 

@@ -1,22 +1,22 @@
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-preview-image', () => import('./preview'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-config-image', () => import('./config'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-image', () => import('./component'));
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image',
@@ -56,6 +56,10 @@ Shopware.Service('cmsService').registerCmsElement({
         horizontalAlign: {
             source: 'static',
             value: 'center',
+        },
+        isDecorative: {
+            source: 'static',
+            value: false,
         },
     },
 });

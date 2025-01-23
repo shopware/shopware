@@ -44,7 +44,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RulePayloadIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -496,7 +496,7 @@ class RulePayloadIndexerTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RulePlugin extends Plugin
 {
 }

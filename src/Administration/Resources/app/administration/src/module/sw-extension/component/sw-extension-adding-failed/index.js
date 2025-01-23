@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {

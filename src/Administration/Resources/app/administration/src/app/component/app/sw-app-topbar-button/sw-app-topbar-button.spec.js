@@ -1,5 +1,5 @@
 /**
- * @package customer-order
+ * @sw-package customer-order
  */
 
 import { mount } from '@vue/test-utils';

@@ -8,7 +8,7 @@ import './sw-datepicker.scss';
 const { Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Datepicker wrapper for date inputs. For all configuration options visit:

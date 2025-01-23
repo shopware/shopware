@@ -5,7 +5,7 @@ import template from './sw-tabs.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * Mixin which contains helpers to work with position integers.
  */

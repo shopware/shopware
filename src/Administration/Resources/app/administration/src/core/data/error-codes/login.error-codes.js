@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 const title = 'global.default.error';
 
 const codes = {

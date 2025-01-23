@@ -6,7 +6,6 @@ test('As an admin, I can create and verify customer groups in the admin.', { tag
     AdminCustomerGroupListing,
     AdminCustomerGroupDetail,
     DefaultSalesChannel,
-    InstanceMeta,
 }) => {
     const customerGroup = await TestDataService.createCustomerGroup();
 
@@ -72,12 +71,12 @@ test('As a commercial customer, I must be able to register under a customer grou
 }) => {
 
     const uuid = IdProvider.getIdPair().uuid;
-    const customer = { email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
+    const customer = { isCommercial: true, email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
     const commercialCustomerGroup = await TestDataService.createCustomerGroup({ registrationOnlyCompanyRegistration: true });
 
     await test.step('Register the commercial customer and activate it for the customer group', async () => {
         await ShopCustomer.goesTo(StorefrontCustomRegister.url(commercialCustomerGroup.name));
-        await ShopCustomer.attemptsTo(Register(customer, true));
+        await ShopCustomer.attemptsTo(Register(customer));
         await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         const customerGroupAlert = await StorefrontAccount.getCustomerGroupAlert(commercialCustomerGroup.name);
         await ShopCustomer.expects(customerGroupAlert).toContainText(commercialCustomerGroup.name);

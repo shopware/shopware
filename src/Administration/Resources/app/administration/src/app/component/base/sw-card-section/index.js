@@ -4,7 +4,7 @@ import './sw-card-section.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description A container component which separates the content of <code>sw-card</code> into multiple sections.

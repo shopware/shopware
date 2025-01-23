@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 
 import template from './sw-seo-url-template-card.html.twig';

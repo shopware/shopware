@@ -1,8 +1,9 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
+import { MtSwitch } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper() {
     return mount(
@@ -41,6 +42,7 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
                     'sw-icon': true,
+                    'mt-switch': MtSwitch,
                 },
             },
             props: {
@@ -78,6 +80,10 @@ async function createWrapper() {
                             source: 'static',
                             value: null,
                         },
+                        isDecorative: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },
@@ -110,5 +116,18 @@ describe('src/module/sw-cms/elements/image/config', () => {
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
+    });
+
+    it('should change the isDecorative value', async () => {
+        const wrapper = await createWrapper();
+        const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image__is-decorative input');
+
+        await isDecorativeSwitch.setValue(true);
+
+        expect(wrapper.vm.element.config.isDecorative.value).toBe(true);
+
+        await isDecorativeSwitch.setValue(false);
+
+        expect(wrapper.vm.element.config.isDecorative.value).toBe(false);
     });
 });

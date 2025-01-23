@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package content
  */
 import { mount } from '@vue/test-utils';
 import FileValidationService from 'src/app/service/file-validation.service';

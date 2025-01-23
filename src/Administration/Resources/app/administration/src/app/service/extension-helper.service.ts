@@ -6,7 +6,7 @@ import type {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package framework
  */
 export default class ExtensionHelperService {
     private readonly extensionStoreActionService: ExtensionStoreActionService;

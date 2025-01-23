@@ -349,6 +349,7 @@
       "labelMarkAsSent": "Als gesendet markieren",
       "labelMarkAsUnsent": "Als ungesendet markieren",
       "labelCreateNew": "Neues Dokument erstellen",
+      "labelAvailableFormats": "Verfügbare Formate",
       "messageEmptyTitle": "Noch keine Dokumente",
       "messageNoDocumentFound": "Keine Dokumente vorhanden",
       "messageEmptySubline": "Verwaltung von Dokumenten.",
@@ -405,7 +406,8 @@
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Gesamt",
       "labelNoItems": "Keine Gutschriften hinzugefügt",
-      "fileInputLabel": "Eigenes Dokument hochladen"
+      "fileInputLabel": "Eigenes Dokument hochladen",
+      "labelPreviewOnlyHtml": "HTML Vorschau"
     },
     "documentSendModal": {
       "labelNumber": "Nummer",

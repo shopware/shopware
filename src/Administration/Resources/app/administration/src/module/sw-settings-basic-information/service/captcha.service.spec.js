@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import CaptchaService from 'src/module/sw-settings-basic-information/service/captcha.service';
 

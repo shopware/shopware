@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-step-item.html.twig';
 import './sw-step-item.scss';
 

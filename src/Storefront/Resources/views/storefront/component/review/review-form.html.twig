@@ -12,7 +12,9 @@
         <form class="review-form"
               action="{{ path('frontend.detail.review.save', { productId: reviews.productId }) }}"
               method="post"
-              data-form-validation="true"
+              {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced with form handler plugin. #}
+              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+              {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}
               data-form-ajax-submit="true"
               data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
             {% block component_review_form_forward %}
@@ -77,13 +79,30 @@
                     {% endblock %}
 
                     {% block component_review_form_title %}
+                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'detail.reviewFormTitleLabel'|trans|sw_sanitize,
+                                id: 'reviewTitle',
+                                name: 'title',
+                                value: data.get('title'),
+                                violationPath: '/title',
+                                validationRules: 'required',
+                                minlength: '5',
+                                maxlength: '255',
+                                additionalClass: 'col-12 product-detail-review-form-title',
+                            } %}
+
+                        {% else %}
                         <div class="form-group col-12 product-detail-review-form-title">
+
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_review_form_title_label %}
                                 <label class="form-label" for="reviewTitle">
                                     {{ 'detail.reviewFormTitleLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                 </label>
                             {% endblock %}
 
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_review_form_title_input %}
                                 <input type="text"
                                        class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
@@ -96,6 +115,7 @@
                                        maxlength="255">
                             {% endblock %}
 
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_review_form_title_violation %}
                                 {% if formViolations.getViolations('/title') is not empty %}
                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -104,18 +124,35 @@
                                 {% endif %}
                             {% endblock %}
                         </div>
+                        {% endif %}
                     {% endblock %}
                 </div>
             {% endblock %}
 
             {% block component_review_form_content %}
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                    {% sw_include '@Storefront/storefront/component/form/form-textarea.html.twig' with {
+                        label: 'detail.reviewFormContentLabel'|trans|sw_sanitize,
+                        id: 'reviewContent',
+                        name: 'content',
+                        value: data.get('content'),
+                        violationPath: '/content',
+                        validationRules: 'required',
+                        minlength: '40',
+                        additionalClass: 'col-12 product-detail-review-form-content',
+                    } %}
+
+                {% else %}
                 <div class="form-group product-detail-review-form-content">
+
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_review_form_content_label %}
                         <label for="reviewContent">
                             {{ 'detail.reviewFormContentLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_review_form_content_textarea %}
                         <textarea class="form-control{% if formViolations.getViolations('/content') %} is-invalid{% endif %}"
                                   id="reviewContent"
@@ -125,6 +162,7 @@
                                   rows="8">{% if data.get('content') is not empty %}{{ data.get('content') }}{% endif %}</textarea>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_review_form_content_violation %}
                         {% if formViolations.getViolations('/content') is not empty %}
                             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -133,6 +171,7 @@
                         {% endif %}
                     {% endblock %}
                 </div>
+                {% endif %}
             {% endblock %}
 
             {% block component_review_form_footer %}

@@ -3,7 +3,7 @@ const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @module app/service/custom-field

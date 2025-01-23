@@ -67,7 +67,7 @@ async function createWrapper(privileges = [], repository = {}) {
 }
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     let wrapper;

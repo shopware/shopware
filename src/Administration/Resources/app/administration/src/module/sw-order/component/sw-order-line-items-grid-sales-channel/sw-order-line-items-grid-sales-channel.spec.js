@@ -4,7 +4,7 @@ import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const mockItems = [

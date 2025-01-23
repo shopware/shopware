@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class IntegrationControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

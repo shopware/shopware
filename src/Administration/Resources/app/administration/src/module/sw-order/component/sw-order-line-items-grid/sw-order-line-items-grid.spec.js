@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 const mockItems = [
     {
@@ -168,15 +168,17 @@ const mockNestedItem = {
             id: '7',
             label: 'Nested in level 1 (2)',
             quantity: 1,
-            children: [{
-                ...mockItems[0],
-                id: '8',
-                label: 'Nested in level 2',
-                quantity: 2,
-            }],
+            children: [
+                {
+                    ...mockItems[0],
+                    id: '8',
+                    label: 'Nested in level 2',
+                    quantity: 2,
+                },
+            ],
         },
-    ]
-}
+    ],
+};
 
 const deleteEndpoint = jest.fn(() => Promise.resolve());
 

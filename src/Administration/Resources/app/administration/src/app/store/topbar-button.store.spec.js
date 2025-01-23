@@ -1,5 +1,5 @@
 /**
- * @package customer-order
+ * @sw-package customer-order
  */
 
 describe('topbar-button.store', () => {

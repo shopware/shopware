@@ -247,5 +247,11 @@ export default {
         emitUpdateEl() {
             this.$emit('element-update', this.element);
         },
+
+        onChangeIsDecorative(value) {
+            this.element.config.isDecorative.value = value;
+
+            this.$emit('element-update', this.element);
+        },
     },
 };

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 final class AdminSearchIndexingMessage implements AsyncMessageInterface
 {
     /**

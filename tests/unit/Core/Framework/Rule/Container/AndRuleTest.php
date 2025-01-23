@@ -17,7 +17,7 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(AndRule::class)]
 #[CoversClass(Container::class)]
 class AndRuleTest extends TestCase

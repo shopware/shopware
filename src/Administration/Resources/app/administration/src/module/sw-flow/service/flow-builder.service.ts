@@ -91,7 +91,7 @@ type ActionSequence = Entity<'flow_sequence'> & {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export type ActionContext = {
     data: ActionData;
@@ -101,7 +101,7 @@ export type ActionContext = {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default class FlowBuilderService {
     private $actionNames = { ...ACTION };

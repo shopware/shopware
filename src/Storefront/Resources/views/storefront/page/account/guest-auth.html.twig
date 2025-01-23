@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
 
 {% block base_content %}
-    {% set actionUrl = path(redirectTo, { deepLinkCode: redirectParameters.deepLinkCode}) %}
+    {% set actionUrl = path(redirectTo, redirectParameters) %}
 
     {% block page_account_guest_auth %}
         <div class="account-guest-auth row justify-content-md-center">

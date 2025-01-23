@@ -4,6 +4,10 @@ issue: NEXT-31674
 author: Michael Telgmann
 author_github: @mitelg
 ---
+# Core
+* Added new resolver `\Shopware\Core\Content\Category\Cms\CategoryNavigationCmsElementResolver` to enrich the `category-navigation` CMS element with navigation data.
+
+___
 # Storefront
 * Added new route `\header` which returns the rendered header for ESI.
 * Added new route `\footer` which returns the rendered footer for ESI.
@@ -35,6 +39,7 @@ author_github: @mitelg
   * `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig`
 * Deprecated the template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig`.
 * Deprecated the template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig`.
+* Deprecated parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` as it is not needed anymore.
 
 ___
 # Upgrade Information
@@ -68,6 +73,7 @@ Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
   * `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig`
 * The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` are deprecated and will be removed in the next major version.
 * The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` is deprecated and will be removed in the next major version.
+* The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` is deprecated and will be removed in the next major version as it is not needed anymore.
 
 ___
 # Next Major Version Changes
@@ -97,3 +103,4 @@ ___
   * `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig`
 * Removed the template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig`.
 * Removed the template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig`.
+* Removed the parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig`.

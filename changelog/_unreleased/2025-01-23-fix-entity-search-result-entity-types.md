@@ -5,4 +5,5 @@ author_email: benjamin.wittwer@a-k-f.de
 author_github: akf-bw
 ---
 # Core
-* Changed `@extends EntityCollection` in `Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult` to use the correct template generic type & removed duplicate methods from EntityCollection
+* Changed the `extends` annotation in `Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult` so it uses the correct template generic type from the parent class
+* Removed duplicate methods `add`, `clear` & `getAt` in `\Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult`

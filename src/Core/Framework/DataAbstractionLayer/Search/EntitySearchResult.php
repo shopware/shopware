@@ -13,7 +13,9 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  *
  * @template TEntityCollection of EntityCollection
  *
- * @extends EntityCollection<template-type<TEntityCollection, EntityCollection, 'TElement'>>
+ * @phpstan-type TElement template-type<TEntityCollection, EntityCollection, 'TElement'>
+ *
+ * @extends EntityCollection<TElement>
  */
 #[Package('framework')]
 class EntitySearchResult extends EntityCollection
@@ -68,16 +70,6 @@ class EntitySearchResult extends EntityCollection
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
 
         parent::__construct($entities);
-    }
-
-    public function filter(\Closure $closure): static
-    {
-        return $this->createNew($this->entities->filter($closure));
-    }
-
-    public function slice(int $offset, ?int $length = null): static
-    {
-        return $this->createNew($this->entities->slice($offset, $length));
     }
 
     public function getTotal(): int
@@ -156,6 +148,9 @@ class EntitySearchResult extends EntityCollection
         $this->entity = $entity;
     }
 
+    /**
+     * @param iterable<TElement> $elements
+     */
     protected function createNew(iterable $elements = []): static
     {
         if (!($elements instanceof EntityCollection)) {

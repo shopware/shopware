@@ -63,7 +63,6 @@ class CmsController extends StorefrontController
         $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
 
         $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
-
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;

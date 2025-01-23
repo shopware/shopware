@@ -44,14 +44,6 @@ class MultiInsertQueryQueue
      */
     public function addInsert(string $table, array $data, ?array $types = null): void
     {
-        foreach ($data as $key => &$value) {
-            if ($value === null) {
-                $value = 'NULL';
-            } else {
-                $value = $this->connection->quote((string) $value);
-            }
-        }
-
         $this->inserts[$table][] = [
             'data' => $data,
             'types' => $types,
@@ -78,7 +70,7 @@ class MultiInsertQueryQueue
         $grouped = $this->prepare();
         RetryableTransaction::retryable($this->connection, function () use ($grouped): void {
             foreach ($grouped as $query) {
-                $this->connection->executeStatement($query);
+                $this->connection->executeStatement($query['query'], $query['values'], $query['types']);
             }
         });
         unset($grouped);
@@ -95,7 +87,7 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @return list<string>
+     * @return array<array{query: string, values: list<string>, types: array<string, ParameterType::*>}>
      */
     private function prepare(): array
     {
@@ -117,17 +109,20 @@ class MultiInsertQueryQueue
                 . ';';
 
             $columns = $this->prepareColumns($rows);
-            $escapedColumns = array_map(EntityDefinitionQueryHelper::escape(...), $columns);
 
             $rowsChunks = array_chunk($rows, $this->chunkSize);
             foreach ($rowsChunks as $rowsChunk) {
                 $data = $this->prepareValues($columns, $rowsChunk);
-                $queries[] = \sprintf(
-                    $tableTemplate,
-                    EntityDefinitionQueryHelper::escape($table),
-                    implode(', ', $escapedColumns),
-                    implode(', ', $data)
-                );
+                $queries[] = [
+                    'query' => \sprintf(
+                        $tableTemplate,
+                        EntityDefinitionQueryHelper::escape($table),
+                        implode(', ', array_map(EntityDefinitionQueryHelper::escape(...), $columns)),
+                        implode(', ', $data['placeholders']),
+                    ),
+                    'values' => $data['values'],
+                    'types' => $data['types'],
+                ];
             }
         }
 
@@ -168,33 +163,37 @@ class MultiInsertQueryQueue
      * @param list<string> $columns
      * @param list<array{data: array<string, mixed>, columns: list<string>}> $rows
      *
-     * @return list<string>
+     * @return array{placeholders: list<string>, values: list<mixed>, types: array<string, ParameterType::*>}
      */
     private function prepareValues(array $columns, array $rows): array
     {
-        $stackedValues = [];
-        /** @var array<string, mixed> $defaults */
-        $defaults = array_combine(
-            $columns,
-            array_fill(0, \count($columns), 'DEFAULT')
-        );
-        foreach ($rows as $row) {
-            $data = $row['data'];
-            $values = $defaults;
-            if (!\is_array($values)) {
-                continue;
-            }
+        $placeholders = [];
+        $values = [];
+        $types = [];
 
-            /**
-             * @var string $key
-             * @var mixed $value
-             */
-            foreach ($data as $key => $value) {
-                $values[$key] = $value;
+        foreach ($rows as $row) {
+            $rowPlaceholders = [];
+            foreach ($columns as $column) {
+                if (!\array_key_exists($column, $row['data'])) { // to use default values if the column is not set
+                    $rowPlaceholders[] = 'DEFAULT';
+                    continue;
+                }
+                if ($row['data'][$column] === null) { // to insert nulls if the value is null
+                    $rowPlaceholders[] = 'NULL';
+                    continue;
+                }
+
+                $rowPlaceholders[] = '?';
+                $values[] = $row['data'][$column];
+                $types[] = $row['types'][$column] ?? ParameterType::STRING;
             }
-            $stackedValues[] = '(' . implode(',', $values) . ')';
+            $placeholders[] = '(' . implode(',', $rowPlaceholders) . ')';
         }
 
-        return $stackedValues;
+        return [
+            'placeholders' => $placeholders,
+            'values' => $values,
+            'types' => $types,
+        ];
     }
 }

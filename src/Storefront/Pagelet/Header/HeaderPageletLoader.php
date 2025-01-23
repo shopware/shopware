@@ -55,10 +55,6 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
                     'The parameter "navigationId" is deprecated and will not be considered anymore with the next major release.'
                 );
             }
-            $navigationId = (string) $navigationId;
-            if ($navigationId === '') {
-                throw RoutingException::missingRequestParameter('navigationId');
-            }
         }
 
         $navigationId ??= $salesChannel->getNavigationCategoryId();

@@ -68,7 +68,6 @@ class CmsController extends StorefrontController
         return $response;
     }
 
-
     /**
      * Rendering a CMS layout as a full page, example including stylesheets, scripts, header, footer, etc.
      * Use this for internal page links pointing to a layout.

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Twig\Loader\ArrayLoader;
 use Twig\Source;

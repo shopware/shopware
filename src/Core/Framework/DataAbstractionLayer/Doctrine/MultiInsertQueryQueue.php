@@ -117,17 +117,16 @@ class MultiInsertQueryQueue
                 . ';';
 
             $columns = $this->prepareColumns($rows);
-            $data = $this->prepareValues($columns, $rows);
+            $escapedColumns = array_map(EntityDefinitionQueryHelper::escape(...), $columns);
 
-            $columns = array_map(EntityDefinitionQueryHelper::escape(...), $columns);
-
-            $chunks = array_chunk($data, $this->chunkSize);
-            foreach ($chunks as $chunk) {
+            $rowsChunks = array_chunk($rows, $this->chunkSize);
+            foreach ($rowsChunks as $rowsChunk) {
+                $data = $this->prepareValues($columns, $rowsChunk);
                 $queries[] = \sprintf(
                     $tableTemplate,
                     EntityDefinitionQueryHelper::escape($table),
-                    implode(', ', $columns),
-                    implode(', ', $chunk)
+                    implode(', ', $escapedColumns),
+                    implode(', ', $data)
                 );
             }
         }

@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-type OpenApiSpec  array{paths: array<string,array<mixed>>, components: array<mixed>}
  * @phpstan-type ApiSchema array<string, array{name: string, translatable: list<string>, properties: array<string, mixed>}|array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}>
  */
-#[Package('core')]
+#[Package('framework')]
 class DefinitionService
 {
     final public const API = 'api';

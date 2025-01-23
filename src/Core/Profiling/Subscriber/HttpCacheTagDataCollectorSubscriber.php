@@ -17,7 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, LateDataCollectorInterface
 {
     /**

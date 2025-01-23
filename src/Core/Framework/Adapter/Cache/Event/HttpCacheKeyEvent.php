@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('core')]
+#[Package('framework')]
 class HttpCacheKeyEvent
 {
     /**

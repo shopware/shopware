@@ -15,7 +15,7 @@ use Shopware\Core\System\User\UserDefinition;
  *
  * @codeCoverageIgnore
  */
-#[Package('administration')]
+#[Package('framework')]
 class UserExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

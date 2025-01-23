@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class InvalidAggregationQueryException extends DataAbstractionLayerException
 {
     public function __construct(string $message)

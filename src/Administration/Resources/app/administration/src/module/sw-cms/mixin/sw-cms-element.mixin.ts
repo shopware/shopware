@@ -14,7 +14,7 @@ interface Entity {
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default Mixin.register(
     'cms-element',

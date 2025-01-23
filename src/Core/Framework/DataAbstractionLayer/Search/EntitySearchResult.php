@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  *
  * @extends EntityCollection<Entity>
  */
-#[Package('core')]
+#[Package('framework')]
 class EntitySearchResult extends EntityCollection
 {
     use StateAwareTrait;

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements \IteratorAggregate<array-key, TElement>
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**

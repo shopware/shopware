@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -15,6 +16,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -38,7 +40,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly string $rootDir,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly DocumentFileRendererRegistry $fileRendererRegistry,
     ) {
     }
 
@@ -148,19 +151,22 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 /** @var LocaleEntity $locale */
                 $locale = $language->getLocale();
 
-                $html = $this->documentTemplateRenderer->render(
-                    $template,
-                    [
-                        'order' => $order,
-                        'config' => $config,
-                        'rootDir' => $this->rootDir,
-                        'context' => $context,
-                    ],
-                    $context,
-                    $order->getSalesChannelId(),
-                    $order->getLanguageId(),
-                    $locale->getCode()
-                );
+                $html = '';
+                if (!Feature::isActive('v6.7.0.0')) {
+                    $html = $this->documentTemplateRenderer->render(
+                        $template,
+                        [
+                            'order' => $order,
+                            'config' => $config,
+                            'rootDir' => $this->rootDir,
+                            'context' => $context,
+                        ],
+                        $context,
+                        $order->getSalesChannelId(),
+                        $order->getLanguageId(),
+                        $locale->getCode(),
+                    );
+                }
 
                 $doc = new RenderedDocument(
                     $html,
@@ -169,6 +175,14 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     $operation->getFileType(),
                     $config->jsonSerialize(),
                 );
+
+                $doc->setTemplate($template);
+                $doc->setOrder($order);
+                $doc->setContext($context);
+
+                if (Feature::isActive('v6.7.0.0')) {
+                    $doc->setContent($this->fileRendererRegistry->render($doc));
+                }
 
                 $result->addSuccess($orderId, $doc);
             } catch (\Throwable $exception) {

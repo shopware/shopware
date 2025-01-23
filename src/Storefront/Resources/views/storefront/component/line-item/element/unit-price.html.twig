@@ -8,9 +8,11 @@
     {% block component_line_item_unit_price_inner %}
         <div class="line-item-unit-price-value">
             {% if displayMode === 'order' %}
-                {{ lineItem.price.unitPrice|currency(order.currency.isoCode) }}{{ 'general.star'|trans|sw_sanitize }}
+                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+                {{ lineItem.price.unitPrice|currency(order.currency.isoCode) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
             {% else %}
-                {{ lineItem.price.unitPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
+                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+                {{ lineItem.price.unitPrice|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
             {% endif %}
             <span class="line-item-unit-price-value-descriptor"> / {{ 'checkout.lineItemUnitPriceDescriptor'|trans|sw_sanitize }}</span>
         </div>

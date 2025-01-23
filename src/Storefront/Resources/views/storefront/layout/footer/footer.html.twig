@@ -213,19 +213,21 @@
             {% block layout_footer_vat %}
                 {% if showVatNotice or showVatNotice is not defined %}
                     <div class="footer-vat">
-                        {% if context.taxState == 'gross' %}
-                            <p>
+                        <p>
+                            {% if context.taxState == 'gross' %}
+                                {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
                                 {{ 'footer.includeVatText'|trans({
-                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                    '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
                                 })|raw }}
-                            </p>
-                        {% else %}
-                            <p>
+                            {% else %}
+                                {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
                                 {{ 'footer.excludeVatText'|trans({
-                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                    '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
                                 })|raw }}
-                            </p>
-                        {% endif %}
+                            {% endif %}
+                        </p>
                     </div>
                 {% endif %}
             {% endblock %}

@@ -5,7 +5,7 @@ const { Component } = Shopware;
 
 /**
  * @private
- * @package checkout
+ * @sw-package checkout
  * @description Render datetimes with relative values like "13 minutes ago" - works with dates in the past and future
  * @status ready
  * @example-type dynamic

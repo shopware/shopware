@@ -44,7 +44,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityWriteGateway implements EntityWriteGatewayInterface
 {
     private ?PrimaryKeyBag $primaryKeyBag = null;

@@ -5,7 +5,7 @@ import template from './sw-modals-renderer.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

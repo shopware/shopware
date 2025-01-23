@@ -11,7 +11,7 @@ All blocks of this template are available in the template which renders this tem
 
 {% block letter_header %}
     <div class="letter-header">
-        <div class="recipient-address-container">
+        <div class="recipient-address-container" tabindex="0">
             {% block document_recipient %}
                 {% if config.displayCompanyAddress and config.companyAddress is not empty %}
                     {{ config.companyName }} {{ config.companyAddress }}<br><br>
@@ -28,7 +28,7 @@ All blocks of this template are available in the template which renders this tem
             {% endblock %}
         </div>
 
-        <div class="sender-address-container">
+        <div class="sender-address-container" tabindex="0">
             {% block document_sender_address %}
                 <table>
                     {% if config.companyName %}
@@ -38,6 +38,7 @@ All blocks of this template are available in the template which renders this tem
                             </tr>
                         {% endblock %}
                     {% endif %}
+
                     <tr>
                         <td>
                             {% if config.displayCompanyAddress and config.companyAddress is not empty %}
@@ -45,6 +46,7 @@ All blocks of this template are available in the template which renders this tem
                             {% endif %}
                         </td>
                     </tr>
+
                     {% if config.companyPhone %}
                         {% block document_side_info_phone_number %}
                             <tr>
@@ -54,6 +56,7 @@ All blocks of this template are available in the template which renders this tem
                             </tr>
                         {% endblock %}
                     {% endif %}
+
                     {% if config.companyEmail %}
                         {% block document_side_info_email %}
                             <tr>
@@ -61,6 +64,7 @@ All blocks of this template are available in the template which renders this tem
                             </tr>
                         {% endblock %}
                     {% endif %}
+
                     {% if config.companyUrl %}
                         {% block document_side_company_url %}
                             <tr>
@@ -70,6 +74,7 @@ All blocks of this template are available in the template which renders this tem
                     {% endif %}
                 </table><br>
             {% endblock %}
+
             {% block document_side_info %}
                 <table>
                     {% block document_side_info_contents %}
@@ -80,6 +85,7 @@ All blocks of this template are available in the template which renders this tem
                                 </td>
                             </tr>
                         {% endblock %}
+
                         {% block document_side_info_order_number %}
                             <tr>
                                 <td>
@@ -87,6 +93,7 @@ All blocks of this template are available in the template which renders this tem
                                 </td>
                             </tr>
                         {% endblock %}
+
                         {% block document_side_info_order_date %}
                             <tr>
                                 <td>
@@ -94,6 +101,7 @@ All blocks of this template are available in the template which renders this tem
                                 </td>
                             </tr>
                         {% endblock %}
+
                         {% block document_side_info_date %}
                             <tr>
                                 <td>

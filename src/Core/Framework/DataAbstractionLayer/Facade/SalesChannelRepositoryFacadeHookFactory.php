@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelRepositoryFacadeHookFactory extends HookServiceFactory
 {
     /**

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(MetricNotSupportedException::class)]
 class MetricNotSupportedExceptionTest extends TestCase
 {

@@ -15,6 +15,7 @@ parameters:
             - Shopware\Core\Framework\Plugin\Exception\DecorationPatternException
             - Shopware\Core\Framework\Validation\Exception\ConstraintViolationException
             - Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException
+            - Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException
             - Twig\Error\LoaderError
             - Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
             - Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException

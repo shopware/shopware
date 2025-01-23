@@ -5,7 +5,7 @@ import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 interface PaymentMethodCard {

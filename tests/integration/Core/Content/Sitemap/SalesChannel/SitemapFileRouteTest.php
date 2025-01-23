@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 #[Group('store-api')]
 class SitemapFileRouteTest extends TestCase
 {

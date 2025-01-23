@@ -25,7 +25,7 @@ use Symfony\Component\Finder\Finder;
     name: 'app:validate',
     description: 'Validates an app',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ValidateAppCommand extends Command
 {
     public function __construct(

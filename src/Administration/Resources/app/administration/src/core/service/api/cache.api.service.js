@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 class CacheApiService {
     constructor(httpClient, loginService) {

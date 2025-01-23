@@ -4,7 +4,7 @@ import './sw-cms-mapping-field.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

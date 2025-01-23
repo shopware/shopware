@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 const connections = {

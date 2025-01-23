@@ -4,7 +4,7 @@ import template from './sw-loader.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Renders a loading indicator for panels, input fields, buttons, etc.

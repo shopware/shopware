@@ -246,6 +246,7 @@
           "label": {
             "minHeight": "Minimale Höhe",
             "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "isDecorative": "Bild als ausschließlich dekorativ kennzeichen",
             "linkNewTab": "Link in neuem Tab öffnen",
             "linkTo": "Linkziel"
           },

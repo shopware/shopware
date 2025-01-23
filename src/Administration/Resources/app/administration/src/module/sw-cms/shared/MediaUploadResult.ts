@@ -7,6 +7,6 @@ type MediaUploadResult = {
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default MediaUploadResult;

@@ -14,7 +14,7 @@ interface CmsSlotOverrides {
 
 /**
  * @private
- * @package content
+ * @sw-package content
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';

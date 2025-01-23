@@ -16,7 +16,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class RemoteZip implements Source
 {
     public function __construct(

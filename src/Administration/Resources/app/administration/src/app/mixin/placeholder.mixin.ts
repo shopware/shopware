@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */

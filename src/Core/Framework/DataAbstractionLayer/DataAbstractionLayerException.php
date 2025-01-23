@@ -33,7 +33,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('core')]
+#[Package('framework')]
 class DataAbstractionLayerException extends HttpException
 {
     public const INVALID_FIELD_SERIALIZER_CODE = 'FRAMEWORK__INVALID_FIELD_SERIALIZER';

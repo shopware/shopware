@@ -10,7 +10,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 trait AddScaffoldConfigDefaultBehaviour
 {
     protected bool $shouldAskCliQuestion = true;

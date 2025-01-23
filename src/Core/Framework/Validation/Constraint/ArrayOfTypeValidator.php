@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-#[Package('core')]
+#[Package('framework')]
 class ArrayOfTypeValidator extends ConstraintValidator
 {
     public function validate(mixed $value, Constraint $constraint): void

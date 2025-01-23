@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Twig\Cache\FilesystemCache;
 
-#[Package('core')]
+#[Package('framework')]
 class ConfigurableFilesystemCache extends FilesystemCache
 {
     /**

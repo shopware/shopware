@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'dal:create:schema',
     description: 'Creates the database schema',
 )]
-#[Package('core')]
+#[Package('framework')]
 class CreateSchemaCommand extends Command
 {
     private readonly string $dir;

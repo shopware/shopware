@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Plugin;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -55,6 +57,17 @@ class CopyBatchTest extends TestCase
         unlink($tmpFile);
     }
 
+    public function testConstructorThrowsAnExceptionWithNoResource(): void
+    {
+        static::expectException(AdapterException::class);
+        // @phpstan-ignore-next-line - sourceFile is supposed to be a resource or a string only from doctag param
+        new CopyBatchInput(null, []);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason: see AdapterException::invalidArgument - to be removed
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testConstructor(): void
     {
         static::expectException(\InvalidArgumentException::class);

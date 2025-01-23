@@ -44,7 +44,7 @@ const defaultScrollOnDragConf = {
 } as ScrollOnDragConf;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

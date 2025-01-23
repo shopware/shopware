@@ -14,7 +14,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
 {% endblock %}
 
 {% block document_headline %}
-    <h1 class="headline">
+    <h1 class="headline" tabindex="0">
         {% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}
     </h1>
 {% endblock %}

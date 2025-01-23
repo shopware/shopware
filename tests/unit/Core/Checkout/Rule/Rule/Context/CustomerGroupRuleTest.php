@@ -14,7 +14,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerGroupRule::class)]
 class CustomerGroupRuleTest extends TestCase
 {

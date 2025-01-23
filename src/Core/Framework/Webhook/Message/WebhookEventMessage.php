@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookEventMessage implements AsyncMessageInterface
 {
     /**

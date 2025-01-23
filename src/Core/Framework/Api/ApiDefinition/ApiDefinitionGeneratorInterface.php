@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-import-type OpenApiSpec from DefinitionService
  * @phpstan-import-type ApiSchema from DefinitionService
  */
-#[Package('core')]
+#[Package('framework')]
 interface ApiDefinitionGeneratorInterface
 {
     public function supports(string $format, string $api): bool;

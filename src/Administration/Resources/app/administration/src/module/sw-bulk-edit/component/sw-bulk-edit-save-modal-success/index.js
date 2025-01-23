@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';

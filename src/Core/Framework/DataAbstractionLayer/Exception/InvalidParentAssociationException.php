@@ -12,7 +12,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @deprecated tag:v6.7.0 - Will be removed. Use DataAbstractionLayerException::invalidParentAssociation instead
  */
-#[Package('core')]
+#[Package('framework')]
 class InvalidParentAssociationException extends ShopwareHttpException
 {
     public function __construct(

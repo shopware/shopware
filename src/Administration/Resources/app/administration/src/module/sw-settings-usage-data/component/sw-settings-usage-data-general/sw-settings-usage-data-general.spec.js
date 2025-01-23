@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package data-services
+ * @sw-package data-services
  */
 
 const usageDataService = {

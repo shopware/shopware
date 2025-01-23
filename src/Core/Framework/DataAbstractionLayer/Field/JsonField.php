@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonF
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class JsonField extends Field implements StorageAware
 {
     /**

@@ -7,7 +7,7 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\LogRecord;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class ExcludeFlowEventHandler extends AbstractHandler
 {
     /**

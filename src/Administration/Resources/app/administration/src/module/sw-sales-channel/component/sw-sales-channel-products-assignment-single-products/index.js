@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-products-assignment-single-products.html.twig';

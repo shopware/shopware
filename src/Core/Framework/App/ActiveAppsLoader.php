@@ -15,7 +15,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @phpstan-type App array{name: string, path: string, author: string|null, selfManaged: bool}
  */
-#[Package('core')]
+#[Package('framework')]
 class ActiveAppsLoader implements ResetInterface
 {
     /**

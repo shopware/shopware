@@ -10,7 +10,7 @@ const defaultRanges = [
 ];
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description

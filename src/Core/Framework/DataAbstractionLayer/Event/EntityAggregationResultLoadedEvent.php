@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class EntityAggregationResultLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**

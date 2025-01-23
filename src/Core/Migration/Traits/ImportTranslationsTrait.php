@@ -7,7 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('framework')]
 trait ImportTranslationsTrait
 {
     protected function importTranslation(string $table, Translations $translations, Connection $connection): TranslationWriteResult

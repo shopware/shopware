@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('core')]
+#[Package('framework')]
 #[AsCommand(name: 'cache:watch:delayed', description: 'Watches the delayed cache keys/tags')]
 class CacheWatchDelayedCommand extends Command
 {

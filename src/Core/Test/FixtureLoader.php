@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FixtureLoader
 {
     private readonly Connection $connection;

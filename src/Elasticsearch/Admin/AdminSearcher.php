@@ -18,7 +18,7 @@ use Shopware\Elasticsearch\ElasticsearchException;
  *
  * @final
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 class AdminSearcher
 {
     public function __construct(

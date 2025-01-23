@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
     name: 'system:update:prepare',
     description: 'Prepares the update process',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemUpdatePrepareCommand extends Command
 {
     public function __construct(private readonly ContainerInterface $container, private readonly string $shopwareVersion)

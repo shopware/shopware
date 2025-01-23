@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
+#[Package('framework')]
 class AppFlowActionEvent extends Event implements Hookable
 {
     /**

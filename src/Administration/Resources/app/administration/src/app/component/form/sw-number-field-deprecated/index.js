@@ -6,7 +6,7 @@ const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Number field component which supports Int and Float with optional min, max and step.

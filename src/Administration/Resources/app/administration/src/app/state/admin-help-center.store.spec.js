@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import Vuex from 'vuex';
 import adminHelpCenterStore from './admin-help-center.store';

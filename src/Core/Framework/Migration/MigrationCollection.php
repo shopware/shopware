@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
-#[Package('core')]
+#[Package('framework')]
 class MigrationCollection
 {
     /**

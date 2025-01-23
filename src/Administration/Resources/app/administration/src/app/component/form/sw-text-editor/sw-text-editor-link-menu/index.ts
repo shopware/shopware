@@ -22,7 +22,7 @@ interface TextEditorLinkMenuConfig {
 }
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

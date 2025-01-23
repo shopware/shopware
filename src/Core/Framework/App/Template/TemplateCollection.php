@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends EntityCollection<TemplateEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class TemplateCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

@@ -271,6 +271,13 @@
                         </div>
                     </div>
                     {% endblock %}
+
+                    <mt-switch
+                        class="sw-cms-el-config-image-slider__is-decorative"
+                        :checked="element.config.isDecorative.value"
+                        :label="$tc('sw-cms.elements.image.config.label.isDecorative')"
+                        @change="onChangeIsDecorative"
+                    />
                 </div>
             </sw-container>
             {% endblock %}

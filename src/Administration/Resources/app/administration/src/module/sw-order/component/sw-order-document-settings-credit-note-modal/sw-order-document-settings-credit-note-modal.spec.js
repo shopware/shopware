@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 import { mount } from '@vue/test-utils';
@@ -397,7 +397,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         const createButton = wrapper.findComponent('.sw-order-document-settings-modal__create');
         expect(createButton.attributes('disabled')).toBeDefined();
 
-        const createContextMenu = wrapper.findComponent('.sw-context-button');
+        const createContextMenu = wrapper.findAllComponents('.sw-context-button').at(1);
         expect(createContextMenu.attributes('disabled')).toBe('true');
     });
 

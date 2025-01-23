@@ -355,10 +355,13 @@ class AddressController extends StorefrontController
         }
 
         try {
+            // if there is no data in the dataBag, the create form will be rendered
             if ($dataBag->count() !== 0) {
                 $dataBag->set('id', $addressId);
                 $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
                 $this->addFlash(self::SUCCESS, $this->trans('account.addressSaved'));
+
+                return new NoContentResponse();
             }
         } catch (ConstraintViolationException $formViolations) {
             $params['formViolations'] = $formViolations;
@@ -369,10 +372,6 @@ class AddressController extends StorefrontController
                 'type' => self::DANGER,
                 'text' => $this->trans('error.message-default'),
             ]);
-        }
-
-        if (empty($params['formViolations']) && $dataBag->count() !== 0) {
-            return new NoContentResponse();
         }
 
         $page = $this->addressListingPageLoader->load($request, $context, $customer);

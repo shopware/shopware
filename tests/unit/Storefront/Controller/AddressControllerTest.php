@@ -5,12 +5,17 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractUpsertAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -26,6 +31,7 @@ use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
 use Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -185,10 +191,54 @@ class AddressControllerTest extends TestCase
         static::assertArrayNotHasKey('postedData', $renderParams);
     }
 
+    public function testAccountAddressOverview(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $response = $this->controller
+            ->accountAddressOverview(new Request(), Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame(
+            '@Storefront/storefront/page/account/addressbook/index.html.twig',
+            $this->controller->renderStorefrontView
+        );
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testAccountCreateAddress(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $dataBag = new RequestDataBag();
+        $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
+
+        $this->controller
+            ->accountCreateAddress(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer);
+
+        $renderParams = $this->controller->renderStorefrontParameters;
+
+        static::assertArrayHasKey('page', $renderParams);
+        static::assertArrayHasKey('data', $renderParams);
+    }
+
+    public function testAccountEditAddress(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $dataBag = new RequestDataBag();
+        $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
+
+        $response = $this->controller
+            ->accountEditAddress(new Request(), Generator::generateSalesChannelContext(), $customer);
+        $renderParams = $this->controller->renderStorefrontParameters;
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertArrayHasKey('page', $renderParams);
+    }
+
     public function testSwitchDefaultAddressThrowsException(): void
     {
-        $context = Generator::generateSalesChannelContext();
-
         $dataBag = new RequestDataBag();
         $dataBag->set('type', 'dummy-type');
 
@@ -197,10 +247,11 @@ class AddressControllerTest extends TestCase
 
         $this->expectException(RoutingException::class);
 
-        $this->controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $this->controller
+            ->checkoutSwitchDefaultAddress($dataBag, Generator::generateSalesChannelContext(), $customer);
     }
 
-    public function testSwitchDefaultShippingAddress(): void
+    public function testCheckoutSwitchDefaultShippingAddress(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -233,7 +284,7 @@ class AddressControllerTest extends TestCase
         static::assertEquals('url:frontend.account.addressmanager.get', $response->getTargetUrl());
     }
 
-    public function testSwitchDefaultBillingAddress(): void
+    public function testCheckoutSwitchDefaultBillingAddress(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -291,6 +342,22 @@ class AddressControllerTest extends TestCase
         $this->controller->addressManagerSwitch($dataBag, $context);
     }
 
+    public function testSwitchDefaultShippingAddress(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $this->accountService
+            ->expects(static::once())
+            ->method('setDefaultBillingAddress');
+
+        $this->accountService
+            ->expects(static::never())
+            ->method('setDefaultShippingAddress');
+
+        $this->controller->switchDefaultAddress('billing', Uuid::randomHex(), Generator::generateSalesChannelContext(), $customer);
+    }
+
     public function testAddressManagerSwitchBillingDataBag(): void
     {
         $id = Uuid::randomHex();
@@ -328,16 +395,342 @@ class AddressControllerTest extends TestCase
         $this->controller->switchDefaultAddress('shipping', 'foo', $context, $customer);
     }
 
-    public function testDeleteAddressWithInvalidIdThrowsException(): void
+    public function testSwitchDefaultBillingAddress(): void
     {
-        $context = Generator::generateSalesChannelContext();
-        $request = new Request();
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $this->accountService
+            ->expects(static::once())
+            ->method('setDefaultShippingAddress');
+
+        $this->accountService
+            ->expects(static::never())
+            ->method('setDefaultBillingAddress');
+
+        $this->controller->switchDefaultAddress('shipping', Uuid::randomHex(), Generator::generateSalesChannelContext(), $customer);
+    }
+
+    public function testSwitchDefaultBillingAddressWithInvalidId(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $addressId = Uuid::randomHex();
+
+        $this->accountService
+            ->method('setDefaultShippingAddress')
+            ->willThrowException(new AddressNotFoundException($addressId));
+
+        $this->controller->switchDefaultAddress('shipping', $addressId, Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame(
+            ['danger' => ['account.addressDefaultNotChanged']],
+            $this->controller->flashBag
+        );
+    }
+
+    public function testSwitchDefaultBillingAddressWithInvalidTye(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $addressId = Uuid::randomHex();
+
+        $this->accountService
+            ->method('setDefaultShippingAddress')
+            ->willThrowException(new AddressNotFoundException($addressId));
+
+        $this->controller->switchDefaultAddress('foo', $addressId, Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame(
+            ['danger' => ['account.addressDefaultNotChanged']],
+            $this->controller->flashBag
+        );
+    }
+
+    public function testSaveAddress(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $dataBag = new RequestDataBag();
+        $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
+
+        /** @var RedirectResponse $response */
+        $response = $this->controller->saveAddress($dataBag, Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertEquals('url:frontend.account.address.page', $response->getTargetUrl());
+    }
+
+    public function testSaveAddressWithId(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $dataBag = new RequestDataBag();
+        $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
+
+        $this->abstractUpsertAddressRoute
+            ->expects(static::once())
+            ->method('upsert')
+            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+
+        $response = $this->controller->saveAddress($dataBag, Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals('forward to frontend.account.address.edit.page', $response->getContent());
+    }
+
+    public function testSaveAddressWithoutId(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $dataBag = new RequestDataBag();
+        $dataBag->set('address', new DataBag(['foo' => 'foo']));
+
+        $this->abstractUpsertAddressRoute
+            ->expects(static::once())
+            ->method('upsert')
+            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+
+        $response = $this->controller->saveAddress($dataBag, Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals('forward to frontend.account.address.create.page', $response->getContent());
+    }
+
+    public function testDeleteAddressWithNoIdThrowsException(): void
+    {
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
 
         static::expectException(RoutingException::class);
 
-        $this->controller->deleteAddress('', $request, $context, $customer);
+        $this->controller->deleteAddress('', new Request(), Generator::generateSalesChannelContext(), $customer);
+    }
+
+    public function testDeleteAddress(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $this->deleteAddressRoute
+            ->expects(static::once())
+            ->method('delete');
+
+        /** @var RedirectResponse $response */
+        $response = $this->controller->deleteAddress(Uuid::randomHex(), new Request(), Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame(
+            ['success' => ['account.addressDeleted']],
+            $this->controller->flashBag
+        );
+
+        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertEquals('url:frontend.account.address.page', $response->getTargetUrl());
+    }
+
+    public function testDeleteAddressWithInvalidIdThrowsException(): void
+    {
+        $addressId = Uuid::randomHex();
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $this->deleteAddressRoute
+            ->expects(static::once())
+            ->method('delete')
+            ->willThrowException(new CannotDeleteDefaultAddressException($addressId));
+
+        /** @var RedirectResponse $response */
+        $response = $this->controller->deleteAddress($addressId, new Request(), Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame(
+            ['danger' => ['account.addressNotDeleted']],
+            $this->controller->flashBag
+        );
+
+        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertEquals('url:frontend.account.address.page', $response->getTargetUrl());
+    }
+
+    public function testAddressManagerGet(): void
+    {
+        $request = new Request();
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $response = $this->controller->addressManagerGet($request, Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(
+            '@Storefront/storefront/component/address/address-manager-modal.html.twig',
+            $this->controller->renderStorefrontView
+        );
+    }
+
+    public function testAddressManagerWithoutType(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        static::expectException(RoutingException::class);
+
+        $this->controller->addressManager(new Request(), new RequestDataBag(), Generator::generateSalesChannelContext(), $customer, Uuid::randomHex());
+    }
+
+    public function testAddressManagerWithShipping(): void
+    {
+        $addressId = Uuid::randomHex();
+
+        $dataBag = new RequestDataBag();
+        $dataBag->set('id', $addressId);
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setUniqueIdentifier($addressId);
+        $customerAddressCollection = new CustomerAddressCollection([$customerAddress]);
+        $listAddressRouteResponse = $this->createMock(ListAddressRouteResponse::class);
+
+        $this->listAddressRoute
+            ->expects(static::once())
+            ->method('load')
+            ->willReturn($listAddressRouteResponse);
+
+        $listAddressRouteResponse
+            ->expects(static::once())
+            ->method('getAddressCollection')
+            ->willReturn($customerAddressCollection);
+
+        /** @var RedirectResponse $response */
+        $response = $this->controller->addressManager(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
+
+        static::assertSame(
+            ['success' => ['account.addressSaved']],
+            $this->controller->flashBag
+        );
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testAddressManagerWithBilling(): void
+    {
+        $addressId = Uuid::randomHex();
+
+        $dataBag = new RequestDataBag();
+        $dataBag->set('id', $addressId);
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setUniqueIdentifier($addressId);
+        $customerAddressCollection = new CustomerAddressCollection([$customerAddress]);
+
+        $listAddressRouteResponse = $this->createMock(ListAddressRouteResponse::class);
+
+        $this->listAddressRoute
+            ->expects(static::once())
+            ->method('load')
+            ->willReturn($listAddressRouteResponse);
+
+        $listAddressRouteResponse
+            ->expects(static::once())
+            ->method('getAddressCollection')
+            ->willReturn($customerAddressCollection);
+
+        /** @var RedirectResponse $response */
+        $response = $this->controller->addressManager(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'billing');
+
+        static::assertSame(
+            ['success' => ['account.addressSaved']],
+            $this->controller->flashBag
+        );
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testAddressManagerHandeltFormViolations(): void
+    {
+        $addressId = Uuid::randomHex();
+
+        $dataBag = new RequestDataBag();
+        $dataBag->set('id', $addressId);
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setUniqueIdentifier($addressId);
+        $customerAddressCollection = new CustomerAddressCollection([$customerAddress]);
+
+        $listAddressRouteResponse = $this->createMock(ListAddressRouteResponse::class);
+
+        $this->listAddressRoute
+            ->expects(static::once())
+            ->method('load')
+            ->willReturn($listAddressRouteResponse);
+
+        $listAddressRouteResponse
+            ->expects(static::once())
+            ->method('getAddressCollection')
+            ->willReturn($customerAddressCollection);
+
+        $this->abstractUpsertAddressRoute
+            ->expects(static::once())
+            ->method('upsert')
+            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+
+        $response = $this->controller->addressManager(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertArrayHasKey('formViolations', $this->controller->renderStorefrontParameters);
+    }
+
+    public function testAddressManagerHandeltErrors(): void
+    {
+        $addressId = Uuid::randomHex();
+
+        $dataBag = new RequestDataBag();
+        $dataBag->set('id', $addressId);
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setUniqueIdentifier($addressId);
+        $customerAddressCollection = new CustomerAddressCollection([$customerAddress]);
+
+        $listAddressRouteResponse = $this->createMock(ListAddressRouteResponse::class);
+
+        $this->listAddressRoute
+            ->expects(static::once())
+            ->method('load')
+            ->willReturn($listAddressRouteResponse);
+
+        $listAddressRouteResponse
+            ->expects(static::once())
+            ->method('getAddressCollection')
+            ->willReturn($customerAddressCollection);
+
+        $this->abstractUpsertAddressRoute
+            ->expects(static::once())
+            ->method('upsert')
+            ->willThrowException(new \Exception());
+
+        $response = $this->controller->addressManager(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        static::assertArrayHasKey('messages', $this->controller->renderStorefrontParameters);
+
+        static::assertSame(
+            ['type' => 'danger', 'text' => 'error.message-default'],
+            $this->controller->renderStorefrontParameters['messages']
+        );
     }
 }
 

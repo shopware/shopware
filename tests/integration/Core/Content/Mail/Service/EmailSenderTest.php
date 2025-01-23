@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailSender;
+use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -47,7 +48,7 @@ class EmailSenderTest extends TestCase
         $sender = ['testSender@example.org' => 'Sales Channel'];
         $recipients = ['testReceiver@example.org' => 'Receiver name', 'null-name@example.org' => null];
         // We need a large text, otherwise the mail will not be stored in the filesystem, but sent directly
-        $text = str_repeat('a', 1024 * 256 + 1);
+        $text = str_repeat('a', MessageSizeCalculator::MESSAGE_SIZE_LIMIT);
         $contents = ['text/html' => $text];
         $attachments = ['test'];
 

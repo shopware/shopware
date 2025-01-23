@@ -7,6 +7,7 @@ use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -19,7 +20,6 @@ use Symfony\Component\Mime\Email;
 class MailSender extends AbstractMailSender
 {
     public const DISABLE_MAIL_DELIVERY = 'core.mailerSettings.disableDelivery';
-    private const MESSAGE_SIZE_LIMIT = 1024 * 256;
 
     private const BASE_FILE_SYSTEM_PATH = 'mail-data/';
 
@@ -72,7 +72,9 @@ class MailSender extends AbstractMailSender
         }
 
         $mailData = serialize($email);
-        if (\strlen($mailData) <= self::MESSAGE_SIZE_LIMIT) {
+        $mailDataLength = \strlen($mailData);
+        // TODO: The $mailDataLength is not exactly accurate, as the message envelope & stamps are not included in the calculation
+        if ($mailDataLength <= MessageSizeCalculator::MESSAGE_SIZE_LIMIT) {
             try {
                 $this->mailer->send($email);
             } catch (\Throwable $e) {

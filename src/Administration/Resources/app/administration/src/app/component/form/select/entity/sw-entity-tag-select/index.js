@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 

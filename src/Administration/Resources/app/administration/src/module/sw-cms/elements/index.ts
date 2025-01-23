@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import './text';
 import './image';
 import './image-slider';

@@ -190,11 +190,7 @@ export default {
             };
 
             this.mailTemplateRepository
-                .get(
-                    this.mailTemplateId,
-                    apiContext,
-                    this.mailTemplateSendCriteria,
-                )
+                .get(this.mailTemplateId, apiContext, this.mailTemplateSendCriteria)
                 .then((mailTemplate) => {
                     this.mailService
                         .sendMailTemplate(

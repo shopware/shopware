@@ -37,7 +37,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[CoversClass(SeoUrlGenerator::class)]
 class SeoUrlGeneratorTest extends TestCase
 {

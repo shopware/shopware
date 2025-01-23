@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import ar from 'apexcharts/dist/locales/ar.json';

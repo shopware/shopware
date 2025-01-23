@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-login.html.twig';
@@ -9,7 +9,7 @@ const { Component } = Shopware;
 
 /**
  * @private
- * @package admin
+ * @sw-package framework
  */
 Component.register('sw-login', {
     template,

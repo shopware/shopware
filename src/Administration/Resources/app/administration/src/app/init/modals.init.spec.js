@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initializeModal from 'src/app/init/modals.init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';

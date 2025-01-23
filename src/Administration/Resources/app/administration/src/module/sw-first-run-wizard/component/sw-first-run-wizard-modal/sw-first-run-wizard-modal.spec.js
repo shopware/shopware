@@ -68,7 +68,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
     });
 }
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () => {
     beforeAll(() => {

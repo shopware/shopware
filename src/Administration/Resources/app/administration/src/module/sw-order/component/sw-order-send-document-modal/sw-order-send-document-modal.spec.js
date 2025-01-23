@@ -3,7 +3,7 @@ import uuid from 'src/../test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const mockOrderWithMailHeaderFooter = {

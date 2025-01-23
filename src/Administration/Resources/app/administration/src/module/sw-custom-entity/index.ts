@@ -2,28 +2,28 @@
 
 /**
  * @private
- * @package content
+ * @sw-package content
  */
 Shopware.Component.register('sw-generic-custom-entity-detail', () => import('./page/sw-generic-custom-entity-detail'));
 /**
  * @private
- * @package content
+ * @sw-package content
  */
 Shopware.Component.register('sw-generic-custom-entity-list', () => import('./page/sw-generic-custom-entity-list'));
 /**
  * @private
- * @package content
+ * @sw-package content
  */
 Shopware.Component.register('sw-custom-entity-input-field', () => import('./component/sw-custom-entity-input-field'));
 /**
  * @private
- * @package content
+ * @sw-package content
  */
 Shopware.Component.register('sw-generic-cms-page-assignment', () => import('./component/sw-generic-cms-page-assignment'));
 
 /**
  * @private
- * @package content
+ * @sw-package content
  */
 Shopware.Component.register('sw-generic-seo-general-card', () => import('./component/sw-generic-seo-general-card'));
 /**
@@ -67,6 +67,6 @@ Shopware.Module.register('sw-custom-entity', {
 
 /**
  * @private
- * @package content
+ * @sw-package content
  */
 export {};

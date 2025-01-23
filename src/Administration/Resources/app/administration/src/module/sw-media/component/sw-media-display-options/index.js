@@ -2,7 +2,7 @@ import template from './sw-media-display-options.html.twig';
 import './sw-media-display-options.scss';
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

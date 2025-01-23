@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';

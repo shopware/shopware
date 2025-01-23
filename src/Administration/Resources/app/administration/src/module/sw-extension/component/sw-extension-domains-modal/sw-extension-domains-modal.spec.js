@@ -19,7 +19,7 @@ async function createWrapper(propsData) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
     it('should not show any domains: null', async () => {

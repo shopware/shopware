@@ -4,7 +4,7 @@ import './sw-context-menu.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

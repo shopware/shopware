@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import AppModulesService from 'src/core/service/api/app-modules.service';
 import createLoginService from 'src/core/service/login.service';

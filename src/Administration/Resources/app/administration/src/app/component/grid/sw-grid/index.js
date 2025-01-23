@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

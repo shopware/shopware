@@ -17,7 +17,7 @@ async function createWrapper() {
 }
 
 /**
- * @package admin
+ * @sw-package framework
  */
 describe('src/module/sw-login/page/index/index.js', () => {
     let wrapper;

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import createCustomFieldService from 'src/app/service/custom-field.service';

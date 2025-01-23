@@ -2,7 +2,7 @@ import template from './sw-settings-listing-delete-modal.html.twig';
 import './sw-settings-listing-delete-modal.scss';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

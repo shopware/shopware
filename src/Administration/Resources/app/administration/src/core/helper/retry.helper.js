@@ -1,6 +1,6 @@
 /**
  * @private
- * @package admin
+ * @sw-package framework
  */
 export default class RetryHelper {
     static async retry(fn, maxTries, time) {

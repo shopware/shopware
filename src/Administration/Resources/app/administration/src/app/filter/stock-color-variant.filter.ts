@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 Shopware.Filter.register('stockColorVariant', (value: number) => {

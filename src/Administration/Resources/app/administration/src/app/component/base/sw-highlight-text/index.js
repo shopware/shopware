@@ -4,7 +4,7 @@ import './sw-highlight-text.scss';
 const { Component, Context } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description This component highlights text based on the searchTerm using regex

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\MacroOverrideTokenParserMacro;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\SwMacroFunctionTokenParser;
@@ -110,8 +111,8 @@ class PhpSyntaxExtension extends AbstractExtension
                 }
 
                 if (!\is_string($var)) {
-                    throw new \InvalidArgumentException(
-                        \sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
+                    throw AdapterException::invalidArgument(
+                        \sprintf('The md5 filter expects a string or array as input, %s given', \get_class($var))
                     );
                 }
 
@@ -200,8 +201,8 @@ class PhpSyntaxExtension extends AbstractExtension
         }
 
         if (!\is_scalar($var) && $var !== null) {
-            throw new \InvalidArgumentException(
-                'Non-scalar value given to intval/floatval/strval/boolval filter'
+            throw AdapterException::invalidArgument(
+                \sprintf('Non-scalar value given to intval/floatval/strval/boolval filter, %s given', \get_class($var))
             );
         }
 

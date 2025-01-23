@@ -48,7 +48,8 @@ class CmsController extends StorefrontController
     }
 
     /**
-     * Rendering a CMS Layout. Depending on how the action is called (via JS or browser), the layout is either rendered as a widget or as a full page.
+     * Rendering a CMS layout as a widget, meaning that the layout is rendered standalone without the surrounding page template.
+     * Use this if you want to load content via JS and embed into an existing page or modal.
      */
     #[Route(path: '/widgets/cms/{id}', name: 'frontend.cms.page', defaults: ['id' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
@@ -69,6 +70,10 @@ class CmsController extends StorefrontController
     }
 
 
+    /**
+     * Rendering a CMS layout as a full page, example including stylesheets, scripts, header, footer, etc.
+     * Use this for internal page links pointing to a layout.
+     */
     #[Route(path: '/page/cms/{id}', name: 'frontend.cms.page.full', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function pageFull(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {

@@ -777,6 +777,9 @@
         "increaseOfProduct": "Erhöhe die Anzahl von %product%",
         "decrease": "Anzahl verringern",
         "decreaseOfProduct": "Verringere die Anzahl %product%"
+      },
+      "configurator": {
+        "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"
       }
     },
     "cms": {

@@ -777,6 +777,9 @@
         "increaseOfProduct": "Increase quantity of %product%",
         "decrease": "Decrease quantity",
         "decreaseOfProduct": "Decrease quantity of %product%"
+      },
+      "configurator": {
+        "legend": "<span class=\"%hidden_cls%\">Select&nbsp;</span>%group_name%"
       }
     },
     "cms": {

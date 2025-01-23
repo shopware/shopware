@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[CoversClass(SeoUrlPlaceholderHandler::class)]
 class SeoUrlPlaceholderHandlerTest extends TestCase
 {

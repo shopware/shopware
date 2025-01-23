@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class MainCategoryDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'main_category';

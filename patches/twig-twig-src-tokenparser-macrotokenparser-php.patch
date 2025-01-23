@@ -1,0 +1,19 @@
+--- /dev/null
++++ ../src/TokenParser/MacroTokenParser.php
+@@ -11,6 +11,7 @@
+ 
+ namespace Twig\TokenParser;
+ 
++use Shopware\Core\Framework\Adapter\Twig\Node\MacroOverrideNode;
+ use Twig\Error\SyntaxError;
+ use Twig\Node\BodyNode;
+ use Twig\Node\EmptyNode;
+@@ -54,7 +55,7 @@
+         $this->parser->popLocalScope();
+         $stream->expect(Token::BLOCK_END_TYPE);
+ 
+-        $this->parser->setMacro($name, new MacroNode($name, new BodyNode([$body]), $arguments, $lineno));
++        $this->parser->setMacro($name, new MacroOverrideNode($name, new BodyNode([$body]), $arguments, $lineno));
+ 
+         return new EmptyNode($lineno);
+     }

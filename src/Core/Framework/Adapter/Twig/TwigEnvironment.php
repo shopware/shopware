@@ -34,9 +34,7 @@ class TwigEnvironment extends Environment
         }
 
         $source = $this->compiler->compile($node)->getSource();
-        if ($this->shouldAddMacroResult($source)) {
-            $source = $this->addMacroResult($source);
-        }
+        //$source = $this->addMacroResultCall($source);
 
         $replaces = [
             'CoreExtension::getAttribute(' => 'SwTwigFunction::getAttribute(',

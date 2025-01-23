@@ -5,52 +5,40 @@
     {%- else -%}
         <div class="row order-detail-content-row" role="listitem">
     {%- endif -%}
-        {% set documentLink = path('frontend.account.order.single.document', {documentId: document.id, deepLinkCode: document.deepLinkCode}) %}
-
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
-                <a href="{{ documentLink }}"
-                   target="_blank">
-                    {% block page_account_order_document_item_detail_file_name_icon %}
-                        <span class="icon icon-xs">{% sw_icon 'file' %}</span>
-                    {% endblock %}
+                {% set documentMediaFiles = [document.documentMediaFile, document.documentA11yMediaFile] %}
 
-                    {% block page_account_order_document_item_detail_file_name_value %}
-                        {{ document.documentType.translated.name|replace({' ' : '-'}) }}_
-                        {{ document.config.documentNumber }}_
-                        {{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ document.fileType }}
-                    {% endblock %}
-                </a>
+                {% for media in documentMediaFiles|filter(media => media is not null) %}
+                    {% set documentLink = path('frontend.account.order.single.document', {
+                        documentId: document.id,
+                        deepLinkCode: document.deepLinkCode,
+                        fileType: media.fileExtension,
+                    }) %}
+
+                    <a href="{{ documentLink }}"
+                       target="_blank">
+                        {% block page_account_order_document_item_detail_file_name_icon %}
+                            <span class="icon icon-xs">{% sw_icon 'file' %}</span>
+                        {% endblock %}
+
+                        {% block page_account_order_document_item_detail_file_name_value %}
+                            {{ document.config.filenamePrefix }}{{ document.config.documentNumber }}{{ document.config.filenameSuffix is not empty? document.config.filenameSuffix ~ '_': '_' }}{{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ media.fileExtension }}
+                        {% endblock %}
+                    </a><br>
+                {% endfor %}
             </div>
         {% endblock %}
 
         {% block page_account_order_document_item_detail_date %}
-            <div class="col-9 col-md-4 document-item document-item-date">
+            <div class="col-9 col-md-4 align-content-center document-item document-item-date">
                 <span class="document-item-date-label visually-hidden">{{ "account.documentItemColumnDate"|trans|sw_sanitize }}:</span>
                 {{ document.createdAt|format_datetime('medium', 'short', locale=app.request.locale) }}
             </div>
         {% endblock %}
 
-        {% block page_account_order_document_item_detail_view_file_btn %}
-             <div class="col-3 col-md-2 document-item document-item-view-file">
-                 {% block page_account_order_document_item_detail_view_file_btn_text %}
-                     <a href="{{ documentLink }}"
-                        target="_blank"
-                        class="btn btn-light btn-sm document-item-view-file-text-btn">
-                         {{ 'account.documentItemViewFileButton'|trans|sw_sanitize }}
-                     </a>
-                 {% endblock %}
-
-                 {% block page_account_order_document_item_detail_view_file_btn_icon %}
-                     <a href="{{ documentLink }}"
-                        target="_blank"
-                        class="btn btn-light btn-sm document-item-view-file-icon-btn"
-                        aria-label="{{ 'account.documentItemViewFileButton'|trans|striptags }}">
-                         {% sw_icon 'external' style { size: 'xs', ariaHidden: true } %}
-                     </a>
-                 {% endblock %}
-            </div>
-        {% endblock %}
+        {# @deprecated tag:v6.7.0 - This block will be removed #}
+        {% block page_account_order_document_item_detail_view_file_btn %}{% endblock %}
     {# @deprecated tag:v6.7.0 - Document item will be `<li>` instead if `<div>` #}
     {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
         </div>

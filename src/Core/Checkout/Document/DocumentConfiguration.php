@@ -269,6 +269,11 @@ class DocumentConfiguration extends Struct
     protected $documentTypeId;
 
     /**
+     * @var array<string>
+     */
+    protected array $fileTypes = [];
+
+    /**
      * @param string $name
      * @param array<array-key, mixed>|bool|int|string|null $value
      */
@@ -378,5 +383,21 @@ class DocumentConfiguration extends Struct
     public function getApiAlias(): string
     {
         return 'document_configuration';
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getFileTypes(): array
+    {
+        return $this->fileTypes;
+    }
+
+    /**
+     * @param array<string> $types
+     */
+    public function setFileTypes(array $types): void
+    {
+        $this->fileTypes = $types;
     }
 }

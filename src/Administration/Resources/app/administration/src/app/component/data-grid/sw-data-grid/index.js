@@ -205,6 +205,12 @@ Component.register('sw-data-grid', {
                 return false;
             },
         },
+
+        contextButtonMenuWidth: {
+            type: Number,
+            required: false,
+            default: 220,
+        },
     },
 
     data() {

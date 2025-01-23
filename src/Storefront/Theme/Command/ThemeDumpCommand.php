@@ -72,7 +72,7 @@ class ThemeDumpCommand extends Command
 
         if ($themeId !== null) {
             $criteria->setIds([$themeId]);
-        } else if ($themeName !== null) {
+        } elseif ($themeName !== null) {
             $criteria->addFilter(new EqualsFilter('technicalName', $themeName));
         } else {
             $choices = $this->getThemeChoices();
@@ -141,8 +141,7 @@ class ThemeDumpCommand extends Command
 
         $this->staticFileConfigDumper->dumpConfig($this->context);
 
-        $this->io->writeln(sprintf('Theme `%s` config dumped to file: %s', $themeEntity->getTechnicalName(), 'theme-files.json'));
-
+        $this->io->writeln(\sprintf('Theme `%s` config dumped to file: %s', $themeEntity->getTechnicalName(), 'theme-files.json'));
 
         return self::SUCCESS;
     }

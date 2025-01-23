@@ -6,7 +6,8 @@
 # Webpack to vite migration for the administration
 We are switching the build system for our administration from webpack to vite. 
 This means that when your plugins depends on a custom `webpack.config.js` file, you'll need to migrate it to a `vite.config.js` file.
-**TBD how does that look like? Is there a docs page for that?**
+**More information about how to upgrade will be available soon.**
+
 Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
 For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
 
@@ -116,7 +117,7 @@ Additionally, the cache hit rate for the Store-API was low, so the performance i
 This overall should lead to more effective cache resource usage.
 
 ## Use ESI includes for Header and Footer
-**TBD**
+**More information about this change will be available soon.**
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
@@ -596,7 +597,7 @@ Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-de
 ## Component replacement with Meteor Component Library
 We switched the usage of basic components from custom components to the meteor component library. For more details take a look at the [according ADR](./adr/2024-03-21-implementation-of-meteor-component-library.md).
 
-**TBD, please link to guides how to use the mentioned code mods etc**
+**More information about how you can automate the update with `codemods` will be available soon.**
 
 In short this means we replaced the following components:
 * `sw-popover` with `mt-floating-ui`

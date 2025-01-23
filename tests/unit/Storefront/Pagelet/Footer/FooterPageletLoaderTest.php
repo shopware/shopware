@@ -84,10 +84,7 @@ class FooterPageletLoaderTest extends TestCase
         ));
 
         $footerPageletLoader = new FooterPageletLoader($eventDispatcher, $navigationLoader, $paymentMethodRoute, $shippingMethodRoute);
-
-        $request = new Request();
-
-        $footer = $footerPageletLoader->load($request, $salesChannelContext);
+        $footer = $footerPageletLoader->load(new Request(), $salesChannelContext);
 
         $serviceMenu = $footer->getServiceMenu();
         static::assertNotNull($serviceMenu);

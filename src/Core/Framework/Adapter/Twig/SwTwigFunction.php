@@ -39,21 +39,8 @@ class SwTwigFunction
     {
         try {
             FieldVisibility::$isInTwigRenderingContext = true;
-            if ($object instanceof Markup && self::$macroResult !== null) {
-                $object = self::$macroResult;
-                self::$macroResult = null;
-            }
             if ($object instanceof Struct) {
                 if ($type === Template::METHOD_CALL) {
-                    if (self::$macroResult !== null && \is_object(self::$macroResult)) {
-                        foreach ($arguments as $key => $argument) {
-                            if ($argument instanceof Markup) {
-                                // replace the markup object with the actual shopware object
-                                $arguments[$key] = self::$macroResult;
-                            }
-                        }
-                    }
-
                     // @phpstan-ignore-next-line
                     return $object->$item(...$arguments);
                 }

@@ -35,7 +35,7 @@ class TwigEnvironment extends Environment
         }
 
         $source = $this->compiler->compile($node)->getSource();
-        $source = $this->addMacroResultCall($source);
+        //$source = $this->addMacroResultCall($source);
 
         $replaces = [
             'CoreExtension::getAttribute(' => 'SwTwigFunction::getAttribute(',
@@ -50,8 +50,6 @@ class TwigEnvironment extends Environment
     {
         if (
             str_contains($source, 'getTemplateForMacro')
-            && str_contains($source, 'SwTwigFunction::$macroResult =')
-            && (!str_contains($source, 'CoreExtension::getAttribute') || str_contains($source, 'ComparisonExtension'))
         ) {
             [$lines, $lineNumber] = $this->extractLinesAndNumber($source);
             if (isset($lineNumber)) {

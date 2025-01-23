@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
@@ -68,12 +67,8 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $resolverContext
         );
 
-        if (!$pages->has($pageId)) {
-            throw LandingPageException::notFound($pageId);
-        }
-
         $page = $pages->get($pageId);
-        if (!$page instanceof CmsPageEntity) {
+        if (!$page) {
             throw LandingPageException::notFound($pageId);
         }
 

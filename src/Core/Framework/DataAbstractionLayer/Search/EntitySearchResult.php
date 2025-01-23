@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -14,7 +13,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  *
  * @template TEntityCollection of EntityCollection
  *
- * @extends EntityCollection<Entity>
+ * @extends EntityCollection<template-type<TEntityCollection, EntityCollection, 'TElement'>>
  */
 #[Package('framework')]
 class EntitySearchResult extends EntityCollection
@@ -109,20 +108,6 @@ class EntitySearchResult extends EntityCollection
         return $this->context;
     }
 
-    public function clear(): void
-    {
-        parent::clear();
-
-        $this->entities->clear();
-    }
-
-    public function add($entity): void
-    {
-        parent::add($entity);
-
-        $this->entities->add($entity);
-    }
-
     public function jsonSerialize(): array
     {
         $vars = get_object_vars($this);
@@ -169,14 +154,6 @@ class EntitySearchResult extends EntityCollection
     public function setEntity(string $entity): void
     {
         $this->entity = $entity;
-    }
-
-    /**
-     * @return Entity|null
-     */
-    public function getAt(int $position)
-    {
-        return $this->entities->getAt($position);
     }
 
     protected function createNew(iterable $elements = []): static

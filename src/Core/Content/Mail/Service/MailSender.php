@@ -7,6 +7,7 @@ use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -21,10 +22,10 @@ class MailSender extends AbstractMailSender
     public const DISABLE_MAIL_DELIVERY = 'core.mailerSettings.disableDelivery';
 
     /**
-     * @see https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html
-     * Maximum message size is 262144 (1024 * 256) bytes
+     * Referenced from {@see MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT}
+     * The maximum size of a message in the message queue is used to determine if a mail should be sent directly or via the message queue.
      */
-    public const MAIL_MESSAGE_SIZE_LIMIT = 1024 * 256;
+    public const MAIL_MESSAGE_SIZE_LIMIT = MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT;
 
     private const BASE_FILE_SYSTEM_PATH = 'mail-data/';
 

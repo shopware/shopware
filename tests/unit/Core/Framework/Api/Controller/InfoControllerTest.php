@@ -77,6 +77,9 @@ class InfoControllerTest extends TestCase
             )
             ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
 
+        $this->fileSystemOperator->method('fileExists')
+            ->willReturn(true);
+
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
         static::assertIsString($content);

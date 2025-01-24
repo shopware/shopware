@@ -247,7 +247,7 @@ class AdministrationControllerTest extends TestCase
 
         $this->fileSystemOperator->expects(static::once())
             ->method('read')
-            ->with('bundles/foo/administration/index.html')
+            ->with('bundles/foo/meteor-app/index.html')
             ->willThrowException(new UnableToReadFile());
         $response = $controller->pluginIndex('foo');
 
@@ -262,7 +262,7 @@ class AdministrationControllerTest extends TestCase
         $fileContent = '<html><head></head><body></body></html>';
         $this->fileSystemOperator->expects(static::once())
             ->method('read')
-            ->with('bundles/foo/administration/index.html')
+            ->with('bundles/foo/meteor-app/index.html')
             ->willReturn($fileContent);
         $response = $controller->pluginIndex('foo');
 
@@ -277,7 +277,7 @@ class AdministrationControllerTest extends TestCase
         $fileContent = '<html><head><base href="__$ASSET_BASE_PATH$__" /></head><body></body></html>';
         $this->fileSystemOperator->expects(static::once())
             ->method('read')
-            ->with('bundles/foo/administration/index.html')
+            ->with('bundles/foo/meteor-app/index.html')
             ->willReturn($fileContent);
 
         $this->fileSystemOperator->expects(static::once())

@@ -395,8 +395,8 @@ class InfoController extends AbstractController
             return null;
         }
 
-        if (Feature::isActive('ADMIN_VITE') &&
-            !$this->filesystem->fileExists(\sprintf('bundles/%s/meteor-app/index.html', mb_strtolower($bundle->getName())))
+        if (Feature::isActive('ADMIN_VITE')
+            && !$this->filesystem->fileExists(\sprintf('bundles/%s/meteor-app/index.html', mb_strtolower($bundle->getName())))
         ) {
             return null;
         }

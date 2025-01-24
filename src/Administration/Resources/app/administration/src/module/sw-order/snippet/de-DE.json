@@ -407,7 +407,7 @@
       "labelHighlightedItemsEntry": "Gesamt",
       "labelNoItems": "Keine Gutschriften hinzugefügt",
       "fileInputLabel": "Eigenes Dokument hochladen",
-      "labelPreviewOnlyHtml": "HTML Vorschau"
+      "labelPreviewOnlyHtml": "HTML-Vorschau"
     },
     "documentSendModal": {
       "labelNumber": "Nummer",

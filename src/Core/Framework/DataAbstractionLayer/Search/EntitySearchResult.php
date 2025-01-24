@@ -46,16 +46,6 @@ class EntitySearchResult extends EntityCollection
         parent::__construct($entities);
     }
 
-    public function filter(\Closure $closure): static
-    {
-        return $this->createNew($this->entities->filter($closure));
-    }
-
-    public function slice(int $offset, ?int $length = null): static
-    {
-        return $this->createNew($this->entities->slice($offset, $length));
-    }
-
     public function getTotal(): int
     {
         return $this->total;
@@ -82,20 +72,6 @@ class EntitySearchResult extends EntityCollection
     public function getContext(): Context
     {
         return $this->context;
-    }
-
-    public function clear(): void
-    {
-        parent::clear();
-
-        $this->entities->clear();
-    }
-
-    public function add($entity): void
-    {
-        parent::add($entity);
-
-        $this->entities->add($entity);
     }
 
     public function jsonSerialize(): array
@@ -144,14 +120,6 @@ class EntitySearchResult extends EntityCollection
     public function setEntity(string $entity): void
     {
         $this->entity = $entity;
-    }
-
-    /**
-     * @return TElement|null
-     */
-    public function getAt(int $position)
-    {
-        return $this->entities->getAt($position);
     }
 
     /**

@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class UpdateHtaccess implements EventSubscriberInterface
 {
     private const MARKER_START = '# BEGIN Shopware';

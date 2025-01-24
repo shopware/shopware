@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import type { AxiosInstance, AxiosResponse } from 'axios';

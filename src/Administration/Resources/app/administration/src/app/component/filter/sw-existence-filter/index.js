@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import template from './sw-existence-filter.html.twig';
 
 const { Component } = Shopware;

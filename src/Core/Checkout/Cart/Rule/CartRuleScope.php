@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CartRuleScope extends CheckoutRuleScope
 {
     public function __construct(

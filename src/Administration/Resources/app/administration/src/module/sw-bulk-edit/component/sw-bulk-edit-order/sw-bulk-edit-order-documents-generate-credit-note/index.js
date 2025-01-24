@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 const { State } = Shopware;
 

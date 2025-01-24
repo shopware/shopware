@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 /**
  * @status ready
  * @description The <u>sw-media-modal-folder-dissolve</u> component is used to validate the dissolve folder action.
- * @package content
+ * @sw-package content
  * @example-type code-only
  * @component-example
  * <sw-media-modal-folder-dissolve :itemsToDissolve="[items]">

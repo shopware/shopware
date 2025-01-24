@@ -6,7 +6,7 @@ const { debug } = Shopware.Utils;
 /**
  * Contains a list of allowed block categories
  * @type {string[]}
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const BLOCKS_CATEGORIES = [
@@ -20,7 +20,7 @@ export const BLOCKS_CATEGORIES = [
 ];
 
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AppCmsService {

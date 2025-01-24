@@ -11,7 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class TestFlowBusinessEvent extends Event implements FlowEventAware
 {
     public const EVENT_NAME = 'test.flow_event';

@@ -3,7 +3,7 @@ import template from './sw-settings-login-registration.html.twig';
 const { Mixin } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -1,5 +1,5 @@
 /**
- * @package customer-order
+ * @sw-package customer-order
  * @private
  * @description Apply for upselling service only, no public usage
  */

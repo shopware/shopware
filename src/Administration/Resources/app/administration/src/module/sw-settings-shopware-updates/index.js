@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import './page/sw-settings-shopware-updates-wizard';
 import './page/sw-settings-shopware-updates-index';
 import './view/sw-settings-shopware-updates-info';

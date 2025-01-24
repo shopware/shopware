@@ -65,7 +65,7 @@ const basicMockData = {
 };
 
 /**
- * @package content
+ * @sw-package content
  */
 describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () => {
     [

@@ -17,7 +17,7 @@ interface TeaserPopoverConfig {
 }
 
 /**
- * @package customer-order
+ * @sw-package customer-order
  *
  * @private
  * @description A teaser popover for upselling service only, no public usage

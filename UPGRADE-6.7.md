@@ -1,20 +1,137 @@
-# 6.7.0.0
-## Introduced in 6.6.9.0
-## Administration removed associations
-* Removed `calculationRule` association in `shippingMethodCriteria()` in `sw-settings-shipping-detail`.
-* Removed `conditions` association in `ruleFilterCriteria()` and `shippingRuleFilterCriteria()` in `sw-settings-shipping-price-matrix`
-## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` changed
-* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` changed to `columnName` 
-* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` changed to `foreignKeyName` 
-* Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` changed to `indexName`
-## Removal of deprecated product review loading logic in Storefront
-* The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
-* The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
-* The hook `\Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook` instead.
-* The struct `\Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult` instead.
-## Native types for PHP class properties
-All PHP class properties now have a native type.
-If you have extended classes with properties, which didn't have a native type before, make sure you now add them as well.
+# 6.7.0.0 Upgrade Guide
+**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.7.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
+
+# Notable Changes
+
+# Webpack to vite migration for the administration
+We are switching the build system for our administration from webpack to vite. 
+This means that when your plugins depends on a custom `webpack.config.js` file, you'll need to migrate it to a `vite.config.js` file.
+**More information about how to upgrade will be available soon.**
+
+Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
+For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
+
+**Note:** This change can be activated separately with the `ADMIN_VITE` feature flag.
+
+# Vue.js Enhancements (full native vue 3 support)
+## Removal of Vue 2 compatibility layer
+The Vue 2 compatibility layer has been removed from the administration. This means that all components that still rely on Vue 2 features need to be updated.
+This ensures that our administration stays future-proof and we can make use of the most recent Vue 3 features.
+
+For detailed explanation of what was covered by the compatibility layer and what needs to be updated, please refer to the [Vue docs](https://v3-migration.vuejs.org/migration-build.html).
+
+**Note:** This change can be activated separately with the `DISABLE_VUE_COMPAT` feature flag.
+
+## Migration from Vuex to Pinia
+For Vue 3 the default state management library has become Pinia, therefore we are migrating from Vuex to Pinia. to stay as close to the default as possible.
+When you use default stores in your plugin you need to switch from `Shopware.State` (Vuex) to `Shopware.Store` (Pinia).
+Adding your own Vuex stores is still possible, however it is recommended that you switch to Pinia as well.
+
+Here is an example of how to switch from Vuex to Pinia:
+```ts
+// Old Vuex implementation
+Shopware.State.registerModule('example', {
+    state: {
+        id: '',
+    },
+    getters: {
+        idStart(state) {
+            return state.id.substring(0, 4);
+        }
+    },
+    mutations: {
+        setId(state, id) {
+            state.id = id;
+        }
+    },
+    actions: {
+        async asyncFoo({ commit }, id) {
+            // Do some async stuff
+            return Promise.resolve(() => {
+                commit('setId', id);
+                
+                return id;
+            });
+        }
+    }
+});
+
+// New Pinia implementation
+// Notice that the mutation setId was removed! You can directly modify a Pinia store state after retrieving it with Shopware.Store.get.
+Shopware.Store.register({
+    id: 'example',
+    state: () => ({
+        id: '',
+    }),
+    getters: {
+        idStart: () => this.id.substring(0, 4),
+    },
+    actions: {
+        async asyncFoo(id) {
+            // Do some async stuff
+            return Promise.resolve(() => {
+                this.id = id;
+
+                return id;
+            });
+        }
+    }
+});
+```
+
+For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
+
+# Cache Rework
+**Note:** Those changes can be activated separately with the `cache_rework` feature flag.
+
+## Delayed Cache Invalidation
+The cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
+This will lead to better cache hit rates and way less (duplicated) cache invalidations, which will improve efficiency and scalability of the system.
+As this feature is now active by default the previous `shopware.cache.invalidation.delay` configuration is removed.
+
+The default interval is 5 min, this can be changed by adjusting the run interval of the `shopware.invalidate_cache` scheduled task.
+
+If you sent an API request with critical information, where the cache should be invalidated immediately, you can set the `sw-force-cache-invalidate` header on your request.
+```
+POST /api/product
+sw-force-cache-invalidate: 1
+```
+
+To manually clear all the stale caches you can either run the `cache:clear:delayed` command or use the `/api/_action/cache-delayed` API endpoint.
+```
+bin/console cache:clear:delayed
+```
+```
+DELETE /api/_action/cache-delayed
+```
+
+For debugging there is the `cache:watch:delayed` command available, to watch the cache tags that are stored in the delayed cache invalidation queue.
+```
+bin/console cache:watch:delayed
+```
+
+## Removal of Store-API route caching
+The Store-API route caching has been removed. This means that the `Cached*Route` classes will be removed.
+This solves some weird states when the HTTP-Cache was invalidated separately from the route cache.
+Additionally, the cache hit rate for the Store-API was low, so the performance impact should be minimal, but the amount of cache items and cache invalidations will be reduced.
+This overall should lead to more effective cache resource usage.
+
+## Use ESI includes for Header and Footer
+**More information about this change will be available soon.**
+
+# Major Library Updates
+We upgraded the following libraries to their latest versions:
+* [DBAL 4.x](https://github.com/doctrine/dbal/blob/4.2.x/UPGRADE.md#upgrade-to-40): When you are using DBAL directly, please check the upgrade guide.
+* [PHPUnit 11.x](https://github.com/sebastianbergmann/phpunit/blob/11.0.0/ChangeLog-11.0.md#1100---2024-02-02): You need to adjust your tests to the new PHPUnit version.
+* [Dompdf 3.x](https://github.com/dompdf/dompdf/releases/tag/v3.0.0): Please check your document templates, if they are still rendered as expected.
+
+# Accessibility Compliance
+In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
+**Note:** Those changes can be activated separately with the `ACCESSIBILITY_TWEAKS` feature flag.
+
+<details>
+  <summary>Detailed Changes</summary>
+
 ## Storefront product box accessibility: Removed duplicate links around the product image in product cards
 **Affected template: `Resources/views/storefront/component/product/card/box-standard.html.twig`**
 
@@ -37,90 +154,8 @@ The anchor link around the product image `a.product-image-link` is removed and r
     </div>
 </div>
 ```
-## Reduced data loaded in Store-API Register Route and Register related events
 
-The customer entity does not have all associations loaded by default anymore. 
-This change reduces the amount of data loaded in the Store-API Register Route and Register related events to improve the performance.
-
-In the following event, the CustomerEntity has no association loaded anymore:
-
-- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
-- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
-- `\Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent`
-- `\Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent`
-- `\Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent`
-## Required foreign key in mapping definition for many-to-many associations
-If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
-
-## Introduced in 6.6.8.0
-## Vat Ids will be validated case sensitive
-Vat Ids will now be checked for case sensitivity, which means that most Vat Ids will now have to be upper case, depending on their validation pattern.
-For customers without a company, this check will only be done on entry, so it is still possible to checkout with an existing lower case Vat Id.
-For customers with a company, this check will be done at checkout, so they will need to change their Vat Id to upper case.
-## Changed PromotionGatewayInterface
-* Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface` from `EntityCollection<PromotionEntity>` to `PromotionCollection`
-## Deletes by filter over the Sync API
-The sync API allows now to add a filter to the delete request to delete multiple entities at once. This is useful if you want to delete all entities that match a certain criteria:
-```json
-[
-  {
-    "action": "delete",
-    "entity": "product",
-    "payload": [],
-    "filter": [
-      {
-        "field": "name",
-        "type": "equals",
-        "value": "test"
-      }
-    ]
-  }
-]
-```
-## Config keys changes:
-
-Next configuration keys are deprecated and will be removed in the next major version:
-* `shopware.cache.invalidation.delay_options.dsn`
-* `shopware.increment.<increment_name>.config.url`
-* `shopware.number_range.redis_url`
-* `shopware.number_range.config.dsn`
-* `shopware.cart.redis_url`
-* `cart.storage.config.dsn`
-
-To prepare for migration:
-
-1.  For all different redis connections (different DSNs) that are used in the project, add a separate record in the `config/packages/shopware.yaml` file under the `shopware` section, as in upgrade section of this document.
-2.  Replace deprecated dsn/url keys with corresponding connection names in the configuration files.
-* `shopware.cache.invalidation.delay_options.dsn` -> `shopware.cache.invalidation.delay_options.connection`
-* `shopware.increment.<increment_name>.config.url` -> `shopware.increment.<increment_name>.config.connection`
-* `shopware.number_range.redis_url` -> `shopware.number_range.config.connection`
-* `shopware.number_range.config.dsn` -> `shopware.number_range.config.connection`
-* `shopware.cart.redis_url` -> `cart.storage.config.connection`
-* `cart.storage.config.dsn` -> `cart.storage.config.connection`
-* Removed `\Core\Framework\Api\Controller\AuthController::authorize` method (API route `/api/oauth/authorize`) without replacement.
-## Removal of obsolete method in DefinitionValidator
-The method `\Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator::getNotices` was removed.
-
-## Introduced in 6.6.7.0
-## ThemeFileImporterInterface & ThemeFileImporter Removal
-Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
-
-`getBasePath` & `setBasePath` methods and `basePath` property on `StorefrontPluginConfiguration` are removed. If you need to get the absolute path you should ask for a filesystem instance via `\Shopware\Storefront\Theme\ThemeFilesystemResolver::getFilesystemForStorefrontConfig()` passing in the config object. 
-This filesystem instance can read files via a relative path and also return the absolute path of a file. Eg:
-
-```php
-$fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($storefrontPluginConfig);
-foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
-    $absolutePath = $fs->path('Resources', $relativePath);
-}
-```
-
-`\Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException` is removed, if it was previously caught you should change your catch to `\Shopware\Core\System\SystemConfig\SystemConfigException` instead and inspect the code for `\Shopware\Core\System\SystemConfig\SystemConfigException::CONFIG_NOT_FOUND`.
-## SitemapHandleFactoryInterface::create
-
-We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInterface::create` and `SitemapHandleFactory::create`.
-If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandleFactory` class, you should properly handle the new parameter in your custom implementation.
-## Accessibility - Storefront base font-size  
+## Storefront base font-size
 In regard to better readability the base font-size of the storefront is updated to the browser standard of `1rem` (16px). Other text formatting is adjusted accordingly. The following variables and properties are changed:
 
 * `$font-size-base` changed from `0.875rem` to `1rem`.
@@ -136,6 +171,7 @@ In regard to better readability the base font-size of the storefront is updated 
 * `line-height` of `.quantity-selector-group-input` changed to `1rem`.
 * `font-size` of `.main-navigation-menu` changed from `$font-size-lg` to `$font-size-base`.
 * `font-size` of `.navigation-flyout-category-link`changed from `$font-size-lg` to `$font-size-base`.
+
 ## Change Storefront language and currency dropdown items to buttons
 The `.top-bar-list-item` elements inside the "top-bar" dropdown menus will contain `<button>` elements instead of a hidden `<input type="radio">` elements.
 
@@ -179,7 +215,7 @@ The `.top-bar-list-item` elements inside the "top-bar" dropdown menus will conta
 </ul>
 ```
 
-If you are modifying the dropdown item, please adjust to the new HTML structure and consider the deprecation comments in the code. 
+If you are modifying the dropdown item, please adjust to the new HTML structure and consider the deprecation comments in the code.
 The example below shows `currency-widget.html.twig`. Inside `language-widget.html.twig` a similar structure can be found.
 
 ### Before:
@@ -203,6 +239,7 @@ The example below shows `currency-widget.html.twig`. Inside `language-widget.htm
     </button>
 {% endblock %}
 ```
+
 ## Change Storefront order items and cart line-items from `<div>` to `<ul>` and `<li>`:
 To improve the accessibility and semantics, several generic `<div>` elements that are representing lists are changed to actual `<ul>` and `<li>` elements.
 This effects the account order overview area as well as the cart line-item templates.
@@ -269,19 +306,7 @@ The overall HTML tree structure and the Twig blocks are not affected by this cha
   * `src/Storefront/Resources/views/storefront/component/line-item/type/discount.html.twig`
   * `src/Storefront/Resources/views/storefront/component/line-item/type/generic.html.twig`
   * `src/Storefront/Resources/views/storefront/component/line-item/type/container.html.twig`
-## ImportExportFactory::create
 
-We added a new optional parameter `bool $useBatchImport` to `ImportExportFactory::create`.
-If you extend the `ImportExportFactory` class, you should properly handle the new parameter in your custom implementation.
-## Changed thrown exceptions in `TranslationsSerializer`
-* Changed the `InvalidArgumentException`, which was thrown in `TranslationsSerializer::serialize` and `TranslationsSerializer::deserialize` when the given association field wasn't a `TranslationsAssociationField`, to the new `ImportExportException::invalidInstanceType` exception.
-
-## Deprecated ImportExport domain exception
-* Deprecated method `\Shopware\Core\Content\ImportExport\ImportExportException::invalidInstanceType`. Thrown exception will change from `InvalidArgumentException` to `ImportExportException`.
-## Custom field names and field set names
-Custom field names and field set names will be validated to not contain hyphens or dots, they must be valid Twig variable names (https://github.com/twigphp/Twig/blob/21df1ad7824ced2abcbd33863f04c6636674481f/src/Lexer.php#L46).
-
-## Introduced in 6.6.6.0
 ## Storefront pagination is using anchor links instead of radio inputs
 The storefront pagination component (`Resources/views/storefront/component/pagination.html.twig`) is no longer using radio inputs with styled labels. Anchor links are used instead.
 If you are modifying the `<label>` inside the pagination template, you need to change the markup to `<a>` instead. Please use one of the documented twig block alternatives inside `pagination.html.twig`.
@@ -326,36 +351,78 @@ The hidden radio input will no longer be in the HTML. The current page value wil
     </a>
 {% endblock %}
 ```
+</details>
+
+# Further Changes
+
+# Changed Functionality
+Some functionality changed in a way that might be noticeable for merchants. Additionally, this means that changes over the administration (e.g. adjusting configured flows, mail templates) might be needed to adjust to the new behavior.
+<details>
+  <summary>Detailed Changes</summary>
+
+## Vat Ids will be validated case sensitive
+Vat Ids will now be checked for case sensitivity, which means that most Vat Ids will now have to be upper case, depending on their validation pattern.
+For customers without a company, this check will only be done on entry, so it is still possible to checkout with an existing lower case Vat Id.
+For customers with a company, this check will be done at checkout, so they will need to change their Vat Id to upper case.
+
+## Custom field names and field set names validation
+Custom field names and field set names will be validated to not contain hyphens or dots, they must be valid Twig variable names (https://github.com/twigphp/Twig/blob/21df1ad7824ced2abcbd33863f04c6636674481f/src/Lexer.php#L46).
+Existing custom fields continue to work, however the validation will be enforced on new custom fields.
+
 ## Removal of deprecated properties of `CustomerDeletedEvent`
-* The deprecated properties `customerId`, `customerNumber`, `customerEmail`, `customerFirstName`, `customerLastName`, `customerCompany` and `customerSalutationId` of `CustomerDeleteEvent` will be removed and cannot be accessed anymore in a mail template when sending a mail via the `Checkout > Customer > Deleted` flow trigger.
-## Message queue size limit
+The deprecated properties `customerId`, `customerNumber`, `customerEmail`, `customerFirstName`, `customerLastName`, `customerCompany` and `customerSalutationId` of `CustomerDeleteEvent` will be removed and cannot be accessed anymore in a mail template when sending a mail via the `Checkout > Customer > Deleted` flow trigger.
 
-Any message queue message bigger than 256KB will be now rejected by default.
-To reduce the size of your messages you should only store the ID of an entity in the message and fetch it later in the message handler.
-This can be disabled again with:
+## Rule builder: Condition `customerDefaultPaymentMethod` removed
+* Removed condition `customerDefaultPaymentMethod` from rule builder, since customers do not have default payment methods anymore
+* Existing rules with this condition will be automatically migrated to the new condition `paymentMethod`, so the currently selected payment method
 
-```yaml
-shopware:
-    messenger:
-        enforce_message_size: false
+## Flow builder: Trigger `checkout.customer.changed-payment-method` removed
+* Removed trigger `checkout.customer.changed-payment-method` from flow builder, since customers do not have default payment methods anymore
+* Existing flows will be automatically disabled with Shopware 6.7 and removed in a future, destructive migration
 
-```
-## Removal of deprecated exceptions
-The following exceptions were removed:
-* `\Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException`
-## Entity class throws different exceptions
-The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Entity` class are now throwing different exceptions:
-* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::__get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
-* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
-* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
-* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
+## Direct debit default payment: State change removed
+The default payment method "Direct debit" will no longer automatically change the order state to "in progress". Use the flow builder instead, if you want the same behavior.
 
-## Introduced in 6.6.5.0
+## New `technicalName` property for payment and shipping methods
+The `technicalName` property will be required for payment and shipping methods in the API.
+The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
+
+Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+
+Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
+</details>
+
+# API
+We made some breaks in the API, which might affect your plugins or custom integrations.
+<details>
+  <summary>Detailed Changes</summary>
+
+## Removal of /api/oauth/authorize route
+Removed API route `/api/oauth/authorize` (`\Core\Framework\Api\Controller\AuthController::authorize` method) without replacement.
+</details>
+
+# Core
+We made some changes in the PHP core, which might affect your plugins.
+<details>
+  <summary>Detailed Changes</summary>
+
+## Native types for PHP class properties
+All PHP class properties now have a native type.
+If you have extended classes with properties, which didn't have a native type before, make sure you now add them as well.
+
+## Reduced data loaded in Store-API Register Route and Register related events
+
+The customer entity does not have all associations loaded by default anymore.
+This change reduces the amount of data loaded in the Store-API Register Route and Register related events to improve the performance.
+
+In the following event, the CustomerEntity has no association loaded anymore:
+
+- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
+- `\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent`
+- `\Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent`
+- `\Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent`
+- `\Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent`
+
 ## Payment: Reworked payment handlers
 * The payment handlers have been reworked to provide a more flexible and consistent way to handle payments.
 * The new `AbstractPaymentHandler` class should be used to implement payment handlers.
@@ -367,27 +434,134 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
   * `RecurringPaymentHandlerInterface`
 * Synchronous and asynchronous payments have been merged to return an optional redirect response.
 
-
 ## Payment: Capture step of prepared payments removed
 * The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
 * Use the `pay` method instead for capturing previously validated payments.
 
-## App System: Payment: payment states
-* For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
+## New `technicalName` property for payment and shipping methods
+The `technicalName` property will be required for payment and shipping methods in the API.
+The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
 
-## App system: Payment:  finalize step
-* The `finalize` step now transmits the `queryParameters` under the object key `requestData` as other payment calls
+Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+
+Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
+
 ## Customer: Default payment method removed
 * Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
 * Logic is now more consistent to always be the last used payment method
 
-## Rule builder: Condition `customerDefaultPaymentMethod` removed
-* Removed condition `customerDefaultPaymentMethod` from rule builder, since customers do not have default payment methods anymore
-* Existing rules with this condition will be automatically migrated to the new condition `paymentMethod`, so the currently selected payment method
+## Required foreign key in mapping definition for many-to-many associations
+If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
 
-## Flow builder: Trigger `checkout.customer.changed-payment-method` removed
-* Removed trigger `checkout.customer.changed-payment-method` from flow builder, since customers do not have default payment methods anymore
-* Existing flows will be automatically disabled with Shopware 6.7 and removed in a future, destructive migration
+## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` changed
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` changed to `columnName`
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` changed to `foreignKeyName`
+* Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` changed to `indexName`
+
+## Changed PromotionGatewayInterface
+Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface` from `EntityCollection<PromotionEntity>` to `PromotionCollection`
+
+## ImportExport signature changes
+
+* Added a new optional parameter `bool $useBatchImport` to `ImportExportFactory::create`. If you extend the `ImportExportFactory` class, you should properly handle the new parameter in your custom implementation.
+* Removed method `ImportExportProfileEntity::getName()` and `ImportExportProfileEntity::setName()`. Use `getTechnicalName()` and `setTechnicalName()` instead.
+* Removed `profile` attribute from `ImportEntityCommand`. Use `--profile-technical-name` instead.
+* Removed `name` field from `ImportExportProfileEntity`.
+
+## SitemapHandleFactoryInterface::create method signature change
+
+We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInterface::create` and `SitemapHandleFactory::create`.
+If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandleFactory` class, you should properly handle the new parameter in your custom implementation.
+
+## Removal of AuthController::authorize
+Removed `\Core\Framework\Api\Controller\AuthController::authorize` method (API route `/api/oauth/authorize`) without replacement.
+
+## TreeUpdater::batchUpdate signature change
+
+We added a new optional parameter `bool $recursive` to `TreeUpdater::batchUpdate`.
+If you extend the `TreeUpdater` class, you should properly handle the new parameter in your custom implementation.
+```php
+<?php
+
+class CustomTreeUpdater extends TreeUpdater
+{
+    public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
+    {
+        parent::batchUpdate($updateIds, $entity, $context, $recursive);
+    }
+}
+```
+## removal of \Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand:
+`\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand` instead.
+
+## Removal of \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator:
+`\Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator` instead.
+
+## AccountService refactoring
+
+The `Shopware\Core\Checkout\Customer\SalesChannel\AccountService::login` method is removed. Use `AccountService::loginByCredentials` or `AccountService::loginById` instead.
+
+Unused constant `Shopware\Core\Checkout\Customer\CustomerException::CUSTOMER_IS_INACTIVE` and unused method `Shopware\Core\Checkout\Customer\CustomerException::inactiveCustomer` are removed.
+
+## Removed `CustomFieldRule` comparison methods:
+`floatMatch` and `arrayMatch` methods in `src/Core/Framework/Rule/CustomFieldRule.php` will be removed for Shopware 6.7.0.0
+
+## AbstractCartOrderRoute::order method signature change
+The `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute::order` method will change its signature in the next major version. A new mandatory `request` parameter will be introduced.
+
+## Removal of MailTemplate deprecations
+* Removed constants `Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` instead
+* Removed constant `Shopware\Core\Content\MailTemplate\MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::ACTION_NAME` instead
+* Removed class `Shopware\Core\Content\MailTemplate\MailTemplateActions` without replacement
+* Removed service `Shopware\Core\Content\MailTemplate\Service\AttachmentLoader` without replacement.
+* Removed event `Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent` without replacement.
+
+## Domain Exception Handling
+We have changed/removed some exception classes in accordance with the [domain exception handling ADR](./adr/2022-02-24-domain-exceptions.md).
+<details>
+  <summary>See the detailed list</summary>
+
+## Removal of ConfigurationNotFoundException
+* Removed `\Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException`. Use `\Shopware\Core\System\SystemConfig\SystemConfigException::configurationNotFound` instead.
+* Removed `Shopware\Core\System\Snippet\Exception\FilterNotFoundException`. Use `Shopware\Core\System\Snippet\SnippetException::filterNotFound` instead.
+* Removed `Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException`. Use `Shopware\Core\System\Snippet\SnippetException::invalidSnippetFile` instead.
+
+## Changed thrown exceptions in `TranslationsSerializer`
+Changed the `InvalidArgumentException`, which was thrown in `TranslationsSerializer::serialize` and `TranslationsSerializer::deserialize` when the given association field wasn't a `TranslationsAssociationField`, to the new `ImportExportException::invalidInstanceType` exception.
+
+## Deprecated ImportExport domain exception
+Deprecated method `\Shopware\Core\Content\ImportExport\ImportExportException::invalidInstanceType`. Thrown exception will change from `InvalidArgumentException` to `ImportExportException`.
+
+## Removal of obsolete method in DefinitionValidator
+The method `\Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator::getNotices` was removed.
+
+## Removal of deprecated exceptions
+The following exceptions were removed:
+* `\Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException`
+
+## Entity class throws different exceptions
+The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Entity` class are now throwing different exceptions:
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::__get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
+</details>
+</details>
+
+# Administration
+We made some changes in the administration, which might affect your plugins.
+<details>
+  <summary>Detailed Changes</summary>
+
+## Administration removed associations
+* Removed `calculationRule` association in `shippingMethodCriteria()` in `sw-settings-shipping-detail`.
+* Removed `conditions` association in `ruleFilterCriteria()` and `shippingRuleFilterCriteria()` in `sw-settings-shipping-price-matrix`
+
 ## Removal of sw-dashboard-statistics and associated component sections and data sets
 The component `sw-dashboard-statistics` (`src/module/sw-dashboard/component/sw-dashboard-statistics`) has been removed without replacement.
 
@@ -416,74 +590,40 @@ ui.componentSection.add({
 
 Additionally, the associated data sets `sw-dashboard-detail__todayOrderData` and `sw-dashboard-detail__statisticDateRanges` were removed.
 In both cases, use the Admin API instead.
-## Direct debit default payment: State change removed
-* The default payment method "Direct debit" will no longer automatically change the order state to "in progress". Use the flow builder instead, if you want the same behavior.
 
-## Introduced in 6.6.4.0
-## Removal of Storefront `sw-skin-alert` SCSS mixin
-The mixin `sw-skin-alert` will be removed in v6.7.0. Instead of styling the alert manually with CSS selectors and the custom mixin `sw-skin-alert`,
-we modify the appearance inside the `alert-*` modifier classes directly with the Bootstrap CSS variables like it is documented: https://getbootstrap.com/docs/5.3/components/alerts/#sass-loops
+## Replace `isEmailUsed` with `isEmailAlreadyInUse`:
+Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
 
-Before:
-```scss
-@each $color, $value in $theme-colors {
-  .alert-#{$color} {
-    @include sw-skin-alert($value, $white);
-  }
-}
-```
+## Component replacement with Meteor Component Library
+We switched the usage of basic components from custom components to the meteor component library. For more details take a look at the [according ADR](./adr/2024-03-21-implementation-of-meteor-component-library.md).
 
-After:
-```scss
-@each $state, $value in $theme-colors {
-  .alert-#{$state} {
-    --#{$prefix}alert-border-color: #{$value};
-    --#{$prefix}alert-bg: #{$white};
-    --#{$prefix}alert-color: #{$body-color};
-  }
-}
-```
+**More information about how you can automate the update with `codemods` will be available soon.**
 
-## Removal of Storefront alert class `alert-has-icon` styling
-When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the class `alert-has-icon` will be removed. Helper classes `d-flex align-items-center` will be used instead.
+In short this means we replaced the following components:
+* `sw-popover` with `mt-floating-ui`
+* `sw-tabs` with `mt-tabs`
+* `sw-select-field` with `mt-select`
+* `sw-textarea-field` with `mt-textarea`
+* `sw-datepicker` with `mt-datepicker`
+* `sw-password-field` with `mt-password-field`
+* `sw-colorpicker` with `mt-colorpicker`
+* `sw-external-link` with `mt-external-link`
+* `sw-skeleton-bar` with `mt-skeleton-bar`
+* `sw-email-field` with `mt-email-field`
+* `sw-url-field` with `mt-url-field`
+* `sw-progress-bar` with `mt-progress-bar`
+* `sw-button` with `mt-button`
+* `sw-icon` with `mt-icon`
+* `sw-card` with `mt-card`
+* `sw-text-field` with `mt-text-field`
+* `sw-switch-field` with `mt-switch`
+* `sw-number-field` with `mt-number-field`
+* `sw-loader` with `mt-loader`
+* `sw-checkbox-field` with `mt-checkbox`
 
-```diff
-- <div class="alert alert-info alert-has-icon">
-+ <div class="alert alert-info d-flex align-items-center">
-    {% sw_icon 'info' %}
-    <div class="alert-content-container">
-        An important info
-    </div>
-</div>
-```
+<details>
+    <summary>See the detailed list</summary>
 
-## Removal of Storefront alert inner container `alert-content`
-As of v6.7.0, the superfluous inner container `alert-content` will be removed to have lesser elements and be more aligned with Bootstraps alert structure.
-When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the inner container `alert-content` will no longer be present in the HTML output.
-
-The general usage of `Resources/views/storefront/utilities/alert.html.twig` and all include parameters remain the same.
-
-Before:
-```html
-<div role="alert" class="alert alert-info d-flex align-items-center">
-    <span class="icon icon-info"><svg></svg></span>                                                    
-    <div class="alert-content-container">
-        <div class="alert-content">                                                    
-            Your shopping cart is empty.
-        </div>                
-    </div>
-</div>
-```
-
-After:
-```html
-<div role="alert" class="alert alert-info d-flex align-items-center">
-    <span class="icon icon-info"><svg></svg></span>                                                    
-    <div class="alert-content-container">
-        Your shopping cart is empty.
-    </div>
-</div>
-```
 ## Removal of "sw-popover":
 The old "sw-popover" component will be removed in the next major version. Please use the new "mt-floating-ui" component instead.
 
@@ -553,55 +693,7 @@ After:
 ```html
 <mt-floating-ui :isOpened="myVisibility" />
 ```
-## Removal of deprecations
-* Removed method `ImportExportProfileEntity::getName()` and `ImportExportProfileEntity::setName()`. Use `getTechnicalName()` and `setTechnicalName()` instead.
-* Removed `profile` attribute from `ImportEntityCommand`. Use `--profile-technical-name` instead.
-* Removed `name` field from `ImportExportProfileEntity`.
-## All Vuex stores will be transitioned to Pinia
-* All Shopware states will become Pinia Stores and will be available via `Shopware.Store`
 
-## Introduced in 6.6.3.0
-## onlyAvailable flag removed
-* The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request will be removed in the next major version. The route will always filter the payment and shipping methods before calling the checkout gateway based on availability.
-## AbstractCartOrderRoute::order method signature change
-* The `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute::order` method will change its signature in the next major version. A new mandatory `request` parameter will be introduced.
-## Shopware config changes:
-### cart
-Replace the `redis_url` parameter in `config/packages/shopware.yaml` file:
-```yaml
-    cart:
-        compress: false
-        expire_days: 120
-        redis_url: false # or 'redis://localhost'
-```
-to
-```yaml
-    cart:
-        compress: false
-        expire_days: 120
-        storage:
-            type: "mysql" # or "redis"
-            # config:
-                # dsn: 'redis://localhost'
-```
-### number_range
-Replace the `redis_url` parameter in `config/packages/shopware.yaml` file:
-```yaml
-    number_range:
-        increment_storage: "SQL"
-        redis_url: false # or 'redis://localhost'
-```
-to
-```yaml
-    number_range:
-        increment_storage: "mysql" # or "redis"
-        # config:
-            # dsn: 'redis://localhost'
-```
-## Removal of deprecations
-* Removed constants `Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` instead
-* Removed constant `Shopware\Core\Content\MailTemplate\MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::ACTION_NAME` instead
-* Removed class `Shopware\Core\Content\MailTemplate\MailTemplateActions` without replacement
 ## Removal of "sw-tabs":
 The old "sw-tabs" component will be removed in the next major version. Please use the new "mt-tabs" component instead.
 
@@ -1430,7 +1522,7 @@ After:
 ```html
 <mt-url-field />
 ```
-## Removal of "sw-progress-bar":
+### Removal of "sw-progress-bar":
 The old "sw-progress-bar" component will be removed in the next major version. Please use the new "mt-progress-bar" component instead.
 
 We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-progress-bar" component.
@@ -1486,9 +1578,8 @@ Before:
 After:
 ```html
 <mt-progress-bar @update:modelValue="updateValue" />
-```g
+```
 
-## Introduced in 6.6.2.0
 ## Removal of "sw-button":
 The old "sw-button" component will be removed in the next major version. Please use the new "mt-button" component instead.
 
@@ -1563,9 +1654,7 @@ After:
 ```html
 <mt-button @click="this.$router.push('sw.example.route')">Go to example</mt-button>
 ```
-## Removal of deprecations
-* Removed service `Shopware\Core\Content\MailTemplate\Service\AttachmentLoader` without replacement.
-* Removed event `Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent` without replacement.
+
 ## Removal of "sw-icon":
 The old "sw-icon" component will be removed in the next major version. Please use the new "mt-icon" component instead.
 
@@ -1672,9 +1761,7 @@ After:
 ```html
 <mt-card>Hello World</mt-card>
 ```
-## Removal of deprecated exceptions
-* Removed `Shopware\Core\System\Snippet\Exception\FilterNotFoundException`. Use `Shopware\Core\System\Snippet\SnippetException::filterNotFound` instead.
-* Removed `Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException`. Use `Shopware\Core\System\Snippet\SnippetException::invalidSnippetFile` instead.
+
 ## Removal of "sw-text-field":
 The old "sw-text-field" component will be removed in the next major version. Please use the new "mt-text-field" component instead.
 
@@ -2160,50 +2247,150 @@ After:
 ```html
 <mt-checkbox @update:checked="updateValue" />
 ```
+</details>
+</details>
 
-## Introduced in 6.6.1.0
-## TreeUpdater::batchUpdate
+# Storefront
+We made some changes in the administration, which might affect your plugins and themes.
+<details>
+  <summary>Detailed Changes</summary>
 
-We added a new optional parameter `bool $recursive` to `TreeUpdater::batchUpdate`.
-If you extend the `TreeUpdater` class, you should properly handle the new parameter in your custom implementation.
+## ThemeFileImporterInterface & ThemeFileImporter Removal
+Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
+
+`getBasePath` & `setBasePath` methods and `basePath` property on `StorefrontPluginConfiguration` are removed. If you need to get the absolute path you should ask for a filesystem instance via `\Shopware\Storefront\Theme\ThemeFilesystemResolver::getFilesystemForStorefrontConfig()` passing in the config object.
+This filesystem instance can read files via a relative path and also return the absolute path of a file. Eg:
+
 ```php
-<?php
-
-class CustomTreeUpdater extends TreeUpdater
-{
-    public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
-    {
-        parent::batchUpdate($updateIds, $entity, $context, $recursive);
-    }
+$fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($storefrontPluginConfig);
+foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
+    $absolutePath = $fs->path('Resources', $relativePath);
 }
 ```
-## \Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand:
-`\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand` instead.
 
-## \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator:
-`\Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator` instead.
-## Replace `isEmailUsed` with `isEmailAlreadyInUse`:
-* Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
+## Removal of deprecated product review loading logic in Storefront
+* The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
+* The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
+* The hook `\Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook` instead.
+* The struct `\Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult` instead.
 
+## Removal of Storefront `sw-skin-alert` SCSS mixin
+The mixin `sw-skin-alert` will be removed in v6.7.0. Instead of styling the alert manually with CSS selectors and the custom mixin `sw-skin-alert`,
+we modify the appearance inside the `alert-*` modifier classes directly with the Bootstrap CSS variables like it is documented: https://getbootstrap.com/docs/5.3/components/alerts/#sass-loops
 
-## Introduced in 6.6.0.0
+Before:
+```scss
+@each $color, $value in $theme-colors {
+  .alert-#{$color} {
+    @include sw-skin-alert($value, $white);
+  }
+}
+```
 
-## Replace `isEmailUsed` with `isEmailAlreadyInUse`:
-* Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
+After:
+```scss
+@each $state, $value in $theme-colors {
+  .alert-#{$state} {
+    --#{$prefix}alert-border-color: #{$value};
+    --#{$prefix}alert-bg: #{$white};
+    --#{$prefix}alert-color: #{$body-color};
+  }
+}
+```
 
-## AccountService refactoring
+## Removal of Storefront alert class `alert-has-icon` styling
+When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the class `alert-has-icon` will be removed. Helper classes `d-flex align-items-center` will be used instead.
 
-The `Shopware\Core\Checkout\Customer\SalesChannel\AccountService::login` method is removed. Use `AccountService::loginByCredentials` or `AccountService::loginById` instead.
+```diff
+- <div class="alert alert-info alert-has-icon">
++ <div class="alert alert-info d-flex align-items-center">
+    {% sw_icon 'info' %}
+    <div class="alert-content-container">
+        An important info
+    </div>
+</div>
+```
 
-Unused constant `Shopware\Core\Checkout\Customer\CustomerException::CUSTOMER_IS_INACTIVE` and unused method `Shopware\Core\Checkout\Customer\CustomerException::inactiveCustomer` are removed.
-## Deprecated comparison methods:
-* `floatMatch` and `arrayMatch` methods in `src/Core/Framework/Rule/CustomFieldRule.php` will be removed for Shopware 6.7.0.0
+## Removal of Storefront alert inner container `alert-content`
+As of v6.7.0, the superfluous inner container `alert-content` will be removed to have lesser elements and be more aligned with Bootstraps alert structure.
+When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the inner container `alert-content` will no longer be present in the HTML output.
 
-## Introduced in 6.5.7.0
-## New `technicalName` property for payment and shipping methods
-The `technicalName` property will be required for payment and shipping methods in the API.
-The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
+The general usage of `Resources/views/storefront/utilities/alert.html.twig` and all include parameters remain the same.
 
-Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+Before:
+```html
+<div role="alert" class="alert alert-info d-flex align-items-center">
+    <span class="icon icon-info"><svg></svg></span>                                                    
+    <div class="alert-content-container">
+        <div class="alert-content">                                                    
+            Your shopping cart is empty.
+        </div>                
+    </div>
+</div>
+```
 
-Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
+After:
+```html
+<div role="alert" class="alert alert-info d-flex align-items-center">
+    <span class="icon icon-info"><svg></svg></span>                                                    
+    <div class="alert-content-container">
+        Your shopping cart is empty.
+    </div>
+</div>
+```
+</details>
+
+# App System
+We made some changes in the app-system, which might affect your apps.
+<details>
+  <summary>Detailed Changes</summary>
+
+## Payment: payment states
+For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
+
+## Payment: finalize step
+The `finalize` step now transmits the `queryParameters` under the object key `requestData` as other payment calls
+
+## Payment: onlyAvailable flag removed from CheckoutGatewayRoute
+The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request is removed. The route always filters the payment and shipping methods before calling the checkout gateway based on availability.
+</details>
+
+# Hosting & Configuration
+We made some changes in the configuration and setup, which might affect your project setups.
+<details>
+  <summary>Detailed Changes</summary>
+
+## Config keys changes due to improved redis connection handling
+
+Next configuration keys are deprecated and will be removed in the next major version:
+* `shopware.cache.invalidation.delay_options.dsn`
+* `shopware.increment.<increment_name>.config.url`
+* `shopware.number_range.redis_url`
+* `shopware.number_range.config.dsn`
+* `shopware.cart.redis_url`
+* `cart.storage.config.dsn`
+
+To prepare for migration:
+
+1.  For all different redis connections (different DSNs) that are used in the project, add a separate record in the `config/packages/shopware.yaml` file under the `shopware` section, as in upgrade section of this document.
+2.  Replace deprecated dsn/url keys with corresponding connection names in the configuration files.
+* `shopware.cache.invalidation.delay_options.dsn` -> `shopware.cache.invalidation.delay_options.connection`
+* `shopware.increment.<increment_name>.config.url` -> `shopware.increment.<increment_name>.config.connection`
+* `shopware.number_range.redis_url` -> `shopware.number_range.config.connection`
+* `shopware.number_range.config.dsn` -> `shopware.number_range.config.connection`
+* `shopware.cart.redis_url` -> `cart.storage.config.connection`
+* `cart.storage.config.dsn` -> `cart.storage.config.connection`
+
+## Message queue size limit
+
+Any message queue message bigger than 256KB will be now rejected by default.
+To reduce the size of your messages you should only store the ID of an entity in the message and fetch it later in the message handler.
+This can be disabled again with:
+
+```yaml
+shopware:
+    messenger:
+        enforce_message_size: false
+
+```
+</details>

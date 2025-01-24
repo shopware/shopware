@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @description Base condition for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype
  * @example-type code-only

@@ -14,7 +14,7 @@ tester.run('require-package-annotation', rule, {
             filename: 'test.js',
             code: `
 /**
-* @package admin
+* @sw-package admin
 */
 const foo = 'bar';`
         },
@@ -23,7 +23,7 @@ const foo = 'bar';`
             filename: 'test.ts',
             code: `
 /**
-* @package admin
+* @sw-package admin
 */
 const foo = 'bar';`
         },
@@ -34,7 +34,7 @@ const foo = 'bar';`
 // This is a comment
 
 /**
-* @package admin
+* @sw-package admin
 */
 const foo = 'bar';`
         },
@@ -45,7 +45,7 @@ const foo = 'bar';`
 // This is a comment
 
 /**
-* @package admin
+* @sw-package admin
 */
 const foo = 'bar';`
         },
@@ -88,7 +88,7 @@ const foo = 'bar';`
             name: 'JS File with package annotation in line comment',
             filename: 'test.js',
             code: `
-// @package admin
+// @sw-package admin
 
 const foo = 'bar';
 `,
@@ -101,7 +101,7 @@ const foo = 'bar';
             name: 'TS File with package annotation in line comment',
             filename: 'test.ts',
             code: `
-// @package admin
+// @sw-package admin
 
 const foo = 'bar';
             `,

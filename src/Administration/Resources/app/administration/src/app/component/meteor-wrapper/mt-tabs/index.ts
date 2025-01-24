@@ -14,7 +14,7 @@ MtTabs.compatConfig = Object.fromEntries(
 );
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import ChangesetGenerator from './changeset-generator.data';

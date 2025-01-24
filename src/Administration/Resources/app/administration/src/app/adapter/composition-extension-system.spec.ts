@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * This test is written in TS to make sure that the type inheritance
  * works correctly with the new Composition API extension system.

@@ -3,7 +3,7 @@ import './sw-order-detail.scss';
 import swOrderDetailState from '../../state/order-detail.store';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { State, Mixin, Utils } = Shopware;
@@ -135,7 +135,7 @@ export default {
 
             criteria.getAssociation('lineItems.children').addSorting(Criteria.sort('position', 'ASC'));
 
-            criteria.addAssociation('salesChannel');
+            criteria.addAssociation('salesChannel.domains');
 
             criteria
                 .addAssociation('addresses.country')

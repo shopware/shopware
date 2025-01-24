@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import { UploadEvents } from 'src/core/service/api/media.api.service';
 
 const { Component, Mixin, Context } = Shopware;

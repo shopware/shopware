@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import initTeaserButtons from 'src/app/init/teaser-popover.init';
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 

@@ -55,7 +55,7 @@ async function createWrapper(privileges = []) {
 }
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper;

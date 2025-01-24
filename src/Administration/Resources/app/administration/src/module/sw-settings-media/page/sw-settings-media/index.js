@@ -1,5 +1,5 @@
 /**
- * @package innovation
+ * @sw-package innovation
  */
 
 import template from './sw-settings-media.html.twig';

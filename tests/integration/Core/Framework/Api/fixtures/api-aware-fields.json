@@ -1190,6 +1190,8 @@
     "document.documentMediaFile",
     "document.createdAt",
     "document.updatedAt",
+    "document.documentA11yMediaFileId",
+    "document.documentA11yMediaFile",
     "document_type.id",
     "document_type.name",
     "document_type.technicalName",

@@ -3,7 +3,7 @@ import './sw-cms-stage-add-block.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

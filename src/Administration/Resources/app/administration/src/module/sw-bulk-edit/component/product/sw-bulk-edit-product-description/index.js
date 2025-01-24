@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

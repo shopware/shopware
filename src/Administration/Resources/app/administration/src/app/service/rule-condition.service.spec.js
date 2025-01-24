@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import RuleConditionService from 'src/app/service/rule-condition.service';
 

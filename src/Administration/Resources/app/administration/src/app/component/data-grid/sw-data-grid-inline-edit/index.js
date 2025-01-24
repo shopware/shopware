@@ -4,7 +4,7 @@ import './sw-data-grid-inline-edit.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

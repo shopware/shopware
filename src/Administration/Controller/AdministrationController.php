@@ -41,7 +41,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['administration']])]
-#[Package('administration')]
+#[Package('framework')]
 class AdministrationController extends AbstractController
 {
     private readonly bool $esAdministrationEnabled;

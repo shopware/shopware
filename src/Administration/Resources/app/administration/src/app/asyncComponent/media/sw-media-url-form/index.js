@@ -3,7 +3,7 @@ import template from './sw-media-url-form.html.twig';
 /**
  * @status ready
  * @description The <u>sw-media-url-form</u> component is used to validate urls from the user.
- * @package content
+ * @sw-package content
  * @example-type static
  * @component-example
  * <sw-media-url-form variant="inline">

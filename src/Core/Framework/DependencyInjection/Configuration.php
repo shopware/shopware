@@ -1053,30 +1053,16 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode->addDefaultsIfNotSet()
             ->children()
-                ->booleanNode('use_default')->defaultTrue()->end()
-                ->arrayNode('sso_providers')->defaultValue([])->end();
+                ->booleanNode('use_default')->defaultTrue()->end();
 
         $rootNode
             ->children()
-                ->booleanNode('use_default')->defaultTrue()->end()
-                ->arrayNode('sso_providers')->defaultValue([])
-                ->useAttributeAsKey('provider')
-                ->arrayPrototype()
-                    ->children()
-                        ->scalarNode('snippet_key')->isRequired()->end()
-                        ->scalarNode('icon')->isRequired()->end()
-                        ->scalarNode('client_id')->isRequired()->end()
-                        ->scalarNode('client_secret')->isRequired()->end()
-                        ->scalarNode('redirect_uri')->isRequired()->end()
-                        ->scalarNode('base_url')->isRequired()->end()
-                        ->scalarNode('class')->isRequired()->end()
-                        ->arrayNode('additional_data')
-                            ->defaultValue([])
-                            ->useAttributeAsKey('key')
-                            ->scalarPrototype()
-                        ->end()
-                    ->end()
-                ->end()
+                ->booleanNode('use_default')->isRequired()->end()
+                ->stringNode('client_id')->isRequired()->end()
+                ->stringNode('client_secret')->isRequired()->end()
+                ->stringNode('redirect_uri')->isRequired()->end()
+                ->stringNode('base_url')->isRequired()->end()
+                ->stringNode('session_key')->isRequired()->end()
             ->end();
 
         return $rootNode;

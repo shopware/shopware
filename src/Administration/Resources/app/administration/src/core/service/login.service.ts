@@ -22,17 +22,12 @@ interface TokenResponse {
     /* eslint-enable camelcase */
 }
 
-interface SsoProvider {
-    type: string;
+interface LoginConfig {
+    useDefault: boolean;
     snippetKey: string;
     icon: string;
     class: string;
     url: string;
-}
-
-interface LoginConfig {
-    useDefault: boolean;
-    ssoProviders: SsoProvider[];
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

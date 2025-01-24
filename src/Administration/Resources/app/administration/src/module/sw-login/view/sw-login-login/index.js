@@ -54,8 +54,8 @@ Component.register('sw-login-login', {
             Shopware.State.dispatch('setAdminLocale', navigator.language);
         }
 
-        this.loginService.getLoginTemplateConfig().then((loginData) => {
-            this.loginConfig = loginData;
+        this.loginService.getLoginTemplateConfig().then((loginConfig) => {
+            this.loginConfig = loginConfig;
             this.loginConfigLoaded = true;
         });
     },

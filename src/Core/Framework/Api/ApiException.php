@@ -68,14 +68,6 @@ class ApiException extends HttpException
 
     public const API_NOTIFICATION_THROTTLED = 'FRAMEWORK__NOTIFICATION_THROTTLED';
 
-    public const API_INVALID_LOGIN_STATE = 'FRAMEWORK__INVALID_LOGIN_STATE';
-
-    public const API_NO_LOGIN_SERVICE = 'FRAMEWORK__NO_LOGIN_SERVICE';
-
-    public const API_INVALID_JWT_TOKEN = 'FRAMEWORK__INVALID_JWT_TOKEN';
-
-    public const API_JWT_USER_NOT_FOUND = 'FRAMEWORK__JWT_USER_NOT_FOUND';
-
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
      */
@@ -461,42 +453,6 @@ class ApiException extends HttpException
             'Notification throttled for {{ seconds }} seconds.',
             ['seconds' => $waitTime],
             $e
-        );
-    }
-
-    public static function invalidLoginState(): self
-    {
-        return new self(
-            Response::HTTP_UNAUTHORIZED,
-            self::API_INVALID_LOGIN_STATE,
-            'Invalid login state'
-        );
-    }
-
-    public static function loginConfigServiceNotAvailable(): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::API_NO_LOGIN_SERVICE,
-            'LoginConfigService not available'
-        );
-    }
-
-    public static function invalidJwtToken(): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::API_INVALID_JWT_TOKEN,
-            'Invalid JWT token'
-        );
-    }
-
-    public static function userNotFound(): self
-    {
-        return new self(
-            Response::HTTP_NOT_FOUND,
-            self::API_JWT_USER_NOT_FOUND,
-            'User not found'
         );
     }
 }

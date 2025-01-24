@@ -184,10 +184,6 @@
             <argument type="service" id="shopware.api.authorization_server"/>
             <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <argument type="service" id="shopware.rate_limiter"/>
-            <argument type="service" id="user.repository"/>
-            <argument type="service" id="Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService" on-invalid="null"/>
-            <argument type="service" id="http_client"/>
-            <argument type="service" id="Shopware\Core\LoginConfig\Builder\LoginConfigBuilder"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -248,8 +244,7 @@
             <deprecated package="shopware/core" version="6.7.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 without replacement</deprecated>
         </service>
 
-<!--        TODO REMOVE PUBLIC=TRUE AND INJECT -->
-        <service id="shopware.jwt_config" class="Lcobucci\JWT\Configuration" public="true">
+        <service id="shopware.jwt_config" class="Lcobucci\JWT\Configuration">
             <factory class="Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory"
                      method="createJWTConfiguration"/>
 
@@ -311,6 +306,8 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="Shopware\Administration\Login\UserService\UserService"/>
+            <argument type="service" id="Shopware\Administration\Login\TokenService\ExternalTokenService"/>
             <argument type="string">%shopware.api.access_token_ttl%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 

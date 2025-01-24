@@ -7,7 +7,7 @@ use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
-use Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService;
+use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
@@ -71,7 +71,7 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
-        private readonly LoginConfigService $loginConfigService,
+        private readonly LoginConfig $loginConfig,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -115,10 +115,9 @@ class AdministrationController extends AbstractController
     #[Route(path: '/%shopware_administration.path_name%/sso/auth', name: 'administration.sso.auth', defaults: ['auth_required' => false], methods: ['GET'])]
     public function ssoAuth(Request $request): RedirectResponse
     {
-        $key = $request->get('key');
+        $random = $request->getSession()->get($this->loginConfig->getSessionKey());
 
-        $random = $request->getSession()->get('SSO_' . $key);
-        $url = $this->loginConfigService->createRedirectUrl($key, $random);
+        $url = $this->loginConfig->createRedirectUrl($random);
 
         return new RedirectResponse($url);
     }

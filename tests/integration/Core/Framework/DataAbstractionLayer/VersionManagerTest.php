@@ -84,7 +84,7 @@ class VersionManagerTest extends TestCase
         KernelLifecycleManager::bootKernel();
     }
 
-    public function ytestWhenAddAnExtensionWithFKIdThenFKIdShouldBeCloned(): void
+    public function testWhenAddAnExtensionWithFKIdThenFKIdShouldBeCloned(): void
     {
         $extendableId = Uuid::randomHex();
         $product = (new ProductBuilder($this->ids, self::PRODUCT_ID))->stock(1)

@@ -29,12 +29,4 @@ class ShippingMethodRouteResponse extends StoreApiResponse
     {
         return $this->object->getEntities();
     }
-
-    /**
-     * @return EntitySearchResult<ShippingMethodCollection>
-     */
-    public function getShippingMethodResult(): EntitySearchResult
-    {
-        return $this->object;
-    }
 }

@@ -42,7 +42,6 @@ class SortedShippingMethodRoute extends AbstractShippingMethodRoute
         $response = $this->getDecorated()->load($request, $context, $criteria);
 
         $response->getShippingMethods()->sortShippingMethodsByPreference($context);
-        $response->getShippingMethodResult()->assign(['elements' => $response->getShippingMethods()->getElements()]);
 
         $this->scriptExecutor->execute(new ShippingMethodRouteHook(
             $response->getShippingMethods(),

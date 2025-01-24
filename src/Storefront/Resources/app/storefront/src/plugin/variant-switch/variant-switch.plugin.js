@@ -7,7 +7,6 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 import HttpClient from 'src/service/http-client.service';
-import queryString from 'query-string';
 
 /**
  * this plugin submits the variant form
@@ -94,7 +93,7 @@ export default class VariantSwitchPlugin extends Plugin {
         };
 
         if (this._elementId && this._pageType !== 'product_detail') {
-            const url = this.options.url + '?' + queryString.stringify({ ...query, elementId: this._elementId });
+            const url = this.options.url + '?' + new URLSearchParams({ ...query, elementId: this._elementId }).toString();
             document.$emitter.publish('updateBuyWidget', { url, elementId: this._elementId });
 
             return;
@@ -185,7 +184,7 @@ export default class VariantSwitchPlugin extends Plugin {
     _redirectToVariant(data) {
         PageLoadingIndicatorUtil.create();
 
-        const url = this.options.url + '?' + queryString.stringify(data);
+        const url = `${this.options.url}?${new URLSearchParams(data).toString()}`;
 
         this._httpClient.get(`${url}`, (response) => {
             const data = JSON.parse(response);

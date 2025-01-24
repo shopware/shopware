@@ -7,7 +7,6 @@ const { merge } = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
-const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -134,6 +133,10 @@ const coreConfig = {
                                 parser: {
                                     syntax: 'typescript',
                                 },
+                                // TODO: dev<>prod
+                                minify: {
+                                    compress: true,
+                                },
                                 transform: {
                                     // NEXT-30535 - Restore babel option to not use defineProperty for class fields.
                                     // Previously (in v6.5.x) this was done by `@babel/preset-typescript` automatically.
@@ -227,23 +230,6 @@ const coreConfig = {
     optimization: {
         moduleIds: 'deterministic',
         chunkIds: false, // chunk name is set by FilenameToChunkNamePlugin
-        ...(() => {
-            if (isProdMode) {
-                return {
-                    minimizer: [
-                        new TerserPlugin({
-                            minify: TerserPlugin.swcMinify,
-                            terserOptions: {
-                                compress: true,
-                            },
-                            parallel: true,
-                        }),
-                    ],
-                };
-            }
-
-            return {};
-        })(),
     },
     output: {
         path: path.resolve(__dirname, 'dist'),

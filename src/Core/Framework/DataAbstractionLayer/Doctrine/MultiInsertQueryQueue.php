@@ -8,11 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-type DataRow array{data: array<string, mixed>, types: array<string, ParameterType>|null}
+ */
 #[Package('framework')]
 class MultiInsertQueryQueue
 {
     /**
-     * @var array<string, list<array{data: array<string, mixed>, columns: list<string>}>>
+     * @var array<string, list<DataRow>>
      */
     private array $inserts = [];
 
@@ -40,7 +43,7 @@ class MultiInsertQueryQueue
 
     /**
      * @param array<string, mixed> $data
-     * @param array<string, ParameterType::*>|null $types
+     * @param array<string, ParameterType>|null $types
      */
     public function addInsert(string $table, array $data, ?array $types = null): void
     {
@@ -52,7 +55,7 @@ class MultiInsertQueryQueue
 
     /**
      * @param list<array<string, mixed>> $rows
-     * @param array<string, ParameterType::*>|null $types
+     * @param array<string, ParameterType>|null $types
      */
     public function addInserts(string $table, array $rows, ?array $types = null): void
     {
@@ -87,7 +90,7 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @return array<array{query: string, values: list<string>, types: array<string, ParameterType::*>}>
+     * @return array<array{query: string, values: list<string>, types: list<ParameterType>}>
      */
     private function prepareQueries(): array
     {
@@ -104,23 +107,19 @@ class MultiInsertQueryQueue
 
         foreach ($this->inserts as $table => $rows) {
             $columns = $this->prepareColumns($rows);
+            $escapedColumns = implode(', ', array_map(EntityDefinitionQueryHelper::escape(...), $columns));
+            $escapedTable = EntityDefinitionQueryHelper::escape($table);
 
-            $tableTemplate =
-                $template
-                . $this->prepareOnDuplicateKeyUpdatePart(
-                    array_intersect($this->updateFieldsOnDuplicateKey[$table] ?? [], $columns)
-            ) . ';';
+            $onDuplicateKey = $this->prepareOnDuplicateKeyUpdatePart(
+                array_intersect($this->updateFieldsOnDuplicateKey[$table] ?? [], $columns) // only fields that are in the columns can be updated
+            );
+            $tableTemplate = \sprintf('%s%s;', $template, $onDuplicateKey);
 
             $rowsChunks = array_chunk($rows, $this->chunkSize);
             foreach ($rowsChunks as $rowsChunk) {
                 $data = $this->prepareValues($columns, $rowsChunk);
                 $queries[] = [
-                    'query' => \sprintf(
-                        $tableTemplate,
-                        EntityDefinitionQueryHelper::escape($table),
-                        implode(', ', array_map(EntityDefinitionQueryHelper::escape(...), $columns)),
-                        implode(', ', $data['placeholders']),
-                    ),
+                    'query' => \sprintf($tableTemplate, $escapedTable, $escapedColumns, implode(', ', $data['placeholders'])),
                     'values' => $data['values'],
                     'types' => $data['types'],
                 ];
@@ -130,11 +129,16 @@ class MultiInsertQueryQueue
         return $queries;
     }
 
-    private function prepareOnDuplicateKeyUpdatePart(array $fieldsToUpdate): string {
-        if (count($fieldsToUpdate) === 0) {
+    /**
+     * @param array<string> $fieldsToUpdate
+     */
+    private function prepareOnDuplicateKeyUpdatePart(array $fieldsToUpdate): string
+    {
+        if (\count($fieldsToUpdate) === 0) {
             return '';
         }
 
+        $updateParts = [];
         foreach ($fieldsToUpdate as $field) {
             // see https://stackoverflow.com/a/2714653/10064036
             $updateParts[] = \sprintf('%s = VALUES(%s)', EntityDefinitionQueryHelper::escape($field), EntityDefinitionQueryHelper::escape($field));
@@ -144,12 +148,13 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @param list<array{columns: list<string>}> $rows
+     * @param list<DataRow> $rows
      *
      * @return list<string>
      */
     private function prepareColumns(array $rows): array
     {
+        /** @var array<string, int> $columns */
         $columns = [];
         foreach ($rows as $row) {
             foreach (array_keys($row['data']) as $column) {
@@ -162,9 +167,9 @@ class MultiInsertQueryQueue
 
     /**
      * @param list<string> $columns
-     * @param list<array{data: array<string, mixed>, columns: list<string>}> $rows
+     * @param list<DataRow> $rows
      *
-     * @return array{placeholders: list<string>, values: list<mixed>, types: array<string, ParameterType::*>}
+     * @return array{placeholders: list<string>, values: list<mixed>, types: list<ParameterType>}
      */
     private function prepareValues(array $columns, array $rows): array
     {

@@ -8,21 +8,32 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
  * @internal
+ *
+ * @phpstan-type Inserts list<array{
+ *          table: string,
+ *          data: array<string, mixed>,
+ *          types?: array<string, ParameterType>
+ *      }>
+ * @phpstan-type Queries list<array{
+ *          query: string,
+ *          values: list<mixed>,
+ *          types?: list<ParameterType>
+ *      }>
  */
 #[Package('framework')]
 #[CoversClass(MultiInsertQueryQueue::class)]
 class MultiInsertQueryQueueTest extends TestCase
 {
-    protected function setUp(): void
-    {
-    }
-
+    /**
+     * @param Inserts $inserts
+     * @param Queries $queries
+     */
     #[DataProvider('preparedQueriesDataProvider')]
     public function testPrepareQueries(array $inserts, array $queries, int $batchSize = 5, bool $ignoreErrors = false, bool $useReplace = false): void
     {
@@ -35,7 +46,7 @@ class MultiInsertQueryQueueTest extends TestCase
         $generatedQueries = $prepareQueries->invoke($queue);
 
         static::assertIsArray($generatedQueries);
-        static::assertCount(count($queries), $generatedQueries);
+        static::assertCount(\count($queries), $generatedQueries);
         foreach ($generatedQueries as $index => $query) {
             static::assertArrayHasKey('query', $query);
             static::assertArrayHasKey('values', $query);
@@ -43,18 +54,27 @@ class MultiInsertQueryQueueTest extends TestCase
             static::assertSame($queries[$index]['query'], $query['query']);
             static::assertSame($queries[$index]['values'], $query['values']);
             // we don't want to provide types for default values
-            $types = $queries[$index]['types'] ?? array_fill(0, count($queries[$index]['values']), ParameterType::STRING);
+            $types = $queries[$index]['types'] ?? array_fill(0, \count($queries[$index]['values']), ParameterType::STRING);
             static::assertSame($types, $query['types']);
         }
     }
 
+    /**
+     * @return iterable<string, array{
+     *     inserts: Inserts,
+     *     queries: Queries,
+     *     batchSize?: int,
+     *     ignoreErrors?: bool,
+     *     useReplace?: bool
+     * }>
+     */
     public static function preparedQueriesDataProvider(): iterable
     {
         yield 'single insert with types' => [
             'inserts' => [
                 [
                     'table' => 'table1',
-                    'data' => [ 'id' => 1, 'name' => 'test',],
+                    'data' => ['id' => 1, 'name' => 'test'],
                     'types' => [
                         'id' => ParameterType::INTEGER,
                         'name' => ParameterType::STRING,
@@ -74,7 +94,7 @@ class MultiInsertQueryQueueTest extends TestCase
             'inserts' => [
                 [
                     'table' => 'table1',
-                    'data' => [ 'id' => 1, 'name' => 'test', ],
+                    'data' => ['id' => 1, 'name' => 'test'],
                 ],
             ],
             'queries' => [
@@ -87,20 +107,20 @@ class MultiInsertQueryQueueTest extends TestCase
 
         yield 'batching' => [
             'inserts' => [
-                ['table' => 'table1', 'data' => ['id' => 1],],
-                ['table' => 'table1', 'data' => ['id' => 2],],
-                ['table' => 'table1', 'data' => ['id' => 3],],
-                ['table' => 'table1', 'data' => ['id' => 4],],
-                ['table' => 'table1', 'data' => ['id' => 5],],
+                ['table' => 'table1', 'data' => ['id' => 1]],
+                ['table' => 'table1', 'data' => ['id' => 2]],
+                ['table' => 'table1', 'data' => ['id' => 3]],
+                ['table' => 'table1', 'data' => ['id' => 4]],
+                ['table' => 'table1', 'data' => ['id' => 5]],
             ],
             'queries' => [
                 [
                     'query' => 'INSERT INTO `table1` (`id`) VALUES (?), (?);',
-                    'values' => [1,2],
+                    'values' => [1, 2],
                 ],
                 [
                     'query' => 'INSERT INTO `table1` (`id`) VALUES (?), (?);',
-                    'values' => [3,4],
+                    'values' => [3, 4],
                 ],
                 [
                     'query' => 'INSERT INTO `table1` (`id`) VALUES (?);',
@@ -112,13 +132,13 @@ class MultiInsertQueryQueueTest extends TestCase
 
         yield 'ignore errors' => [
             'inserts' => [
-                ['table' => 'table1', 'data' => ['id' => 1],],
-                ['table' => 'table1', 'data' => ['id' => 2],],
+                ['table' => 'table1', 'data' => ['id' => 1]],
+                ['table' => 'table1', 'data' => ['id' => 2]],
             ],
             'queries' => [
                 [
                     'query' => 'INSERT IGNORE INTO `table1` (`id`) VALUES (?), (?);',
-                    'values' => [1,2],
+                    'values' => [1, 2],
                 ],
             ],
             'batchSize' => 5,
@@ -127,13 +147,13 @@ class MultiInsertQueryQueueTest extends TestCase
 
         yield 'use replace' => [
             'inserts' => [
-                ['table' => 'table1', 'data' => ['id' => 1],],
-                ['table' => 'table1', 'data' => ['id' => 2],],
+                ['table' => 'table1', 'data' => ['id' => 1]],
+                ['table' => 'table1', 'data' => ['id' => 2]],
             ],
             'queries' => [
                 [
                     'query' => 'REPLACE INTO `table1` (`id`) VALUES (?), (?);',
-                    'values' => [1,2],
+                    'values' => [1, 2],
                 ],
             ],
             'batchSize' => 5,
@@ -150,7 +170,6 @@ class MultiInsertQueryQueueTest extends TestCase
                         'name' => 'test_n_1',
                         'description' => 'test_d_1',
                     ],
-                    'types' => null,
                 ],
                 [
                     'table' => 'table1',
@@ -172,14 +191,12 @@ class MultiInsertQueryQueueTest extends TestCase
                         'name' => 'test_n_3',
                         // missing description should be replaced with DEFAULT
                     ],
-                    'types' => null,
                 ],
                 [
                     'table' => 'table2',
                     'data' => [
                         'tag' => 'test_tag',
                     ],
-                    'types' => null,
                 ],
             ],
             'queries' => [
@@ -196,12 +213,12 @@ class MultiInsertQueryQueueTest extends TestCase
         ];
     }
 
-    public function testAddInserts()
+    public function testAddInserts(): void
     {
         $queue = new MultiInsertQueryQueue($this->createMock(Connection::class));
         $queue->addInserts('table1', [
             ['id' => 1, 'name' => 'test1', 'description' => 'test1'],
-            ['id' => 2, 'name' => 'test2', 'description' => 'test2']
+            ['id' => 2, 'name' => 'test2', 'description' => 'test2'],
         ]);
 
         $prepareQueries = ReflectionHelper::getMethod(MultiInsertQueryQueue::class, 'prepareQueries');
@@ -222,7 +239,7 @@ class MultiInsertQueryQueueTest extends TestCase
         );
     }
 
-    public function testUpdateOnDuplicateKeys()
+    public function testUpdateOnDuplicateKeys(): void
     {
         $queue = new MultiInsertQueryQueue($this->createMock(Connection::class));
         $queue->addInsert('table1', ['id' => 1, 'name' => 'test1', 'description' => 'test1']);
@@ -244,14 +261,14 @@ class MultiInsertQueryQueueTest extends TestCase
         static::assertSame([1, 'test1', 'test1', 2, 'test2', 'test2'], $query['values']);
         static::assertSame(
             array_fill(0, 6, ParameterType::STRING),
-            $query['types']);
+            $query['types']
+        );
     }
 
-    public function testConstructorThrowsOnWrongBatchSize()
+    public function testConstructorThrowsOnWrongBatchSize(): void
     {
         $connection = $this->createMock(Connection::class);
         self::expectExceptionObject(DataAbstractionLayerException::invalidChunkSize(0));
         new MultiInsertQueryQueue($connection, 0);
     }
-
 }

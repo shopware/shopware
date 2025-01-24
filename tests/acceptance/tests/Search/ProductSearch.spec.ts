@@ -5,6 +5,7 @@ test ('Customer is able to search products in shop', {tag: '@Search'}, async ({
     TestDataService,
     StorefrontHome,
     StorefrontSearchSuggest,
+    SearchForTerm,
 }) => {
     await TestDataService.createBasicProduct({
         name: 'Bottle',
@@ -15,18 +16,18 @@ test ('Customer is able to search products in shop', {tag: '@Search'}, async ({
 
     await test.step('Customer searches with an invalid input and sees no results', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
-        await StorefrontSearchSuggest.searchForTerm('Be');
+        await ShopCustomer.attemptsTo(SearchForTerm('Be'));
         await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestNoResult).toBeVisible();
     });
 
     await test.step('Customer searches for a partial term and sees multiple matching products', async () => {
-        await StorefrontSearchSuggest.searchForTerm('Bow');
+        await ShopCustomer.attemptsTo(SearchForTerm('Bow'))
         const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
         await ShopCustomer.expects(totalCount1).toBe(1);
     });
 
     await test.step('Customer refines the search term and sees a single matching product', async () => {
-        await StorefrontSearchSuggest.searchForTerm('Bo');
+        await ShopCustomer.attemptsTo(SearchForTerm('Bo'));
         const totalCount2 = await StorefrontSearchSuggest.getTotalSearchResultCount();
         await ShopCustomer.expects(totalCount2).toBe(2);
     });

@@ -58,7 +58,7 @@ export default {
     },
 
     computed: {
-        searchPreferences: ()=> Shopware.Store.get('swProfile').searchPreferences,
+        searchPreferences: () => Shopware.Store.get('swProfile').searchPreferences,
 
         ...mapPropertyErrors('user', [
             'email',

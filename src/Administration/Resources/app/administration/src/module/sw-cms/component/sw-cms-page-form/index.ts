@@ -125,11 +125,7 @@ export default Shopware.Component.wrapComponentConfig({
                 : this.$tc('sw-cms.section.positionLeft');
         },
 
-        getDeviceActive(
-            viewport: string,
-            section: Entity<'cms_section'>,
-            block: Entity<'cms_block'> | null = null,
-        ) {
+        getDeviceActive(viewport: string, section: Entity<'cms_section'>, block: Entity<'cms_block'> | null = null) {
             const sectionVisibility = section.visibility as {
                 [key: string]: boolean;
             };

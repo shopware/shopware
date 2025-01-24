@@ -25,9 +25,9 @@ describe('src/app/init/in-app-purchase.init.ts', () => {
         Shopware.Store.get('inAppPurchaseCheckout').$reset();
 
         Shopware.Context.app.config.bundles = {
-            'jestapp': {
+            jestapp: {
                 identifier: 'jestapp',
-            }
+            },
         };
     });
 

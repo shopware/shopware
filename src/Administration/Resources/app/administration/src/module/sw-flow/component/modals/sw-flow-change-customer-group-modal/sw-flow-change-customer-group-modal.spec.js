@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @sw-package after-sales
@@ -72,10 +71,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', flowState);
-    });
-
     it('should show validation if customer group field is empty', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

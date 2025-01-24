@@ -1,10 +1,9 @@
-import { mapState } from 'vuex';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Mixin, Context, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -105,7 +104,7 @@ export default {
             return awarenessConfig?.scopes ?? undefined;
         },
 
-        ...mapState('swFlowState', ['flow']),
+        ...mapState(() => Store.get('swFlow'), ['flow']),
 
         ...mapPropertyErrors('rule', [
             'name',

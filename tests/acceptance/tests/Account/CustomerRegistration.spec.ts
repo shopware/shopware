@@ -31,7 +31,7 @@ test('As a new customer, I should not be able to register with empty postal code
     });
 
     await test.step('Validate registration is blocked due to missing postal code', async () => {
-        await ShopCustomer.expects(StorefrontAccountLogin.page.locator('#zipcodeLabel').first()).toContainText('*')
+        await ShopCustomer.expects(StorefrontAccountLogin.page.locator('#zipcodeLabel').first()).toContainText('*');
         await ShopCustomer.expects(StorefrontAccountLogin.postalCodeInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
         await ShopCustomer.expects(StorefrontAccountLogin.page.getByText('I\'m a new customer!')).toBeVisible();
     });

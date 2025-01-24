@@ -44,7 +44,7 @@
 
                                 {% block page_checkout_confirm_address_shipping_actions %}
                                     {# @deprecated tag:v6.7.0 - old address editor will be removed. #}
-                                    {% if feature('FEATURE_NEXT_19776') %}
+                                    {% if feature('ADDRESS_SELECTION_REWORK') %}
                                         {% set addressManagerOptions = {
                                             initialTab: 'shipping',
                                             activeShippingAddressId: shippingAddress.id
@@ -62,7 +62,7 @@
                                                title="{{ 'account.overviewChangeShipping'|trans|striptags }}"
                                                class="btn btn-light"
                                                {# @deprecated tag:v6.7.0 - old address editor will be removed #}
-                                               {% if feature('FEATURE_NEXT_19776') %}
+                                               {% if feature('ADDRESS_SELECTION_REWORK') %}
                                                    data-address-manager="true"
                                                    data-address-manager-options="{{ addressManagerOptions|json_encode }}"
                                                {% else %}
@@ -110,7 +110,7 @@
                             {% block page_checkout_confirm_address_billing_actions %}
                                 <div class="card-actions">
                                     {# @deprecated tag:v6.7.0 - old address editor will be removed. #}
-                                    {% if feature('FEATURE_NEXT_19776') %}
+                                    {% if feature('ADDRESS_SELECTION_REWORK') %}
                                         {% set addressManagerOptions = {
                                             initialTab: 'billing',
                                             addressId: billingAddress.id,
@@ -127,7 +127,7 @@
                                            title="{{ 'account.overviewChangeBilling'|trans|striptags }}"
                                            class="btn btn-light"
                                            {# @deprecated tag:v6.7.0 - old address editor will be removed. #}
-                                           {% if feature('FEATURE_NEXT_19776') %}
+                                           {% if feature('ADDRESS_SELECTION_REWORK') %}
                                                   data-address-manager="true"
                                                   data-address-manager-options="{{ addressManagerOptions|json_encode }}"
                                            {% else %}

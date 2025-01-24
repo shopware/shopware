@@ -2,9 +2,6 @@ import AddressSearchPlugin from 'src/plugin/address-search/address-search.plugin
 /**
  * @package checkout
  */
-
-let addressSearch;
-
 describe('AddressSearchPlugin test', () => {
     afterEach(() => {
         document.body.innerHTML = '';
@@ -12,7 +9,7 @@ describe('AddressSearchPlugin test', () => {
     });
 
     test('plugin initializes', () => {
-        create();
+        const addressSearch = create();
 
         expect(typeof addressSearch).toBe('object');
         expect(addressSearch).toBeInstanceOf(AddressSearchPlugin);
@@ -26,7 +23,7 @@ describe('AddressSearchPlugin test', () => {
     });
 
     test('test no addresses not found', () => {
-        create();
+        const addressSearch = create();
 
         const mockEvent = {
             target: {
@@ -41,7 +38,7 @@ describe('AddressSearchPlugin test', () => {
     });
 
     test('hide empty state', () => {
-        create(true);
+        const addressSearch = create(true);
 
         const mockEvent = {
             target: {
@@ -57,7 +54,6 @@ describe('AddressSearchPlugin test', () => {
 });
 
 function create(withAddresses = false) {
-
     document.body.innerHTML = `
         <div class="address-manager-list-base mb-3" data-address-search="true">
             <input
@@ -83,6 +79,6 @@ function create(withAddresses = false) {
    `;
 
 
-    addressSearch = new AddressSearchPlugin(document.querySelector('.address-manager-list-base'));
+    return new AddressSearchPlugin(document.querySelector('.address-manager-list-base'));
 }
 

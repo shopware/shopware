@@ -49,7 +49,8 @@ export default class AddressManagerPlugin extends Plugin {
     }
 
     /**
-     * registers all needed event listeners
+     * Registers all needed event listeners for interacting with the modal.
+     * Needs to be run every time the modal gets replaced.
      *
      * @private
      */
@@ -83,15 +84,17 @@ export default class AddressManagerPlugin extends Plugin {
             ?.addEventListener('click', this._onEditAddressCancel.bind(this));
     }
 
+    /**
+     * Initially get the modal.
+     *
+     * @private
+     * @param {PointerEvent} event
+     */
     _getModal(event) {
         event.preventDefault();
 
-        try {
-            this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget);
-            this._btnLoader.create();
-        } catch (error) {
-            console.warn('[AddressManagerPlugin] Unable to create loading indicator on button', error);
-        }
+        this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget);
+        this._btnLoader.create();
 
         this._client.get(
             this.options.addressManagerUrl,
@@ -102,6 +105,11 @@ export default class AddressManagerPlugin extends Plugin {
         );
     }
 
+    /**
+     * Initially renders the modal.
+     *
+     * @param {String} response
+     */
     _renderModal(response) {
         const pseudoModal = new PseudoModalUtil(response);
 
@@ -135,6 +143,13 @@ export default class AddressManagerPlugin extends Plugin {
         document.querySelector(this.options.shippingTabPaneSelector).classList.add('show', 'active');
     }
 
+    /**
+     * Close the modal after saving the selected addresses.
+     * Reload the page to update the context with the selected addresses.
+     *
+     * @private
+     * @param {Event} event
+     */
     _onSaveChanges(event) {
         event.preventDefault();
 
@@ -143,10 +158,10 @@ export default class AddressManagerPlugin extends Plugin {
             new FormData(event.target),
             (data, response)  => {
                 if (response.status === 204) {
-                    location.reload();
-                } else {
-                    this._replaceModalContent(data);
+                    return location.reload();
                 }
+
+                this._replaceModalContent(data);
             }
         );
     }
@@ -156,6 +171,7 @@ export default class AddressManagerPlugin extends Plugin {
      * @param {Event} event
      */
     _onSetRadioInputActive(element, event){
+        // Check if the dropdown element was clicked instead of the entire card
         if (event.target.closest(this.options.dropdownSelector)) {
             return;
         }
@@ -168,15 +184,16 @@ export default class AddressManagerPlugin extends Plugin {
             return;
         }
 
-        if (type === SHIPPING) {
-            document.querySelector(this.options.currentShippingIdSelector).value = id;
-        } else {
-            document.querySelector(this.options.currentBillingIdSelector).value = id;
-        }
+        type === SHIPPING
+            ? document.querySelector(this.options.currentShippingIdSelector).value = id
+            : document.querySelector(this.options.currentBillingIdSelector).value = id;
 
         element.querySelector('input[type="radio"]').checked = true;
     }
 
+    /**
+     * @param {HTMLElement} element
+     */
     _onChangeDefaultAddress(element) {
         const id = element?.dataset?.addressId;
         const type = element?.dataset?.addressType;
@@ -193,6 +210,9 @@ export default class AddressManagerPlugin extends Plugin {
         );
     }
 
+    /**
+     * @param {HTMLElement} element
+     */
     _onRenderAddressForm(element) {
         const id = element?.dataset?.addressId;
         const type = element?.dataset?.addressType;
@@ -209,6 +229,9 @@ export default class AddressManagerPlugin extends Plugin {
         );
     }
 
+    /**
+     * @param {Event} event
+     */
     _onEditAddressCancel(event) {
         const type = event.currentTarget?.dataset?.addressType;
 
@@ -218,6 +241,10 @@ export default class AddressManagerPlugin extends Plugin {
         );
     }
 
+    /**
+     * @param {String} data
+     * @param {String} type
+     */
     _replaceModalContent(data, type = SHIPPING) {
         const dom = new DOMParser()
             .parseFromString(data, 'text/html')

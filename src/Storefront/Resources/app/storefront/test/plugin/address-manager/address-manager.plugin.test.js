@@ -3,9 +3,6 @@ import AddressManagerPlugin from 'src/plugin/address-manager/address-manager.plu
 /**
  * @package checkout
  */
-
-let addressManager;
-
 describe('AddressManagerPlugin test', () => {
     afterEach(() => {
         document.body.innerHTML = '';
@@ -13,7 +10,7 @@ describe('AddressManagerPlugin test', () => {
     });
 
     test('plugin initializes', () => {
-        create();
+        const addressManager = create();
 
         expect(typeof addressManager).toBe('object');
         expect(addressManager).toBeInstanceOf(AddressManagerPlugin);
@@ -29,13 +26,13 @@ describe('AddressManagerPlugin test', () => {
     });
 
     test('initial Tab is shipping', () => {
-        create();
+        const addressManager = create();
 
         expect(addressManager.options.initialTab).toBe('shipping');
     });
 
     test('open address manager modal', () => {
-        create();
+        const addressManager = create();
 
         const button = document.querySelector('.btn');
 
@@ -51,7 +48,7 @@ describe('AddressManagerPlugin test', () => {
     });
 
     test('switch to billing', () => {
-        create();
+        const addressManager = create();
 
         const button = document.querySelector('.btn');
 
@@ -126,7 +123,7 @@ describe('AddressManagerPlugin test', () => {
 
     test('set default address', () => {
         const logSpy = jest.spyOn(global.console, 'warn');
-        create();
+        const addressManager = create();
 
         addressManager._client.post = jest.fn();
 
@@ -144,7 +141,7 @@ describe('AddressManagerPlugin test', () => {
 
     test('open address edit / create from', () => {
         const logSpy = jest.spyOn(global.console, 'warn');
-        create();
+        const addressManager = create();
 
         addressManager._client.post = jest.fn();
 
@@ -231,7 +228,7 @@ function create(initialTab = 'shipping') {
         resumeFocusState: jest.fn(),
     };
 
-    addressManager = new AddressManagerPlugin(element, {
+    const addressManager = new AddressManagerPlugin(element, {
         url: '/widgets/account/address-manager',
         initialTab,
     });
@@ -243,8 +240,11 @@ function create(initialTab = 'shipping') {
     HTMLDivElement.prototype.replaceChildren = (element) => {
         document.body.innerHTML = element.innerHTML;
     };
+
     document.body.insertAdjacentElement = jest.fn();
     window.PluginManager.initializePlugins = jest.fn(() => Promise.resolve());
 
     jest.useFakeTimers();
+
+    return addressManager;
 }

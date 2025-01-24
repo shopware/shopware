@@ -114,7 +114,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $shipping = $data->get('shippingAddress');
 
         if ($billing instanceof DataBag) {
-            if (Feature::isActive('FEATURE_NEXT_19776')) {
+            if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
                 if ($billing->has('firstName') && !$data->has('firstName')) {
                     $data->set('firstName', $billing->get('firstName'));
                 }

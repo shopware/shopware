@@ -3,7 +3,7 @@ title: New adresse manager modal
 issue: NEXT-19776
 ---
 # Core
-* Added `FEATURE_NEXT_19776` feature flag to enable/disable the new address manager modal and account address page redesign 
+* Added `ADDRESS_SELECTION_REWORK` feature flag to enable/disable the new address manager modal and account address page redesign 
 ___
 # API
 * Added `frontend.account.addressmanager.switch` route to switch active addresses in address manager modal
@@ -23,13 +23,18 @@ ___
 ___
 # Upgrade Information
 
-## Deprecated old address   editor
+## Deprecated old address editor
 
+The `address-editor.plugin.js` is deprecated and will be removed in 6.7.0, extend `address-manager.plugin.js` instead.
 The `address-editor-modal.html.twig` is deprecated and will be removed in 6.7.0, extend `address-manager-modal.html.twig` instead.
 The `address-editor-modal-list.html.twig` is deprecated and will be removed in 6.7.0, extend `address-manager-modal-list.html.twig` instead.
 The `address-editor-modal-create-address.html.twig` is deprecated and will be removed in 6.7.0, extend `address-manager-modal-create-address.html.twig` instead.
+
+## Added new address search plugin
+
+Added `address-search.plugin.js` to search customer addresses in the new modal and address account page.
 ___
 # Next Major Version Changes
 
-The `address-editor-modal.html.twig`, `address-editor-modal-list.html.twig` and `address-editor-modal-create-address.html.twig` has been removed.
+The `address-editor-modal.html.twig`, `address-editor-modal-list.html.twig`, `address-editor-modal-create-address.html.twig` and `address-editor.plugin.js` has been removed.
 The `src/Storefront/Resources/views/storefront/page/account/addressbook/index.html.twig` page content is updated

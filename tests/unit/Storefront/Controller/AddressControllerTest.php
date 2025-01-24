@@ -101,7 +101,7 @@ class AddressControllerTest extends TestCase
     /**
      * @deprecated tag:v6.7.0 remove
      */
-    #[DisabledFeatures(['FEATURE_NEXT_19776', 'v6.7.0.0'])]
+    #[DisabledFeatures(['ADDRESS_SELECTION_REWORK', 'v6.7.0.0'])]
     public function testAddressBook(): void
     {
         $context = Generator::generateSalesChannelContext();
@@ -126,7 +126,7 @@ class AddressControllerTest extends TestCase
     /**
      * @deprecated tag:v6.7.0 remove
      */
-    #[DisabledFeatures(['FEATURE_NEXT_19776', 'v6.7.0.0'])]
+    #[DisabledFeatures(['ADDRESS_SELECTION_REWORK', 'v6.7.0.0'])]
     public function testAddressBookWithConstraintViolation(): void
     {
         $context = Generator::generateSalesChannelContext();
@@ -157,7 +157,7 @@ class AddressControllerTest extends TestCase
     /**
      * @deprecated tag:v6.7.0 remove
      */
-    #[DisabledFeatures(['FEATURE_NEXT_19776', 'v6.7.0.0'])]
+    #[DisabledFeatures(['ADDRESS_SELECTION_REWORK', 'v6.7.0.0'])]
     public function testAddressBookWithException(): void
     {
         $context = Generator::generateSalesChannelContext();
@@ -557,14 +557,14 @@ class AddressControllerTest extends TestCase
         static::assertEquals('url:frontend.account.address.page', $response->getTargetUrl());
     }
 
-    public function testAddressManagerGet(): void
+    public function testAddressManager(): void
     {
         $request = new Request();
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
 
-        $response = $this->controller->addressManagerGet($request, Generator::generateSalesChannelContext(), $customer);
+        $response = $this->controller->addressManager($request, Generator::generateSalesChannelContext(), $customer);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame(
@@ -580,7 +580,7 @@ class AddressControllerTest extends TestCase
 
         static::expectException(RoutingException::class);
 
-        $this->controller->addressManager(new Request(), new RequestDataBag(), Generator::generateSalesChannelContext(), $customer, Uuid::randomHex());
+        $this->controller->addressManagerUpsert(new Request(), new RequestDataBag(), Generator::generateSalesChannelContext(), $customer, Uuid::randomHex());
     }
 
     public function testAddressManagerWithShipping(): void
@@ -609,7 +609,7 @@ class AddressControllerTest extends TestCase
             ->willReturn($customerAddressCollection);
 
         /** @var RedirectResponse $response */
-        $response = $this->controller->addressManager(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
+        $response = $this->controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
 
         static::assertSame(
             ['success' => ['account.addressSaved']],
@@ -645,7 +645,7 @@ class AddressControllerTest extends TestCase
             ->willReturn($customerAddressCollection);
 
         /** @var RedirectResponse $response */
-        $response = $this->controller->addressManager(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'billing');
+        $response = $this->controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'billing');
 
         static::assertSame(
             ['success' => ['account.addressSaved']],
@@ -685,7 +685,7 @@ class AddressControllerTest extends TestCase
             ->method('upsert')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
-        $response = $this->controller->addressManager(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
+        $response = $this->controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         static::assertArrayHasKey('formViolations', $this->controller->renderStorefrontParameters);
@@ -721,7 +721,7 @@ class AddressControllerTest extends TestCase
             ->method('upsert')
             ->willThrowException(new \Exception());
 
-        $response = $this->controller->addressManager(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
+        $response = $this->controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 

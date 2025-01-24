@@ -3,8 +3,8 @@
 {% block page_account_main_content %}
     <div class="account-address account-address-form">
         {% block page_account_address_form_welcome %}
-            <div class="account-welcome {% if feature('FEATURE_NEXT_19776') %} d-flex align-items-center {% endif %}">
-                {% if feature('FEATURE_NEXT_19776') %}
+            <div class="account-welcome {% if feature('ADDRESS_SELECTION_REWORK') %} d-flex align-items-center {% endif %}">
+                {% if feature('ADDRESS_SELECTION_REWORK') %}
                     <a
                         href="{{ path('frontend.account.address.page') }}"
                         class="account-address-back btn btn-outline-dark"
@@ -14,7 +14,7 @@
                 {% endif %}
 
                 {% block page_account_address_form_welcome_headline %}
-                    <h1 {% if feature('FEATURE_NEXT_19776') %} class="mx-2 mb-0" {% endif %}>
+                    <h1 {% if feature('ADDRESS_SELECTION_REWORK') %} class="mx-2 mb-0" {% endif %}>
                         {{ 'account.addressCreateWelcome'|trans|sw_sanitize }}
                     </h1>
                 {% endblock %}

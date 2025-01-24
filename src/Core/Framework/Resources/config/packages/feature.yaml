@@ -13,7 +13,7 @@ shopware:
         default: false
         major: true
         toggleable: false
-      - name: FEATURE_NEXT_19776
+      - name: ADDRESS_SELECTION_REWORK
         default: false
         major: true
         toggleable: false

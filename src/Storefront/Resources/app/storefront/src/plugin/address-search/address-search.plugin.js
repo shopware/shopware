@@ -35,11 +35,9 @@ export default class AddressSearchPlugin extends Plugin {
         Array.from(items).forEach(item => {
             const text = item.querySelector(this.options.searchItemSelector).textContent.toLowerCase();
 
-            if (text.includes(searchQuery)) {
-                item.classList.remove('d-none');
-            } else {
-                item.classList.add('d-none');
-            }
+            text.includes(searchQuery)
+                ? item.classList.remove('d-none')
+                : item.classList.add('d-none');
         });
 
         this._checkEmptyState(searchQuery);
@@ -58,10 +56,8 @@ export default class AddressSearchPlugin extends Plugin {
         notFound.classList.add('d-none');
         empty.classList.add('d-none');
 
-        if (searchQuery.length === 0) {
-            empty.classList.remove('d-none');
-        } else {
-            notFound.classList.remove('d-none');
-        }
+        searchQuery.length === 0
+            ? empty.classList.remove('d-none')
+            : notFound.classList.remove('d-none');
     }
 }

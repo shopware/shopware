@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import useSession from '../composables/use-session';
 

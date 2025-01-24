@@ -87,6 +87,7 @@ import '../../src/module/sw-product/page/sw-product-detail/store';
 import '../../src/module/sw-profile/store/sw-profile.store';
 import '../../src/module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import '../../src/module/sw-flow/store/flow.store';
+import '../../src/module/sw-bulk-edit/store/sw-bulk-edit.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  * @private
  */
 import useSystem from '../composables/use-system';

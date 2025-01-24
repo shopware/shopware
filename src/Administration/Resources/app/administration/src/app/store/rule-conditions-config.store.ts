@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 const ruleConditionsConfig = Shopware.Store.register({
     id: 'ruleConditionsConfig',

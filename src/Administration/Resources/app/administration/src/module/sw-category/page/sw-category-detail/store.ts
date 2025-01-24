@@ -13,7 +13,7 @@ interface LoadPayload<EntityName extends keyof EntitySchema.Entities> {
 }
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 const swCategoryDetailStore = Shopware.Store.register({
     id: 'swCategoryDetail',

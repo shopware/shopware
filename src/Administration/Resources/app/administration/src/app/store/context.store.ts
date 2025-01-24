@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import useContext from '../composables/use-context';
 

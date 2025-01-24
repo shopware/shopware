@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 const swPromotionDetailStore = Shopware.Store.register('swPromotionDetail', {
     state() {

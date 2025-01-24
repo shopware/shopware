@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 describe('shopware-apps.store', () => {
     const store = Shopware.Store.get('shopwareApps');

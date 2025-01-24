@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 import type { UserInfo } from 'src/core/service/api/store.api.service';

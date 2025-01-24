@@ -1,7 +1,7 @@
 import type { uiModulePaymentOverviewCard } from '@shopware-ag/meteor-admin-sdk/es/ui/module/payment/overview-card';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 type PaymentOverviewCard = Omit<uiModulePaymentOverviewCard, 'responseType'>;

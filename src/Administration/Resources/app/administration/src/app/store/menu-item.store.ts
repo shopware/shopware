@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import type { menuItemAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/menu';

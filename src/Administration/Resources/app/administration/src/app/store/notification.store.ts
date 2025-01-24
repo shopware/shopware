@@ -1,7 +1,7 @@
 import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 /**
- * @package admin
+ * @sw-package framework
  */
 
 /**

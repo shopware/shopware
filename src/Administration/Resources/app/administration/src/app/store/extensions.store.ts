@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  * @private
  */
 import { setExtensions } from '@shopware-ag/meteor-admin-sdk/es/channel';

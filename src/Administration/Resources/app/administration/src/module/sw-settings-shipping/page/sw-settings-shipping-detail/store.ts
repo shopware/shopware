@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 type ShippingMethodPriceInMatrix = EntitySchema.shipping_method_price & { _inNewMatrix: boolean | undefined };

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import type { AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 

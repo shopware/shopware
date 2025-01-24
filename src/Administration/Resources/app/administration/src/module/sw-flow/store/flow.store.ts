@@ -1,7 +1,7 @@
 import type { ACTION } from '../constant/flow.constant';
 
 /**
- * @package after-sales
+ * @sw-package after-sales
  */
 const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -161,7 +161,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
             return Service('flowBuilderService').getGroups();
         },
 
-        hasAvailableAction: (state) => (actionName) => {
+        hasAvailableAction: (state) => (actionName: string) => {
             // This information was originally persisted into the state in the `availableActions` getter.
             // That's an antipattern and caused endless loops in the flow module.
             // Therefore, we need to recalculate the available actions here.

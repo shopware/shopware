@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { computed, ref } from 'vue';
 import useSystem from './use-system';

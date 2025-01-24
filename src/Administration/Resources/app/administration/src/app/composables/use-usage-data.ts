@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { ref } from 'vue';
 import type { UsageDataContext } from 'src/core/service/api/usage-data.api.service';

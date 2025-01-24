@@ -1,7 +1,7 @@
 import type { DiscountCampaign } from '../../module/sw-extension/service/extension-store-action.service';
 
 /**
- * @package admin
+ * @sw-package framework
  */
 interface CampaignComponent {
     content: {

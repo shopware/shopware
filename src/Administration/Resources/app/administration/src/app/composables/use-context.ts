@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { computed, reactive } from 'vue';
 import type { privileges } from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges';

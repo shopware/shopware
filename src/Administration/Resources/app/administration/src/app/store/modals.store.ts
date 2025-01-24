@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import type { uiModalOpen } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';

@@ -1,11 +1,6 @@
 /**
-<<<<<<< HEAD:src/Administration/Resources/app/administration/src/app/state/extension-sdk-module.store.ts
  * @sw-package framework
- * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
-=======
- * @package admin
  * @private
->>>>>>> da0a4b2d01 (NEXT-38625 - Transition extension sdk module vuex store to pinia store):src/Administration/Resources/app/administration/src/app/store/extension-sdk-module.store.ts
  */
 import type { smartBarButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/main-module/';
 

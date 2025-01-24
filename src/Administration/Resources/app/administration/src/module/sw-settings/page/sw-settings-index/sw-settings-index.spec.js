@@ -408,7 +408,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'Dynamic Setting',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -430,7 +430,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'Bar Setting',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper(['system.foo_bar']);
         const shopGroup = wrapper.vm.settingsGroups.shop;

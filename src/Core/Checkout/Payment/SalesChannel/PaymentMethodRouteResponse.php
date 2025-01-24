@@ -32,4 +32,12 @@ class PaymentMethodRouteResponse extends StoreApiResponse
     {
         return $this->object->getEntities();
     }
+
+    /**
+     * @return EntitySearchResult<PaymentMethodCollection>
+     */
+    public function getPaymentMethodResult(): EntitySearchResult
+    {
+        return $this->object;
+    }
 }

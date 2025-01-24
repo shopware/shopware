@@ -75,6 +75,30 @@ class PaymentMethodRouteTest extends TestCase
         static::assertArrayHasKey(PaymentMethodRouteHook::HOOK_NAME, $traces);
     }
 
+    public function testSortOrderWithDefault(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/payment-method',
+                [
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        $ids = array_column($response['elements'], 'id');
+
+        static::assertEquals(
+            [
+                $this->ids->get('payment'),    // position  1 (selected method & sales-channel default)
+                $this->ids->get('payment3'),   // position -3
+                $this->ids->get('payment2'),   // position  5
+            ],
+            $ids
+        );
+    }
+
     /**
      * @deprecated tag:v6.7.0 - will be removed due to behavior change
      */
@@ -169,6 +193,7 @@ class PaymentMethodRouteTest extends TestCase
                 'name' => 'Payment 1',
                 'technicalName' => 'payment_test',
                 'active' => true,
+                'position' => 1,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),
@@ -191,6 +216,7 @@ class PaymentMethodRouteTest extends TestCase
                 'name' => 'Payment 2',
                 'technicalName' => 'payment_test2',
                 'active' => true,
+                'position' => 5,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),
@@ -213,6 +239,7 @@ class PaymentMethodRouteTest extends TestCase
                 'name' => 'Payment 3',
                 'technicalName' => 'payment_test3',
                 'active' => true,
+                'position' => -3,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),

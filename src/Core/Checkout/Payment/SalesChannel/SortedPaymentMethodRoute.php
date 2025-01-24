@@ -42,6 +42,7 @@ class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
         $response = $this->getDecorated()->load($request, $context, $criteria);
 
         $response->getPaymentMethods()->sortPaymentMethodsByPreference($context);
+        $response->getPaymentMethodResult()->assign(['elements' => $response->getPaymentMethods()->getElements()]);
 
         $this->scriptExecutor->execute(new PaymentMethodRouteHook(
             $response->getPaymentMethods(),

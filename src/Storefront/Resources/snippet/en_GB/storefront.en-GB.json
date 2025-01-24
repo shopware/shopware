@@ -42,6 +42,7 @@
     "requiredFields": "Fields marked with asterisks (*) are required.",
     "privacyTitle": "Privacy",
     "privacyNoticeText": "By selecting continue you confirm that you have read our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a> and accepted our <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "privacyNoticeTextPage": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a> and accepted our <a href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "privacyLink": "Privacy policy",
     "imprintLink": "Imprint",
     "404ErrorPageHeader": "Page not found",
@@ -605,6 +606,7 @@
     "commentLabel": "Comment",
     "commentPlaceholder": "Enter comment...",
     "privacyNoticeText": "By selecting continue you confirm that you have read and agree to our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
+    "privacyNoticeTextPage": "By selecting continue you confirm that you have read and agree to our <a href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
   },

@@ -42,6 +42,7 @@
     "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder.",
     "privacyTitle": "Datenschutz",
     "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
+    "privacyNoticeTextPage": "Ich habe die <a href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "privacyLink": "Datenschutz",
     "imprintLink": "Impressum",
     "404ErrorPageHeader": "Seite nicht gefunden",
@@ -605,6 +606,7 @@
     "commentLabel": "Kommentar",
     "commentPlaceholder": "Kommentar eingeben ...",
     "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
+    "privacyNoticeTextPage": "Ich habe die <a href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
   },

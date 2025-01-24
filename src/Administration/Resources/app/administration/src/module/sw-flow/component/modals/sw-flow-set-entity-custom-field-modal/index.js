@@ -1,9 +1,9 @@
 import template from './sw-flow-set-entity-custom-field-modal.html.twig';
 import './sw-flow-set-entity-custom-field-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapVuexState } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
 /**
@@ -126,12 +126,15 @@ export default {
             return `config.label.${Shopware.Store.get('session').currentLocale}`;
         },
 
-        ...mapVuexState('swFlowState', [
-            'triggerEvent',
-            'customFieldSets',
-            'customFields',
-            'triggerActions',
-        ]),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'triggerEvent',
+                'customFieldSets',
+                'customFields',
+                'triggerActions',
+            ],
+        ),
     },
 
     watch: {
@@ -210,10 +213,10 @@ export default {
             if (!customFieldSet) {
                 return;
             }
-            Shopware.State.commit('swFlowState/setCustomFieldSets', [
+            Shopware.Store.get('swFlow').customFieldSets = [
                 ...this.customFieldSets,
                 customFieldSet,
-            ]);
+            ];
             this.customFieldId = null;
             this.customFieldValue = null;
             this.renderedFieldConfig = {};
@@ -225,10 +228,10 @@ export default {
             }
             this.customField = customField;
 
-            Shopware.State.commit('swFlowState/setCustomFields', [
+            Shopware.Store.get('swFlow').customFields = [
                 ...this.customFields,
                 customField,
-            ]);
+            ];
             this.customFieldValue = null;
             this.renderedFieldConfig = this.validateOptionSelectFieldLabel(customField.config);
             if (this.renderedFieldConfig.componentName === 'sw-entity-multi-id-select') {

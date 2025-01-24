@@ -1,7 +1,7 @@
 import template from './sw-flow-change-customer-status-modal.html.twig';
 
-const { Component } = Shopware;
-const { mapVuexState } = Component.getComponentHelper();
+const { Component, Store } = Shopware;
+const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -34,7 +34,7 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swFlowState', ['customerStatus']),
+        ...mapState(() => Store.get('swFlow'), ['customerStatus']),
 
         options() {
             return [

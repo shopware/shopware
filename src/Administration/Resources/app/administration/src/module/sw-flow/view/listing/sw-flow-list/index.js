@@ -5,8 +5,9 @@ const {
     Mixin,
     Data: { Criteria },
     Component,
+    Store,
 } = Shopware;
-const { mapVuexState } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -120,7 +121,7 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
-        ...mapVuexState('swFlowState', ['triggerEvents']),
+        ...mapState(() => Store.get('swFlow'), ['triggerEvents']),
     },
 
     watch: {
@@ -140,7 +141,7 @@ export default {
 
         getList() {
             this.isLoading = true;
-            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
+            Shopware.Store.get('swFlow').fetchTriggerActions();
 
             this.flowRepository
                 .search(this.flowCriteria)

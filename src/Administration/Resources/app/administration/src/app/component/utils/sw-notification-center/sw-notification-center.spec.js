@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import notificationStore from 'src/app/store/notification.store';
 import { createPinia, setActivePinia } from 'pinia';
 
 async function createWrapper() {
@@ -30,10 +29,6 @@ async function createWrapper() {
 }
 
 describe('src/app/component/utils/sw-notification-center', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('notification', notificationStore);
-    });
-
     beforeEach(() => {
         setActivePinia(createPinia());
     });

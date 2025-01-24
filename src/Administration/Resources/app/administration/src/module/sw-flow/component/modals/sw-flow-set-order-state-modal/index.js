@@ -1,8 +1,8 @@
 import template from './sw-flow-set-order-state-modal.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapVuexState } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -67,7 +67,7 @@ export default {
             return criteria;
         },
 
-        ...mapVuexState('swFlowState', ['stateMachineState']),
+        ...mapState(() => Store.get('swFlow'), ['stateMachineState']),
     },
 
     created() {
@@ -88,7 +88,7 @@ export default {
         getAllStates() {
             return this.stateMachineStateRepository.search(this.stateMachineStateCriteria).then((data) => {
                 this.generateOptions(data);
-                Shopware.State.commit('swFlowState/setStateMachineState', data);
+                Shopware.Store.get('swFlow').stateMachineState = data;
             });
         },
 

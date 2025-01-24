@@ -7,7 +7,6 @@ use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -20,6 +19,12 @@ use Symfony\Component\Mime\Email;
 class MailSender extends AbstractMailSender
 {
     public const DISABLE_MAIL_DELIVERY = 'core.mailerSettings.disableDelivery';
+
+    /**
+     * @see https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html
+     * Maximum message size is 262144 (1024 * 256) bytes
+     */
+    public const MAIL_MESSAGE_SIZE_LIMIT = 1024 * 256;
 
     private const BASE_FILE_SYSTEM_PATH = 'mail-data/';
 
@@ -72,9 +77,10 @@ class MailSender extends AbstractMailSender
         }
 
         $mailData = serialize($email);
-        $mailDataLength = \strlen($mailData);
-        // TODO: The $mailDataLength is not exactly accurate, as the message envelope & stamps are not included in the calculation
-        if ($mailDataLength <= MessageSizeCalculator::MESSAGE_SIZE_LIMIT) {
+
+        // We add 40% buffer to the mail data length to account for the overhead of the transport envelope & serialization
+        $mailDataLength = \strlen($mailData) * 1.4;
+        if ($mailDataLength <= self::MAIL_MESSAGE_SIZE_LIMIT) {
             try {
                 $this->mailer->send($email);
             } catch (\Throwable $e) {

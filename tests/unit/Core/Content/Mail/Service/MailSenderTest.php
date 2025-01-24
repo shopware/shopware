@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Content\Mail\Service\MailSender;
-use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\MailerInterface;
@@ -66,7 +65,7 @@ class MailSenderTest extends TestCase
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
         $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
-        $text = str_repeat('a', MessageSizeCalculator::MESSAGE_SIZE_LIMIT);
+        $text = str_repeat('a', MailSender::MAIL_MESSAGE_SIZE_LIMIT);
         $mail = new Email(null, new TextPart($text));
 
         $testStruct = new ArrayStruct();

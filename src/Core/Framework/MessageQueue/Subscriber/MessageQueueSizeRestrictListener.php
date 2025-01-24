@@ -12,6 +12,12 @@ use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 readonly class MessageQueueSizeRestrictListener
 {
     /**
+     * @see https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html
+     * Maximum message size is 262144 (1024 * 256) bytes
+     */
+    public const MESSAGE_SIZE_LIMIT = 1024 * 256;
+
+    /**
      * @internal
      */
     public function __construct(
@@ -36,7 +42,7 @@ readonly class MessageQueueSizeRestrictListener
         }
 
         $messageLengthInBytes = $this->calculator->size($event->getEnvelope());
-        if ($messageLengthInBytes > MessageSizeCalculator::MESSAGE_SIZE_LIMIT) {
+        if ($messageLengthInBytes > self::MESSAGE_SIZE_LIMIT) {
             $messageName = $event->getEnvelope()->getMessage()::class;
 
             throw MessageQueueException::queueMessageSizeExceeded($messageName, $messageLengthInBytes / 1024);

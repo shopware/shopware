@@ -122,7 +122,7 @@ class SwTwigFunction
     public static function callMacro(Template $template, string $method, array $args, int $lineno, array $context, Source $source)
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
-            $result = CoreExtension::callMacro($template, $method, $args, $lineno, $context, $source);
+        $result = CoreExtension::callMacro($template, $method, $args, $lineno, $context, $source);
 
         if (self::$macroResult !== null) {
             $result = self::$macroResult;

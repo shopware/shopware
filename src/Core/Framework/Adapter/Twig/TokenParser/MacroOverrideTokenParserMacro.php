@@ -2,21 +2,8 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
-use Shopware\Core\Framework\Adapter\Twig\Node\MacroOverrideNode;
-use Shopware\Core\Framework\Adapter\Twig\Node\ReturnNode;
 use Shopware\Core\Framework\Log\Package;
-use Twig\Error\SyntaxError;
-use Twig\Node\BodyNode;
-use Twig\Node\EmptyNode;
-use Twig\Node\Expression\ArrayExpression;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\Unary\NegUnary;
-use Twig\Node\Expression\Unary\PosUnary;
-use Twig\Node\Expression\Variable\LocalVariable;
-use Twig\Node\Node;
 use Twig\Token;
-use Twig\TokenParser\AbstractTokenParser;
-use Twig\TokenParser\MacroTokenParser;
 
 #[Package('framework')]
 /**

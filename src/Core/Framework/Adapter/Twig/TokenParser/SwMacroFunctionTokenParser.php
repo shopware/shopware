@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\MacroOverrideNode;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest;
 use Twig\Error\SyntaxError;
 use Twig\Node\BodyNode;
 use Twig\Node\EmptyNode;
@@ -42,7 +41,7 @@ class SwMacroFunctionTokenParser extends AbstractTokenParser
         if ($token = $stream->nextIf(Token::NAME_TYPE)) {
             $value = $token->getValue();
 
-            if ($value != $name) {
+            if ($value !== $name) {
                 throw new SyntaxError(\sprintf('Expected endmacro for macro "%s" (but "%s" given).', $name, $value), $stream->getCurrent()->getLine(), $stream->getSourceContext());
             }
         }
@@ -101,7 +100,8 @@ class SwMacroFunctionTokenParser extends AbstractTokenParser
     // checks that the node only contains "constant" elements
     private function checkConstantExpression(Node $node): bool
     {
-        if (!($node instanceof ConstantExpression || $node instanceof ArrayExpression
+        if (!(
+            $node instanceof ConstantExpression || $node instanceof ArrayExpression
             || $node instanceof NegUnary || $node instanceof PosUnary
         )) {
             return false;

@@ -112,7 +112,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 if (!\is_string($var)) {
                     throw AdapterException::invalidArgument(
-                        \sprintf('The md5 filter expects a string or array as input, %s given', \get_class($var))
+                        \sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
                     );
                 }
 
@@ -202,7 +202,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
         if (!\is_scalar($var) && $var !== null) {
             throw AdapterException::invalidArgument(
-                \sprintf('Non-scalar value given to intval/floatval/strval/boolval filter, %s given', \get_class($var))
+                \sprintf('Non-scalar value given to intval/floatval/strval/boolval filter, %s given', $var::class)
             );
         }
 

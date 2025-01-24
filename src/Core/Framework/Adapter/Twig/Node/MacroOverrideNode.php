@@ -8,8 +8,6 @@ use Twig\Compiler;
 use Twig\Node\CaptureNode;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\MacroNode;
-use Twig\Node\Node;
-use Twig\Node\NodeOutputInterface;
 
 #[Package('framework')]
 #[YieldReady]
@@ -47,6 +45,7 @@ class MacroOverrideNode extends MacroNode
 
         foreach ($arguments->getKeyValuePairs() as $pair) {
             $name = $pair['key'];
+            /** @phpstan-ignore typePerfect.noMixedMethodCaller (code copied from twig, and twig relies on dynamic php) */
             $var = $name->getAttribute('name');
             if (str_starts_with($var, "\u{035C}")) {
                 $var = substr($var, \strlen("\u{035C}"));

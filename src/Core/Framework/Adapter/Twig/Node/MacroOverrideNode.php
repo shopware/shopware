@@ -11,6 +11,9 @@ use Twig\Node\MacroNode;
 
 #[Package('framework')]
 #[YieldReady]
+/**
+ * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
+ */
 class MacroOverrideNode extends MacroNode
 {
     public function compile(Compiler $compiler): void

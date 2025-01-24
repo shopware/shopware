@@ -93,11 +93,15 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $this->uniqueScopes($scopes);
     }
 
+    /**
+     * @param ScopeEntityInterface[] $scopes
+     *
+     * @return ScopeEntityInterface[]
+     */
     private function uniqueScopes(array $scopes): array
     {
         $uniqueScopes = [];
 
-        /** @var ScopeEntityInterface $scope */
         foreach ($scopes as $scope) {
             $uniqueScopes[$scope->getIdentifier()] = $scope;
         }
@@ -105,6 +109,12 @@ class ScopeRepository implements ScopeRepositoryInterface
         return array_values($uniqueScopes);
     }
 
+    /**
+     * @param ScopeEntityInterface[] $scopes
+     * @param class-string<ScopeEntityInterface> $class
+     *
+     * @return ScopeEntityInterface[]
+     */
     private function removeScope(array $scopes, string $class): array
     {
         foreach ($scopes as $index => $scope) {

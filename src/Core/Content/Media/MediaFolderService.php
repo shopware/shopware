@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
-use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,10 +16,6 @@ class MediaFolderService
 {
     /**
      * @internal
-     *
-     * @param EntityRepository<MediaCollection> $mediaRepo
-     * @param EntityRepository<MediaFolderCollection> $mediaFolderRepo
-     * @param EntityRepository<MediaFolderConfigurationCollection> $mediaFolderConfigRepo
      */
     public function __construct(
         private readonly EntityRepository $mediaRepo,
@@ -72,9 +67,8 @@ class MediaFolderService
 
         $payload = [];
 
-        $subFolders = $subFolders->getEntities();
-
-        foreach ($subFolders as $subFolder) {
+        /** @var MediaFolderEntity $subFolder */
+        foreach ($subFolders->getEntities() as $subFolder) {
             $payload[$subFolder->getId()] = [
                 'id' => $subFolder->getId(),
                 'parentId' => $folder->getParentId(),
@@ -82,14 +76,15 @@ class MediaFolderService
         }
 
         $subFolders = $subFolders->filterByProperty('useParentConfiguration', true);
-        $subFolderTotal = \count($subFolders->getElements());
 
-        if ($subFolderTotal === 0) {
+        if (\count($subFolders) === 0) {
             $this->deleteOwnConfiguration($folder, $context);
         }
 
-        if ((!$folder->getUseParentConfiguration()) && $subFolderTotal > 1) {
-            $payload = $this->duplicateFolderConfig($subFolders, $payload, $context);
+        if ((!$folder->getUseParentConfiguration()) && \count($subFolders) > 1) {
+            /** @var MediaFolderCollection $collection */
+            $collection = $subFolders->getEntities();
+            $payload = $this->duplicateFolderConfig($collection, $payload, $context);
         }
 
         $this->mediaFolderRepo->update(array_values($payload), $context);

@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package inventory
  */
 import './init/services.init';
 import './acl';

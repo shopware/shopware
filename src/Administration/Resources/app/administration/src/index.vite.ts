@@ -1,4 +1,8 @@
 /**
+ * @sw-package unknown
+ */
+
+/**
  * @experimental stableVersion:v6.7.0 feature:VITE
  */
 

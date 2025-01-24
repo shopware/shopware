@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import './sw-generic-social-media-card.scss';
 
 import type { PropType } from 'vue';

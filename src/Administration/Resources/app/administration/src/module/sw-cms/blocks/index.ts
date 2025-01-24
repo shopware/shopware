@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import './app/app-renderer';
 
 import './text/text';

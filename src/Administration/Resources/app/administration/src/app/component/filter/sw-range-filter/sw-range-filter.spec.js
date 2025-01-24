@@ -1,3 +1,7 @@
+/**
+ * @sw-package unknown
+ */
+
 import 'src/app/component/filter/sw-range-filter';
 import 'src/app/component/filter/sw-base-filter';
 import { mount } from '@vue/test-utils';

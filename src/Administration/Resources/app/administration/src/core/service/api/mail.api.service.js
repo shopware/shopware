@@ -16,7 +16,7 @@ class MailApiService extends ApiService {
         const apiContext = {
             ...Shopware.Context.api,
             ...additionalHeaders,
-        }
+        };
 
         let languageIdHeader = {};
 

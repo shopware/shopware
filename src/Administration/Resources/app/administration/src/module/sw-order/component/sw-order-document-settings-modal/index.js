@@ -146,7 +146,7 @@ export default {
         },
 
         onPreview(fileType = 'pdf') {
-            this.$emit('preview-show', { ...this.documentConfig, fileTypes: [fileType]}, fileType);
+            this.$emit('preview-show', { ...this.documentConfig, fileTypes: [fileType] }, fileType);
         },
 
         onConfirm() {

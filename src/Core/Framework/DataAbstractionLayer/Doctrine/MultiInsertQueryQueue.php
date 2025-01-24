@@ -67,13 +67,13 @@ class MultiInsertQueryQueue
             return;
         }
 
-        $grouped = $this->prepare();
-        RetryableTransaction::retryable($this->connection, function () use ($grouped): void {
-            foreach ($grouped as $query) {
+        $queries = $this->prepareQueries();
+        RetryableTransaction::retryable($this->connection, function () use ($queries): void {
+            foreach ($queries as $query) {
                 $this->connection->executeStatement($query['query'], $query['values'], $query['types']);
             }
         });
-        unset($grouped);
+        unset($queries);
 
         $this->inserts = [];
     }
@@ -89,7 +89,7 @@ class MultiInsertQueryQueue
     /**
      * @return array<array{query: string, values: list<string>, types: array<string, ParameterType::*>}>
      */
-    private function prepare(): array
+    private function prepareQueries(): array
     {
         $queries = [];
         $template = 'INSERT INTO %s (%s) VALUES %s';
@@ -103,12 +103,13 @@ class MultiInsertQueryQueue
         }
 
         foreach ($this->inserts as $table => $rows) {
+            $columns = $this->prepareColumns($rows);
+
             $tableTemplate =
                 $template
-                . $this->prepareOnDuplicateKeyUpdatePart($this->updateFieldsOnDuplicateKey[$table] ?? [])
-                . ';';
-
-            $columns = $this->prepareColumns($rows);
+                . $this->prepareOnDuplicateKeyUpdatePart(
+                    array_intersect($this->updateFieldsOnDuplicateKey[$table] ?? [], $columns)
+            ) . ';';
 
             $rowsChunks = array_chunk($rows, $this->chunkSize);
             foreach ($rowsChunks as $rowsChunk) {

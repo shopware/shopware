@@ -96,15 +96,15 @@ class CustomEntityTest extends TestCase
 
     protected function tearDown(): void
     {
-        static::getContainer()->get(SourceResolver::class)->reset();
+        $this->getContainer()->get(SourceResolver::class)->reset();
+
+        $this->cleanUp($this->getContainer());
     }
 
     #[AfterClass]
     public static function tearDownSomeOtherSharedFixtures(): void
     {
-        $container = KernelLifecycleManager::bootKernel()->getContainer();
-
-        self::cleanUp($container);
+        $container = KernelLifecycleManager::getKernel()->getContainer();
 
         foreach (['category', 'product'] as $entity) {
             $definition = $container->get(DefinitionInstanceRegistry::class)->getByEntityName($entity);
@@ -115,11 +115,6 @@ class CustomEntityTest extends TestCase
                 }
             }
         }
-
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-
-        $result = $container->get('category.repository')->search($criteria, Context::createDefaultContext());
 
         // ensure that the dal extensions are removed before continue with next test
         $categories = $container->get(Connection::class)->fetchAllAssociative('SELECT LOWER(HEX(id)), `type` FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
@@ -210,8 +205,6 @@ class CustomEntityTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/without-restrict-delete');
 
         $this->testAllowDisable(true);
-
-        self::cleanUp(static::getContainer());
     }
 
     public function testDoesNotRegisterCustomEntitiesIfAppIsInactive(): void
@@ -222,8 +215,6 @@ class CustomEntityTest extends TestCase
 
         static::assertFalse($schema->hasTable('custom_entity_blog_product'));
         static::assertFalse($schema->hasTable('custom_entity_to_remove'));
-
-        self::cleanUp(static::getContainer());
     }
 
     public function testInvalidDefaultTypesParsedCorrectly(): void
@@ -265,8 +256,6 @@ class CustomEntityTest extends TestCase
 
             static::assertSame($defaultValue, $entityValue);
         }
-
-        self::cleanUp(static::getContainer());
     }
 
     public function testPersistsCustomEntitiesIfSchemaContainsEnumColumns(): void
@@ -289,8 +278,6 @@ class CustomEntityTest extends TestCase
         static::assertTrue($schema->hasTable('custom_entity_blog'));
         static::assertTrue($schema->hasTable('ce_blog_comment'));
         static::assertSame($columns, $connection->executeQuery('DESCRIBE test_with_enum_column')->fetchAllAssociative());
-
-        self::cleanUp(static::getContainer());
     }
 
     private function testStorage(ContainerInterface $container): void
@@ -1037,20 +1024,21 @@ class CustomEntityTest extends TestCase
             ->introspectSchema();
     }
 
-    private static function cleanUp(ContainerInterface $container): void
+    private function cleanUp(ContainerInterface $container): void
     {
-        $container->get(Connection::class)->executeStatement('DELETE FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
+        $connection = $container->get(Connection::class);
+        $connection->executeStatement('DELETE FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
 
         try {
-            $container->get(Connection::class)->executeStatement('DELETE FROM custom_entity_blog');
+            $connection->executeStatement('DELETE FROM custom_entity_blog');
         } catch (TableNotFoundException) {
         }
 
-        $container->get(Connection::class)->executeStatement('DELETE FROM product');
-        $container->get(Connection::class)->executeStatement('DELETE FROM custom_entity');
-        $container->get(Connection::class)->executeStatement('DELETE FROM product');
+        $connection->executeStatement('DELETE FROM product');
+        $connection->executeStatement('DELETE FROM custom_entity');
+        $connection->executeStatement('DELETE FROM product');
 
-        $container->get(Connection::class)->executeStatement(
+        $connection->executeStatement(
             'DELETE FROM app WHERE name IN (:name)',
             ['name' => ['custom-entity-test', 'store-api-custom-entity-test']],
             ['name' => ArrayParameterType::STRING]

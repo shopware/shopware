@@ -46,11 +46,11 @@ export default {
         },
 
         documentTypes() {
-            return Shopware.State.get('swBulkEdit')?.orderDocuments?.download?.value;
+            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
         },
 
         documentTypeConfigs() {
-            return Shopware.State.getters['swBulkEdit/documentTypeConfigs'];
+            return Shopware.Store.get('swBulkEdit').documentTypeConfigs;
         },
 
         selectedDocumentTypes() {

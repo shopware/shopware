@@ -345,6 +345,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         });
 
         Shopware.Store.get('shopwareApps').selectedIds = [selectedOrderId];
+        Shopware.Store.get('swBulkEdit').$reset()
     });
 
     it('should show all form fields', async () => {

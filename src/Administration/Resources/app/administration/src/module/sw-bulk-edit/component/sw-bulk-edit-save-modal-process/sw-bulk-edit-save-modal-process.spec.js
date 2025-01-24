@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
-import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
 async function createWrapper() {
     return mount(
@@ -33,11 +32,6 @@ describe('sw-bulk-edit-save-modal-process', () => {
     let wrapper;
 
     beforeEach(async () => {
-        if (Shopware.State.get('swBulkEdit')) {
-            Shopware.State.unregisterModule('swBulkEdit');
-        }
-
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
         wrapper = await createWrapper();
         await flushPromises();
     });
@@ -69,7 +63,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     it('should be able to create invoice document', async () => {
         wrapper.vm.createDocument = jest.fn();
         Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'invoice',
             isChanged: true,
         });
@@ -95,7 +89,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     it('should be able to create storno document', async () => {
         wrapper.vm.createDocument = jest.fn();
         Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'storno',
             isChanged: true,
         });
@@ -121,7 +115,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     it('should be able to create delivery note document', async () => {
         wrapper.vm.createDocument = jest.fn();
         Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'delivery_note',
             isChanged: true,
         });
@@ -147,7 +141,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     it('should be able to create credit note document', async () => {
         wrapper.vm.createDocument = jest.fn();
         Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'credit_note',
             isChanged: true,
         });
@@ -200,19 +194,19 @@ describe('sw-bulk-edit-save-modal-process', () => {
             'orderId5',
             'orderId6',
         ];
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'invoice',
             isChanged: true,
         });
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'storno',
             isChanged: false,
         });
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'delivery_note',
             isChanged: false,
         });
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'credit_note',
             isChanged: false,
         });
@@ -228,17 +222,17 @@ describe('sw-bulk-edit-save-modal-process', () => {
     it('should compute selectedDocumentTypes correctly', async () => {
         expect(wrapper.vm.selectedDocumentTypes).toEqual([]);
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'invoice',
             isChanged: true,
         });
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'download',
             isChanged: true,
         });
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'invoice',
             value: {
                 documentDate: 'documentDate',
@@ -246,14 +240,14 @@ describe('sw-bulk-edit-save-modal-process', () => {
             },
         });
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'download',
             value: [],
         });
 
         expect(wrapper.vm.selectedDocumentTypes).toStrictEqual([]);
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'download',
             value: [
                 {

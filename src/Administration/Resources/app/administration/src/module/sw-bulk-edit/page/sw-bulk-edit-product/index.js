@@ -1,6 +1,7 @@
 import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
 import '../../../sw-product/page/sw-product-detail/store';
+import '../../store/sw-bulk-edit.store';
 
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;

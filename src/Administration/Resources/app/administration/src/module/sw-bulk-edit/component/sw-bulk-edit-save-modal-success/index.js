@@ -56,7 +56,7 @@ export default {
         },
 
         downloadOrderDocuments() {
-            return Shopware.State.get('swBulkEdit')?.orderDocuments?.download;
+            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download;
         },
 
         latestDocumentsCriteria() {

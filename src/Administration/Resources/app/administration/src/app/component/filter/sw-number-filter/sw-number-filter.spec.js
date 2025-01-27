@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
 import { shallowMount } from '@vue/test-utils';

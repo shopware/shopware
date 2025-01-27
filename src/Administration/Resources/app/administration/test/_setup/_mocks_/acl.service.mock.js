@@ -1,9 +1,5 @@
 /**
- * @sw-package unknown
- */
-
-/**
- * @package admin
+ * @sw-package framework
  *
  * You can activate acl roles in the each test like this:
  * global.activeAclRoles = ['product.editor'];

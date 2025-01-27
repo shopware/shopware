@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package innovation
  */
 
 import initTeaserButtons from 'src/app/init/teaser-popover.init';

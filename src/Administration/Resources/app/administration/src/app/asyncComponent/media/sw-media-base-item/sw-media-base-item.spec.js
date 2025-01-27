@@ -1,5 +1,5 @@
 /**
- * @sw-package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { MtIcon } from '@shopware-ag/meteor-component-library';

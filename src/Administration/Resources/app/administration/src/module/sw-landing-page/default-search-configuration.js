@@ -15,7 +15,7 @@ const defaultSearchConfiguration = {
 };
 
 /**
- * @sw-package content
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default defaultSearchConfiguration;

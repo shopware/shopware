@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
 import 'src/app/component/structure/sw-skip-link';

@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
 import 'src/app/component/filter/sw-range-filter';

@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package fundamentals@after-sales
  */
 
 import { mount } from '@vue/test-utils';

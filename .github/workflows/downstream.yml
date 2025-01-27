@@ -26,7 +26,7 @@ jobs:
       - name: Rufus
         uses: shopware/github-actions/downstream@main
         with:
-          repo: shopware/rufus
+          repo: shopware/Rufus
           workflow: Downstream
           ref: .auto
           timeout: 30m

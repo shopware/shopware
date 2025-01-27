@@ -15,6 +15,9 @@ use Twig\Source;
 use Twig\Template;
 
 #[Package('framework')]
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal
+ */
 class SwTwigFunction
 {
     public static mixed $macroResult = null;
@@ -40,21 +43,8 @@ class SwTwigFunction
     {
         try {
             FieldVisibility::$isInTwigRenderingContext = true;
-            if ($object instanceof Markup && self::$macroResult !== null) {
-                $object = self::$macroResult;
-                self::$macroResult = null;
-            }
             if ($object instanceof Struct) {
                 if ($type === Template::METHOD_CALL) {
-                    if (self::$macroResult !== null && \is_object(self::$macroResult)) {
-                        foreach ($arguments as $key => $argument) {
-                            if ($argument instanceof Markup) {
-                                // replace the markup object with the actual shopware object
-                                $arguments[$key] = self::$macroResult;
-                            }
-                        }
-                    }
-
                     // @phpstan-ignore-next-line
                     return $object->$item(...$arguments);
                 }
@@ -131,7 +121,7 @@ class SwTwigFunction
      */
     public static function callMacro(Template $template, string $method, array $args, int $lineno, array $context, Source $source)
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The callMacro method is deprecated and will be removed. Replaced by TwigEnvironment::addMacroResult.');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
         $result = CoreExtension::callMacro($template, $method, $args, $lineno, $context, $source);
 
         if (self::$macroResult !== null) {

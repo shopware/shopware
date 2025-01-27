@@ -34,11 +34,16 @@ class ReturnNodeTest extends TestCase
 
     public static function nodeProvider(): \Generator
     {
-        yield 'Test call' => ['call-case.html.twig', '1'];
-        yield 'Test assign' => ['assign-case.html.twig', '1'];
-        yield 'Test if case' => ['if-case.html.twig', '1', ['x' => 1]];
-        yield 'Test else case' => ['if-case.html.twig', '2', ['x' => 2]];
-        yield 'Test array case' => ['array-case.html.twig', '2'];
+        yield 'Test call' => ['sw-function/call-case.html.twig', '1'];
+        yield 'Test assign' => ['sw-function/assign-case.html.twig', '1'];
+        yield 'Test if case' => ['sw-function/if-case.html.twig', '1', ['x' => 1]];
+        yield 'Test else case' => ['sw-function/if-case.html.twig', '2', ['x' => 2]];
+        yield 'Test array case' => ['sw-function/array-case.html.twig', '2'];
+        yield 'Test call (deprecated macro)' => ['call-case.html.twig', '1'];
+        yield 'Test assign (deprecated macro)' => ['assign-case.html.twig', '1'];
+        yield 'Test if case (deprecated macro)' => ['if-case.html.twig', '1', ['x' => 1]];
+        yield 'Test else case (deprecated macro)' => ['if-case.html.twig', '2', ['x' => 2]];
+        yield 'Test array case (deprecated macro)' => ['array-case.html.twig', '2'];
         yield 'Test call (new syntax)' => ['new-syntax/call-case.html.twig', '1'];
         yield 'Test assign (new syntax)' => ['new-syntax/assign-case.html.twig', '1'];
         yield 'Test if case (new syntax)' => ['new-syntax/if-case.html.twig', '1', ['x' => 1]];

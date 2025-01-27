@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  * @module core/in-app-purchase
  * A registry containing a list of all in-app purchases
  */

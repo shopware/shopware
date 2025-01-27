@@ -4,7 +4,7 @@ import template from './sw-wizard.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Provides a wrapper to create a wizard modal. The wizard pages are placed in the default slot of the

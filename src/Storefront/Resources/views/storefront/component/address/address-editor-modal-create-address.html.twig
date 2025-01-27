@@ -20,19 +20,16 @@
                 </div>
             {% endblock %}
 
-            {% set mode = address ? "-edit" : "-new" %}
-            {% set formAjaxSubmitOptions = {
-                replaceSelectors: "##{typePrefix}address-create#{mode}" ,
-            } %}
-
             {% block component_address_address_editor_modal_create_address_card_body %}
                 <div class="card-body">
                     {% block component_address_address_editor_modal_create_address_form %}
                         <form method="post"
                               action="{{ path('frontend.account.addressbook') }}"
                               class="js-close-address-editor"
+                              {# @deprecated tag:v6.7.0 - Form validation plugin is replaced by form handler plugin. #}
+                              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+                              {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}
                               data-form-ajax-submit="true"
-                              data-form-validation="true"
                               data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
                             {% block component_address_address_editor_modal_create_address_form_hidden_inputs %}

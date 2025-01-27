@@ -226,7 +226,7 @@ class RequirementsValidator
                 $installedPluginComposerPackage->getConflicts(),
                 $installedPluginComposerPackage->getName(),
                 $this->pluginComposer->getPackage()->getName(),
-                new Constraint('==', $parser->normalize($installingPlugin->getVersion())),
+                new Constraint('==', $parser->normalize($installingPlugin->getUpgradeVersion() ?? $installingPlugin->getVersion())),
                 $exceptionStack
             );
 

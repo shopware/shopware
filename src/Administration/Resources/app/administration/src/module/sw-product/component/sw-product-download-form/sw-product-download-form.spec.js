@@ -3,7 +3,7 @@ import { createStore } from 'vuex';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 async function createWrapper(hasError = false) {
     return mount(await wrapTestComponent('sw-product-download-form', { sync: true }), {

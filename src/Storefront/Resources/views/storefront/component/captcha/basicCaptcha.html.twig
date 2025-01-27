@@ -6,6 +6,7 @@
         captchaImageId: '#%s-basic-captcha-content-image'|format(formId),
         basicCaptchaInputId: '#%s-basic-captcha-input'|format(formId),
         basicCaptchaFieldId: '#%s-basic-captcha-field'|format(formId),
+        invalidFeedbackMessage: 'error.captcha.basic-captcha-invalid'|trans|sw_sanitize,
         formId: formId,
         preCheck: preCheck,
         preCheckRoute : {
@@ -22,12 +23,37 @@
                     <div class="basic-captcha-content-image" id="{{ formId }}-basic-captcha-content-image"></div>
 
                     {% block component_basic_captcha_refresh_icon %}
-                        <a class="btn btn-outline-primary basic-captcha-content-refresh-icon" id="{{ formId }}-basic-captcha-content-refresh-icon">
+                        <button type="button" class="btn btn-outline-primary basic-captcha-content-refresh-icon" id="{{ formId }}-basic-captcha-content-refresh-icon">
                             {% sw_icon 'arrow-switch' %}
-                        </a>
+                        </button>
                     {% endblock %}
                 </div>
             {% endblock %}
+
+            {% if feature('ACCESSIBILITY_TWEAKS') %}
+
+                {% block component_basic_captcha_fields %}
+
+                    {% block component_basic_captcha_input %}
+                        <div id="{{ formId }}-basic-captcha-field">
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'captcha.basicCaptchaLabel'|trans|sw_sanitize|replace({'*': ''}),
+                                id: formId ~ '-basic-captcha-input',
+                                name: constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER'),
+                                violationPath: '/' ~ constant("Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER"),
+                                validationRules: 'required,basicCaptcha',
+                            } %}
+                        </div>
+                    {% endblock %}
+
+                    {% block component_basic_captcha_form_id %}
+                        <input type="text"
+                               name="formId"
+                               class="d-none"
+                               value="{{ formId }}">
+                    {% endblock %}
+                {% endblock %}
+            {% else %}
 
             {% block component_basic_captcha_fields_title_label %}
                 <label class="form-label">
@@ -45,6 +71,8 @@
                 >
             {% endif %}
             {% sw_include '@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig' %}
+
+            {% endif %}
         </div>
     </div>
 {% endblock %}

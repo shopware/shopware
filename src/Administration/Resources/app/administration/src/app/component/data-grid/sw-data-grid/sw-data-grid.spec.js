@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -1042,5 +1042,11 @@ describe('components/data-grid/sw-data-grid', () => {
         const row = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
 
         expect(row.classes()).toContain('is--disabled');
+    });
+
+    it('should sets default context button menu width', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.props().contextButtonMenuWidth).toBe(220);
     });
 });

@@ -21,7 +21,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(ProductReviewCountService::class)]
 class ProductReviewCountServiceTest extends TestCase
 {

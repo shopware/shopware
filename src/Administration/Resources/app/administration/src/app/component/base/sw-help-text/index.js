@@ -4,7 +4,7 @@ import './sw-help-text.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description The help text adds a question mark icon which triggers a tooltip with your desired content.

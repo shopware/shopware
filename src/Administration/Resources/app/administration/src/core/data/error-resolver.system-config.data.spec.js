@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import ShopwareError from 'src/core/data/ShopwareError';

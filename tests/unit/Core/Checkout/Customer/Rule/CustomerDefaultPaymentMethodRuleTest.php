@@ -23,7 +23,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
  *
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerDefaultPaymentMethodRule::class)]
 #[Group('rules')]
 class CustomerDefaultPaymentMethodRuleTest extends TestCase

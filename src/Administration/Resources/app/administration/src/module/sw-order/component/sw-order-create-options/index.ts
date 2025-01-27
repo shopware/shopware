@@ -7,7 +7,7 @@ import './sw-order-create-options.scss';
 import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component, State } = Shopware;

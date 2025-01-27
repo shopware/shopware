@@ -1,7 +1,7 @@
 import PaymentOverviewCardStore from '../state/overview-cards.store';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 Shopware.State.registerModule('paymentOverviewCardState', PaymentOverviewCardStore);

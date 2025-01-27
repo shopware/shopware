@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 Shopware.Filter.register('striphtml', (value: string): string => {

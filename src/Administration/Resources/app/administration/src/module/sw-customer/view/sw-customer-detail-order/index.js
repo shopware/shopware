@@ -2,7 +2,7 @@ import template from './sw-customer-detail-order.html.twig';
 import './sw-customer-detail-order.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;

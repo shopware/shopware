@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';

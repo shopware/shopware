@@ -2,13 +2,42 @@
     {% set formPrefix = 'cms-form-newsletter' %}
     <form action="{{ path(action) }}"
           method="post"
-          data-form-validation="true"
+          {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
+          {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+          {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}
           id="{{ formPrefix }}"
           aria-label="{{ element.config.title.value ? element.config.title.value : 'newsletter.headline'|trans }}">
 
         <div class="form-content">
         <div class="row g-2">
             {% block cms_form_newsletter_select_action %}
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                    {% set newsletterOptions %}
+                        <option selected="selected"
+                                value="{{ constant('Shopware\\Storefront\\Controller\\FormController::SUBSCRIBE') }}">
+                            {{ 'newsletter.subscribeOption'|trans }}
+                        </option>
+
+                        <option value="{{ constant('Shopware\\Storefront\\Controller\\FormController::UNSUBSCRIBE') }}">
+                            {{ 'newsletter.unsubscribeOption'|trans }}
+                        </option>
+                    {% endset %}
+
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'newsletter.labelActionSelect'|trans|sw_sanitize,
+                        id: 'newsletterAction',
+                        name: 'option',
+                        options: newsletterOptions,
+                        validationRules: 'required',
+                        additionalClass: 'col-12',
+                        additionalSelectClass: 'contact-select',
+                        attributes: {
+                            'data-form-field-toggle': 'true',
+                            'data-form-field-toggle-target': '.js-field-toggle-newsletter-additional',
+                            'data-form-field-toggle-value': 'subscribe',
+                        },
+                    } %}
+                {% else %}
                 <div class="form-group col-12">
                     <label class="form-label" for="newsletterAction">
                         {{ 'newsletter.labelActionSelect'|trans }} {{ 'general.required'|trans }}
@@ -31,6 +60,7 @@
                         </option>
                     </select>
                 </div>
+                {% endif %}
             {% endblock %}
         </div>
 
@@ -89,10 +119,16 @@
         {% endblock %}
 
         {% block cms_form_newsletter_captcha %}
-            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig'
-                with {
-                additionalClass : 'col-md-4'
-            } %}
+            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' %}
+            {% else %}
+                {# @deprecated tag:v6.7.0 - The setting for "additionalClass" becomes obsolete. #}
+                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig'
+                    with {
+                    additionalClass : 'col-md-4'
+                } %}
+            {% endif %}
+
         {% endblock %}
 
         {% block cms_form_newsletter_privacy %}

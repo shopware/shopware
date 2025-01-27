@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -40,7 +39,7 @@ class DocumentGeneratorController extends AbstractController
         $documents = $this->serializer->decode($request->getContent(), 'json');
 
         if (empty($documents) || !\is_array($documents)) {
-            throw RoutingException::invalidRequestParameter('Request parameters must be an array of documents object');
+            throw DocumentException::invalidRequestParameter('Request parameters must be an array of documents object');
         }
 
         $operations = [];
@@ -50,7 +49,7 @@ class DocumentGeneratorController extends AbstractController
             'documents',
             (new DataValidationDefinition())
                 ->add('orderId', new NotBlank())
-                ->add('fileType', new Choice([FileTypes::PDF]))
+                ->add('fileType', new Choice([PdfRenderer::FILE_EXTENSION]))
                 ->add('config', new Type('array'))
                 ->add('static', new Type('bool'))
                 ->add('referencedDocumentId', new Uuid())
@@ -61,7 +60,7 @@ class DocumentGeneratorController extends AbstractController
         foreach ($documents as $operation) {
             $operations[$operation['orderId']] = new DocumentGenerateOperation(
                 $operation['orderId'],
-                $operation['fileType'] ?? FileTypes::PDF,
+                $operation['fileType'] ?? PdfRenderer::FILE_EXTENSION,
                 $operation['config'] ?? [],
                 $operation['referencedDocumentId'] ?? null,
                 $operation['static'] ?? false
@@ -85,6 +84,7 @@ class DocumentGeneratorController extends AbstractController
                 'documentId' => $documentIdStruct->getId(),
                 'documentMediaId' => $documentIdStruct->getMediaId(),
                 'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
+                'documentA11yMediaId' => $documentIdStruct->getA11yMediaId(),
             ]
         );
     }

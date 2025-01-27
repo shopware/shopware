@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoException extends HttpException
 {
     public const SALES_CHANNEL_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__SALES_CHANNEL_ID_PARAMETER_IS_MISSING';

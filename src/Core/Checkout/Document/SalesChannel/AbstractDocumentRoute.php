@@ -15,5 +15,14 @@ abstract class AbstractDocumentRoute
 {
     abstract public function getDecorated(): AbstractDocumentRoute;
 
-    abstract public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = ''): Response;
+    /**
+     * @deprecated tag:v6.7.0 - Parameter $fileType will be added - reason:new-optional-parameter
+     */
+    abstract public function download(
+        string $documentId,
+        Request $request,
+        SalesChannelContext $context,
+        string $deepLinkCode = '',
+        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
+    ): Response;
 }

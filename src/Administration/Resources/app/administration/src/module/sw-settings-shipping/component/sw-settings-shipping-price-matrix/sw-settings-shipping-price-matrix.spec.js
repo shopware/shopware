@@ -4,7 +4,7 @@ import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-det
 Shopware.State.registerModule('swShippingDetail', state);
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 const createWrapper = async () => {
     return mount(

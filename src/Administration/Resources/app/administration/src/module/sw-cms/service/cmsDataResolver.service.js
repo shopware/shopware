@@ -124,7 +124,7 @@ function initVisibility(element) {
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 function initSlotConfig(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -135,7 +135,7 @@ function initSlotConfig(slot) {
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 function initSlotDefaultData(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -146,7 +146,7 @@ function initSlotDefaultData(slot) {
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 function initBlockConfig(block) {
     const blockRegistry = cmsService.getCmsBlockRegistry();
@@ -174,7 +174,7 @@ function initBlockConfig(block) {
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 function initBlockDefaultData(block) {
     const blockRegistry = cmsService.getCmsBlockRegistry();
@@ -195,7 +195,7 @@ function initBlockDefaultData(block) {
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 function optimizeCriteriaObjects(slotEntityCollection) {
     const directReads = {};
@@ -239,7 +239,7 @@ function optimizeCriteriaObjects(slotEntityCollection) {
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 function canBeMerged(entity) {
     if (!entity.searchCriteria) {
@@ -296,7 +296,7 @@ async function fetchByIdentifier(directReads) {
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 async function fetchByCriteria(searches) {
     const results = {};
@@ -335,7 +335,7 @@ async function fetchByCriteria(searches) {
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 function getRepository(entity) {
     if (repositories[entity]) {

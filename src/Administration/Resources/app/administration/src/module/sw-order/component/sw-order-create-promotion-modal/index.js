@@ -3,7 +3,7 @@ import template from './sw-order-create-promotion-modal.html.twig';
 import './sw-order-create-promotion-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { State, Utils, Service } = Shopware;

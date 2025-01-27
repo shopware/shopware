@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin';

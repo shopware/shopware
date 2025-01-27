@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
     async function createWrapper(taxRule) {

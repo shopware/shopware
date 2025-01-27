@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import RecentlySearchService from 'src/app/service/recently-search.service';
 

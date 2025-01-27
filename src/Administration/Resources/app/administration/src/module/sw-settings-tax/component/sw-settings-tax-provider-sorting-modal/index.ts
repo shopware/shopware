@@ -6,7 +6,7 @@ import './sw-settings-tax-provider-sorting-modal.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  *
  * @private
  */

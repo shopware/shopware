@@ -7,7 +7,7 @@ import './sw-order-customer-grid.scss';
 import type { Cart } from '../../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component, State, Mixin, Context } = Shopware;

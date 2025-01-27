@@ -4,7 +4,7 @@ import './sw-inheritance-warning.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description

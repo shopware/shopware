@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import BulkEditApiFactory from 'src/module/sw-bulk-edit/service/bulk-edit.api.factory';
 import BulkEditProductHandler from 'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler';

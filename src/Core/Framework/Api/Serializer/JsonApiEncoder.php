@@ -32,7 +32,7 @@ class JsonApiEncoder
     private array $serializeCache = [];
 
     /**
-     * @param EntityCollection<Entity>|Entity|null $data
+     * @param EntityCollection<covariant Entity>|Entity|null $data
      * @param array<string, mixed> $metaData
      *
      * @throws UnsupportedEncoderInputException|ApiException
@@ -126,7 +126,7 @@ class JsonApiEncoder
     }
 
     /**
-     * @param Entity|EntityCollection<Entity> $data
+     * @param Entity|EntityCollection<covariant Entity> $data
      */
     private function encodeData(ResponseFields $fields, EntityDefinition $definition, Entity|EntityCollection $data, JsonApiEncodingResult $result): void
     {

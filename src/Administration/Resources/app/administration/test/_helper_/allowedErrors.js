@@ -1,9 +1,5 @@
 /**
- * @sw-package unknown
- */
-
-/**
- * @package admin
+ * @sw-package framework
  */
 
 export const unknownOptionError = {

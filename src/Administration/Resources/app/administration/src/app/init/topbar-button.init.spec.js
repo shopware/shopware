@@ -1,5 +1,5 @@
 /**
- * @sw-package customer-order
+ * @sw-package innovation
  */
 import initTopbarButtons from 'src/app/init/topbar-button.init';
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';

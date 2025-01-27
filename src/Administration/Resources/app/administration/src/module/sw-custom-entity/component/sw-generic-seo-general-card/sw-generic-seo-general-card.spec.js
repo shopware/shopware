@@ -38,7 +38,7 @@ async function createWrapper() {
 }
 
 /**
- * @sw-package content
+ * @sw-package inventory
  */
 describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', () => {
     it('should display the seoMetaTitle and allow changing it', async () => {

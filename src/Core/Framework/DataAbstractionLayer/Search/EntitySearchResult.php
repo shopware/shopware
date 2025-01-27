@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -14,7 +13,9 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  *
  * @template TEntityCollection of EntityCollection
  *
- * @extends EntityCollection<Entity>
+ * @phpstan-type TElement template-type<TEntityCollection, EntityCollection, 'TElement'>
+ *
+ * @extends EntityCollection<TElement>
  */
 #[Package('framework')]
 class EntitySearchResult extends EntityCollection
@@ -172,13 +173,16 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @return Entity|null
+     * @return TElement|null
      */
     public function getAt(int $position)
     {
         return $this->entities->getAt($position);
     }
 
+    /**
+     * @param iterable<TElement> $elements
+     */
     protected function createNew(iterable $elements = []): static
     {
         if (!($elements instanceof EntityCollection)) {

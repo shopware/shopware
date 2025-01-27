@@ -14,7 +14,7 @@ tester.run('require-package-annotation', rule, {
             filename: 'test.js',
             code: `
 /**
-* @sw-package admin
+* @sw-package framework
 */
 const foo = 'bar';`
         },
@@ -23,7 +23,7 @@ const foo = 'bar';`
             filename: 'test.ts',
             code: `
 /**
-* @sw-package admin
+* @sw-package framework
 */
 const foo = 'bar';`
         },
@@ -34,7 +34,7 @@ const foo = 'bar';`
 // This is a comment
 
 /**
-* @sw-package admin
+* @sw-package framework
 */
 const foo = 'bar';`
         },
@@ -45,7 +45,7 @@ const foo = 'bar';`
 // This is a comment
 
 /**
-* @sw-package admin
+* @sw-package framework
 */
 const foo = 'bar';`
         },
@@ -71,7 +71,7 @@ const foo = 'bar';`
             filename: 'test.js',
             code: `const foo = 'bar';`,
             errors: [{
-                message: 'Missing package annotation',
+                message: 'File is missing \'@sw-package\' annotation',
                 line: 1,
             }]
         },
@@ -80,7 +80,7 @@ const foo = 'bar';`
             filename: 'test.ts',
             code: `const foo = 'bar';`,
             errors: [{
-                message: 'Missing package annotation',
+                message: 'File is missing \'@sw-package\' annotation',
                 line: 1,
             }]
         },
@@ -88,12 +88,12 @@ const foo = 'bar';`
             name: 'JS File with package annotation in line comment',
             filename: 'test.js',
             code: `
-// @sw-package admin
+// @sw-package framework
 
 const foo = 'bar';
 `,
             errors: [{
-                message: 'Missing package annotation',
+                message: 'File is missing \'@sw-package\' annotation',
                 line: 1,
             }]
         },
@@ -101,15 +101,90 @@ const foo = 'bar';
             name: 'TS File with package annotation in line comment',
             filename: 'test.ts',
             code: `
-// @sw-package admin
+// @sw-package framework
 
 const foo = 'bar';
             `,
             errors: [{
-                message: 'Missing package annotation',
+                message: 'File is missing \'@sw-package\' annotation',
                 line: 1,
             }]
         },
-    ]
-})
+        {
+            name: 'JS File with old package annotation',
+            filename: 'test.js',
+            code: `
+/*
+ *
+ *    @package    framework
+*/
 
+const foo = 'bar';
+`,
+            errors: [{
+                message: 'Use \'@sw-package\' instead of \'@package\'',
+                line: 4,
+            }],
+            output: `
+/*
+ *
+ *    @sw-package    framework
+*/
+
+const foo = 'bar';
+`,
+        },
+        {
+            name: 'TS File with old package annotation',
+            filename: 'test.ts',
+            code: `
+/*
+ * @package framework
+*/
+
+const foo = 'bar';
+`,
+            errors: [{
+                message: 'Use \'@sw-package\' instead of \'@package\'',
+                line: 3,
+            }],
+            output: `
+/*
+ * @sw-package framework
+*/
+
+const foo = 'bar';
+`,
+        },
+        {
+            name: 'JS File with wrong package annotation',
+            filename: 'test.js',
+            code: `
+/*
+ * @sw-package missing
+*/
+
+const foo = 'bar';
+`,
+            errors: [{
+                message: 'Invalid domain \'missing\'. Must be one of \'buyers-experience\', \'services-settings\', \'administration\', \'data-services\', \'innovation\', \'framework\', \'inventory\', \'discovery\', \'checkout\', \'after-sales\', \'b2b\', \'fundamentals@framework\', \'fundamentals@discovery\', \'fundamentals@checkout\', \'fundamentals@after-sales\'',
+                line: 3,
+            }]
+        },
+        {
+            name: 'TS File with wrong package annotation',
+            filename: 'test.ts',
+            code: `
+/*
+ * @sw-package missing
+*/
+
+const foo = 'bar';
+`,
+            errors: [{
+                message: 'Invalid domain \'missing\'. Must be one of \'buyers-experience\', \'services-settings\', \'administration\', \'data-services\', \'innovation\', \'framework\', \'inventory\', \'discovery\', \'checkout\', \'after-sales\', \'b2b\', \'fundamentals@framework\', \'fundamentals@discovery\', \'fundamentals@checkout\', \'fundamentals@after-sales\'',
+                line: 3,
+            }]
+        },
+    ]
+});

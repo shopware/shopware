@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -92,11 +91,11 @@ class ProductListingLoader
 
         $mapping = $this->resolvePreviews($ids, $clone, $context);
 
-        $searchResult = $this->resolveData($clone, $mapping, $context);
+        $productSearchResult = $this->resolveData($clone, $mapping, $context);
 
-        $this->addExtensions($idResult, $searchResult, $mapping);
+        $this->addExtensions($idResult, $productSearchResult, $mapping);
 
-        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $searchResult->getEntities(), $aggregations, $criteria, $context->getContext());
+        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
         $result->addState(...$idResult->getStates());
 
         return $result;
@@ -234,13 +233,13 @@ class ProductListingLoader
     }
 
     /**
-     * @param EntitySearchResult<ProductCollection> $entities
+     * @param EntitySearchResult<ProductCollection> $productSearchResult
      * @param array<string> $mapping
      */
-    private function addExtensions(IdSearchResult $ids, EntitySearchResult $entities, array $mapping): void
+    private function addExtensions(IdSearchResult $ids, EntitySearchResult $productSearchResult, array $mapping): void
     {
         foreach ($ids->getExtensions() as $name => $extension) {
-            $entities->addExtension($name, $extension);
+            $productSearchResult->addExtension($name, $extension);
         }
 
         /** @var string $id */
@@ -250,15 +249,14 @@ class ProductListingLoader
             }
 
             // current id was mapped to another variant
-            if (!$entities->has($mapping[$id])) {
+            if (!$productSearchResult->has($mapping[$id])) {
                 continue;
             }
 
-            /** @var Entity $entity */
-            $entity = $entities->get($mapping[$id]);
+            $product = $productSearchResult->get($mapping[$id]);
 
             // get access to the data of the search result
-            $entity->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
+            $product->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
         }
     }
 

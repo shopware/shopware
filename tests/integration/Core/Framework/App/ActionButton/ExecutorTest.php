@@ -29,7 +29,7 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
  * @internal
  */
 #[CoversClass(Executor::class)]
-#[Package('core')]
+#[Package('framework')]
 class ExecutorTest extends TestCase
 {
     use AppSystemTestBehaviour;

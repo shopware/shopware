@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtecti
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class EntityExtension
 {
     /**

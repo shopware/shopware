@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'number-range:migrate',
     description: 'Migrate the increment storage of a number range',
 )]
-#[Package('checkout')]
+#[Package('framework')]
 class MigrateIncrementStorageCommand extends Command
 {
     /**

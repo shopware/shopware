@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 import defaultSearchConfiguration from './default-search-configuration';
 

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class DateHistogramAggregation extends BucketAggregation
 {
     final public const PER_MINUTE = 'minute';

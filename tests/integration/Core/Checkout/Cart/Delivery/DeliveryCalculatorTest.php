@@ -1243,7 +1243,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCurrency')->willReturn($currency);
+        $context->method('getCurrencyId')->willReturn($currency->getId());
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);

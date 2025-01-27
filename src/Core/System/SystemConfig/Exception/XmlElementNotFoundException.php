@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - will be removed, use UtilException::xmlElementNotFound instead
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class XmlElementNotFoundException extends UtilException
 {
     public function __construct(string $element)

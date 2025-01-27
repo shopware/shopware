@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Test\Telemetry\Transport\TraceableTransport;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TraceableTransportFactory implements MetricTransportFactoryInterface
 {
     public function create(TransportConfig $transportConfig): MetricTransportInterface

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AppScriptConditionEvents
 {
     final public const APP_SCRIPT_CONDITION_WRITTEN_EVENT = 'app_script_condition.written';

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 final class ScalarTypeSerializer
 {
     private const FILTER_VAR_DEFAULT_FLAGS = ['flags' => \FILTER_NULL_ON_FAILURE];

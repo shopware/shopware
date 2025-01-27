@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -78,6 +78,7 @@ async function createWrapper(isSelectable, tooltip) {
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
                 directives: {
                     tooltip: {

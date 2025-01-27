@@ -1,4 +1,5 @@
-{% if not header is defined and page is defined %}
+{# @deprecated tag:v6.7.0 - Fallback will be removed, add header directly #}
+{% if not feature('cache_rework') and not header is defined and page is defined %}
     {% set header = page.header %}
 {% endif %}
 
@@ -16,48 +17,49 @@
 
                         {% block layout_navbar_menu_home %}
                             {% if context.salesChannel.translated.homeEnabled %}
-                                <li class="nav-item pe-2">
-                                    <a class="nav-link main-navigation-link{% if controllerAction is same as('home') %} active{% endif %} home-link p-2"
+                                <li class="nav-item nav-item-{{ context.salesChannel.navigationCategoryId }}">
+                                    <a class="nav-link main-navigation-link home-link root nav-item-{{ context.salesChannel.navigationCategoryId }}-link"
                                        href="{{ path('frontend.home.page') }}"
                                        itemprop="url"
                                        title="{{ homeLabel|striptags }}">
-                                        <div class="main-navigation-link-text">
-                                            <span itemprop="name">{{ homeLabel|sw_sanitize }}</span>
-                                        </div>
+                                        <span itemprop="name" class="main-navigation-link-text">{{ homeLabel|sw_sanitize }}</span>
                                     </a>
                                 </li>
                             {% endif %}
                         {% endblock %}
 
                         {% block layout_navbar_menu_items %}
-                            {% set activePath = shopware.navigation.path %}
+                            {# @deprecated tag:v6.7.0 - variable `activePath` will be removed #}
+                            {% if not feature('v6.7.0.0') %}
+                                {% set activePath = '|' ~ shopware.navigation.pathIdList|join('|') ~ '|' %}
+                            {% endif %}
 
                             {% for treeItem in header.navigation.tree %}
                                 {% set category = treeItem.category %}
+                                {% set id = category.id %}
                                 {% set name = category.translated.name %}
+                                {% set hasChildren = treeItem.children|length > 0 %}
 
                                 {% block layout_navbar_menu_item %}
                                     {% if category.type == 'folder' %}
-                                        <li class="nav-item main-navigation-link"
-                                            {% if treeItem.children|length > 0 %}
-                                                data-flyout-menu-trigger="{{ category.id }}"
+                                        <li class="nav-item main-navigation-link nav-item-{{ id }} nav-link root nav-item-{{ id }}-link"
+                                            {% if hasChildren %}
+                                                data-flyout-menu-trigger="{{ id }}"
                                             {% endif %}
                                             title="{{ name }}">
-                                            <div class="main-navigation-link-text">
-                                                <span itemprop="name">{{ name }}</span>
-                                            </div>
+                                            <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
                                         </li>
                                     {% else %}
-                                        <li class="nav-item {% if treeItem.children|length > 0 %}dropdown position-static pe-2{% endif %}">
-                                            <a class="nav-link dropdown-toggle main-navigation-link{% if category.id == shopware.navigation.id or category.id in activePath %} active{% endif %} p-2"
+                                        <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static pe-2{% endif %}">
+                                            <a class="nav-link nav-item-{{ id }}-link root dropdown-toggle main-navigation-link p-2"
                                                href="{{ category_url(category) }}"
                                                data-bs-toggle="dropdown"
                                                itemprop="url"
                                                {% if category_linknewtab(category) %}target="_blank"{% endif %}
                                                title="{{ name }}">
-                                                {{ name }}
+                                                <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
                                             </a>
-                                            {% if (treeItem.children|length > 0) %}
+                                            {% if hasChildren %}
                                                 <div class="dropdown-menu w-100 p-4" role="menu">
                                                     {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
                                                         themeIconConfig: themeIconConfig,

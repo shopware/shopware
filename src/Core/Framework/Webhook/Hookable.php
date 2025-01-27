@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 
-#[Package('core')]
+#[Package('framework')]
 interface Hookable
 {
     public const HOOKABLE_EVENTS = [

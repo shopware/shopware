@@ -301,13 +301,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $expectedMessageStrict = new UpdateThumbnailsMessage();
         $expectedMessageStrict->setContext($this->context);
 
-        $expectedMessageStrict->setIsStrict(true);
+        $expectedMessageStrict->setStrict(true);
         $expectedMessageStrict->setMediaIds($affectedMediaIds);
 
         $expectedMessageNonStrict = new UpdateThumbnailsMessage();
         $expectedMessageNonStrict->setContext($this->context);
 
-        $expectedMessageNonStrict->setIsStrict(false);
+        $expectedMessageNonStrict->setStrict(false);
         $expectedMessageNonStrict->setMediaIds($affectedMediaIds);
 
         $messageBusMock = new CollectingMessageBus();

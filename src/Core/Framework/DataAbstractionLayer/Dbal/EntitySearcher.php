@@ -23,7 +23,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntitySearcher implements EntitySearcherInterface
 {
     public function __construct(

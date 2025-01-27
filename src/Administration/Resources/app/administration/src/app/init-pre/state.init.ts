@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  * @deprecated tag:v6.8.0 - Will be removed use store.init.ts instead
  */
 

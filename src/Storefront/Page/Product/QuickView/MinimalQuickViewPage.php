@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('storefront')]
+#[Package('framework')]
 class MinimalQuickViewPage extends Struct
 {
     /**

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -89,7 +89,7 @@ async function createWrapper(activeTab = 'content') {
                         },
                         navigationDots: {
                             source: 'static',
-                            value: null,
+                            value: 'none',
                         },
                         galleryPosition: {
                             source: 'static',

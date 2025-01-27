@@ -1,3 +1,7 @@
+/**
+ * @sw-package inventory
+ */
+
 import ApiService from '../api.service';
 
 /**

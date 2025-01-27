@@ -15,7 +15,7 @@ use Symfony\Component\Cache\CacheItem;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(CachedSnippetFinder::class)]
 class CachedSnippetFinderTest extends TestCase
 {

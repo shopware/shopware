@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\VariablesAccessTrait;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class StoreApiResponse extends Response
 {
     // allows the cache key finder to get access of all returned data to build the cache tags

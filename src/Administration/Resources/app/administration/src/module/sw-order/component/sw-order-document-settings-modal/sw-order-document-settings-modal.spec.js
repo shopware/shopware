@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import FileValidationService from 'src/app/service/file-validation.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const orderFixture = {
@@ -128,6 +128,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         await previewButton.trigger('click');
 
         expect(wrapper.emitted()['preview-show']).toBeTruthy();
+        expect(wrapper.emitted()['preview-show'][0][1]).toBe('pdf');
     });
 
     it('should show file or hide custom document file when toggling Upload custom document', async () => {
@@ -212,5 +213,16 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
 
         const modal = wrapper.find('.sw-modal');
         expect(modal.attributes().title).toBe('sw-order.documentModal.modalTitle - Invoice');
+    });
+
+    it('should emit `preview-show` event when click on Preview of the HTML button', async () => {
+        const wrapper = await createWrapper();
+
+        const previewButton = wrapper.findAll('.sw-button-group').at(0);
+        await previewButton.find('.sw-order-document-settings-modal__preview-button-html').trigger('click');
+
+        expect(wrapper.emitted()['preview-show']).toBeTruthy();
+        expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
+        expect(wrapper.emitted()['preview-show'][0][0].fileTypes).toEqual(['html']);
     });
 });

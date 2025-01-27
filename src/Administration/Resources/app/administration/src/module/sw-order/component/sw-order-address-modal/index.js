@@ -2,7 +2,7 @@ import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;

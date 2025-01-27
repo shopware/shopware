@@ -40,8 +40,16 @@
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_admin_menu_navigation_main %}
-            <nav class="sw-admin-menu__navigation" aria-labelledby="mainmenulabel">
-                <h2 id="mainmenulabel" class="visually-hidden">{{ $tc('global.sw-admin-menu.navigation.label') }}</h2>
+            <nav
+                class="sw-admin-menu__navigation"
+                aria-labelledby="mainmenulabel"
+            >
+                <h2
+                    id="mainmenulabel"
+                    class="visually-hidden"
+                >
+                    {{ $tc('global.sw-admin-menu.navigation.label') }}
+                </h2>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_admin_menu_navigation_main_list %}

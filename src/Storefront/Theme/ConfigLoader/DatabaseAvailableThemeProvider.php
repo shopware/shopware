@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('storefront')]
+#[Package('framework')]
 class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
     /**

@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  *         }
  *     }
  */
-#[Package('core')]
+#[Package('framework')]
 interface BundleConfigGeneratorInterface
 {
     /**

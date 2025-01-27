@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class NoAssertsOnObjectsRule implements Rule
 {
     private const FORBIDDEN_OBJECTS = [

@@ -8,7 +8,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ShopIdDeletedEvent extends Event
 {
 }

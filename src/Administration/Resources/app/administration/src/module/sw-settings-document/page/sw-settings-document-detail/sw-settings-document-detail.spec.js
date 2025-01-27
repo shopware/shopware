@@ -40,9 +40,28 @@ const documentBaseConfigRepositoryMock = {
                 documentType: { id: 'documentTypeId1' },
             });
         }
+
+        if (id === 'documentConfigWithDocumentFileTypes') {
+            return Promise.resolve({
+                id: id,
+                documentTypeId: 'documentTypeId',
+                config: {
+                    fileTypes: [
+                        'pdf',
+                        'html',
+                    ],
+                },
+            });
+        }
+
         return Promise.resolve({
             id: id,
             documentTypeId: 'documentTypeId',
+            config: {
+                fileTypes: [
+                    'pdf',
+                ],
+            },
         });
     },
 };
@@ -141,7 +160,7 @@ const createWrapper = async (customOptions, privileges = []) => {
                         props: ['disabled'],
                     },
                     'sw-multi-select': {
-                        template: '<div id="documentSalesChannel"/>',
+                        template: '<div id="documentSalesChannel" @click="$emit(\'click\')"/>',
                         props: ['disabled'],
                     },
                     'sw-skeleton': true,
@@ -427,5 +446,58 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(swCardComponents.length).toBeGreaterThan(0);
         expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');
+    });
+
+    it('should be have config file formats only show pdf', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentId' },
+            },
+            ['document.editor'],
+        );
+
+        await flushPromises();
+
+        let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf');
+
+        await wrapper.vm.onRemoveDocumentType({ id: 'pdf' });
+
+        multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf');
+    });
+
+    it('should be have config file formats with pdf and html', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentFileTypes' },
+            },
+            ['document.editor'],
+        );
+
+        await flushPromises();
+
+        let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf,html');
+
+        await wrapper.vm.onRemoveDocumentType({ id: 'html' });
+
+        multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf');
+
+        await wrapper.vm.onAddDocumentType({ id: 'html' });
+
+        multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf,html');
     });
 });

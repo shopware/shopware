@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 describe('src/app/filter/striphtml.filter.ts', () => {
     const stripHtmlFilter = Shopware.Filter.getByName('striphtml');

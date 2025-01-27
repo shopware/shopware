@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(CustomerBeforeDeleteSubscriber::class)]
 class CustomerBeforeDeleteSubscriberTest extends TestCase
 {

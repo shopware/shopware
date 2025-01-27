@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Webhook\Hookable;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class HookableEntityWrittenEvent implements Hookable
 {
     private function __construct(private readonly EntityWrittenEvent $event)

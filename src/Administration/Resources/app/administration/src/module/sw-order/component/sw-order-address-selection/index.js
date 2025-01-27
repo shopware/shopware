@@ -3,7 +3,7 @@ import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { EntityDefinition, Mixin } = Shopware;

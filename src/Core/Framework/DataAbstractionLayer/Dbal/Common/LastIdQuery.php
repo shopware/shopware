@@ -6,7 +6,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class LastIdQuery implements IterableQuery
 {
     private ?int $lastId = null;

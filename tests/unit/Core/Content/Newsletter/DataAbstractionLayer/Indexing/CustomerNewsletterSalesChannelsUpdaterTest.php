@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Content\Newsletter\DataAbstractionLayer\Index
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
@@ -18,11 +17,36 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(CustomerNewsletterSalesChannelsUpdater::class)]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {
-    #[DataProvider('dataProvider')]
-    public function testUpdateCustomersRecipient(?string $newsletterIds, \Closure $expectsClosure): void
+    private MockObject&Connection $connection;
+
+    protected function setUp(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
+        parent::setUp();
+        $this->connection = $this->createMock(Connection::class);
+    }
+
+    public function testUpdateCustomersRecipientWithoutNewsletterSalesChannelIds(): void
+    {
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            [
+                'email' => 'y.tran@shopware.com',
+                'last_name' => 'Tran',
+                'first_name' => 'Y',
+                'newsletter_sales_channel_ids' => null,
+            ],
+        ]);
+
+        $this->connection->expects(static::never())->method('executeUpdate');
+
+        $indexing = new CustomerNewsletterSalesChannelsUpdater($this->connection);
+        $indexing->updateCustomersRecipient([Uuid::randomHex()]);
+    }
+
+    public function testUpdateCustomersRecipientWithRegisteredEmailNewsletterRecipient(): void
+    {
+        $newsletterIds = json_encode([Uuid::randomHex() => Uuid::randomHex()], \JSON_THROW_ON_ERROR);
+        static::assertIsString($newsletterIds);
+        $this->connection->method('fetchAllAssociative')->willReturn([
             [
                 'email' => 'y.tran@shopware.com',
                 'last_name' => 'Tran',
@@ -31,56 +55,66 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             ],
         ]);
 
-        $expectsClosure(
-            $connection,
-            $newsletterIds ? array_keys(json_decode($newsletterIds, true, 512, \JSON_THROW_ON_ERROR)) : null
-        );
+        $ids = $this->getNewsLetterIds($newsletterIds);
 
-        $indexing = new CustomerNewsletterSalesChannelsUpdater($connection);
+        $this->connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
+            static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
+
+            static::assertSame([
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'email' => 'y.tran@shopware.com',
+                'firstName' => 'Y',
+                'lastName' => 'Tran',
+            ], $params);
+        });
+
+        $indexing = new CustomerNewsletterSalesChannelsUpdater($this->connection);
         $indexing->updateCustomersRecipient([Uuid::randomHex()]);
     }
 
-    public static function dataProvider(): \Generator
+    public function testUpdateCustomersRecipientWithMultipleRegisteredEmailNewsletterRecipient(): void
     {
-        yield 'Email Newsletter Recipient Registered' => [
-            'newsletterIds' => json_encode([Uuid::randomHex() => Uuid::randomHex()], \JSON_THROW_ON_ERROR),
-            function (MockObject $connection, ?array $ids): void {
-                $connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
-                    static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
+        $newsletterIds = json_encode([Uuid::randomHex() => Uuid::randomHex(), Uuid::randomHex() => Uuid::randomHex()], \JSON_THROW_ON_ERROR);
+        static::assertIsString($newsletterIds);
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            [
+                'email' => 'y.tran@shopware.com',
+                'last_name' => 'Tran',
+                'first_name' => 'Y',
+                'newsletter_sales_channel_ids' => $newsletterIds,
+            ],
+        ]);
 
-                    static::assertNotNull($ids);
-                    static::assertSame([
-                        'ids' => Uuid::fromHexToBytesList($ids),
-                        'email' => 'y.tran@shopware.com',
-                        'firstName' => 'Y',
-                        'lastName' => 'Tran',
-                    ], $params);
-                });
-            },
-        ];
+        $ids = $this->getNewsLetterIds($newsletterIds);
+        $this->connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
+            static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
 
-        yield 'Email Newsletter Recipient Registered Multiple' => [
-            'newsletterIds' => json_encode([Uuid::randomHex() => Uuid::randomHex(), Uuid::randomHex() => Uuid::randomHex()], \JSON_THROW_ON_ERROR),
-            function (MockObject $connection, ?array $ids): void {
-                $connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
-                    static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
+            static::assertSame([
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'email' => 'y.tran@shopware.com',
+                'firstName' => 'Y',
+                'lastName' => 'Tran',
+            ], $params);
+        });
 
-                    static::assertNotNull($ids);
-                    static::assertSame([
-                        'ids' => Uuid::fromHexToBytesList($ids),
-                        'email' => 'y.tran@shopware.com',
-                        'firstName' => 'Y',
-                        'lastName' => 'Tran',
-                    ], $params);
-                });
-            },
-        ];
+        $indexing = new CustomerNewsletterSalesChannelsUpdater($this->connection);
+        $indexing->updateCustomersRecipient([Uuid::randomHex()]);
+    }
 
-        yield 'Email Newsletter Recipient Not Registered' => [
-            'newsletterIds' => null,
-            function (MockObject $connection): void {
-                $connection->expects(static::never())->method('executeUpdate');
-            },
-        ];
+    /**
+     * @throws \JsonException
+     *
+     * @return array<int, string>
+     */
+    private function getNewsLetterIds(string $newsletterIds): array
+    {
+        $result = [];
+        $ids = array_keys(json_decode($newsletterIds, true, 512, \JSON_THROW_ON_ERROR));
+
+        foreach ($ids as $key => $value) {
+            $result[$key] = (string) $value;
+        }
+
+        return $result;
     }
 }

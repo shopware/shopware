@@ -33,7 +33,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-#[Package('storefront')]
+#[Package('framework')]
 abstract class StorefrontController extends AbstractController
 {
     public const SUCCESS = 'success';

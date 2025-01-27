@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal This class is not intended for service decoration
  */
-#[Package('core')]
+#[Package('framework')]
 class CriteriaPartResolver
 {
     public function __construct(

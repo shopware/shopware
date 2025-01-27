@@ -4,7 +4,7 @@ import './sw-media-sidebar.scss';
 const { Filter, Context } = Shopware;
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -11,7 +11,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ActionButtonTranslationEntity extends Entity
 {
     use EntityIdTrait;

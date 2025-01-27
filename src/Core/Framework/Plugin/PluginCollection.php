@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<PluginEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class PluginCollection extends EntityCollection
 {
     public function getApiAlias(): string

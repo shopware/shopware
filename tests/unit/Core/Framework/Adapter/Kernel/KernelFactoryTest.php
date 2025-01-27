@@ -15,7 +15,7 @@ use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(KernelFactory::class)]
 class KernelFactoryTest extends TestCase
 {

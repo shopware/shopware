@@ -1,15 +1,33 @@
 {% block cms_element_form_textarea %}
+    {% if feature('ACCESSIBILITY_TWEAKS') %}
+
+        {% sw_include '@Storefront/storefront/component/form/form-textarea.html.twig' with {
+            label: label|trans,
+            id: formPrefix ~ '-form-' ~ fieldName,
+            name: fieldName,
+            value: data.get(fieldName),
+            placeholder: placeholder|trans,
+            violationPath: '/' ~ fieldName,
+            validationRules: required ? 'required',
+            rows: rows,
+            additionalClass: additionalClass,
+        } %}
+
+    {% else %}
     <div class="form-group {{ additionalClass }}">
+
+        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
         {% block cms_element_form_textarea_label %}
             <label class="form-label" for="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}form-{{ fieldName }}">
                 {{- label|trans -}}{% if required %} {{- 'general.required'|trans -}}{% endif %}
             </label>
         {% endblock %}
 
+        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
         {% block cms_element_form_textarea_textarea %}
             {% apply spaceless %}
                 <textarea name="{{ fieldName }}"
-                          id="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}form-{{ fieldName }}"
+                          id="form-{{ fieldName }}"
                           placeholder="{{ placeholder|trans }}"
                           {% if rows %}rows="{{ rows }}"{% endif %}
                           {% if required %}required="required"{% endif %}
@@ -25,4 +43,5 @@
             {% endif %}
         {% endblock %}
     </div>
+    {% endif %}
 {% endblock %}

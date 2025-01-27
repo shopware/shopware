@@ -4,7 +4,7 @@ import './sw-text-editor-table-toolbar.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

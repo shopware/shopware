@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class Storefront extends Bundle implements ThemeInterface
 {
     /**

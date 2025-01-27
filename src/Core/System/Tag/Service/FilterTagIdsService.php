@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('fundamentals@framework')]
 class FilterTagIdsService
 {
     public function __construct(

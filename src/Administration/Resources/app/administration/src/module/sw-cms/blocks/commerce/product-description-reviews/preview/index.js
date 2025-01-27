@@ -3,7 +3,7 @@ import './sw-cms-preview-product-description-reviews.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,

@@ -9,7 +9,7 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEn
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeSalesChannelEntity extends Entity
 {
     use EntityIdTrait;

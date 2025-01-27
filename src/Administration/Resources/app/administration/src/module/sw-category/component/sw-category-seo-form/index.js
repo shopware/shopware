@@ -1,7 +1,7 @@
 import template from './sw-category-seo-form.html.twig';
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

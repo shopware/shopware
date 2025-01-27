@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\Filesystem;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class WriteableCheck
 {
     /**

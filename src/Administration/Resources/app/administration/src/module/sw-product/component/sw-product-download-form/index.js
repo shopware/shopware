@@ -1,3 +1,7 @@
+/**
+ * @sw-package inventory
+ */
+
 import template from './sw-product-download-form.html.twig';
 import './sw-product-download-form.scss';
 

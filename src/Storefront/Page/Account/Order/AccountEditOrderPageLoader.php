@@ -143,8 +143,8 @@ class AccountEditOrderPageLoader
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
-        if ($context->getCustomer() && $context->getCustomer()->getId()) {
-            $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
+        if ($context->getCustomer()) {
+            $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomerId()));
         } elseif ($request->get('deepLinkCode')) {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));
         } else {

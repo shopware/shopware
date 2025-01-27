@@ -1,7 +1,7 @@
 import template from './sw-order-create-initial.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { State, Data, Service } = Shopware;

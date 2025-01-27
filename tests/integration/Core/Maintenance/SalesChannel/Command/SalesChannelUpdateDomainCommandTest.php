@@ -20,7 +20,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelUpdateDomainCommandTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

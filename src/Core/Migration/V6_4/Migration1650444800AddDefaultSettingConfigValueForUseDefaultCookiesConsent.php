@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsent extends MigrationStep
 {
     private const CONFIG_KEY = 'core.basicInformation.useDefaultCookieConsent';

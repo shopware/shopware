@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import directives from 'src/app/directive';

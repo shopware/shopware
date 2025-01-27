@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 {
     /**

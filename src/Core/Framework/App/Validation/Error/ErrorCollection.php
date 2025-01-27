@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<Error>
  */
-#[Package('core')]
+#[Package('framework')]
 class ErrorCollection extends Collection
 {
     /**

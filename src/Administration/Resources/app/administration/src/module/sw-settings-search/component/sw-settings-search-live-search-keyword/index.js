@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 import template from './sw-settings-search-live-search-keyword.html.twig';
 import './sw-settings-search-live-search-keyword.scss';

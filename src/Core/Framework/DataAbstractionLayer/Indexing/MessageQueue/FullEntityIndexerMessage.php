@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class FullEntityIndexerMessage implements AsyncMessageInterface
 {
     /**

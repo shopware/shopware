@@ -18,25 +18,27 @@
                 {% block buy_widget_configurator_groups %}
                     {% for group in configuratorSettings %}
                         {% block buy_widget_configurator_group %}
-                            <div class="product-detail-configurator-group">
-                                {% if group.displayType == 'select' %}
+                            {% if group.displayType == 'select' %}
+                                <div class="product-detail-configurator-group{% if feature('ACCESSIBILITY_TWEAKS') %} mb-3{% endif %}">
                                     {# @deprecated tag:v6.7.0 - Template `select.html.twig` is deprecated. Use `storefront/component/buy-widget/configurator/select.html.twig` instead. #}
                                     {% if feature('v6.7.0.0') %}
                                         {% sw_include '@Storefront/storefront/component/buy-widget/configurator/select.html.twig' %}
                                     {% else %}
                                         {% sw_include '@Storefront/storefront/page/product-detail/configurator/select.html.twig' %}
                                     {% endif %}
-                                {% else %}
+                                </div>
+                            {% else %}
+                                <fieldset class="product-detail-configurator-group{% if feature('ACCESSIBILITY_TWEAKS') %} mb-3{% endif %}">
                                     {% block buy_widget_configurator_group_title %}
-                                        <div class="product-detail-configurator-group-title">
+                                        <legend class="product-detail-configurator-group-title{% if feature('ACCESSIBILITY_TWEAKS') %} fs-5 fw-bold{% endif %}">
                                             {% block buy_widget_configurator_group_title_text %}
-                                                {{ group.translated.name }}
+                                                {{ 'component.product.configurator.legend'|trans({ '%group_name%': group.translated.name, '%hidden_cls%': 'visually-hidden' })|sw_sanitize }}
                                             {% endblock %}
-                                        </div>
+                                        </legend>
                                     {% endblock %}
 
                                     {% block buy_widget_configurator_options %}
-                                        <div class="product-detail-configurator-options">
+                                        <div class="product-detail-configurator-options{% if feature('ACCESSIBILITY_TWEAKS') %} d-flex flex-wrap gap-2{% endif %}">
                                             {% for option in group.options %}
                                                 {% if elementId is defined and elementId is not null %}
                                                     {% set optionIdentifier = [group.id, option.id, elementId]|join('-') %}
@@ -45,14 +47,14 @@
                                                 {% endif %}
 
                                                 {% set isActive = false %}
-                                                {% set isCombinableCls = 'is-combinable' %}
+
+                                                {# @deprecated tag:v6.7.0 - Variable `isCombinableCls` will always contain a string and no longer `false`. Will return `not-combinable disabled` instead. #}
+                                                {% set isCombinableCls = feature('ACCESSIBILITY_TWEAKS')
+                                                    ? (option.combinable ? 'is-combinable' : 'not-combinable disabled')
+                                                    : (option.combinable ? 'is-combinable' : false) %}
 
                                                 {% if option.id in product.optionIds %}
                                                     {% set isActive = true %}
-                                                {% endif %}
-
-                                                {% if not option.combinable %}
-                                                    {% set isCombinableCls = false %}
                                                 {% endif %}
 
                                                 {% if option.configuratorSetting.media %}
@@ -68,25 +70,31 @@
                                                 {% endif %}
 
                                                 {% block buy_widget_configurator_option %}
-                                                    <div class="product-detail-configurator-option">
+                                                    <div class="product-detail-configurator-option{% if feature('ACCESSIBILITY_TWEAKS') %} d-inline-flex{% endif %}">
                                                         {% block buy_widget_configurator_option_radio %}
                                                             <input type="radio"
                                                                    name="{{ group.id }}"
                                                                    value="{{ option.id }}"
-                                                                   class="product-detail-configurator-option-input{% if isCombinableCls %} {{ isCombinableCls }}{% endif %}"
-                                                                   title="{{ optionIdentifier }}"
+                                                                   class="product-detail-configurator-option-input {{ isCombinableCls }}{% if feature('ACCESSIBILITY_TWEAKS') %} btn-check{% endif %}"
                                                                    id="{{ optionIdentifier }}"
+                                                                   aria-labelledby="{{ optionIdentifier }}-label"
                                                                    {% if isActive %}checked="checked"{% endif %}>
 
                                                             {% block buy_widget_configurator_option_radio_label %}
-                                                                <label class="product-detail-configurator-option-label{% if isCombinableCls %} {{ isCombinableCls }}{% endif %} is-display-{{ displayType }}"
+                                                                <label class="product-detail-configurator-option-label {{ isCombinableCls }} is-display-{{ displayType }}{% if feature('ACCESSIBILITY_TWEAKS') %} btn btn-outline-secondary d-inline-flex justify-content-center align-items-center{% endif %}"
                                                                     {% if displayType == 'color' and option.colorHexCode %}
                                                                         style="background-color: {{ option.colorHexCode }}"
                                                                     {% endif %}
                                                                        title="{{ option.translated.name }}"
-                                                                       for="{{ optionIdentifier }}">
+                                                                       id="{{ optionIdentifier }}-label"
+                                                                       for="{{ optionIdentifier }}"
+                                                                       aria-hidden="true">
 
                                                                     {% if displayType == 'media' and media %}
+                                                                        {#
+                                                                            The image is marked as decorative because the <label> text already describes it.
+                                                                            Using alt text results in duplicate read out for screenreaders.
+                                                                        #}
                                                                         {% block buy_widget_configurator_option_radio_label_media %}
                                                                             {% sw_thumbnails 'configurator-option-img-thumbnails' with {
                                                                                 media: media,
@@ -94,18 +102,28 @@
                                                                                     default: '52px'
                                                                                 },
                                                                                 attributes: {
-                                                                                    class: 'product-detail-configurator-option-image',
-                                                                                    alt: option.translated.name,
-                                                                                    title: option.translated.name
+                                                                                    class: 'product-detail-configurator-option-image h-100',
+                                                                                    role: 'presentation',
                                                                                 }
                                                                             } %}
                                                                         {% endblock %}
-                                                                    {% elseif displayType == 'text' or
-                                                                        (displayType == 'media' and not media) or
-                                                                        (displayType == 'color' and not option.colorHexCode) %}
-                                                                        {% block buy_widget_configurator_option_radio_label_text %}
+                                                                    {% endif %}
+
+                                                                    {#
+                                                                        Always offer an alternative text
+                                                                        * Display type media or color with data: Text is visually hidden for screen readers.
+                                                                        * Display type media or color without data: Text is shown as fallback.
+                                                                        * Display type text: Text is shown.
+                                                                    #}
+                                                                    {% if displayType == 'media' and media or displayType == 'color' and option.colorHexCode %}
+                                                                        <span class="visually-hidden">{{ option.translated.name }}</span>
+                                                                    {% else %}
+                                                                        {% block page_product_detail_configurator_option_radio_label_text %}
                                                                             {{ option.translated.name }}
                                                                         {% endblock %}
+                                                                    {% endif %}
+                                                                    {% if not option.combinable %}
+                                                                        <small class="visually-hidden">({{ 'detail.unavailableTooltip'|trans|sw_sanitize }})</small>
                                                                     {% endif %}
                                                                 </label>
                                                             {% endblock %}
@@ -115,8 +133,8 @@
                                             {% endfor %}
                                         </div>
                                     {% endblock %}
-                                {% endif %}
-                            </div>
+                                </fieldset>
+                            {% endif %}
                         {% endblock %}
                     {% endfor %}
                 {% endblock %}

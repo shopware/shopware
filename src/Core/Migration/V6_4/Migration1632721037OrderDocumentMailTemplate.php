@@ -16,7 +16,7 @@ use Shopware\Core\Migration\Traits\Translations;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -110,8 +110,8 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
                     'mail_template_id' => $values['templateId'],
                     'sender_name' => '{{ salesChannel.name }}',
                     'subject' => 'New document for your order',
-                    'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, true),
-                    'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, false),
+                    'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, true),
+                    'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, false),
                 ],
             );
 

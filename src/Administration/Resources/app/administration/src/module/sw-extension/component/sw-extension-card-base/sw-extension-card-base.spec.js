@@ -43,7 +43,7 @@ async function createWrapper(propsData = {}, provide = {}) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     beforeAll(() => {

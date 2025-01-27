@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
@@ -141,6 +141,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                         'sw-checkbox-field': true,
                         'sw-data-grid-column-boolean': true,
                         'sw-data-grid-inline-edit': true,
+                        'sw-provide': true,
                     },
                 },
             },

@@ -157,7 +157,7 @@ class CreditNoteRendererTest extends TestCase
             static::assertNotEmpty($processedTemplate->getSuccess());
             static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
             $rendered = $processedTemplate->getSuccess()[$orderId];
-            static::assertStringContainsString('<html>', $rendered->getHtml());
+            static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
             static::assertStringContainsString('</html>', $rendered->getHtml());
 
             if ($successCallback) {
@@ -334,7 +334,7 @@ class CreditNoteRendererTest extends TestCase
 
         static::getContainer()->get('customer.repository')->update([
             [
-                'id' => $this->salesChannelContext->getCustomer()->getId(),
+                'id' => $this->salesChannelContext->getCustomerId(),
                 'groupId' => $groupNet ? $this->createNetCustomerGroup() : $this->createGrossCustomerGroup(),
             ],
         ], $this->salesChannelContext->getContext());

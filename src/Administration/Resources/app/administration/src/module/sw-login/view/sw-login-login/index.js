@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';

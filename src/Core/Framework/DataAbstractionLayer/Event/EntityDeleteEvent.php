@@ -17,7 +17,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * You can use this event to capture state and perform actions after an entity is removed. For example, you could collect the entity name before it is deleted, then after it is deleted,
  * use the name to remove the respective data from a third party system via an API call.
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityDeleteEvent extends Event implements ShopwareEvent
 {
     /**

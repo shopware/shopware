@@ -2,7 +2,7 @@ import template from './sw-extension-icon.html.twig';
 import './sw-extension-icon.scss';
 
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  */
 export default {

@@ -33,7 +33,7 @@ const pageMock = {
 };
 
 /**
- * @package content
+ * @sw-package discovery
  */
 async function createWrapper() {
     return mount(
@@ -90,7 +90,7 @@ async function createWrapper() {
 }
 
 /**
- * @package content
+ * @sw-package discovery
  */
 describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () => {
     beforeEach(() => {

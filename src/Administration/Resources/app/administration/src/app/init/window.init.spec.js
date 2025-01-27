@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import initializeWindow from 'src/app/init/window.init';

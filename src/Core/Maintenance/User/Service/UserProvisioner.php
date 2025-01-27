@@ -14,7 +14,7 @@ use Shopware\Core\Maintenance\MaintenanceException;
 /**
  * @deprecated tag:v6.7.0 - reason:becomes-internal
  */
-#[Package('core')]
+#[Package('framework')]
 class UserProvisioner
 {
     final public const USER_EMAIL_FALLBACK = 'user@example.com';

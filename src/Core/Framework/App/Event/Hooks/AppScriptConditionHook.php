@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Script\Execution\TraceHook;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AppScriptConditionHook extends TraceHook
 {
     public static function getServiceIds(): array

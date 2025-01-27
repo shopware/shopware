@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(EntityTelemetrySubscriber::class)]
 class EntityTelemetrySubscriberTest extends TestCase
 {

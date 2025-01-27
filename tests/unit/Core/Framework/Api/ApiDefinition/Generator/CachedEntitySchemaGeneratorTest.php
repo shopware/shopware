@@ -15,7 +15,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(CachedEntitySchemaGenerator::class)]
 class CachedEntitySchemaGeneratorTest extends TestCase
 {

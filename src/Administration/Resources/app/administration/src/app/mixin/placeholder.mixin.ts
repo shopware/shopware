@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -15,8 +15,8 @@ export default Shopware.Mixin.register(
     defineComponent({
         methods: {
             placeholder<EntityName extends keyof EntitySchema.Entities>(
-                entity: EntitySchema.Entity<EntityName>,
-                field: keyof EntitySchema.Entity<EntityName>,
+                entity: Entity<EntityName>,
+                field: keyof Entity<EntityName>,
                 fallbackSnippet: string,
             ) {
                 if (!entity) {

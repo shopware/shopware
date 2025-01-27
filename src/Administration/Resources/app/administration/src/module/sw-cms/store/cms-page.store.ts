@@ -1,5 +1,5 @@
 type CmsPageState = {
-    currentPage: null | EntitySchema.Entity<'cms_page'>;
+    currentPage: null | Entity<'cms_page'>;
     currentPageType: null | string;
     currentMappingEntity: null | string;
     currentMappingTypes: Record<string, unknown>;
@@ -8,14 +8,14 @@ type CmsPageState = {
     pageEntityName: string;
     defaultMediaFolderId: null | string;
     currentCmsDeviceView: 'desktop' | 'tablet-landscape' | 'mobile' | 'form';
-    selectedSection: null | EntitySchema.Entity<'cms_section'>;
-    selectedBlock: null | EntitySchema.Entity<'cms_block'>;
+    selectedSection: null | Entity<'cms_section'>;
+    selectedBlock: null | Entity<'cms_block'>;
     isSystemDefaultLanguage: boolean;
 };
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 const cmsPageStore = Shopware.Store.register({
     id: 'cmsPage',
@@ -36,7 +36,7 @@ const cmsPageStore = Shopware.Store.register({
     }),
 
     actions: {
-        setCurrentPage(page: EntitySchema.Entity<'cms_page'>) {
+        setCurrentPage(page: Entity<'cms_page'>) {
             this.currentPage = page;
         },
 
@@ -104,7 +104,7 @@ const cmsPageStore = Shopware.Store.register({
             this.currentCmsDeviceView = 'desktop';
         },
 
-        setSelectedSection(section: EntitySchema.Entity<'cms_section'>) {
+        setSelectedSection(section: Entity<'cms_section'>) {
             this.selectedSection = section;
         },
 
@@ -112,7 +112,7 @@ const cmsPageStore = Shopware.Store.register({
             this.selectedSection = null;
         },
 
-        setSelectedBlock(block: EntitySchema.Entity<'cms_block'>) {
+        setSelectedBlock(block: Entity<'cms_block'>) {
             this.selectedBlock = block;
         },
 
@@ -132,12 +132,12 @@ const cmsPageStore = Shopware.Store.register({
             this.removeCurrentDemoProducts();
         },
 
-        setSection(section: EntitySchema.Entity<'cms_section'>) {
+        setSection(section: Entity<'cms_section'>) {
             this.removeSelectedBlock();
             this.setSelectedSection(section);
         },
 
-        setBlock(block: EntitySchema.Entity<'cms_block'>) {
+        setBlock(block: Entity<'cms_block'>) {
             this.removeSelectedSection();
             this.setSelectedBlock(block);
         },

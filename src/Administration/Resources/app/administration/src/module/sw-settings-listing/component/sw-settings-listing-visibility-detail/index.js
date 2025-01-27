@@ -1,7 +1,7 @@
 import template from './sw-settings-listing-visibility-detail.html.twig';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 const { Criteria } = Shopware.Data;

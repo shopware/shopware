@@ -15,7 +15,7 @@ use Symfony\Component\Lock\LockFactory;
  *
  * @phpstan-import-type CustomEntityField from SchemaUpdater
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';

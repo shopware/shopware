@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 async function createWrapper(taxRule) {
     taxRule.type = { typeName: 'Individual States' };

@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class ProductSerializer extends EntitySerializer
 {
     final public const VISIBILITY_MAPPING = [

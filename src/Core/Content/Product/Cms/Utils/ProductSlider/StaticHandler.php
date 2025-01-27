@@ -77,7 +77,7 @@ class StaticHandler extends AbstractProductSliderHandler
 
     protected function hideUnavailableProducts(SalesChannelContext $context): bool
     {
-        return $this->systemConfigService->get(
+        return (bool) $this->systemConfigService->get(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
         );

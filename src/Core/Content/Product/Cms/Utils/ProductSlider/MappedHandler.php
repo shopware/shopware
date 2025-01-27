@@ -97,7 +97,7 @@ class MappedHandler extends AbstractProductSliderHandler
 
     protected function hideUnavailableProducts(SalesChannelContext $context): bool
     {
-        return $this->systemConfigService->get(
+        return (bool) $this->systemConfigService->get(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
         );
@@ -275,88 +275,4 @@ class MappedHandler extends AbstractProductSliderHandler
 
         $slider->setProducts($products);
     }
-
-    /*private function resolveEntityValue(Entity $entity, string $path)
-    {
-        $value = $entity;
-        $entityPath = explode('.', $path);
-
-        // if property does not exist, try to omit the first key as it may contain the entity name.
-        // E.g. `product.description` does not exist, but will be found if the first part is omitted.
-        $smartDetect = true;
-
-        while (\count($entityPath) > 0) {
-            $entityPathPart = array_shift($entityPath);
-
-            if ($value === null) {
-                break;
-            }
-
-            try {
-                $parentValue = $value;
-                switch (true) {
-                    case \is_array($value):
-                        $value = $value[$entityPathPart] ?? null;
-
-                        break;
-                    case $value instanceof Entity:
-                        $value = $value->get($entityPathPart);
-
-                        break;
-                    case $value instanceof Struct:
-                        $value = $value->getVars();
-                        $value = $value[$entityPathPart] ?? null;
-
-                        break;
-                    default:
-                        $value = null;
-                }
-
-                // On the last element, try to get the translation if nothing else was found
-                if ($value === null && $parentValue instanceof Entity) {
-                    $value = $parentValue->getTranslation($entityPathPart);
-                }
-            } catch (PropertyNotFoundException|\InvalidArgumentException $ex) {
-                if (!$smartDetect) {
-                    throw $ex;
-                }
-            }
-
-            if ($value === null && !$smartDetect) {
-                break;
-            }
-
-            $smartDetect = false;
-        }
-
-        return $value;
-    }*/
-
-    /*private function resolveDefinitionField(EntityDefinition $definition, string $path): ?Field
-    {
-        $value = null;
-        $parts = explode('.', $path);
-        $fields = $definition->getFields();
-
-        // if property does not exist, try to omit the first key as it may contain the entity name.
-        // E.g. `product.description` does not exist, but will be found if the first part is omitted.
-        $smartDetect = true;
-
-        while (\count($parts) > 0) {
-            $part = array_shift($parts);
-            $value = $fields->get($part);
-
-            if ($value === null && !$smartDetect) {
-                break;
-            }
-
-            $smartDetect = false;
-
-            if ($value instanceof AssociationField) {
-                $fields = $value->getReferenceDefinition()->getFields();
-            }
-        }
-
-        return $value;
-    }*/
 }

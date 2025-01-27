@@ -82,6 +82,7 @@ class CategoryIndexer extends EntityIndexer
         }
 
         $ids = $categoryEvent->getIds();
+        $parentIds = [];
         $idsWithChangedParentIds = [];
         foreach ($categoryEvent->getWriteResults() as $result) {
             if (!$result->getExistence()) {
@@ -90,13 +91,13 @@ class CategoryIndexer extends EntityIndexer
             $state = $result->getExistence()->getState();
 
             if (isset($state['parent_id'])) {
-                $ids[] = Uuid::fromBytesToHex($state['parent_id']);
+                $parentIds[] = Uuid::fromBytesToHex($state['parent_id']);
             }
 
             $payload = $result->getPayload();
             if (\array_key_exists('parentId', $payload)) {
                 if ($payload['parentId'] !== null) {
-                    $ids[] = $payload['parentId'];
+                    $parentIds[] = $payload['parentId'];
                 }
                 $idsWithChangedParentIds[] = $payload['id'];
             }
@@ -115,21 +116,31 @@ class CategoryIndexer extends EntityIndexer
             );
         }
 
+        $onlyParentIds = array_diff($parentIds, $ids);
+        foreach (array_chunk($onlyParentIds, self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
+            $parentIndexingMessage = new CategoryIndexingMessage($chunk, null, $event->getContext());
+            $parentIndexingMessage->setIndexer($this->getName());
+            EntityIndexerRegistry::addSkips($parentIndexingMessage, $event->getContext());
+            // for parents we only need to execute child count update
+            $parentIndexingMessage->addSkip(self::TREE_UPDATER, self::BREADCRUMB_UPDATER);
+
+            $this->messageBus->dispatch($parentIndexingMessage);
+        }
+
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
-        $ids = array_unique(array_merge($ids, $children));
+        $onlyChildren = array_diff($children, $ids);
 
-        $chunks = \array_chunk($ids, self::UPDATE_IDS_CHUNK_SIZE);
-        $idsForReturnedMessage = array_shift($chunks);
-
-        foreach ($chunks as $chunk) {
+        foreach (array_chunk($onlyChildren, self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
             $childrenIndexingMessage = new CategoryIndexingMessage($chunk, null, $event->getContext());
             $childrenIndexingMessage->setIndexer($this->getName());
             EntityIndexerRegistry::addSkips($childrenIndexingMessage, $event->getContext());
+            // for children we don't need to update the child count
+            $childrenIndexingMessage->addSkip(self::CHILD_COUNT_UPDATER);
 
             $this->messageBus->dispatch($childrenIndexingMessage);
         }
 
-        return new CategoryIndexingMessage($idsForReturnedMessage, null, $event->getContext());
+        return new CategoryIndexingMessage($ids, null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void

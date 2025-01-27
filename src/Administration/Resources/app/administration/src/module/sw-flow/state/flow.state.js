@@ -200,16 +200,13 @@ export default {
         },
 
         availableActions(state) {
-            state.originAvailableActions = [];
-
             if (!state.triggerEvent || !state.triggerActions) return [];
 
-            const availableAction = [];
+            const availableActions = [];
 
             state.triggerActions.forEach((action) => {
                 if (!action.requirements.length) {
-                    state.originAvailableActions.push(action.name);
-                    availableAction.push(action.name);
+                    availableActions.push(action.name);
                     return;
                 }
 
@@ -220,26 +217,23 @@ export default {
                     return;
                 }
 
-                if (!state.originAvailableActions.includes(action.name)) {
-                    state.originAvailableActions.push(action.name);
-                }
-
                 const actionType = Service('flowBuilderService').mapActionType(action.name);
 
                 if (actionType) {
-                    const duplicateAction = availableAction.find(
+                    // check if the action is already in the available actions list by typeq
+                    const hasDuplicateAction = availableActions.find(
                         (option) => Service('flowBuilderService').mapActionType(option) === actionType,
                     );
 
-                    if (duplicateAction !== undefined) {
+                    if (hasDuplicateAction !== undefined) {
                         return;
                     }
                 }
 
-                availableAction.push(action.name);
+                availableActions.push(action.name);
             });
 
-            return availableAction;
+            return availableActions;
         },
 
         mailTemplateIds(state) {
@@ -281,7 +275,35 @@ export default {
         },
 
         hasAvailableAction: (state) => (actionName) => {
-            return state.originAvailableActions?.some((name) => name === actionName) ?? false;
+            // This information was originally persisted into the state in the `availableActions` getter.
+            // That's an antipattern and caused endless loops in the flow module.
+            // Therefore, we need to recalculate the available actions here.
+            const getOriginActions = () => {
+                const originAvailableActions = [];
+
+                if (!state.triggerEvent || !state.triggerActions) return [];
+
+                state.triggerActions.forEach((action) => {
+                    if (!action.requirements.length) {
+                        originAvailableActions.push(action.name);
+                        return;
+                    }
+
+                    // check if the current active action contains any required keys from an action option.
+                    const isActive = action.requirements.some((item) => state.triggerEvent?.aware?.includes(item));
+
+                    if (!isActive || originAvailableActions.includes(action.name)) {
+                        return;
+                    }
+
+                    originAvailableActions.push(action.name);
+                });
+
+                return originAvailableActions;
+            };
+            const originAvailableActions = getOriginActions();
+
+            return originAvailableActions?.some((name) => name === actionName) ?? false;
         },
     },
 

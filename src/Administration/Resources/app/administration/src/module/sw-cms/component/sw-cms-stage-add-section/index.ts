@@ -32,7 +32,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            showSelection: this.forceChoose as boolean,
+            showSelection: this.forceChoose,
         };
     },
 

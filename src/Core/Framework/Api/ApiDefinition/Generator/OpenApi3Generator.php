@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiUnusedSchemaRemover;
 
 /**
  * @internal
@@ -105,8 +106,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
+        $unusedSchemaRemover = new OpenApiUnusedSchemaRemover();
+        $finalSpecsWithoutUnusedComponents = $unusedSchemaRemover->removeNotUsedComponentSchemas($finalSpecs);
 
-        return $finalSpecs;
+        return $finalSpecsWithoutUnusedComponents;
     }
 
     /**

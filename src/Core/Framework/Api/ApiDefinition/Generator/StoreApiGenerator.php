@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiUnusedSchemaRemover;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -100,7 +101,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
-        return $finalSpecs;
+        $unusedSchemaRemover = new OpenApiUnusedSchemaRemover();
+        $finalSpecsWithoutUnusedComponents = $unusedSchemaRemover->removeNotUsedComponentSchemas($finalSpecs);
+
+        return $finalSpecsWithoutUnusedComponents;
     }
 
     /**

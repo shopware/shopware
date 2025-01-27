@@ -166,10 +166,12 @@
                     "field": { "type": "string" },
                     "value": {
                         "oneOf": [
-                            { "type": "string" },
+                            {
+                                "type": "string",
+                                "nullable": true
+                            },
                             { "type": "number" },
-                            { "type": "boolean" },
-                            { "type": "null" }
+                            { "type": "boolean" }
                         ]
                     }
                 },

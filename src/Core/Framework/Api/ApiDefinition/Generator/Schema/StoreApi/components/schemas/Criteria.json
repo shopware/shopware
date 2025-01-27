@@ -306,27 +306,16 @@
             "EqualsFilter": {
                 "type": "object",
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": ["equals"]
-                    },
-                    "field": {
-                        "type": "string"
-                    },
+                    "type": { "type": "string", "enum": ["equals"] },
+                    "field": { "type": "string" },
                     "value": {
                         "oneOf": [
                             {
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
                             },
-                            {
-                                "type": "number"
-                            },
-                            {
-                                "type": "boolean"
-                            },
-                            {
-                                "type": "null"
-                            }
+                            { "type": "number" },
+                            { "type": "boolean" }
                         ]
                     }
                 },

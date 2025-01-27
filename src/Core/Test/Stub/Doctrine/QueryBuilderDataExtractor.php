@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Test\Stub\Doctrine;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Join;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -10,9 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * This class is created to have a quick working solution for BC breaks in DAL QueryBuilder API.
- * It should be removed as soon as tests are reworked.
+ * It's usage is strongly discouraged, as it may break with future DBAL changes.
  *
- * @todo: throw reflection exception to call in tests and fail if dbal implementations was changed?
+ * It should be removed as soon as no tests are using it anymore (see https://...). todo: add link to the issue
  *
  * @internal
  */

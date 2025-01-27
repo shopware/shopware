@@ -18,6 +18,9 @@ interface IterableQuery
 
     public function fetchCount(): int;
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be changed to `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder`
+     */
     public function getQuery(): QueryBuilder;
 
     /**

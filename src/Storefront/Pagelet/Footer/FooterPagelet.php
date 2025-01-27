@@ -39,7 +39,7 @@ class FooterPagelet extends NavigationPagelet
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return CategoryCollection
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return PaymentMethodCollection
      */
     public function getPaymentMethods(): ?PaymentMethodCollection
     {
@@ -47,7 +47,7 @@ class FooterPagelet extends NavigationPagelet
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return CategoryCollection
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return ShippingMethodCollection
      */
     public function getShippingMethods(): ?ShippingMethodCollection
     {

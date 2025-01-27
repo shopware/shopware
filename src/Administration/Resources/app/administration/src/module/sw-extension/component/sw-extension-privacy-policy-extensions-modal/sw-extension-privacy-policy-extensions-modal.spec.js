@@ -34,7 +34,7 @@ async function createWrapper(props) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal', () => {
     it('should display the values', async () => {

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import EntityCollection from 'src/core/data/entity-collection.data';

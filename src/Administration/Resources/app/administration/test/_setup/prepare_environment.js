@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { config, enableAutoUnmount } from '@vue/test-utils';

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { mount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;

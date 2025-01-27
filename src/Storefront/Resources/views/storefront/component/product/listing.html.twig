@@ -79,7 +79,7 @@
                 {% block element_product_listing_row %}
                     {% set ariaLiveText %}{% apply spaceless %}
                         {% if searchResult.total > searchResult.limit %}
-                            {{ 'listing.filterPanelAriaLivePaginated'|trans({'%count%': searchResult.entities.elements|length, '%total%': searchResult.total})|sw_sanitize }}
+                            {{ 'listing.filterPanelAriaLivePaginated'|trans({'%count%': searchResult.elements|length, '%total%': searchResult.total})|sw_sanitize }}
                         {% else %}
                             {{ 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize }}
                         {% endif %}

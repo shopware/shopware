@@ -8,7 +8,7 @@ import ExtensionErrorService from './extension-error.service';
 const { Application } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {

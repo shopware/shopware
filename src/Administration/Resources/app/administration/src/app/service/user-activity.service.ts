@@ -1,6 +1,6 @@
 /**
  * @private
- * @package admin
+ * @sw-package framework
  */
 export default class UserActivityService {
     getLastUserActivity(): Date {

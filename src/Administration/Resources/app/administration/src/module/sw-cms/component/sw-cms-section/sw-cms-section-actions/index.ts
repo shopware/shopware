@@ -3,7 +3,7 @@ import template from './sw-cms-section-actions.html.twig';
 import './sw-cms-section-actions.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import PromotionSyncApiService from 'src/core/service/api/promotion-sync.api.service';
 import createLoginService from 'src/core/service/login.service';

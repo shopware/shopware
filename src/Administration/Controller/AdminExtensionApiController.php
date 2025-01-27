@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal Only to be used by the admin-extension-sdk.
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('administration')]
+#[Package('framework')]
 class AdminExtensionApiController extends AbstractController
 {
     public function __construct(

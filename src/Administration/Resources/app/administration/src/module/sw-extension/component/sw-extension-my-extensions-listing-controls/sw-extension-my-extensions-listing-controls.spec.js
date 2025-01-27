@@ -22,7 +22,7 @@ async function createWrapper() {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line max-len
 describe('src/module/sw-extension/component/sw-extension-my-extensions-listing-controls', () => {

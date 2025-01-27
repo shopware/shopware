@@ -2,7 +2,7 @@ const ApiService = Shopware.Classes.ApiService;
 
 /**
  * Gateway for the API endpoint "promotion codes"
- * @package checkout
+ * @sw-package checkout
  * @class
  * @extends ApiService
  */

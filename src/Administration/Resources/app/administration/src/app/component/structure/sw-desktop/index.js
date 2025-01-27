@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

@@ -1,3 +1,7 @@
+/**
+ * @sw-package inventory
+ */
+
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 

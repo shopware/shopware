@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import FileValidationService from 'src/app/service/file-validation.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const orderFixture = {
@@ -224,5 +224,5 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         expect(wrapper.emitted()['preview-show']).toBeTruthy();
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
         expect(wrapper.emitted()['preview-show'][0][0].fileTypes).toEqual(['html']);
-    })
+    });
 });

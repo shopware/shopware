@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 function getCollection(entity, collection) {
@@ -211,7 +211,7 @@ async function createWrapper() {
             mocks: {
                 $route: {
                     query: '',
-                    name: 'sw.order.detail.documents'
+                    name: 'sw.order.detail.documents',
                 },
             },
             directives: {
@@ -724,11 +724,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 {
                     ...documentFixture,
                     documentMediaFile: {
-                        fileExtension: 'pdf'
+                        fileExtension: 'pdf',
                     },
                     documentA11yMediaFile: {
-                        fileExtension: 'html'
-                    }
+                        fileExtension: 'html',
+                    },
                 },
             ]),
         });

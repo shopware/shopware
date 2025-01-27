@@ -1,7 +1,7 @@
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 
 /**
- * @package admin
+ * @sw-package framework
  */
 
 const FilterFactory = Shopware.Classes._private.FilterFactory;

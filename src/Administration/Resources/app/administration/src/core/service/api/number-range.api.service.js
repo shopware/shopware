@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 const ApiService = Shopware.Classes.ApiService;
 
 /**

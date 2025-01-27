@@ -1,3 +1,7 @@
+/**
+ * @sw-package checkout
+ */
+
 import template from './sw-settings-cart.html.twig';
 
 const { Mixin } = Shopware;

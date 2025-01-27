@@ -615,7 +615,7 @@ export default {
         onRemoveDocumentType(type) {
             let fileTypes = this.documentConfig.config.fileTypes ?? [];
             if (fileTypes.length === 1) {
-               return;
+                return;
             }
 
             fileTypes = fileTypes.filter((fileType) => fileType !== type.id);

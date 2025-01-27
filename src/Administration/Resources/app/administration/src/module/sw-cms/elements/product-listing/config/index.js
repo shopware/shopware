@@ -6,7 +6,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,

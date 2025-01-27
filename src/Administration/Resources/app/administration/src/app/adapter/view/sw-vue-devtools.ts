@@ -2,7 +2,7 @@
 
 /* Vue devtools plugins couldn't be tested well yet */
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import type { CustomInspectorNode } from '@vue/devtools-api';

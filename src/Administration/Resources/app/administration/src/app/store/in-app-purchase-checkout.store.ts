@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import type { iapCheckout } from '@shopware-ag/meteor-admin-sdk/es/iap';
 import type { Extension } from 'src/app/state/extensions.store';

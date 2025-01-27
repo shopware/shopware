@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import './app/app-renderer';
 
 import './text/text';

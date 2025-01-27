@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import orderState from 'src/module/sw-order/state/order.store';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 let customerData = [];

@@ -5,7 +5,7 @@ import type CmsVisibility from '../../shared/CmsVisibility';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

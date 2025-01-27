@@ -4,7 +4,7 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component, Mixin } = Shopware;

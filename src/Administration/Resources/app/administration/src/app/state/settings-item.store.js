@@ -16,6 +16,7 @@ export default {
             content: [],
             commerce: [],
             system: [],
+            account: [],
             plugins: [],
             shop: [],
         },

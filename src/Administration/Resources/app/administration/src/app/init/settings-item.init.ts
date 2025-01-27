@@ -15,6 +15,7 @@ export default function initializeSettingItems(): void {
             'content',
             'automation',
             'system',
+            'account',
             'plugins',
         ];
 

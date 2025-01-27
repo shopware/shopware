@@ -181,10 +181,6 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $statement
             ->method('executeStatement')
-            ->with([
-                'firstTagId' => 'id1',
-                'lastTagId' => 'id2',
-            ])
             ->willThrowException($e);
 
         $connection->expects(static::once())

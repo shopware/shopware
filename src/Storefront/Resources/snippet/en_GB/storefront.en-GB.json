@@ -414,6 +414,7 @@
     "cartMetaTitle": "Shopping cart",
     "cartHeader": "Shopping cart",
     "cartUpdateSuccess": "Shopping cart updated.",
+    "cartScreenReaderUpdate": "Shopping cart contains one item. The cart total value is %total%.|Shopping cart contains %count% items. The cart total value is %total%.",
     "continueShopping": "Continue shopping",
     "emptyCart": "Your shopping cart is empty.",
     "proceedToCart": "Display shopping cart",

@@ -414,6 +414,7 @@
     "cartMetaTitle": "Warenkorb",
     "cartHeader": "Warenkorb",
     "cartUpdateSuccess": "Warenkorb aktualisiert.",
+    "cartScreenReaderUpdate": "Warenkorb enthält eine Position. Der Gesamtwert beträgt %total%.|Warenkorb enthält %count% Positionen. Der Gesamtwert beträgt %total%.",
     "continueShopping": "Weiter einkaufen",
     "emptyCart": "Ihr Warenkorb ist leer.",
     "proceedToCart": "Warenkorb anzeigen",

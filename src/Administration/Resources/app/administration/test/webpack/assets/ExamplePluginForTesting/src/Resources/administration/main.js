@@ -1,9 +1,5 @@
 /**
- * @sw-package unknown
- */
-
-/**
- * @package admin
+ * @sw-package framework
  */
 
 import './src/app/component/dummy-component';

@@ -15,6 +15,15 @@
             {% set total = summary.price.rawTotal %}
         {% endif %}
 
+        {% block page_checkout_summary_live_update %}
+            <div class="cart-live-update visually-hidden" role="alert" aria-live="assertive">
+                {{ 'checkout.cartScreenReaderUpdate'|trans({
+                    '%count%': summary.lineItems|length,
+                    '%total%': total|currency,
+                })|sw_sanitize }}
+            </div>
+        {% endblock %}
+
         <dl class="row checkout-aside-summary-list g-0 {% if displayRounded %}display-rounded{% endif %}">
             {% block page_checkout_summary_inner %}
 

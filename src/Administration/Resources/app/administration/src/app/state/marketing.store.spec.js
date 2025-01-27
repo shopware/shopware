@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package innovation
  */
 
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';

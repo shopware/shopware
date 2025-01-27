@@ -1,5 +1,5 @@
 /**
- * @sw-package content
+ * @sw-package framework
  */
 import './index';
 

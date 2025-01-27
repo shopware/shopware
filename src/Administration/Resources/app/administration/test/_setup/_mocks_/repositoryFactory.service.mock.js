@@ -1,9 +1,5 @@
 /**
- * @sw-package unknown
- */
-
-/**
- * @package admin
+ * @sw-package framework
  */
 
 // eslint-disable-next-line import/no-extraneous-dependencies

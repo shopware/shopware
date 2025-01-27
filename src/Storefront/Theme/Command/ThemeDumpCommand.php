@@ -18,6 +18,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -54,6 +55,7 @@ class ThemeDumpCommand extends Command
     {
         $this->addArgument('theme-id', InputArgument::OPTIONAL, 'Theme ID');
         $this->addArgument('domain-url', InputArgument::OPTIONAL, 'Sales channel domain URL');
+        $this->addOption('theme-name', null, InputOption::VALUE_OPTIONAL, 'Technical theme name');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -66,7 +68,13 @@ class ThemeDumpCommand extends Command
 
         $themeId = $input->getArgument('theme-id');
 
-        if (!$themeId) {
+        $themeName = $input->getOption('theme-name');
+
+        if ($themeId !== null) {
+            $criteria->setIds([$themeId]);
+        } elseif ($themeName !== null) {
+            $criteria->addFilter(new EqualsFilter('technicalName', $themeName));
+        } else {
             $choices = $this->getThemeChoices();
 
             if ($input->isInteractive() && \count($choices) > 1) {
@@ -78,8 +86,6 @@ class ThemeDumpCommand extends Command
 
                 $criteria->addFilter(new EqualsFilter('name', $themeName));
             }
-        } else {
-            $criteria->setIds([$themeId]);
         }
 
         $themes = $this->themeRepository->search($criteria, $this->context);
@@ -134,6 +140,8 @@ class ThemeDumpCommand extends Command
         $this->staticFileConfigDumper->dumpConfigInVar('theme-files.json', $dump);
 
         $this->staticFileConfigDumper->dumpConfig($this->context);
+
+        $this->io->writeln(\sprintf('Theme `%s` config dumped to file: %s', $themeEntity->getTechnicalName(), 'theme-files.json'));
 
         return self::SUCCESS;
     }

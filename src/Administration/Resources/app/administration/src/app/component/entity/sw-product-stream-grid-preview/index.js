@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package inventory
  */
 
 import template from './sw-product-stream-grid-preview.html.twig';

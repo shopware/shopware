@@ -41,7 +41,7 @@ interface RouteParseOptions {
 
 /**
  * @private
- * @package content
+ * @sw-package framework
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

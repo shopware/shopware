@@ -1,6 +1,6 @@
 /* eslint-disable */
 /**
- * @package admin
+ * @sw-package framework
  */
 export default (): void | any[] => {
     if (window._features_.ADMIN_VITE) {

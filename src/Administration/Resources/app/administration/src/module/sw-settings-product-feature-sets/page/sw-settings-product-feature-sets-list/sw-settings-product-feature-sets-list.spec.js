@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 const { Mixin } = Shopware;

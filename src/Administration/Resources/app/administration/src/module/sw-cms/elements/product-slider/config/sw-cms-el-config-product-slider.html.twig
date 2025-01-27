@@ -92,7 +92,10 @@
                         @modal-close="onCloseProductStreamModal"
                     />
 
-                    <sw-container columns="1fr 1fr" gap="30px">
+                    <sw-container
+                        columns="1fr 1fr"
+                        gap="30px"
+                    >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_product_slider_config_content_product_stream_sorting %}
                         <sw-single-select
@@ -155,7 +158,10 @@
                         </sw-product-variant-info>
                     </template>
                     <template #result-item="{ item, index }">
-                        <slot name="result-item" v-bind="{ item, index }">
+                        <slot
+                            name="result-item"
+                            v-bind="{ item, index }"
+                        >
                             <sw-select-result v-bind="{ item, index, selected: isSelected(item.id)}">
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_entity_single_select_base_results_list_result_label %}

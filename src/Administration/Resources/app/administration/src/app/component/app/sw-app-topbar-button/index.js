@@ -1,5 +1,5 @@
 /**
- * @package customer-order
+ * @sw-package innovation
  */
 
 import template from './sw-app-topbar-button.html.twig';

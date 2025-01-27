@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { runCmsBlockRegistryTest } from 'src/module/sw-cms/test-utils';
 

@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(NotificationService::class)]
 class NotificationServiceTest extends TestCase
 {

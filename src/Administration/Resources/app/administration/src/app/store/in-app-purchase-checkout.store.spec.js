@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import './in-app-purchase-checkout.store';
 
@@ -21,9 +21,9 @@ describe('src/app/store/in-app-purchase-checkout.store.ts', () => {
         };
 
         Shopware.Context.app.config.bundles = {
-            'TestExtension': {
+            TestExtension: {
                 identifier: 'TestExtension',
-            }
+            },
         };
 
         store.request(checkoutRequest, 'TestExtension');

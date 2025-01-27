@@ -44,7 +44,7 @@ type DropObject = {
 };
 
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -667,10 +667,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.pageUpdate();
         },
 
-        onSetSectionBackgroundMedia(
-            [mediaItem]: [Entity<'media'>],
-            section: Entity<'cms_section'>,
-        ) {
+        onSetSectionBackgroundMedia([mediaItem]: [Entity<'media'>], section: Entity<'cms_section'>) {
             section.backgroundMediaId = mediaItem.id;
             section.backgroundMedia = mediaItem;
 

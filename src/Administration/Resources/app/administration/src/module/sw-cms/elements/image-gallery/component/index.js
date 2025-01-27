@@ -6,7 +6,7 @@ const { Mixin, Filter } = Shopware;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,

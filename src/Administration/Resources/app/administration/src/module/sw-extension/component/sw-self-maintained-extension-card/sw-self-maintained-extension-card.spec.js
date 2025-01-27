@@ -54,7 +54,7 @@ async function createWrapper() {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-self-maintained-extension-card', () => {
     beforeAll(() => {

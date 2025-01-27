@@ -16,7 +16,7 @@ use Shopware\Core\Test\Stub\Doctrine\FakeResultFactory;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[CoversClass(SeoResolver::class)]
 class SeoResolverTest extends TestCase
 {

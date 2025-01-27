@@ -2,7 +2,7 @@ import template from './sw-customer-default-addresses.html.twig';
 import './sw-customer-default-addresses.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

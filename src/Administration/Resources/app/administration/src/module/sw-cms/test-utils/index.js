@@ -72,6 +72,6 @@ async function setupCmsEnvironment() {
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export { runGenericCmsTest, runCmsBlockRegistryTest, runCmsElementRegistryTest, setupCmsEnvironment };

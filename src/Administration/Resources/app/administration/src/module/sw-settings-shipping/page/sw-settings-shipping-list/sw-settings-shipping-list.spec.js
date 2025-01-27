@@ -3,7 +3,7 @@ import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 async function createWrapper(privileges = []) {

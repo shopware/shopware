@@ -3,7 +3,7 @@ import template from './sw-form-field-renderer.html.twig';
 const { Component, Mixin } = Shopware;
 const { types } = Shopware.Utils;
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

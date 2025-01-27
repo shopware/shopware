@@ -1,7 +1,7 @@
 import template from './sw-settings-listing-option-general-info.html.twig';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

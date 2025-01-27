@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('administration')]
+#[Package('framework')]
 class NotificationEntity extends Entity
 {
     use EntityIdTrait;

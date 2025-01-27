@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -283,8 +282,6 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertCount(2, $products);
 
         [$product1, $product2] = $products;
-        static::assertInstanceOf(ProductEntity::class, $product1);
-        static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertNotNull($product1->getCover());
         static::assertNull($product2->getCover());
 
@@ -297,8 +294,6 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertCount(2, $products);
 
         [$product1, $product2] = $products;
-        static::assertInstanceOf(ProductEntity::class, $product1);
-        static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertNotNull($product1->getCover());
         static::assertNotNull($product2->getCover());
     }

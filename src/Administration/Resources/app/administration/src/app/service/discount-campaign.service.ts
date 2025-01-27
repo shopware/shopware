@@ -45,6 +45,6 @@ export default class ShopwareDiscountCampaignService {
 
 /**
  * @private
- * @package checkout
+ * @sw-package checkout
  */
 export type { ShopwareDiscountCampaignService };

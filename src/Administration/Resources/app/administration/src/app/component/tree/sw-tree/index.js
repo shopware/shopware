@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { debounce, sort } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

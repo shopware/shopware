@@ -3,7 +3,7 @@ import './sw-order-detail.scss';
 import swOrderDetailState from '../../state/order-detail.store';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { State, Mixin, Utils } = Shopware;

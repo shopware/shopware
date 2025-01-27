@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import positionIdentifiers from './position-identifiers.json';

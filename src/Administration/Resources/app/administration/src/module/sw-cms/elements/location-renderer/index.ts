@@ -4,7 +4,7 @@ import './preview';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export interface ElementDataProp {
     name: string;

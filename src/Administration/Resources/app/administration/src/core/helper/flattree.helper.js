@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { warn } from 'src/core/service/utils/debug.utils';

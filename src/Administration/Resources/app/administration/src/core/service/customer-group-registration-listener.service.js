@@ -2,13 +2,13 @@ const { Application, Service, State } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/service/customer-group-registration-listener
  */
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @memberOf module:core/service/customer-group-registration-listener
  * @method addCustomerGroupRegistrationListener
  * @param loginService

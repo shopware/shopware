@@ -4,7 +4,7 @@ import './sw-settings-country-preview-template.scss';
 const { Component } = Shopware;
 
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  *
  * @private
  */

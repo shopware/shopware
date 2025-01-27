@@ -2,7 +2,7 @@ import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;

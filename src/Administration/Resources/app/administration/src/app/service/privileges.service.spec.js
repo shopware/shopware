@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import PrivilegesService from 'src/app/service/privileges.service';

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import createAppMixin from 'src/app/init/mixin.init';
 

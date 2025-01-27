@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-add-properties-modal.html.twig';

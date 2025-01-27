@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 const { Context, Data, Service, State } = Shopware;
 const { Criteria } = Data;

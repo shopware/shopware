@@ -407,7 +407,7 @@
       "labelHighlightedItemsEntry": "Gesamt",
       "labelNoItems": "Keine Gutschriften hinzugefügt",
       "fileInputLabel": "Eigenes Dokument hochladen",
-      "labelPreviewOnlyHtml": "HTML Vorschau"
+      "labelPreviewOnlyHtml": "HTML-Vorschau"
     },
     "documentSendModal": {
       "labelNumber": "Nummer",
@@ -418,7 +418,7 @@
       "labelContent": "Inhalt",
       "labelSubject": "Betreff",
       "labelClose": "Schließen",
-      "errorMessage": "Beim Versenden der E-Mail ist etwas schief gelaufen."
+      "errorMessage": "Beim Versenden der E-Mail ist etwas schiefgelaufen."
     },
     "stateModal": {
       "modalTitle": "Dokumente anhängen"

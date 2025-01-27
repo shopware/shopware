@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initComponentHelper from 'src/app/init/component-helper.init';
 

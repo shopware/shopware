@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';

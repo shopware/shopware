@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\Event;
+namespace Shopware\Tests\Unit\Core\Framework\App\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 /**
  * @internal
  */
+#[CoversClass(AppInstalledEvent::class)]
 class AppInstalledEventTest extends TestCase
 {
     public function testGetter(): void

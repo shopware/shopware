@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

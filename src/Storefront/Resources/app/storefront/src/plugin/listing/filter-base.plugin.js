@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import Plugin from 'src/plugin-system/plugin.class';

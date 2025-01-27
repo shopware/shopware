@@ -3,7 +3,7 @@ import './sw-cms-preview-form.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,

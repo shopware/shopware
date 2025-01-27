@@ -9,7 +9,10 @@
     @keyup="onUserActivity"
 >
     <!-- @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM -->
-    <div id="overrideComponents" style="display: none;">
+    <div
+        id="overrideComponents"
+        style="display: none;"
+    >
         <component
             :is="overrideComponent"
             v-for="(overrideComponent, index) in overrideComponents"

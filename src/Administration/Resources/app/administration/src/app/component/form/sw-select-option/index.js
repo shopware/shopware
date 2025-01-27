@@ -4,7 +4,7 @@ import template from './sw-select-option.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status deprecated 6.1

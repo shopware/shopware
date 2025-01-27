@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 
 import swSeoUrlState from './state';

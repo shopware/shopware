@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount, config } from '@vue/test-utils';

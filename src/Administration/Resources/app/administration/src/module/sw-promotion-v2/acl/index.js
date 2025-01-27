@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 const { Service } = Shopware;
 

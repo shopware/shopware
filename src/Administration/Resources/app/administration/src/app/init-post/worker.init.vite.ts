@@ -18,7 +18,7 @@ let enabled = false;
 let enabledNotification = false;
 
 /**
- * @package admin
+ * @sw-package framework
  * @experimental stableVersion:v6.7.0 feature:VITE
  *
  * Starts the worker

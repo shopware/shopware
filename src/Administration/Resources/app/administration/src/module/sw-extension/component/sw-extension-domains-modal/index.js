@@ -2,7 +2,7 @@ import template from './sw-extension-domains-modal.html.twig';
 import './sw-extension-domains-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {

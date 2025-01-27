@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import 'src/app/mixin/form-field.mixin';
 import { mount } from '@vue/test-utils';

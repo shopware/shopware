@@ -1,0 +1,38 @@
+{# Styles the current active navigation and the parent navigations #}
+{# The style tag is different for each navigation and will be cached accordingly #}
+{% block layout_navigation_active_styling %}
+    {% set navigationId = shopware.navigation.id %}
+    <style>
+        {% for id in shopware.navigation.pathIdList %}
+        /* Styling for parent navigation IDs */
+        .nav-item-{{ id }}-link:first-of-type {
+            color: var(--bs-primary);
+            font-weight: 700;
+        }
+
+        .nav-item-{{ id }}-link.root:first-of-type {
+            color: var(--bs-gray-800);
+            font-weight: 700;
+
+            .main-navigation-link-text {
+                border-color: var(--bs-primary);
+            }
+        }
+        {% endfor %}
+
+        /* Styling for the current active navigation ID */
+        .nav-item-{{ navigationId }}-link:first-of-type {
+            color: var(--bs-primary);
+            font-weight: 700;
+        }
+
+        .nav-item-{{ navigationId }}-link.root:first-of-type {
+            color: var(--bs-gray-800);
+            font-weight: 700;
+
+            .main-navigation-link-text {
+                border-color: var(--bs-primary);
+            }
+        }
+    </style>
+{% endblock %}

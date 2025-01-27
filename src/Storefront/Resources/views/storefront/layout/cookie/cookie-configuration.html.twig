@@ -16,8 +16,11 @@
     <div class="offcanvas-cookie">
         <div class="offcanvas-cookie-description">
             <p>
-                {{ 'cookie.messageText'|trans({
-                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
+                {% set privacySnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'cookie.messageTextPage' : 'cookie.messageText' %}
+                {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+
+                {{ privacySnippetKey|trans({
+                    '%url%': path(cmsPath, { id: config('core.basicInformation.privacyPage') })
                 })|raw }}
             </p>
 

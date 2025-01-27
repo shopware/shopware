@@ -116,8 +116,14 @@ This solves some weird states when the HTTP-Cache was invalidated separately fro
 Additionally, the cache hit rate for the Store-API was low, so the performance impact should be minimal, but the amount of cache items and cache invalidations will be reduced.
 This overall should lead to more effective cache resource usage.
 
-## Use ESI includes for Header and Footer
-**More information about this change will be available soon.**
+## Introduction of ESI for header and footer
+The header and footer are now loaded via ESI.
+This allows to cache the header and footer separately from the rest of the page.
+Two new routes `\header` and `\footer` were added to receive the rendered header and footer.
+The rendered header and footer are included into the page with the Twig function `render_esi`, which calls the previously mentioned routes.
+Two new templates `src/Storefront/Resources/views/storefront/layout/header.html.twig` and `src/Storefront/Resources/views/storefront/layout/footer.html.twig` were introduced as new entry points for the header and footer.
+Make sure to adjust your template extensions to be compatible with the new structure.
+The block names are still the same, so it just should be necessary to extend from the new templates.
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
@@ -2251,9 +2257,40 @@ After:
 </details>
 
 # Storefront
-We made some changes in the administration, which might affect your plugins and themes.
+We made some changes in the Storefront, which might affect your plugins and themes.
 <details>
   <summary>Detailed Changes</summary>
+
+## Removals due to the introduction of ESI for header and footer
+* The properties `header` and `footer` and their getter and setter Methods in `\Shopware\Storefront\Framework\Twig\ErrorTemplateStruct` were removed.
+* The loading of header, footer, payment methods and shipping methods in `\Shopware\Storefront\Page\GenericPageLoader` is removed.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
+* The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` were removed.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+* The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` were removed.
+  Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+* The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` was removed.
+* The `setNavigation` method in `\Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPagelet` was removed.
+* The option `tiggerEvent` in `OffcanvasMenuPlugin` JavaScript plugin was removed, use `triggerEvent` instead.
+* The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/header.html.twig`.
+  * `base_header`
+  * `base_header_inner`
+  * `base_navigation`
+  * `base_navigation_inner`
+  * `base_offcanvas_navigation`
+  * `base_offcanvas_navigation_inner`
+* The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/footer.html.twig`.
+  * `base_footer`
+  * `base_footer_inner`
+* The template variable `page` in following templates was removed. Provide `header` or `footer` directly.
+  * `src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/actions/language-widget.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/top-bar.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig`
+* The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` were removed.
+* The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` was removed.
+* The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` was removed.
 
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.

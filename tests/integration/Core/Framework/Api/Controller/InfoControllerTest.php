@@ -114,6 +114,7 @@ class InfoControllerTest extends TestCase
                     'xls',
                     'xlsx',
                     'html',
+                    'xml',
                 ],
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,

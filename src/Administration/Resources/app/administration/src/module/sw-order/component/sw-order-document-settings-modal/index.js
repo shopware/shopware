@@ -58,7 +58,7 @@ export default {
             uploadDocument: false,
             documentConfig: {
                 custom: {},
-                documentNumber: 0,
+                documentNumber: '0',
                 documentComment: '',
                 documentDate: '',
             },

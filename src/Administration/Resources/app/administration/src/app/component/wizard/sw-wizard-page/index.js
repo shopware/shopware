@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './sw-wizard-page.scss';
 import template from './sw-wizard-page.html.twig';
 

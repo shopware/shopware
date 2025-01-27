@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
@@ -198,7 +198,7 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _saveFocusState(inputElement) {
-        window.focusHandler.saveFocusStatePersistent(this.options.focusHandlerKey, `[data-variant-switch-value="${inputElement.dataset.variantSwitchValue}"]`);
+        window.focusHandler.saveFocusStatePersistent(this.options.focusHandlerKey, `[id="${inputElement.id}"]`);
     }
 
     /**

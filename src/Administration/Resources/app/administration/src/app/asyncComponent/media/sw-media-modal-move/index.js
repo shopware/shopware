@@ -10,7 +10,7 @@ const {
 /**
  * @status ready
  * @description The <u>sw-media-modal-move</u> component is used to validate the move action.
- * @sw-package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-modal-move :items-to-move="[items]"></sw-media-modal-move>

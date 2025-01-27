@@ -2,6 +2,8 @@
     {% set footer = page.footer %}
 {% endif %}
 
+{% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+
 {% block layout_footer_inner_container %}
     <div class="container">
         {% block layout_footer_navigation %}
@@ -50,8 +52,10 @@
                                     </p>
                                 </div>
                                 <div class="footer-contact-form">
-                                    {{ 'footer.serviceContactText'|trans({
-                                        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.contactPage') })
+                                    {% set contactSnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'footer.serviceContactTextPage' : 'footer.serviceContactText' %}
+
+                                    {{ contactSnippetKey|trans({
+                                        '%url%': path(cmsPath, { id: config('core.basicInformation.contactPage') })
                                     })|raw }}
                                 </div>
                             </div>
@@ -213,20 +217,18 @@
             {% block layout_footer_vat %}
                 {% if showVatNotice or showVatNotice is not defined %}
                     <div class="footer-vat">
+                        {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                            {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatTextPage' : 'footer.excludeVatTextPage' %}
+                        {%- else -%}
+                            {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatText' : 'footer.excludeVatText' %}
+                        {%- endif -%}
+
                         <p>
-                            {% if context.taxState == 'gross' %}
-                                {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
-                                {{ 'footer.includeVatText'|trans({
-                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }),
-                                    '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
-                                })|raw }}
-                            {% else %}
-                                {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
-                                {{ 'footer.excludeVatText'|trans({
-                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }),
-                                    '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
-                                })|raw }}
-                            {% endif %}
+                            {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
+                            {{ shippingSnippetKey|trans({
+                                '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
+                            })|raw }}
                         </p>
                     </div>
                 {% endif %}

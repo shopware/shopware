@@ -654,6 +654,12 @@ a.line-item-label {
     .line-item-unit-price-value-descriptor {
         display: inline;
     }
+
+    .line-item-unit-price-label,
+    .line-item-tax-price-label,
+    .line-item-total-price-label {
+        @include visually-hidden();
+    }
 }
 
 @include media-breakpoint-up(md) {

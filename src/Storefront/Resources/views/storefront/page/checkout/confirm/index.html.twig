@@ -9,9 +9,19 @@
 {% block page_checkout_main_content %}
     {% block page_checkout_confirm %}
         {% block page_checkout_confirm_header %}
-            <h1 class="confirm-main-header">
-                {{ 'checkout.confirmHeader'|trans|sw_sanitize }}
-            </h1>
+            {# @deprecated tag:v6.7.0 - Cart header will also display the current amount of line-items #}
+            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                <h1 class="confirm-main-header d-inline-block">
+                    {{ 'checkout.confirmHeader'|trans|sw_sanitize }}
+                </h1>
+                <span class="confirm-main-header-item-counter d-inline-block mb-4 fw-bold fs-3 ms-1 text-dark-emphasis">
+                    ({{- 'checkout.itemCounter'|trans({'%count%': page.cart.lineItems|length})|sw_sanitize -}})
+                </span>
+            {% else %}
+                <h1 class="confirm-main-header">
+                    {{ 'checkout.confirmHeader'|trans|sw_sanitize }}
+                </h1>
+            {% endif %}
         {% endblock %}
 
         {% block page_checkout_confirm_alerts %}

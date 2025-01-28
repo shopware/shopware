@@ -146,7 +146,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
             $key
         );
 
-        $config->setValidationConstraints(new SignedWith(new Sha256(), $key));
+        $config->withValidationConstraints(new SignedWith(new Sha256(), $key));
 
         return $config;
     }

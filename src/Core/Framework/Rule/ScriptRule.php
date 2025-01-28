@@ -68,14 +68,12 @@ class ScriptRule extends Rule
         $script = new Script(
             $name,
             \sprintf('
-                {%% apply spaceless %%}
-                    {%% macro evaluate(%1$s) %%}
-                        %2$s
-                    {%% endmacro %%}
+                {%%- macro evaluate(%1$s) -%%}
+                    %2$s
+                {%%- endmacro -%%}
 
-                    {%% set var = _self.evaluate(%1$s) %%}
-                    {{ var }}
-                {%% endapply  %%}
+                {%%- set var = _self.evaluate(%1$s) -%%}
+                {{- var -}}
             ', implode(', ', array_keys($context)), $this->script),
             $lastModified,
             null,
@@ -160,7 +158,8 @@ class ScriptRule extends Rule
         $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $name, $context, &$match): void {
             $twig->addGlobal('debug', $debug);
 
-            $match = filter_var(trim($twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
+            $rendered = $twig->render($name, $context);
+            $match = filter_var(trim($rendered), \FILTER_VALIDATE_BOOLEAN);
 
             $debug->dump($match, 'return');
         });

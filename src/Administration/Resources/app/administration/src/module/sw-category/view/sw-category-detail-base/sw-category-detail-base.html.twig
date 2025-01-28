@@ -42,7 +42,7 @@
         {% block sw_category_detail_information_tags %}
         <sw-entity-tag-select
             v-if="category && !isLoading"
-            v-model:entityCollection="category.tags"
+            v-model:entity-collection="category.tags"
             class="sw-category-detail-base__tags"
             :label="$tc('sw-category.base.general.labelCategoryTags')"
             :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"

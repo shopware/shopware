@@ -146,8 +146,11 @@ class Framework extends Bundle
         /** @var FeatureFlagRegistry $featureFlagRegistry */
         $featureFlagRegistry = $this->container->get(FeatureFlagRegistry::class);
         $featureFlagRegistry->register();
-        // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
-        MeterProvider::bindMeter($this->container);
+
+        if ($this->container->getParameter('kernel.environment') !== 'test') {
+            // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
+            MeterProvider::bindMeter($this->container);
+        }
 
         // @deprecated tag:v6.7.0 - remove complete if condition
         if (!Feature::isActive('v6.7.0.0')) {

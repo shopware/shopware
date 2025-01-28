@@ -40,8 +40,7 @@ interface SwRouteConfig {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta?: $TSFixMe;
     beforeEnter?: NavigationGuard;
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    props?: boolean | Object | RouterLinkProps;
+    props?: boolean | object | RouterLinkProps;
     caseSensitive?: boolean;
     coreRoute?: boolean;
     type?: ModuleTypes;

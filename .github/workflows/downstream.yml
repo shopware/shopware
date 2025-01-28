@@ -30,6 +30,8 @@ jobs:
           workflow: Downstream
           ref: .auto
           timeout: 30m
+          token-scope: shopware
+          identity: ShopwareDownstream
           env:
             NIGHTLY=${{ inputs.nightly }}
   
@@ -45,6 +47,8 @@ jobs:
           workflow: Downstream
           ref: .auto
           timeout: 40m
+          token-scope: shopware
+          identity: ShopwareDownstream
           env:
             NIGHTLY=${{ inputs.nightly }}
 

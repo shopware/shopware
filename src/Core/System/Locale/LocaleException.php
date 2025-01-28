@@ -17,7 +17,7 @@ class LocaleException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::LOCALE_DOES_NOT_EXISTS_EXCEPTION,
-            'The locale {{ locale }} does not exists.',
+            'The locale {{ locale }} does not exist.',
             ['locale' => $locale]
         );
     }

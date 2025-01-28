@@ -401,7 +401,7 @@ describe('core/service/login.service.js', () => {
         await expect(loginService.isLoggedIn()).toBe(false);
     });
 
-    it('should not be logged in when token does not exists', async () => {
+    it('should not be logged in when token does not exist', async () => {
         document.cookie = '';
         const { loginService } = loginServiceFactory();
 

@@ -4,6 +4,8 @@ on:
 - pull_request
 - issues
 
+permissions: read-all
+
 jobs:
   build:
     runs-on: ubuntu-24.04

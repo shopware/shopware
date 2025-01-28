@@ -72,7 +72,7 @@ class ThemeDumpCommandTest extends TestCase
 
         $searchResult = $this->createMock(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(1);
-        $searchResult->method('first')->willReturn($themeEntity);
+        $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
 
         $this->themeRepository->method('search')->willReturn($searchResult);
 
@@ -92,7 +92,7 @@ class ThemeDumpCommandTest extends TestCase
             ['theme-name' => 'technical-name']
         );
 
-        static::assertEquals(Command::SUCCESS, $this->commandTester->getStatusCode());
+        static::assertSame(Command::SUCCESS, $this->commandTester->getStatusCode());
     }
 
     public function testExecutesSuccessfullyWithValidThemeId(): void
@@ -104,7 +104,7 @@ class ThemeDumpCommandTest extends TestCase
 
         $searchResult = $this->createMock(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(1);
-        $searchResult->method('first')->willReturn($themeEntity);
+        $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
 
         $this->themeRepository->method('search')->willReturn($searchResult);
 
@@ -124,7 +124,7 @@ class ThemeDumpCommandTest extends TestCase
             'domain-url' => 'http://example.com',
         ]);
 
-        static::assertEquals(Command::SUCCESS, $this->commandTester->getStatusCode());
+        static::assertSame(Command::SUCCESS, $this->commandTester->getStatusCode());
     }
 
     public function testFailsWhenThemeIdIsMissing(): void
@@ -133,7 +133,7 @@ class ThemeDumpCommandTest extends TestCase
             'domain-url' => 'http://example.com',
         ]);
 
-        static::assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
+        static::assertSame(Command::FAILURE, $this->commandTester->getStatusCode());
         static::assertStringContainsString(
             '[ERROR] No theme found which is connected to a storefront sales channel',
             $this->commandTester->getDisplay()
@@ -151,7 +151,7 @@ class ThemeDumpCommandTest extends TestCase
             'theme-id' => 'invalid-theme-id',
         ]);
 
-        static::assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
+        static::assertSame(Command::FAILURE, $this->commandTester->getStatusCode());
         static::assertStringContainsString('No theme found which is connected to a storefront sales channel', $this->commandTester->getDisplay());
     }
 
@@ -164,7 +164,7 @@ class ThemeDumpCommandTest extends TestCase
 
         $searchResult = $this->createMock(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(1);
-        $searchResult->method('first')->willReturn($themeEntity);
+        $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
 
         $this->themeRepository->method('search')->willReturn($searchResult);
 
@@ -183,7 +183,7 @@ class ThemeDumpCommandTest extends TestCase
             'theme-id' => 'theme-id',
         ]);
 
-        static::assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
+        static::assertSame(Command::FAILURE, $this->commandTester->getStatusCode());
         static::assertStringContainsString('No domain URL for theme', $this->commandTester->getDisplay());
     }
 }

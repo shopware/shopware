@@ -290,16 +290,7 @@ class ThemeServiceTest extends TestCase
             new EntitySearchResult(
                 'theme',
                 1,
-                new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                '_uniqueIdentifier' => 'no',
-                                'salesChannels' => new SalesChannelCollection(),
-                            ]
-                        ),
-                    ]
-                ),
+                new ThemeCollection([]),
                 null,
                 new Criteria(),
                 $this->context
@@ -478,16 +469,7 @@ class ThemeServiceTest extends TestCase
             new EntitySearchResult(
                 'theme',
                 1,
-                new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                '_uniqueIdentifier' => 'no',
-                                'salesChannels' => new SalesChannelCollection(),
-                            ]
-                        ),
-                    ]
-                ),
+                new ThemeCollection([]),
                 null,
                 new Criteria(),
                 $this->context

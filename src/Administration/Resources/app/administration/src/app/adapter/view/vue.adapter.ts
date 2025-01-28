@@ -61,7 +61,7 @@ export default class VueAdapter extends ViewAdapter {
         this.initDirectives();
 
         const vuexRoot = State._store;
-        // eslint-disable-next-line @typescript-eslint/ban-types
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
         const i18n = this.initLocales(vuexRoot) as I18n<{}, {}, {}, string, true>;
 
         // add router to View

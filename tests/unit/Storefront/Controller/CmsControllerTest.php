@@ -84,6 +84,18 @@ class CmsControllerTest extends TestCase
         static::assertEquals($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['cmsPage']);
     }
 
+    public function testPageFullReturn(): void
+    {
+        $cmsRouteResponse = new CmsRouteResponse(new CmsPageEntity());
+        $this->cmsRouteMock->method('load')->willReturn($cmsRouteResponse);
+
+        $ids = new IdsCollection();
+
+        $this->controller->pageFull($ids->get('page'), new Request(), $this->createMock(SalesChannelContext::class));
+
+        static::assertEquals($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['page']['cmsPage']);
+    }
+
     public function testCategoryNoId(): void
     {
         $this->expectException(RoutingException::class);

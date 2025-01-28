@@ -35,7 +35,7 @@ if (fs.existsSync(flagsPath)) {
 }
 
 const nodeMajor = process.versions.node.split('.')[0];
-const supportedNodeVersions = ['20', '21', '22'];
+const supportedNodeVersions = ['20', '21', '22', '23'];
 if (!supportedNodeVersions.includes(nodeMajor)) {
     console.log();
     console.log(chalk.red(`@Deprecated: You are using an incompatible Node.js version. Supported versions are ` + supportedNodeVersions.join(', ')));

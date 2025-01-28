@@ -9,7 +9,7 @@
     {% block sw_settings_content %}
     <template #content>
         <sw-card-view>
-            {% block sw_settings_content_card %}
+            {% block sw_settings_content_card_view %}
             <sw-card
                 v-if="feature.isActive('v6.7.0.0')"
                 hero
@@ -17,7 +17,7 @@
                 position-identifier="sw-settings-index"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_content_header %}
+                {% block sw_settings_content_card_view_header %}
                 <h1 class="sw-settings__content-header">
                     {{ $tc('sw-settings.index.title') }}
                 </h1>

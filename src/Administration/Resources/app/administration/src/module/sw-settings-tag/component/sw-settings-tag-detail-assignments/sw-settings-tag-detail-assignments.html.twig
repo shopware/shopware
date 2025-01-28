@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_tag_detail_assignments %}
 <div class="sw-settings-tag-detail-assignments">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tag_detail_assignments_card %}
     <sw-card
         class="sw-settings-tag-detail-assignments__card"
@@ -9,7 +7,6 @@
         large
     >
         <template #toolbar>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tag_detail_assignments_toolbar %}
             <sw-card-filter
                 :placeholder="$tc('sw-settings-tag.detail.assignments.searchPlaceholder')"
@@ -18,10 +15,8 @@
             {% endblock %}
         </template>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tag_detail_assignments_header %}
         <sw-container columns="1fr 1fr">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tag_detail_assignments_header_selected_filter %}
             <sw-card-section
                 class="sw-settings-tag-detail-assignments__filter-selected"
@@ -34,7 +29,6 @@
                 />
             </sw-card-section>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tag_detail_assignments_header_total_selected %}
             <sw-card-section
                 class="sw-settings-tag-detail-assignments__total-selected"
@@ -47,11 +41,9 @@
         {% endblock %}
 
         <template #grid>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tag_detail_assignments_grid %}
             <sw-container columns="300px 1fr">
                 <sw-card-section divider="right">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tag_detail_assignments_associations_grid %}
                     <sw-data-grid
                         class="sw-settings-tag-detail-assignments__associations-grid"
@@ -66,7 +58,6 @@
                         item-identifier-property="entity"
                     >
                         <template #column-name="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_associations_grid_column_name %}
                             <sw-button
                                 class="associations-grid__row"
@@ -104,7 +95,6 @@
                     {% endblock %}
                 </sw-card-section>
                 <sw-card-section>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tag_detail_assignments_entities_grid %}
                     <sw-entity-listing
                         :key="entitiesGridKey"
@@ -126,10 +116,8 @@
                         @select-item="onSelectionChange"
                     >
                         <template #selection-content="{ item, isSelected, selectItem, itemIdentifierProperty }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_entities_grid_selection_content %}
                             <div class="sw-data-grid__cell-content">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tag_detail_assignments_entities_grid_select_item_checkbox %}
                                 <sw-checkbox-field
                                     v-if="isInherited(item.id, item.parentId)"
@@ -149,7 +137,6 @@
                         </template>
 
                         <template #column-name="{ item, selectItem }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_entities_grid_column_inheritance_switch %}
                             <sw-inheritance-switch
                                 v-if="isInheritable && item.parentId && parentHasTags(item.id, item.parentId)"
@@ -158,7 +145,6 @@
                                 @inheritance-remove="selectItem(true, item)"
                             />
                             {% endblock %}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_entities_grid_column_name_product %}
                             <sw-product-variant-info
                                 v-if="selectedEntity === 'product'"
@@ -170,7 +156,6 @@
                                 />
                             </sw-product-variant-info>
                             {% endblock %}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_entities_grid_column_name_category %}
                             <template
                                 v-else-if="selectedEntity === 'category'"
@@ -185,7 +170,6 @@
                                 />
                             </template>
                             {% endblock %}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_entities_grid_column_name_customer %}
                             <template
                                 v-else-if="selectedEntity === 'customer'"
@@ -200,7 +184,6 @@
                                 />
                             </template>
                             {% endblock %}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_entities_grid_column_name_order %}
                             <template
                                 v-else-if="selectedEntity === 'order'"
@@ -215,7 +198,6 @@
                                 />
                             </template>
                             {% endblock %}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_entities_grid_column_name_media %}
                             <template
                                 v-else-if="selectedEntity === 'media'"
@@ -230,7 +212,6 @@
                                 />
                             </template>
                             {% endblock %}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient %}
                             <sw-highlight-text
                                 v-else-if="selectedEntity === 'newsletter_recipient'"
@@ -238,7 +219,6 @@
                                 :text="`${item.firstName} ${item.lastName}`"
                             />
                             {% endblock %}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_detail_assignments_entities_grid_column_name_default %}
                             <sw-highlight-text
                                 v-else

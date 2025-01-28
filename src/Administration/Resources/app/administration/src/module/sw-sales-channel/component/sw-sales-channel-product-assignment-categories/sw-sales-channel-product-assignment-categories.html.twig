@@ -1,28 +1,23 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_product_assignment_categories %}
 <div class="sw-sales-channel-product-assignment-categories">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_product_assignment_categories_info %}
     <sw-alert ref="alert">
         {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.textInfo') }}
     </sw-alert>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_product_assignment_categories_content %}
     <sw-card
         :is-loading="!isComponentReady || isProductLoading"
         position-identifier="sw-sales-channel-product-assignment-categories"
     >
         <div :style="containerStyle">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_products_assignment_single_products_secondary %}
             <sw-card-section
                 ref="cardSectionSecondary"
                 secondary
                 divider="bottom"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_product_assignment_categories_search_field %}
                 <sw-simple-search-field
                     :value="searchTerm"
@@ -35,9 +30,7 @@
             </sw-card-section>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_product_assignment_categories_tree %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_product_assignment_categories_tree_result %}
             <sw-tree
                 v-if="searchTerm.length <= 0 && categories.length > 0"
@@ -47,21 +40,18 @@
                 :sortable="false"
                 @get-tree-items="getTreeItems"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_product_assignment_categories_tree_headline %}
                 <template #headline>
                     <span></span>
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_product_assignment_categories_tree_search %}
                 <template #search>
                     <span></span>
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_product_assignment_categories_tree_items %}
                 <template
                     #items="{
@@ -70,7 +60,6 @@
                         translationContext
                     }"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block ssw_sales_channel_product_assignment_categories_tree_item %}
                     <sw-tree-item
                         v-for="item in treeItems"
@@ -85,7 +74,6 @@
                         @check-item="onCheckItem"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_product_assignment_categories_tree_item_actions %}
                         <template #actions>
                             <span></span>
@@ -99,14 +87,12 @@
             </sw-tree>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_product_assignment_categories_search_results %}
             <ul
                 v-else-if="searchResult.length > 0 && searchTerm.length > 0"
                 class="sw-sales-channel-product-assignment-categories__search-results"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_product_assignment_categories_search_results_item %}
                 <li
                     v-for="item in searchResult"
@@ -119,7 +105,6 @@
                     @keydown.enter="onCheckSearchItem(item)"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_product_assignment_categories_search_results_item_checkbox %}
                     <sw-checkbox-field
                         class="sw-sales-channel-product-assignment-categories__search-results-checkbox"
@@ -127,13 +112,11 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_product_assignment_categories_search_results_item_folder %}
                     <div
                         v-if="item.childCount > 0"
                         class="sw-sales-channel-product-assignment-categories__search-results-icon"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_product_assignment_categories_search_results_item_folder_icon %}
                         <sw-icon
                             name="regular-folder"
@@ -143,13 +126,11 @@
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_tree_field_input_results_search_results_item_endpoint %}
                     <div
                         v-else
                         class="sw-sales-channel-product-assignment-categories__search-results-icon"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_category_tree_field_input_results_search_results_item_endpoint_icon %}
                         <sw-icon
                             name="regular-circle-xxs"
@@ -159,10 +140,8 @@
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_product_assignment_categories_search_results_item_name %}
                     <span class="sw-sales-channel-product-assignment-categories__search-results-name">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_category_tree_field_input_results_search_results_item_name_highlight %}
                         <sw-highlight-text
                             :search-term="searchTerm"
@@ -176,7 +155,6 @@
             </ul>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_product_assignment_categories_search_results_empty %}
             <sw-empty-state
                 v-else

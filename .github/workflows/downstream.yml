@@ -24,7 +24,7 @@ jobs:
     if: ${{ !github.event.pull_request }}
     steps:
       - name: Rufus
-        uses: shopware/github-actions/downstream@main
+        uses: shopware/github-actions/downstream@set-token-for-git-cmds
         with:
           repo: shopware/Rufus
           workflow: Downstream
@@ -39,7 +39,7 @@ jobs:
     if: ${{ !github.event.pull_request }}
     steps:
       - name: Commercial
-        uses: shopware/github-actions/downstream@main
+        uses: shopware/github-actions/downstream@set-token-for-git-cmds
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream

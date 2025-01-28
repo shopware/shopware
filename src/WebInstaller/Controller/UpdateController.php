@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class UpdateController extends AbstractController
 {
     public function __construct(

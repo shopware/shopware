@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
-#[Package('core')]
+#[Package('framework')]
 class PluginFinder
 {
     final public const COMPOSER_TYPE = 'shopware-platform-plugin';

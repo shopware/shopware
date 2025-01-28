@@ -9,7 +9,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

@@ -12,7 +12,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PhpConfigForcerListener
 {
     public function __construct(private readonly RouterInterface $router)

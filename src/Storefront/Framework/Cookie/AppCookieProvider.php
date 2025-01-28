@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('discovery')]
 class AppCookieProvider implements CookieProviderInterface
 {
     /**

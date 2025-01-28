@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ShippingCityRule extends Rule
 {
     final public const RULE_NAME = 'customerShippingCity';

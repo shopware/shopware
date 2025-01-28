@@ -1,7 +1,7 @@
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 const defaultSearchConfiguration = {

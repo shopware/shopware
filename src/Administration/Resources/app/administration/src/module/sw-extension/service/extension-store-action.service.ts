@@ -90,7 +90,7 @@ interface Extension {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default class ExtensionStoreActionService extends ApiService {
@@ -264,7 +264,7 @@ export default class ExtensionStoreActionService extends ApiService {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type {

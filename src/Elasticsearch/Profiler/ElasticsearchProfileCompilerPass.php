@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

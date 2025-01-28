@@ -72,7 +72,7 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxDefinition;
 
-#[Package('core')]
+#[Package('framework')]
 class CacheInvalidationSubscriber
 {
     /**

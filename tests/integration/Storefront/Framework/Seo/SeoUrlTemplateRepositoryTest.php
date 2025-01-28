@@ -19,7 +19,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoUrlTemplateRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

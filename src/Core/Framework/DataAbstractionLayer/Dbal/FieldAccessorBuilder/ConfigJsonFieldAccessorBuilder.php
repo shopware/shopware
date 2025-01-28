@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ConfigJsonFieldAccessorBuilder extends JsonFieldAccessorBuilder
 {
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string

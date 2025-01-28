@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(AdminProductStreamController::class)]
 class AdminProductStreamControllerTest extends TestCase
 {
@@ -28,6 +28,7 @@ class AdminProductStreamControllerTest extends TestCase
 
     private MockObject&SalesChannelContextServiceInterface $salesChannelContextService;
 
+    /** @var MockObject&SalesChannelRepository<ProductCollection> */
     private MockObject&SalesChannelRepository $salesChannelRepository;
 
     private MockObject&ProductDefinition $productDefinition;

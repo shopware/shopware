@@ -4,6 +4,8 @@ import Debouncer from 'src/helper/debouncer.helper';
 import Iterator from 'src/helper/iterator.helper';
 
 /**
+ * @deprecated tag:v6.8.0 - Use the `form-handler.plugin.js` instead.
+ *
  * This plugin validates fields of a form.
  * Also styles the field elements with the bootstrap style if enabled.
  *

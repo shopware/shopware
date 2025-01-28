@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal only for use by the service-system
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
+#[Package('framework')]
 class ServiceController
 {
     /**

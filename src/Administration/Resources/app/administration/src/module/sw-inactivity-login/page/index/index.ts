@@ -4,7 +4,7 @@ import template from './sw-inactivity-login.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  */
 Component.register('sw-inactivity-login', {

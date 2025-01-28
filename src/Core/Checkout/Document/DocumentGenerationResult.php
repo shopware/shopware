@@ -60,6 +60,7 @@ class DocumentGenerationResult extends Struct
                 'documentId' => $documentIdStruct->getId(),
                 'documentMediaId' => $documentIdStruct->getMediaId(),
                 'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
+                'documentA11yMediaId' => $documentIdStruct->getA11yMediaId(),
             ]),
             'errors' => $errors,
         ];

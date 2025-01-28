@@ -24,7 +24,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[Group('slow')]
 #[Group('skip-paratest')]
 class NavigationPageSeoUrlTest extends TestCase

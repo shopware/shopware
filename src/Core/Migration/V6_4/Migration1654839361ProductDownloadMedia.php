@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1654839361ProductDownloadMedia extends MigrationStep
 {
     private const FOLDER_NAME = 'Product downloads';

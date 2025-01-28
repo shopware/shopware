@@ -14,7 +14,7 @@ use Shopware\Tests\Unit\Core\Framework\Rule\Fixture\DaysSinceRuleFixture;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(DaysSinceRule::class)]
 class DaysSinceRuleTest extends TestCase
 {

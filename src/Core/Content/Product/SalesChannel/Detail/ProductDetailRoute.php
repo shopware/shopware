@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -114,9 +113,9 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $resolverContext
                 );
 
-                $page = $pages->first();
-                if ($page instanceof CmsPageEntity) {
-                    $product->setCmsPage($page);
+                $cmsPage = $pages->first();
+                if ($cmsPage !== null) {
+                    $product->setCmsPage($cmsPage);
                 }
             }
 
@@ -157,7 +156,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             AND version_id = :versionId',
             [
                 'id' => Uuid::fromHexToBytes($productId),
-                'versionId' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
+                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
             ]
         );
 

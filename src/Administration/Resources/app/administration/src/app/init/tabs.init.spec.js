@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { createRouter, createWebHistory } from 'vue-router';
 import initTabs from 'src/app/init/tabs.init';

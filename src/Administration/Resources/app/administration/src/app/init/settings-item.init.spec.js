@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initializeSettingItems from 'src/app/init/settings-item.init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';

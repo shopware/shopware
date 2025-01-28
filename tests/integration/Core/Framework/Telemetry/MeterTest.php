@@ -17,7 +17,7 @@ use function PHPUnit\Framework\assertInstanceOf;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MeterTest extends TestCase
 {
     use KernelTestBehaviour;

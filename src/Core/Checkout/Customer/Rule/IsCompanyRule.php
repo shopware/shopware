@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class IsCompanyRule extends Rule
 {
     final public const RULE_NAME = 'customerIsCompany';

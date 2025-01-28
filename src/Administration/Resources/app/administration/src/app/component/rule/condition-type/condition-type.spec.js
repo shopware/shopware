@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 /* global adminPath */
 import { mount } from '@vue/test-utils';

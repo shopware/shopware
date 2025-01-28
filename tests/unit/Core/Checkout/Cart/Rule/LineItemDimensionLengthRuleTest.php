@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemDimensionLengthRule::class)]
 #[Group('rules')]
 class LineItemDimensionLengthRuleTest extends TestCase

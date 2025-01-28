@@ -20,7 +20,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class HomeUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

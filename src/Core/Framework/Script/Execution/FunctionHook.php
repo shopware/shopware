@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only rely on the concrete implementations
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class FunctionHook extends Hook
 {
     /**

@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
 {
     /**

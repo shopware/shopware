@@ -2,7 +2,7 @@ import template from './sw-order-create-general.html.twig';
 import type { CalculatedTax, CartDelivery, LineItem, Cart, PromotionCodeTag, SalesChannelContext } from '../../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component, State, Mixin, Utils } = Shopware;

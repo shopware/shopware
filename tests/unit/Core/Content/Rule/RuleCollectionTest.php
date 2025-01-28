@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(RuleCollection::class)]
 class RuleCollectionTest extends TestCase
 {

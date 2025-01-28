@@ -1,0 +1,102 @@
+{#
+    -- Textarea Form Field Component --
+
+    This component makes it easier to use textarea fields in a form.
+    It will implement all necessary accessibility best-practices and field validation for you.
+
+    Properties:
+
+    * id (required) - The id attriute of the textarea field.
+    * name (required) - The name attribute of the textarea field.
+    * label (optional) - The text content of the field label.
+    * value (optional) - The initial value of the field.
+    * placeholder (optional) - The placeholder attribute of the textarea field.
+    * minlength (optional) - The minlength attribute of the textarea field.
+    * maxlength (optional) - The maxlength attribute of the textarea field.
+    * rows (optinal) - The rows attribute of the textarea field.
+    * disabled (optional) - The disabled attribute of the textarea field.
+    * validationRules (optional) - A comma-separated list of rules the field should be validated against via client validation.
+    * violationPath (optional) - The key under which validation errors are stored within the response of a server validation.
+    * additionalClass (optional) - Additional css class names that are added to the form-group wrapper element.
+    * additionalInputClass (optional) - Additional css class names that are added to the textarea element.
+    * attributes (optional) - Additional attributes that are added to the textarea element.
+#}
+{% block component_form_textarea %}
+
+    {% set isInvalid = false %}
+
+    {% if (violationPath is not empty and formViolations.getViolations(violationPath) is not empty) or error is not empty %}
+        {% set isInvalid = true %}
+    {% endif %}
+
+    {% set feedbackId = "#{id}-feedback" %}
+    {% set descriptionId = "#{id}-description" %}
+
+    {% set areaDescribedBy = "#{feedbackId}" %}
+
+    {% if description is not empty %}
+        {% set areaDescribedBy = "#{descriptionId} #{feedbackId}" %}
+    {% endif %}
+
+    <div class="form-group{% if additionalClass is not empty %} {{ additionalClass }}{% endif %}">
+
+        {% block component_form_textarea_label %}
+            {% if label %}
+                <label class="form-label" for="{{ id }}">
+                    {{ label|raw }}
+
+                    {% if 'required' in validationRules %}
+                        <span class="form-required-label" aria-hidden="true">{{ "general.required"|trans|sw_sanitize }}</span>
+                    {% endif %}
+                </label>
+            {% endif %}
+        {% endblock %}
+
+        {% block component_form_textarea_input %}
+            {% set cssClass = "form-control" %}
+
+            {% if additionalInputClass is not empty %}
+                {% set cssClass = "#{cssClass} #{additionalInputClass}" %}
+            {% endif %}
+
+            {% if isInvalid === true %}
+                {% set cssClass = "#{cssClass} is-invalid" %}
+            {% endif %}
+
+            {% if rows is empty %}
+                {% set rows = '8' %}
+            {% endif %}
+
+            <textarea class="{{ cssClass }}"
+                      id="{{ id }}"
+                      name="{{ name }}"
+                      rows="{{ rows }}"
+                      aria-describedby="{{ areaDescribedBy }}"
+                      {% if placeholder is not empty %}placeholder="{{ placeholder }}"{% endif %}
+                      {% if autocomplete is not empty %}autocomplete="{{ autocomplete }}"{% endif %}
+                      {% if minlength is not empty %}minlength="{{ minlength }}"{% endif %}
+                      {% if maxlength is not empty %}maxlength="{{ maxlength }}"{% endif %}
+                      {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
+                      {% if 'required' in validationRules %}aria-required="true"{% endif %}
+                      {% if attributes is not empty %}{% for key, value in attributes %}{% if value is not empty %}{{ key ~ '=' ~ value ~ ' ' }}{% endif %}{% endfor %}{% endif %}
+                      {% if disabled is not empty %}disabled{% endif %}>{% if value is not empty %}{{ value }}{% endif %}</textarea>
+        {% endblock %}
+
+        {% block component_form_textarea_description %}
+            {% if description is not empty %}
+                <small id="{{ descriptionId }}" class="form-text">{{ description }}</small>
+            {% endif %}
+        {% endblock %}
+
+        {% block component_form_textarea_feedback %}
+            <div id="{{ feedbackId }}" class="form-field-feedback">
+
+                {% block component_form_textarea_feedback_violations %}
+                    {% if violationPath is not empty and formViolations.getViolations(violationPath) is not empty %}
+                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

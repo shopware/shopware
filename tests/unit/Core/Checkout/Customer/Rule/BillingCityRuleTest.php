@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(BillingCityRule::class)]
 #[Group('rules')]
 class BillingCityRuleTest extends TestCase

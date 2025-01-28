@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import template from './sw-admin-menu-extension.html.twig';

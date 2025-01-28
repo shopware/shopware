@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import ApiService from 'src/core/service/api.service';
 import type { AxiosInstance } from 'axios';

@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -83,9 +83,8 @@ export default {
         },
 
         currenciesColumns() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.currencies
-                .sort((a, b) => {
+                .toSorted((a, b) => {
                     return b.isSystemDefault ? 1 : -1;
                 })
                 .map((item) => {

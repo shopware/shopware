@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  *
  * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}
  */
-#[Package('core')]
+#[Package('framework')]
 class SchemaUpdater
 {
     final public const TABLE_PREFIX = 'custom_entity_';

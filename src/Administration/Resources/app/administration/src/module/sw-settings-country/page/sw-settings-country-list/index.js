@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import template from './sw-settings-country-list.html.twig';
 import './sw-settings-country-list.scss';

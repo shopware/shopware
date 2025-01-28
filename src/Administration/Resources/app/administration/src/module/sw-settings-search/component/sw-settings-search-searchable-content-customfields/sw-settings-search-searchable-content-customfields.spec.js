@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
@@ -78,6 +78,7 @@ async function createWrapper() {
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'router-link': true,
+                    'sw-provide': true,
                 },
             },
 

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';

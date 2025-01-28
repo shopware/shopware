@@ -2,14 +2,14 @@ import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -49,6 +49,7 @@ export default {
             subject: '',
             recipient: '',
             content: '',
+            a11yDocuments: [],
         };
     },
 
@@ -105,6 +106,8 @@ export default {
             this.recipient = this.order.orderCustomer.email;
 
             this.setEmailTemplateAccordingToDocumentType();
+
+            this.loadTheLinksForA11y();
         },
 
         setEmailTemplateAccordingToDocumentType() {
@@ -119,22 +122,24 @@ export default {
                 return;
             }
 
-            this.mailTemplateRepository.search(this.mailTemplateCriteria, Shopware.Context.api).then((result) => {
-                const mailTemplate = result
-                    .filter(
-                        (t) =>
-                            t.mailTemplateType.technicalName ===
-                            documentMailTemplateMapping[this.document.documentType.technicalName],
-                    )
-                    .first();
+            this.mailTemplateRepository
+                .search(this.mailTemplateCriteria, { ...Shopware.Context.api, languageId: this.order.languageId })
+                .then((result) => {
+                    const mailTemplate = result
+                        .filter(
+                            (t) =>
+                                t.mailTemplateType.technicalName ===
+                                documentMailTemplateMapping[this.document.documentType.technicalName],
+                        )
+                        .first();
 
-                if (!mailTemplate) {
-                    return;
-                }
+                    if (!mailTemplate) {
+                        return;
+                    }
 
-                this.mailTemplateId = mailTemplate.id;
-                this.onMailTemplateChange(mailTemplate.id, mailTemplate);
-            });
+                    this.mailTemplateId = mailTemplate.id;
+                    this.onMailTemplateChange(mailTemplate.id, mailTemplate);
+                });
         },
 
         onMailTemplateChange(mailTemplateId, mailTemplate) {
@@ -179,8 +184,13 @@ export default {
         onSendDocument() {
             this.isLoading = true;
 
+            const apiContext = {
+                ...Shopware.Context.api,
+                languageId: this.order.languageId || Shopware.Context.api.languageId,
+            };
+
             this.mailTemplateRepository
-                .get(this.mailTemplateId, Shopware.Context.api, this.mailTemplateSendCriteria)
+                .get(this.mailTemplateId, apiContext, this.mailTemplateSendCriteria)
                 .then((mailTemplate) => {
                     this.mailService
                         .sendMailTemplate(
@@ -202,7 +212,12 @@ export default {
                             {
                                 order: this.order,
                                 salesChannel: this.order.salesChannel,
+                                document: this.document,
+                                a11yDocuments: this.a11yDocuments,
                             },
+                            null,
+                            null,
+                            apiContext,
                         )
                         .catch(() => {
                             this.createNotificationError({
@@ -217,6 +232,18 @@ export default {
                             this.isLoading = false;
                         });
                 });
+        },
+
+        loadTheLinksForA11y() {
+            if (!this.document?.documentA11yMediaFile) {
+                return;
+            }
+
+            this.a11yDocuments.push({
+                documentId: this.document.id,
+                deepLinkCode: this.document.deepLinkCode,
+                fileExtension: this.document.documentA11yMediaFile.fileExtension,
+            });
         },
     },
 };

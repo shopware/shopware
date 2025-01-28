@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'es:create:alias',
     description: 'Create the elasticsearch alias',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchCreateAliasCommand extends Command
 {
     /**

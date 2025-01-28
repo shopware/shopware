@@ -4,7 +4,7 @@ import { reactive } from 'vue';
 import type { ContextState } from '../app/state/context.store';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/application
  */

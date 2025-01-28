@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initState from 'src/app/init-pre/state.init';
 

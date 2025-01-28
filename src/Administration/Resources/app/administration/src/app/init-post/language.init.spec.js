@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initLanguageService from 'src/app/init-post/language.init';
 

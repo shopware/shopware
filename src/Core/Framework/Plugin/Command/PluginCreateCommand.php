@@ -19,7 +19,7 @@ use Symfony\Component\Filesystem\Filesystem;
     name: 'plugin:create',
     description: 'Creates a new plugin',
 )]
-#[Package('core')]
+#[Package('framework')]
 class PluginCreateCommand extends Command
 {
     /**

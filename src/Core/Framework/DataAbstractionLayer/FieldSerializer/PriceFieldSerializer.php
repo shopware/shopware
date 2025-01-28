@@ -25,7 +25,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PriceFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(

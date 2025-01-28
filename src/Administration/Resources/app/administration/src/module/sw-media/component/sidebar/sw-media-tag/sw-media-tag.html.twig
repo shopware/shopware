@@ -9,7 +9,7 @@
         {% block sw_media_tag_input %}
         <template #content>
             <sw-entity-tag-select
-                v-model:entityCollection="media.tags"
+                v-model:entity-collection="media.tags"
                 :disabled="disabled"
                 @update:entity-collection="handleChange"
             />

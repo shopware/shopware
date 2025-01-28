@@ -76,7 +76,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SchemaBuilder
 {
     /**

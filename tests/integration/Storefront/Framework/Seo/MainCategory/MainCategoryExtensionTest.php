@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 class MainCategoryExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;

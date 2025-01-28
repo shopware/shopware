@@ -7,7 +7,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @public
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @description Condition for the LineItemRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only

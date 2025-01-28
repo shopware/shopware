@@ -1,7 +1,7 @@
 import type { LoginService } from './login.service';
 
 /**
- * @package data-services
+ * @sw-package data-services
  *
  * @private
  */

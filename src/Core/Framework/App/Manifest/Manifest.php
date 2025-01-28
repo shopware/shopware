@@ -24,7 +24,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class Manifest
 {
     private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';

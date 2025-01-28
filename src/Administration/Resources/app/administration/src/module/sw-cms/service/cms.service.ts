@@ -210,7 +210,7 @@ class CmsService {
         if (typeof this.mappingTypesCache[entityName] === 'undefined') {
             this.mappingTypesCache[entityName] = {};
             this.handlePropertyMappings(schema.properties, this.mappingTypesCache[entityName], entityName);
-            void this.addCustomFieldsToMappingTypes(entityName, this.mappingTypesCache[entityName]!);
+            void this.addCustomFieldsToMappingTypes(entityName, this.mappingTypesCache[entityName]);
         }
 
         return this.mappingTypesCache[entityName];
@@ -560,6 +560,6 @@ Application.addServiceProvider('cmsService', () => new CmsService());
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export { CmsService, type CmsElementConfig, type CmsBlockConfig, type CmsSlotConfig, type RuntimeSlot };

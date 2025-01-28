@@ -101,7 +101,26 @@ export default {
                         label: this.$tc('sw-settings-document.detail.labelItemsPerPage'),
                     },
                 },
-                null,
+                {
+                    name: 'fileTypes',
+                    type: 'array',
+                    config: {
+                        componentName: 'sw-multi-select',
+                        labelProperty: 'name',
+                        valueProperty: 'id',
+                        options: [
+                            {
+                                id: 'pdf',
+                                name: 'PDF',
+                            },
+                            {
+                                id: 'html',
+                                name: 'HTML',
+                            },
+                        ],
+                        label: this.$tc('sw-settings-document.detail.labelFileTypes'),
+                    },
+                },
                 {
                     name: 'displayHeader',
                     type: 'bool',
@@ -372,6 +391,14 @@ export default {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        fileTypesSelected() {
+            if (!this.documentConfig?.config?.fileTypes) {
+                return [];
+            }
+
+            return this.documentConfig.config.fileTypes;
+        },
     },
 
     created() {
@@ -429,6 +456,7 @@ export default {
             this.documentConfig.salesChannels.forEach((salesChannelAssoc) => {
                 this.documentConfigSalesChannels.push(salesChannelAssoc.id);
             });
+
             this.isLoading = false;
         },
 
@@ -536,6 +564,8 @@ export default {
             this.isLoading = true;
             this.onChangeSalesChannel();
 
+            this.isSaveSuccessful = true;
+
             return this.documentBaseConfigRepository
                 .save(this.documentConfig)
                 .then(() => {
@@ -580,6 +610,20 @@ export default {
                     this.documentConfigSalesChannelOptionsCollection.push(option);
                 }
             });
+        },
+
+        onRemoveDocumentType(type) {
+            let fileTypes = this.documentConfig.config.fileTypes ?? [];
+            if (fileTypes.length === 1) {
+                return;
+            }
+
+            fileTypes = fileTypes.filter((fileType) => fileType !== type.id);
+            this.documentConfig.config.fileTypes = fileTypes;
+        },
+
+        onAddDocumentType(type) {
+            this.documentConfig.config.fileTypes.push(type.id);
         },
     },
 };

@@ -4,7 +4,7 @@ import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const mockItems = [
@@ -216,6 +216,7 @@ async function createWrapper() {
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-skeleton': true,
                     'sw-highlight-text': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
                 mocks: {
                     $tc: (t, count, value) => {

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import vueHelper from 'src/core/service/utils/vue-helper.utils';

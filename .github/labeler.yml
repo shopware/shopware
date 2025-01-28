@@ -28,12 +28,12 @@ labels:
     body: "Extension:Publisher"
   - label: "Extension:SHAPE-Theme"
     body: "Extension:SHAPE-Theme"
+  - label: "Internal" # add internal Label to everything that is created by a shopware member
+    author-can-merge: True
   - label: "Extension:Showroom-Theme"
     body: "Extension:Showroom-Theme"
   - label: "Extension:Social-Shopping"
     body: "Extension:Social-Shopping"
   - label: "Bug" # add bug Label to every issue but to no PR
-    negate: true
+    negate: True
     type: "pull_request"
-  - label: "Internal" # add internal Label to everything that is created by a shopware member
-    author-can-merge: true

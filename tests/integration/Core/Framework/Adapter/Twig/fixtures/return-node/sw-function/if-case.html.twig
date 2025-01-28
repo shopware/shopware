@@ -1,9 +1,9 @@
-{% macro ifCase(x) %}
+{% sw_macro_function ifCase(x) %}
     {% if x == 1 %}
         {% return 1 %}
     {% else %}
         {% return 2 %}
     {% endif %}
-{% endmacro %}
+{% end_sw_macro_function %}
 
 {{ _self.ifCase(x) }}

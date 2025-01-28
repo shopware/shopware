@@ -12,6 +12,8 @@ use Twig\Node\MacroNode;
 #[Package('framework')]
 #[YieldReady]
 /**
+ * @internal
+ * @deprecated tag:v6.8.0 - Will be removed, see SwMacroFunctionTokenParser
  * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
  */
 class MacroOverrideNode extends MacroNode

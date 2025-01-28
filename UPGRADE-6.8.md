@@ -15,7 +15,7 @@
 ## Use `sw_macro_function` instead of usual `macro` in app scripts if you return values
 
 Return values over the `return` keyword from usual twig `macro` functions are not supported anymore.
-Use the `sw_macro_function` instead, the new tag was available since v6.6.10.0.
+Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 
 ```diff
 // Resources/scripts/include/media-repository.twig

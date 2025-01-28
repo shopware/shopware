@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Page;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,6 +27,9 @@ class ErrorPageTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
+    /**
+     * @var EntityRepository<CmsPageCollection>
+     */
     private EntityRepository $cmsPageRepository;
 
     private string $errorLayoutId;

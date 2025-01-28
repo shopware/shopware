@@ -191,14 +191,11 @@ parameters:
                 - src/Core/Service/**
                 - src/Core/System/**
                 - src/Core/Test/**
-                - src/Storefront/**
                 - tests/integration/Core/Checkout/**
                 - tests/integration/Core/Content/**
                 - tests/integration/Core/Framework/**
                 - tests/integration/Core/System/**
-                - tests/integration/Storefront/**
                 - tests/unit/Core/**
-                - tests/unit/Storefront/**
 
         - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
             message: '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'

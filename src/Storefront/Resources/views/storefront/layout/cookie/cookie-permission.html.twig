@@ -1,6 +1,7 @@
 {# @sw-package framework #}
 
 {% set useDefaultCookieConsent = config('core.basicInformation.useDefaultCookieConsent') == true %}
+
 {% if useDefaultCookieConsent %}
     {% block layout_cookie_permission_inner %}
         {% set acceptAllCookies = config('core.basicInformation.acceptAllCookies') %}
@@ -13,8 +14,11 @@
                 <div class="row align-items-center">
                     {% block layout_cookie_permission_inner_content %}
                         <div class="col cookie-permission-content">
-                            {{ 'cookie.messageText'|trans({
-                                '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
+                            {% set privacySnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'cookie.messageTextPage' : 'cookie.messageText' %}
+                            {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+
+                            {{ privacySnippetKey|trans({
+                                '%url%': path(cmsPath, { id: config('core.basicInformation.privacyPage') })
                             })|raw }}
                         </div>
                     {% endblock %}

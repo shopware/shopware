@@ -13,7 +13,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
     static options = {
         navigationUrl: window.router['frontend.menu.offcanvas'],
         position: 'left',
+        /** @deprecated tag:v6.7.0 - property "tiggerEvent" will be removed. Use "triggerEvent" instead */
         tiggerEvent: 'click',
+        triggerEvent: 'click',
 
         additionalOffcanvasClass: 'navigation-offcanvas',
         linkSelector: '.js-navigation-offcanvas-link',
@@ -38,6 +40,10 @@ export default class OffcanvasMenuPlugin extends Plugin {
         this._client = new HttpClient();
         this._content = LoadingIndicator.getTemplate();
 
+        /** @deprecated tag:v6.7.0 - Remove if condition completely, as "tiggerEvent" will be removed */
+        if (this.options.tiggerEvent !== this.options.triggerEvent) {
+            this.options.triggerEvent = this.options.tiggerEvent;
+        }
         this._registerEvents();
     }
 
@@ -47,8 +53,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener(this.options.tiggerEvent, this._getLinkEventHandler.bind(this));
-        this.el.addEventListener(this.options.tiggerEvent, this._getLinkEventHandler.bind(this));
+        this.el.removeEventListener(this.options.triggerEvent, this._getLinkEventHandler.bind(this));
+        this.el.addEventListener(this.options.triggerEvent, this._getLinkEventHandler.bind(this));
 
         if (OffCanvas.exists()) {
             const offCanvasElements = OffCanvas.getOffCanvas();
@@ -91,14 +97,26 @@ export default class OffcanvasMenuPlugin extends Plugin {
             const initialContentElement = DomAccess.querySelector(document, this.options.initialContentSelector);
             this._content = initialContentElement.innerHTML;
 
-            if (initialContentElement.classList.contains('is-root')) {
-                this._cache[this.options.navigationUrl] = this._content;
-            } else {
-                // fetch home menu to warm the cache
-                this._fetchMenu(this.options.navigationUrl);
-            }
+            if (window.Feature.isActive('CACHE_REWORK')) {
+                const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
 
-            return this._openMenu(event);
+                return this._fetchMenu(url, (htmlResponse) => {
+                    const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);
+                    navigationContainer.innerHTML = htmlResponse;
+
+                    this._content = initialContentElement.innerHTML;
+
+                    return this._openMenu(event);
+                });
+            } else {
+                if (initialContentElement.classList.contains('is-root')) {
+                    this._cache[this.options.navigationUrl] = this._content;
+                } else {
+                    // fetch home menu to warm the cache
+                    this._fetchMenu(this.options.navigationUrl);
+                }
+                return this._openMenu(event);
+            }
         }
 
         OffcanvasMenuPlugin._stopEvent(event);
@@ -371,7 +389,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _fetchMenu(link, cb) {
-
         if (!link) {
             return false;
         }

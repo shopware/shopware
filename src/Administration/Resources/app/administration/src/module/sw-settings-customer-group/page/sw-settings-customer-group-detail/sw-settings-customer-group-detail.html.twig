@@ -49,7 +49,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_detail_actions_save %}
         <sw-button-process
-            v-model:processSuccess="isSaveSuccessful"
+            v-model:process-success="isSaveSuccessful"
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-customer-group-detail__save"
             variant="primary"
@@ -204,7 +204,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_url_card_sales_channel %}
                     <sw-entity-multi-select
-                        v-model:entityCollection="customerGroup.registrationSalesChannels"
+                        v-model:entity-collection="customerGroup.registrationSalesChannels"
                         name="sw-field--customerGroup-registrationSalesChannels"
                         class="sw-settings-customer-group-detail__sales-channel"
                         :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"

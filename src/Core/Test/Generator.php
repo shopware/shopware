@@ -99,6 +99,7 @@ class Generator extends TestCase
             $salesChannel->setId(TestDefaults::SALES_CHANNEL);
             $salesChannel->setNavigationCategoryId(self::NAVIGATION_CATEGORY);
             $salesChannel->setTaxCalculationType(self::TAX_CALCULATION_TYPE);
+            $salesChannel->setNavigationCategoryDepth(2);
         }
 
         if (!$currency) {

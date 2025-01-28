@@ -152,13 +152,18 @@ describe('QuantitySelectorPlugin tests', () => {
     test('should update area live on init but not on change if mode is set to "onload"', () => {
         plugin.options.ariaLiveUpdateMode = 'onload';
 
+        window.localStorage.setItem('lastQuantityChange', 'Test Product');
+
         plugin.init();
         jest.runAllTimers();
 
         expect(ariaLiveSpy).toHaveBeenCalledTimes(1);
+        expect(window.localStorage.getItem('lastQuantityChange')).toBeNull();
 
         const plusBtn = document.querySelector('.js-btn-plus');
         plusBtn.dispatchEvent(new Event('click', {bubbles: true}));
+
         expect(ariaLiveSpy).toHaveBeenCalledTimes(1);
+        expect(window.localStorage.getItem('lastQuantityChange')).toBe('Test Product');
     });
 });

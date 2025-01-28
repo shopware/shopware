@@ -41,7 +41,7 @@ final class HasValidRSAJWKSignature implements Constraint
             InMemory::plainText($pem)
         );
 
-        $configuration->setValidationConstraints(
+        $configuration->withValidationConstraints(
             new SignedWith($configuration->signer(), $configuration->signingKey())
         );
     }

@@ -90,7 +90,7 @@
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "lcobucci/clock": "^3.1.0",
-        "lcobucci/jwt": "^5.0",
+        "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.10.3",
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",

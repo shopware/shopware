@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 class QueryBuilder extends DBALQueryBuilder
 {
     /**
-     * @var array<string>
+     * @var array<string, string>
      */
     private array $states = [];
 
@@ -35,6 +35,9 @@ class QueryBuilder extends DBALQueryBuilder
         return \in_array($state, $this->states, true);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getStates(): array
     {
         return $this->states;
@@ -69,6 +72,8 @@ class QueryBuilder extends DBALQueryBuilder
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will be changed to string
+     *
      * @return string
      */
     public function getSQL()

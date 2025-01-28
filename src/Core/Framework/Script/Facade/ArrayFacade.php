@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Log\Package;
  * @implements \ArrayAccess<array-key, string|int|float|array|object|bool|null>
  * @implements \IteratorAggregate<array-key, string|int|float|array|object|bool|null>
  */
-#[Package('core')]
+#[Package('framework')]
 class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
     private readonly ?\Closure $closure;

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 
-#[Package('core')]
+#[Package('framework')]
 class Uuid
 {
     /**

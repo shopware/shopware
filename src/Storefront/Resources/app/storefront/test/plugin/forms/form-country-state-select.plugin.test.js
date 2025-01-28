@@ -1,5 +1,7 @@
 import FormCountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
 import FormFieldTogglePlugin from 'src/plugin/forms/form-field-toggle.plugin';
+import FormValidation from 'src/helper/form-validation.helper';
+import Feature from 'src/helper/feature.helper';
 
 /**
  * @package content
@@ -29,6 +31,18 @@ describe('Form country state select plugin', () => {
 
     beforeEach(() => {
         document.body.innerHTML = template;
+
+        window.Feature = Feature;
+        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': true });
+
+        window.validationMessages = {
+            required: 'Input should not be empty.',
+            email: 'Invalid email address.',
+            confirmation: 'Confirmation field does not match.',
+            minLength: 'Input is too short.',
+        };
+
+        window.formValidation = new FormValidation();
     });
 
     afterEach(() => {
@@ -44,9 +58,12 @@ describe('Form country state select plugin', () => {
     it('should set vatIds field to required directly when an initial country is available which also has vatId required setting', () => {
         createPlugin();
 
+        const vatIdField = document.querySelector('#vatIds');
+        const vatIdFieldLabel = document.querySelector('label[for="vatIds"]');
+
         // Ensure vatIds is has required attr and label includes required symbol "*"
-        expect(document.querySelector('#vatIds').hasAttribute('required')).toBe(true);
-        expect(document.querySelector('label[for="vatIds"]').textContent).toBe('VAT Reg.No.*');
+        expect(vatIdField.hasAttribute('aria-required')).toBe(true);
+        expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(true);
     });
 
     it('should not set vatIds field to required directly when there is no initial country', () => {
@@ -75,9 +92,12 @@ describe('Form country state select plugin', () => {
             scopeElementSelector: '.register-shipping',
         });
 
-        // Ensure vatIds is not required and label includes no required symbol "*"
-        expect(document.querySelector('#vatIds').hasAttribute('required')).toBe(false);
-        expect(document.querySelector('label[for="vatIds"]').textContent).toBe('VAT Reg.No.');
+        const vatIdField = document.querySelector('#vatIds');
+        const vatIdFieldLabel = document.querySelector('label[for="vatIds"]');
+
+        // Ensure vatIds is not required
+        expect(vatIdField.hasAttribute('aria-required')).toBe(false);
+        expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(false);
     });
 
     it('should set vatIds field to required when a country with vatId required setting is selected', () => {
@@ -85,7 +105,7 @@ describe('Form country state select plugin', () => {
             <form id="registerForm" action="/register" method="post">
 
                 <div class="form-group col-md-6">
-                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <label class="form-label" for="vatIds">VAT Registration Number</label>
                     <input type="text" name="vatIds[]" id="vatIds" class="form-name">
                 </div>
 
@@ -104,29 +124,32 @@ describe('Form country state select plugin', () => {
 
         createPlugin();
 
-        // Ensure vatIds is not required and label includes no required symbol "*" at the beginning.
-        expect(document.querySelector('#vatIds').hasAttribute('required')).toBe(false);
-        expect(document.querySelector('label[for="vatIds"]').textContent).toBe('VAT Reg.No.');
+        const vatIdField = document.querySelector('#vatIds');
+        const vatIdFieldLabel = document.querySelector('label[for="vatIds"]');
+
+        // Ensure vatIds is not required
+        expect(vatIdField.hasAttribute('aria-required')).toBe(false);
+        expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(false);
 
         // Perform selection
         document.querySelector('.country-select').dispatchEvent(new Event('change'));
 
         // Ensure vatIds is required after selecting a country with vatId required setting.
-        expect(document.querySelector('#vatIds').hasAttribute('required')).toBe(true);
-        expect(document.querySelector('label[for="vatIds"]').textContent).toBe('VAT Reg.No.*');
+        expect(vatIdField.hasAttribute('aria-required')).toBe(true);
+        expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(true);
     });
 
     it('should set zipcode field to required when a country with required one setting is selected', () => {
         template = `
             <form id="registerForm" class="register-shipping" action="/register" method="post">
                 <label class="form-label" for="addressZipCode">
-                    Postal code<span id="zipcodeLabel" class="d-none">*</span>
+                    Postal code
                 </label>
 
                 <input type="text" class="form-control" id="addressZipCode" value="" data-input-name="zipcodeInput">
 
                 <label class="form-label" for="alternativeZipCode">
-                     Postal code<span id="zipcodeLabel" class="d-none">*</span>
+                     Postal code
                 </label>
 
                 <input type="text" class="form-control" id="alternativeZipCode" value="" data-input-name="zipcodeInput">
@@ -148,21 +171,21 @@ describe('Form country state select plugin', () => {
             scopeElementSelector: '.register-shipping',
         });
 
-        const updateZipCodeSpy = jest.spyOn(plugin, '_updateZipcodeRequired');
+        const updateZipCodeSpy = jest.spyOn(plugin, '_updateZipcodeFields');
 
-        const labels = document.querySelectorAll('#zipcodeLabel');
+        const labels = document.querySelectorAll('.form-label');
         const inputs = document.querySelectorAll('[data-input-name="zipcodeInput"]');
 
-        labels.forEach(label => expect(label.classList.contains('d-none')).toBe(true));
-        inputs.forEach(input => expect(input.hasAttribute('required')).toBe(false));
+        labels.forEach(label => expect(label.innerHTML.includes('form-required-label')).toBe(false));
+        inputs.forEach(input => expect(input.hasAttribute('aria-required')).toBe(false));
 
         // Perform selection
         document.querySelector('.country-select').dispatchEvent(new Event('change'));
 
         expect(updateZipCodeSpy).toHaveBeenCalled();
 
-        labels.forEach(label => expect(label.classList.contains('d-none')).toBe(false));
-        inputs.forEach(input => expect(input.hasAttribute('required')).toBe(true));
+        labels.forEach(label => expect(label.innerHTML.includes('form-required-label')).toBe(true));
+        inputs.forEach(input => expect(input.hasAttribute('aria-required')).toBe(true));
     });
 
     it('should initialize form field toggle instance and subscribe to onChange event', () => {
@@ -249,7 +272,7 @@ describe('Form country state select plugin', () => {
         expect(plugin._formFieldToggleInstance).toBeNull();
     });
 
-    it('should remove space around at country state label name when the state required', () => {
+    it('should update country state label when state required', () => {
         const mockElement = `
              <input type="checkbox"
                      data-form-field-toggle="true"
@@ -268,8 +291,8 @@ describe('Form country state select plugin', () => {
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="shippingAddressAddressCountryState"> Bundesland </label>
-                            <select class="country-state-select form-select" data-initial-country-state-id="">
+                            <label class="form-label" for="shippingAddressAddressCountryState">Bundesland</label>
+                            <select class="country-state-select form-select" id="shippingAddressAddressCountryState" data-initial-country-state-id="">
                                 <option value="" selected="selected" data-placeholder-option="true">Bundesland auswählen ...</option>
                                 <option value="0490081418be4255b87731afc953e901">Hamburg</option>
                             </select>
@@ -296,11 +319,13 @@ describe('Form country state select plugin', () => {
             callback(JSON.stringify(response));
         });
 
-        expect(document.querySelector('[for="shippingAddressAddressCountryState"]').textContent).toBe(' Bundesland ');
+        const stateLabel = document.querySelector('[for="shippingAddressAddressCountryState"]');
+
+        expect(stateLabel.textContent).toBe('Bundesland');
 
         plugin.requestStateData('31e1ac8809c744c38c4d99bfe9a50aa8', '0490081418be4255b87731afc953e901', true);
 
-        expect(document.querySelector('[for="shippingAddressAddressCountryState"]').textContent).toBe('Bundesland*');
+        expect(stateLabel.innerHTML.includes('form-required-label')).toBe(true);
     });
 
     it('should update VAT ID field to required when different shipping address is selected', () => {
@@ -329,8 +354,10 @@ describe('Form country state select plugin', () => {
         plugin._onFormFieldToggleChange(event);
 
         const vatIdInput = document.querySelector(plugin.options.vatIdFieldInput);
-        expect(vatIdInput.hasAttribute('required')).toBe(true);
-        expect(vatIdInput.parentNode.querySelector('label').textContent).toBe('VAT Reg.No.*');
+        const vatIdFieldLabel = document.querySelector('label[for="vatIds"]');
+
+        expect(vatIdInput.hasAttribute('aria-required')).toBe(true);
+        expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(true);
     });
 
     it('should update VAT ID field to not required when different shipping address is not selected', () => {
@@ -361,8 +388,10 @@ describe('Form country state select plugin', () => {
         plugin._onFormFieldToggleChange(event);
 
         const vatIdInput = document.querySelector(plugin.options.vatIdFieldInput);
-        expect(vatIdInput.hasAttribute('required')).toBe(false);
-        expect(vatIdInput.parentNode.querySelector('label').textContent).toBe('VAT Reg.No.');
+        const vatIdFieldLabel = document.querySelector('label[for="vatIds"]');
+
+        expect(vatIdInput.hasAttribute('aria-required')).toBe(false);
+        expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(false);
     });
 
     it('should not update VAT ID field when different shipping address is selected and prefix is billingAddress', () => {
@@ -394,7 +423,9 @@ describe('Form country state select plugin', () => {
         plugin._onFormFieldToggleChange(event);
 
         const vatIdInput = document.querySelector(plugin.options.vatIdFieldInput);
-        expect(vatIdInput.hasAttribute('required')).toBe(false);
-        expect(vatIdInput.parentNode.querySelector('label').textContent).toBe('VAT Reg.No.');
+        const vatIdFieldLabel = document.querySelector('label[for="vatIds"]');
+
+        expect(vatIdInput.hasAttribute('aria-required')).toBe(false);
+        expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(false);
     });
 });

@@ -12,7 +12,7 @@ use Shopware\Core\Migration\V6_6\Migration1733745893createTagStorageTable;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1733745893createTagStorageTable::class)]
 class Migration1733745893createTagStorageTableTest extends TestCase
 {

@@ -19,7 +19,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemClearanceSaleRule::class)]
 #[Group('rules')]
 class LineItemClearanceSaleRuleTest extends TestCase

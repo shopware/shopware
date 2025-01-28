@@ -15,7 +15,7 @@ use Shopware\Core\System\Integration\IntegrationDefinition;
  *
  * @codeCoverageIgnore
  */
-#[Package('administration')]
+#[Package('framework')]
 class IntegrationExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

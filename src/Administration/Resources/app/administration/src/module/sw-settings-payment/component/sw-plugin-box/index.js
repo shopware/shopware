@@ -2,7 +2,7 @@ import template from './sw-plugin-box.html.twig';
 import './sw-plugin-box.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

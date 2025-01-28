@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1604499476AddDefaultSettingConfigValueForContactForm extends MigrationStep
 {
     private const CONFIG_KEYS = [

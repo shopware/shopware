@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSer
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class CustomFieldsSerializer extends FieldSerializer
 {
     /**

@@ -23,7 +23,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class HooksReferenceGenerator implements ScriptReferenceGenerator
 {
     final public const USE_CASE_DATA_LOADING = 'data_loading';

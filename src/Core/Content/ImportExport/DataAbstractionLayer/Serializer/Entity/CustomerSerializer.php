@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class CustomerSerializer extends EntitySerializer implements ResetInterface
 {
     /**

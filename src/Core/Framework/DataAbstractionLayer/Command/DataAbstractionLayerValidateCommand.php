@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'dal:validate',
     description: 'Validates the DAL definitions',
 )]
-#[Package('core')]
+#[Package('framework')]
 class DataAbstractionLayerValidateCommand extends Command
 {
     /**

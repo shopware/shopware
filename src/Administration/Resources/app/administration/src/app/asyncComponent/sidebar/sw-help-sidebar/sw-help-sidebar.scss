@@ -96,7 +96,7 @@
         }
     }
 
-    &__support-item-link.sw-external-link {
+    &__support-item-link.sw-external-link[target="_blank"] {
         display: grid;
         grid-auto-flow: column;
         align-items: center;

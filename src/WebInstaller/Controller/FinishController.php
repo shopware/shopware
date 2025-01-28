@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FinishController extends AbstractController
 {
     #[Route('/finish', name: 'finish', defaults: ['step' => 3])]

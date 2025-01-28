@@ -2,7 +2,7 @@ import ApiService from '../api.service';
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default class RuleConditionsConfigApiService extends ApiService {
     constructor(httpClient, loginService) {

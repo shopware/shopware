@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import DomAccess from 'src/helper/dom-access.helper';

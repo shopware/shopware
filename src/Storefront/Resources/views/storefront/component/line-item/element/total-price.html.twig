@@ -16,9 +16,11 @@
                 {% endif %}
 
                 {% if displayMode === 'order' %}
-                    {{ lineItemTotalPrice|abs|currency(order.currency.isoCode) }}{{ 'general.star'|trans|sw_sanitize }}
+                    {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+                    {{ lineItemTotalPrice|abs|currency(order.currency.isoCode) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
                 {% else %}
-                    {{ lineItemTotalPrice|abs|currency(currency) }}{{ 'general.star'|trans|sw_sanitize }}
+                    {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+                    {{ lineItemTotalPrice|abs|currency(currency) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
                 {% endif %}
             {% endif %}
 
@@ -26,7 +28,8 @@
             {% if referencePrice is not null and displayMode == 'offcanvas' %}
                 <br>
                 <small class="line-item-reference-price">
-                    ({{ referencePrice.price|currency(currency) }}{{ 'general.star'|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }}&nbsp;{{ referencePrice.unitName }})
+                    {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+                    ({{ referencePrice.price|currency(currency) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %} / {{ referencePrice.referenceUnit }}&nbsp;{{ referencePrice.unitName }})
                 </small>
             {% endif %}
         </div>

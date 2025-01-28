@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'plugin:install',
     description: 'Installs a plugin',
 )]
-#[Package('core')]
+#[Package('framework')]
 class PluginInstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'install';

@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class MessageQueueStatsSubscriber implements EventSubscriberInterface
 {
     /**

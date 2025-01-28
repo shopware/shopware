@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 const scheduler = typeof setImmediate === 'function' ? setImmediate : setTimeout;

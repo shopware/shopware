@@ -232,13 +232,15 @@
         </template>
         {% endblock %}
     </sw-data-grid>
-    <div v-if="showDataGrid && !showAllPrices"
-         class="sw-settings-shipping-price-matrix__price-load-all"
+    <div
+        v-if="showDataGrid && !showAllPrices"
+        class="sw-settings-shipping-price-matrix__price-load-all"
     >
-        <sw-button variant="ghost"
-                   size="small"
-                   class="sw-settings-shipping-price-matrix__price-load-all-button"
-                   @click="updateShowAllPrices"
+        <sw-button
+            variant="ghost"
+            size="small"
+            class="sw-settings-shipping-price-matrix__price-load-all-button"
+            @click="updateShowAllPrices"
         >
             {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
         </sw-button>

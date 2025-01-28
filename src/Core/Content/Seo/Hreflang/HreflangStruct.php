@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Seo\Hreflang;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class HreflangStruct extends Struct
 {
     /**

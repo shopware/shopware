@@ -1,7 +1,7 @@
 import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 /**
- * @package admin
+ * @sw-package framework
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 

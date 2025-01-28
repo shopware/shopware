@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @implements Rule<MethodCall>
  */
-#[Package('core')]
+#[Package('framework')]
 class MockingSimpleObjectsNotAllowedRule implements Rule
 {
     private const DISALLOWED_CLASSES = [

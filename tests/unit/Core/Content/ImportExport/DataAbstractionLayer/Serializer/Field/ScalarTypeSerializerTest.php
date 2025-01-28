@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(ScalarTypeSerializer::class)]
 class ScalarTypeSerializerTest extends TestCase
 {

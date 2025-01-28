@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 enum FieldType: string
 {
     public const UUID = 'uuid';

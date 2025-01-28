@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AclValidPermissionsHelper
 {
     private const SCHEMA_FILE = __DIR__ . '/../../../../../Administration/Resources/app/administration/test/_mocks_/entity-schema.json';

@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
  *
  * @implements Rule<StaticCall>
  */
-#[Package('core')]
+#[Package('framework')]
 class NoEnvironmentHelperInsideCompilerPassRule implements Rule
 {
     public function getNodeType(): string

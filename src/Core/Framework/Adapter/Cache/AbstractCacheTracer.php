@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @template TCachedContent
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractCacheTracer
 {
     /**

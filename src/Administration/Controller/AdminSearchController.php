@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
-#[Package('administration')]
+#[Package('framework')]
 class AdminSearchController extends AbstractController
 {
     /**

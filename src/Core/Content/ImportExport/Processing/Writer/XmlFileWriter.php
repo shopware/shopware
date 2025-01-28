@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.7.0 - Will be removed in v6.7.0. as it is not used anymore
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class XmlFileWriter extends AbstractFileWriter
 {
     public function append(Config $config, array $data, int $index): void

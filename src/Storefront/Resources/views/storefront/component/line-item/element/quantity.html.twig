@@ -37,6 +37,7 @@
                         {% block component_line_item_quantity_select_form %}
                             {% set autoSubmitOptions = {
                                 delayChangeEvent: 800,
+                                autoFocus: false,
                             } %}
                             <form action="{{ formAction }}"
                                   class="line-item-quantity-container {% if isDigital %}disabled{% endif %}"

@@ -1,6 +1,6 @@
 /**
  * @experimental stableVersion:v6.7.0 feature:VITE
- * @package admin
+ * @sw-package framework
  */
 
 /** Initializer */

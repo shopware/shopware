@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class MessageQueueEndpointTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

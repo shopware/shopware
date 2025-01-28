@@ -176,12 +176,15 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $statement
             ->method('executeStatement')
-            ->with(['id1', 'id2'])
+            ->with([
+                'firstTagId' => 'id1',
+                'lastTagId' => 'id2',
+            ])
             ->willThrowException($e);
 
         $connection->expects(static::once())
             ->method('prepare')
-            ->with('DELETE FROM invalidation_tags WHERE id BETWEEN ? AND ?')
+            ->with('DELETE FROM invalidation_tags WHERE id BETWEEN :firstTagId AND :lastTagId')
             ->willReturn($statement);
 
         $connection->expects(static::once())

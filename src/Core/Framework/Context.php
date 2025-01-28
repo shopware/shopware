@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
-#[Package('core')]
+#[Package('framework')]
 class Context extends Struct
 {
     use StateAwareTrait;

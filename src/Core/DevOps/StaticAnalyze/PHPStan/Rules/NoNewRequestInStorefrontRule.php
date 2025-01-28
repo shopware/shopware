@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @implements Rule<New_>
  */
-#[Package('core')]
+#[Package('framework')]
 class NoNewRequestInStorefrontRule implements Rule
 {
     private const SHOPWARE_STOREFRONT_CONTROLLER = 'Shopware\\Storefront\\Controller';

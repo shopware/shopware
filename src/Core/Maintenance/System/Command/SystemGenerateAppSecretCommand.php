@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'system:generate-app-secret',
     description: 'Generates a new app secret',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemGenerateAppSecretCommand extends Command
 {
     final public const APP_SECRET_LENGTH = 136;

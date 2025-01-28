@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './page/sw-extension-sdk-module';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

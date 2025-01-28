@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import type { iapCheckout } from '@shopware-ag/meteor-admin-sdk/es/iap';
 import type { Extension } from 'src/app/state/extensions.store';
@@ -18,6 +18,7 @@ export type InAppPurchaseCheckoutState =
           extension: string;
       };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const inAppPurchaseCheckoutStore = Shopware.Store.register({
     id: 'inAppPurchaseCheckout',
 

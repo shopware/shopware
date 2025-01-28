@@ -27,7 +27,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class LandingPageUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

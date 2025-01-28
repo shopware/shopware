@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';

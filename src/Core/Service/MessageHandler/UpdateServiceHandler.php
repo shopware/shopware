@@ -11,7 +11,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[AsMessageHandler]
 final readonly class UpdateServiceHandler
 {

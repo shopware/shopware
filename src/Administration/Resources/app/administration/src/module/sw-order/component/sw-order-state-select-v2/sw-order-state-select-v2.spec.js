@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 describe('src/module/sw-order/component/sw-order-state-select-v2', () => {

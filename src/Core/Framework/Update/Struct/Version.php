@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @phpstan-type VersionFixedVulnerabilities array{severity: string, summary: string, link: string}
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class Version extends Struct
 {
     public string $title = '';

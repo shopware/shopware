@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 
-#[Package('core')]
+#[Package('framework')]
 class InstallContext
 {
     private bool $autoMigrate = true;

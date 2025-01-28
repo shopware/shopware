@@ -10,7 +10,7 @@ use Twig\Source;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptTwigLoader implements LoaderInterface
 {
     public function __construct(private readonly Script $script)

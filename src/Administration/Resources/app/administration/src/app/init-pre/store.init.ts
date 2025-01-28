@@ -3,7 +3,7 @@ import '../store/admin-menu.store';
 import '../store/block-override.store';
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  */
 export default function initStore() {

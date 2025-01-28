@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @template TEntityCollection of EntityCollection
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityResult extends AggregationResult
 {
     /**

@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'sales-channel:create',
     description: 'Creates a new sales channel',
 )]
-#[Package('core')]
+#[Package('discovery')]
 class SalesChannelCreateCommand extends Command
 {
     public function __construct(

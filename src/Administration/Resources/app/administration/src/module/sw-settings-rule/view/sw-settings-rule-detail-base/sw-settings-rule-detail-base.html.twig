@@ -77,7 +77,7 @@
                 {% block sw_settings_rule_detail_base_content_card_field_tags %}
                 <sw-entity-tag-select
                     v-if="rule"
-                    v-model:entityCollection="rule.tags"
+                    v-model:entity-collection="rule.tags"
                     name="sw-field--rule-tags"
                     class="sw-settings-rule-detail__tags-field"
                     :label="$tc('global.sw-tag-field.title')"

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';

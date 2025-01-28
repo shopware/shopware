@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
 {
     /**

@@ -14,7 +14,7 @@ use Shopware\Core\Migration\V6_7\Migration1717573310ImportExportTechnicalNameReq
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(Migration1717573310ImportExportTechnicalNameRequired::class)]
 class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
 {

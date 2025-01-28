@@ -1,7 +1,7 @@
 import template from './sw-order-create-details-header.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;

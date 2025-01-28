@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(NumberOfReviewsRule::class)]
 #[Group('rules')]
 class NumberOfReviewsRuleTest extends TestCase

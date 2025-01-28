@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import FlatTree from 'src/core/helper/flattree.helper';

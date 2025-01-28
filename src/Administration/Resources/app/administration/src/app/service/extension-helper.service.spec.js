@@ -1,7 +1,7 @@
 import ExtensionHelperService from 'src/app/service/extension-helper.service';
 
 /**
- * @package services-settings
+ * @sw-package framework
  */
 describe('src/app/service/extension-helper.service.js', () => {
     /**

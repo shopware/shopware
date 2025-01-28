@@ -2,7 +2,7 @@ import type { Module } from 'vuex';
 import type { uiModulePaymentOverviewCard } from '@shopware-ag/meteor-admin-sdk/es/ui/module/payment/overview-card';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 

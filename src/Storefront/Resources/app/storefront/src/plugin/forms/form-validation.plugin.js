@@ -122,6 +122,7 @@ export default class FormValidation extends Plugin {
     _registerValidationListener(attribute, listener, events) {
         const fields = DomAccess.querySelectorAll(this.el, `[${attribute}]`, false);
         if (fields) {
+            debugger;
             Iterator.iterate(fields, field => {
                 Iterator.iterate(events, event => {
                     field.removeEventListener(event, listener);

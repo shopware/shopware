@@ -3,7 +3,6 @@ import PluginRegistry from 'src/plugin-system/plugin.registry';
 import PluginBaseClass from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import 'src/plugin-system/plugin.config.manager';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * this file handles the plugin functionality of shopware
@@ -404,7 +403,7 @@ class PluginManagerSingleton {
             selector = PluginManagerSingleton._queryElements(selector);
         }
 
-        return Iterator.iterate(selector, el => {
+        return Array.from(selector).forEach(el => {
             PluginManagerSingleton._initializePluginOnElement(el, pluginClass, options, pluginName);
         });
     }

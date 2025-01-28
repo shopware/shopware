@@ -3,6 +3,7 @@ title: Update to doctrine/dbal:4.2
 issue: NEXT-39353
 ---
 # Core
+* Updated `doctrine/dbal` to `^4.2`
 * Removed method `Shopware\Core\Migration\Test\NullConnection::executeUpdate`
 * Removed method `Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException::databasePlatformInvalid`
 * Changed `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery::__construct` and `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery::__construct` to accept `Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder` instead of `Doctrine\DBAL\Query\QueryBuilder`
@@ -85,3 +86,9 @@ StatementHelper::bindParameters($statement, [
 // for select queries use executeQuery, for insert, update, delete queries use executeStatement
 $result = $statement->executeQuery();
 ```
+
+## Transaction savepoints enabled by default
+As [support for nested transactions](https://github.com/doctrine/dbal/blob/4.2.x/UPGRADE.md#bc-break-remove-support-for-transaction-nesting-without-savepoints) without savepoints has been removed, savepoints are now enabled by default.
+Savepoints allow partial rollback within a transaction. This means that if you attempt a rollback within a nested transaction, only the operations inside the current nesting level are rolled back.  Previously, if nested transaction was rolled back, the outer transactions was also rolled back.
+
+Nested transactions are not used in the platform, but this change might affect any custom code that are using them.

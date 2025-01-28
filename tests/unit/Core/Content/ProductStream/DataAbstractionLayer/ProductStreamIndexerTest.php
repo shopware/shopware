@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductStream\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,6 +14,7 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexe
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;

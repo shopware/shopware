@@ -37,7 +37,6 @@ class TwigEnvironment extends Environment
 
         $replaces = [
             'CoreExtension::getAttribute(' => 'SwTwigFunction::getAttribute(',
-            'CoreExtension::callMacro(' => 'SwTwigFunction::callMacro(',
             'twig_escape_filter(' => 'SwTwigFunction::escapeFilter(',
             'use Twig\Environment;' => "use Twig\Environment;\nuse Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;",
         ];

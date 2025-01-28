@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
+use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 use Twig\Template;
 
@@ -17,7 +18,7 @@ use Twig\Template;
  * @internal
  */
 #[CoversClass('Shopware\Core\Framework\Adapter\Twig\SwTwigFunction')]
-class SwGetAttributeTest extends TestCase
+class SwTwigFunctionTest extends TestCase
 {
     private MockObject&Environment $environmentMock;
 
@@ -94,6 +95,56 @@ class SwGetAttributeTest extends TestCase
         );
 
         static::assertTrue($result);
+    }
+
+    public function testEscapeFilterWithNullInput(): void
+    {
+        $env = $this->environmentMock;
+        $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
+        $result = SwTwigFunction::escapeFilter($env, null, 'html', 'UTF-8');
+
+        static::assertEquals('', $result);
+    }
+
+    public function testEscapeFilterWithIntegerInput(): void
+    {
+        $env = $this->environmentMock;
+        $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
+        $result = SwTwigFunction::escapeFilter($env, 123, 'html', 'UTF-8');
+
+        static::assertEquals('123', $result);
+    }
+
+    public function testEscapeFilterWithStringInput(): void
+    {
+        $env = $this->environmentMock;
+        $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
+        $result = SwTwigFunction::escapeFilter($env, 'test', 'html', 'UTF-8');
+
+        static::assertEquals('test', $result);
+    }
+
+    public function testEscapeFilterReallyEscapeString(): void
+    {
+        $env = $this->environmentMock;
+        $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
+        $result = SwTwigFunction::escapeFilter($env, '<script>alert("test")</script>', 'html', 'UTF-8');
+
+        static::assertEquals('&lt;script&gt;alert(&quot;test&quot;)&lt;/script&gt;', $result);
+    }
+
+    public function testEscapeFilterWithCachedStringInput(): void
+    {
+        $env = $this->environmentMock;
+        $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
+
+        // First call to cache the result
+        SwTwigFunction::escapeFilter($env, 'cached_string', 'html', 'UTF-8');
+
+        // Second call to get the cached result
+        $result = SwTwigFunction::escapeFilter($env, 'cached_string', 'html', 'UTF-8');
+
+        static::assertEquals('cached_string', $result);
     }
 }
 

@@ -1,8 +1,8 @@
 diff --git a/node_modules/vue-eslint-parser/index.js b/node_modules/vue-eslint-parser/index.js
-index d5f225f..39d5b6c 100644
+index ead6e60..76095f0 100644
 --- a/node_modules/vue-eslint-parser/index.js
 +++ b/node_modules/vue-eslint-parser/index.js
-@@ -297,7 +297,7 @@ function isSFCFile(parserOptions) {
+@@ -308,7 +308,7 @@ function isSFCFile(parserOptions) {
      if (parserOptions.filePath === "<input>") {
          return true;
      }
@@ -11,7 +11,7 @@ index d5f225f..39d5b6c 100644
  }
  function getScriptParser(parser, getParserLang) {
      if (isParserObject(parser)) {
-@@ -2163,6 +2163,7 @@ class IntermediateTokenizer {
+@@ -2283,6 +2283,7 @@ class IntermediateTokenizer {
          this.expressionTokens = [];
          this.tokens = [];
          this.comments = [];
@@ -19,10 +19,11 @@ index d5f225f..39d5b6c 100644
      }
      get text() {
          return this.tokenizer.text;
-@@ -2241,6 +2242,13 @@ class IntermediateTokenizer {
+@@ -2361,6 +2362,15 @@ class IntermediateTokenizer {
          }
          return null;
      }
++
 +    processTwigExpression(token) {
 +        this.twigExpressions.push(token);
 +        if (this.currentToken != null && this.currentToken.type === "Text") {
@@ -30,20 +31,23 @@ index d5f225f..39d5b6c 100644
 +        }
 +        return null;
 +    }
++
      processText(token) {
          this.tokens.push(token);
          let result = null;
-@@ -2294,6 +2302,9 @@ class IntermediateTokenizer {
+@@ -2414,6 +2424,11 @@ class IntermediateTokenizer {
      HTMLComment(token) {
          return this.processComment(token);
      }
++
 +    TwigExpression(token) {
 +        return this.processTwigExpression(token);
 +    }
++
      HTMLEndTagOpen(token) {
          this.tokens.push(token);
          let result = null;
-@@ -2539,6 +2550,7 @@ class Parser {
+@@ -2659,6 +2674,7 @@ class Parser {
              children: [],
              tokens: this.tokens,
              comments: this.comments,
@@ -51,17 +55,19 @@ index d5f225f..39d5b6c 100644
              errors: this.errors,
          };
          this.elementStack = [];
-@@ -2554,6 +2566,9 @@ class Parser {
+@@ -2674,6 +2690,11 @@ class Parser {
      get comments() {
          return this.tokenizer.comments;
      }
++
 +    get twigExpressions() {
 +        return this.tokenizer.twigExpressions;
 +    }
++
      get errors() {
          return this.tokenizer.errors;
      }
-@@ -2910,6 +2925,7 @@ const SPACE = 0x20;
+@@ -3030,6 +3051,7 @@ const SPACE = 0x20;
  const EXCLAMATION_MARK = 0x21;
  const QUOTATION_MARK = 0x22;
  const NUMBER_SIGN = 0x23;
@@ -69,7 +75,7 @@ index d5f225f..39d5b6c 100644
  const AMPERSAND = 0x26;
  const APOSTROPHE = 0x27;
  const LEFT_PARENTHESIS = 0x28;
-@@ -3232,6 +3248,11 @@ class Tokenizer {
+@@ -3352,6 +3374,11 @@ class Tokenizer {
                  this.setStartTokenMark();
                  return "TAG_OPEN";
              }
@@ -81,7 +87,7 @@ index d5f225f..39d5b6c 100644
              if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled) {
                  this.setStartTokenMark();
                  this.returnState = "DATA";
-@@ -3512,6 +3533,11 @@ class Tokenizer {
+@@ -3632,6 +3659,11 @@ class Tokenizer {
              this.appendTokenValue(cp, "HTMLIdentifier");
              return "ATTRIBUTE_NAME";
          }
@@ -93,7 +99,7 @@ index d5f225f..39d5b6c 100644
          this.startToken("HTMLIdentifier");
          return this.reconsumeAs("ATTRIBUTE_NAME");
      }
-@@ -3561,6 +3587,11 @@ class Tokenizer {
+@@ -3681,6 +3713,11 @@ class Tokenizer {
              this.reportParseError("eof-in-tag");
              return "DATA";
          }
@@ -105,7 +111,7 @@ index d5f225f..39d5b6c 100644
          this.startToken("HTMLIdentifier");
          return this.reconsumeAs("ATTRIBUTE_NAME");
      }
-@@ -4119,6 +4150,24 @@ class Tokenizer {
+@@ -4239,6 +4276,24 @@ class Tokenizer {
          this.appendTokenValue(RIGHT_CURLY_BRACKET, null);
          return this.reconsumeAs(this.returnState);
      }

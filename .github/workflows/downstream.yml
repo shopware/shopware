@@ -1,6 +1,7 @@
 name: Downstream
 
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       nightly:
@@ -19,29 +20,48 @@ jobs:
   rufus:
     name: Rufus
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' }}
+    if: ${{ !github.event.pull_request }}
     steps:
       - name: Rufus
         uses: shopware/github-actions/downstream@main
         with:
           repo: shopware/rufus
           workflow: Downstream
-          ref: trunk
-          timeout: 15m
+          ref: .auto
+          timeout: 30m
+          token-scope: shopware
+          identity: ShopwareDownstream
           env:
             NIGHTLY=${{ inputs.nightly }}
   
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' }}
+    if: ${{ !github.event.pull_request }}
     steps:
       - name: Commercial
         uses: shopware/github-actions/downstream@main
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream
-          ref: trunk
-          timeout: 20m
+          ref: .auto
+          timeout: 40m
+          token-scope: shopware
+          identity: ShopwareDownstream
           env:
             NIGHTLY=${{ inputs.nightly }}
+
+  downstream-check:
+    if: always()
+    needs:
+    - rufus
+    - commercial
+
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        # allowed-failures: docs, linters
+        allowed-skips: rufus, commercial
+        jobs: ${{ toJSON(needs) }}

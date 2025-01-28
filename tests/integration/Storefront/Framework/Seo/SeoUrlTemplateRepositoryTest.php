@@ -5,8 +5,8 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Seo;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
-use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -36,7 +36,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<SeoUrlTemplateCollection> $repo */
         $repo = static::getContainer()->get('seo_url_template.repository');
         $events = $repo->create([$template], $context);
         static::assertNotNull($events->getEvents());
@@ -54,7 +54,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
     public function testUpdate(string $id, array $template): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<SeoUrlTemplateCollection> $repo */
         $repo = static::getContainer()->get('seo_url_template.repository');
         $repo->create([$template], $context);
 
@@ -67,8 +67,8 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         static::assertNotNull($event);
         static::assertCount(1, $event->getPayloads());
 
-        /** @var SeoUrlTemplateEntity $first */
-        $first = $repo->search(new Criteria([$id]), $context)->first();
+        $first = $repo->search(new Criteria([$id]), $context)->getEntities()->first();
+        static::assertNotNull($first);
         static::assertEquals($update['id'], $first->getId());
         static::assertEquals($update['routeName'], $first->getRouteName());
     }
@@ -85,7 +85,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<SeoUrlTemplateCollection> $repo */
         $repo = static::getContainer()->get('seo_url_template.repository');
         $repo->create([$template], $context);
 
@@ -94,8 +94,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         static::assertNotNull($event);
         static::assertEquals([$id], $event->getIds());
 
-        /** @var SeoUrlTemplateEntity|null $first */
-        $first = $repo->search(new Criteria([$id]), $context)->first();
+        $first = $repo->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertNull($first);
     }
 

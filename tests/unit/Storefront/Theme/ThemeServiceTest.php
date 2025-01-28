@@ -11,6 +11,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -47,8 +49,10 @@ class ThemeServiceTest extends TestCase
 
     private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
 
+    /** @var EntityRepository<ThemeCollection>&MockObject */
     private EntityRepository&MockObject $themeRepositoryMock;
 
+    /** @var EntityRepository<EntityCollection<Entity>>&MockObject */
     private EntityRepository&MockObject $themeSalesChannelRepositoryMock;
 
     private ThemeCompiler&MockObject $themeCompilerMock;
@@ -286,16 +290,7 @@ class ThemeServiceTest extends TestCase
             new EntitySearchResult(
                 'theme',
                 1,
-                new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                '_uniqueIdentifier' => 'no',
-                                'salesChannels' => new SalesChannelCollection(),
-                            ]
-                        ),
-                    ]
-                ),
+                new ThemeCollection([]),
                 null,
                 new Criteria(),
                 $this->context
@@ -474,16 +469,7 @@ class ThemeServiceTest extends TestCase
             new EntitySearchResult(
                 'theme',
                 1,
-                new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                '_uniqueIdentifier' => 'no',
-                                'salesChannels' => new SalesChannelCollection(),
-                            ]
-                        ),
-                    ]
-                ),
+                new ThemeCollection([]),
                 null,
                 new Criteria(),
                 $this->context

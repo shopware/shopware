@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Theme;
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -36,6 +38,7 @@ class ThemeService implements ResetInterface
      * @internal
      *
      * @param EntityRepository<ThemeCollection> $themeRepository
+     * @param EntityRepository<EntityCollection<Entity>> $themeSalesChannelRepository
      */
     public function __construct(
         private readonly StorefrontPluginRegistryInterface $extensionRegistry,
@@ -110,11 +113,11 @@ class ThemeService implements ResetInterface
      */
     public function updateTheme(string $themeId, ?array $config, ?string $parentThemeId, Context $context): void
     {
-        $criteria = new Criteria([$themeId]);
-        $criteria->addAssociation('salesChannels');
-        $theme = $this->themeRepository->search($criteria, $context)->getEntities()->get($themeId);
+        $criteria = (new Criteria([$themeId]))
+            ->addAssociation('salesChannels');
 
-        if ($theme === null) {
+        $theme = $this->themeRepository->search($criteria, $context)->getEntities()->first();
+        if (!$theme) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 
@@ -172,9 +175,7 @@ class ThemeService implements ResetInterface
 
     public function resetTheme(string $themeId, Context $context): void
     {
-        $criteria = new Criteria([$themeId]);
-        $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
-
+        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->first();
         if (!$theme) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
@@ -196,14 +197,13 @@ class ThemeService implements ResetInterface
      */
     public function getThemeConfiguration(string $themeId, bool $translate, Context $context): array
     {
-        $criteria = new Criteria();
-        $criteria->setTitle('theme-service::load-config');
+        $criteria = (new Criteria())
+            ->setTitle('theme-service::load-config');
 
         $themes = $this->themeRepository->search($criteria, $context)->getEntities();
 
         $theme = $themes->get($themeId);
-
-        if ($theme === null) {
+        if (!$theme) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 
@@ -583,16 +583,16 @@ class ThemeService implements ResetInterface
      */
     private function getTranslations(string $themeId, Context $context): array
     {
-        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->get($themeId);
-        if ($theme === null) {
+        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->first();
+        if (!$theme) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $translations = $theme->getLabels() ?: [];
 
         if ($theme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
-            $criteria = new Criteria();
-            $criteria->setTitle('theme-service::load-translations');
+            $criteria = (new Criteria())
+                ->setTitle('theme-service::load-translations');
 
             $themes = $this->themeRepository->search($criteria, $context)->getEntities();
             foreach ($this->getParentThemes($themes, $theme) as $parentTheme) {

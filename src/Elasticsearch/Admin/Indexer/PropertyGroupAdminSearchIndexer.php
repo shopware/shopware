@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
@@ -19,6 +20,8 @@ final class PropertyGroupAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PropertyGroupCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,

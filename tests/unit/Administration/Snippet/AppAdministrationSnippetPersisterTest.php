@@ -269,6 +269,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
      * @param array<int, array<string, string>> $snippetsFromApp
      * @param array<int, array<string, string>> $newSnippets
      * @param array<int, array<string, string>> $deletesSnippetIds
+     *
+     * @return EntityRepository<AppAdministrationSnippetCollection>
      */
     private function getAppAdministrationSnippetRepository(array $snippetsFromApp = [], array $newSnippets = [], array $deletesSnippetIds = [], bool $updatedSnippets = false): EntityRepository
     {
@@ -322,6 +324,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
 
     /**
      * @param array<int, array{id: string, code: string}> $locales
+     *
+     * @return EntityRepository<LocaleCollection>
      */
     private function getLocaleRepository(array $locales = []): EntityRepository
     {

@@ -13,6 +13,7 @@ use Twig\Node\MacroNode;
 #[YieldReady]
 /**
  * @internal
+ *
  * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
  */
 class MacroOverrideNode extends MacroNode

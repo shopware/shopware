@@ -3150,6 +3150,7 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
 
         it('should have correct previousState types for the overrideComponentSetup', () => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const _InternalTestComponent = defineComponent({
                 template: `
                     <div class="base">Base: {{ baseValue }}</div>
@@ -3267,6 +3268,7 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
 
         it('should have correct props types for the overrideComponentSetup', () => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const originalComponent = defineComponent({
                 template: `
                     <div>Hello World</div>
@@ -3330,6 +3332,7 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
 
         it('should have correct context types for the overrideComponentSetup', () => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const originalComponent = defineComponent({
                 template: `
                     <div>Hello World</div>

@@ -3,7 +3,7 @@ title: Update to doctrine/dbal:4.2
 issue: NEXT-39353
 ---
 # Core
-* Updated `doctrine/dbal` to `^4.2`
+* Changed composer dependency version of `doctrine/dbal` from `^3.9` to `^4.2`
 * Removed method `Shopware\Core\Migration\Test\NullConnection::executeUpdate`
 * Removed method `Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException::databasePlatformInvalid`
 * Changed `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery::__construct` and `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery::__construct` to accept `Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder` instead of `Doctrine\DBAL\Query\QueryBuilder`

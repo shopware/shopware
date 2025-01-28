@@ -1,17 +1,17 @@
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-preview-category-navigation', () => import('./preview'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-block-category-navigation', () => import('./component'));
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'category-navigation',

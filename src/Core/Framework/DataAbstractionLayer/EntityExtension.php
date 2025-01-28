@@ -40,6 +40,7 @@ abstract class EntityExtension
 
     /**
      * @deprecated tag:v6.7.0 - reason:visibility-change - Becomes abstract
+     *
      * @abstract
      */
     public function getEntityName(): string

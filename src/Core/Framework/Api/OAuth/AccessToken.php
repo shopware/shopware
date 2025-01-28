@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AccessToken implements AccessTokenEntityInterface
 {
-    private FakeCryptKey $privateKey;
-
     use AccessTokenTrait;
     use EntityTrait;
     use RefreshTokenTrait;
@@ -81,6 +79,11 @@ class AccessToken implements AccessTokenEntityInterface
 
     public function initJwtConfiguration(): void
     {
+        if (!$this->privateKey instanceof FakeCryptKey) {
+            $jwtConfig = JWTConfigurationFactory::createJWTConfiguration();
+            $this->privateKey = new FakeCryptKey($jwtConfig);
+        }
+
         $this->jwtConfiguration = $this->privateKey->configuration;
     }
 }

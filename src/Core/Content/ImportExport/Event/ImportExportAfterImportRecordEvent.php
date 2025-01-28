@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed with no replacement
+ */
 #[Package('fundamentals@after-sales')]
 class ImportExportAfterImportRecordEvent extends Event
 {

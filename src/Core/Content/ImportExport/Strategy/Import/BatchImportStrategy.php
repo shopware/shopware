@@ -75,6 +75,7 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
                 $result = $this->repository->upsert($records, $context);
             }
 
+            // @deprecated tag:v6.7.0 - remove the whole loop with no replacement
             foreach ($this->toImport as $data) {
                 $afterRecord = new ImportExportAfterImportRecordEvent($result, $data['record'], $data['original'], $config, $context);
                 $this->eventDispatcher->dispatch($afterRecord);

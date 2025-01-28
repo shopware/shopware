@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Message;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterProcessFinishedEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportException;
@@ -77,6 +78,11 @@ final class ImportExportHandler
             );
 
             $this->messageBus->dispatch($nextMessage);
+        }
+
+        if ($logEntity->getState() !== Progress::STATE_PROGRESS && $progress->isFinished()) {
+            $event = new ImportExportAfterProcessFinishedEvent($context, $logEntity, $progress);
+            $this->eventDispatcher->dispatch($event);
         }
     }
 }

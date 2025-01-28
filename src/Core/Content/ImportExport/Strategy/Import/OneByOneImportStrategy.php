@@ -49,6 +49,7 @@ class OneByOneImportStrategy implements ImportStrategyService
                 $result = $this->repository->upsert([$record], $context);
             }
 
+            // @deprecated tag:v6.7.0 - remove this event with no replacement
             $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);
             $this->eventDispatcher->dispatch($afterRecord);
 

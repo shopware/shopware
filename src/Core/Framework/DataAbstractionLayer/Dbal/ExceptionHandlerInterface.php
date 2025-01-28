@@ -15,5 +15,10 @@ interface ExceptionHandlerInterface
 
     public function getPriority(): int;
 
+    /**
+     * @deprecated tag:v6.7.0 - in v6.7.0 return type will be changed to null|\Throwable
+     *
+     * @param \Exception $e - @deprecated tag:v6.7.0 - in v6.7.0 parameter type will be changed to \Throwable
+     */
     public function matchException(\Exception $e): ?\Exception;
 }

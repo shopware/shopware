@@ -1,6 +1,6 @@
-{% macro arrayCase() %}
+{% sw_macro_function arrayCase() %}
     {% return [1, 2] %}
-{% endmacro %}
+{% end_sw_macro_function %}
 
 {% set foo = _self.arrayCase() %}
 

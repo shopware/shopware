@@ -39,6 +39,15 @@ class DocumentException extends HttpException
 
     public static function invalidDocumentGeneratorType(string $type): self
     {
+        if (Feature::isActive('v6.7.0.0')) {
+            return new self(
+                Response::HTTP_BAD_REQUEST,
+                self::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,
+                'Unable to find a document generator with type "{{ type }}"',
+                ['type' => $type]
+            );
+        }
+
         return new InvalidDocumentGeneratorTypeException(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,

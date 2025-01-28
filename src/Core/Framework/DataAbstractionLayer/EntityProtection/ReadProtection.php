@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * Read protection is currently experimental, as it is not guaranteed that the right scope is consistently
  * This can lead to unexpected side effects
  */
-#[Package('core')]
+#[Package('framework')]
 class ReadProtection extends EntityProtection
 {
     final public const PROTECTION = 'read_protection';

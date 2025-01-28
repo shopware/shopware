@@ -16,7 +16,7 @@ use Symfony\Contracts\Service\ServiceLocatorTrait;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(RedisConnectionProvider::class)]
 class RedisConnectionProviderTest extends TestCase
 {

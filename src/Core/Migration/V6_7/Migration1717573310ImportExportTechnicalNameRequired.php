@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class Migration1717573310ImportExportTechnicalNameRequired extends MigrationStep
 {
     public function getCreationTimestamp(): int

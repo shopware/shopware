@@ -17,7 +17,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class InternalMethodRule implements Rule
 {
     public function __construct(private readonly ServiceMap $serviceMap)

@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 final class DocumentRendererConfig
 {
     public string $deepLinkCode = '';

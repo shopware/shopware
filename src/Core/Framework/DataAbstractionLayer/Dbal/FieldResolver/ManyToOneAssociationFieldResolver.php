@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 {
     public function __construct(

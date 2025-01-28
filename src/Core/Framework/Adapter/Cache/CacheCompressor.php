@@ -8,7 +8,7 @@ use Symfony\Component\Cache\CacheItem;
 /**
  * @template TCachedContent
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheCompressor
 {
     /**

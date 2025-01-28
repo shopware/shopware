@@ -15,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * You can use this event to capture state and perform actions and sync data after an entity is written. It could be used for example, to synchronize images to a CDN when they are written, updated or deleted. This event is useful when you need the before state of the entity. For example, the old filename.
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityWriteEvent extends Event implements ShopwareEvent
 {
     /**

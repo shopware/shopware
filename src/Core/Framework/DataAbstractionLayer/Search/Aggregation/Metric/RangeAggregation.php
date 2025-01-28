@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *    the "from" will be compared with greater than or equal
  *    the "to" will be compared with lower than
  */
-#[Package('core')]
+#[Package('framework')]
 final class RangeAggregation extends Aggregation
 {
     /**

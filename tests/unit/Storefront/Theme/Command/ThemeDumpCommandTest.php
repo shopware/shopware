@@ -24,7 +24,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 #[CoversClass(ThemeDumpCommand::class)]
 class ThemeDumpCommandTest extends TestCase
 {
@@ -59,6 +59,38 @@ class ThemeDumpCommandTest extends TestCase
         $application->add($command);
 
         $this->commandTester = new CommandTester($command);
+    }
+
+    public function testExecutesSuccessfullyWithValidThemeName(): void
+    {
+        $themeEntity = new ThemeEntity();
+        $themeEntity->setId('theme-id');
+        $themeEntity->setTechnicalName('technical-name');
+        $themeEntity->setName('Theme Name');
+
+        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult->method('count')->willReturn(1);
+        $searchResult->method('first')->willReturn($themeEntity);
+
+        $this->themeRepository->method('search')->willReturn($searchResult);
+
+        $this->pluginRegistry->method('getConfigurations')->willReturn(
+            new StorefrontPluginConfigurationCollection([
+                new StorefrontPluginConfiguration('technical-name'),
+            ])
+        );
+
+        $this->themeFileResolver->method('resolveFiles')->willReturn(['resolved' => 'files']);
+        $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(
+            new Filesystem('')
+        );
+
+        $this->commandTester->execute(
+            ['domain-url' => 'http://example.com'],
+            ['theme-name' => 'technical-name']
+        );
+
+        static::assertEquals(Command::SUCCESS, $this->commandTester->getStatusCode());
     }
 
     public function testExecutesSuccessfullyWithValidThemeId(): void

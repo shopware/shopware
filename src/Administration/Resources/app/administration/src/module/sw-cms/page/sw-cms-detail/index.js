@@ -13,7 +13,7 @@ const debounceTimeout = 800;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,

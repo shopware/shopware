@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RepositoryFacadeHookFactory extends HookServiceFactory
 {
     /**

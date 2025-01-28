@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 interface WriteBatchInterface
 {
     public function writeBatch(CopyBatchInput ...$files): void;

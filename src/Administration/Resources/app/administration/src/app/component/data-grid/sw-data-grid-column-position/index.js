@@ -4,7 +4,7 @@ import './sw-data-grid-column-position.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

@@ -31,7 +31,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityForeignKeyResolver
 {
     /**

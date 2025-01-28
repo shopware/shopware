@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class AppNameValidator extends AbstractManifestValidator
 {
     public function validate(Manifest $manifest, ?Context $context): ErrorCollection

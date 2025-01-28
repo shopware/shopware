@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @see \Shopware\Tests\Integration\Core\Framework\Api\EventListener\SalesChannelAuthenticationListenerTest
  */
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;

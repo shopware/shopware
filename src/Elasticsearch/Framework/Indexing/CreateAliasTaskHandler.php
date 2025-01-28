@@ -20,7 +20,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @final
  */
 #[AsMessageHandler(handles: CreateAliasTask::class)]
-#[Package('core')]
+#[Package('framework')]
 class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
     /**

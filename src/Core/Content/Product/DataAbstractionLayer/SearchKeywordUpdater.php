@@ -32,7 +32,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @phpstan-type ConfigField array{field: string, tokenize: '1'|'0', ranking: numeric-string, language_id: string}
  */
-#[Package('core')]
+#[Package('framework')]
 class SearchKeywordUpdater implements ResetInterface
 {
     /**

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('inventory')]
+#[Package('after-sales')]
 class ProductReviewRouteResponse extends StoreApiResponse
 {
     /**

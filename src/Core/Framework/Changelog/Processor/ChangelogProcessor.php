@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
-#[Package('core')]
+#[Package('framework')]
 class ChangelogProcessor
 {
     private ?string $platformRoot = null;

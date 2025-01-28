@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 /**
  * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string, active?: bool, static?: bool}
  */
-#[Package('core')]
+#[Package('framework')]
 class Feature
 {
     final public const ALL_MAJOR = 'major';

@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityLoadedEventFactory
 {
     public function __construct(private readonly DefinitionInstanceRegistry $registry)

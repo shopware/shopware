@@ -5,7 +5,7 @@ import './sw-cms-list-item.scss';
 const { Filter } = Shopware;
 
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -25,7 +25,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         page: {
-            type: Object as PropType<EntitySchema.Entity<'cms_page'>>,
+            type: Object as PropType<Entity<'cms_page'>>,
             required: false,
             default: null,
         },
@@ -108,7 +108,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        onChangePreviewImage(page: EntitySchema.Entity<'cms_page'>) {
+        onChangePreviewImage(page: Entity<'cms_page'>) {
             this.$emit('preview-image-change', page);
         },
 
@@ -122,7 +122,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('element-click', this.page);
         },
 
-        onItemClick(page: EntitySchema.Entity<'cms_page'>) {
+        onItemClick(page: Entity<'cms_page'>) {
             if (this.disabled) {
                 return;
             }
@@ -131,7 +131,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /** @deprecated tag:v6.7.0 - `onRemovePreviewImage` will be removed without replacement */
-        onRemovePreviewImage(page: EntitySchema.Entity<'cms_page'>) {
+        onRemovePreviewImage(page: Entity<'cms_page'>) {
             page.previewMediaId = undefined;
             // eslint-disable-next-line max-len
             // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
@@ -139,7 +139,7 @@ export default Shopware.Component.wrapComponentConfig({
             page.previewMedia = undefined;
         },
 
-        onDelete(page: EntitySchema.Entity<'cms_page'>) {
+        onDelete(page: Entity<'cms_page'>) {
             this.$emit('cms-page-delete', page);
         },
     },

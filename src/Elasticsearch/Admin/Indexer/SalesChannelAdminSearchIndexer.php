@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**

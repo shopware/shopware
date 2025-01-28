@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(SetOrderStateAction::class)]
 class SetOrderStateActionTest extends TestCase
 {

@@ -12,7 +12,7 @@ use Shopware\Core\Kernel;
  *
  * @template KernelClass of Kernel
  */
-#[Package('core')]
+#[Package('framework')]
 trait CustomKernelTestBehavior
 {
     /**

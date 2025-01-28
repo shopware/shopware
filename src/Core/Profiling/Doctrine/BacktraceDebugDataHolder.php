@@ -18,7 +18,7 @@ use function array_slice;
  *     backtrace?: Backtrace
  * }
  */
-#[Package('core')]
+#[Package('framework')]
 class BacktraceDebugDataHolder extends DebugDataHolder
 {
     /**

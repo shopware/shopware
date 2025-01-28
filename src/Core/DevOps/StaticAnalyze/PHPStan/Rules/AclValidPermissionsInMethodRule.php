@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements Rule<Node>
  */
-#[Package('core')]
+#[Package('framework')]
 class AclValidPermissionsInMethodRule implements Rule
 {
     private const ERROR_MESSAGE = 'Permission "%s" is not a valid backend ACL key. If it\'s an entity based permission, please check if entity is listed in the entity-schema.json. If it\'s a custom permissions, please check if it should be added to the allowlist.';

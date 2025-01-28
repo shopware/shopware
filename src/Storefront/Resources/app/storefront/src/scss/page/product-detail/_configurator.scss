@@ -1,77 +1,112 @@
-.product-detail-configurator-group {
-    margin-bottom: $spacer-md;
-}
+// @deprecated tag:v6.7.0 - Custom styling for product-detail-configurator-group-* classes is deprecated. Will use Bootstrap btn-check component and helper classes instead.
+@if feature('ACCESSIBILITY_TWEAKS') {
+    .product-detail-configurator-option-label {
+        --#{$prefix}btn-font-weight: #{$font-weight-normal};
+        --#{$prefix}btn-border-color: #{$border-color};
+        --#{$prefix}btn-color: #{$body-color};
+        --#{$prefix}btn-padding-y: 0.125rem;
+        --#{$prefix}btn-line-height: 1.625rem;
+        --#{$prefix}btn-active-bg: #{$white};
+        --#{$prefix}btn-active-color: #{$body-color};
+        --#{$prefix}btn-active-border-color: #{$primary};
+        --#{$prefix}btn-disabled-border-color: #{$gray-600};
+        --#{$prefix}btn-disabled-color: #{$body-color};
+        --#{$prefix}btn-disabled-opacity: 0.65;
 
-.product-detail-configurator-group-title {
-    font-weight: $font-weight-bold;
-    margin-bottom: $spacer-sm;
-}
+        &.disabled {
+            pointer-events: auto;
+            text-decoration: line-through;
+        }
 
-.product-detail-configurator-options {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-}
+        &.is-display-color,
+        &.is-display-media {
+            --#{$prefix}btn-padding-x: 0.125rem;
+            background-clip: content-box;
+            min-width: 3.75rem;
+            height: 3.75rem;
+        }
+    }
 
-.product-detail-configurator-option {
-    display: inline-flex;
-    margin-right: $spacer-sm;
-}
+    .btn-check:checked + .product-detail-configurator-option-label {
+        --#{$prefix}btn-border-width: 2px;
+    }
+} @else {
+    .product-detail-configurator-group {
+        margin-bottom: $spacer-md;
+    }
 
-.product-detail-configurator-option-input {
-    @include visually-hidden();
-
-    + .product-detail-configurator-option-label {
-        align-items: center;
-        cursor: pointer;
-        border: 1px solid $dark;
-        border-radius: $border-radius;
-        box-shadow: inset 3px 3px 0 $white, inset -3px -3px 0 $white;
-        background-color: $white;
-        display: inline-flex;
-        justify-content: center;
-        height: 60px;
-        min-width: 60px;
-        opacity: 0.35;
-        padding: 3px;
+    .product-detail-configurator-group-title {
+        font-weight: $font-weight-bold;
+        font-size: $font-size-base;
         margin-bottom: $spacer-sm;
-        transition: border-color 0.45s cubic-bezier(0.3, 0, 0.15, 1), background-color 0.45s cubic-bezier(0.3, 0, 0.15, 1);
+    }
 
-        &.is-display-text {
-            box-shadow: none;
-            height: auto;
-            padding: 5px 10px;
+    .product-detail-configurator-options {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
+
+    .product-detail-configurator-option {
+        display: inline-flex;
+        margin-right: $spacer-sm;
+    }
+
+    .product-detail-configurator-option-input {
+        @include visually-hidden();
+
+        + .product-detail-configurator-option-label {
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid $dark;
+            border-radius: $border-radius;
+            box-shadow: inset 3px 3px 0 $white, inset -3px -3px 0 $white;
+            background-color: $white;
+            display: inline-flex;
+            justify-content: center;
+            height: 60px;
+            min-width: 60px;
+            opacity: 0.35;
+            padding: 3px;
+            margin-bottom: $spacer-sm;
+            transition: border-color 0.45s cubic-bezier(0.3, 0, 0.15, 1), background-color 0.45s cubic-bezier(0.3, 0, 0.15, 1);
+
+            &.is-display-text {
+                box-shadow: none;
+                height: auto;
+                padding: 5px 10px;
+            }
         }
-    }
 
-    &:focus-visible + .product-detail-configurator-option-label {
-        box-shadow: $input-btn-focus-box-shadow;
-    }
-
-    &.is-combinable + .product-detail-configurator-option-label {
-        opacity: 1;
-        border: 1px solid $border-color;
-    }
-
-    &:checked + .product-detail-configurator-option-label {
-        border: 1px solid $primary;
-
-        &.is-display-text {
-            background-color: $primary;
-            color: $white;
+        &:focus-visible + .product-detail-configurator-option-label {
+            box-shadow: $input-btn-focus-box-shadow;
         }
-    }
 
-    &.is-combinable + .product-detail-configurator-option-label,
-    + .product-detail-configurator-option-label {
-        &:hover,
-        &:active,
-        &:focus {
+        &.is-combinable + .product-detail-configurator-option-label {
+            opacity: 1;
+            border: 1px solid $border-color;
+        }
+
+        &:checked + .product-detail-configurator-option-label {
             border: 1px solid $primary;
+
+            &.is-display-text {
+                background-color: $primary;
+                color: $white;
+            }
+        }
+
+        &.is-combinable + .product-detail-configurator-option-label,
+        + .product-detail-configurator-option-label {
+            &:hover,
+            &:active,
+            &:focus {
+                border: 1px solid $primary;
+            }
         }
     }
-}
 
-.product-detail-configurator-option-image {
-    height: 100%;
+    .product-detail-configurator-option-image {
+        height: 100%;
+    }
 }

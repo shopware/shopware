@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './sw-text-preview.scss';
 import template from './sw-text-preview.html.twig';
 

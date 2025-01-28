@@ -1,4 +1,5 @@
 import OffCanvasMenuPlugin from 'src/plugin/main-menu/offcanvas-menu.plugin';
+import Feature from 'src/helper/feature.helper.js';
 
 jest.mock('src/service/http-client.service', () => {
     const offCanvasMenuSubCategory = `
@@ -76,6 +77,9 @@ describe('OffCanvasMenuPlugin tests', () => {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
         };
+
+        /** @deprecated tag:v6.7.0 - Feature flag mock will be removed. */
+        window.Feature = Feature;
 
         plugin = new OffCanvasMenuPlugin(el);
 

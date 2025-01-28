@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-multi-select-filter.html.twig';
 
 const { Component } = Shopware;

@@ -4,7 +4,7 @@ import './sw-media-base-item.scss';
 /**
  * @status ready
  * @description The <u>sw-media-base-item</u> component is the base for items in the media manager.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-base-item
@@ -135,7 +135,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         isSpatial() {
             // we need to check the media url since media.fileExtension is set directly after upload

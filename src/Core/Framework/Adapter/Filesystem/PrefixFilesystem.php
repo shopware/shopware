@@ -9,7 +9,7 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class PrefixFilesystem implements FilesystemOperator
 {
     private readonly string $prefix;

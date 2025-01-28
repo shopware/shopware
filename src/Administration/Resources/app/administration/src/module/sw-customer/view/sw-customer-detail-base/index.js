@@ -1,7 +1,7 @@
 import template from './sw-customer-detail-base.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;

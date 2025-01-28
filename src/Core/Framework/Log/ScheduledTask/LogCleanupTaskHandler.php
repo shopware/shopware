@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler(handles: LogCleanupTask::class)]
-#[Package('core')]
+#[Package('framework')]
 final class LogCleanupTaskHandler extends ScheduledTaskHandler
 {
     /**

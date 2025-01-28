@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('core')]
+#[Package('discovery')]
 class MediaRouteResponse extends StoreApiResponse
 {
     /**

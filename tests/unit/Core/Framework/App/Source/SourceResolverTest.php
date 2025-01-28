@@ -23,7 +23,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(SourceResolver::class)]
 class SourceResolverTest extends TestCase
 {
@@ -269,7 +269,7 @@ class SourceResolverTest extends TestCase
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SupportingSource implements Source
 {
     public static function name(): string
@@ -295,7 +295,7 @@ class SupportingSource implements Source
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class NonSupportingSource implements Source
 {
     public static function name(): string

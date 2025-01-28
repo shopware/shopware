@@ -9,7 +9,7 @@ import Feature from 'src/helper/feature.helper';
  * This Plugin handles the
  * Subcategory display of the main navigation.
  *
- * @package storefront
+ * @sw-package framework
  * @deprecated tag:v6.7.0 - Will be removed, see NavbarPlugin for the new implementation
  */
 export default class FlyoutMenuPlugin extends Plugin {

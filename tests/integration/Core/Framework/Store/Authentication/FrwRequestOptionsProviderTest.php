@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 class FrwRequestOptionsProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

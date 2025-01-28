@@ -24,7 +24,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
  *
  * @phpstan-type Product array{id: string, attributes: array{isModified: boolean, seoPathInfo: string } }
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

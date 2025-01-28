@@ -18,7 +18,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TaskRunner
 {
     /**

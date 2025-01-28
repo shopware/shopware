@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class AclCriteriaValidatorTest extends TestCase
 {
     use KernelTestBehaviour;

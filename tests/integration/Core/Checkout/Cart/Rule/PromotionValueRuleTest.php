@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[Group('rules')]
 class PromotionValueRuleTest extends TestCase
 {

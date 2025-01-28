@@ -1,7 +1,6 @@
 import camelCase from 'lodash/camelCase';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type { PropType } from 'vue';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-settings-country-address-handling.html.twig';
 import './sw-settings-country-address-handling.scss';
@@ -41,7 +40,7 @@ const DefaultAddressFormat = [
 ] as string[][];
 
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  *
  * @private
  */

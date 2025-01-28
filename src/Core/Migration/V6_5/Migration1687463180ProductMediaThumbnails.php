@@ -10,7 +10,7 @@ use Shopware\Core\Migration\Traits\EnsureThumbnailSizesTrait;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1687463180ProductMediaThumbnails extends MigrationStep
 {
     use EnsureThumbnailSizesTrait;

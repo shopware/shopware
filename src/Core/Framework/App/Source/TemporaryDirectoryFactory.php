@@ -10,7 +10,7 @@ use Symfony\Component\Filesystem\Path;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TemporaryDirectoryFactory
 {
     public function path(): string

@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const defaultTimeValue = '12:00';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.extend('sw-condition-time-range', 'sw-condition-base', {
     template,

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class InvalidCriteriaIdsException extends DataAbstractionLayerException
 {
 }

@@ -2,7 +2,7 @@
  * This class is used to make it easier to preserve the focus state.
  * It is used to set the focus back to a given element after displaying content in a modal.
  *
- * @package storefront
+ * @sw-package framework
  */
 export default class FocusHandler {
 

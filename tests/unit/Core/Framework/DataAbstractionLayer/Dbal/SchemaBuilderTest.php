@@ -75,7 +75,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(SchemaBuilder::class)]
 class SchemaBuilderTest extends TestCase
 {

@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import '../sw-settings-listing-option-base';
 import template from './sw-settings-listing-option-create.html.twig';

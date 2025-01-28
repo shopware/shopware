@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ConfiguredSystemConfigLoader extends AbstractSystemConfigLoader
 {
     public function __construct(

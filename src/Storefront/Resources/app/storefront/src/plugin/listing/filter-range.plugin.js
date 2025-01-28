@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import FilterBasePlugin from 'src/plugin/listing/filter-base.plugin';

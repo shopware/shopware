@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type Notification array{id: non-empty-string, status: string, message: string, adminOnly?: bool, requiredPrivileges: array<int, string>, createdByIntegrationId?: string|null, createdByUserId?: string|null}
  */
-#[Package('administration')]
+#[Package('framework')]
 class NotificationService
 {
     public function __construct(private readonly EntityRepository $notificationRepository)

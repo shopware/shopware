@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import ImportExportProfileMappingService from 'src/module/sw-import-export/service/importExportProfileMapping.service';
 // eslint-disable-next-line import/no-unresolved

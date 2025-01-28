@@ -25,7 +25,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  *
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAware, StoppableHook
 {
     use ScriptResponseAwareTrait;

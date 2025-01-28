@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(AdminSearcher::class)]
 class AdminSearcherTest extends TestCase
 {

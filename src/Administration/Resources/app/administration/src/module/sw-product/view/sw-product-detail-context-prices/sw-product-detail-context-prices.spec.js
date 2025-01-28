@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
@@ -53,6 +53,7 @@ const createWrapper = async () => {
                     'sw-data-grid-skeleton': true,
                     'sw-field-copyable': true,
                     'sw-maintain-currencies-modal': true,
+                    'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                 },
                 provide: {
                     repositoryFactory: {

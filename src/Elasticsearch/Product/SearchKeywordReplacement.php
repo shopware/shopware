@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
-#[Package('core')]
+#[Package('framework')]
 class SearchKeywordReplacement extends SearchKeywordUpdater
 {
     /**

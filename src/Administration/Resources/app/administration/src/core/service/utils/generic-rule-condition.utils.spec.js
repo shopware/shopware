@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import genericRuleCondition from 'src/core/service/utils/generic-rule-condition.utils';

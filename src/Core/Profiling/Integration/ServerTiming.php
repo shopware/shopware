@@ -9,7 +9,7 @@ use Symfony\Component\Stopwatch\Stopwatch as SymfonyStopwatch;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ServerTiming implements ProfilerInterface
 {
     private SymfonyStopwatch $watch;

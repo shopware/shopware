@@ -36,7 +36,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-type EqualsAnyFilterType array{type: 'equalsAny', field: string, value: mixed}
  * @phpstan-type Query array{type: string, field?: string, value?: mixed, parameters?: array{operator: RangeFilter::*}, queries?: list<array{type: string, field?: string, value?: mixed}>}
  */
-#[Package('core')]
+#[Package('framework')]
 class QueryStringParser
 {
     /**

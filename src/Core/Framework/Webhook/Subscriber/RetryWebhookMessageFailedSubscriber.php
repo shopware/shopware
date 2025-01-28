@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 {
     private const MAX_WEBHOOK_ERROR_COUNT = 10;

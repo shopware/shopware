@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 interface ResponseFactoryInterface
 {
     public function supports(string $contentType, ContextSource $origin): bool;

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-app-actions.html.twig';
@@ -124,6 +124,15 @@ Component.register('sw-app-actions', {
             // If the matching entity and view is already open and the iframe call comes in late reload
             this.loadActions();
         },
+    },
+
+    created() {
+        // Reset the selectedIds when the component is created to avoid
+        // that the actions are executed on the wrong entities.
+        // Only reset when a entity exists
+        if (this.entity) {
+            Shopware.State.commit('shopwareApps/setSelectedIds', []);
+        }
     },
 
     methods: {

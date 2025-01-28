@@ -2,11 +2,13 @@ import Debouncer from 'src/helper/debouncer.helper';
 
 /**
  * Viewport Detection
+ *
+ * @sw-package framework
  */
 const RESIZE_DEBOUNCE_TIME = 200;
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class ViewportDetection {
 

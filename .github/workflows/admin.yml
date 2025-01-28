@@ -2,9 +2,6 @@ name: Admin checks and tests
 
 on:
   pull_request:
-    paths:
-      - src/Administration/Resources/app/administration/**/*
-      - .github/workflows/admin.yml
   workflow_dispatch:
   workflow_call:
 
@@ -105,3 +102,19 @@ jobs:
             --onlyAllow "$(tr \\n \; < ${{ github.workspace }}/.allowed-licenses)" \
             --excludePackages "${WHITELISTED_JS_PACKAGES}" \
             --excludePrivatePackages
+
+  admin-check:
+    if: always()
+    needs:
+    - lint
+    - admin
+    - license-check
+
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        # allowed-failures: docs, linters
+        # allowed-skips: non-voting-flaky-job
+        jobs: ${{ toJSON(needs) }}

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleConfigControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

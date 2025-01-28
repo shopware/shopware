@@ -42,7 +42,7 @@
         {% block sw_category_detail_information_tags %}
         <sw-entity-tag-select
             v-if="category && !isLoading"
-            v-model:entityCollection="category.tags"
+            v-model:entity-collection="category.tags"
             class="sw-category-detail-base__tags"
             :label="$tc('sw-category.base.general.labelCategoryTags')"
             :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
@@ -100,7 +100,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_attribute_sets %}
     <sw-card
-        v-if="customFieldSetsArray.length > 0 && category.type !=='folder'"
+        v-if="customFieldSetsArray.length > 0"
         position-identifier="sw-category-detail-attribute-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"

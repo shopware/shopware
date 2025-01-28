@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 abstract class AbstractAdminIndexer
 {
     abstract public function getDecorated(): self;

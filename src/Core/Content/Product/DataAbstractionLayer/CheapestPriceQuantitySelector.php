@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 /**
  * Allows project overrides to change cheapest price selection
  */
-#[Package('core')]
+#[Package('framework')]
 class CheapestPriceQuantitySelector extends AbstractCheapestPriceQuantitySelector
 {
     public function getDecorated(): AbstractCheapestPriceQuantitySelector

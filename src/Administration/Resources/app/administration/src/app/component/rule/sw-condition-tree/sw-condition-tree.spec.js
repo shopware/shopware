@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { shallowMount, config } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';

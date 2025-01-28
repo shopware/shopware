@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1714659357CanonicalProductVersion extends MigrationStep
 {
     public function getCreationTimestamp(): int

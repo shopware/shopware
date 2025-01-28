@@ -16,7 +16,7 @@ use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 #[CoversClass(UrlEncodingTwigFilter::class)]
 class UrlEncodingTwigFilterTest extends TestCase
 {

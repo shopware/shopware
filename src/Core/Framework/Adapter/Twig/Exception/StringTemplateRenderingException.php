@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - use AdapterException::renderingTemplateFailed instead - reason:remove-exception
  */
-#[Package('core')]
+#[Package('framework')]
 class StringTemplateRenderingException extends AdapterException
 {
     public function __construct(string $twigMessage)

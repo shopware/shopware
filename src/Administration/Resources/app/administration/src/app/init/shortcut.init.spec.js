@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initializeShortcutService from 'src/app/init/shortcut.init';
 

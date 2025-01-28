@@ -15,7 +15,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1607500561UpdateSignUpMailTemplateTranslation extends MigrationStep
 {
     use UpdateMailTrait;

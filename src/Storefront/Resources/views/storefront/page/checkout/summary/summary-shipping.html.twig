@@ -14,7 +14,8 @@
                         &minus;
                     {% endif %}
 
-                    {{ deliveryPrice|abs|currency }}{{ 'general.star'|trans|sw_sanitize }}
+                    {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
+                    {{ deliveryPrice|abs|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
                 </dd>
             {% endblock %}
         {% endblock %}

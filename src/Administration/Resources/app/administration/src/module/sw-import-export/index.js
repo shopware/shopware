@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import ImportExportService from './service/importExport.service';
 import ImportExportProfileMappingService from './service/importExportProfileMapping.service';

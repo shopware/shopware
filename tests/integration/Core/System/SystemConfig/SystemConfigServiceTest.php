@@ -21,7 +21,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -30,7 +30,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(AdminExtensionApiController::class)]
 class AdminExtensionApiControllerTest extends TestCase
 {

@@ -6,7 +6,7 @@ use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Sort\FieldSort;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class CountSort extends FieldSort
 {
     /**

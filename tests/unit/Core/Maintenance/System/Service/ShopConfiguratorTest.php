@@ -88,7 +88,7 @@ class ShopConfiguratorTest extends TestCase
 
     public function testSetDefaultLanguageMatchCurrentLocale(): void
     {
-        $currentLocaleId = Uuid::randomHex();
+        $currentLocaleId = Uuid::randomBytes();
 
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
@@ -128,7 +128,7 @@ class ShopConfiguratorTest extends TestCase
         $this->expectException(MaintenanceException::class);
         $this->expectExceptionMessage('Locale with iso-code "vi-VN" not found');
 
-        $currentLocaleId = Uuid::randomHex();
+        $currentLocaleId = Uuid::randomBytes();
 
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
@@ -172,7 +172,8 @@ class ShopConfiguratorTest extends TestCase
         int $expectedInsertCall,
         callable $insertCallback
     ): void {
-        $currentLocaleId = Uuid::randomHex();
+        $currentLocaleId = Uuid::randomBytes();
+        $languageId = Uuid::randomBytes();
 
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
@@ -189,9 +190,12 @@ class ShopConfiguratorTest extends TestCase
             return ['id' => $currentLocaleId, 'code' => 'en-GB'];
         });
 
-        $viLocaleId = Uuid::randomHex();
+        $viLocaleId = Uuid::randomBytes();
 
-        $this->connection->expects(static::atLeast(2))->method('fetchOne')->willReturn($viLocaleId);
+        $this->connection->expects(static::atLeast(2))->method('fetchOne')->willReturnOnConsecutiveCalls(
+            $viLocaleId,
+            $languageId
+        );
 
         $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], static fn (array $item) => $item !== []));
 

@@ -17,7 +17,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SetOrderCustomFieldActionTest extends TestCase
 {
     use OrderActionTrait;

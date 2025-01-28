@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initializeUserContext from 'src/app/init-post/user-information.init';
 import { initializeUserNotifications } from 'src/app/state/notification.store';

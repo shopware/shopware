@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class ContainsFilter extends SingleFieldFilter
 {
     public function __construct(

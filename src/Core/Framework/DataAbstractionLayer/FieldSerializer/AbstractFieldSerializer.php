@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractFieldSerializer implements FieldSerializerInterface
 {
     /**

@@ -315,7 +315,7 @@ class ProductReviewLoaderTest extends TestCase
 
         if ($request->get('language') === 'filter-language') {
             $criteria->addPostFilter(
-                new EqualsFilter('languageId', $context->getContext()->getLanguageId())
+                new EqualsFilter('languageId', $context->getLanguageId())
             );
         } else {
             $criteria->addAssociation('language.translationCode.code');
@@ -324,7 +324,7 @@ class ProductReviewLoaderTest extends TestCase
         $reviewFilters[] = new EqualsFilter('status', true);
 
         if ($context->getCustomer() !== null) {
-            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomer()->getId());
+            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomerId());
         }
 
         $criteria->addAggregation(

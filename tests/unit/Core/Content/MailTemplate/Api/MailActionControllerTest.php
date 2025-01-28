@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(MailActionController::class)]
 class MailActionControllerTest extends TestCase
 {

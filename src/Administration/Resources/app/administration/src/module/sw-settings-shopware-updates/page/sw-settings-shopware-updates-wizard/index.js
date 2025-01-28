@@ -4,7 +4,7 @@ import './sw-settings-shopware-updates-wizard.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  */
 Component.register('sw-settings-shopware-updates-wizard', {

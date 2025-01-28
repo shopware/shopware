@@ -8,7 +8,7 @@ use Tideways\Profiler;
 /**
  * @internal experimental atm
  */
-#[Package('core')]
+#[Package('framework')]
 class Tideways implements ProfilerInterface
 {
     private array $spans = [];

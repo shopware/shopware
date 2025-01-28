@@ -4,7 +4,7 @@ import template from './sw-shopware-updates-info.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  */
 Component.register('sw-settings-shopware-updates-info', {

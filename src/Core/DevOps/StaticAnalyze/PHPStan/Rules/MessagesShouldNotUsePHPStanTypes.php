@@ -30,7 +30,7 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
  *
  * @see https://github.com/symfony/symfony/pull/44451
  */
-#[Package('core')]
+#[Package('framework')]
 class MessagesShouldNotUsePHPStanTypes implements Rule
 {
     use InTestClassTrait;

@@ -17,7 +17,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @internal
  */
 #[CoversClass(QuerySigner::class)]
-#[Package('core')]
+#[Package('framework')]
 class QuerySignerTest extends TestCase
 {
     use IntegrationTestBehaviour;

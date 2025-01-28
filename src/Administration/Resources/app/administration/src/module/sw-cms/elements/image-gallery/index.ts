@@ -1,16 +1,16 @@
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-preview-image-gallery', () => import('./preview'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-config-image-gallery', () => import('./config'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-image-gallery', () => import('./component'));
 
@@ -23,12 +23,12 @@ type ImageGalleryItemConfig = {
 type ImageGalleryItem = {
     newTab: boolean;
     url: string;
-    media: EntitySchema.Entity<'media'> | null;
+    media: Entity<'media'> | null;
 };
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-gallery',
@@ -53,7 +53,7 @@ Shopware.Service('cmsService').registerCmsElement({
         },
         navigationDots: {
             source: 'static',
-            value: null,
+            value: 'none',
         },
         galleryPosition: {
             source: 'static',
@@ -124,7 +124,7 @@ Shopware.Service('cmsService').registerCmsElement({
                 const item: ImageGalleryItem = {
                     newTab: sliderItem.newTab,
                     url: sliderItem.url,
-                    media: data[entityKey].get(sliderItem.mediaId) as EntitySchema.Entity<'media'> | null,
+                    media: data[entityKey].get(sliderItem.mediaId) as Entity<'media'> | null,
                 };
 
                 items.push(item);

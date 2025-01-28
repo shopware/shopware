@@ -250,32 +250,32 @@ class ProductControllerTest extends TestCase
 
         $crawler->filter('.product-detail-configurator .product-detail-configurator-option-label')
             ->each(static function (Crawler $option) use ($blue, $green, $red, $xl, $l, &$blueFound, &$greenFound, &$redFound, &$xlFound, &$lFound, &$mFound): void {
-                if ($option->text() === 'blue') {
+                if ($option->innerText() === 'blue') {
                     static::assertEquals($blue, $option->matches('.is-combinable'));
                     $blueFound = true;
                 }
 
-                if ($option->text() === 'green') {
+                if ($option->innerText() === 'green') {
                     static::assertEquals($green, $option->matches('.is-combinable'));
                     $greenFound = true;
                 }
 
-                if ($option->text() === 'red') {
+                if ($option->innerText() === 'red') {
                     static::assertEquals($red, $option->matches('.is-combinable'));
                     $redFound = true;
                 }
 
-                if ($option->text() === 'xl') {
+                if ($option->innerText() === 'xl') {
                     static::assertEquals($xl, $option->matches('.is-combinable'));
                     $xlFound = true;
                 }
 
-                if ($option->text() === 'l') {
+                if ($option->innerText() === 'l') {
                     static::assertEquals($l, $option->matches('.is-combinable'));
                     $lFound = true;
                 }
 
-                if ($option->text() === 'm') {
+                if ($option->innerText() === 'm') {
                     $mFound = true;
                 }
             });

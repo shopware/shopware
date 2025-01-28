@@ -2,7 +2,7 @@ import type { DiscountCampaign } from 'src/module/sw-extension/service/extension
 
 /**
  * @private
- * @package services-settings
+ * @sw-package checkout
  */
 export default class ShopwareDiscountCampaignService {
     public isDiscountCampaignActive(discountCampaign: DiscountCampaign) {
@@ -45,6 +45,6 @@ export default class ShopwareDiscountCampaignService {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package checkout
  */
 export type { ShopwareDiscountCampaignService };

@@ -3,7 +3,7 @@ import DeviceDetection from 'src/helper/device-detection.helper';
 import Iterator from 'src/helper/iterator.helper';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class SetBrowserClassPlugin extends Plugin {
 

@@ -12,7 +12,7 @@ const URL_REGEX = {
 };
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description URL field component which supports a switch for https and http.

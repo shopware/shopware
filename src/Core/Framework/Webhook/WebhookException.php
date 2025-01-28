@@ -6,7 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class WebhookException extends HttpException
 {
     public const WEBHOOK_FAILED = 'FRAMEWORK__WEBHOOK_FAILED';

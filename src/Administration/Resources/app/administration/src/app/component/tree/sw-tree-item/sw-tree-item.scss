@@ -252,6 +252,18 @@ $sw-tree-item-color-text: $color-darkgray-200;
             @include size(8px);
         }
     }
+
+    .sw-tree-detail__edit-tree-item {
+        .mt-field {
+            margin-bottom: 0;
+        }
+    }
+
+    .mt-field--checkbox__container {
+        .mt-field--checkbox {
+            margin-bottom: 0;
+        }
+    }
 }
 
 .sw-tree-item__element {

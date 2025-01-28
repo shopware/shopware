@@ -67,7 +67,7 @@ class AccountOrderPageLoader
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
         $firstOrder = $page->getOrders()->getEntities()->first();
-        $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomer()?->getId();
+        $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomerId();
         if ($request->get('deepLinkCode') && $orderCustomerId !== null) {
             $this->accountService->loginById($orderCustomerId, $salesChannelContext);
         }
@@ -142,6 +142,8 @@ class AccountOrderPageLoader
             ->addAssociation('currency')
             ->addAssociation('stateMachineState')
             ->addAssociation('documents.documentType')
+            ->addAssociation('documents.documentMediaFile')
+            ->addAssociation('documents.documentA11yMediaFile')
             ->setLimit(self::DEFAULT_LIMIT)
             ->setOffset(($page - 1) * self::DEFAULT_LIMIT)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 const utils = Shopware.Utils;
 
@@ -12,8 +12,12 @@ const availableTooltipPlacements: Placements[] = [
     'left',
 ];
 
-// eslint-disable-next-line no-use-before-define
-const tooltipRegistry = new Map<string, Tooltip>();
+/**
+ * @private
+ */
+// eslint-disable-next-line max-len
+// eslint-disable-next-line no-use-before-define,import/prefer-default-export,sw-deprecation-rules/private-feature-declarations
+export const tooltipRegistry = new Map<string, Tooltip>();
 
 /**
  * @private
@@ -516,6 +520,9 @@ Shopware.Directive.register('tooltip', {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
             tooltip!.hideTooltip();
         }
+
+        // Remove the tooltip from the registry
+        tooltipRegistry.delete(el.getAttribute('tooltip-id')!);
     },
 
     updated: (el: HTMLElement, binding) => {

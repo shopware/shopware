@@ -22,7 +22,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(PluginManagementService::class)]
 class PluginManagementServiceTest extends TestCase
 {

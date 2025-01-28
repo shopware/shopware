@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -18,6 +19,7 @@ use Twig\Environment;
  * @internal
  */
 #[CoversClass(DocumentTemplateRenderer::class)]
+#[Package('after-sales')]
 class DocumentTemplateRendererTest extends TestCase
 {
     private static bool $rendererParameterEventCalled = false;

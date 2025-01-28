@@ -1,9 +1,10 @@
+import { inject } from 'vue';
 import template from './sw-text-field-deprecated.html.twig';
 
 const { Component, Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Simple text field.
@@ -62,6 +63,14 @@ Component.register('sw-text-field-deprecated', {
             required: false,
             default() {
                 return '';
+            },
+        },
+
+        ariaLabel: {
+            type: String,
+            required: false,
+            default() {
+                return inject('ariaLabel', null)?.value;
             },
         },
     },

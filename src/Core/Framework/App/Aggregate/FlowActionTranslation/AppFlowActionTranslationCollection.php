@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<AppFlowActionTranslationEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class AppFlowActionTranslationCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

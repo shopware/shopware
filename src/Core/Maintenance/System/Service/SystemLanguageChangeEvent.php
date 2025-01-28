@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * The system default language is always using the same id from Defaults::LANGUAGE_SYSTEM.
  * The default is changed by swapping row values in the language table.
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class SystemLanguageChangeEvent
 {
     /**

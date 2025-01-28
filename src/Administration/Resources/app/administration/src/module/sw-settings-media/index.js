@@ -1,5 +1,5 @@
 /**
- * @package innovation
+ * @sw-package innovation
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

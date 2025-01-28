@@ -1,10 +1,11 @@
+import { inject } from 'vue';
 import template from './sw-textarea-field.html.twig';
 import './sw-textarea-field.scss';
 
 const { Component, Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description textarea input field.
@@ -45,6 +46,14 @@ Component.register('sw-textarea-field-deprecated', {
             type: String,
             required: false,
             default: null,
+        },
+
+        ariaLabel: {
+            type: String,
+            required: false,
+            default() {
+                return inject('ariaLabel', null)?.value;
+            },
         },
     },
 

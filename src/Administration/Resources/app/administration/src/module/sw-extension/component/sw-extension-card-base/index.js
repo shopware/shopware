@@ -4,7 +4,7 @@ import './sw-extension-card-base.scss';
 const { Utils, Filter } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
@@ -392,11 +392,7 @@ export default {
                 this.showRemovalModal = false;
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.removeExtension(
-                    this.extension.name,
-                    this.extension.type,
-                    removeData,
-                );
+                await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type, removeData);
                 this.extension.active = false;
             } catch (e) {
                 this.showStoreError(e);

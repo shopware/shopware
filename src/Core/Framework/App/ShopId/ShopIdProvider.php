@@ -15,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @phpstan-type ShopId array{value: string, app_url: ?string}
  */
-#[Package('core')]
+#[Package('framework')]
 class ShopIdProvider
 {
     final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';

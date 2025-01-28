@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['administration']])]
-#[Package('administration')]
+#[Package('framework')]
 class AdminTagController extends AbstractController
 {
     /**

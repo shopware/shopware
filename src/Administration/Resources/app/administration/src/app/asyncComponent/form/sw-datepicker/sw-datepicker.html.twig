@@ -1,5 +1,7 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-textarea component #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_datepicker %}
 <mt-datepicker
     v-if="useMeteorComponent"
     v-bind="$attrs"
@@ -17,9 +19,12 @@
         </slot>
     </template>
 </mt-datepicker>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_datepicker_deprecated %}
 <sw-datepicker-deprecated
     v-else
     v-bind="$attrs"
@@ -38,3 +43,4 @@
         </slot>
     </template>
 </sw-datepicker-deprecated>
+{% endblock %}

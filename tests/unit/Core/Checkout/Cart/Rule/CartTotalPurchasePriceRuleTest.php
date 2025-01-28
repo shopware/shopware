@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CartTotalPurchasePriceRule::class)]
 class CartTotalPurchasePriceRuleTest extends TestCase
 {

@@ -4,7 +4,7 @@ import './sw-select-result-list.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

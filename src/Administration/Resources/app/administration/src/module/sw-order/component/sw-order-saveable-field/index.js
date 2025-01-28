@@ -2,7 +2,7 @@ import template from './sw-order-saveable-field.html.twig';
 import './sw-order-saveable-field.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

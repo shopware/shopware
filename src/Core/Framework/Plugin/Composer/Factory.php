@@ -10,7 +10,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
-#[Package('core')]
+#[Package('framework')]
 class Factory
 {
     public static function createComposer(string $composerJsonDir, ?IOInterface $composerIO = null): Composer

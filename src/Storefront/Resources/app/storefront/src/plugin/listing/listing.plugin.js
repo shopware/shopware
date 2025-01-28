@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
@@ -346,8 +346,8 @@ export default class ListingPlugin extends Plugin {
         /** @deprecated tag:v6.7.0 - The `filter-active` label will be a Bootstrap button instead of a span element */
         if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
             return `
-            <button 
-                class="${this.options.activeFilterLabelClasses}" 
+            <button
+                class="${this.options.activeFilterLabelClasses}"
                 data-id="${label.id}"
                 aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
                 ${this.getLabelPreviewTemplate(label)}

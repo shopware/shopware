@@ -19,7 +19,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityLifecycleService
 {
     public function __construct(

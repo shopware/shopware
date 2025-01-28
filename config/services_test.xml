@@ -56,6 +56,14 @@
             <tag name="shopware.entity"/>
         </service>
 
+        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithHydrator">
+            <tag name="shopware.entity"/>
+        </service>
+
+        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\DummyHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Test\Telemetry\Factory\TraceableTransportFactory">
             <tag name="shopware.metric_transport_factory"/>
         </service>

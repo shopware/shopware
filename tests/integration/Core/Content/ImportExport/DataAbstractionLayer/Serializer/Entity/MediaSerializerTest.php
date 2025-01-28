@@ -31,7 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class MediaSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

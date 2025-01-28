@@ -18,7 +18,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[Group('slow')]
 class ServiceDefinitionTest extends TestCase
 {

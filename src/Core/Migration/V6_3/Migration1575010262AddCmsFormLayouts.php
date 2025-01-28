@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1575010262AddCmsFormLayouts extends MigrationStep
 {
     private const CONTACT = 'contact';

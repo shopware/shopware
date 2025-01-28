@@ -1,7 +1,7 @@
 import template from './sw-order-create-base.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component, State, Utils, Data, Service, Mixin } = Shopware;

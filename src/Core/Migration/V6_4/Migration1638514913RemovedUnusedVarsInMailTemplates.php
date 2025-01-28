@@ -15,7 +15,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1638514913RemovedUnusedVarsInMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;

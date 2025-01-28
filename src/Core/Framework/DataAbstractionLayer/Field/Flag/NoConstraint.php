@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * Examples: `product <> cover <> product_media`
  *           `customer <> default_billing <> customer_address`
  */
-#[Package('core')]
+#[Package('framework')]
 class NoConstraint extends Flag
 {
     public function parse(): \Generator

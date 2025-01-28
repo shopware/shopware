@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
@@ -60,7 +60,7 @@ async function createWrapper(state = {}) {
                     props: ['disabled'],
                 },
                 'sw-entity-multi-select': true,
-                'sw-alert': true,
+                'mt-banner': true,
                 'sw-textarea-field': true,
                 'sw-custom-field-set-renderer': true,
             },

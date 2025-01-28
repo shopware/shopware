@@ -3,7 +3,7 @@ import Debouncer from 'src/helper/debouncer.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class ScrollUpPlugin extends Plugin {
 

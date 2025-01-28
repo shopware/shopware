@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import type { CurrencyOptions } from 'src/core/service/utils/format.utils';
 

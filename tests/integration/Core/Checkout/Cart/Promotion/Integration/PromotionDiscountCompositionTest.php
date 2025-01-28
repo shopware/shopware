@@ -185,7 +185,7 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertEquals(1, $promotion->getOrderCount());
         static::assertNotNull($context->getCustomer());
         static::assertEquals(
-            [$context->getCustomer()->getId() => 1],
+            [$context->getCustomerId() => 1],
             $promotion->getOrdersPerCustomerCount()
         );
 
@@ -201,11 +201,11 @@ class PromotionDiscountCompositionTest extends TestCase
         // verify that the promotion has a total order count of 1 and the current customer is although tracked
         static::assertEquals(2, $promotion->getOrderCount());
         static::assertEquals(
-            [$context->getCustomer()->getId() => 2],
+            [$context->getCustomerId() => 2],
             $promotion->getOrdersPerCustomerCount()
         );
 
-        $customerId1 = $context->getCustomer()->getId();
+        $customerId1 = $context->getCustomerId();
 
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(
@@ -226,7 +226,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertEquals(3, $promotion->getOrderCount());
         $expected = [
-            $context->getCustomer()->getId() => 1,
+            $context->getCustomerId() => 1,
             $customerId1 => 2,
         ];
 

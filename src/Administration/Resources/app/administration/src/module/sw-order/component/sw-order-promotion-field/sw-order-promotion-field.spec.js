@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 const orderFixture = {
     id: '2720b2fa-2ddc-479b-8c93-864fc8978f77',

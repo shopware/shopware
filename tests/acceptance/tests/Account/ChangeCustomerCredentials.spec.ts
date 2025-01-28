@@ -7,7 +7,6 @@ test('As a customer, I must be able to change my email via account.', { tag: '@A
     IdProvider,
     Register,
     StorefrontAccountProfile,
-
 }) => {
 
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' , password: IdProvider.getIdPair().uuid };
@@ -60,7 +59,7 @@ test('As a customer, I must be able to change my email via account.', { tag: '@A
         await StorefrontAccountLogin.loginButton.click();
         await ShopCustomer.expects(StorefrontAccountLogin.invalidCredentialsAlert).toBeVisible();
     });
-    
+
     await test.step('Verify login with new email', async () => {
         await StorefrontAccountLogin.emailInput.fill(newEmail);
         await StorefrontAccountLogin.passwordInput.fill(customer.password);
@@ -76,7 +75,6 @@ test('As a customer, I must be able to change my password via account.', { tag: 
     IdProvider,
     Register,
     StorefrontAccountProfile,
-
 }) => {
 
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' , password: IdProvider.getIdPair().uuid };

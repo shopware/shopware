@@ -13,7 +13,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {
     public function __construct(

@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(OrderTrackingCodeRule::class)]
 #[Group('rules')]
 class OrderTrackingCodeRuleTest extends TestCase

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1570622696CustomerPasswordRecovery extends MigrationStep
 {
     public function getCreationTimestamp(): int

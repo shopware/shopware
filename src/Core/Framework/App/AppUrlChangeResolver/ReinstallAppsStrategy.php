@@ -24,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * Will run through the registration process for all apps again
  * with the new appUrl and new shopId and throw installed events for every app
  */
-#[Package('core')]
+#[Package('framework')]
 class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
     final public const STRATEGY_NAME = 'reinstall-apps';

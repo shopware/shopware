@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-#[Package('core')]
+#[Package('framework')]
 class OpenApiPathBuilder
 {
     private const EXPERIMENTAL_ANNOTATION_NAME = 'experimental';

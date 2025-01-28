@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
 import template from './sw-entity-multi-id-select.html.twig';

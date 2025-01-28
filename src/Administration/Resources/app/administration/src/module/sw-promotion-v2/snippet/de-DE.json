@@ -99,7 +99,7 @@
                             "labelCodeAmount": "Anzahl der Aktionscodes",
                             "notComplexEnoughException": "Die angeforderte Anzahl von Aktionscodes konnte nicht erstellt werden. Stelle sicher, dass das Muster ausreichend komplex ist. Um zu gewährleisten, dass die Aktionscodes ausreichend zufällig sind, dürfen höchstens 50% aller möglichen Codes generiert werden.",
                             "alreadyInUseException": "Das gewählte Code-Muster existiert bereits in einer anderen Aktion. Bitte gebe ein anderes Muster an.",
-                            "unknownErrorCode": "Beim Generieren von Promotion-Codes ist etwas schief gelaufen. Bitte verwende die Entwickler-Tools für weitere Informationen."
+                            "unknownErrorCode": "Beim Generieren von Promotion-Codes ist etwas schiefgelaufen. Bitte verwende die Entwickler-Tools für weitere Informationen."
                         }
                     }
                 }

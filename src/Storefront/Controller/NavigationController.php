@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,12 +27,14 @@ class NavigationController extends StorefrontController
      */
     public function __construct(
         private readonly NavigationPageLoaderInterface $navigationPageLoader,
-        private readonly MenuOffcanvasPageletLoaderInterface $offcanvasLoader
+        private readonly MenuOffcanvasPageletLoaderInterface $offcanvasLoader,
+        private readonly HeaderPageletLoaderInterface $headerLoader,
+        private readonly FooterPageletLoaderInterface $footerLoader,
     ) {
     }
 
     #[Route(path: '/', name: 'frontend.home.page', options: ['seo' => true], defaults: ['_httpCache' => true], methods: ['GET'])]
-    public function home(Request $request, SalesChannelContext $context): ?Response
+    public function home(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->navigationPageLoader->load($request, $context);
 
@@ -64,5 +68,21 @@ class NavigationController extends StorefrontController
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;
+    }
+
+    #[Route(path: '/header', name: 'frontend.header', defaults: ['_httpCache' => true, '_esi' => true], methods: ['GET'])]
+    public function header(Request $request, SalesChannelContext $context): Response
+    {
+        $header = $this->headerLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', ['header' => $header]);
+    }
+
+    #[Route(path: '/footer', name: 'frontend.footer', defaults: ['_httpCache' => true, '_esi' => true], methods: ['GET'])]
+    public function footer(Request $request, SalesChannelContext $context): Response
+    {
+        $footer = $this->footerLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', ['footer' => $footer]);
     }
 }

@@ -4,7 +4,7 @@ import './sw-media-base-item.scss';
 /**
  * @status ready
  * @description The <u>sw-media-base-item</u> component is the base for items in the media manager.
- * @sw-package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-base-item

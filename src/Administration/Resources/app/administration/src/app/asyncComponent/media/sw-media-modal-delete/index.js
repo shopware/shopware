@@ -6,7 +6,7 @@ const { Context, Mixin, Filter } = Shopware;
 /**
  * @status ready
  * @description The <u>sw-media-modal-delete</u> component is used to validate the delete action.
- * @sw-package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-modal-delete :itemsToDelete="[items]">

@@ -39,6 +39,16 @@ class CmsControllerTest extends TestCase
         static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testCmsPageLoadedHookScriptsAreExecutedForFullPage(): void
+    {
+        $response = $this->request('GET', '/page/cms/' . $this->ids->get('page'), []);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
+    }
+
     public function testCmsPageLoadedHookScriptsAreExecutedForCategory(): void
     {
         $response = $this->request('GET', '/widgets/cms/navigation/' . $this->ids->get('category'), []);

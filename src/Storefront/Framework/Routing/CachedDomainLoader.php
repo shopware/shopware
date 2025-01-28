@@ -10,7 +10,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 /**
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
-#[Package('storefront')]
+#[Package('framework')]
 class CachedDomainLoader extends AbstractDomainLoader
 {
     final public const CACHE_KEY = 'routing-domains';

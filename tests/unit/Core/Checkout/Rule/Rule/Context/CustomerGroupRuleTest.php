@@ -9,12 +9,12 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerGroupRule::class)]
 class CustomerGroupRuleTest extends TestCase
 {
@@ -27,11 +27,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-1');
 
-        $context = $this->createMock(SalesChannelContext::class);
-
-        $context
-            ->method('getCurrentCustomerGroup')
-            ->willReturn($group);
+        $context = Generator::generateSalesChannelContext(currentCustomerGroup: $group);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -47,11 +43,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-3');
 
-        $context = $this->createMock(SalesChannelContext::class);
-
-        $context
-            ->method('getCurrentCustomerGroup')
-            ->willReturn($group);
+        $context = Generator::generateSalesChannelContext(currentCustomerGroup: $group);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -67,11 +59,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-5');
 
-        $context = $this->createMock(SalesChannelContext::class);
-
-        $context
-            ->method('getCurrentCustomerGroup')
-            ->willReturn($group);
+        $context = Generator::generateSalesChannelContext(currentCustomerGroup: $group);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))

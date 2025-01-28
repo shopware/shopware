@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @final
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class StorableFlow extends Struct
 {
     private ?FlowState $state = null;

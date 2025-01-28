@@ -32,6 +32,8 @@
             <div class="confirm-tos">
                 <div class="card checkout-card">
                     <div class="card-body">
+                        {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+
                         {% block page_checkout_confirm_tos_header %}
                             <div class="card-title">
                                 {{ 'checkout.confirmTermsHeader'|trans|sw_sanitize }}
@@ -40,8 +42,10 @@
 
                         {% block page_checkout_confirm_revocation_notice %}
                             <p class="revocation-notice">
-                                {{ 'checkout.confirmRevocationNotice'|trans({
-                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.revocationPage') })
+                                {% set revocationSnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'checkout.confirmRevocationNoticePage' : 'checkout.confirmRevocationNotice' %}
+
+                                {{ revocationSnippetKey|trans({
+                                    '%url%': path(cmsPath, { id: config('core.basicInformation.revocationPage') })
                                 })|raw }}
                             </p>
                         {% endblock %}
@@ -58,10 +62,11 @@
                                 {% endblock %}
 
                                 {% block page_checkout_confirm_tos_control_label %}
+                                    {% set tosSnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'checkout.confirmTermsTextPage' : 'checkout.confirmTermsText' %}
                                     <label for="tos"
                                            class="checkout-confirm-tos-label custom-control-label">
-                                        {{ 'checkout.confirmTermsText'|trans({
-                                            '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+                                        {{ tosSnippetKey|trans({
+                                            '%url%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
                                         })|raw }}
                                     </label>
                                 {% endblock %}

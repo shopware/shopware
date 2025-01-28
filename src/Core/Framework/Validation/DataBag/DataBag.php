@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-#[Package('core')]
+#[Package('framework')]
 class DataBag extends ParameterBag
 {
     /**

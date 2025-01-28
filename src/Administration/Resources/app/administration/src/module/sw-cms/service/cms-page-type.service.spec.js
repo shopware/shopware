@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import CmsPageTypeService from './cms-page-type.service';
 import initCmsPageTypes from '../init/cmsPageTypes.init';

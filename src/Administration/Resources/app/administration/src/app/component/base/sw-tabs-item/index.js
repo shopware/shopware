@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.scss';

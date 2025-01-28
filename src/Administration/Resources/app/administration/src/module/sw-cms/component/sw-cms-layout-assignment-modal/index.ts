@@ -9,7 +9,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -30,7 +30,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         page: {
-            type: Object as PropType<EntitySchema.Entity<'cms_page'>>,
+            type: Object as PropType<Entity<'cms_page'>>,
             required: true,
         },
     },
@@ -38,9 +38,9 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             shopPageSalesChannelId: null as string | null,
-            previousCategories: [] as EntitySchema.Entity<'category'>[],
+            previousCategories: [] as Entity<'category'>[],
             previousCategoryIds: [] as string[],
-            previousLandingPages: [] as EntitySchema.Entity<'landing_page'>[],
+            previousLandingPages: [] as Entity<'landing_page'>[],
             previousLandingPageIds: [] as string[],
             showConfirmChangesModal: false,
             isLoading: false,
@@ -57,7 +57,7 @@ export default Shopware.Component.wrapComponentConfig({
             hasCategoriesWithAssignedLayouts: false,
             hasProductsWithAssignedLayouts: false,
             hasLandingPagesWithAssignedLayouts: false,
-            previousProducts: [] as EntitySchema.Entity<'product'>[],
+            previousProducts: [] as Entity<'product'>[],
             previousProductIds: [] as string[],
             categoryIndex: 1,
             isCategoriesLoading: false,

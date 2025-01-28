@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RemoveDeprecatedServicesPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

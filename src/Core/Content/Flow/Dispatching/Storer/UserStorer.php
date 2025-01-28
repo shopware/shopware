@@ -14,7 +14,7 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class UserStorer extends FlowStorer
 {
     /**

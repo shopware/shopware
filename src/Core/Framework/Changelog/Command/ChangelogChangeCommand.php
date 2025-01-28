@@ -20,7 +20,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'changelog:change',
     description: 'Changes the changelog of a release',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ChangelogChangeCommand extends Command
 {
     /**

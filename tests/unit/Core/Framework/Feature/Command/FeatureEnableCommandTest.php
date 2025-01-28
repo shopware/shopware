@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(FeatureEnableCommand::class)]
 class FeatureEnableCommandTest extends TestCase
 {

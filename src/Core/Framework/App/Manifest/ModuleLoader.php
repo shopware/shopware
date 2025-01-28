@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type AppModule array{name: string, label: array<string, string|null>, modules: list<Module>, mainModule: array{source: string}|null}
  */
-#[Package('core')]
+#[Package('framework')]
 class ModuleLoader
 {
     /**

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { compatUtils } from '@vue/compat';
 
 const { Component } = Shopware;

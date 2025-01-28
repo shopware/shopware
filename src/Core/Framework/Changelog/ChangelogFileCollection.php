@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<ChangelogFile>
  */
-#[Package('core')]
+#[Package('framework')]
 class ChangelogFileCollection extends Collection
 {
     protected function getExpectedClass(): ?string

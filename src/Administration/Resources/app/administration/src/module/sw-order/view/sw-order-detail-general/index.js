@@ -1,7 +1,7 @@
 import template from './sw-order-detail-general.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Utils, Mixin } = Shopware;

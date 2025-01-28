@@ -13,7 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1729843379FixBelgianVatIdPattern;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1729843379FixBelgianVatIdPattern::class)]
 class Migration1729843379FixBelgianVatIdPatternTest extends TestCase
 {

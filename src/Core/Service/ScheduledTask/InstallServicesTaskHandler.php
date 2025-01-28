@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[AsMessageHandler(handles: InstallServicesTask::class)]
 final class InstallServicesTaskHandler extends ScheduledTaskHandler
 {

@@ -28,7 +28,7 @@ use Shopware\Core\Kernel;
  *
  * @implements Rule<Throw_>
  */
-#[Package('core')]
+#[Package('framework')]
 class DomainExceptionRule implements Rule
 {
     use InTestClassTrait;

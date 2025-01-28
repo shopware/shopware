@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Elasticsearch\Product\CustomFieldSetGatewayTest
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomFieldSetGateway
 {
     public function __construct(

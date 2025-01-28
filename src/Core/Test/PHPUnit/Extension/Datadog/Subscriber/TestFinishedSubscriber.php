@@ -15,7 +15,7 @@ use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayloadCollection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestFinishedSubscriber implements FinishedSubscriber
 {
     public function __construct(

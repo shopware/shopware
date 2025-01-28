@@ -13,7 +13,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 /**
  * @internal only rely on the concrete implementations
  */
-#[Package('storefront')]
+#[Package('framework')]
 abstract class PageLoadedHook extends Hook implements SalesChannelContextAware
 {
     /**

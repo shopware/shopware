@@ -19,7 +19,7 @@ if (class_exists('\\' . AbstractAsset::class, false)) {
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables
  * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractAsset
 {
     /**

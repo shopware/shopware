@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
 /**
  * @internal not to be intended that plugin developers can provide services for hooks (atm)
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class HookServiceFactory
 {
     /**

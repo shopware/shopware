@@ -1,7 +1,7 @@
 import template from './sw-settings-payment-create.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

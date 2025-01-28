@@ -1,6 +1,5 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from 'src/core/data/repository.data';
-import type EntityCollectionType from 'src/core/data/entity-collection.data';
 import template from './sw-dynamic-url-field.html.twig';
 import './sw-dynamic-url-field.scss';
 
@@ -10,7 +9,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
@@ -37,7 +36,7 @@ Component.register('sw-dynamic-url-field', {
         isHTTPs: boolean;
         displayAsButton: boolean;
         linkCategory: LinkCategories;
-        categoryCollection?: EntityCollectionType<'category'>;
+        categoryCollection?: EntityCollection<'category'>;
     } {
         return {
             lastEmittedLink: '',
@@ -111,7 +110,7 @@ Component.register('sw-dynamic-url-field', {
             this.categoryCollection = this.getEmptyCategoryCollection();
         },
 
-        getEmptyCategoryCollection(): EntityCollectionType<'category'> {
+        getEmptyCategoryCollection(): EntityCollection<'category'> {
             return new EntityCollection(
                 this.categoryRepository.route,
                 this.categoryRepository.entityName,
@@ -119,7 +118,7 @@ Component.register('sw-dynamic-url-field', {
             );
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollectionType<'category'>> {
+        getCategoryCollection(categoryId: string): Promise<EntityCollection<'category'>> {
             const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },

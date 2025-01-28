@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Event\IsFlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[IsFlowEventAware]
 interface MessageAware
 {

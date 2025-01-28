@@ -21,7 +21,7 @@ use Symfony\Component\Process\Process;
     name: 'changelog:create',
     description: 'Creates a changelog file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ChangelogCreateCommand extends Command
 {
     /**

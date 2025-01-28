@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import EntityFactory from 'src/core/data/entity-factory.data';

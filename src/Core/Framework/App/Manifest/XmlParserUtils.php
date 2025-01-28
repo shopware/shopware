@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class XmlParserUtils
 {
     private const FALLBACK_LOCALE = 'en-GB';

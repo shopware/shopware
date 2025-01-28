@@ -80,6 +80,8 @@ jobs:
     uses: ./.github/workflows/integration.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware'
+    with:
+      nightly: true
   php:
     uses: ./.github/workflows/php.yml
     secrets: inherit

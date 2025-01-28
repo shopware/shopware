@@ -132,7 +132,7 @@ async function createWrapper(extension) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeAll(() => {

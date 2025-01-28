@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class NoDALAutoload implements Rule
 {
     use InTestClassTrait;

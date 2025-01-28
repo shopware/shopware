@@ -24,7 +24,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(MailStorer::class)]
 class MailStorerTest extends TestCase
 {

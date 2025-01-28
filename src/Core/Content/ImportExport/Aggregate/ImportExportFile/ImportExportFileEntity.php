@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportFileEntity extends Entity
 {
     use EntityIdTrait;

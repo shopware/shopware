@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportLogApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

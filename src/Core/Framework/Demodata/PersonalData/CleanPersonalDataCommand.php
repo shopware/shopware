@@ -24,7 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'database:clean-personal-data',
     description: 'Cleans personal data from the database',
 )]
-#[Package('core')]
+#[Package('framework')]
 class CleanPersonalDataCommand extends Command
 {
     protected const VALID_TYPES = [

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -38,5 +38,18 @@ describe('src/app/component/base/sw-switch-field', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-switch');
+    });
+
+    it('should use the correct checked value', async () => {
+        global.activeFeatureFlags = ['v6.7.0.0'];
+
+        const wrapper = await createWrapper();
+        expect(wrapper.vm.checkedValue).toBe(false);
+
+        await wrapper.setProps({ value: true });
+        expect(wrapper.vm.checkedValue).toBe(true);
+
+        await wrapper.setProps({ checked: true, value: null });
+        expect(wrapper.vm.checkedValue).toBe(true);
     });
 });

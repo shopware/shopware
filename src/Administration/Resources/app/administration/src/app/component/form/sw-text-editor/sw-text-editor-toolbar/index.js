@@ -4,7 +4,7 @@ import './sw-text-editor-toolbar.scss';
 const { Component, Utils } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
@@ -74,6 +74,7 @@ Component.register('sw-text-editor-toolbar', {
             rightButtons: [],
             tableEdit: false,
             scrollEventHandler: undefined,
+            preventReposition: false,
         };
     },
 
@@ -217,7 +218,7 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         setToolbarPosition() {
-            if (!this.selection) {
+            if (!this.selection || this.preventReposition) {
                 return;
             }
 
@@ -229,7 +230,10 @@ Component.register('sw-text-editor-toolbar', {
             this.setSelectionRange();
             const boundary = this.range?.getBoundingClientRect?.();
 
-            if (!boundary) {
+            const selectionLost =
+                !boundary || boundary.top <= 0 || boundary.left <= 0 || boundary.width <= 0 || boundary.height <= 0;
+
+            if (selectionLost) {
                 return;
             }
 
@@ -315,6 +319,9 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         onButtonClick(button, parent = null) {
+            // Whenever a button is clicked, we can allow the toolbar to reposition because the link menu is closed
+            this.preventReposition = false;
+
             if (button.type === 'link') {
                 this.handleTextStyleChangeLink(button);
                 return;
@@ -462,6 +469,14 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         onToggleMenu(event, button) {
+            // Whenever the link menu is opened, we need to prevent the toolbar from repositioning
+            // The link menu has multiple problems:
+            // 1. It is a popover and not a dropdown
+            // 2. It is not a child of the toolbar, so the toolbar does not know when it is opened
+            // 3. Repositioning the the toolbar while the link menu is opened causes
+            // all popovers to close and the toolbar to disappear
+            this.preventReposition = button.type === 'link';
+
             this.keepSelection();
 
             this.buttonConfig.forEach((item) => {

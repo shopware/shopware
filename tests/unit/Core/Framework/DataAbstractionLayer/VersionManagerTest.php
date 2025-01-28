@@ -15,7 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
@@ -188,6 +190,41 @@ class VersionManagerTest extends TestCase
             $versionId,
             $this->createMock(WriteContext::class)
         );
+    }
+
+    public function testMergeFailsForNonExistentVersion(): void
+    {
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $entitySearcherMock = $this->createMock(EntitySearcherInterface::class);
+
+        $entitySearcherMock->method('search')->willReturn(
+            new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext())
+        );
+
+        $versionManager = new VersionManager(
+            $this->createMock(EntityWriterInterface::class),
+            $this->createMock(EntityReaderInterface::class),
+            $entitySearcherMock,
+            $this->createMock(EntityWriteGatewayInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(SerializerInterface::class),
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(VersionCommitDefinition::class),
+            $this->createMock(VersionCommitDataDefinition::class),
+            $this->createMock(VersionDefinition::class),
+            $lockFactory
+        );
+
+        $versionId = 'non-existent-version-id';
+
+        static::expectException(DataAbstractionLayerException::class);
+        static::expectExceptionMessage(DataAbstractionLayerException::versionNotExists($versionId)->getMessage());
+
+        $versionManager->merge($versionId, $this->createMock(WriteContext::class));
     }
 }
 

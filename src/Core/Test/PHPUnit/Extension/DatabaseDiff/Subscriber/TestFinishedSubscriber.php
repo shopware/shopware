@@ -10,7 +10,7 @@ use Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DbState;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestFinishedSubscriber implements FinishedSubscriber
 {
     public function __construct(private readonly DbState $dbState)

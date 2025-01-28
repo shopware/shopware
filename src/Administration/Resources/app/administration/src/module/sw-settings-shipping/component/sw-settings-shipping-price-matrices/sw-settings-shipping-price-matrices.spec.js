@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 Shopware.State.registerModule('swShippingDetail', state);
@@ -58,6 +58,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-data-grid-inline-edit': true,
                         'sw-data-grid-skeleton': true,
                         'sw-help-text': true,
+                        'sw-provide': true,
                     },
                     mocks: {
                         $te: () => false,

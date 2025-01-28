@@ -23,7 +23,7 @@ async function createWrapper(propsData = {}) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
     it('should show the correct title', async () => {

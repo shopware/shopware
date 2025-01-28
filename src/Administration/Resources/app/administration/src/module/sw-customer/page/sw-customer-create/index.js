@@ -2,7 +2,7 @@ import template from './sw-customer-create.html.twig';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();

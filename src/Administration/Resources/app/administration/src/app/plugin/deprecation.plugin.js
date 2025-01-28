@@ -3,7 +3,7 @@ import { getCurrentInstance } from 'vue';
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * This plugin allows you to generate deprecations for components and properties.

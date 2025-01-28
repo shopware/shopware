@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -76,11 +75,8 @@ class ProductApiTest extends TestCase
         $criteria->addAssociation('prices');
 
         $products = $this->repository->search($criteria, $context);
-        static::assertTrue($products->has($id));
-
         $product = $products->get($id);
-
-        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
         static::assertCount(1, $product->getPrices());
 
@@ -116,11 +112,8 @@ class ProductApiTest extends TestCase
         $criteria->addAssociation('prices');
 
         $products = $this->repository->search($criteria, $context);
-        static::assertTrue($products->has($id));
-
         $product = $products->get($id);
-
-        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
         static::assertCount(2, $product->getPrices());
 
@@ -155,11 +148,8 @@ class ProductApiTest extends TestCase
         $criteria->addAssociation('prices');
 
         $products = $this->repository->search($criteria, $context);
-        static::assertTrue($products->has($id));
-
         $product = $products->get($id);
-
-        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
         static::assertCount(3, $product->getPrices());
 

@@ -19,7 +19,7 @@ abstract class AbstractBenchCase
 
     protected SalesChannelContext $context;
 
-    public function setup(): void
+    public function setUp(): void
     {
         $this->ids = clone Fixtures::getIds();
 

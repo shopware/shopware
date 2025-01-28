@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 
 /**
  * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\App\Lifecycle\WebhookPersisterTest
@@ -16,11 +17,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @phpstan-type WebhookRecord array{name: string, event_name: string, url: string, only_live_version: int, app_id: string, active: int, error_count: int}
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookPersister
 {
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly WebhookCacheClearer $cacheClearer,
+    ) {
     }
 
     /**
@@ -55,6 +58,7 @@ class WebhookPersister
         }
 
         $this->deleteOldWebhooks($existingWebhooks, $context);
+        $this->cacheClearer->clearWebhookCache();
     }
 
     /**

@@ -26,7 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('core')]
+#[Package('framework')]
 class RequestCriteriaBuilder
 {
     private const TOTAL_COUNT_MODE_MAPPING = [

@@ -8,7 +8,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EventDispatcherWrapper
 {
     /**

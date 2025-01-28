@@ -2,7 +2,7 @@ import template from './sw-order-document-settings-modal.html.twig';
 import './sw-order-document-settings-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin, Utils } = Shopware;
@@ -145,8 +145,8 @@ export default {
             // override in specific document-settings-modals to add additional data to your document
         },
 
-        onPreview() {
-            this.$emit('preview-show', this.documentConfig);
+        onPreview(fileType = 'pdf') {
+            this.$emit('preview-show', { ...this.documentConfig, fileTypes: [fileType] }, fileType);
         },
 
         onConfirm() {

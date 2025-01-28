@@ -1,5 +1,5 @@
 /**
- * @package storefront
+ * @sw-package framework
  */
 
 import * as bootstrap from 'bootstrap';

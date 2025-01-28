@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ChangelogParser
 {
     public const FIXES_REGEX = '(closes?|resolved?|fix(es)?):?\s+(#[0-9]+)';
@@ -41,6 +42,10 @@ class ChangelogParser
 
     private function findIssueIdInCommit(string $path, string $rootDir): ?string
     {
+        if (EnvironmentHelper::getVariable('TESTS_RUNNING', false)) {
+            return null;
+        }
+
         $cmd = 'cd ' . escapeshellarg($rootDir) . ' && git log -- ' . escapeshellarg($path);
         $output = \shell_exec($cmd);
 

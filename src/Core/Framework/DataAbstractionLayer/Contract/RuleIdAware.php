@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Contract;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 interface RuleIdAware
 {
     public function getAvailabilityRuleId(): ?string;

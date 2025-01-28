@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @deprecated tag:v6.7.0 - Will be removed as the service is not used anymore
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class AttachmentLoader
 {
     /**

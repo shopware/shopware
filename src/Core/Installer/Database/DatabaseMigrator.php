@@ -9,7 +9,7 @@ use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class DatabaseMigrator
 {
     public function __construct(

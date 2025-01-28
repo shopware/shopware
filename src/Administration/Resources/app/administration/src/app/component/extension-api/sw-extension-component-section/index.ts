@@ -2,7 +2,7 @@ import type { ComponentSectionEntry } from 'src/app/state/extension-component-se
 import template from './sw-extension-component-section.html.twig';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description A card is a flexible and extensible content container.

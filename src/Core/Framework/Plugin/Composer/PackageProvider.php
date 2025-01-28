@@ -9,7 +9,7 @@ use Composer\Util\ConfigValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 
-#[Package('core')]
+#[Package('framework')]
 class PackageProvider
 {
     /**

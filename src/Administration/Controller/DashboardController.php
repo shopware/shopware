@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['administration']])]
-#[Package('administration')]
+#[Package('framework')]
 class DashboardController extends AbstractController
 {
     public function __construct(private readonly OrderAmountService $orderAmountService)

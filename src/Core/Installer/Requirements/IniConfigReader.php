@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class IniConfigReader
 {
     public function get(string $key): string

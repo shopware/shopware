@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import SearchRankingService, {
     searchRankingPoint,

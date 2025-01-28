@@ -4,7 +4,7 @@ import './sw-search-more-results.scss';
 const { Component, Application } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description

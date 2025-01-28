@@ -20,7 +20,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
 
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelContext extends Struct
 {
     use StateAwareTrait;
@@ -121,7 +121,7 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param array<string, string[]> $areaRuleIds
+     * @param array<string, array<string>> $areaRuleIds
      *
      * @deprecated tag:v6.7.0 - Parameter 'languageInfo' will be required and not nullable. It will also be the second last parameter
      */
@@ -233,7 +233,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getRuleIds(): array
     {
@@ -251,7 +251,7 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @return array<string, string[]>
+     * @return array<string, array<string>>
      */
     public function getAreaRuleIds(): array
     {
@@ -261,9 +261,9 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param string[] $areas
+     * @param array<string> $areas
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getRuleIdsByAreas(array $areas): array
     {
@@ -283,7 +283,7 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param array<string, string[]> $areaRuleIds
+     * @param array<string, array<string>> $areaRuleIds
      */
     public function setAreaRuleIds(array $areaRuleIds): void
     {
@@ -371,7 +371,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getStates(): array
     {
@@ -389,7 +389,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return non-empty-list<string>
      */
     public function getLanguageIdChain(): array
     {

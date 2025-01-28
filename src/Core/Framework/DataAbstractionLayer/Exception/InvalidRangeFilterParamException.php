@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class InvalidRangeFilterParamException extends DataAbstractionLayerException
 {
 }

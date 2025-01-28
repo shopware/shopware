@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ProductPage extends Page
 {
     /**

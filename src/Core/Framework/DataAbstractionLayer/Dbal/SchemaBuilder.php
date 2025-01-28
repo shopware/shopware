@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -75,7 +76,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SchemaBuilder
 {
     /**
@@ -159,6 +160,8 @@ class SchemaBuilder
     public function buildSchemaOfDefinition(EntityDefinition $definition): Table
     {
         $table = (new Schema())->createTable($definition->getEntityName());
+        $table->addOption('charset', 'utf8mb4');
+        $table->addOption('collate', 'utf8mb4_unicode_ci');
 
         /** @var Field $field */
         foreach ($definition->getFields() as $field) {
@@ -203,6 +206,10 @@ class SchemaBuilder
 
     private function getFieldType(Field $field): string
     {
+        if ($field instanceof EnumField) {
+            return $field->getType();
+        }
+
         foreach (self::$fieldMapping as $class => $type) {
             if ($field instanceof $class) {
                 return self::$fieldMapping[$field::class];
@@ -304,6 +311,10 @@ class SchemaBuilder
                 if ($field instanceof ParentAssociationField) {
                     $columns[] = 'version_id';
                 } else {
+                    if ($versionField === null) {
+                        throw DataAbstractionLayerException::versionFieldNotFound($field->getPropertyName());
+                    }
+
                     /** @var ReferenceVersionField $versionField */
                     $columns[] = $versionField->getStorageName();
                 }

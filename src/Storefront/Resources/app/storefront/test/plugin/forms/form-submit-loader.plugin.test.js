@@ -18,6 +18,7 @@ function setUpFormLoader(formSelector) {
 }
 
 /**
+ * @deprecated tag:v6.8.0 - Use the `form-handler.plugin.js` instead.
  * @package content
  */
 describe('Form submit loader tests', () => {

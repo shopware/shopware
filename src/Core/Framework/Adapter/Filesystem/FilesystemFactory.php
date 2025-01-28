@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-#[Package('core')]
+#[Package('framework')]
 class FilesystemFactory
 {
     /**

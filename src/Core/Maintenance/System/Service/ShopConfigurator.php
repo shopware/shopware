@@ -14,7 +14,7 @@ use Symfony\Component\Intl\Currencies;
 /**
  * @deprecated tag:v6.7.0 - reason:becomes-internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ShopConfigurator
 {
     /**
@@ -103,7 +103,7 @@ class ShopConfigurator
             $this->changeDefaultLanguageData($newDefaultLanguageId, $currentLocale, $locale);
         }
 
-        $this->eventDispatcher->dispatch(new SystemLanguageChangeEvent($newDefaultLanguageId));
+        $this->eventDispatcher->dispatch(new SystemLanguageChangeEvent(Uuid::fromBytesToHex($newDefaultLanguageId)));
     }
 
     public function setDefaultCurrency(string $currencyCode): void

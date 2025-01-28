@@ -13,7 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @phpstan-type S3Config = array{bucket: string, region: string, root: string, credentials?: array{key: string, secret: string}, endpoint?: string, options: array<mixed>, use_path_style_endpoint?: bool, visibility?: string, url?: string}
  */
-#[Package('core')]
+#[Package('framework')]
 class AwsS3v3Factory implements AdapterFactoryInterface
 {
     /**

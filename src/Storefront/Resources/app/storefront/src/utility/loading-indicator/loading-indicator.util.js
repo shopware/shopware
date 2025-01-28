@@ -10,7 +10,7 @@ export const INDICATOR_POSITION = {
 };
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class LoadingIndicatorUtil {
 

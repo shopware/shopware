@@ -9,7 +9,7 @@ use Twig\TwigFilter;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SecurityExtension extends AbstractExtension
 {
     /**

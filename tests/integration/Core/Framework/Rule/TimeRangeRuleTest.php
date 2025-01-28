@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class TimeRangeRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

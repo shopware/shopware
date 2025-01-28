@@ -38,7 +38,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Elasticsearch\ElasticsearchException;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggregationHydrator
 {
     /**

@@ -6,7 +6,7 @@ import { ComponentPublicInstance } from 'vue';
 const { Directive } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * Directive for automatic edge detection of the element place
  *
@@ -30,6 +30,7 @@ interface PopoverConfig {
     targetSelector: string;
     resizeWidth: boolean;
     style: Record<string, string>;
+    /* @deprecated tag:v6.7.0 - Will be removed */
     stopScrollPropagation?: boolean;
 }
 
@@ -38,6 +39,7 @@ const defaultConfig: PopoverConfig = {
     targetSelector: '',
     resizeWidth: false,
     style: {},
+    /* @deprecated tag:v6.7.0 - Will be removed */
     stopScrollPropagation: false,
 };
 
@@ -181,7 +183,7 @@ function stopVirtualScrolling() {
     window.removeEventListener('scroll', virtualScrollingHandler, true);
 }
 
-function virtualScrollingHandler(event: Event) {
+function virtualScrollingHandler() {
     if (virtualScrollingElements.size <= 0) {
         stopVirtualScrolling();
         return;
@@ -189,9 +191,6 @@ function virtualScrollingHandler(event: Event) {
 
     virtualScrollingElements.forEach((entry) => {
         setElementPosition(entry.el, entry.ref, entry.config);
-        if (entry.config.stopScrollPropagation) {
-            event.stopPropagation();
-        }
     });
 }
 

@@ -29,7 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 class ProductStreamBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Theme\Twig;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('storefront')]
+#[Package('framework')]
 interface ThemeInheritanceBuilderInterface
 {
     /**

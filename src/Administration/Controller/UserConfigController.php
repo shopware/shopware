@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class UserConfigController extends AbstractController
 {
     /**
@@ -82,11 +82,12 @@ class UserConfigController extends AbstractController
 
     private function getUserId(Context $context): string
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
+        $userId = $source->getUserId();
         if (!$userId) {
             throw ApiException::userNotLoggedIn();
         }

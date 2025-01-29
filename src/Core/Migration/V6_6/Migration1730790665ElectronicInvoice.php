@@ -15,7 +15,7 @@ use Shopware\Core\Migration\Traits\Translations;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1730790665ElectronicInvoice extends MigrationStep
 {
     use ImportTranslationsTrait;

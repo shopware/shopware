@@ -112,7 +112,6 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                     ]);
 
                     if ($operation->isStatic()) {
-                        // @deprecated tag:v6.7.0 - html argument will be removed
                         $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
 
@@ -151,7 +150,6 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         );
                     }
 
-                    // @deprecated tag:v6.7.0 - html argument will be removed
                     $doc = new RenderedDocument(
                         $html,
                         $number,

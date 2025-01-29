@@ -37,7 +37,7 @@ class ZugferdDocumentTest extends TestCase
     public function testWithNegativePrice(): void
     {
         $this->expectException(DocumentException::class);
-        $this->expectExceptionMessage('Price can\'t be negative: Test Item');
+        $this->expectExceptionMessage('Price can\'t be negative or null: Test Item');
 
         $lineItem = new OrderLineItemEntity();
         $lineItem->setLabel('Test Item');

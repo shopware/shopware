@@ -103,7 +103,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(
-                    '', // @deprecated tag:v6.7.0 - will be removed
+                    '',
                     $documentNumber,
                     $config->buildName(),
                     FileTypes::XML,

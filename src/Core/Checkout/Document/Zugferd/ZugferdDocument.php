@@ -124,8 +124,8 @@ class ZugferdDocument
         $product = $lineItem->getProduct();
         $totalNet = $tax ? $this->getPrice($tax) : $calculatedPrice?->getTotalPrice();
 
-        if ($totalNet < 0) {
-            throw DocumentException::generationError('Price can\'t be negative: ' . $lineItem->getLabel());
+        if ($totalNet === null || $totalNet < 0) {
+            throw DocumentException::generationError('Price can\'t be negative or null: ' . $lineItem->getLabel());
         }
 
         $this->addLineTotalAmount($totalNet);

@@ -14,7 +14,7 @@ use Shopware\Core\Migration\V6_6\Migration1730790665ElectronicInvoice;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1730790665ElectronicInvoice::class)]
 class Migration1730790665ElectronicInvoiceTest extends TestCase
 {

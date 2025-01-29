@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\Core\Checkout\Document\Service;
+namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

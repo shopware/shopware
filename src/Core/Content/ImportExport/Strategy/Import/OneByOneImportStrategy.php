@@ -9,6 +9,7 @@ use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -50,8 +51,10 @@ class OneByOneImportStrategy implements ImportStrategyService
             }
 
             // @deprecated tag:v6.7.0 - remove this event with no replacement
-            $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);
-            $this->eventDispatcher->dispatch($afterRecord);
+            if (!Feature::isActive('v6.7.0.0')) {
+                $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);
+                $this->eventDispatcher->dispatch($afterRecord);
+            }
 
             $progress->addProcessedRecords(1);
 

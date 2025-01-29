@@ -9,13 +9,14 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @internal
- *
  * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class ImportExportAfterProcessFinishedEvent extends Event
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly Context $context,
         private readonly ImportExportLogEntity $logEntity,

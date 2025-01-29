@@ -162,7 +162,7 @@ export default class AddressEditorPlugin extends Plugin {
         const collapseTriggers = DomAccess.querySelectorAll(modal, '[data-bs-toggle="collapse"]', false);
 
         if (collapseTriggers) {
-            Iterator.iterate(collapseTriggers, collapseTrigger => {
+            collapseTriggers.forEach(collapseTrigger => {
                 const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-bs-target');
                 const target = DomAccess.querySelector(modal, targetSelector);
                 const parentSelector = DomAccess.getDataAttribute(target, 'data-bs-parent');
@@ -193,7 +193,7 @@ export default class AddressEditorPlugin extends Plugin {
         const ajaxForms = DomAccess.querySelectorAll(modal, '[data-form-ajax-submit]', false);
 
         if (ajaxForms) {
-            Iterator.iterate(ajaxForms, ajaxForm => {
+            ajaxForms.forEach(ajaxForm => {
 
                 /** @type FormAjaxSubmitPlugin **/
                 const FormAjaxSubmitInstance = window.PluginManager.getPluginInstanceFromElement(ajaxForm, 'FormAjaxSubmit');

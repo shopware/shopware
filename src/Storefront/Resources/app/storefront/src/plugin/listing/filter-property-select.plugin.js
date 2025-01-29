@@ -24,7 +24,7 @@ export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin 
         let labels = [];
 
         if (activeCheckboxes) {
-            Iterator.iterate(activeCheckboxes, (checkbox) => {
+            activeCheckboxes.forEach((checkbox) => {
                 labels.push({
                     label: checkbox.dataset.label,
                     id: checkbox.id,

@@ -39,6 +39,7 @@ export default class FormSerializeUtil {
      */
     static serializeJson(form, strict = true) {
         const formData = FormSerializeUtil.serialize(form, strict);
+        // TODO: This needs a fix because formData is always 0 and needs to access "entries"
         if (Object.keys(formData).length === 0) {
             return {};
         }

@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_line_chart %}
 <div
     v-if="!isLoading"
     class="sw-chart"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_line_chart_multiple %}
     <template
         v-if="needOneDimensionalArray"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_line_chart_multiple_chart %}
         <template
             v-for="(serie, index) in optimizedSeries"
@@ -28,7 +25,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_line_chart_single %}
     <apexchart
         v-else

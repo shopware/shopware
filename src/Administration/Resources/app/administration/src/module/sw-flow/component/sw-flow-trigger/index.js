@@ -401,7 +401,7 @@ export default {
         },
 
         getClosestSiblingAncestor(parentId) {
-            // when sibling does not exists, go to next parent sibling
+            // when sibling does not exist, go to next parent sibling
             const parent = this.findTreeItemVNodeById(parentId);
             const nextParent = this.getSibling(true, parent.item);
             if (nextParent) {

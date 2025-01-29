@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\Maintenance\MaintenancePageLoadedHook;
@@ -107,17 +107,18 @@ class MaintenanceControllerTest extends TestCase
 
     private function setMaintenanceMode(): void
     {
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
-        /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
             (new Criteria())->addFilter(
                 new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
                 new EqualsFilter('domains.url', $_SERVER['APP_URL'])
             ),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
+
+        static::assertNotNull($salesChannel);
 
         $salesChannelRepository->update([
             [

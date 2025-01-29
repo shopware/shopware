@@ -1,5 +1,4 @@
 <div class="sw-product-detail-reviews">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_reviews %}
     <div v-if="isLoading">
         <sw-skeleton />
@@ -12,7 +11,6 @@
         position-identifier="sw-product-detail-reviews"
         :title="cardTitle"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_reviews_data %}
         <template
             v-if="total"
@@ -26,10 +24,8 @@
                 :show-selection="false"
                 :show-actions="true"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_reviews_data_stars %}
                 <template #column-points="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_reviews_data_stars_content %}
 
                     <sw-rating-stars :value="item.points" />
@@ -38,7 +34,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_reviews_data_status %}
                 <template #column-status="{ item }">
                     <sw-data-grid-column-boolean
@@ -48,17 +43,14 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_reviews_data_created_at %}
                 <template #column-createdAt="{ item }">
                     {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_reviews_data_action %}
                 <template #actions="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_reviews_data_action_edit %}
                     <sw-context-menu-item
                         class="sw-product-detail-reviews__action-edit"
@@ -69,7 +61,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_reviews_data_action_delete %}
                     <sw-context-menu-item
                         class="sw-product-detail-reviews__action-delete"
@@ -83,7 +74,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_reviews_data_pagination %}
                 <template #pagination>
                     <sw-pagination
@@ -100,7 +90,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_reviews_empty_state %}
 
         <sw-empty-state
@@ -118,7 +107,6 @@
             </template>
 
             <template #actions>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_reviews_empty_state_button %}
                 <sw-button
                     variant="ghost"
@@ -131,7 +119,6 @@
         </sw-empty-state>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_reviews_modal_delete %}
         <sw-modal
             v-if="showReviewDeleteModal"
@@ -139,15 +126,12 @@
             :title="$tc('sw-product.reviewForm.modal.confirmTitle')"
             @modal-close="onCancelReviewDelete"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_reviews_modal_delete_body %}
             <p>{{ $tc('sw-product.reviewForm.modal.confirmText') }}</p>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_reviews_modal_delete_footer %}
             <template #modal-footer>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_reviews_modal_delete_button_cancel %}
                 <sw-button
                     size="small"
@@ -157,7 +141,6 @@
                 </sw-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_reviews_modal_delete_button_confirm %}
                 <sw-button
                     size="small"

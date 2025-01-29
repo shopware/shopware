@@ -347,7 +347,7 @@ describe('src/app/service/privileges.service.js', () => {
         });
     });
 
-    it('should return undefined when the exact privilege role does not exists', async () => {
+    it('should return undefined when the exact privilege role does not exist', async () => {
         const privilegesService = new PrivilegesService();
 
         expect(privilegesService.getPrivilegeRole('does.not_exists')).toBeUndefined();

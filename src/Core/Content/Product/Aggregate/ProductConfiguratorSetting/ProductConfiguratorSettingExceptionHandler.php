@@ -14,6 +14,9 @@ class ProductConfiguratorSettingExceptionHandler implements ExceptionHandlerInte
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
+    /**
+     * @param \Exception $e - @deprecated tag:v6.7.0 - in v6.7.0 parameter type will be changed to \Throwable
+     */
     public function matchException(\Exception $e): ?\Exception
     {
         if (preg_match('/SQLSTATE\[23000]:.*1062 Duplicate.*product_configurator_setting\.uniq\.product_configurator_setting\.prod_id\.vers_id\.prop_group_id\'/', $e->getMessage())) {

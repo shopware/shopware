@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_seo %}
 <div v-if="isLoading">
     <sw-skeleton variant="detail-bold" />
@@ -6,13 +5,11 @@
 </div>
 
 <div v-else>
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_seo_general %}
     <sw-card
         position-identifier="sw-product-detail-seo"
         :title="$tc('sw-product.seo.cardTitleSeo')"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_seo_general_content %}
         <sw-product-seo-form
             ref="seoForm"
@@ -22,7 +19,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_seo_urls %}
     <sw-seo-url
         v-if="product.seoUrls"
@@ -31,10 +27,8 @@
         :urls="product.seoUrls"
         @on-change-sales-channel="onChangeSalesChannel"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_seo_urls_content %}
         <template #seo-additional="props">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_seo_urls_content_seo_additional %}
             <sw-inherit-wrapper
                 v-if="product.mainCategories"
@@ -45,7 +39,6 @@
             >
 
                 <template #content="{ currentValue, isInherited }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_seo_urls_content_seo_additional_edit %}
                     <sw-seo-main-category
                         :current-sales-channel-id="props.currentSalesChannelId"

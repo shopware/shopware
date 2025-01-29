@@ -41,12 +41,10 @@ class JWTConfigurationFactory
 
             $clock = new SystemClock(new \DateTimeZone(\date_default_timezone_get()));
 
-            $configuration->setValidationConstraints(
+            return $configuration->withValidationConstraints(
                 new SignedWith(new Rsa256(), $publicKey),
                 new LooseValidAt($clock, null),
             );
-
-            return $configuration;
         }
 
         return self::createUsingAppSecret();
@@ -65,12 +63,10 @@ class JWTConfigurationFactory
 
         $clock = new SystemClock(new \DateTimeZone(\date_default_timezone_get()));
 
-        $configuration->setValidationConstraints(
+        return $configuration->withValidationConstraints(
             new SignedWith(new Hmac256(), $key),
             new LooseValidAt($clock, null),
         );
-
-        return $configuration;
     }
 
     /**

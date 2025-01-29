@@ -31,6 +31,7 @@ export default function initializeWindow(): void {
         }
 
         await $router.push({
+            // @ts-expect-error
             name: name && name.length > 0 ? name : undefined,
             params,
             path: path && path.length > 0 ? path : '',

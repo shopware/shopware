@@ -1,10 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_review_creation_inputs %}
 <div class="sw-extension-review-creation-inputs">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_creation_inputs_grid %}
     <div class="sw-extension-review-creation-inputs__grid">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_creation_inputs_grid_headline_input %}
         <sw-text-field
             v-model:value="headline"
@@ -15,10 +12,8 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_creation_inputs_grid_rating_wrapper %}
         <div class="sw-extension-review-creation-inputs__rating">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_review_creation_inputs_grid_rating_wrapper_input %}
             <sw-extension-select-rating
                 v-model:value="rating"
@@ -32,7 +27,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_creation_inputs_description_input %}
     <sw-textarea-field
         v-model:value="text"

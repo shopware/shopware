@@ -1,28 +1,21 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_dashboard_index %}
 <sw-page
     class="sw-dashboard-index"
     :show-smart-bar="false"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_dashboard_index_content %}
     <template #content>
         <sw-card-view class="sw-dashboard-index__content">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_index_content_intro_card %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_index_content_intro_content %}
             <div class="sw-dashboard-index__welcome-text">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_dashboard_index_content_intro %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_dashboard_index_content_intro_content_headline %}
                 <h1 class="sw-dashboard-index__welcome-title">
                     {{ welcomeMessage }}
                 </h1>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_dashboard_index_content_intro_welcome_message %}
                 <p class="sw-dashboard-index__welcome-message">
                     {{ welcomeSubline }}
@@ -40,25 +33,19 @@
                 class="sw-dashboard__before-content"
             />
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_index_content_info_grid %}
             <div class="sw-dashboard-index__card-grid">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_dashboard_index_content_info_grid_inner %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_dashboard_index_content_info__grid_inner_welcome_card %}
                 <div class="sw-dashboard-index__card sw-dashboard-index__card--bg-checklist">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_dashboard_index_content_info_grid_welcome_card_content %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_dashboard_index_content_info_grid_welcome_headline %}
                     <h2 class="sw-dashboard-index__card-title">
                         {{ $tc('sw-dashboard.helpcard.headline') }}
                     </h2>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_dashboard_index_content_info_grid_welcome_link_list %}
                     <ul class="sw-dashboard-index__card-list">
                         <li
@@ -76,27 +63,22 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_dashboard_index_content_grid_info_inner_feedback_card %}
                 <div class="sw-dashboard-index__card sw-dashboard-index__card--dimmed">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_dashboard_index_content_info_grid_feedback_card_content %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_dashboard_index_content_feedback_headline %}
                     <h2 class="sw-dashboard-index__card-title">
                         {{ $tc('sw-dashboard.feedbackCard.headline') }}
                     </h2>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_dashboard_index_content_feedback_text %}
                     <p class="sw-dashboard-index__card-text">
                         {{ $tc('sw-dashboard.feedbackCard.text') }}
                     </p>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_dashboard_index_content_feedback_link %}
                     <sw-external-link
                         class="sw-dashboard-index__card-button"

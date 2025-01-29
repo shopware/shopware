@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_boolean_filter %}
 <div class="sw-boolean-filter">
     <sw-base-filter
@@ -7,7 +6,6 @@
         :active="active"
         @filter-reset="resetFilter"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_boolean_filter_content %}
         <sw-select-field
             :value="value"

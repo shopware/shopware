@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -46,8 +47,13 @@ class NullConnection extends Connection
         return $this->originalConnection->prepare($statement);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use executeStatement() instead
+     */
     public function executeUpdate(string $sql, array $params = [], array $types = []): int
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0', 'executeStatement'));
+
         return 0;
     }
 

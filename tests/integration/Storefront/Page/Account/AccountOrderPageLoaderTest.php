@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,6 +27,9 @@ class AccountOrderPageLoaderTest extends TestCase
 
     private SalesChannelContext $salesChannel;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     /**

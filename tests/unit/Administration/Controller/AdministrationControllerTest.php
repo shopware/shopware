@@ -54,6 +54,7 @@ class AdministrationControllerTest extends TestCase
 
     private Context $context;
 
+    /** @var MockObject&EntityRepository<CurrencyCollection> */
     private MockObject&EntityRepository $currencyRepository;
 
     private MockObject&DefinitionInstanceRegistry $definitionRegistry;
@@ -467,6 +468,9 @@ class AdministrationControllerTest extends TestCase
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository([$collection]);
+
         return new AdministrationController(
             $this->createMock(TemplateFinder::class),
             $this->createMock(FirstRunWizardService::class),
@@ -476,7 +480,7 @@ class AdministrationControllerTest extends TestCase
             $this->connection,
             $this->eventDispatcher,
             $this->shopwareCoreDir,
-            new StaticEntityRepository([$collection]),
+            $customerRepository,
             $this->currencyRepository,
             $this->htmlSanitizer,
             $this->definitionRegistry,

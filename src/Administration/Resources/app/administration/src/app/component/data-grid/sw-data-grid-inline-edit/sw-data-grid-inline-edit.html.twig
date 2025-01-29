@@ -10,6 +10,7 @@
         v-model:value="currentValue"
         name="sw-field--currentValue"
         :size="inputFieldSize"
+        @update:value="emitInput"
     />
     {% endblock %}
 
@@ -21,6 +22,7 @@
         name="sw-field--currentValue"
         :size="inputFieldSize"
         :number-align-end="true"
+        @update:value="emitInput"
     />
     {% endblock %}
 
@@ -30,6 +32,7 @@
         key="boolean"
         v-model:value="currentValue"
         name="sw-field--currentValue"
+        @update:value="emitInput"
     />
     {% endblock %}
 

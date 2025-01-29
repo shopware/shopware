@@ -22,10 +22,6 @@ class ImportExportAfterImportRecordEvent extends Event
         private readonly Config $config,
         private readonly Context $context
     ) {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'),
-        );
     }
 
     public function getResult(): EntityWrittenContainerEvent

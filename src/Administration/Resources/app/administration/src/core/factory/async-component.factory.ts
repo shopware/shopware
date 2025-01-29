@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+/* eslint-disable max-len, @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
@@ -164,12 +165,11 @@ function registerComponentHelper<T extends keyof ComponentHelper>(name: T, helpe
     return true;
 }
 
-/* eslint-disable max-len,@typescript-eslint/ban-types,@typescript-eslint/no-explicit-any */
 type PublicProps = VNodeProps & AllowedComponentProps & ComponentCustomProps;
 
 type EmitsToProps<T extends EmitsOptions> = T extends string[]
     ? {
-          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents,
           [K in string & `on${Capitalize<T[number]>}`]?: (...args: any[]) => any;
       }
     : T extends ObjectEmitsOptions
@@ -474,7 +474,6 @@ function register<
 >;
 
 function register(componentName: string, componentConfiguration: unknown): unknown {
-    /* eslint-enable max-len,@typescript-eslint/ban-types */
     if (!componentName || !componentName.length) {
         warn('ComponentFactory', 'A component always needs a name.', componentConfiguration);
         return false;
@@ -496,6 +495,7 @@ function register(componentName: string, componentConfiguration: unknown): unkno
                 : // @ts-expect-error - type is defined in overload
                   (): Promise<ComponentConfig> => Promise.resolve(componentConfiguration);
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         let awaitedConfigResult = (await awaitedConfig()) as ComponentConfig;
 
         /**

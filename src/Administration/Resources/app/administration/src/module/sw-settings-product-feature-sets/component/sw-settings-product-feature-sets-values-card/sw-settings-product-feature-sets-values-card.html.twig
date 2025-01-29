@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_feature_set_card %}
 <sw-card
     :title="$tc('sw-settings-product-feature-sets.valuesCard.cardTitle')"
@@ -10,18 +9,15 @@
 
     <template #grid>
         <div v-if="!valuesEmpty && !disabled">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_feature_set_toolbar %}
             <div class="sw-product-feature-set__toolbar">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_feature_set_toolbar_container %}
                 <sw-container
                     columns="1fr 32px minmax(100px, 200px)"
                     gap="0 10px"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_feature_set_toolbar_search %}
                     <sw-simple-search-field
                         v-model:value="term"
@@ -32,7 +28,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_feature_set_toolbar_delete %}
                     <sw-button
                         :disabled="deleteButtonDisabled || !allowEdit || undefined"
@@ -48,7 +43,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_feature_set_toolbar_add %}
                     <sw-container>
                         <sw-button
@@ -69,7 +63,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_feature_set_card_grid %}
             <sw-data-grid
                 :data-source="values"
@@ -81,21 +74,18 @@
                 @selection-change="onGridSelectionChanged"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_product_feature_set_card_grid_column_name %}
                 <template #column-name="{ item }">
                     {{ featureGridTranslationService.getNameTranslation(item) }}
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_product_feature_set_card_grid_column_type %}
                 <template #column-type="{ item }">
                     {{ featureGridTranslationService.getTypeTranslation(item) }}
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_product_feature_set_card_grid_column_position %}
                 <template #column-position="{ item }">
                     <sw-data-grid-column-position
@@ -115,12 +105,10 @@
         </div>
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_feature_set_card_empty_state %}
     <template v-if="valuesEmpty || disabled">
 
         <div class="sw-settings-product-feature-set-card__empty-state">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_feature_set_card_empty_state_image %}
             <img
                 :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
@@ -128,7 +116,6 @@
             >
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_feature_set_card_empty_state_label %}
             <div class="sw-settings-product-feature-set-card__empty-state--label">
                 <p v-if="disabled">
@@ -140,7 +127,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_feature_set_card_empty_state_button %}
             <sw-button
                 variant="ghost"
@@ -156,7 +142,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_feature_set_card_grid_column_modal %}
     <sw-settings-product-feature-sets-modal
         v-if="showModal"

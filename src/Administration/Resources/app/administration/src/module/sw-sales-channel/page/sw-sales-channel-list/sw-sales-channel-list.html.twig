@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_list %}
 <sw-page class="sw-sales-channel-list">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -13,18 +11,14 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_list_smart_bar_header_title_text %}
             {{ $tc('sw-sales-channel.list.title') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -38,10 +32,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_list_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_list_smart_bar_actions %}
         <sw-button
             v-tooltip.bottom="{
@@ -59,11 +51,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_list_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_list_content_card %}
             <sw-card
                 v-if="entitySearchable && total > 0"
@@ -71,7 +61,6 @@
                 :title="$tc('sw-sales-channel.list.title')"
                 :subtitle="$tc('sw-sales-channel.list.subTitle')"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_list_grid %}
                 <template #grid>
                     <sw-entity-listing
@@ -88,7 +77,6 @@
                         :show-settings="true"
                         :allow-column-edit="true"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_list_grid_column_name %}
                         <template #column-name="{ item }">
                             <sw-icon
@@ -105,7 +93,6 @@
                         {% endblock %}
 
                         {# @deprecated tag:v6.7.0 - Remove block #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_list_grid_column_product_visibilites %}
                         <template #column-product_visibilities="{ item }">
                             {{ getCountForSalesChannel(item.id) }}
@@ -113,7 +100,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_list_grid_column_status %}
                         <template #column-status="{ item }">
                             <template v-if="item.maintenance">
@@ -136,14 +122,12 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_list_grid_column_created_at %}
                         <template #column-createdAt="{ item }">
                             {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_list_grid_column_favorite %}
                         <template #column-id="{ item }">
                             <sw-switch-field
@@ -156,10 +140,8 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_list_grid_actions %}
                         <template #actions="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_sales_channel_list_grid_actions_item_detail %}
                             <sw-context-menu-item
                                 :router-link="{
@@ -171,7 +153,6 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_sales_channel_list_grid_actions_item_open_storefront %}
                             <sw-context-menu-item
                                 v-if="isStorefrontSalesChannel(item)"
@@ -189,7 +170,6 @@
             </sw-card>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state

@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-billing-zip-code sw-condition__condition-value">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_billing_zip_code_field_numeric %}
     <sw-single-select
         v-model:value="isNumeric"
@@ -15,7 +13,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_billing_zip_code_field_operator %}
     <sw-condition-operator-select
         v-bind="{ condition, operators }"
@@ -23,7 +20,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_billing_zip_code_field_zip_codes %}
     <sw-tagged-field
         v-if="!isNumeric && !isEmpty"

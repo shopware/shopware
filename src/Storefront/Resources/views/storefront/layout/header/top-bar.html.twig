@@ -1,9 +1,15 @@
+{# @deprecated tag:v6.7.0 - Fallback will be removed, add header directly #}
+{% if not feature('cache_rework') and not header is defined and page is defined %}
+    {% set header = page.header %}
+{% endif %}
+
 {% block layout_header_top_bar %}
     <div class="top-bar d-none d-lg-block">
         {% block layout_header_top_bar_inner %}
-            {% if page.header.languages.count > 1 or page.header.currencies.count > 1 or not feature('ACCESSIBILITY_TWEAKS') %}
+            {% if header.languages.count > 1 or header.currencies.count > 1 or not feature('ACCESSIBILITY_TWEAKS') %}
                 {# @deprecated tag:v6.7.0 - The "top-bar" layout will use Bootstrap helper classes instead of custom CSS. #}
-                <nav class="top-bar-nav{% if feature('ACCESSIBILITY_TWEAKS') %} d-flex justify-content-end gap-3{% endif %}" aria-label="{{ 'header.topBarAriaLabel'|trans|striptags }}">
+                <nav class="top-bar-nav{% if feature('ACCESSIBILITY_TWEAKS') %} d-flex justify-content-end gap-3{% endif %}"
+                     aria-label="{{ 'header.topBarAriaLabel'|trans|striptags }}">
                     {% block layout_header_top_bar_language %}
                         {% sw_include '@Storefront/storefront/layout/header/actions/language-widget.html.twig' %}
                     {% endblock %}

@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_folder_info %}
 <div class="sw-media-folder-info">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_folder_quickactions %}
     <sw-media-collapse
         v-if="editable"
@@ -9,11 +7,9 @@
         :expand-on-loading="true"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_folder_quickactions_content %}
         <template #content>
             <ul class="sw-media-sidebar__quickactions-list">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_move %}
                 <li
                     v-tooltip="{
@@ -37,7 +33,6 @@
                 </li>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_settings %}
                 <li
                     class="sw-media-sidebar__quickaction quickaction--settings"
@@ -55,7 +50,6 @@
                 </li>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_dissolve %}
                 <li
                     v-tooltip="{
@@ -79,7 +73,6 @@
                 </li>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_delete %}
                 <li
                     v-tooltip="{
@@ -108,18 +101,15 @@
     </sw-media-collapse>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_folder_metadata %}
     <sw-media-collapse
         :expand-on-loading="true"
         :title="$tc('sw-media.sidebar.sections.metadata')"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_folder_metadata_content %}
         <template #content>
             <dl class="sw-media-sidebar__metadata-list">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_metadata_content_base %}
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-name"
@@ -154,7 +144,6 @@
     </sw-media-collapse>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_info_settings_modal %}
     <sw-media-modal-folder-settings
         v-if="showFolderSettings"
@@ -165,7 +154,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_info_dissolve_modal %}
     <sw-media-modal-folder-dissolve
         v-if="showFolderDissolve"
@@ -175,7 +163,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_info_move_modal %}
     <sw-media-modal-move
         v-if="showModalMove"
@@ -185,7 +172,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_info_modal_delete %}
     <sw-media-modal-delete
         v-if="showModalDelete"

@@ -18,9 +18,9 @@ All blocks of this template are available in the template which renders this tem
                 {# @deprecated tag:v6.7.0 - companyAddress will be replaced with single fields. companyStreet, companyZipcode, companyCity #}
                 {% set address %}
                     {% if feature('v6.7.0.0') %}
-                        {{ addressParts|join(' - ') }}<br><br>
+                        <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
                     {% else %}
-                        {{ config.companyName }} {{ config.companyAddress }}<br><br>
+                        <span class="company-address-small">{{ config.companyName }} {{ config.companyAddress }}</span><br><br>
                     {% endif %}
                 {% endset %}
 

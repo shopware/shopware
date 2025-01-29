@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_desktop %}
 <div
     class="sw-desktop"
@@ -11,15 +10,12 @@
         {{ $tc('global.sw-desktop.stagingBarText') }}
     </div>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_desktop_sidebar %}
     <sw-admin-menu v-if="!noNavigation" />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_desktop_content %}
     <div class="sw-desktop__content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_desktop_content_view %}
         <sw-error-boundary>
             <router-view />

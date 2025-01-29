@@ -617,7 +617,7 @@ class ApplicationBootstrapper {
             const exists = initContainer.hasOwnProperty(key);
 
             if (!exists) {
-                console.error(`The initializer "${key}" does not exists`);
+                console.error(`The initializer "${key}" does not exist`);
             }
         });
 

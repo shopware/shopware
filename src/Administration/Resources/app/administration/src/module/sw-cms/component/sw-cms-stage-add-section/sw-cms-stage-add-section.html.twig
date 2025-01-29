@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_add_section %}
 <div
     class="sw-cms-stage-add-section"
     :class="componentClasses"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_add_section_selection %}
     <sw-cms-stage-section-selection
         v-if="showSelection"
@@ -13,7 +11,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_add_section_button %}
     <div
         v-if="!forceChoose"

@@ -1,12 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_detail %}
 <sw-page class="sw-property-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_smart_bar_header %}
     <template #smart-bar-header>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_smart_bar_header_title %}
         <h2>{{ placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline')) }}</h2>
         {% endblock %}
@@ -14,10 +11,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_smart_bar_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -29,7 +24,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_smart_bar_actions_save %}
         <sw-button-process
             v-tooltip="tooltipSave"
@@ -47,7 +41,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -59,7 +52,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_content %}
     <template #content>
         <sw-card-view>
@@ -71,14 +63,12 @@
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <div v-show="!isLoading">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_detail_content_language_info %}
                 <sw-language-info
                     :entity-description="placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline'))"
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_detail_content_detail_base %}
                 <sw-property-detail-base
                     v-if="propertyGroup"
@@ -87,7 +77,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_detail_content_option_list %}
                 <sw-property-option-list
                     v-if="propertyGroup"
@@ -98,7 +87,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

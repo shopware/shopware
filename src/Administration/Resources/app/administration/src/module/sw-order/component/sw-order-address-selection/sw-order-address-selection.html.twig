@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_address_selection %}
 <div class="sw-order-address">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_address_selection_modal %}
     <sw-modal
         v-if="currentAddress"
         :title="modalTitle"
         @modal-close="currentAddress = null"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_address_modal_content %}
         <sw-customer-address-form
             :address="currentAddress"
@@ -23,10 +20,8 @@
         </sw-customer-address-form>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_address_modal_actions %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_address_modal_action_close %}
             <sw-button
                 size="small"
@@ -36,7 +31,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_address_modal_actions_apply %}
             <sw-button
                 variant="primary"
@@ -51,7 +45,6 @@
     </sw-modal>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_address_selection_entity_single_select %}
     <sw-single-select
         :value="addressId"

@@ -1,10 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_variants_delivery_order %}
 <div class="sw-product-variants-delivery-order">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_delivery_order_groups %}
     <div class="sw-product-variants-delivery-order__groups">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_delivery_order_groups_sw_tree %}
         <sw-tree
             v-if="orderObjects.length"
@@ -29,7 +26,6 @@
         </sw-tree>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_delivery_order_loader %}
         <sw-loader v-else />
         {% endblock %}

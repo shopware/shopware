@@ -1,22 +1,17 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_ratings_card %}
 <sw-meteor-card
     class="sw-extension-ratings-card"
     :is-loading="isLoading"
     :title="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.cardTitle')"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_ratings_card_has_reviews %}
     <template v-if="hasReviews">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_ratings_card_has_reviews_summary %}
         <sw-extension-ratings-summary :summary="summary" />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_ratings_card_has_reviews_wrapper %}
         <div class="sw-extension-ratings-card__reviews">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_ratings_card_has_reviews_wrapper_review %}
             <sw-extension-review
                 v-for="(review, index) in reviews"
@@ -26,7 +21,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_ratings_card_has_reviews_wrapper_more_button %}
             <sw-button
                 v-if="canShowMore"
@@ -41,17 +35,14 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_ratings_card_empty_state %}
     <template v-else>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_ratings_card_empty_state_content %}
         {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews') }}
         {% endblock %}
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_ratings_card_installed_and_licensed_headline %}
     <h3
         v-if="isInstalledAndLicensed && !isLoading"
@@ -61,13 +52,11 @@
     </h3>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_ratings_card_footer %}
     <template
         v-if="isInstalledAndLicensed && !isLoading"
         #footer
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_ratings_card_footer_review_creation %}
         <sw-extension-review-creation
             :extension="extension"

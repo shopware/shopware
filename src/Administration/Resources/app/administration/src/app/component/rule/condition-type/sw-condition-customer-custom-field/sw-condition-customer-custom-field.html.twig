@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-customer-custom-field sw-condition__condition-value">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_customer_custom_field_field %}
     <sw-entity-single-select
         ref="selectedField"
@@ -23,7 +21,6 @@
         </template>
 
         <template #result-description-property="slotProps">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_customer_custom_field_field_description %}
             {{ getInlineSnippet(slotProps.item.customFieldSet.config.label) || slotProps.item.customFieldSet.name }}
             {% endblock %}
@@ -31,7 +28,6 @@
     </sw-entity-single-select>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_customer_custom_field_operator %}
     <sw-condition-operator-select
         v-if="renderedField"
@@ -40,7 +36,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_customer_custom_field_value %}
     <sw-form-field-renderer
         v-if="renderedField"

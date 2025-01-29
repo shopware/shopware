@@ -1,12 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_exporter %}
 <div class="sw-import-export-exporter">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_exporter_header %}
     <h2>{{ $tc('sw-import-export.importer.selectProfileLabel') }}</h2>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_exporter_profile_select %}
     <sw-entity-single-select
         class="sw-import-export-exporter__profile-select"
@@ -23,7 +20,6 @@
     {% endblock %}
 
     <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_exporter_profile_select_product_variants_switch %}
         <sw-switch-field
             v-model:value="config.parameters.includeVariants"
@@ -34,13 +30,11 @@
     </template>
 
     <template v-if="showProductVariantsInfo">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_exporter_product_variants_warning %}
         <sw-alert
             variant="warning"
             class="sw-import-export-exporter__variants-warning"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_exporter_product_variants_warning_text %}
             <p>
                 <span v-html="$tc('sw-import-export.exporter.variantsWarning')"></span>
@@ -67,14 +61,12 @@
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_exporter_modal %}
     <sw-modal
         v-if="exportModalProfile"
         :title="$tc('sw-import-export.exporter.exportLabel')"
         @modal-close="setExportModalProfile(null)"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_exporter_modal_exporter %}
         <sw-import-export-exporter
             :source-entity="exportModalProfile"
@@ -83,7 +75,6 @@
         {% endblock %}
 
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_exporter_modal_footer %}
             <sw-button
                 size="small"
@@ -96,7 +87,6 @@
     </sw-modal>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_exporter_progress %}
     <sw-import-export-progress
         activity-type="export"

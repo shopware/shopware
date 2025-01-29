@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_packaging_form %}
 <div class="sw-product-packaging-form">
     <sw-container
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_packaging_form_width_field %}
         <sw-inherit-wrapper
             v-model:value="product.width"
@@ -34,7 +32,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_packaging_form_height_field %}
         <sw-inherit-wrapper
             v-model:value="product.height"
@@ -63,7 +60,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_length_field %}
         <sw-inherit-wrapper
             v-model:value="product.length"
@@ -96,7 +92,6 @@
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_weight_field %}
         <sw-inherit-wrapper
             v-model:value="product.weight"
@@ -126,7 +121,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_purchase_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
@@ -156,7 +150,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
@@ -187,7 +180,6 @@
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_pack_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
@@ -213,7 +205,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_pack_unit_plural_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
@@ -239,7 +230,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_reference_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"

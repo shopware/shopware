@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_detail_addresses %}
 <div class="sw-customer-detail-addresses">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_addresses_card %}
     <sw-card
         position-identifier="sw-customer-detail-addresses"
         :is-loading="isLoading"
         :large="true"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_detail_addresses_toolbar %}
         <template #toolbar>
             <sw-card-filter
@@ -17,7 +14,6 @@
                 @sw-card-filter-term-change="onChange"
             >
                 <template #filter>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_detail_addresses_add_button %}
                     <sw-button
                         class="sw-customer-detail-addresses__add-address-action"
@@ -37,7 +33,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_detail_addresses_add_modal %}
         <sw-modal
             v-if="currentAddress"
@@ -45,7 +40,6 @@
             @modal-close="onCloseAddressModal"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_addresses_add_modal_address_form %}
             <sw-customer-address-form
                 :address="currentAddress"
@@ -62,10 +56,8 @@
             </sw-customer-address-form>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_addresses_add_modal_footer %}
             <template #modal-footer>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_add_modal_cancel %}
                 <sw-button
                     size="small"
@@ -75,7 +67,6 @@
                 </sw-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_add_modal_apply %}
                 <sw-button
                     variant="primary"
@@ -90,7 +81,6 @@
         </sw-modal>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_detail_addresses_grid %}
         <template #grid>
             <sw-one-to-many-grid
@@ -104,9 +94,7 @@
                 :is-loading="isLoading"
                 @column-sort="setAddressSorting"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_grid_columns %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_grid_columns_default_shipping_address %}
                 <template #column-defaultShippingAddress="{ item }">
                     <sw-radio-field
@@ -119,7 +107,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_grid_columns_default_billing_address %}
                 <template #column-defaultBillingAddress="{ item }">
                     <sw-radio-field
@@ -132,7 +119,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_grid_columns_last_name %}
                 <template #column-lastName="{ item }">
                     <a
@@ -152,11 +138,9 @@
                 {% endblock %}
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_grid_columns_actions %}
                 <template #actions="{ item }">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_detail_addresses_grid_columns_actions_edit %}
                     <sw-context-menu-item
                         :disabled="!customerEditMode"
@@ -166,7 +150,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_detail_addresses_grid_columns_actions_duplicate %}
                     <sw-context-menu-item
                         :disabled="!customerEditMode"
@@ -176,7 +159,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_detail_addresses_grid_columns_actions_defaultShippingAddress %}
                     <sw-context-menu-item
                         :disabled="!customerEditMode"
@@ -186,7 +168,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_detail_addresses_grid_columns_actions_defaultBillingAddress %}
                     <sw-context-menu-item
                         :disabled="!customerEditMode"
@@ -196,7 +177,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_detail_addresses_grid_columns_actions_delete %}
                     <sw-context-menu-item
                         variant="danger"
@@ -209,10 +189,8 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_grid_columns_action_modals %}
                 <template #action-modals="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_detail_addresses_delete_modal %}
                     <sw-modal
                         v-if="showDeleteAddressModal === item.id"
@@ -220,14 +198,12 @@
                         variant="small"
                         @modal-close="onCloseDeleteAddressModal"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_detail_addresses_delete_modal_confirm_delete_text %}
                         <p class="sw-customer-detail-addresses__confirm-delete-text">
                             {{ $tc('sw-customer.detailAddresses.textDeleteAddressConfirm') }}
                         </p>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_detail_addresses_delete_modal_address_item %}
                         <sw-address
                             class="sw-customer-detail-addresses__confirm-delete-address"
@@ -235,10 +211,8 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_detail_addresses_delete_modal_footer %}
                         <template #modal-footer>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_customer_detail_addresses_delete_modal_cancel %}
                             <sw-button
                                 size="small"
@@ -248,7 +222,6 @@
                             </sw-button>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_customer_detail_addresses_delete_modal_confirm %}
                             <sw-button
                                 variant="danger"

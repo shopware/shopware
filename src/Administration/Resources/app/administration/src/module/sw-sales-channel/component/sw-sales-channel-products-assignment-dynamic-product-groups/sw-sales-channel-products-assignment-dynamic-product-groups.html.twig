@@ -1,34 +1,28 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_products_assignment_dynamic_product_groups %}
 <div
     v-if="productStreams"
     class="sw-sales-channel-products-assignment-dynamic-product-groups"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_products_assignment_dynamic_product_groups_info_text %}
     <sw-alert ref="alert">
         {{ $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.infoText') }}
     </sw-alert>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing %}
     <sw-card
         :is-loading="isProductLoading"
         position-identifier="sw-sales-channel-products-assignment-dynamic-product-groups"
     >
         <template #grid>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_container %}
             <div :style="containerStyle">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_section %}
                 <sw-card-section
                     ref="cardSectionSecondary"
                     secondary
                     divider="bottom"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_search %}
                     <sw-simple-search-field
                         v-model:value="term"
@@ -41,10 +35,8 @@
                 </sw-card-section>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_products_assignment_dynamic_product_groups_card_section_primary %}
                 <sw-card-section class="sw-sales-channel-products-assignment-dynamic-product-groups__card-section-primary">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_entity %}
                     <sw-entity-listing
                         v-if="productStreams.length > 0"
@@ -65,14 +57,12 @@
                         @select-all-items="onSelect"
                     >
                         <template #bulk>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_bulk %}
                             <span></span>
                             {% endblock %}
                         </template>
 
                         <template #delete-action="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_delete_action %}
                             <span
                                 class="sw-sales-channel-products-assignment-dynamic-product-groups__link-open"
@@ -87,7 +77,6 @@
                         </template>
 
                         <template #pagination>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_pagination %}
                             <sw-pagination
                                 v-bind="{ page, limit, total }"
@@ -100,7 +89,6 @@
                     </sw-entity-listing>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty %}
                     <sw-empty-state
                         v-if="productStreams.length <= 0"
@@ -111,7 +99,6 @@
                         "
                     >
                         <template #icon>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon %}
                             <img
                                 :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"

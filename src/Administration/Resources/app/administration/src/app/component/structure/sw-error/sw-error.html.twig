@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_error %}
 <div class="sw-error">
     <div class="sw-error__container">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_error_illustration %}
         <div class="sw-error__illustration">
             <img
@@ -14,23 +12,19 @@
 
         <div class="sw-error__content">
             <slot>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_error_contend %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_error_status_code %}
                 <div class="sw-error__status-code">
                     {{ statusCode }}
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_error_message %}
                 <div class="sw-error__message">
                     {{ message }}
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_error_stack %}
                 <code
                     v-if="showStack"
@@ -38,7 +32,6 @@
                 >{{ error.stack }}</code>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_error_link %}
                 <sw-button
                     v-if="showLink"

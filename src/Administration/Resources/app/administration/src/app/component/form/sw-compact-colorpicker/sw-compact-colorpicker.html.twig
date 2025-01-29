@@ -1,6 +1,4 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_compact_colorpicker %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_colorpicker_contextual_field %}
 <div
     class="sw-field sw-field--colorpicker sw-field--compact-colorpicker sw-text-editor-toolbar-button__fore-color-menu"
@@ -24,15 +22,12 @@
 </div>
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_colorpicker_popover %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_compact_colorpicker_colorpicker %}
 <div
     v-if="visible"
     class="sw-colorpicker__colorpicker sw-colorpicker__colorpicker--compact"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_colorpicker_selection %}
     <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
     <div
@@ -42,7 +37,6 @@
         @mousedown="setDragging"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_compact_colorpicker_selector %}
         <div
             class="sw-colorpicker__colorpicker-selector"
@@ -53,7 +47,6 @@
     {% endblock %}
     <div class="sw-colorpicker__row">
         <div class="sw-colorpicker__sliders">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_compact_colorpicker_hue_slider %}
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
@@ -66,7 +59,6 @@
             >
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_compact_colorpicker_alpha_slider %}
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
@@ -82,7 +74,6 @@
             {% endblock %}
         </div>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_compact_colorpicker_preview %}
         <div
             class="sw-colorpicker__colorpicker-wrapper"
@@ -100,10 +91,8 @@
         {% endblock %}
     </div>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_compact_colorpicker_inputs %}
     <div class="sw-colorpicker__row sw-colorpicker__input-row">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_compact_colorpicker_inputs_hex %}
         <div class="sw-colorpicker__row-column">
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
@@ -120,7 +109,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_compact_colorpicker_inputs_red %}
         <div class="sw-colorpicker__row-column">
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
@@ -140,7 +128,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_compact_colorpicker_inputs_green %}
         <div class="sw-colorpicker__row-column">
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
@@ -160,7 +147,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_compact_colorpicker_inputs_blue %}
         <div class="sw-colorpicker__row-column">
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
@@ -180,7 +166,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_compact_colorpicker_inputs_alpha %}
         <div
             v-if="alpha"
@@ -205,7 +190,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_colorpicker_button %}
     <sw-button
         class="sw-colorpicker__set-color-button"

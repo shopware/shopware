@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_discount_component %}
 <sw-card
     class="sw-promotion-discount-component"
@@ -6,7 +5,6 @@
     :title="$tc('sw-promotion.detail.main.discounts.card')"
 >
     <sw-context-button class="sw-promotion-discount-component__context-button">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_detail_discounts_item_context_button_delete %}
         <sw-context-menu-item
             v-tooltip="{
@@ -28,7 +26,6 @@
         columns="1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_component_scope %}
         <sw-select-field
             ref="selectFieldScope"
@@ -50,7 +47,6 @@
         </sw-select-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_condition_consider_product_rules_field %}
         <template v-if="displayAdvancedRuleOption">
             <sw-switch-field
@@ -63,7 +59,6 @@
         {% endblock %}
     </sw-container>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_discount_condition_rules_form %}
     <template v-if="!shippingScope && discount.considerAdvancedRules === true">
         <div v-if="!isSetGroup">
@@ -85,7 +80,6 @@
             columns="1fr 1fr"
             gap="0px 30px"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_cart_condition_setgroup_filter_apply_field %}
             <sw-select-field
                 v-if="!isSet"
@@ -102,7 +96,6 @@
                 </option>
             </sw-select-field>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_cart_condition_setgroup_filter_usage_field %}
             <sw-select-field
                 v-if="isMaxUsageVisible"
@@ -127,7 +120,6 @@
                 columns="1fr 1fr"
                 gap="0px 30px"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_cart_condition_setgroup_filter_sorting_field %}
                 <sw-select-field
                     v-model:value="discount.sorterKey"
@@ -143,7 +135,6 @@
                     </option>
                 </sw-select-field>
                 {% endblock %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_cart_condition_setgroup_filter_picker_field %}
                 <sw-select-field
                     v-if="isPickingModeVisible"
@@ -170,7 +161,6 @@
         columns="1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_component_type %}
         <sw-select-field
             v-model:value="discount.type"
@@ -188,7 +178,6 @@
             </option>
         </sw-select-field>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_component_value %}
         <sw-number-field
             class="sw-promotion-discount-component__discount-value"
@@ -208,7 +197,6 @@
         {% endblock %}
     </sw-container>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_discount_max_value %}
     <sw-container
         v-if="showMaxValueSettings"
@@ -216,7 +204,6 @@
         columns="1fr 1fr"
         justify="end"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_max_value_field %}
         <sw-number-field
             v-model:value="discount.maxValue"
@@ -230,7 +217,6 @@
             </template>
         </sw-number-field>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_max_value_advanced_prices %}
         <a
             v-if="showMaxValueAdvancedPrices"
@@ -250,7 +236,6 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_discount_advanced_prices_link %}
     <sw-container
         v-if="showAbsoluteAdvancedPricesSettings"
@@ -274,7 +259,6 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_discount_advanced_prices_modal %}
     <sw-modal
         v-if="displayAdvancedPrices"
@@ -322,7 +306,6 @@
     </sw-modal>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_detail_discounts_modal_delete %}
     <sw-modal
         v-if="showDeleteModal"
@@ -331,17 +314,14 @@
         class="sw-promotion-detail-discounts-modal"
         @modal-close="onCloseDeleteModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_detail_discounts_modal_delete_text %}
         <p>
             {{ $tc('sw-promotion.detail.main.discounts.delete.confirmText') }}
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_detail_discounts_modal_delete_footer %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
             <sw-button
                 size="small"
@@ -351,7 +331,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_detail_discounts_modal_delete_action_delete %}
             <sw-button
                 size="small"

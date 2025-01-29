@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_user_detail %}
 <sw-page class="sw-settings-user-detail">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_user_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="!isLoading">
@@ -10,10 +8,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_user_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_detail_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -23,7 +19,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -41,11 +36,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_user_detail_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_content_inner %}
             <template v-if="isLoading">
                 <sw-skeleton />
@@ -60,13 +53,11 @@
                     :title="$tc('sw-users-permissions.users.user-detail.labelCard')"
                     :is-loading="isLoading"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_user_detail_content_grid %}
                     <div
                         v-if="user"
                         class="sw-settings-user-detail__grid"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_first_name %}
                         <sw-text-field
                             v-model:value="user.firstName"
@@ -79,7 +70,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_last_name %}
                         <sw-text-field
                             v-model:value="user.lastName"
@@ -92,7 +82,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_email %}
                         <sw-text-field
                             v-model:value.trim="user.email"
@@ -105,7 +94,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_username %}
                         <sw-text-field
                             v-model:value="user.username"
@@ -120,7 +108,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_media_upload %}
                         <sw-upload-listener
                             :upload-tag="user.id"
@@ -142,7 +129,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_password %}
                         <sw-password-field
                             class="sw-settings-user-detail__grid-password"
@@ -156,7 +142,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_language %}
                         <sw-select-field
                             v-model:value="user.localeId"
@@ -179,7 +164,6 @@
                         </sw-select-field>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_timezone %}
                         <sw-single-select
                             v-model:value="user.timeZone"
@@ -193,7 +177,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_acl_is_admin %}
                         <sw-switch-field
                             v-model:value="user.admin"
@@ -204,7 +187,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_job_title %}
                         <sw-text-field
                             v-model:value="user.title"
@@ -215,7 +197,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_acl_roles %}
                         <sw-entity-multi-select
                             v-model:entity-collection="user.aclRoles"
@@ -235,7 +216,6 @@
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_user_detail_content_confirm_password_modal %}
                     <sw-verify-user-modal
                         v-if="confirmPasswordModal"
@@ -251,10 +231,8 @@
                     :title="$tc('sw-users-permissions.users.user-detail.labelIntegrationsCard')"
                     position-identifier="sw-users-permissions-user-detail-integrations"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_user_detail_grid_toolbar %}
                     <template #toolbar>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_add_key %}
                         <sw-button
                             variant="primary"
@@ -268,10 +246,8 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_user_detail_key_grid %}
                     <template #grid>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_key_grid_content %}
                         <sw-data-grid
                             :is-loading="isLoading"
@@ -282,10 +258,8 @@
                             :skeleton-item-amount="skeletonItemAmount"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_user_detail_grid_columns_actions %}
                             <template #actions="{ item }">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_user_detail_grid_columns_actions_edit %}
                                 <sw-context-menu-item
                                     class="sw-settings-user-detail__grid-context-menu-edit sw-product-list__edit-action"
@@ -296,7 +270,6 @@
                                 </sw-context-menu-item>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_user_detail_grid_columns_actions_delete %}
                                 <sw-context-menu-item
                                     class="sw-settings-user-detail__grid-context-menu-delete"
@@ -326,7 +299,6 @@
             {% endblock %}
         </sw-card-view>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_detail_grid_inner_slot_media_modal %}
         <sw-media-modal-v2
             v-if="showMediaModal"
@@ -338,21 +310,18 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_detail_grid_inner_slot_delete_modal %}
         <sw-modal
             v-if="showDeleteModal"
             :title="$tc('global.default.warning')"
             @modal-close="onCloseDeleteModal"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_grid_inner_slot_delete_modal_confirm_text %}
             <p>
                 {{ $tc('sw-users-permissions.users.user-detail.modal.confirmDelete') }}
             </p>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_grid_inner_slot_delete_modal_footer %}
             <template #modal-footer>
                 <sw-button
@@ -373,7 +342,6 @@
         </sw-modal>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_detail_detail_modal %}
         <sw-modal
             v-if="currentIntegration"
@@ -383,10 +351,8 @@
             :title="showSecretAccessKey ? $tc('global.default.warning') : $tc('sw-users-permissions.users.user-detail.modal.detailModalTitleEdit')"
             @modal-close="onCloseDetailModal"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
             <sw-text-field
                 v-model:value="currentIntegration.accessKey"
@@ -397,9 +363,7 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
             <sw-text-field
                 v-if="showSecretAccessKey"
@@ -423,7 +387,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button %}
             <sw-button
                 v-if="!showSecretAccessKey"
@@ -436,7 +399,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_help_text %}
             <sw-alert
                 v-if="!showSecretAccessKey"
@@ -448,7 +410,6 @@
             {% endblock %}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_help_text %}
             <sw-alert
                 v-else
@@ -459,10 +420,8 @@
             </sw-alert>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_footer %}
             <template #modal-footer>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_user_detail_detail_modal_inner_footer_cancel %}
                 <sw-button
                     size="small"
@@ -473,7 +432,6 @@
                 </sw-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_user_detail_detail_modal_inner_footer_apply %}
                 <sw-button
                     size="small"

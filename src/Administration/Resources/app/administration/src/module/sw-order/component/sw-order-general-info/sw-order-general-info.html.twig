@@ -1,13 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_base_general_info %}
 <div class="sw-order-general-info">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_general_info_summary %}
     <div class="sw-order-general-info__summary">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_summary_main %}
         <div class="sw-order-general-info__summary-main">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_header %}
             <div class="sw-order-general-info__summary-main-header">
                 {{ order.orderNumber }} -
@@ -21,7 +17,6 @@
                 ({{ emailIdnFilter(order.orderCustomer.email) }})
             </div>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_total %}
             <div class="sw-order-general-info__summary-main-total">
                 {{ currencyFilter(order.amountTotal, order.currency.isoCode, order.totalRounding.decimals) }}
@@ -30,10 +25,8 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_summary_sub %}
         <div class="sw-order-general-info__summary-sub">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_sub_description %}
             <div class="sw-order-general-info__summary-sub-description">
                 {{ $tc('sw-order.generalTab.info.summary.on') }}
@@ -52,10 +45,8 @@
                 </template>
             </div>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_sub_last_changed %}
             <div class="sw-order-general-info__summary-sub-last-changed">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_base_general_info_summary_sub_last_changed_time %}
                 <div
                     v-if="lastChangedDateTime"
@@ -71,7 +62,6 @@
                     }) }}
                 </div>
                 {% endblock %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_base_general_info_summary_sub_last_changed_user %}
                 <div
                     v-if="lastChangedUser"
@@ -88,7 +78,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_change_card_modal %}
     <sw-order-state-change-modal
         v-if="showModal"
@@ -100,10 +89,8 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_general_info_order_states %}
     <div class="sw-order-general-info__order-states">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_order_states_payment %}
         <div class="sw-order-general-info__order-state">
             <sw-order-state-select-v2
@@ -124,7 +111,6 @@
             />
         </div>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_order_states_shipping %}
         <div
             v-if="delivery"
@@ -148,7 +134,6 @@
             />
         </div>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_order_states_order %}
         <div class="sw-order-general-info__order-state">
             <sw-order-state-select-v2
@@ -172,7 +157,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_general_info_order_tags %}
     <sw-entity-tag-select
         class="sw-order-general-info__order-tags"

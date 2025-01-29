@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_delivery_metadata %}
 <sw-card
     class="sw-order-delivery-metadata"
@@ -6,40 +5,33 @@
     :title="title"
     :is-loading="isLoading"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_delivery_metadata_deliveries %}
     <sw-container
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         gap="0 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_delivery_metadata_deliveries_data %}
         <sw-description-list>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_delivery_metadata_shipping_method %}
             <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
             <dd>{{ delivery.shippingMethod.translated.name }}</dd>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_delivery_metadata_delivery_date %}
             <dt>{{ $tc('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
             <dd>{{ dateFilter(delivery.shippingDateEarliest) }}</dd>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_delivery_metadata_shipping_costs %}
             <dt>{{ $tc('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
             <dd>{{ currencyFilter(order.shippingTotal, order.currency.isoCode) }}</dd>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_delivery_metadata_slot %}
             {% endblock %}
 
         </sw-description-list>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_delivery_metadata_shipping_address %}
         <sw-description-list>
             <sw-address
@@ -48,7 +40,6 @@
                 :address="delivery.shippingOrderAddress"
                 :formatting-address="formattingAddress"
             />
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_delivery_metadata_delivery_phone_number %}
             <dt>{{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}</dt>
             <dd v-if="delivery.shippingOrderAddress.phoneNumber">

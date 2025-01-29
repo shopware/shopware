@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_login_recovery %}
 <div class="sw-login-recovery">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_headline %}
     <h2 class="sw-login__form-headline">
         <router-link
@@ -18,18 +16,15 @@
     </h2>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_text %}
     <p>{{ $tc('sw-login.recovery.text') }}</p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_form %}
     <form
         class="sw-login__recovery-form"
         @submit.prevent="sendRecoveryMail"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_recovery_form_email_field %}
         <sw-text-field
             ref="swLoginRecoveryEmailField"
@@ -39,7 +34,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_recovery_form_submit %}
         <div class="sw-login__submit">
             <sw-button

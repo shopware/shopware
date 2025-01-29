@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_product_slider_config %}
 <div class="sw-cms-el-config-product-slider">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_slider_config_tabs %}
     <sw-tabs
         position-identifier="sw-cms-element-config-product-slider"
@@ -9,7 +7,6 @@
         default-item="content"
     >
         <template #default="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_slider_config_tab_content %}
             <sw-tabs-item
                 :title="$tc('sw-cms.elements.general.config.tab.content')"
@@ -19,7 +16,6 @@
                 {{ $tc('sw-cms.elements.general.config.tab.content') }}
             </sw-tabs-item>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_slider_config_tab_options %}
             <sw-tabs-item
                 :title="$tc('sw-cms.elements.general.config.tab.settings')"
@@ -32,13 +28,11 @@
         </template>
 
         <template #content="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_slider_config_content %}
             <sw-container
                 v-if="active === 'content'"
                 class="sw-cms-el-config-product-slider__tab-content"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_content_title %}
                 <sw-text-field
                     v-model:value="element.config.title.value"
@@ -48,7 +42,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_content_product_assignment_type %}
                 <sw-single-select
                     v-model:value="element.config.products.source"
@@ -61,7 +54,6 @@
                 {% endblock %}
 
                 <template v-if="element.config.products.source === 'product_stream'">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_content_product_stream_select %}
                     <sw-entity-single-select
                         v-model:value="element.config.products.value"
@@ -74,7 +66,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_content_product_stream_performance_hint %}
                     <sw-alert
                         class="sw-cms-el-config-product-slider__tab-content-product-stream-performance-hint"
@@ -96,7 +87,6 @@
                         columns="1fr 1fr"
                         gap="30px"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_product_slider_config_content_product_stream_sorting %}
                         <sw-single-select
                             v-model:value="element.config.productStreamSorting.value"
@@ -109,7 +99,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_product_slider_config_content_product_stream_limit %}
                         <sw-number-field
                             v-model:value="element.config.productStreamLimit.value"
@@ -121,7 +110,6 @@
                         {% endblock %}
                     </sw-container>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_content_product_stream_preview_link %}
                     <div class="sw-cms-el-config-product-slider__product-stream-preview-link-container">
                         <a
@@ -140,7 +128,6 @@
                     {% endblock %}
                 </template>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_content_products %}
                 <sw-entity-multi-select
                     v-else
@@ -163,7 +150,6 @@
                             v-bind="{ item, index }"
                         >
                             <sw-select-result v-bind="{ item, index, selected: isSelected(item.id)}">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_entity_single_select_base_results_list_result_label %}
                                 <span class="sw-select-result__result-item-text">
                                     <sw-product-variant-info :variations="item.variation">
@@ -179,14 +165,12 @@
             </sw-container>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_slider_config_settings %}
             <sw-container
                 v-if="active === 'settings'"
                 class="sw-cms-el-config-product-slider__tab-settings"
             >
                 <div class="sw-cms-el-config-product-slider__tab-settings-display">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_display_mode %}
                     <sw-select-field
                         v-model:value="element.config.displayMode.value"
@@ -208,7 +192,6 @@
                 </div>
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-alignment has--two-elements">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_min_width %}
                     <sw-text-field
                         v-model:value="element.config.elMinWidth.value"
@@ -219,7 +202,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_vertical_align %}
                     <sw-select-field
                         v-model:value="element.config.verticalAlign.value"
@@ -241,7 +223,6 @@
                 </div>
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-layout has--two-elements">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_box_layout %}
                     <sw-select-field
                         v-model:value="element.config.boxLayout.value"
@@ -260,7 +241,6 @@
                     </sw-select-field>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_border %}
                     <sw-switch-field
                         v-model:value="element.config.border.value"
@@ -272,7 +252,6 @@
                 </div>
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-navigation">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_navigation_arrows %}
                     <sw-select-field
                         v-model:value="element.config.navigationArrows.value"
@@ -294,11 +273,9 @@
                 </div>
 
                 {# @deprecated tag:v6.7.0 - Will be removed #}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_navigation %}{% endblock %}
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-rotate">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_rotate %}
                     {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
                     <sw-switch-field
@@ -313,7 +290,6 @@
                 </div>
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-rotate-config has--two-elements">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
                     <sw-number-field
                         v-model:value="element.config.autoplayTimeout.value"
@@ -328,7 +304,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
                     <sw-number-field
                         v-model:value="element.config.speed.value"

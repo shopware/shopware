@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(NotificationService::class)]
 class NotificationServiceTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<NotificationCollection> */
     private MockObject&EntityRepository $entityRepository;
 
     private NotificationService $notificationService;

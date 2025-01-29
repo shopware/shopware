@@ -38,44 +38,50 @@
             </noscript>
         {% endblock %}
 
-        {% block base_header %}
-            {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
+        {% if feature('cache_rework') %}
+            {{ render_esi(url('frontend.header')) }}
 
-            <header class="header-main">
-                {% block base_header_inner %}
-                    <div class="container">
-                        {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
-                    </div>
-                {% endblock %}
-            </header>
-        {% endblock %}
+            {% block base_navigation_styling %}
+                {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
+            {% endblock %}
+        {% else %}
+            {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
+            {% block base_header %}
+                {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
 
-        {% block base_navigation %}
-            {% if feature('v6.7.0.0') %}
-                <div class="nav-main d-none d-lg-block">
-                    {% block base_navbar_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navbar/navbar.html.twig' %}
+                <header class="header-main">
+                    {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
+                    {% block base_header_inner %}
+                        <div class="container">
+                            {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
+                        </div>
                     {% endblock %}
-                </div>
-            {% else %}
-                {# @deprecated tag:v6.7.0 - This template will be removed, use src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig #}
+                </header>
+            {% endblock %}
+
+            {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
+            {% block base_navigation %}
                 <div class="nav-main">
+                    {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
                     {% block base_navigation_inner %}
+                        {# @deprecated tag:v6.7.0 - This template will be removed, use storefront/layout/navbar/navbar.html.twig #}
                         {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' %}
                     {% endblock %}
                 </div>
-            {% endif %}
-        {% endblock %}
+            {% endblock %}
 
-        {% block base_offcanvas_navigation %}
-            {% if page.header.navigation %}
-                <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == page.header.navigation.active.id %} is-root{% endif %}">
-                    {% block base_offcanvas_navigation_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
-                    {% endblock %}
-                </div>
-            {% endif %}
-        {% endblock %}
+            {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
+            {% block base_offcanvas_navigation %}
+                {% if page.header.navigation %}
+                    <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == page.header.navigation.active.id %} is-root{% endif %}">
+                        {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
+                        {% block base_offcanvas_navigation_inner %}
+                            {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
+                        {% endblock %}
+                    </div>
+                {% endif %}
+            {% endblock %}
+        {% endif %}
 
         {% block base_main %}
             <main class="content-main" id="content-main">
@@ -107,13 +113,20 @@
             </main>
         {% endblock %}
 
-        {% block base_footer %}
-            <footer class="footer-main">
-                {% block base_footer_inner %}
-                    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
-                {% endblock %}
-            </footer>
-        {% endblock %}
+
+        {% if feature('cache_rework') %}
+            {{ render_esi(url('frontend.footer')) }}
+        {% else %}
+            {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/footer.html.twig #}
+            {% block base_footer %}
+                <footer class="footer-main">
+                    {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/footer.html.twig #}
+                    {% block base_footer_inner %}
+                        {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
+                    {% endblock %}
+                </footer>
+            {% endblock %}
+        {% endif %}
     {% endblock %}
 
     {% block base_scroll_up %}

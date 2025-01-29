@@ -1,8 +1,6 @@
-{% apply spaceless %}
-    {% macro foo() %}
-        {% return 1 %}
-    {% endmacro %}
+{% macro assignCase() %}
+    {% return 1 %}
+{% endmacro %}
 
-    {% set var = _self.foo() %}
-    {{ var }}
-{% endapply  %}
+{% set var = _self.assignCase() %}
+{{ var }}

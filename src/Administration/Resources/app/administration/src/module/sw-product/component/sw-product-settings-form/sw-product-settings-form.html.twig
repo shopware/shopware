@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_settings_form %}
 <div class="sw-product-settings-form">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_settings_form_content %}
     <sw-container
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_release_date_field %}
         <sw-inherit-wrapper
             v-model:value="product.releaseDate"
@@ -31,7 +28,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_ean_field %}
         <sw-inherit-wrapper
             v-model:value="product.ean"
@@ -54,7 +50,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_manufacturer_number_field %}
         <sw-inherit-wrapper
             v-model:value="product.manufacturerNumber"

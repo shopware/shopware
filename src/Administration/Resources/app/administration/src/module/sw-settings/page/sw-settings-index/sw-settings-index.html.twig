@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings %}
 <sw-page
     class="sw-settings-index"
     :show-smart-bar="false"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_content_tabs %}
             <sw-tabs
                 class="sw-settings__tabs"
@@ -18,7 +15,6 @@
                 :small="false"
             >
                 <template #default="{ active }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_tab_shop %}
                     <sw-tabs-item
                         v-if="settingsGroups['shop']"
@@ -32,7 +28,6 @@
                     </sw-tabs-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_tab_system %}
                     <sw-tabs-item
                         v-if="settingsGroups['system']"
@@ -46,7 +41,6 @@
                     </sw-tabs-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_tab_plugins %}
                     <sw-tabs-item
                         v-if="hasPluginConfig()"
@@ -62,9 +56,7 @@
                 </template>
 
                 <template #content="{ active }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_card %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_header %}
                     <h1 class="sw-settings__content-header">
                         {{ $tc('sw-settings.index.title') }}
@@ -75,7 +67,6 @@
                         class="sw-settings__card"
                         position-identifier="sw-settings-index-content"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_content_card_content %}
                         <slot
                             v-for="(settingsItems, settingsGroup) in settingsGroups"

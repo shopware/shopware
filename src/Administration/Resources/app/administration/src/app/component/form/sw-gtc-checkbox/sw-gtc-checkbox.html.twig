@@ -1,24 +1,19 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_gtc_checkbox %}
 <div class="sw-gtc-checkbox">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_gtc_checkbox_input %}
     <sw-checkbox-field
         :value="value"
         @update:value="onChange"
     >
         <template #label>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_gtc_checkbox_input_label %}
             {{ $tc('global.sw-gtc-checkbox.label') }}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_gtc_checkbox_input_label_link %}
             <sw-external-link
                 class="sw-external-link"
                 :href="$tc('global.sw-gtc-checkbox.url')"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_gtc_checkbox_input_label_text %}
                 {{ $tc('global.sw-gtc-checkbox.link') }}
                 {% endblock %}

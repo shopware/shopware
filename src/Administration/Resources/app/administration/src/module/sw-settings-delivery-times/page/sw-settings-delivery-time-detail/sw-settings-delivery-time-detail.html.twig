@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_delivery_time_detail %}
 <sw-page class="sw-settings-delivery-time-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_detail_smart_bar_header %}
     <template #smart-bar-header>
         <h2>{{ displayName }}</h2>
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -19,11 +16,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_detail_smart_bar_actions %}
     <template #smart-bar-actions>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_delivery_time_detail_smart_bar_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -33,7 +28,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_delivery_time_detail_smart_bar_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -51,7 +45,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_detail_content %}
     <template #content>
         <sw-card-view>
@@ -59,7 +52,6 @@
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_delivery_time_language_info %}
                 <sw-language-info
                     :entity-description="displayName"
@@ -67,7 +59,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_delivery_time_detail_form %}
                 <sw-card
                     :is-loading="isLoading"
@@ -75,7 +66,6 @@
                 >
                     <template v-if="deliveryTime">
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_detail_name_field %}
                         <sw-text-field
                             v-model:value="deliveryTime.name"
@@ -87,7 +77,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_detail_unit_field %}
                         <sw-single-select
                             v-model:value="deliveryTime.unit"
@@ -102,14 +91,12 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_min_max_container %}
                         <sw-container
                             columns="1fr 1fr"
                             gap="30px"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_delivery_time_detail_min_field %}
                             <sw-number-field
                                 v-model:value="deliveryTime.min"
@@ -123,7 +110,6 @@
                             />
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_delivery_time_detail_max_field %}
                             <sw-number-field
                                 v-model:value="deliveryTime.max"
@@ -141,7 +127,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_delivery_time_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

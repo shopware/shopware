@@ -1,0 +1,9 @@
+{%- macro arrayCaseNewSyntax(x) -%}
+    {%- if x == 1 -%}
+        1
+    {%- endif -%}
+    {%- if x == 2 -%}
+        2
+    {%- endif -%}
+{%- endmacro -%}
+{{- _self.arrayCaseNewSyntax(x) -}}

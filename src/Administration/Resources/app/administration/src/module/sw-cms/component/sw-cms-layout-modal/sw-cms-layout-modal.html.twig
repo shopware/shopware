@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_layout_modal %}
 <sw-modal
     class="sw-cms-layout-modal"
@@ -7,11 +6,9 @@
     @modal-close="closeModal"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_modal_header %}
     <div class="sw-cms-layout-modal__header">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_modal_header_search %}
         <sw-simple-search-field
             v-model:value="term"
@@ -21,11 +18,9 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_modal_header_sorting_container %}
         <div class="sw-cms-layout-modal__actions-sorting">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_modal_header_sorting_select %}
             <sw-sorting-select
                 class="sw-cms-layout-modal__header-sorting-select"
@@ -35,7 +30,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_modal_header_view_toggle %}
             <div
                 class="sw-cms-layout-modal__actions-mode"
@@ -45,7 +39,6 @@
                 @keydown.enter="toggleListMode"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_modal_header_view_toogle_grid %}
                 <sw-icon
                     v-if="listMode === 'grid'"
@@ -54,7 +47,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_modal_header_view_toogle_list %}
                 <sw-icon
                     v-if="listMode === 'list'"
@@ -72,16 +64,13 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_modal_content %}
     <div class="sw-cms-layout-modal__content">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_modal_loader %}
         <sw-loader v-if="isLoading" />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_modal_content_container %}
         <div v-else-if="listMode === 'grid'">
             <sw-container
@@ -89,17 +78,14 @@
                 gap="24px"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_modal_content_listing %}
                 <div
                     v-for="(cmsPage, index) in pages"
                     :key="index"
                     :class="gridItemClasses(cmsPage.id, index)"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_modal_content_listing_item %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}
                     <sw-checkbox-field
                         :value="cmsPage.id === selectedPageObject?.id"
@@ -108,7 +94,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_modal_content_listing_item_inner %}
                     <sw-cms-list-item
                         :page="cmsPage"
@@ -122,7 +107,6 @@
                 </div>
             </sw-container>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_modal_content_pagination %}
             <sw-pagination
                 class="sw-cms-layout-modal__content-pagination"
@@ -159,7 +143,6 @@
             @column-sort="onSortColumn"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_column_name %}
             <template #column-name="{ item }">
                 <div
@@ -173,28 +156,24 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_column_type %}
             <template #column-type="{ item }">
                 {{ getPageType(item) }}
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_column_created %}
             <template #column-createdAt="{ item }">
                 {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_column_updated %}
             <template #column-updatedAt="{ item }">
                 {{ dateFilter(item.updatedAt, { hour: '2-digit', minute: '2-digit' }) }}
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_pagination %}
             <template #pagination>
                 <sw-pagination
@@ -211,7 +190,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_modal_footer %}
     <template #modal-footer>
         <sw-button @click="closeModal">

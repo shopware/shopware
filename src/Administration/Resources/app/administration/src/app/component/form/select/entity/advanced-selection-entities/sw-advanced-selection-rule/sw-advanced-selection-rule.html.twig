@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_advanced_selection_rule %}
 {# TODO - NEXT-20791 : remove store-key property. Filters should not be stored somewhere #}
 <sw-entity-advanced-selection-modal
@@ -17,10 +16,8 @@
     @selection-submit="$emit('selection-submit', $event)"
     @modal-close="$emit('modal-close', $event)"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_rule__list_grid_columns_name %}
     <template #column-name="{ item }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_rule__list_grid_columns_name_content %}
         <span :class="getColumnClass(item)">
             {{ item.name }}
@@ -29,10 +26,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_rule__list_grid_columns_priority %}
     <template #column-priority="{ item }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_rule__list_grid_columns_priority_content %}
         <span :class="getColumnClass(item)">
             {{ item.priority }}
@@ -41,10 +36,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_rule__list_grid_columns_description %}
     <template #column-description="{ item }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_rule__list_grid_columns_description_content %}
         <span :class="getColumnClass(item)">
             {{ item.description }}
@@ -53,10 +46,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_rule_list_grid_columns_invalid %}
     <template #column-invalid="{item}">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_rule_list_grid_columns_invalid_content %}
         <span :class="getColumnClass(item)">
             <template v-if="item.invalid">
@@ -70,10 +61,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_rule_list_grid_columns_create_date %}
     <template #column-updatedAt="{item}">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_rule_list_grid_columns_create_date_content %}
         <span :class="getColumnClass(item)">
             <template v-if="item.updatedAt">
@@ -87,7 +76,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_rule_list_grid_columns_tags %}
     <template #column-tags="{ item }">
         <span :class="getColumnClass(item)">
@@ -98,7 +86,6 @@
                         :key="tag.id"
                         size="medium"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_advanced_selection_rule_list_grid_columns_tags_content %}
                         {{ tag.name }}
                         {% endblock %}
@@ -112,7 +99,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_rule_list_grid_columns_assignments %}
     <template
         v-for="(propertyName, index) in assignmentProperties"

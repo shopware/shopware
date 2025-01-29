@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_image_config %}
 <div class="sw-cms-el-config-image">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_media_upload %}
     <sw-cms-mapping-field
         v-model:config="element.config.media"
@@ -45,7 +43,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_display_mode %}
     <sw-select-field
         v-model:value="element.config.displayMode.value"
@@ -67,7 +64,6 @@
     {% endblock %}
 
     <template v-if="element.config.displayMode.value === 'cover'">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_image_config_min_height %}
         <sw-text-field
             v-model:value="element.config.minHeight.value"
@@ -78,7 +74,6 @@
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_vertical_align %}
     <sw-select-field
         v-model:value="element.config.verticalAlign.value"
@@ -117,7 +112,6 @@
     </sw-select-field>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_link %}
     <div class="sw-cms-el-config-image__link">
         <sw-dynamic-url-field
@@ -138,7 +132,6 @@
         @change="onChangeIsDecorative"
     />
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_media_modal %}
     <sw-media-modal-v2
         v-if="mediaModalIsOpen"

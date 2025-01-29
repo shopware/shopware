@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_login_recovery_recovery %}
 <div class="sw-login-recovery-recovery">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_recovery_headline %}
     <h2 class="sw-login__form-headline">
         <router-link
@@ -18,10 +16,8 @@
     </h2>
     {% endblock %}
     <template v-if="hashValid === true">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_recovery_recovery_form %}
         <form @submit.prevent="updatePassword">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_recovery_recovery_form_new_password_field %}
             <sw-password-field
                 ref="swLoginRecoveryRecoveryNewPasswordField"
@@ -31,7 +27,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_recovery_recovery_form_password_confirm_field %}
             <sw-password-field
                 v-model:value="newPasswordConfirm"
@@ -39,7 +34,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_recovery_recovery_form_submit %}
             <div class="sw-login__submit">
                 <sw-button

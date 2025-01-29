@@ -86,7 +86,7 @@ class RepositoryIteratorTest extends TestCase
         $builder->price(3);
         $productRepository->create([$builder->build()], $context);
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('product1'), $ids->get('product2'), $ids->get('product3')]);
         $criteria->setLimit(1);
         $iterator = new RepositoryIterator($productRepository, $context, $criteria);
 

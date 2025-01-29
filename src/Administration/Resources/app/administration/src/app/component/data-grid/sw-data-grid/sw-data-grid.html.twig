@@ -1,23 +1,19 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid %}
 <div
     class="sw-data-grid"
     :class="classes"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_wrapper %}
     <div
         ref="wrapper"
         class="sw-data-grid__wrapper"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_bulk %}
         <div
             v-if="selectionCount > 0"
             class="sw-data-grid__bulk"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_bulk_selected_count %}
             <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-label">{{ $tc('global.sw-data-grid.labelSelectionCount') }}</span>
             <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-count">{{ selectionCount }}</span>
@@ -29,7 +25,6 @@
             </span>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_bulk_selected_actions %}
             <span class="sw-data-grid__bulk-selected bulk-link">
                 <a
@@ -43,7 +38,6 @@
                     {{ $tc('global.sw-data-grid.labelDeSelectAll') }}
                 </a>
                 <slot name="bulk">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_data_grid_bulk_selected_actions_content %}{% endblock %}
                 </slot>
             </span>
@@ -51,45 +45,37 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_bulk_modals %}
         <slot
             name="bulk-modals"
             v-bind="{ selection }"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_slot_bulk_modals %}{% endblock %}
         </slot>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_table %}
         <table
             ref="table"
             class="sw-data-grid__table"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_header %}
             <thead
                 v-if="showHeader"
                 class="sw-data-grid__header"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_data_grid_header_row %}
                 <tr class="sw-data-grid__row">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_header_cell_selection %}
                     <th
                         v-if="showSelection"
                         class="sw-data-grid__cell sw-data-grid__cell--header sw-data-grid__cell--selection"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_data_grid_header_cell_selection_content %}
                         <div class="sw-data-grid__cell-content">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_select_all_checkbox %}
                             <sw-checkbox-field
                                 v-if="records && records.length > 0"
@@ -105,7 +91,6 @@
                     </th>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_header_columns %}
                     <th
                         v-for="(column, columnIndex) in currentColumns"
@@ -118,7 +103,6 @@
                         @click="onClickHeaderCell($event, column)"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_data_grid_header_columns_content %}
                         <div class="sw-data-grid__cell-content">
 
@@ -127,7 +111,6 @@
                                 v-bind="{ column, columnIndex }"
                             >
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_header_columns_icon %}
                                 <sw-icon
                                     v-if="column.iconLabel && column.iconTooltip"
@@ -145,7 +128,6 @@
                                 </sw-icon>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_header_columns_label %}
                                 <template v-else>
                                     {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
@@ -153,14 +135,12 @@
                                 {% endblock %}
                             </slot>
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_column_actions %}
                             <sw-context-button
                                 v-if="allowColumnEdit && !isInlineEditActive"
                                 class="sw-data-grid__action-edit-column"
                                 aria-label="global.sw-data-grid.columnsActions"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_column_actions_hide %}
                                 <sw-context-menu-item
                                     :disabled="column.primary"
@@ -173,19 +153,16 @@
                             </sw-context-button>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_sort_indicator %}
                             <span
                                 v-if="column.sortable && currentSortBy === column.dataIndex"
                                 class="sw-data-grid__sort-indicator"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_sort_indicator_transition %}
                                 <transition
                                     name="sort-indicator"
                                     mode="out-in"
                                 >
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_sort_indicator_icon_asc %}
                                     <sw-icon
                                         v-if="currentSortDirection === 'ASC'"
@@ -195,7 +172,6 @@
                                     />
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_sort_indicator_icon_desc %}
                                     <sw-icon
                                         v-else
@@ -211,7 +187,6 @@
                         </div>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_data_grid_header_columns_resize %}
                         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
                         <span
@@ -223,7 +198,6 @@
                     </th>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_header_cell_spacer %}
                     <th
                         v-if="hasResizeColumns"
@@ -234,17 +208,14 @@
                     </th>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_header_cell_actions %}
                     <th
                         v-if="showActions"
                         class="sw-data-grid__cell sw-data-grid__cell--header sw-data-grid__cell--actions sw-data-grid__cell-settings"
                         :class="{ 'is--loading': loading }"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_data_grid_header_cell_actions_content %}
                         <div class="sw-data-grid__cell-content">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_settings %}
                             <sw-data-grid-settings
                                 v-if="showSettings"
@@ -258,10 +229,8 @@
                                 @change-column-visibility="onChangeColumnVisibility"
                                 @change-column-order="onChangeColumnOrder"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_settings_additional_settings %}
                                 <template #additionalSettings>
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_settings_additional_settings_inner %}
                                     <slot name="additionalSettings"></slot>
                                     {% endblock %}
@@ -269,10 +238,8 @@
                                 {% endblock %}
                             </sw-data-grid-settings>
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_settings_custom_settings %}
                             <slot name="customSettings">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_settings_custom_settings_slot %}{% endblock %}
                             </slot>
                             {% endblock %}
@@ -286,14 +253,12 @@
             </thead>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_body %}
             <tbody
                 v-if="!loading"
                 class="sw-data-grid__body"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_data_grid_body_row %}
                 <tr
                     v-for="(item, itemIndex) in records"
@@ -302,7 +267,6 @@
                     :class="getRowClasses(item, itemIndex)"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_body_cell_selection %}
                     <td
                         v-if="showSelection"
@@ -312,10 +276,8 @@
                             name="selection-content"
                             v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_body_cell_selection_content %}
                             <div class="sw-data-grid__cell-content">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_select_item_checkbox %}
                                 <sw-checkbox-field
                                     :aria-label="$tc('global.sw-data-grid.labelSelected')"
@@ -330,7 +292,6 @@
                     </td>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_body_columns %}
                     <td
                         v-for="(column, columnIndex) in currentVisibleColumns"
@@ -342,11 +303,9 @@
                     >
                         <sw-provide :aria-label="column.label">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_body_columns_content %}
                             <div class="sw-data-grid__cell-content">
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_preview_slot %}
                                 <slot
                                     v-if="previews && !isInlineEdit(item)"
@@ -355,14 +314,12 @@
                                 ></slot>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_columns_slot %}
                                 <slot
                                     :name="`column-${column.property}`"
                                     v-bind="{ item, itemIndex, column, columnIndex, compact, isInlineEdit: (isInlineEdit(item) && column.hasOwnProperty('inlineEdit')), selectItem }"
                                 >
                                     <template v-if="column.inlineEdit === 'boolean'">
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_data_grid_columns_boolean %}
                                         <sw-data-grid-column-boolean
                                             v-model:value="item[column.property]"
@@ -371,10 +328,8 @@
                                         {% endblock %}
                                     </template>
                                     <template v-else>
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_data_grid_columns_inline_edit %}
                                         <template v-if="isInlineEdit(item) && column.hasOwnProperty('inlineEdit')">
-                                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                             {% block sw_data_grid_columns_render_inline_edit %}
                                             <sw-data-grid-inline-edit
                                                 :column="column"
@@ -386,10 +341,8 @@
                                         </template>
                                         {% endblock %}
 
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_data_grid_columns_value %}
                                         <template v-else>
-                                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                             {% block sw_data_grid_columns_render_router_link %}
                                             <router-link
                                                 v-if="column.routerLink"
@@ -399,7 +352,6 @@
                                                 {{ renderColumn(item, column) }}
                                             </router-link>
                                             {% endblock %}
-                                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                             {% block sw_data_grid_columns_render_value %}
                                             <span
                                                 v-else
@@ -419,7 +371,6 @@
                     </td>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_body_cell_spacer %}
                     <td
                         v-if="hasResizeColumns"
@@ -431,21 +382,17 @@
                     </td>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_body_cell_actions %}
                     <td
                         v-if="showActions"
                         class="sw-data-grid__cell sw-data-grid__cell--actions"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_data_grid_body_cell_actions_content %}
                         <div class="sw-data-grid__cell-content">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_inline_edit_actions %}
                             <template v-if="isInlineEditActive && currentInlineEditId === item[itemIdentifierProperty]">
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_inline_edit_actions_cancel %}
                                 <sw-button
                                     class="sw-data-grid__inline-edit-cancel"
@@ -455,14 +402,12 @@
                                     square
                                     @click="onClickCancelInlineEdit(item)"
                                 >
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_inline_edit_actions_cancel_icon %}
                                     <sw-icon name="regular-times-xs" />
                                     {% endblock %}
                                 </sw-button>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_inline_edit_actions_save %}
                                 <sw-button
                                     class="sw-data-grid__inline-edit-save"
@@ -473,7 +418,6 @@
                                     square
                                     @click="onClickSaveInlineEdit(item)"
                                 >
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_inline_edit_actions_save_icon %}
                                     <sw-icon
                                         name="regular-checkmark-xxs"
@@ -484,7 +428,6 @@
                             </template>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_body_cell_actions_menu %}
                             <sw-context-button
                                 v-else
@@ -497,19 +440,16 @@
                                     :item="item"
                                     :item-index="itemIndex"
                                 >
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_slot_actions %}{% endblock %}
                                 </slot>
                             </sw-context-button>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_data_grid_body_cell_action_modals %}
                             <slot
                                 name="action-modals"
                                 :item="item"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_slot_action_modals %}{% endblock %}
                             </slot>
                             {% endblock %}
@@ -522,7 +462,6 @@
             </tbody>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_skeleton %}
             <sw-data-grid-skeleton
                 v-else
@@ -539,13 +478,10 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_pagination %}
     <div class="sw-data-grid__pagination">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_pagination_inner %}
         <slot name="pagination">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_slot_pagination %}{% endblock %}
         </slot>
         {% endblock %}

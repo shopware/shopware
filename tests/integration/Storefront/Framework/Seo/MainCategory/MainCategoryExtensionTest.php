@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Seo\MainCategory;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
@@ -30,6 +31,9 @@ class MainCategoryExtensionTest extends TestCase
      */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     protected function setUp(): void

@@ -88,16 +88,12 @@ class ThemeDumpCommand extends Command
             }
         }
 
-        $themes = $this->themeRepository->search($criteria, $this->context);
-
-        if ($themes->count() === 0) {
+        $themeEntity = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        if (!$themeEntity) {
             $this->io->error('No theme found which is connected to a storefront sales channel');
 
             return self::FAILURE;
         }
-
-        /** @var ThemeEntity $themeEntity */
-        $themeEntity = $themes->first();
 
         $technicalName = $this->getTechnicalName($themeEntity->getId());
         if ($technicalName === null) {
@@ -152,7 +148,7 @@ class ThemeDumpCommand extends Command
     protected function getThemeChoices(): array
     {
         $choices = [];
-        /** @var ThemeCollection $themes */
+
         $themes = $this->themeRepository->search(new Criteria(), Context::createCLIContext())->getEntities();
 
         foreach ($themes as $theme) {
@@ -210,9 +206,8 @@ class ThemeDumpCommand extends Command
         $technicalName = null;
 
         do {
-            $theme = $this->themeRepository->search(new Criteria([$themeId]), $this->context)->first();
-
-            if (!$theme instanceof ThemeEntity) {
+            $theme = $this->themeRepository->search(new Criteria([$themeId]), $this->context)->getEntities()->first();
+            if (!$theme) {
                 break;
             }
 

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_shipping_price_matrix %}
 <sw-card
     :title="cardTitle"
@@ -6,7 +5,6 @@
     class="sw-settings-shipping-price-matrix"
     position-identifier="sw-settings-shipping-price-matrix"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_price_matrix_topbar_alert %}
     <sw-alert
         v-if="priceGroup.isNew"
@@ -18,14 +16,12 @@
         {{ $tc('sw-settings-shipping.priceMatrix.newMatrixAlertMessage') }}
     </sw-alert>
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_price_matrix_topbar %}
     <sw-container
         columns="1fr auto 35px"
         gap="0px 24px"
         class="sw-settings-shipping-price-matrix__top-container"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_topbar_rule_select %}
         <sw-select-rule-create
             class="sw-settings-shipping-price-matrix__top-container-rule-select"
@@ -41,7 +37,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_topbar_new_price %}
         <sw-button
             size="x-small"
@@ -59,13 +54,11 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_topbar_context_button %}
         <sw-context-button
             :disabled="!showDataGrid || disabled"
             class="sw-settings-shipping-price-matrix__price-group-context"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_price_matrix_topbar_context_button_duplicate %}
             <sw-context-menu-item
                 v-tooltip="{
@@ -81,7 +74,6 @@
                 {{ $tc('sw-settings-shipping.priceMatrix.duplicateMatrixContextLabel') }}
             </sw-context-menu-item>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_price_matrix_topbar_context_button_delete %}
             <sw-context-menu-item
                 class="sw-settings-shipping-price-matrix__action-delete"
@@ -96,7 +88,6 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_price_matrix_price_grid %}
     <sw-data-grid
         v-if="showDataGrid"
@@ -106,7 +97,6 @@
         :show-settings="true"
         :compact-mode="true"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_column_calculcation_rule %}
         <template
             #column-calculationRule="{ item, itemIndex, compact }"
@@ -134,7 +124,6 @@
             </sw-select-rule-create>
         </template>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_start %}
         <template
             #column-quantityStart="{ item, itemIndex, compact }"
@@ -151,7 +140,6 @@
             />
         </template>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_end %}
         <template
             #column-quantityEnd="{ item, itemIndex, compact }"
@@ -170,7 +158,6 @@
             />
         </template>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_currencies_list %}
         <template
             v-for="currency in currencies"
@@ -216,10 +203,8 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_actions %}
         <template #actions="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_price_matrix_price_grid_actions_delete %}
             <sw-context-menu-item
                 :disabled="disableDeleteButton || disabled"
@@ -247,13 +232,11 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_price_matrix_empty %}
     <div
         v-else
         class="sw-settings-shipping-price-matrix__empty"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_empty_text %}
         <p class="sw-settings-shipping-price-matrix__empty-text">
             {{ $tc('sw-settings-shipping.priceMatrix.emptyText') }}
@@ -263,7 +246,6 @@
             columns="1fr 10px 1fr"
             gap="0px 24px"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_price_matrix_empty_property_store %}
             <sw-single-select
                 class="sw-settings-shipping-price-matrix__empty--select-property"
@@ -281,7 +263,6 @@
                 {{ $tc('sw-settings-shipping.priceMatrix.textOr') }}
             </p>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_price_matrix_empty_rule_select %}
             <sw-select-rule-create
                 size="small"
@@ -306,7 +287,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_price_matrix_delete_modal %}
     <sw-modal
         v-if="showDeleteModal"
@@ -314,17 +294,14 @@
         variant="small"
         @modal-close="onCloseDeleteModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_delete_modal_confirm_delete_text %}
         <p class="sw-settings-shipping-price-matrix__confirm-delete-text">
             {{ confirmDeleteText }}
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
             <sw-button
                 size="small"
@@ -334,7 +311,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_price_matrix_delete_modal_confirm %}
             <sw-button
                 variant="danger"

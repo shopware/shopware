@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_layout_assignment %}
 <div class="sw-product-layout-assignment">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_layout_assignment_firgure %}
     <div
         class="sw-product-layout-assignment__figure"
@@ -10,7 +8,6 @@
         @click="openLayoutModal"
         @keydown.enter="openLayoutModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_layout_assignment_firgure_content %}
         <sw-cms-list-item
             active
@@ -21,23 +18,19 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_layout_assignment_description %}
     <div>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_layout_assignment_heading %}
         <div
             class="sw-product-layout-assignment__heading"
             :class="{ 'is--disabled': !cmsPage }"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_layout_assignment_heading_title %}
             <p class="sw-product-layout-assignment__title">
                 {{ cmsPage ? cmsPage.name : $tc('sw-product.layoutAssignment.title') }}
             </p>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_layout_assignment_heading_subtitle %}
             <span class="sw-product-layout-assignment__subtitle">
                 {{ $tc('sw-product.layoutAssignment.subtitle') }}
@@ -46,10 +39,8 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_layout_assignment_buttons %}
         <div class="sw-product-layout-assignment__buttons">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_layout_assignment_button_add %}
             <sw-button
                 class="sw-product-layout-assignment__button"
@@ -61,7 +52,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_layout_assignment_button_edit %}
             <sw-button
                 class="sw-product-layout-assignment__button"
@@ -73,7 +63,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_layout_assignment_button_delete %}
             <sw-button
                 v-if="cmsPage"

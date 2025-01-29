@@ -4,6 +4,7 @@
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
+import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 
 const { Mixin } = Shopware;
 const {
@@ -261,7 +262,7 @@ export default {
             let value = this.actualConfigData.null[element.name];
 
             if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
-                value = JSON.parse(JSON.stringify(value));
+                value = deepCloneWithEntity(value);
             }
 
             if (value) {

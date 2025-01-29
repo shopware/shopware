@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_modal_grid %}
 <sw-grid
     v-if="!isLoading"
@@ -11,9 +10,7 @@
     <template
         #columns="{ item }"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_grid_columns %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_grid_columns_icon %}
         <sw-grid-column
             flex="85px"
@@ -36,7 +33,6 @@
         </sw-grid-column>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_grid_columns_content %}
         <sw-grid-column
             flex="minmax(150px, 1fr)"
@@ -62,7 +58,6 @@
         </sw-grid-column>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_grid_columns_actions %}
         <sw-grid-column
             flex="auto"
@@ -91,7 +86,6 @@
         {% endblock %}
     </template>
 </sw-grid>
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_modal_grid_loader %}
 <sw-loader v-else />
 {% endblock %}

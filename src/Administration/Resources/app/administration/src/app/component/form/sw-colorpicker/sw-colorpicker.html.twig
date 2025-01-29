@@ -1,6 +1,5 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-colorpicker component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_colorpicker %}
 <mt-colorpicker
     v-if="useMeteorComponent"
@@ -25,7 +24,6 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_colorpicker_deprecated %}
 <sw-colorpicker-deprecated
     v-else

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_select_result_list %}
 <div class="sw-select-result-list">
     <sw-popover
@@ -30,7 +29,6 @@
                 v-if="!isLoading && options && options.length < 1"
                 class="sw-select-result-list__empty"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_select_result_list_empty_icon %}
                 <sw-icon
                     name="regular-search"
@@ -38,7 +36,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_select_result_list_empty_text %}
                 {{ emptyMessageText }}
                 {% endblock %}

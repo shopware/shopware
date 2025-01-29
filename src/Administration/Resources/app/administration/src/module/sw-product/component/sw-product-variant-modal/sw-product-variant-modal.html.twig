@@ -1,5 +1,4 @@
 <!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_variant_modal %}
 <sw-modal
     class="sw-product-variant-modal"
@@ -8,20 +7,16 @@
     @modal-close="$emit('modal-close')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variant_modal_body %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variant_modal_toolbar %}
     <div class="sw-configuration-option-list__toolbar">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_toolbar_container %}
         <sw-container
             columns="1fr minmax(50px, max-content)"
             gap="0 16px"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_label_search %}
             <sw-simple-search-field
                 v-model:value="searchTerm"
@@ -32,11 +27,9 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_option_list_toolbar_container_filter_list %}
             <div class="sw-product-variant-modal__filter-list-button">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_option_list_toolbar_container_filter_list_button %}
                 <sw-button
                     class="sw-product-variant-modal__button-filter"
@@ -47,7 +40,6 @@
                 </sw-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_option_list_toolbar_container_filter_context_menu %}
                 <sw-context-menu
                     v-show="filterWindowOpen"
@@ -58,7 +50,6 @@
                         gap="5px"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variant_modal_option_list_toolbar_container_filter_tree %}
                         <sw-tree
                             v-show="filterOptions.length"
@@ -81,10 +72,8 @@
                         </sw-tree>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variant_modal_option_list_toolbar_container_filter_buttons %}
                         <div class="sw-product-variant-modal__filter-buttons">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variant_modal_option_list_toolbar_container_button_filter_reset %}
                             <sw-button
                                 class="sw-product-variant-modal__reset-filter"
@@ -94,7 +83,6 @@
                             </sw-button>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variant_modal_option_list_toolbar_container_button_update_list %}
                             <sw-button
                                 variant="primary"
@@ -116,7 +104,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variant_modal_body_grid %}
     <sw-data-grid
         v-if="productVariants.length > 0"
@@ -133,10 +120,8 @@
         @inline-edit-cancel="onInlineEditCancel"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_grid_bulk %}
         <template #bulk>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_bulk_edit %}
             <span
                 v-if="acl.can('product.editor')"
@@ -149,7 +134,6 @@
             </span>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_bulk_delete %}
             <span
                 v-if="acl.can('product.deleter')"
@@ -164,7 +148,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_bulk_edit_modal %}
         <template #bulk-modals="{ selection }">
             <sw-bulk-edit-modal
@@ -175,7 +158,6 @@
                 @edit-items="onEditItems"
                 @modal-close="toggleBulkEditModal"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_bulk_edit_modal_column_name %}
                 <template #column-name="{ item }">
                     <sw-media-preview-v2 :source="getItemMedia(item)" />
@@ -209,7 +191,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_bulk_edit_modal_column_price %}
                 <template #column-price="{ item }">
                     <sw-inheritance-switch
@@ -226,7 +207,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_bulk_edit_modal_column_stock %}
                 <template #column-stock="{ item }">
                     {{ item.stock }}
@@ -234,7 +214,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_bulk_edit_modal_column_active %}
                 <template #column-active="{ item }">
                     <sw-icon
@@ -258,7 +237,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_bulk_edit_modal_column_media %}
                 <template #column-media="{ item }">
                     <sw-inheritance-switch
@@ -279,11 +257,9 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_grid_column_name %}
         <template #column-name="{item, isInlineEdit}">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
             <sw-text-field
                 v-if="isInlineEdit"
@@ -293,15 +269,12 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_column_name_content %}
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_body_grid_column_name_content_media_preview %}
                 <sw-media-preview-v2 :source="getItemMedia(item)" />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_body_grid_column_name_content_name %}
                 <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
                     <span
@@ -322,7 +295,6 @@
                 </router-link>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_body_grid_column_name_content_options %}
                 <sw-product-variant-info
                     v-if="item.translated.name"
@@ -342,7 +314,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_grid_column_price %}
         <template #column-price="{item, isInlineEdit}">
             <template v-if="isInlineEdit">
@@ -382,11 +353,9 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_grid_column_stock %}
         <template #column-stock="{item, isInlineEdit}">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit"
@@ -396,7 +365,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_column_stock_content %}
             <template v-else>
                 {{ item.stock }}
@@ -406,11 +374,9 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_grid_column_active %}
         <template #column-active="{item, isInlineEdit}">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
             <template v-if="isInlineEdit">
                 <sw-checkbox-field
@@ -427,11 +393,9 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_column_active_content %}
             <template v-else>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_body_grid_column_active_content_icon_active %}
                 <sw-icon
                     v-if="item.active === true"
@@ -441,7 +405,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variant_modal_body_grid_column_active_content_icon_not_active %}
                 <sw-icon
                     v-else-if="item.active === false"
@@ -462,14 +425,11 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_grid_column_media %}
         <template
             #column-media="{ item, isInlineEdit, compact }"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_column_media_inline_edit %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_column_media_inherit %}
             <sw-inheritance-switch
                 :is-inherited="isMediaFieldInherited(item)"
@@ -480,7 +440,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_column_media_content %}
             <sw-product-variants-media-upload
                 :source="item"
@@ -494,18 +453,15 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_grid_actions %}
         <template #actions="{item}">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_actions_edit %}
             <sw-context-menu-item @click="visitProduct(item.id)">
                 {{ contextMenuEditText }}
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_grid_actions_delete %}
             <sw-context-menu-item
                 v-tooltip.left="getNoPermissionsTooltip('product.deleter')"
@@ -519,7 +475,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_grid_pagination %}
         <template #pagination>
             <sw-pagination
@@ -535,7 +490,6 @@
     </sw-data-grid>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variant_modal_body_empty_state %}
     <sw-empty-state
         v-else
@@ -545,7 +499,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variant_modal_body_delete_modal %}
     <sw-modal
         v-if="showDeleteModal"
@@ -555,16 +508,13 @@
         @modal-close="closeDeleteModal"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_delete_modal_body_multiple %}
         <template v-if="toBeDeletedVariants.length > 1">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_delete_modal_body_multiple_text %}
             <p>{{ $t('sw-product.list.multipleVariantsDeleteModalText', { amount: toBeDeletedVariants.length }) }}</p>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_delete_modal_body_multiple_subline %}
             <p class="sw-product-variant-modal__delete-modal-subline">
                 ({{ $tc('sw-product.list.multipleVariantsDeleteModalSubline') }})
@@ -573,18 +523,15 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_delete_modal_body_single %}
         <p v-else>
             {{ $t('sw-product.list.variantDeleteModalText', { variantName: buildVariantName(toBeDeletedVariants[0]) }) }}
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_body_delete_modal_footer %}
         <template #modal-footer>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_delete_modal_footer_close %}
             <sw-button
                 size="small"
@@ -594,7 +541,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_delete_modal_footer_confirm %}
             <sw-button-process
                 variant="danger"
@@ -614,10 +560,8 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variant_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_footer_visit_main_product %}
         <div
             class="sw-product-variant-modal__main-product-link"
@@ -629,7 +573,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_modal_footer_close_button %}
         <sw-button
             size="small"

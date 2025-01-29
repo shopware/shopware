@@ -153,7 +153,7 @@ class SitemapHandle implements SitemapHandleInterface
         try {
             $files = $this->filesystem->listContents($this->getPath($this->context));
         } catch (\Throwable) {
-            // Folder does not exists
+            // Folder does not exist
             return;
         }
 

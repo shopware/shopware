@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-goods-price">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_goods_price_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
@@ -10,7 +8,6 @@
     {% endblock %}
 
     <div class="sw-condition-goods-price__value">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_goods_price_field_amount %}
         <sw-number-field
             v-model:value="amount"
@@ -24,7 +21,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_goods_price_filter_button %}
         <div class="sw-condition-goods-price__filter">
             <sw-button
@@ -41,7 +37,6 @@
         {% endblock %}
     </div>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_goods_price_condition_modal %}
     <sw-condition-modal
         v-if="showFilterModal"

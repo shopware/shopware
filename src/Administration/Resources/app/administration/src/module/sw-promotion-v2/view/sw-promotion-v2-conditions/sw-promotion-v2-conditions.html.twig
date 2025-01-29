@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_conditions %}
 <div class="sw-promotion-v2-conditions">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_conditions_pre_conditions_card %}
     <sw-card
         :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitlePreConditions')"
         position-identifier="sw-promotion-conditions-pre-conditions"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_conditions_pre_conditions_sales_channel_selection %}
         <sw-promotion-v2-sales-channel-select
             class="sw-promotion-v2-conditions__sales-channel-selection"
@@ -21,7 +18,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_conditions_pre_conditions_prevent_combination %}
         <sw-switch-field
             v-model:value="promotion.preventCombination"
@@ -32,7 +28,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_conditions_pre_conditions_exclusions %}
         <sw-entity-multi-select
             class="sw-promotion-v2-conditions__rules-exclusion-selection"
@@ -48,14 +43,12 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_rule_conditions_card %}
     <sw-card
         :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitleRuleConditions')"
         position-identifier="sw-promotion-conditions-rules"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_rule_conditions_rule_select_customer %}
         <sw-promotion-v2-rule-select
             v-if="promotion"
@@ -71,7 +64,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_rule_conditions_rule_select_cart_conditions %}
         <sw-promotion-v2-cart-condition-form
             :promotion="promotion"
@@ -79,7 +71,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_rule_conditions_rule_select_order_conditions %}
         <sw-promotion-v2-rule-select
             v-if="promotion"

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\JWT\Constraints;
 
-use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -11,6 +10,7 @@ use Lcobucci\JWT\Signer\Rsa\Sha512;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Validator;
 use Shopware\Core\Framework\JWT\JWTException;
 use Shopware\Core\Framework\JWT\Struct\JWKCollection;
 use Shopware\Core\Framework\JWT\Struct\JWKStruct;
@@ -36,14 +36,7 @@ final class HasValidRSAJWKSignature implements Constraint
 
         $signer = $this->getSigner($token->headers()->get('alg'));
 
-        $configuration = Configuration::forSymmetricSigner(
-            $signer,
-            InMemory::plainText($pem)
-        );
-
-        $configuration->withValidationConstraints(
-            new SignedWith($configuration->signer(), $configuration->signingKey())
-        );
+        (new Validator())->assert($token, new SignedWith($signer, InMemory::plainText($pem)));
     }
 
     private function validateAlgorithm(Token $token): void
@@ -97,7 +90,13 @@ final class HasValidRSAJWKSignature implements Constraint
         $urlSafeData = strtr($data, '-_', '+/');
         $paddedData = str_pad($urlSafeData, \strlen($urlSafeData) % 4, '=');
 
-        return (string) base64_decode($paddedData, true);
+        $decoded = base64_decode($paddedData, true);
+
+        if (!\is_string($decoded)) {
+            throw JWTException::invalidJwk('Invalid base64 characters detected');
+        }
+
+        return $decoded;
     }
 
     private function getLength(string $data): string

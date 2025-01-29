@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_base_content %}
 {% parent() %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_date_container %}
 <sw-container
     columns="1fr 1fr"
     gap="20px"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_date_container_type %}
     <sw-select-field
         v-model:value="currentCustomField.config.dateType"
@@ -17,7 +14,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_date_container_time_format %}
     <sw-select-field
         v-if="['time', 'datetime'].includes(currentCustomField.config.dateType)"

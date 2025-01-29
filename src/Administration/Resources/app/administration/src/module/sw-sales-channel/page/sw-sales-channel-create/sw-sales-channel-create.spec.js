@@ -61,7 +61,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
         global.activeAclRoles = [];
     });
 
-    it('should disable the save button when privilege does not exists', async () => {
+    it('should disable the save button when privilege does not exist', async () => {
         const wrapper = await createWrapper();
         const saveButton = wrapper.getComponent('.sw-sales-channel-detail__save-action');
 

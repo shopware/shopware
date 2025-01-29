@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_modal %}
 <sw-modal
     class="sw-bulk-edit-modal"
@@ -8,7 +7,6 @@
     @edit-items="$emit('edit-items')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_modal_grid %}
     <sw-data-grid
         ref="bulkEditGrid"
@@ -22,7 +20,6 @@
         @selection-change="updateBulkEditSelection"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_modal_grid_custom_slot %}
         <template
             v-for="(_, slot) in getSlots"
@@ -35,7 +32,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_modal_list_pagination %}
         <template #pagination>
             <sw-pagination
@@ -50,7 +46,6 @@
     </sw-data-grid>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_modal_grid_footer %}
     <template #modal-footer>
         <slot name="sw-bulk-edit-modal-cancel">

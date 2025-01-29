@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_and_container %}
 <div
     class="sw-condition-and-container"
     :class="containerRowClass"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_and_container_children %}
     <template
         v-for="(child, index) in condition[childAssociationField]"
@@ -26,7 +24,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_and_container_actions %}
     <div class="sw-condition-and-container__actions">
         <sw-button

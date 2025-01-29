@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_list_price_field %}
 <div
     :class="{
@@ -8,7 +7,6 @@
 >
 
     <div class="sw-list-price-field__price">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_list_price_field_price %}
         <sw-price-field
             class="sw-list-price-field__price-field"
@@ -27,13 +25,11 @@
         {% endblock %}
     </div>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_price_form_purchase_price_field %}
     <div
         v-if="!hidePurchasePrices && showSettingPrice"
         class="sw-list-price-field__purchase-price"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_purchase_price_field_content %}
         <sw-price-field
             class="sw-purchase-price-field"
@@ -49,7 +45,6 @@
     {% endblock %}
 
     <div class="sw-list-price-field__list-price">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_list_price_field_list_price %}
         <sw-price-field
             v-if="!hideListPrices && showSettingPrice"
@@ -74,7 +69,6 @@
     </div>
 
     <div class="sw-list-price-field__regulation-price">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_list_price_field_regulation_price %}
         <sw-price-field
             v-if="!hideRegulationPrices && showSettingPrice"

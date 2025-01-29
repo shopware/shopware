@@ -123,7 +123,7 @@ abstract class MigrationStep
                 return false;
             }
 
-            // column does not exists
+            // column does not exist
             if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
                 return false;
             }
@@ -150,7 +150,7 @@ abstract class MigrationStep
                 return false;
             }
 
-            // fk does not exists
+            // fk does not exist
             if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
                 return false;
             }
@@ -177,7 +177,7 @@ abstract class MigrationStep
                 return false;
             }
 
-            // index does not exists
+            // index does not exist
             if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
                 return false;
             }

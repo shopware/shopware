@@ -1,16 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_meteor_navigation %}
 <div
     v-if="hasParentRoute"
     class="sw-meteor-navigation"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_meteor_navigation_link %}
     <router-link
         :to="parentRoute"
         class="sw-meteor-navigation__link"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_navigation_link_icon %}
         <sw-icon
             class="sw-meteor-navigation__back-arrow"
@@ -19,7 +16,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_navigation_link_label %}
         {{ $tc('sw-meteor.navigation.backButton') }}
         {% endblock %}

@@ -69,20 +69,22 @@ final class ImportExportHandler
             }
         }
 
-        if ($logEntity instanceof ImportExportLogEntity && $progress instanceof Progress && !$progress->isFinished()) {
-            $nextMessage = new ImportExportMessage(
-                $context,
-                $logEntity->getId(),
-                $logEntity->getActivity(),
-                $progress->getOffset()
-            );
+        if ($logEntity instanceof ImportExportLogEntity && $progress instanceof Progress) {
+            if (!$progress->isFinished()) {
+                $nextMessage = new ImportExportMessage(
+                    $context,
+                    $logEntity->getId(),
+                    $logEntity->getActivity(),
+                    $progress->getOffset()
+                );
 
-            $this->messageBus->dispatch($nextMessage);
-        }
+                $this->messageBus->dispatch($nextMessage);
+            }
 
-        if ($logEntity->getState() !== Progress::STATE_PROGRESS && $progress->isFinished()) {
-            $event = new ImportExportAfterProcessFinishedEvent($context, $logEntity, $progress);
-            $this->eventDispatcher->dispatch($event);
+            if ($logEntity->getState() !== Progress::STATE_PROGRESS && $progress->isFinished()) {
+                $event = new ImportExportAfterProcessFinishedEvent($context, $logEntity, $progress);
+                $this->eventDispatcher->dispatch($event);
+            }
         }
     }
 }

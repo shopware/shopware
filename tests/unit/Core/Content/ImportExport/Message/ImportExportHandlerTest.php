@@ -178,9 +178,7 @@ class ImportExportHandlerTest extends TestCase
         static::assertSame(1, $importExportExceptionImportExportHandlerEventCount);
     }
 
-    /**
-     * @dataProvider provideDataForTestingExportFinishedEventIsDispatched
-     */
+    #[DataProvider('provideDataForTestingExportFinishedEventIsDispatched')]
     public function testImportExportHandlerDispatchesProcessFinishedEventWhenImportAndExportAreFinished(
         string $activity,
         string $method,

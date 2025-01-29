@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package innovation
  */
 
 import './teaser-popover.store';

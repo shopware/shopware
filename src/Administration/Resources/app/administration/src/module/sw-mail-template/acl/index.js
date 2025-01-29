@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package after-sales
  */
 
 Shopware.Service('privileges').addPrivilegeMappingEntry({

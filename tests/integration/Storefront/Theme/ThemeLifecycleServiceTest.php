@@ -19,7 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationEntity;
@@ -44,10 +46,19 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private Context $context;
 
+    /**
+     * @var EntityRepository<ThemeCollection>
+     */
     private EntityRepository $themeRepository;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
+    /**
+     * @var EntityRepository<MediaFolderCollection>
+     */
     private EntityRepository $mediaFolderRepository;
 
     private Connection $connection;
@@ -522,7 +533,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private function deleteLanguageForLocale(string $locale): void
     {
-        /** @var EntityRepository $languageRepository */
+        /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = static::getContainer()->get('language.repository');
         $context = Context::createDefaultContext();
 
@@ -538,17 +549,17 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private function changeDefaultLanguageLocale(string $locale): void
     {
-        /** @var EntityRepository $languageRepository */
+        /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = static::getContainer()->get('language.repository');
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
 
-        /** @var LanguageEntity $language */
-        $language = $languageRepository->search($criteria, $context)->first();
+        $language = $languageRepository->search($criteria, $context)->getEntities()->first();
+        static::assertNotNull($language);
 
-        /** @var EntityRepository $localeRepository */
+        /** @var EntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = static::getContainer()->get('locale.repository');
 
         $localeRepository->upsert([

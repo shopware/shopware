@@ -1,19 +1,15 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_review_detail %}
 <sw-page class="sw-review-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(review, 'title', $tc('sw-review.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_detail_actions %}
     <template #smart-bar-actions>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_review_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -23,7 +19,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_review_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -40,7 +35,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_detail_content %}
     <template #content>
         <sw-card-view>
@@ -51,7 +45,6 @@
 
             <template v-else>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_review_detail_basic_info_card %}
                 <sw-card
                     v-if="review"
@@ -59,26 +52,20 @@
                     :title="$tc('sw-review.detail.cardTitleReviewInfo')"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_card_rows %}
                     <template #grid>
                         <sw-container rows="auto auto">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_customer_card_row_primary %}
                             <sw-card-section divider="bottom">
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_container %}
                                 <sw-container>
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_customer_card_metadata %}
                                     <div class="sw-review-detail__metadata">
 
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_customer_card_metadata_customer_name %}
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_custsomer_card_metadata_customer_name_label %}
                                         <div class="sw-review-detail__metadata-review-headline">
                                             <sw-container
@@ -114,7 +101,6 @@
                             </sw-card-section>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_customer_card_row_secondary %}
                             <sw-card-section
                                 secondary
@@ -129,18 +115,15 @@
                                     >
                                         <div class="sw-review-base-info-columns">
 
-                                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                             {% block sw_customer_base_metadata_created_at %}
                                             <sw-description-list>
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_created_at_label %}
                                                 <dt class="sw-review-base-info__label">
                                                     {{ $tc('sw-review.detail.labelCreatedAt') }}
                                                 </dt>
                                                 {% endblock %}
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_created_at_content %}
                                                 <dd>
                                                     {{ dateFilter(review.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
@@ -149,18 +132,15 @@
                                             </sw-description-list>
                                             {% endblock %}
 
-                                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                             {% block sw_customer_base_metadata_sales_channel %}
                                             <sw-description-list>
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_sales_channel_label %}
                                                 <dt class="sw-review-base-info__label">
                                                     {{ $tc('sw-review.detail.labelSalesChannel') }}
                                                 </dt>
                                                 {% endblock %}
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_sales_channel_content %}
                                                 <dd>
                                                     {{ review.salesChannel.name }}
@@ -169,18 +149,15 @@
                                             </sw-description-list>
                                             {% endblock %}
 
-                                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                             {% block sw_customer_base_metadata_product %}
                                             <sw-description-list>
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_product_label %}
                                                 <dt class="sw-review-base-info__label">
                                                     {{ $tc('sw-review.detail.labelProduct') }}
                                                 </dt>
                                                 {% endblock %}
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_product_content %}
                                                 <dd>{{ review.product.translated.name }}</dd>
                                                 {% endblock %}
@@ -189,18 +166,15 @@
                                         </div>
                                         <div class="sw-review-base-info-columns">
 
-                                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                             {% block sw_customer_base_metadata_customer %}
                                             <sw-description-list>
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_customer_label %}
                                                 <dt class="sw-review-base-info__label">
                                                     {{ $tc('sw-review.detail.labelCustomer') }}
                                                 </dt>
                                                 {% endblock %}
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_customer_content %}
                                                 <dd v-if="review.customer">
                                                     {{ salutation(review.customer) }}
@@ -212,17 +186,14 @@
                                             </sw-description-list>
                                             {% endblock %}
 
-                                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                             {% block sw_customer_base_metadata_email %}
                                             <sw-description-list>
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_email_label %}
                                                 <dt class="sw-review-base-info__label">
                                                     {{ $tc('sw-review.detail.labelEmail') }}
                                                 </dt>
                                                 {% endblock %}
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_email_content %}
                                                 <dd v-if="review.customer">
                                                     {{ emailIdnFilter(review.customer.email) }}
@@ -251,14 +222,12 @@
                     :title="$tc('sw-review.detail.cardTitleReviewProperties')"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_review_detail_basic_info_card_description_list %}
                     <sw-container
                         columns="1fr 1fr"
                         gap="16px"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_review_detail_description_list_language %}
                         <sw-entity-single-select
                             id="language"
@@ -274,7 +243,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_review_detail_description_list_status %}
                         <sw-switch-field
                             v-model:value="review.status"
@@ -295,7 +263,6 @@
                     :title="$tc('sw-review.detail.labelComment')"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_review_detail_basic_info_card_comment %}
                     <sw-textarea-field
                         v-model:value="review.comment"
@@ -308,7 +275,6 @@
                     {% endblock %}
                 </sw-card>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_review_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

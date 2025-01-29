@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings %}
 <sw-page
     class="sw-settings-index"
     :show-smart-bar="false"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_content %}
     <template #content>
         <sw-card-view>
@@ -16,7 +14,6 @@
                 class="sw-settings__card--hero"
                 position-identifier="sw-settings-index"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_content_card_view_header %}
                 <h1 class="sw-settings__content-header">
                     {{ $tc('sw-settings.index.title') }}
@@ -57,7 +54,6 @@
             {% endblock %}
 
             {# @deprecated tag:v6.7.0 - block will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_content_tabs %}
             <sw-tabs
                 v-if="!feature.isActive('v6.7.0.0')"
@@ -68,7 +64,6 @@
             >
                 <template #default="{ active }">
                     {# @deprecated tag:v6.7.0 - block will be removed #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_tab_shop %}
                     <sw-tabs-item
                         v-if="settingsGroups['shop']"
@@ -83,7 +78,6 @@
                     {% endblock %}
 
                     {# @deprecated tag:v6.7.0 - block will be removed #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_tab_system %}
                     <sw-tabs-item
                         v-if="settingsGroups['system']"
@@ -98,7 +92,6 @@
                     {% endblock %}
 
                     {# @deprecated tag:v6.7.0 - block will be removed #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_tab_plugins %}
                     <sw-tabs-item
                         v-if="hasPluginConfig()"
@@ -115,11 +108,9 @@
 
                 <template #content="{ active }">
                     {# @deprecated tag:v6.7.0 - block will be moved #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_card %}
 
                     {# @deprecated tag:v6.7.0 - block will be moved #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_content_header %}
                     <h1 class="sw-settings__content-header">
                         {{ $tc('sw-settings.index.title') }}
@@ -131,7 +122,6 @@
                         position-identifier="sw-settings-index-content"
                     >
                         {# @deprecated tag:v6.7.0 - block will be moved #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_content_card_content %}
                         <slot
                             v-for="(settingsItems, settingsGroup) in settingsGroups"

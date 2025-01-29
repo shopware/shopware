@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package checkout
  */
 
 import template from './sw-settings-cart.html.twig';

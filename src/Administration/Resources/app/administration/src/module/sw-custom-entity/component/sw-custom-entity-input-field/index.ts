@@ -3,7 +3,7 @@ import template from './sw-custom-entity-input-field.html.twig';
 
 /**
  * @private
- * @sw-package content
+ * @sw-package framework
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

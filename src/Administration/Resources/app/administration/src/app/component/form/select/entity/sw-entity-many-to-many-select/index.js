@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
 import template from './sw-entity-many-to-many-select.html.twig';

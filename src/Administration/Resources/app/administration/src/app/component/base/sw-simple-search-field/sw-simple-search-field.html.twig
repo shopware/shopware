@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_simple_search_field %}
 <div class="sw-simple-search-field">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_simple_search_field_input %}
     <sw-text-field
         class="sw-simple-search-field__input"
@@ -14,10 +12,8 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_simple_search_field_search_icon %}
     <slot name="sw-simple-search-field-icon">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_simple_search_field_slot_search_icon %}
         <sw-icon
             v-if="icon"

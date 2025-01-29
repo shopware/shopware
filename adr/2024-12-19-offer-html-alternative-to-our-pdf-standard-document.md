@@ -1,5 +1,5 @@
 ---
-title: [A11y] Offer HTML alternative to our pdf standard documents
+title: "[A11y] Offer HTML alternative to our pdf standard documents"
 date: 2024-12-19
 area: accessibility
 tags: [a11y, pdf, html]

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_country_state_list_card %}
 <sw-card
     v-if="!isLoading"
@@ -10,7 +9,6 @@
             gap="0 10px"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_attribute_list_toolbar_searchfield %}
             <sw-simple-search-field
                 v-model:value="term"
@@ -20,7 +18,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_state_list_toolbar_delete %}
             <sw-button
                 v-tooltip.bottom="{
@@ -41,7 +38,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_state_list_toolbar_add %}
             <sw-button
                 v-tooltip.bottom="{
@@ -64,7 +60,6 @@
 
     <template #grid>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_state_list_listing %}
         <sw-one-to-many-grid
             ref="countryStateGrid"
@@ -86,7 +81,6 @@
 
             <template #column-name="{ item }">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_state_list_listing_column_name %}
                 <a
                     class="sw-settings-country-state__link"
@@ -102,7 +96,6 @@
             </template>
 
             <template #more-actions="{ item }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_state_list_listing_action_edit %}
                 <sw-context-menu-item
                     v-tooltip.top="{
@@ -120,7 +113,6 @@
             </template>
         </sw-one-to-many-grid>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_state_list_empty %}
         <sw-empty-state
             v-if="showEmptyState"
@@ -131,7 +123,6 @@
         />
         {% endblock %}
     </template>
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_state_detail %}
     <sw-country-state-detail
         v-if="currentCountryState"

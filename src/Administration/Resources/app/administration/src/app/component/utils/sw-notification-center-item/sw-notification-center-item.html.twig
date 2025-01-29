@@ -1,25 +1,20 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_notification_center_item %}
 <div class="sw-notification-center-item">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_notification_center_item_header %}
     <div
         class="sw-notification-center-item__header"
         :class="itemHeaderClass"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_notification_center_item_header_title %}
         <p class="sw-notification-center-item__title">
             {{ notification.title }}
         </p>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_notification_center_item_header_timestamp %}
         <p class="sw-notification-center-item__timestamp">
             <sw-time-ago :date="notification.timestamp" />
         </p>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_notification_center_item_header_delete %}
         <sw-icon
             class="sw-notification-center-item__delete"
@@ -30,17 +25,14 @@
         {% endblock %}
     </div>
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_notification_center_item_content %}
     <div class="sw-notification-center-item__content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_notification_center_item_content_message %}
         <p
             class="sw-notification-center-item__message"
             v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
         ></p>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_notification_center_item_loader %}
         <sw-loader
             v-if="notification.isLoading"
@@ -51,7 +43,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_notification_center_item_actions %}
     <div
         v-if="notification.actions"
@@ -63,12 +54,10 @@
             v-for="action in notificationActions"
             :key="action.label"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_notification_center_item_actions_item_container %}
             <div
                 class="sw-notification-center-item__actions-item-container"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_notification_center_item_actions_item %}
                 <sw-button
                     block

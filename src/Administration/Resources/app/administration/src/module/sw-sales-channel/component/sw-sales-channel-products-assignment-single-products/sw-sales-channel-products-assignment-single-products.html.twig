@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_products_assignment_single_products %}
 <sw-card
     class="sw-sales-channel-products-assignment-single-products"
@@ -6,13 +5,11 @@
     :is-loading="isLoading"
 >
     <div :style="containerStyle">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_products_assignment_single_products_secondary %}
         <sw-card-section
             ref="cardSectionSecondary"
             secondary
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_products_assignment_single_products_search_field %}
             <sw-simple-search-field
                 v-model:value="searchTerm"
@@ -24,13 +21,11 @@
         </sw-card-section>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_products_assignment_single_products_primary %}
         <sw-card-section
             class="sw-sales-channel-products-assignment-single-products__card-section-primary"
             divider="top"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_products_assignment_single_products_primary_listing %}
             <sw-entity-listing
                 v-if="products.length > 0"
@@ -51,7 +46,6 @@
                 @select-all-items="onSelectionChange"
             >
                 <template #pagination>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_products_assignment_single_products_primary_listing_pagination %}
                     <sw-pagination
                         v-bind="{ page, limit, total }"
@@ -64,7 +58,6 @@
             </sw-entity-listing>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_products_assignment_single_products_primary_empty_state %}
             <sw-empty-state
                 v-else

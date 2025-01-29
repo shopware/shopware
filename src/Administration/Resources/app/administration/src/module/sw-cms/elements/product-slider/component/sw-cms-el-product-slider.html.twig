@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_product_slider %}
 <div
     class="sw-cms-el-product-slider"
     :class="classes"
     :style="verticalAlignStyle"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_slider_title %}
     <div
         v-if="element.config.title.value"
@@ -15,10 +13,8 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_slider_content %}
     <div class="sw-cms-el-product-slider__content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_slider_arrow_left %}
         <div
             v-if="hasNavigationArrows"
@@ -33,7 +29,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_slider_product_holder %}
         <div
             ref="productHolder"
@@ -41,7 +36,6 @@
             :style="sliderBoxMinWidth"
         >
             <template v-if="!element.data || !element.data.products">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_demo_data %}
                 <sw-cms-el-product-box
                     v-for="index in sliderBoxLimit"
@@ -52,7 +46,6 @@
             </template>
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_products %}
                 <template
                     v-for="(product, index) in element.data.products"
@@ -68,7 +61,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_slider_arrow_right %}
         <div
             v-if="hasNavigationArrows"

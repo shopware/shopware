@@ -66,6 +66,9 @@ export default {
         },
 
         actionOptions() {
+            // ATTENTION: If the flow builder ever stops working. Take a look at the store first, it's probably the cause.
+            // For example this getter had several side effects causing the store to update and trigger an update of
+            // this component constantly.
             const actions = this.availableActions.map((action) => {
                 return this.getActionTitle(action);
             });

@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_country_state_detail %}
 <sw-modal
     class="sw-country-state-detail"
     :title="modalTitle"
     @modal-close="onCancel"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_country_state_detail_modal %}
     <sw-container
         columns="1fr 1fr"
@@ -22,7 +20,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_shortcode %}
         <sw-text-field
             v-model:value="countryState.shortCode"
@@ -32,7 +29,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_position %}
         <sw-number-field
             v-model:value="countryState.position"
@@ -45,10 +41,8 @@
         {% endblock %}
     </sw-container>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_country_state_detail_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_footer_cancel %}
         <sw-button
             size="small"
@@ -58,7 +52,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_footer_save %}
         <sw-button
             v-tooltip.bottom="tooltipSave"

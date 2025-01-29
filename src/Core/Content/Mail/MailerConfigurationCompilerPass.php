@@ -28,7 +28,7 @@ class MailerConfigurationCompilerPass implements CompilerPassInterface
         ]);
 
         $mailer = $container->getDefinition(MailSender::class);
-        // use the same mailer from symfony/mailer configuration. matching: https://developer.shopware.com/docs/guides/hosting/infrastructure/message-queue.html#sending-mails-over-the-message-queue
+        // use the same message bus from symfony/mailer configuration. matching: https://developer.shopware.com/docs/guides/hosting/infrastructure/message-queue.html#sending-mails-over-the-message-queue
         $originalMailer = $container->getDefinition('mailer.mailer');
         $mailer->replaceArgument(4, $originalMailer->getArgument(1));
     }

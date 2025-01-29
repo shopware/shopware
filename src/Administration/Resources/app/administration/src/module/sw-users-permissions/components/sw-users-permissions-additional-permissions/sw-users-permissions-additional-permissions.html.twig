@@ -1,22 +1,18 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_users_permissions_additional_permissions %}
 <sw-card
     class="sw-users-permissions-additional-permissions"
     position-identifier="sw-users-permissions-additional-permissions"
     :title="$tc('sw-users-permissions.roles.additional-permissions.title')"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_additional_permissions_additional_privileges %}
     <template
         v-for="privilege in additionalPermissions"
         :key="`head-${privilege.key}`"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_additional_permissions_additional_privileges_headline %}
         <h4
             :class="'sw-users-permissions-additional-permissions_' + privilege.key"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_additional_permissions_additional_privileges_headline_content %}
             <strong>
                 {{ $tc('sw-privileges.additional_permissions.' + privilege.key + '.label') }}
@@ -25,18 +21,15 @@
         </h4>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_additional_permissions_additional_privileges_switches %}
         <div
             class="sw-users-permissions-additional-permissions__switches"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content %}
             <template
                 v-for="(value, roleName) in privilege.roles"
                 :key="roleName"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch %}
                 <sw-switch-field
                     :disabled="disabled"
@@ -54,18 +47,15 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_additional_permissions_app_privileges %}
     <template
         v-for="privilege in appPermissions"
         :key="privilege.key"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_additional_permissions_app_privileges_headline %}
         <h4
             class="sw-users-permissions-additional-permissions-app"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_additional_permissions_app_privileges_headline_content %}
             <strong>
                 {{ $tc('sw-privileges.additional_permissions.app.label') }}
@@ -74,18 +64,15 @@
         </h4>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_additional_permissions_app_privileges_switches %}
         <div
             class="sw-users-permissions-additional-permissions__switches"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_additional_permissions_app_privileges_switches_content %}
             <template
                 v-for="(key, roleName) in privilege.roles"
                 :key="roleName"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_additional_permissions_app_privileges_switches_content_switch %}
                 <sw-switch-field
                     v-if="roleName === 'all'"

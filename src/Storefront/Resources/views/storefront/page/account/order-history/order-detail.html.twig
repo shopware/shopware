@@ -226,8 +226,15 @@
 
                         {% block page_account_order_item_detail_table_footnote %}
                             <div class="order-item-detail-footnote">
-                                {{ 'footer.%s'|format(order.taxStatus == 'gross' ? 'includeVatText' : 'excludeVatText')|trans({
-                                    '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                                    {% set taxSnippetKey = order.taxStatus == 'gross' ? 'includeVatTextPage' : 'excludeVatTextPage' %}
+                                {%- else -%}
+                                   {% set taxSnippetKey = order.taxStatus == 'gross' ? 'includeVatText' : 'excludeVatText' %}
+                                {%- endif -%}
+                                {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+
+                                {{ 'footer.%s'|format(taxSnippetKey)|trans({
+                                    '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') })
                                 })|raw }}
                             </div>
                         {% endblock %}

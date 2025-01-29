@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_modal %}
 <sw-modal
     :title="title"
@@ -7,14 +6,12 @@
     class="sw-first-run-wizard-modal"
     @modal-close="closeModal"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_first_run_wizard_modal_content %}
     <div class="sw-first-run-wizard-modal-content">
         <sw-container
             :class="{'one': !showSteps, 'two': showSteps}"
             class="sw-first-run-wizard-modal-content__columns"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_modal_content_steps %}
             <div
                 v-if="showSteps"
@@ -50,7 +47,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_modal_content_page %}
             <div class="sw-first-run-wizard-modal-content__page">
                 <router-view
@@ -78,11 +74,9 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_first_run_wizard_modal_footer %}
     <template #modal-footer>
         <div class="sw-first-run-wizard-modal__footer">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_modal_footer_left %}
             <div class="footer-left">
                 <sw-button
@@ -98,7 +92,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_modal_footer_right %}
             <div class="footer-right">
                 <sw-button

@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_mailer_smtp %}
 <div class="sw-settings-mailer-smtp">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_host %}
     <sw-text-field
         v-model:value="mailerSettings['core.mailerSettings.host']"
@@ -13,7 +11,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_port %}
     <sw-number-field
         v-model:value="mailerSettings['core.mailerSettings.port']"
@@ -26,7 +23,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_username %}
     <sw-text-field
         v-if="!isOauth"
@@ -36,7 +32,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_password %}
     <sw-password-field
         v-if="!isOauth"
@@ -66,7 +61,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_client_id %}
     <sw-text-field
         v-if="isOauth"
@@ -77,7 +71,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_client_secret %}
     <sw-password-field
         v-if="isOauth"
@@ -88,7 +81,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_encryption %}
     <sw-single-select
         v-model:value="mailerSettings['core.mailerSettings.encryption']"
@@ -99,7 +91,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_sender_address %}
     <sw-text-field
         v-model:value="mailerSettings['core.mailerSettings.senderAddress']"
@@ -109,7 +100,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_delivery_address %}
     <sw-text-field
         v-model:value="mailerSettings['core.mailerSettings.deliveryAddress']"
@@ -120,7 +110,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_disable_delivery %}
     <sw-switch-field
         v-model:value="mailerSettings['core.mailerSettings.disableDelivery']"

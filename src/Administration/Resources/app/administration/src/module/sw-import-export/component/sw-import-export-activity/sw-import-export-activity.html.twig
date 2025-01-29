@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_activity %}
 <div class="sw-import-export-activity">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_listing %}
     <sw-entity-listing
         v-if="showGrid"
@@ -14,13 +12,11 @@
         :allow-column-edit="false"
         :full-page="true"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_listing_size %}
         <template #column-file.size="{ item }">
             {{ calculateFileSize(item.file.size) }}
         </template>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_listing_records %}
         <template #column-records="{ item }">
             {{ item.records }}
@@ -33,7 +29,6 @@
                 :text="$t('sw-import-export.activity.invalidHelpText')"
             />
         </template>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_listing_invalid_records %}
         <template #column-invalidRecords="{ item }">
             <template v-if="item.invalidRecordsLog">
@@ -44,7 +39,6 @@
             </template>
         </template>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_listing_createdAt %}
         <template #column-createdAt="{ item }">
             <sw-label
@@ -63,7 +57,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_listing_state %}
         <template #column-state="{ item }">
             <sw-color-badge
@@ -84,10 +77,8 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_listing_actions %}
         <template #actions="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_show_results %}
             <sw-context-menu-item
                 v-if="item.result && Object.keys(item.result).length"
@@ -97,7 +88,6 @@
                 {{ $t('sw-import-export.activity.contextMenu.showResults') }}
             </sw-context-menu-item>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_show_log_info %}
             <sw-context-menu-item
                 v-if="type === 'export'"
@@ -107,7 +97,6 @@
                 {{ $t('sw-import-export.activity.contextMenu.showLogInfo') }}
             </sw-context-menu-item>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_download_file %}
             <a
                 class="sw-import-export-activity__download-action"
@@ -121,13 +110,11 @@
                 </sw-context-menu-item>
             </a>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_open_profile %}
             <sw-context-menu-item @click="onOpenProfile(item.profileId)">
                 {{ $t('sw-import-export.activity.contextMenu.showProfile') }}
             </sw-context-menu-item>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_abort_process %}
             <sw-context-menu-item
                 v-if="item.state === 'progress'"
@@ -138,7 +125,6 @@
                 {{ $t('sw-import-export.activity.contextMenu.abortProcess') }}
             </sw-context-menu-item>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_download_invalid %}
             <template v-if="item.invalidRecordsLog">
                 <a
@@ -159,12 +145,10 @@
     </sw-entity-listing>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_spinner %}
     <sw-loader v-else-if="showSpinner" />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_empty_state %}
     <sw-empty-state
         v-if="showEmptyState"
@@ -175,7 +159,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_log_info_modal %}
     <sw-import-export-activity-log-info-modal
         v-if="showDetailModal"
@@ -184,7 +167,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_result_modal %}
     <sw-import-export-activity-result-modal
         v-if="showResultModal"
@@ -194,7 +176,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_modal %}
     <sw-import-export-edit-profile-modal
         v-if="selectedProfile"

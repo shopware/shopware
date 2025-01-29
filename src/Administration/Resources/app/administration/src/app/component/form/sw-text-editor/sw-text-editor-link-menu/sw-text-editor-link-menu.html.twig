@@ -1,10 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_editor_toolbar_button_link_menu %}
 <div class="sw-text-editor-toolbar-button__link-menu">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_link_menu_content %}
     <div class="sw-text-editor-toolbar-button__link-menu-content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type %}
         <sw-select-field
             :value="linkCategory"
@@ -12,7 +9,6 @@
             require
             @update:value="onSelectFieldChange"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_text_editor_toolbar_button_link_menu_content_type_options %}
             <option value="link">
                 {{ $tc('sw-text-editor-toolbar.link.labelUrl') }}
@@ -36,9 +32,7 @@
         </sw-select-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_link %}
         <sw-text-field
             v-if="linkCategory === 'link'"
@@ -49,7 +43,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone %}
         <sw-text-field
             v-else-if="linkCategory === 'phone'"
@@ -60,7 +53,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_email %}
         <sw-email-field
             v-else-if="linkCategory === 'email'"
@@ -71,7 +63,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_detail %}
         <sw-entity-single-select
             v-else-if="linkCategory === 'detail'"
@@ -87,7 +78,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_category %}
         <sw-category-tree-field
             v-else-if="linkCategory === 'navigation'"
@@ -101,7 +91,6 @@
         {% endblock %}
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_media %}
         <sw-media-field
             v-else-if="linkCategory === 'media'"
@@ -112,7 +101,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_opens_new_tab %}
         <sw-switch-field
             v-if="!['phone', 'email'].includes(linkCategory)"
@@ -123,7 +111,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_display_as_button %}
         <sw-switch-field
             v-model:value="displayAsButton"
@@ -133,7 +120,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_button_type %}
         <sw-select-field
             v-if="displayAsButton"
@@ -147,10 +133,8 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_link_menu_buttons %}
     <div class="sw-text-editor-toolbar-button__link-menu-buttons">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_button_remove %}
         <sw-button
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-remove"
@@ -163,7 +147,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_button_insert %}
         <sw-button
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"

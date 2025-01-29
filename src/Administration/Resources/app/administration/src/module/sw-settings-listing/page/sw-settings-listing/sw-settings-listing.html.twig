@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_listing_index %}
 <sw-page class="sw-settings-listing-index">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_search_bar %}
     <template #search-bar>
         <sw-search-bar />
@@ -13,13 +11,10 @@
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -29,17 +24,14 @@
             {{ $tc('sw-settings-listing.general.textHeadline') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_smart_bar_header_amount %}{% endblock %}
         </h2>
         {% endblock %}
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_actions_save %}
         <sw-button-process
             class="sw-settings-listing__save-action"
@@ -56,11 +48,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_content %}
     <template #content>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_content_card_view %}
         <sw-card-view>
             <template v-if="isLoading">
@@ -70,7 +60,6 @@
 
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <div v-show="!isLoading">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_listing_content_card_view_default_sales_channel %}
                 <sw-card
                     class="sw-settings-listing__sales-channel-card"
@@ -84,7 +73,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_listing_content_card_view_system_config %}
                 <sw-system-config
                     ref="systemConfig"
@@ -94,7 +82,6 @@
                 >
 
                     <template #afterElements="{ config, index, isNotDefaultSalesChannel, inheritance }">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_listing_content_card_view_system_config_default_sorting_select %}
                         <sw-inherit-wrapper
                             v-if="config && index === 0"
@@ -149,7 +136,6 @@
                 </sw-system-config>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_listing_content_card_view_options_card %}
                 <sw-card
                     class="sw-settings-listing-index__sorting-options-card"
@@ -158,11 +144,9 @@
                     :is-loading="isProductSortingOptionsCardLoading"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_listing_content_card_view_options_card_toolbar %}
                     <template #toolbar>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_listing_content_card_view_options_card_toolbar_container %}
                         <sw-container
                             columns="1fr auto"
@@ -170,7 +154,6 @@
                             align="start"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_listing_content_card_view_options_card_toolbar_search_field %}
                             <sw-simple-search-field
                                 v-model:value="productSortingOptionsSearchTerm"
@@ -181,7 +164,6 @@
                             />
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_listing_content_card_view_options_card_toolbar_add_product_option %}
                             <sw-button
                                 variant="ghost"
@@ -196,7 +178,6 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_listing_content_card_view_options_card_grid %}
                     <sw-data-grid
                         v-if="productSortingOptions.length > 0"
@@ -210,11 +191,9 @@
                         @inline-edit-save="onSaveProductSortingOptionInlineEdit"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_listing_content_card_view_options_card_grid_column_criteria %}
                         <template #column-criteria="{item}">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_listing_content_card_view_options_card_grid_column_criteria_text %}
                             <span
                                 class="is--truncate"
@@ -226,11 +205,9 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_listing_content_card_view_options_card_grid_column_actions %}
                         <template #actions="{item}">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_edit %}
                             <sw-context-menu-item
                                 :disabled="item.locked"
@@ -240,7 +217,6 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_delete %}
                             <sw-context-menu-item
                                 variant="danger"
@@ -253,7 +229,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_listing_content_card_view_options_card_grid_pagination %}
                         <template #pagination>
                             <sw-pagination
@@ -268,7 +243,6 @@
                     </sw-data-grid>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_listing_content_card_view_options_card_empty_state %}
                     <sw-empty-state
                         v-else
@@ -278,7 +252,6 @@
                         :absolute="false"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_listing_content_card_view_options_card_empty_state_icon %}
                         <template #icon>
                             <img
@@ -295,7 +268,6 @@
         </sw-card-view>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_content_card_view_options_delete_modal %}
         <sw-settings-listing-delete-modal
             v-if="toBeDeletedProductSortingOption"

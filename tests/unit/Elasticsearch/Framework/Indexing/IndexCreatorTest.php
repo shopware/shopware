@@ -42,7 +42,7 @@ class IndexCreatorTest extends TestCase
                 ],
             ]);
 
-        // Alias does not exists, swap directly
+        // Alias does not exist, swap directly
         $indices->expects(static::once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(false);
         $indices->expects(static::once())->method('refresh')->with(['index' => 'foo']);
         $indices->expects(static::once())->method('putAlias')->with(['index' => 'foo', 'name' => 'bla']);
@@ -77,7 +77,7 @@ class IndexCreatorTest extends TestCase
                 static::assertTrue($config['body']['event']);
             });
 
-        // Alias does not exists, swap directly
+        // Alias does not exist, swap directly
         $indices->expects(static::once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(false);
         $indices->expects(static::once())->method('refresh')->with(['index' => 'foo']);
         $indices->expects(static::once())->method('putAlias')->with(['index' => 'foo', 'name' => 'bla']);
@@ -177,7 +177,7 @@ class IndexCreatorTest extends TestCase
                 ],
             ]);
 
-        // Alias does not exists, swap directly
+        // Alias does not exist, swap directly
         $indices->expects(static::once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(true);
         $indices->expects(static::never())->method('refresh');
         $indices->expects(static::never())->method('putAlias');

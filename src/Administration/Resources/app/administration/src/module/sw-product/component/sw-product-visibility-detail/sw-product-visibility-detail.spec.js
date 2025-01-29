@@ -97,7 +97,7 @@ describe('src/module/sw-settings-listing/component/sw-product-visibility-detail'
                     return false;
                 }
 
-                return msg.includes('does not exists in given options');
+                return msg.includes('does not exist in given options');
             },
         });
     });

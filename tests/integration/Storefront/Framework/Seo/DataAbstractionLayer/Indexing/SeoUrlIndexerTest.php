@@ -41,6 +41,9 @@ class SeoUrlIndexerTest extends TestCase
     use QueueTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
+    /**
+     * @var EntityRepository<TemplateCollection>
+     */
     private EntityRepository $templateRepository;
 
     /**
@@ -628,7 +631,7 @@ class SeoUrlIndexerTest extends TestCase
             ->get(SeoUrlUpdater::class)
             ->update(ProductPageSeoUrlRoute::ROUTE_NAME, [$id]);
 
-        /** @var EntityRepository $productRepo */
+        /** @var EntityRepository<ProductCollection> $productRepo */
         $productRepo = static::getContainer()->get('product.repository');
 
         $criteria = new Criteria([$id]);
@@ -669,7 +672,7 @@ class SeoUrlIndexerTest extends TestCase
 
     private function getSeoUrls(string $salesChannelId, string $productId): SeoUrlCollection
     {
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<SeoUrlCollection> $repo */
         $repo = static::getContainer()->get('seo_url.repository');
 
         $criteria = new Criteria();

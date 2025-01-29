@@ -1,19 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_customer_group_detail %}
 <sw-page class="sw-settings-customer-group-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_search_bar %}
     <template #search-bar></template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_detail_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_customer_group_detail_smart_bar_header_title_text %}
             {{ placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup')) }}
             {% endblock %}
@@ -22,7 +17,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -32,10 +26,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_detail_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -46,7 +38,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_detail_actions_save %}
         <sw-button-process
             v-model:process-success="isSaveSuccessful"
@@ -63,19 +54,16 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_cardview %}
     <template #content>
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_content_language_info %}
                 <sw-language-info :entity-description="entityDescription" />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_content_card %}
                 <sw-card
                     :is-loading="isLoading"
@@ -102,7 +90,6 @@
                             />
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_customer_group_detail_content_card_display_gross %}
                             <sw-boolean-radio-group
                                 v-model:value="customerGroup.displayGross"
@@ -129,7 +116,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_content_registration_card %}
                 <sw-card
                     v-if="customerGroup && customerGroup.registrationActive"
@@ -141,7 +127,6 @@
                         {{ $tc('sw-settings-customer-group.registration.infoText') }}
                     </div>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_title %}
                     <sw-text-field
                         v-model:value="customerGroup.registrationTitle"
@@ -155,7 +140,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_introduction %}
                     <sw-text-editor
                         v-model:value="customerGroup.registrationIntroduction"
@@ -167,7 +151,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_seo_meta_description %}
                     <sw-textarea-field
                         v-model:value="customerGroup.registrationSeoMetaDescription"
@@ -178,7 +161,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_only_companies_can_register %}
                     <sw-switch-field
                         v-model:value="customerGroup.registrationOnlyCompanyRegistration"
@@ -192,7 +174,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_content_registration_url_card %}
                 <sw-card
                     v-if="customerGroup && customerGroup.registrationActive"
@@ -201,7 +182,6 @@
                     :title="$tc('sw-settings-customer-group.registration.linkUrlsTitle')"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_url_card_sales_channel %}
                     <sw-entity-multi-select
                         v-model:entity-collection="customerGroup.registrationSalesChannels"
@@ -212,7 +192,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_technical_urls %}
                     <sw-text-field
                         v-if="customerGroupId"
@@ -225,13 +204,11 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url %}
                     <div
                         v-for="seoUrl in seoUrls"
                         :key="seoUrl.id"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
                         <!-- eslint-disable vue/valid-v-model -->
                         <sw-text-field
@@ -246,7 +223,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_stream_list %}
 <sw-page class="sw-product-stream-list">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -14,18 +12,14 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_list_smart_bar_header_title_text %}
             {{ $tc('sw-product-stream.list.textProductStreamOverview') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -39,10 +33,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip.bottom="getNoPermissionsTooltip('product_stream.creator')"
@@ -57,7 +49,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
@@ -66,11 +57,9 @@
 
     <template #content>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_list_content %}
         <div class="sw-product-stream-list__content">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_list_grid %}
             <sw-entity-listing
                 v-if="isLoading || (productStreams && entitySearchable)"
@@ -96,14 +85,12 @@
                 @delete-items-failed="onDeleteItemsFailed"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_list_grid_bulk %}
                 <template #bulk>
                     <span v-if="!acl.can('product_stream.deleter')"></span>
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_list_grid_column_invalid %}
                 <template #column-invalid="{item}">
                     <template v-if="item.invalid">
@@ -116,7 +103,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_list_grid_colum_updated_at %}
                 <template #column-updatedAt="{item}">
                     <template v-if="item.updatedAt">
@@ -129,10 +115,8 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_list_grid_more_actions %}
                 <template #more-actions="{item}">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_stream_list_grid_duplicate_action %}
                     <sw-context-menu-item
                         :disabled="!acl.can('product_stream.creator')"
@@ -145,7 +129,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_list_grid_delete_action %}
                 <template #delete-action="{item, showDelete, allowDelete}">
 
@@ -162,7 +145,6 @@
             </sw-entity-listing>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_list_empty_state %}
             <template v-else-if="!isLoading && !total">
                 <sw-empty-state
@@ -191,12 +173,10 @@
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_list_sidebar %}
     <template #sidebar>
         <sw-sidebar>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"

@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_mail_template_list %}
 <sw-page class="sw-mail-template-list">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_templates_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -11,13 +9,10 @@
         />
     </template>
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_mail_template_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_mail_template_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -31,7 +26,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_list_smart_bar_actions %}
     <template #smart-bar-actions>
         <sw-context-button
@@ -56,14 +50,12 @@
                 </sw-button>
             </template>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_mail_template_list_smart_bar_actions_add %}
             <sw-context-menu-item :router-link="{ name: 'sw.mail.template.create' }">
                 {{ $tc('sw-mail-template.list.buttonAddMailTemplate') }}
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_mail_header_footer_list_smart_bar_actions_add %}
             <sw-context-menu-item :router-link="{ name: 'sw.mail.template.create_head_foot' }">
                 {{ $tc('sw-mail-header-footer.list.buttonAddMailHeaderFooter') }}
@@ -73,18 +65,15 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_list_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_mail_template_list_content_card %}
             <sw-mail-template-list
                 ref="mailTemplateList"

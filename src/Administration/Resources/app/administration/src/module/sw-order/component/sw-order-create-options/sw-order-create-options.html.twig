@@ -1,18 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_options %}
 <div class="sw-order-create-options">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_container %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_headline %}
     <h3 class="sw-order-create-options__headline">
         {{ $tc('sw-order.initialModal.options.textHeadlineOrder') }}
     </h3>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_switch_disable_auto_promotion %}
     <sw-switch-field
         class="sw-order-create-options__disable-auto-promotion"
@@ -22,14 +17,12 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_field_container %}
     <sw-container
         class="sw-order-create-options__order-container"
         gap="0px 32px"
         columns="1fr 1fr"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_language %}
         <sw-entity-single-select
             v-model:value="context.languageId"
@@ -42,7 +35,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_promotions %}
         <sw-multi-tag-select
             class="sw-order-create-options__promotion-code"
@@ -63,21 +55,17 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_payment %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_payment_headline %}
     <h3>{{ $tc('sw-order.initialModal.options.textHeadlinePayment') }}</h3>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_payment_container %}
     <sw-container
         class="sw-order-create-options__payment-container"
         gap="0px 32px"
         columns="1fr 1fr"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_payment_method %}
         <sw-entity-single-select
             v-model:value="context.paymentMethodId"
@@ -91,7 +79,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_billing_address %}
         <sw-order-customer-address-select
             v-model:value="context.billingAddressId"
@@ -103,7 +90,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_currency %}
         <sw-entity-single-select
             v-model:value="context.currencyId"
@@ -119,9 +105,7 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_shipment %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_shipment_headline %}
     <h3>{{ $tc('sw-order.initialModal.options.textHeadlineShipment') }}</h3>
     {% endblock %}
@@ -131,7 +115,6 @@
         gap="0px 32px"
         columns="1fr 1fr"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_shipping_method %}
         <sw-entity-single-select
             v-model:value="context.shippingMethodId"
@@ -161,7 +144,6 @@
             :label="$tc('sw-order.initialModal.options.labelSameAsBillingAddress')"
         />
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_shipping_address %}
         <sw-order-customer-address-select
             v-model:value="context.shippingAddressId"

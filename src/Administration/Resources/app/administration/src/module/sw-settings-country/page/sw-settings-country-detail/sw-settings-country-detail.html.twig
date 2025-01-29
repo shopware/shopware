@@ -1,18 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_country_detail %}
 <sw-page class="sw-settings-country-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="{
@@ -26,7 +22,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -44,7 +39,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -55,21 +49,17 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_detail_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_detail_content_language_info %}
             <sw-language-info
                 :entity-description="placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline'))"
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_tabs_header %}
             <sw-tabs position-identifier="sw-settings-country-detail-header">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_setting_country_tabs_setting %}
                 <sw-tabs-item
                     v-bind="$props"
@@ -80,7 +70,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_setting_country_tabs_state %}
                 <sw-tabs-item
                     v-bind="$props"
@@ -91,7 +80,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_setting_country_tabs_address_handling %}
                 <sw-tabs-item
                     v-bind="$props"
@@ -102,7 +90,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_setting_country_tabs_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
@@ -113,7 +100,6 @@
             </template>
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_tabs_content %}
                 <router-view
                     v-slot="{ Component }"
@@ -131,7 +117,6 @@
                 </router-view>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

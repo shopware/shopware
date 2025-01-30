@@ -183,10 +183,12 @@ declare global {
      */
     type Remove<T, K extends keyof T> = T & { [P in K]?: never };
 
+    interface CustomShopwareProperties {}
+
     /**
      * Make the Shopware object globally available
      */
-    const Shopware: ShopwareClass;
+    const Shopware: ShopwareClass & CustomShopwareProperties;
 
     type Entity<EntityName extends keyof EntitySchema.Entities> = EntitySchema.Entity<EntityName>;
     type EntityCollection<EntityName extends keyof EntitySchema.Entities> = EntitySchema.EntityCollection<EntityName>;
@@ -195,7 +197,7 @@ declare global {
     interface CustomShopwareProperties {}
 
     interface Window {
-        Shopware: ShopwareClass;
+        Shopware: ShopwareClass & CustomShopwareProperties;
         _features_: {
             [featureName: string]: boolean;
         };

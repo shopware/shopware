@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_code_editor %}
 <div
     class="sw-code-editor"
     :class="classes"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_label %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_code_editor_editor %}
     <!-- eslint-disable-next-line vuejs-accessibility/tabindex-no-positive -->
     <sw-base-field
@@ -29,20 +26,17 @@
         </template>
     </sw-base-field>
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_code_editor_sanitize_info %}
     <div
         v-if="sanitizeInput"
         class="sw-code-editor__sanitize-bar"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_code_editor_sanitize_info_content %}
         <div
             v-if="contentWasSanitized && enableHtmlSanitizer"
             class="sw-code-editor__sanitized-hint"
             :class="{'sw-code-editor__sanitized-hint--visible': contentWasSanitized}"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_code_editor_sanitize_info_content_sanitized %}
             <sw-circle-icon
                 icon-name="regular-info-circle"
@@ -59,7 +53,6 @@
             class="sw-code-editor__sanitize-info"
             :class="{'sw-code-editor__sanitize-info--visible': !contentWasSanitized}"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_code_editor_sanitize_info_content_hint %}
             <sw-circle-icon
                 icon-name="regular-info-circle"
@@ -83,7 +76,6 @@
             class="sw-code-editor__sanitize-info"
             :class="{'sw-code-editor__sanitize-info--visible': !contentWasSanitized}"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_code_editor_sanitize_info_content_hint %}
             <sw-circle-icon
                 icon-name="regular-info-circle"

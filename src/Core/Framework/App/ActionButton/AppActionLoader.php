@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class AppActionLoader
 {
     /**
@@ -46,7 +46,7 @@ class AppActionLoader
         \assert($app !== null);
 
         try {
-            $source = $this->appPayloadServiceHelper->buildSource($app->getVersion(), $app->getId());
+            $source = $this->appPayloadServiceHelper->buildSource($app->getVersion(), $app->getName());
         } catch (AppUrlChangeDetectedException) {
             throw AppException::actionNotFound();
         }

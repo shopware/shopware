@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EmailFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(

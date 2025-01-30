@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_entry_point_modal %}
 <sw-modal
     class="sw-category-entry-point-modal"
@@ -6,7 +5,6 @@
     @modal-close="closeModal"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_modal_sales_channel_selection %}
     <sw-single-select
         v-model:value="selectedSalesChannelId"
@@ -17,11 +15,9 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_modal_selected_sales_channel %}
     <template v-if="selectedSalesChannel">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_show_in_main_navigation %}
         <sw-switch-field
             v-model:value="selectedSalesChannel.homeEnabled"
@@ -31,7 +27,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_name_in_main_navigation %}
         <sw-text-field
             v-model:value="selectedSalesChannel.homeName"
@@ -43,18 +38,15 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_layout_headline %}
         <h3 class="sw-category-entry-point-modal__layout-headline">
             {{ $tc('sw-category.base.entry-point-modal.layoutHeadline') }}
         </h3>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_layout_selection %}
         <div class="sw-category-entry-point-modal__base-layout">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_entry_point_modal_layout_preview %}
             <div
                 class="sw-category-entry-point-modal__preview"
@@ -72,7 +64,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_entry_point_modal_layout_modal %}
             <sw-cms-layout-modal
                 v-if="showLayoutSelectionModal"
@@ -83,15 +74,12 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_entry_point_modal_layout_desc %}
             <div class="sw-category-entry-point-modal__desc">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_entry_point_modal_layout_desc_info %}
                 <div class="sw-category-entry-point-modal__desc-info">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_entry_point_modal_layout_desc_info_headline %}
                     <div
                         class="sw-category-entry-point-modal__desc-headline"
@@ -101,7 +89,6 @@
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_entry_point_modal_layout_desc_info_subheadline %}
                     <div
                         class="sw-category-entry-point-modal__desc-subheadline"
@@ -114,11 +101,9 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_entry_point_modal_layout_desc_actions %}
                 <div class="sw-category-entry-point-modal__desc-actions">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_entry_point_modal_layout_desc_actions_layout %}
                     <sw-button
                         class="sw-category-detail-layout__change-layout-action"
@@ -130,7 +115,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_entry_point_modal_layout_desc_actions_designer %}
                     <sw-button
                         class="sw-category-detail-layout__open-in-pagebuilder"
@@ -142,7 +126,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_entry_point_modal_layout_desc_actions_remove %}
                     <sw-button
                         v-if="selectedSalesChannel.homeCmsPage"
@@ -168,14 +151,12 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_settings_headline %}
         <h2 class="sw-category-entry-point-modal__seo-headline">
             {{ $tc('sw-category.base.entry-point-modal.seoSettingsHeadline') }}
         </h2>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_meta_title %}
         <sw-text-field
             v-model:value="selectedSalesChannel.homeMetaTitle"
@@ -186,7 +167,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_meta_description %}
         <sw-textarea-field
             v-model:value="selectedSalesChannel.homeMetaDescription"
@@ -197,7 +177,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_keywords %}
         <sw-text-field
             v-model:value="selectedSalesChannel.homeKeywords"
@@ -211,11 +190,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_modal_footer %}
     <template #modal-footer>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_footer_cancel_button %}
         <sw-button
             class="sw-category-entry-point-modal__cancel-button"
@@ -225,7 +202,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_footer_apply_button %}
         <sw-button
             class="sw-category-entry-point-modal__apply-button"
@@ -240,7 +216,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_modal_discard_changes_modal %}
     <sw-discard-changes-modal
         v-if="isDisplayingLeavePageWarning"

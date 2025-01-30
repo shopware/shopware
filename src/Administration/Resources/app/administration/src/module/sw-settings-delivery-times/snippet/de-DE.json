@@ -8,7 +8,6 @@
     "general": {
       "mainMenuItemGeneral": "Lieferzeiten",
       "description": "Einstellungsmodul zur Verwaltung von Lieferzeiten",
-      "buttonCancel": "Abbrechen",
       "buttonCreate": "Lieferzeit anlegen",
       "buttonSave": "Speichern",
       "placeholder": "Durchsuche alle Lieferzeiten ..."
@@ -24,7 +23,6 @@
       "columnUnit_week": "Woche",
       "columnUnit_month": "Monat",
       "columnUnit_year": "Jahr",
-      "columnUnit_hour": "Stunde",
       "errorLoad": "Die Lieferzeiten konnten nicht geladen werden."
     },
     "detail": {

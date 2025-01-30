@@ -29,14 +29,27 @@
                                 <form id="profilePersonalForm"
                                       method="post"
                                       action="{{ path('frontend.account.profile.save') }}"
-                                      data-form-validation="true">
+                                      {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
+                                      {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+                                      {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}>
+
                                     {% block page_account_profile_personal_fields %}
-                                        {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
-                                            showBirthdayField: config('core.loginRegistration.showBirthdayField'),
-                                            showVatIdField: true,
-                                            data: context.customer,
-                                            onlyCompanyRegistration: context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false
-                                        } %}
+                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                            {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
+                                                showBirthdayField: config('core.loginRegistration.showBirthdayField'),
+                                                showVatIdField: true,
+                                                data: context.customer,
+                                                onlyCompanyRegistration: context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false,
+                                            } %}
+                                        {% else %}
+                                            {# @deprecated tag:v6.7.0 - The personal.html.twig will be removed. Use address-personal.html.twig instead. #}
+                                            {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
+                                                showBirthdayField: config('core.loginRegistration.showBirthdayField'),
+                                                showVatIdField: true,
+                                                data: context.customer,
+                                                onlyCompanyRegistration: context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false
+                                            } %}
+                                        {% endif %}
                                     {% endblock %}
 
                                     {% block page_account_profile_personal_required %}
@@ -123,7 +136,10 @@
                                               class="card-body"
                                               method="post"
                                               action="{{ path('frontend.account.profile.email.save') }}"
-                                              data-form-validation="true">
+                                              {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
+                                              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+                                              {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}>
+
                                             {% block page_account_profile_mail_title %}
                                                 <div class="card-title">
                                                     {{ 'account.profileMailTitle'|trans|sw_sanitize }}
@@ -133,7 +149,22 @@
                                             {% block page_account_profile_mail_container %}
                                                 <div class="row g-2">
                                                     {% block page_account_profile_mail %}
+                                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                                type: 'email',
+                                                                label: 'account.personalMailLabel'|trans|sw_sanitize,
+                                                                id: 'personalMail',
+                                                                name: 'email[email]',
+                                                                autocomplete: 'section-personal email',
+                                                                violationPath: '/email',
+                                                                validationRules: 'required,email',
+                                                                additionalClass: 'col',
+                                                            } %}
+
+                                                        {% else %}
                                                         <div class="col form-group">
+
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_mail_label %}
                                                                 <label class="form-label"
                                                                        for="personalMail">
@@ -141,6 +172,7 @@
                                                                 </label>
                                                             {% endblock %}
 
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_mail_input %}
                                                                 <input type="email"
                                                                        class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
@@ -152,6 +184,7 @@
                                                                        required="required">
                                                             {% endblock %}
 
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_mail_input_error %}
                                                                 {% if formViolations.getViolations('/email') is not empty %}
                                                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -160,10 +193,27 @@
                                                                 {% endif %}
                                                             {% endblock %}
                                                         </div>
+                                                        {% endif %}
                                                     {% endblock %}
 
                                                     {% block page_account_profile_mail_confirmation %}
+                                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                                type: 'email',
+                                                                label: 'account.personalMailConfirmationLabel'|trans|sw_sanitize,
+                                                                id: 'personalMailConfirmation',
+                                                                name: 'email[emailConfirmation]',
+                                                                autocomplete: 'section-personal email',
+                                                                violationPath: '/email',
+                                                                validationRules: 'required,confirmation',
+                                                                additionalClass: 'col',
+                                                            } %}
+
+                                                        {% else %}
+
                                                         <div class="form-group col">
+
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_personal_mail_confirmation_label %}
                                                                 <label class="form-label"
                                                                        for="personalMailConfirmation">
@@ -171,6 +221,7 @@
                                                                 </label>
                                                             {% endblock %}
 
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_mail_confirmation_input %}
                                                                 <input type="email"
                                                                        class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
@@ -183,6 +234,7 @@
                                                                        data-form-validation-equal-message="{{ 'account.personalMailConfirmationInvalidMessage'|trans|striptags }}">
                                                             {% endblock %}
 
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_mail_confirmation_input_error %}
                                                                 {% if formViolations.getViolations('/email') is not empty %}
                                                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -191,6 +243,7 @@
                                                                 {% endif %}
                                                             {% endblock %}
                                                         </div>
+                                                        {% endif %}
                                                     {% endblock %}
                                                 </div>
 
@@ -199,7 +252,22 @@
 
                                             {% block page_account_profile_mail_password %}
                                                 <div class="row g-2">
+                                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                            type: 'password',
+                                                            label: 'account.personalPasswordLabel'|trans|sw_sanitize,
+                                                            id: 'personalMailPasswordCurrent',
+                                                            name: 'email[password]',
+                                                            autocomplete: 'current-password',
+                                                            violationPath: '/password',
+                                                            validationRules: 'required',
+                                                            additionalClass: 'col-6',
+                                                        } %}
+
+                                                    {% else %}
                                                     <div class="form-group col-6">
+
+                                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                         {% block page_account_profile_mail_password_label %}
                                                             <label class="form-label"
                                                                    for="personalMailPasswordCurrent">
@@ -207,16 +275,18 @@
                                                             </label>
                                                         {% endblock %}
 
+                                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                         {% block page_account_profile_mail_password_input %}
                                                             <input type="password"
                                                                    class="form-control{% if formViolations.getViolations('/password') is not empty and emailFormViolation %} is-invalid{% endif %}"
-                                                                   autocomplete="new-password"
+                                                                   autocomplete="current-password"
                                                                    id="personalMailPasswordCurrent"
                                                                    placeholder="{{ 'account.personalPasswordPlaceholder'|trans|striptags }}"
                                                                    name="email[password]"
                                                                    required="required">
                                                         {% endblock %}
 
+                                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                         {% block page_account_profile_mail_password_input_error %}
                                                             {% if formViolations.getViolations('/password') is not empty and emailFormViolation %}
                                                                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -225,6 +295,7 @@
                                                             {% endif %}
                                                         {% endblock %}
                                                     </div>
+                                                    {% endif %}
                                                 </div>
                                             {% endblock %}
 
@@ -259,7 +330,10 @@
                                               class="card-body"
                                               method="post"
                                               action="{{ path('frontend.account.profile.password.save') }}"
-                                              data-form-validation="true">
+                                              {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
+                                              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+                                              {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}>
+
                                             {% block page_account_profile_password_title %}
                                                 <div class="card-title">
                                                     {{ 'account.profilePasswordTitle'|trans|sw_sanitize }}
@@ -269,7 +343,33 @@
                                             {% block page_account_profile_password_container %}
                                                 <div class="row g-2">
                                                     {% block page_account_profile_new_password %}
+                                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+
+                                                            {% set passwordFieldDescription = '' %}
+
+                                                            {% if config('core.loginRegistration.passwordMinLength') != 0 %}
+                                                                {% set passwordFieldDescription = 'account.personalPasswordDescription'|trans({
+                                                                    '%minLength%': config('core.loginRegistration.passwordMinLength')
+                                                                })|sw_sanitize %}
+                                                            {% endif %}
+
+                                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                                type: 'password',
+                                                                label: 'account.profilePasswordCreateNew'|trans|sw_sanitize,
+                                                                id: 'newPassword',
+                                                                name: 'password[newPassword]',
+                                                                description: passwordFieldDescription,
+                                                                autocomplete: 'new-password',
+                                                                violationPath: '/newPassword',
+                                                                validationRules: 'required,minLength',
+                                                                minlength: config('core.loginRegistration.passwordMinLength'),
+                                                                additionalClass: 'col',
+                                                            } %}
+
+                                                        {% else %}
                                                         <div class="col form-group">
+
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_new_password_label %}
                                                                 <label class="form-label"
                                                                        for="newPassword">
@@ -277,6 +377,7 @@
                                                                 </label>
                                                             {% endblock %}
 
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_new_password_input %}
                                                                 <input type="password"
                                                                        class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
@@ -292,6 +393,7 @@
                                                                        required="required">
                                                             {% endblock %}
 
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_new_password_input_error %}
                                                                 {% if formViolations.getViolations('/newPassword') is not empty %}
                                                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -300,10 +402,26 @@
                                                                 {% endif %}
                                                             {% endblock %}
                                                         </div>
+                                                        {% endif %}
                                                     {% endblock %}
 
                                                     {% block page_account_profile_new_password_confirmation %}
+                                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                                type: 'password',
+                                                                label: 'account.personalPasswordConfirmationLabel'|trans|sw_sanitize,
+                                                                id: 'newPasswordConfirmation',
+                                                                name: 'password[newPasswordConfirm]',
+                                                                autocomplete: 'new-password',
+                                                                violationPath: '/passwordConfirmation',
+                                                                validationRules: 'required,confirmation',
+                                                                additionalClass: 'col',
+                                                            } %}
+
+                                                        {% else %}
                                                         <div class="col form-group">
+
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_new_password_confirmation_label %}
                                                                 <label class="form-label"
                                                                        for="passwordConfirmation">
@@ -311,6 +429,7 @@
                                                                 </label>
                                                             {% endblock %}
 
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_new_password_confirmation_input %}
                                                                 <input type="password"
                                                                        class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
@@ -323,6 +442,7 @@
                                                                        data-form-validation-equal-message="{{ 'account.personalPasswordConfirmationInvalidMessage'|trans|striptags }}">
                                                             {% endblock %}
 
+                                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                             {% block page_account_profile_new_password_confirmation_error %}
                                                                 {% if formViolations.getViolations('/newPassword') is not empty %}
                                                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -331,6 +451,7 @@
                                                                 {% endif %}
                                                             {% endblock %}
                                                         </div>
+                                                        {% endif %}
                                                     {% endblock %}
                                                 </div>
 
@@ -339,7 +460,22 @@
 
                                             {% block page_account_profile_current_password %}
                                                 <div class="row g-2">
+                                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                            type: 'password',
+                                                            label: 'account.profilePasswordCurrent'|trans|sw_sanitize,
+                                                            id: 'passwordCurrent',
+                                                            name: 'password[password]',
+                                                            autocomplete: 'current-password',
+                                                            violationPath: '/password',
+                                                            validationRules: 'required',
+                                                            additionalClass: 'col-6',
+                                                        } %}
+
+                                                    {% else %}
                                                     <div class="col-6 form-group">
+
+                                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                         {% block page_account_profile_current_password_label %}
                                                             <label class="form-label"
                                                                    for="password">
@@ -347,6 +483,7 @@
                                                             </label>
                                                         {% endblock %}
 
+                                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                         {% block page_account_profile_current_password_input %}
                                                             <input type="password"
                                                                    class="form-control{% if formViolations.getViolations('/password') is not empty and passwordFormViolation %} is-invalid{% endif %}"
@@ -357,6 +494,7 @@
                                                                    required="required">
                                                         {% endblock %}
 
+                                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                                         {% block page_account_profile_current_password_input_error %}
                                                             {% if formViolations.getViolations('/password') is not empty and passwordFormViolation %}
                                                                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -365,6 +503,7 @@
                                                             {% endif %}
                                                         {% endblock %}
                                                     </div>
+                                                    {% endif %}
                                                 </div>
                                             {% endblock %}
 

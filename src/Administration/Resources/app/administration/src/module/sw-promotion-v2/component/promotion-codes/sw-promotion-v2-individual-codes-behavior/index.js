@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-individual-codes-behavior.html.twig';
 import './sw-promotion-v2-individual-codes-behavior.scss';
@@ -82,11 +82,19 @@ export default {
                     property: 'payload.customerName',
                     label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
                 },
+                {
+                    property: 'createdAt',
+                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCreatedAt'),
+                },
             ];
         },
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

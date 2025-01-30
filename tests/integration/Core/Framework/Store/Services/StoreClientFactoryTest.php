@@ -62,7 +62,7 @@ class StoreClientFactoryTest extends TestCase
 
     private function getSystemConfigService(): SystemConfigService
     {
-        return $this->getContainer()->get(SystemConfigService::class);
+        return static::getContainer()->get(SystemConfigService::class);
     }
 
     /**

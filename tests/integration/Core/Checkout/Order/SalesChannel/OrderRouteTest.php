@@ -106,10 +106,10 @@ class OrderRouteTest extends TestCase
 
         $this->assignSalesChannelContext($this->browser);
 
-        $this->contextPersister = $this->getContainer()->get(SalesChannelContextPersister::class);
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);
+        $this->contextPersister = static::getContainer()->get(SalesChannelContextPersister::class);
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->requestCriteriaBuilder = static::getContainer()->get(RequestCriteriaBuilder::class);
         $this->email = Uuid::randomHex() . '@example.com';
         $this->customerId = Uuid::randomHex();
         $firstPaymentMethod = $this->getValidPaymentMethods()->first();
@@ -136,7 +136,7 @@ class OrderRouteTest extends TestCase
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
         static::assertNotEmpty($contextToken);
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create($contextToken, TestDefaults::SALES_CHANNEL);
 
         $newToken = $this->contextPersister->replace($contextToken, $salesChannelContext);
@@ -401,12 +401,12 @@ class OrderRouteTest extends TestCase
 
     public function testSetAnotherPaymentMethodToOrder(): void
     {
-        if (!$this->getContainer()->has(AccountOrderController::class)) {
+        if (!static::getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
         }
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
@@ -446,7 +446,7 @@ class OrderRouteTest extends TestCase
 
     public function testSetSamePaymentMethodToOrder(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
@@ -574,7 +574,7 @@ class OrderRouteTest extends TestCase
 
         // create rule for that country now, so it is set in the order
         $ruleId = Uuid::randomHex();
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             [
                 'id' => $ruleId,
                 'name' => 'test',
@@ -591,7 +591,7 @@ class OrderRouteTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->getContainer()->get('product.repository')->create([
+        static::getContainer()->get('product.repository')->create([
             (new ProductBuilder($ids, '1000'))
                 ->price(10)
                 ->name('Test product')
@@ -638,7 +638,7 @@ class OrderRouteTest extends TestCase
         $orderId = $response['id'];
 
         // change customer country, so rule is valid
-        $this->getContainer()->get('customer.repository')->update([
+        static::getContainer()->get('customer.repository')->update([
             [
                 'id' => $this->customerId,
                 'defaultBillingAddress' => [
@@ -676,7 +676,7 @@ class OrderRouteTest extends TestCase
     protected function getValidPaymentMethods(): PaymentMethodCollection
     {
         /** @var EntityRepository<PaymentMethodCollection> $paymentMethodRepository */
-        $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('availabilityRuleId', null))
@@ -688,7 +688,7 @@ class OrderRouteTest extends TestCase
     protected function getValidCountries(): CountryCollection
     {
         /** @var EntityRepository<CountryCollection> $countryRepository */
-        $countryRepository = $this->getContainer()->get('country.repository');
+        $countryRepository = static::getContainer()->get('country.repository');
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('active', true))
@@ -724,7 +724,7 @@ class OrderRouteTest extends TestCase
                 'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
+                'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
                 'paymentMethodId' => $this->defaultPaymentMethodId,
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
@@ -740,12 +740,12 @@ class OrderRouteTest extends TestCase
                             'calculatedTaxes' => [],
                             'taxRules' => [],
                         ],
-                        'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
+                        'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
                     ],
                 ],
                 'deliveries' => [
                     [
-                        'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                        'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(\DATE_ATOM),
@@ -847,12 +847,12 @@ class OrderRouteTest extends TestCase
             ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
         );
 
-        $document = $this->getContainer()->get(DocumentGenerator::class)
+        $document = static::getContainer()->get(DocumentGenerator::class)
             ->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], Context::createDefaultContext())->getSuccess()->first();
 
         static::assertNotNull($document);
 
-        $this->getContainer()->get('document.repository')->update([
+        static::getContainer()->get('document.repository')->update([
             [
                 'id' => $document->getId(),
                 'sent' => $sent,
@@ -864,7 +864,7 @@ class OrderRouteTest extends TestCase
     {
         $paymentId = Uuid::randomHex();
 
-        $this->getContainer()->get('payment_method.repository')->create([
+        static::getContainer()->get('payment_method.repository')->create([
             [
                 'id' => $paymentId,
                 'name' => 'Test Payment with Rule',

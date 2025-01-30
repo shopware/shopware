@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductStream\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,6 +14,7 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexe
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -64,7 +64,8 @@ class ProductStreamIndexerTest extends TestCase
             $this->repository,
             new Serializer([], [new JsonEncoder()]),
             $this->productDefinition,
-            $this->dispatcher
+            $this->dispatcher,
+            true
         );
     }
 
@@ -85,6 +86,24 @@ class ProductStreamIndexerTest extends TestCase
 
         $message = $this->indexer->iterate(['offset' => 10]);
         static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
+    }
+
+    public function testIterateDisabledDoesNothing(): void
+    {
+        $indexer = new ProductStreamIndexer(
+            $this->connection,
+            $this->iteratorFactory,
+            $this->repository,
+            new Serializer([], [new JsonEncoder()]),
+            $this->productDefinition,
+            $this->dispatcher,
+            false
+        );
+
+        static::assertNull($indexer->iterate(['offset' => 10]));
+
+        $event = $this->createMock(EntityWrittenContainerEvent::class);
+        static::assertNull($indexer->update($event));
     }
 
     public function testUpdateReturnNull(): void

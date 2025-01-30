@@ -34,7 +34,7 @@ class NumberRangeValueGeneratorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->setupDatabase();
         $this->context = Context::createDefaultContext();
     }
@@ -78,7 +78,7 @@ class NumberRangeValueGeneratorTest extends TestCase
     public function testGetConfiguration(): void
     {
         /** @var NumberRangeValueGenerator $realGenerator */
-        $realGenerator = $this->getContainer()->get(NumberRangeValueGeneratorInterface::class);
+        $realGenerator = static::getContainer()->get(NumberRangeValueGeneratorInterface::class);
         $value = $realGenerator->getValue('product', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         static::assertEquals('SW10000', $value);
         $value = $realGenerator->getValue('product', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
@@ -104,13 +104,13 @@ class NumberRangeValueGeneratorTest extends TestCase
     public function testIncreaseStartNumberInConfiguration(): void
     {
         /** @var NumberRangeValueGenerator $realGenerator */
-        $realGenerator = $this->getContainer()->get(NumberRangeValueGeneratorInterface::class);
+        $realGenerator = static::getContainer()->get(NumberRangeValueGeneratorInterface::class);
 
         $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         static::assertEquals('10000', $value);
 
         /** @var EntityRepository<NumberRangeTypeCollection> $numberRange */
-        $numberRange = $this->getContainer()->get('number_range_type.repository');
+        $numberRange = static::getContainer()->get('number_range_type.repository');
         $search = $numberRange->search((new Criteria())->addFilter(new EqualsFilter('technicalName', 'order')), $this->context)
             ->getEntities()
             ->first();
@@ -119,7 +119,7 @@ class NumberRangeValueGeneratorTest extends TestCase
         $typeId = $search->getId();
 
         /** @var EntityRepository<NumberRangeCollection> $numberRange */
-        $numberRange = $this->getContainer()->get('number_range.repository');
+        $numberRange = static::getContainer()->get('number_range.repository');
 
         $search = $numberRange->search((new Criteria())->addFilter(new EqualsFilter('typeId', $typeId)), $this->context)
             ->getEntities()
@@ -127,7 +127,7 @@ class NumberRangeValueGeneratorTest extends TestCase
 
         static::assertNotNull($search);
 
-        $this->getContainer()->get('number_range.repository')->update([[
+        static::getContainer()->get('number_range.repository')->update([[
             'id' => $search->getId(),
             'start' => 20000,
         ]], $this->context);
@@ -151,7 +151,7 @@ class NumberRangeValueGeneratorTest extends TestCase
 
         return new NumberRangeValueGenerator(
             $patternReg,
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             $connection,
         );
     }

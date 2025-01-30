@@ -49,10 +49,10 @@ class AppStateServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->appStateService = $this->getContainer()->get(AppStateService::class);
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
-        $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->appStateService = static::getContainer()->get(AppStateService::class);
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -84,7 +84,7 @@ class AppStateServiceTest extends TestCase
         $this->eventDispatcher->addListener(AppActivatedEvent::class, $onAppInstalled);
         $this->appStateService->activateApp($appId, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppActivatedHook::HOOK_NAME, $traces);
         static::assertSame('activated', $traces[AppActivatedHook::HOOK_NAME][0]['output'][0]);
 
@@ -110,7 +110,7 @@ class AppStateServiceTest extends TestCase
         $this->eventDispatcher->addListener(AppDeactivatedEvent::class, $onAppInstalled);
         $this->appStateService->deactivateApp($appId, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppDeactivatedHook::HOOK_NAME, $traces);
         static::assertSame('deactivated', $traces[AppDeactivatedHook::HOOK_NAME][0]['output'][0]);
 

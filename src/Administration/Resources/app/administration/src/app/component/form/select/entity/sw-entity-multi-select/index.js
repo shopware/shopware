@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-entity-multi-select.html.twig';
 import './sw-entity-multi-select.scss';
 
@@ -156,6 +160,11 @@ Component.register('sw-entity-multi-select', {
             type: Boolean,
             required: false,
             default: false,
+        },
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
         },
     },
 

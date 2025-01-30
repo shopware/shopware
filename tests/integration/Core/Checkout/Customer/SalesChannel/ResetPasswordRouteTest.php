@@ -49,7 +49,7 @@ class ResetPasswordRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testWithInvalidHash(): void
@@ -91,7 +91,7 @@ class ResetPasswordRouteTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('customer_recovery.repository');
+        $repo = static::getContainer()->get('customer_recovery.repository');
 
         /** @var CustomerRecoveryEntity $recovery */
         $recovery = $repo->search($criteria, Context::createDefaultContext())->first();
@@ -148,7 +148,7 @@ class ResetPasswordRouteTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('customer_recovery.repository');
+        $repo = static::getContainer()->get('customer_recovery.repository');
 
         /** @var CustomerRecoveryEntity $recovery */
         $recovery = $repo->search($criteria, Context::createDefaultContext())->first();
@@ -187,7 +187,7 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria([$customerId]);
 
         /** @var CustomerEntity $customer */
-        $customer = $this->getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->first();
+        $customer = static::getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNull($customer->getLegacyEncoder());
         static::assertNull($customer->getLegacyPassword());

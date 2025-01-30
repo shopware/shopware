@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelContextResolvedEvent extends Event implements ShopwareSalesChannelEvent
 {
     public function __construct(

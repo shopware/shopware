@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import swCmsElConfigProductListingConfigDeleteModal from 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal';

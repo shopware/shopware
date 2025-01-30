@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ShippingMethodRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -41,8 +41,8 @@ class ShippingMethodRuleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
-        $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
+        $this->ruleRepository = static::getContainer()->get('rule.repository');
+        $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
     }
 

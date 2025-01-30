@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', {
     template,

@@ -54,7 +54,7 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
 
     public function testWithValidConfig(): void
     {
-        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupRepository = static::getContainer()->get('customer_group.repository');
         $customerGroupRepository->create([
             [
                 'id' => $this->ids->create('group'),

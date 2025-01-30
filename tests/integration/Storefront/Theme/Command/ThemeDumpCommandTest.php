@@ -35,7 +35,7 @@ class ThemeDumpCommandTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->getContainer()->get(SourceResolver::class)->reset();
+        static::getContainer()->get(SourceResolver::class)->reset();
     }
 
     public function testExecuteShouldResolveThemeInheritanceChainAndConsiderThemeIdArgument(): void
@@ -50,8 +50,8 @@ class ThemeDumpCommandTest extends TestCase
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
-            $this->getContainer()->get('theme.repository'),
-            $this->getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->get('theme.repository'),
+            static::getContainer()->getParameter('kernel.project_dir'),
             $this->createMock(StaticFileConfigDumper::class),
             $themeFilesystemResolver
         );
@@ -78,8 +78,8 @@ class ThemeDumpCommandTest extends TestCase
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
-            $this->getContainer()->get('theme.repository'),
-            $this->getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->get('theme.repository'),
+            static::getContainer()->getParameter('kernel.project_dir'),
             $this->createMock(StaticFileConfigDumper::class),
             $themeFilesystemResolverMock
         );
@@ -117,8 +117,8 @@ class ThemeDumpCommandTest extends TestCase
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
-            $this->getContainer()->get('theme.repository'),
-            $this->getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->get('theme.repository'),
+            static::getContainer()->getParameter('kernel.project_dir'),
             $this->createMock(StaticFileConfigDumper::class),
             $themeFilesystemResolverMock
         );
@@ -183,8 +183,8 @@ class ThemeDumpCommandTest extends TestCase
 
     private function setUpExampleThemes(?string $parentThemeId = null): void
     {
-        $themeRepository = $this->getContainer()->get('theme.repository');
-        $themeSalesChannelRepository = $this->getContainer()->get('theme_sales_channel.repository');
+        $themeRepository = static::getContainer()->get('theme.repository');
+        $themeSalesChannelRepository = static::getContainer()->get('theme_sales_channel.repository');
         $context = Context::createDefaultContext();
 
         $parentThemeId = $parentThemeId ?? Uuid::randomHex();

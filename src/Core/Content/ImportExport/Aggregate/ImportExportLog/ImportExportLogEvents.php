@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportLogEvents
 {
     final public const IMPORT_EXPORT_LOG_WRITTEN_EVENT = 'import_export_log.written';

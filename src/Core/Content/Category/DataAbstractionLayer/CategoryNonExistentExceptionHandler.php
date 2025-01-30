@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryNonExistentExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int
@@ -14,6 +14,9 @@ class CategoryNonExistentExceptionHandler implements ExceptionHandlerInterface
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
+    /**
+     * @param \Exception $e - @deprecated tag:v6.7.0 - in v6.7.0 parameter type will be changed to \Throwable
+     */
     public function matchException(\Exception $e): ?\Exception
     {
         if (preg_match('/SQLSTATE\[23000\]:.*1452 Cannot add or update a child row: a foreign key constraint fails.*category\.after_category_id/', $e->getMessage())) {

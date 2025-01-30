@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-import-type Api from DefinitionService
  * @phpstan-import-type OpenApiSpec from DefinitionService
  */
-#[Package('core')]
+#[Package('framework')]
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 {
     final public const FORMAT = 'openapi-3';
@@ -217,7 +217,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     private function mergeComponentsSchemaRequiredFieldsRecursive(array $specsFromDefinition, array $specsFromStaticJsonDefinition): array
     {
         foreach ($specsFromDefinition['components']['schemas'] as $key => $value) {
-            if (isset($specsFromStaticJsonDefinition['components']['schemas'][$key]['required'])) {
+            if (isset($specsFromStaticJsonDefinition['components']['schemas'][$key]['required']) && isset($specsFromDefinition['components']['schemas'][$key]['required'])) {
                 $specsFromStaticJsonDefinition['components']['schemas'][$key]['required']
                     = array_merge_recursive(
                         $specsFromStaticJsonDefinition['components']['schemas'][$key]['required'],

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 const ApiService = Shopware.Classes.ApiService;
 

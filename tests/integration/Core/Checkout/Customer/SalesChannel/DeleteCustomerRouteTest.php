@@ -56,7 +56,7 @@ class DeleteCustomerRouteTest extends TestCase
 
         $this->assignSalesChannelContext($this->browser);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $this->callbackFn = function (Event $event): void {
             $this->events[$event::class] = $event;
@@ -88,7 +88,7 @@ class DeleteCustomerRouteTest extends TestCase
     public function testDeleteAValidCustomer(): void
     {
         /** @var TraceableEventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $this->addEventListener($dispatcher, CustomerDeletedEvent::class, $this->callbackFn);
 

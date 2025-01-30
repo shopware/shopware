@@ -38,7 +38,7 @@ class ExtensionLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->extensionLoader = $this->getContainer()->get(ExtensionLoader::class);
+        $this->extensionLoader = static::getContainer()->get(ExtensionLoader::class);
 
         $this->registerPlugin(__DIR__ . '/../_fixtures/AppStoreTestPlugin');
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
@@ -66,7 +66,7 @@ class ExtensionLoaderTest extends TestCase
 
     public function testLocalUpdateShouldSetLatestVersion(): void
     {
-        $appManifestPath = $this->getContainer()->getParameter('kernel.app_dir') . '/TestApp/manifest.xml';
+        $appManifestPath = static::getContainer()->getParameter('kernel.app_dir') . '/TestApp/manifest.xml';
         $appManifestXml = file_get_contents($appManifestPath);
         static::assertIsString($appManifestXml, 'Could not read manifest.xml file');
         file_put_contents($appManifestPath, str_replace('1.0.0', '1.0.1', $appManifestXml));
@@ -116,10 +116,10 @@ class ExtensionLoaderTest extends TestCase
 
     public function testItLoadsExtensionsFromPlugins(): void
     {
-        $this->getContainer()->get(PluginService::class)->refreshPlugins(Context::createDefaultContext(), new NullIO());
+        static::getContainer()->get(PluginService::class)->refreshPlugins(Context::createDefaultContext(), new NullIO());
 
         /** @var PluginCollection $plugins */
-        $plugins = $this->getContainer()->get('plugin.repository')->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $plugins = static::getContainer()->get('plugin.repository')->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         $extensions = $this->extensionLoader->loadFromPluginCollection(Context::createDefaultContext(), $plugins);
 
@@ -132,17 +132,17 @@ class ExtensionLoaderTest extends TestCase
 
     public function testUpgradeAtMapsToUpdatedAtInStruct(): void
     {
-        $this->getContainer()->get(PluginService::class)->refreshPlugins(Context::createDefaultContext(), new NullIO());
+        static::getContainer()->get(PluginService::class)->refreshPlugins(Context::createDefaultContext(), new NullIO());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'AppStoreTestPlugin'));
 
-        $firstPluginId = $this->getContainer()->get('plugin.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $firstPluginId = static::getContainer()->get('plugin.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
 
         $time = new \DateTime();
 
         /** @var EntityRepository $pluginRepository */
-        $pluginRepository = $this->getContainer()->get('plugin.repository');
+        $pluginRepository = static::getContainer()->get('plugin.repository');
         $pluginRepository->update([
             [
                 'id' => $firstPluginId,
@@ -151,7 +151,7 @@ class ExtensionLoaderTest extends TestCase
         ], Context::createDefaultContext());
 
         /** @var EntityRepository<PluginCollection> $pluginRepository */
-        $pluginRepository = $this->getContainer()->get('plugin.repository');
+        $pluginRepository = static::getContainer()->get('plugin.repository');
         $firstPlugin = $pluginRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($firstPlugin);
 
@@ -189,7 +189,7 @@ class ExtensionLoaderTest extends TestCase
     private function getInstalledApp(): AppEntity
     {
         /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('translations');

@@ -25,8 +25,8 @@ class ParentChildTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testChildrenWithMalformatDataException(): void

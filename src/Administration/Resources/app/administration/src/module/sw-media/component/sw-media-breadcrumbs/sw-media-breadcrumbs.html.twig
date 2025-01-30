@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_breadcrumbs %}
 <nav
     class="sw-media-breadcrumbs"
     :class="swMediaBreadcrumbsClasses"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_breadcrumbs_root_folder %}
     <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
     <a
@@ -27,7 +25,6 @@
     </a>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_breadcrumbs_parent_folder %}
     <a
         v-if="parentFolder"
@@ -45,7 +42,6 @@
     </a>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_breadcrumbs_current_folder %}
     <span
         v-if="currentFolder"

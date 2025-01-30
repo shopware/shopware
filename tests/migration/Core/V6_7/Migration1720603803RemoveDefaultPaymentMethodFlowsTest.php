@@ -25,8 +25,8 @@ class Migration1720603803RemoveDefaultPaymentMethodFlowsTest extends TestCase
         $this->addTestFlows();
 
         $migration = new Migration1720603803RemoveDefaultPaymentMethodFlows();
-        $migration->update($this->getContainer()->get(Connection::class));
-        $migration->update($this->getContainer()->get(Connection::class));
+        $migration->update(static::getContainer()->get(Connection::class));
+        $migration->update(static::getContainer()->get(Connection::class));
 
         static::assertSame($initialInvalidFlows + 1, $this->getInvalidFlows());
     }
@@ -37,29 +37,29 @@ class Migration1720603803RemoveDefaultPaymentMethodFlowsTest extends TestCase
         static::assertSame(1, $this->getDefaultPaymentMethodChangedFlows());
 
         $migration = new Migration1720603803RemoveDefaultPaymentMethodFlows();
-        $migration->updateDestructive($this->getContainer()->get(Connection::class));
-        $migration->updateDestructive($this->getContainer()->get(Connection::class));
+        $migration->updateDestructive(static::getContainer()->get(Connection::class));
+        $migration->updateDestructive(static::getContainer()->get(Connection::class));
 
         static::assertSame(0, $this->getDefaultPaymentMethodChangedFlows());
     }
 
     private function getInvalidFlows(): int
     {
-        return (int) $this->getContainer()->get(Connection::class)->fetchOne(
+        return (int) static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT COUNT(*) FROM `flow` WHERE `active` = 0 AND `invalid` = 1',
         );
     }
 
     private function getDefaultPaymentMethodChangedFlows(): int
     {
-        return (int) $this->getContainer()->get(Connection::class)->fetchOne(
+        return (int) static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT COUNT(*) FROM `flow` WHERE `event_name` = "checkout.customer.changed-payment-method"'
         );
     }
 
     private function addTestFlows(): void
     {
-        $this->getContainer()->get(Connection::class)->insert('flow', [
+        static::getContainer()->get(Connection::class)->insert('flow', [
             'id' => Uuid::randomBytes(),
             'name' => 'flowChangedCustomerDefaultPaymentMethod',
             'event_name' => 'checkout.customer.changed-payment-method',

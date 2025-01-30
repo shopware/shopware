@@ -24,7 +24,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowPayloadUpdaterTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -39,7 +39,7 @@ class FlowPayloadUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
         $this->ids = new IdsCollection();
     }
@@ -148,7 +148,7 @@ class FlowPayloadUpdaterTest extends TestCase
     {
         $this->createTestData();
 
-        $flowSequenceRepository = $this->getContainer()->get('flow_sequence.repository');
+        $flowSequenceRepository = static::getContainer()->get('flow_sequence.repository');
         $flowSequenceRepository->delete([
             ['id' => $this->ids->get('flow_sequence_id2')],
             ['id' => $this->ids->get('flow_sequence_id1')],

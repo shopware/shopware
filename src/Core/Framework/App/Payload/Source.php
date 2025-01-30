@@ -11,20 +11,17 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
  *
  * @method array{url: string, shopId: string, appVersion: string} jsonSerialize()
  */
-#[Package('core')]
+#[Package('framework')]
 class Source implements \JsonSerializable
 {
     use CloneTrait;
     use JsonSerializableTrait;
 
-    /**
-     * @param list<string> $inAppPurchases
-     */
     public function __construct(
         protected string $url,
         protected string $shopId,
         protected string $appVersion,
-        protected array $inAppPurchases = [],
+        protected ?string $inAppPurchases = null,
     ) {
     }
 
@@ -43,10 +40,7 @@ class Source implements \JsonSerializable
         return $this->appVersion;
     }
 
-    /**
-     * @return list<string>
-     */
-    public function getInAppPurchases(): array
+    public function getInAppPurchases(): ?string
     {
         return $this->inAppPurchases;
     }

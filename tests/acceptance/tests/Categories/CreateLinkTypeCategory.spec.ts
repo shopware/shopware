@@ -2,11 +2,16 @@ import { test } from '@fixtures/AcceptanceTest';
 import { expect } from '@playwright/test';
 
 test('Shop administrator should be able to create a internal link type of category.', { tag: '@Categories' }, async ({
-     ShopAdmin,
-     IdProvider,
-     AdminCategories,
-     CreateLinkTypeCategory,
+    ShopAdmin,
+    IdProvider,
+    AdminCategories,
+    CreateLinkTypeCategory,
+    TestDataService,
+    InstanceMeta,
 }) => {
+
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
 
     const categoryData = {
         name: `00_category_link_${IdProvider.getIdPair().uuid}`,
@@ -17,13 +22,14 @@ test('Shop administrator should be able to create a internal link type of catego
     const categoryCustomizableLinkData = {
         linkType: 'Internal',
         entity: 'Category',
-        category: 'Home',
+        category: `00_category_${IdProvider.getIdPair().uuid}`,
         openInNewTab: true,
     };
 
     await test.step('Create a category with internal link type of Category', async () => {
+        await TestDataService.createCategory({ name: categoryCustomizableLinkData.category, active: true, parentId: null });
         await ShopAdmin.goesTo(AdminCategories.url());
-        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData));
+        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category));
 
         // Verify general data
         await AdminCategories.categoryItems.filter({ hasText: categoryData.name }).click();
@@ -44,7 +50,10 @@ test('Shop administrator should be able to create a internal link type of produc
     AdminCategories,
     CreateLinkTypeCategory,
     TestDataService,
+    InstanceMeta,
 }) => {
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
 
     const product = await TestDataService.createBasicProduct();
     const categoryData = {
@@ -57,12 +66,14 @@ test('Shop administrator should be able to create a internal link type of produc
         linkType: 'Internal',
         entity: 'Product',
         product: product.name,
+        category: `00_category_${IdProvider.getIdPair().uuid}`,
         openInNewTab: true,
     };
 
     await test.step('Create a category with internal link type of Product', async () => {
+        await TestDataService.createCategory({ name: categoryCustomizableLinkData.category, active: true, parentId: null });
         await ShopAdmin.goesTo(AdminCategories.url());
-        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData));
+        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category));
 
         // Verify general data
         await AdminCategories.categoryItems.filter({ hasText: categoryData.name }).click();
@@ -78,12 +89,16 @@ test('Shop administrator should be able to create a internal link type of produc
 });
 
 test('Shop administrator should be able to create a internal link type of landing page.', { tag: '@Categories' }, async ({
-     ShopAdmin,
-     IdProvider,
-     AdminCategories,
-     CreateLinkTypeCategory,
-     CreateLandingPage,
+    ShopAdmin,
+    IdProvider,
+    AdminCategories,
+    CreateLinkTypeCategory,
+    CreateLandingPage,
+    TestDataService,
+    InstanceMeta,
 }) => {
+
+    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
 
     const landingPageData = {
         name: `landing_page_${IdProvider.getIdPair().uuid}`,
@@ -102,6 +117,7 @@ test('Shop administrator should be able to create a internal link type of landin
         linkType: 'Internal',
         entity: 'Landing page',
         landingPage: landingPageData.name,
+        category: `00_category_${IdProvider.getIdPair().uuid}`,
         openInNewTab: true,
     };
 
@@ -111,8 +127,9 @@ test('Shop administrator should be able to create a internal link type of landin
     });
 
     await test.step('Create a category with internal link type of Product', async () => {
+        await TestDataService.createCategory({ name: categoryCustomizableLinkData.category, active: true, parentId: null });
         await ShopAdmin.goesTo(AdminCategories.url());
-        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData));
+        await ShopAdmin.attemptsTo(CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category));
 
         // Verify general data
         await AdminCategories.categoryItems.filter({ hasText: categoryData.name }).click();

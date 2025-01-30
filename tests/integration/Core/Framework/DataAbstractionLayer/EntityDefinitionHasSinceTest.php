@@ -17,7 +17,7 @@ class EntityDefinitionHasSinceTest extends TestCase
 
     public function testAllDefinitionsHasSince(): void
     {
-        $service = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $service = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $definitionsWithoutSince = [];
 

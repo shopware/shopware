@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CustomerGroupRule extends Rule
 {
     final public const RULE_NAME = 'customerCustomerGroup';
@@ -34,7 +34,7 @@ class CustomerGroupRule extends Rule
             return false;
         }
 
-        return RuleComparison::uuids([$scope->getSalesChannelContext()->getCurrentCustomerGroup()->getId()], $this->customerGroupIds, $this->operator);
+        return RuleComparison::uuids([$scope->getSalesChannelContext()->getCustomerGroupId()], $this->customerGroupIds, $this->operator);
     }
 
     public function getConstraints(): array

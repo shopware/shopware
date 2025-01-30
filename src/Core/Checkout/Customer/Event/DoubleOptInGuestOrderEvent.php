@@ -76,7 +76,7 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
 
     public function getSalesChannelId(): string
     {
-        return $this->salesChannelContext->getSalesChannel()->getId();
+        return $this->salesChannelContext->getSalesChannelId();
     }
 
     public function getContext(): Context
@@ -86,6 +86,6 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
 
     public function getCustomerId(): string
     {
-        return $this->getCustomer()->getId();
+        return $this->customer->getId();
     }
 }

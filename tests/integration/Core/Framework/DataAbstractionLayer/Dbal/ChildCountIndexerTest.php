@@ -36,10 +36,10 @@ class ChildCountIndexerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
         $this->context = Context::createDefaultContext();
-        $this->childCountIndexer = $this->getContainer()->get(ChildCountUpdater::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->childCountIndexer = static::getContainer()->get(ChildCountUpdater::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testCreateChildCategory(): void
@@ -225,16 +225,16 @@ class ChildCountIndexerTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $count = $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
         static::assertEquals(2, $count);
 
-        $this->getContainer()->get('product.repository')->delete([['id' => $ids->get('variant-1')]], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->delete([['id' => $ids->get('variant-1')]], Context::createDefaultContext());
         $count = $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
         static::assertEquals(1, $count);
 
-        $this->getContainer()->get('product.repository')->delete([['id' => $ids->get('variant-2')]], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->delete([['id' => $ids->get('variant-2')]], Context::createDefaultContext());
         $count = $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
         static::assertEquals(0, $count);
     }

@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeFilesystemResolver
 {
     /**

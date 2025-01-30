@@ -20,5 +20,15 @@
                     }"
         />
     {% endblock %}
+    {% block sw_settings_storefront_settings_speculation_rules %}
+        <sw-switch-field
+            v-model:value="storefrontSettings['core.storefrontSettings.speculationRules']"
+            :label="$tc('sw-settings-storefront.configuration.speculationRules.title')"
+            v-tooltip.top="{
+                        message: $tc('sw-settings-storefront.configuration.speculationRules.description'),
+                        showOnDisabledElements: true
+                    }"
+        />
+    {% endblock %}
 </div>
 {% endblock %}

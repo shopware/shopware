@@ -12,7 +12,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 /**
  * @deprecated tag:v6.7.0 - reason:becomes-internal
  */
-#[Package('core')]
+#[Package('framework')]
 class DatabaseConnectionFactory
 {
     /**

@@ -51,9 +51,9 @@ class CartDeleteRouteTest extends TestCase
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->cartPersister = $this->getContainer()->get(CartPersister::class);
-        $this->salesChannelFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->cartPersister = static::getContainer()->get(CartPersister::class);
+        $this->salesChannelFactory = static::getContainer()->get(SalesChannelContextFactory::class);
     }
 
     public function testEmptyCart(): void

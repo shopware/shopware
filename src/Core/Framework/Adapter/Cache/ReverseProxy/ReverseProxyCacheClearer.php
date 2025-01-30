@@ -2,13 +2,16 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\ReverseProxy;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 
 /**
+ * @deprecated tag:v6.7.0 reason:remove-subscriber - Will be removed with no replacement
+ *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ReverseProxyCacheClearer implements CacheClearerInterface
 {
     /**
@@ -20,6 +23,6 @@ class ReverseProxyCacheClearer implements CacheClearerInterface
 
     public function clear(string $cacheDir): void
     {
-        $this->gateway->banAll();
+        Feature::ifNotActive('v6.7.0.0', fn () => $this->gateway->banAll());
     }
 }

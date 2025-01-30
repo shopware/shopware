@@ -7,7 +7,7 @@ import enGB from './snippet/en-GB.json';
 const { Module } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

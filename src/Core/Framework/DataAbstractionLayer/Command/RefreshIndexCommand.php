@@ -22,7 +22,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
     name: 'dal:refresh:index',
     description: 'Refreshes the index for a given entity',
 )]
-#[Package('core')]
+#[Package('framework')]
 class RefreshIndexCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;

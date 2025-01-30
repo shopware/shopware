@@ -20,7 +20,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(PriceSerializer::class)]
 class PriceSerializerTest extends TestCase
 {

@@ -47,7 +47,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         ]);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testClearLegacyWhenUserChangePassword(): void
@@ -167,7 +167,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
+        static::getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

@@ -35,7 +35,7 @@ class CheckoutPageLoadedHookTest extends TestCase
      */
     public static function dataProviderHooks(): array
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         return [
             [new CheckoutCartPageLoadedHook((new CheckoutCartPage())->assign(['cart' => new Cart(Uuid::randomHex())]), $salesChannelContext)],

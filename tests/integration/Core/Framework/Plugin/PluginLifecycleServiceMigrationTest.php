@@ -77,7 +77,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         // force kernel boot
         KernelLifecycleManager::bootKernel();
 
-        $this->container = $this->getContainer();
+        $this->container = static::getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->connection = $this->container->get(Connection::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
@@ -157,7 +157,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
 
     private function assertMigrationCount(MigrationCollection $migrationCollection, int $expectedCount): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         /** @var MigrationSource $migrationSource */
         $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');

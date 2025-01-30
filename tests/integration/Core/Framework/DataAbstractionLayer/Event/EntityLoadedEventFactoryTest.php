@@ -35,8 +35,8 @@ class EntityLoadedEventFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->entityLoadedEventFactory = $this->getContainer()->get(EntityLoadedEventFactory::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->entityLoadedEventFactory = static::getContainer()->get(EntityLoadedEventFactory::class);
         $this->ids = new IdsCollection();
     }
 
@@ -50,7 +50,7 @@ class EntityLoadedEventFactoryTest extends TestCase
 
         $this->productRepository->create([$builder->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$this->ids->get('p1')]);
         $criteria->addAssociations([
             'manufacturer',
             'prices',

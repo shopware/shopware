@@ -215,7 +215,7 @@ class AuthControllerTest extends TestCase
 
         $username = Uuid::randomHex();
 
-        $this->getContainer()->get(Connection::class)->insert('user', [
+        static::getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::randomBytes(),
             'first_name' => $username,
             'last_name' => '',
@@ -304,7 +304,7 @@ class AuthControllerTest extends TestCase
     public function testDefaultAccessTokenScopes(): void
     {
         $client = $this->getBrowser(false);
-        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $configuration = static::getContainer()->get('shopware.jwt_config');
         $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
@@ -329,7 +329,7 @@ class AuthControllerTest extends TestCase
     public function testUniqueAccessTokenScopes(): void
     {
         $client = $this->getBrowser(false);
-        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $configuration = static::getContainer()->get('shopware.jwt_config');
         $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
@@ -354,7 +354,7 @@ class AuthControllerTest extends TestCase
     public function testAccessTokenScopesChangedAfterRefreshGrant(): void
     {
         $client = $this->getBrowser(false);
-        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $configuration = static::getContainer()->get('shopware.jwt_config');
         $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
@@ -391,7 +391,7 @@ class AuthControllerTest extends TestCase
     public function testSuperAdminScopeRemovedOnRefreshToken(): void
     {
         $client = $this->getBrowser(false);
-        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $configuration = static::getContainer()->get('shopware.jwt_config');
         $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
@@ -432,7 +432,7 @@ class AuthControllerTest extends TestCase
     public function testAccessTokenScopesUnchangedAfterRefreshGrant(): void
     {
         $client = $this->getBrowser(false);
-        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $configuration = static::getContainer()->get('shopware.jwt_config');
         $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
@@ -474,7 +474,7 @@ class AuthControllerTest extends TestCase
 
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
 
-        $this->getContainer()->get(Connection::class)->insert('integration', [
+        static::getContainer()->get(Connection::class)->insert('integration', [
             'id' => Uuid::randomBytes(),
             'label' => 'test integration',
             'access_key' => $accessKey,
@@ -580,7 +580,7 @@ class AuthControllerTest extends TestCase
     {
         $client = $this->getBrowser(false);
 
-        $user = TestUser::createNewTestUser($this->getContainer()->get(Connection::class));
+        $user = TestUser::createNewTestUser(static::getContainer()->get(Connection::class));
 
         $accessKey = AccessKeyHelper::generateAccessKey('user');
         $secretKey = AccessKeyHelper::generateSecretAccessKey();
@@ -591,7 +591,7 @@ class AuthControllerTest extends TestCase
             'secretAccessKey' => $secretKey,
         ];
 
-        $this->getContainer()->get('user_access_key.repository')
+        static::getContainer()->get('user_access_key.repository')
             ->create([$data], Context::createDefaultContext());
 
         /**
@@ -682,7 +682,7 @@ class AuthControllerTest extends TestCase
 
         static::assertIsString($accessToken = $token['access_token']);
 
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = static::getContainer()->get('user.repository');
 
         // Change user password
         $userRepository->update([[
@@ -700,7 +700,7 @@ class AuthControllerTest extends TestCase
     private function fetchApp(string $appName): ?AppEntity
     {
         /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));
@@ -711,7 +711,7 @@ class AuthControllerTest extends TestCase
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
         /** @var EntityRepository $integrationRepository */
-        $integrationRepository = $this->getContainer()->get('integration.repository');
+        $integrationRepository = static::getContainer()->get('integration.repository');
 
         $integrationRepository->update([
             [

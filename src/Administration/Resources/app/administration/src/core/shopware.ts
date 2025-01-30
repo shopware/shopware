@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * Shopware End Developer API
  * @module Shopware
@@ -31,6 +31,7 @@ import FlatTreeHelper from 'src/core/helper/flattree.helper';
 import SanitizerHelper from 'src/core/helper/sanitizer.helper';
 import DeviceHelper from 'src/core/helper/device.helper';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
+import { DiscountScopes, DiscountTypes, PromotionPermissions } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 import data from 'src/core/data/index';
 import ApplicationBootstrapper from 'src/core/application';
 
@@ -49,6 +50,7 @@ import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
 import InAppPurchase from './in-app-purchase';
 import ExtensionApi from './extension-api';
+import { LineItemType } from '../module/sw-order/order.types';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -279,6 +281,14 @@ class ShopwareClass implements CustomShopwareProperties {
         RefreshTokenHelper: RefreshTokenHelper,
         SanitizerHelper: SanitizerHelper,
         DeviceHelper: DeviceHelper,
+        PromotionHelper: {
+            DiscountScopes,
+            DiscountTypes,
+            PromotionPermissions,
+        },
+        OrderHelper: {
+            LineItemType,
+        },
     };
 
     /**

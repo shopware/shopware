@@ -48,6 +48,19 @@ final class InAppPurchaseProvider
     }
 
     /**
+     * @return array<string, string>
+     */
+    public function getPurchasesJWT(): array
+    {
+        $purchases = $this->systemConfig->getString(self::CONFIG_STORE_IAP_KEY);
+        if (!$purchases) {
+            return [];
+        }
+
+        return json_decode($purchases, true);
+    }
+
+    /**
      * @param array<string, string> $encodedPurchases
      *
      * @return array<string, array<int, DecodedPurchasesCollectionStruct>>

@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapHandleTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -37,7 +37,7 @@ class SitemapHandleTest extends TestCase
         $this->handle = new SitemapHandle(
             $fileSystem,
             $this->getContext(),
-            $this->getContainer()->get('event_dispatcher')
+            static::getContainer()->get('event_dispatcher')
         );
 
         $this->handle->write([
@@ -60,7 +60,7 @@ class SitemapHandleTest extends TestCase
         $this->handle = new SitemapHandle(
             $fileSystem,
             $this->getContext(),
-            $this->getContainer()->get('event_dispatcher')
+            static::getContainer()->get('event_dispatcher')
         );
 
         $this->handle->write([$url]);
@@ -88,7 +88,7 @@ class SitemapHandleTest extends TestCase
         $this->handle = new SitemapHandle(
             $fileSystem,
             $this->getContext(),
-            $this->getContainer()->get('event_dispatcher')
+            static::getContainer()->get('event_dispatcher')
         );
 
         $this->handle->write($list);

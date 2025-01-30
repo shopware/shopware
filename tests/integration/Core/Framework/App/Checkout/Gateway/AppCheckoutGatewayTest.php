@@ -221,7 +221,7 @@ class AppCheckoutGatewayTest extends TestCase
             ],
         ];
 
-        $this->getContainer()
+        static::getContainer()
             ->get('payment_method.repository')
             ->create($payments, Context::createDefaultContext());
     }
@@ -229,7 +229,7 @@ class AppCheckoutGatewayTest extends TestCase
     private function fetchApp(string $appName): ?AppEntity
     {
         /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));

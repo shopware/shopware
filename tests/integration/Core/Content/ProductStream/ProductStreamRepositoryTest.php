@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 class ProductStreamRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -31,7 +31,7 @@ class ProductStreamRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product_stream.repository');
+        $this->repository = static::getContainer()->get('product_stream.repository');
         $this->context = Context::createDefaultContext();
     }
 

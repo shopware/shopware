@@ -36,7 +36,7 @@ class CartOrderRouteBench extends AbstractBenchCase
             throw new \Exception('Customer not logged in for bench tests which require it!');
         }
 
-        $this->getContainer()->get(Connection::class)->beginTransaction();
+        static::getContainer()->get(Connection::class)->beginTransaction();
 
         $baseProduct = [
             'name' => 'Test product',
@@ -74,7 +74,7 @@ class CartOrderRouteBench extends AbstractBenchCase
         }
 
         $this->context->getContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($productPayload): void {
-            $this->getContainer()->get('product.repository')->create($productPayload, $context);
+            static::getContainer()->get('product.repository')->create($productPayload, $context);
         });
 
         $this->cart = new Cart($this->context->getToken());
@@ -83,7 +83,7 @@ class CartOrderRouteBench extends AbstractBenchCase
             $this->cart->getLineItems()->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, $id));
         }
 
-        $this->getContainer()->get(ProductCartProcessor::class)->collect($this->cart->getData(), $this->cart, $this->context, new CartBehavior());
+        static::getContainer()->get(ProductCartProcessor::class)->collect($this->cart->getData(), $this->cart, $this->context, new CartBehavior());
     }
 
     #[Bench\BeforeMethods(['setupWithLogin'])]
@@ -91,7 +91,7 @@ class CartOrderRouteBench extends AbstractBenchCase
     public function bench_order_10_physical_products(): void
     {
         $this->cart->setLineItems($this->cart->getLineItems()->filter(fn (LineItem $lineItem): bool => \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-physical-'), true)));
-        $this->getContainer()->get(CartOrderRoute::class)->order($this->cart, $this->context, new RequestDataBag());
+        static::getContainer()->get(CartOrderRoute::class)->order($this->cart, $this->context, new RequestDataBag());
     }
 
     #[Bench\BeforeMethods(['setupWithLogin'])]
@@ -99,6 +99,6 @@ class CartOrderRouteBench extends AbstractBenchCase
     public function bench_order_10_digital_products(): void
     {
         $this->cart->setLineItems($this->cart->getLineItems()->filter(fn (LineItem $lineItem): bool => \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-digital-'), true)));
-        $this->getContainer()->get(CartOrderRoute::class)->order($this->cart, $this->context, new RequestDataBag());
+        static::getContainer()->get(CartOrderRoute::class)->order($this->cart, $this->context, new RequestDataBag());
     }
 }

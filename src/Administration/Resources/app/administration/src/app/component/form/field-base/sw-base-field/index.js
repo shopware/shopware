@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import template from './sw-base-field.html.twig';
 import './sw-base-field.scss';
@@ -34,6 +34,12 @@ Component.register('sw-base-field', {
         },
 
         helpText: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        hint: {
             type: String,
             required: false,
             default: null,
@@ -114,7 +120,7 @@ Component.register('sw-base-field', {
         },
 
         hasHint() {
-            return this.$slots.hint?.()[0]?.children.length > 0;
+            return !!this.hint || this.$slots.hint?.()[0]?.children.length > 0;
         },
 
         swFieldClasses() {

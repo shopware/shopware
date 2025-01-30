@@ -25,7 +25,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testCustomerDeletedEventDispatched(): void
@@ -44,7 +44,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
             $caughtEvents[] = $event;
         };
 
-        $this->getContainer()->get('event_dispatcher')->addListener(CustomerDeletedEvent::class, $listenerClosure);
+        static::getContainer()->get('event_dispatcher')->addListener(CustomerDeletedEvent::class, $listenerClosure);
 
         $this->customerRepository->delete([
             ['id' => $customerId1],
@@ -55,7 +55,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
         foreach ($caughtEvents as $event) {
             static::assertInstanceOf(CustomerDeletedEvent::class, $event);
-            static::assertContains($event->getCustomer()->getId(), [$customerId1, $customerId2]);
+            static::assertContains($event->getCustomerId(), [$customerId1, $customerId2]);
         }
     }
 
@@ -91,7 +91,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
+        static::getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

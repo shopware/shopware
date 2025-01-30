@@ -29,7 +29,7 @@
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver" />
-            <argument type="tagged" tag="shopware.asset"/>
+            <argument type="tagged_iterator" tag="shopware.asset"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>

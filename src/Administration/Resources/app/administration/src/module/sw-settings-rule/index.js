@@ -34,7 +34,7 @@ Shopware.Component.register(
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Module.register('sw-settings-rule', {
     type: 'core',

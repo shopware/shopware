@@ -80,7 +80,7 @@ class DomainsDeltaProviderTest extends TestCase
 
     private function getAppLifecycle(): AbstractAppLifecycle
     {
-        return $this->getContainer()->get(AppLifecycle::class);
+        return static::getContainer()->get(AppLifecycle::class);
     }
 
     /**
@@ -88,7 +88,7 @@ class DomainsDeltaProviderTest extends TestCase
      */
     private function getAppRepository(): EntityRepository
     {
-        return $this->getContainer()->get('app.repository');
+        return static::getContainer()->get('app.repository');
     }
 
     private function getTestManifest(): Manifest

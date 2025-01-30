@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_colorpicker %}
 <div class="sw-colorpicker">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_colorpicker_contextual_field %}
     <sw-contextual-field
         v-bind="{
@@ -13,7 +11,6 @@
         @inheritance-restore="$emit('inheritance-restore', $event)"
         @inheritance-remove="$emit('inheritance-remove', $event)"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_colorpicker_input_prefix %}
         <template #sw-contextual-field-prefix>
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
@@ -36,7 +33,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_colorpicker_input_field %}
         <template #sw-field-input="{ disabled }">
             <input
@@ -57,17 +53,14 @@
     </sw-contextual-field>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_colorpicker_popover %}
     <sw-popover
         v-if="visible"
         class="sw-colorpicker__colorpicker-position"
         :z-index="zIndex"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_colorpicker_colorpicker %}
         <div class="sw-colorpicker__colorpicker">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_colorpicker_selection %}
             <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
             <div
@@ -76,7 +69,6 @@
                 :style="{ backgroundColor: selectorBackground }"
                 @mousedown="setDragging"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_colorpicker_selector %}
                 <div
                     class="sw-colorpicker__colorpicker-selector"
@@ -87,7 +79,6 @@
             {% endblock %}
             <div class="sw-colorpicker__row">
                 <div class="sw-colorpicker__sliders">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_colorpicker_hue_slider %}
                     <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                     <input
@@ -100,7 +91,6 @@
                     >
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_colorpicker_alpha_slider %}
                     <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                     <input
@@ -116,7 +106,6 @@
                     {% endblock %}
                 </div>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_colorpicker_preview %}
                 <div
                     class="sw-colorpicker__colorpicker-wrapper"
@@ -134,10 +123,8 @@
                 {% endblock %}
             </div>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_colorpicker_inputs %}
             <div class="sw-colorpicker__row sw-colorpicker__input-row">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_colorpicker_inputs_hex %}
                 <div class="sw-colorpicker__row-column">
                     <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
@@ -154,7 +141,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_colorpicker_inputs_red %}
                 <div class="sw-colorpicker__row-column">
                     <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
@@ -174,7 +160,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_colorpicker_inputs_green %}
                 <div class="sw-colorpicker__row-column">
                     <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
@@ -194,7 +179,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_colorpicker_inputs_blue %}
                 <div class="sw-colorpicker__row-column">
                     <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
@@ -214,7 +198,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_colorpicker_inputs_alpha %}
                 <div
                     v-if="alpha"

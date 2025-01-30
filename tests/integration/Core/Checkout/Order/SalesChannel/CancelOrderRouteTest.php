@@ -96,7 +96,7 @@ class CancelOrderRouteTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = $this->getContainer()->get('order.repository')->search($criteria, Context::createDefaultContext())->first();
+        $order = static::getContainer()->get('order.repository')->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($order->getStateMachineState());
         static::assertSame('cancelled', $order->getStateMachineState()->getTechnicalName());
@@ -165,7 +165,7 @@ class CancelOrderRouteTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $this->getContainer()->get('order.repository')->create(
+        static::getContainer()->get('order.repository')->create(
             [[
                 'id' => $id,
                 'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),

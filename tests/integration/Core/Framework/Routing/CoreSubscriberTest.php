@@ -52,7 +52,7 @@ class CoreSubscriberTest extends TestCase
     #[Group('slow')]
     public function testStorefrontNoCsp(): void
     {
-        if (!$this->getContainer()->has(ProductController::class)) {
+        if (!static::getContainer()->has(ProductController::class)) {
             static::markTestSkipped('Storefront CSP test need storefront bundle to be installed');
         }
 
@@ -69,7 +69,7 @@ class CoreSubscriberTest extends TestCase
 
     public function testAdminHasCsp(): void
     {
-        if (!$this->getContainer()->has(AdministrationController::class)) {
+        if (!static::getContainer()->has(AdministrationController::class)) {
             static::markTestSkipped('Admin CSP test need admin bundle to be installed');
         }
 

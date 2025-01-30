@@ -66,7 +66,7 @@ class ComposerPluginLoaderTest extends TestCase
         $modified = $packages[0];
         static::assertIsArray($modified);
         $modified['versions'] = [
-            // Points to path that does not exists
+            // Points to path that does not exist
             'swag/broken1' => [
                 'dev_requirement' => false,
                 'type' => PluginFinder::COMPOSER_TYPE,
@@ -92,6 +92,12 @@ class ComposerPluginLoaderTest extends TestCase
     {
         $this->loadComposerLoadedPluginFixture();
 
+        /**
+         * @deprecated tag:v6.7.0 - double check if we can increase composer constraint and remove this
+         * @see https://github.com/composer/composer/issues/12235
+         */
+        static::markTestSkipped('This test is not compatible with Composer 2.8.4');
+
         $loader = new ComposerPluginLoader($this->classLoader, null);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
@@ -106,6 +112,12 @@ class ComposerPluginLoaderTest extends TestCase
     public function testFetchPluginInfos(): void
     {
         $this->loadComposerLoadedPluginFixture();
+
+        /**
+         * @deprecated tag:v6.7.0 - double check if we can increase composer constraint and remove this
+         * @see https://github.com/composer/composer/issues/12235
+         */
+        static::markTestSkipped('This test is not compatible with Composer 2.8.4');
 
         $loader = new ComposerPluginLoader($this->classLoader, null);
         $plugins = $loader->fetchPluginInfos();

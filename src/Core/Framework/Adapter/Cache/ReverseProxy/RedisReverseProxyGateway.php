@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
  */
-#[Package('core')]
+#[Package('framework')]
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private string $keyScript = <<<LUA

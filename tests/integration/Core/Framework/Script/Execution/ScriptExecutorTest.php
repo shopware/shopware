@@ -36,7 +36,7 @@ class ScriptExecutorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->executor = $this->getContainer()->get(ScriptExecutor::class);
+        $this->executor = static::getContainer()->get(ScriptExecutor::class);
     }
 
     /**
@@ -72,7 +72,7 @@ class ScriptExecutorTest extends TestCase
     {
         $this->testExecute(
             ['shopware-version-case'],
-            ['version' => $this->getContainer()->getParameter('kernel.shopware_version'), 'version_compare' => true]
+            ['version' => static::getContainer()->getParameter('kernel.shopware_version'), 'version_compare' => true]
         );
     }
 
@@ -100,7 +100,7 @@ class ScriptExecutorTest extends TestCase
 
     public function testTranslation(): void
     {
-        $translator = $this->getContainer()->get(Translator::class);
+        $translator = static::getContainer()->get(Translator::class);
         $translator->reset();
         $translator->warmUp('');
 
@@ -112,7 +112,7 @@ class ScriptExecutorTest extends TestCase
             'setId' => $this->getSnippetSetIdForLocale('en-GB'),
             'author' => 'Shopware',
         ];
-        $this->getContainer()->get('snippet.repository')->create([$snippet], $context);
+        static::getContainer()->get('snippet.repository')->create([$snippet], $context);
 
         // fake request
         $request = new Request();
@@ -120,7 +120,7 @@ class ScriptExecutorTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en-GB'));
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
 
-        $this->getContainer()->get(RequestStack::class)->push($request);
+        static::getContainer()->get(RequestStack::class)->push($request);
 
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 

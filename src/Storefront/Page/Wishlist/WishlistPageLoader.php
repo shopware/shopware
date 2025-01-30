@@ -24,10 +24,10 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('storefront')]
+#[Package('discovery')]
 class WishlistPageLoader
 {
-    private const LIMIT = 24;
+    private const DEFAULT_LIMIT = 24;
 
     private const DEFAULT_PAGE = 1;
 
@@ -82,8 +82,7 @@ class WishlistPageLoader
 
     private function createCriteria(Request $request): Criteria
     {
-        $limit = $request->query->get('limit');
-        $limit = $limit ? (int) $limit : self::LIMIT;
+        $limit = self::DEFAULT_LIMIT;
         $page = $request->query->get('p');
         $page = $page ? (int) $page : self::DEFAULT_PAGE;
         $offset = $limit * ($page - 1);

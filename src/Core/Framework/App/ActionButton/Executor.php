@@ -25,7 +25,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class Executor
 {
     public function __construct(

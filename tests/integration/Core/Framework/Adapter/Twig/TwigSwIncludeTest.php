@@ -146,11 +146,11 @@ class TwigSwIncludeTest extends TestCase
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
-            $this->getContainer()->getParameter('kernel.cache_dir') . '/' . microtime(),
+            static::getContainer()->getParameter('kernel.cache_dir') . '/' . microtime(),
             new NamespaceHierarchyBuilder([
                 new BundleHierarchyBuilder(
                     $kernel,
-                    $this->getContainer()->get(Connection::class)
+                    static::getContainer()->get(Connection::class)
                 ),
             ]),
             $scopeDetector,

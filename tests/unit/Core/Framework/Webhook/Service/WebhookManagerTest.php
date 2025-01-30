@@ -63,53 +63,31 @@ class WebhookManagerTest extends TestCase
         $this->bus = new CollectingMessageBus();
     }
 
+    public function testDispatchesTwoConsecutiveEventsCorrectly(): void
+    {
+        $event1 = new AppFlowActionEvent('foobar', ['foo' => 'bar'], ['foo' => 'bar']);
+        $event2 = new class('foobar.event', ['foo' => 'bar'], ['foo' => 'bar']) extends AppFlowActionEvent {};
+
+        $this->eventFactory
+            ->expects(static::exactly(2))
+            ->method('createHookablesFor')
+            ->willReturn([$event1], [$event2]);
+
+        $webhookManager = $this->getWebhookManager(true);
+        $webhookManager->dispatch($event1);
+        $request = $this->clientMock->getLastRequest();
+        static::assertNull($request);
+
+        $webhook = $this->prepareWebhook($event2->getName());
+        $this->assertSyncWebhookIsSent($webhook, $event2, $webhookManager);
+    }
+
     public function testDispatchWithWebhooksSync(): void
     {
         $event = $this->prepareEvent();
         $webhook = $this->prepareWebhook($event->getName());
 
-        $expectedRequest = new Request(
-            'POST',
-            $webhook['webhookUrl'],
-            [
-                'foo' => 'bar',
-                'Content-Type' => 'application/json',
-                'sw-version' => '0.0.0',
-                'sw-context-language' => [Defaults::LANGUAGE_SYSTEM],
-                'sw-user-language' => [''],
-            ],
-            json_encode([
-                'foo' => 'bar',
-                'source' => [
-                    'url' => 'https://example.com',
-                    'appVersion' => $webhook['appVersion'],
-                    'shopId' => 'foobar',
-                    'action' => $event->getName(),
-                    'inAppPurchases' => [],
-                ],
-            ], \JSON_THROW_ON_ERROR)
-        );
-
-        $this->getWebhookManager(true)->dispatch($event);
-
-        $request = $this->clientMock->getLastRequest();
-
-        static::assertInstanceOf(RequestInterface::class, $request);
-        static::assertEquals('foo.bar', $request->getUri()->getHost());
-
-        $headers = $request->getHeaders();
-        static::assertArrayHasKey(RequestSigner::SHOPWARE_SHOP_SIGNATURE, $headers);
-        unset($headers[RequestSigner::SHOPWARE_SHOP_SIGNATURE], $headers['Content-Length'], $headers['User-Agent']);
-        static::assertEquals($expectedRequest->getHeaders(), $headers);
-
-        $expectedContents = json_decode($expectedRequest->getBody()->getContents(), true);
-        $contents = json_decode($request->getBody()->getContents(), true);
-        static::assertIsArray($contents);
-        static::assertArrayHasKey('timestamp', $contents);
-        static::assertArrayHasKey('source', $contents);
-        static::assertArrayHasKey('eventId', $contents['source']);
-        unset($contents['timestamp'], $contents['source']['eventId']);
-        static::assertEquals($expectedContents, $contents);
+        $this->assertSyncWebhookIsSent($webhook, $event);
     }
 
     public function testDispatchWithWebhooksAsync(): void
@@ -138,7 +116,7 @@ class WebhookManagerTest extends TestCase
                 'appVersion' => $webhook['appVersion'],
                 'shopId' => 'foobar',
                 'action' => $event->getName(),
-                'inAppPurchases' => [],
+                'inAppPurchases' => null,
             ],
         ], $payload);
 
@@ -281,6 +259,56 @@ class WebhookManagerTest extends TestCase
         static::assertStringContainsString($secondId, json_encode($payload));
     }
 
+    /**
+     * @param Webhook $webhook
+     */
+    private function assertSyncWebhookIsSent(array $webhook, AppFlowActionEvent $event, ?WebhookManager $webhookManager = null): void
+    {
+        $expectedRequest = new Request(
+            'POST',
+            $webhook['webhookUrl'],
+            [
+                'foo' => 'bar',
+                'Content-Type' => 'application/json',
+                'sw-version' => '0.0.0',
+                'sw-context-language' => [Defaults::LANGUAGE_SYSTEM],
+                'sw-user-language' => [''],
+            ],
+            json_encode([
+                'foo' => 'bar',
+                'source' => [
+                    'url' => 'https://example.com',
+                    'appVersion' => $webhook['appVersion'],
+                    'shopId' => 'foobar',
+                    'action' => $event->getName(),
+                    'inAppPurchases' => null,
+                ],
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        $webhookManager = $webhookManager ?? $this->getWebhookManager(true);
+        $webhookManager->dispatch($event);
+
+        $request = $this->clientMock->getLastRequest();
+
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertEquals('foo.bar', $request->getUri()->getHost());
+
+        $headers = $request->getHeaders();
+        static::assertArrayHasKey(RequestSigner::SHOPWARE_SHOP_SIGNATURE, $headers);
+        unset($headers[RequestSigner::SHOPWARE_SHOP_SIGNATURE], $headers['Content-Length'], $headers['User-Agent']);
+        static::assertEquals($expectedRequest->getHeaders(), $headers);
+
+        $expectedContents = json_decode($expectedRequest->getBody()->getContents(), true);
+        $contents = json_decode($request->getBody()->getContents(), true);
+        static::assertIsArray($contents);
+        static::assertArrayHasKey('timestamp', $contents);
+        static::assertArrayHasKey('source', $contents);
+        static::assertArrayHasKey('eventId', $contents['source']);
+        unset($contents['timestamp'], $contents['source']['eventId']);
+        static::assertEquals($expectedContents, $contents);
+    }
+
     private function prepareEvent(): AppFlowActionEvent
     {
         $event = new AppFlowActionEvent('foobar', ['foo' => 'bar'], ['foo' => 'bar']);
@@ -325,8 +353,7 @@ class WebhookManagerTest extends TestCase
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
 
         $this->webhookLoader->expects(static::once())
-            ->method('getWebhooksForEvent')
-            ->with($eventName)
+            ->method('getWebhooks')
             ->willReturn([$webhook]);
 
         if ($withAcl) {

@@ -51,7 +51,7 @@ class AddWishlistProductRouteTest extends TestCase
         $email = Uuid::randomHex() . '@example.com';
         $this->customerId = $this->createCustomer($email);
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 
         $this->browser
@@ -75,7 +75,7 @@ class AddWishlistProductRouteTest extends TestCase
     public function testAddProductShouldReturnSuccess(): void
     {
         $productData = $this->createProduct($this->context);
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $eventWasThrown = false;
 
         $listener = static function (WishlistProductAddedEvent $event) use ($productData, &$eventWasThrown): void {
@@ -193,7 +193,7 @@ class AddWishlistProductRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')->create([$data], $context);
+        static::getContainer()->get('product.repository')->create([$data], $context);
 
         return [$productId, $productNumber];
     }
@@ -201,7 +201,7 @@ class AddWishlistProductRouteTest extends TestCase
     private function createCustomerWishlist(Context $context, string $customerId, string $productId): string
     {
         $customerWishlistId = Uuid::randomHex();
-        $customerWishlistRepository = $this->getContainer()->get('customer_wishlist.repository');
+        $customerWishlistRepository = static::getContainer()->get('customer_wishlist.repository');
 
         $customerWishlistRepository->create([
             [

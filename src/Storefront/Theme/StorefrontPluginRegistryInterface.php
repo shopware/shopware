@@ -5,7 +5,10 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-#[Package('storefront')]
+/**
+ * @deprecated tag:v6.7.0 - Will be removed
+ */
+#[Package('framework')]
 interface StorefrontPluginRegistryInterface
 {
     public function getConfigurations(): StorefrontPluginConfigurationCollection;

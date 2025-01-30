@@ -24,7 +24,7 @@ class AssetInstallCommandTest extends TestCase
     public function testItInstallsAppAssets(): void
     {
         /** @var FilesystemOperator $filesystem */
-        $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
+        $filesystem = static::getContainer()->get('shopware.filesystem.asset');
         // make sure that the dir does not exist beforehand
         $filesystem->deleteDirectory('bundles/test');
         $filesystem->delete('asset-manifest.json');
@@ -33,7 +33,7 @@ class AssetInstallCommandTest extends TestCase
         $fixturePath = \realpath($fixturePath);
         static::assertIsString($fixturePath);
 
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
         static::assertIsString($projectDir);
 
         $relativeFixturePath = \ltrim(
@@ -56,12 +56,12 @@ class AssetInstallCommandTest extends TestCase
             $this->getKernel(),
             new AssetService(
                 $filesystem,
-                $this->getContainer()->get('shopware.filesystem.private'),
-                $this->getContainer()->get('kernel'),
-                $this->getContainer()->get(KernelPluginLoader::class),
-                $this->getContainer()->get(CacheInvalidator::class),
+                static::getContainer()->get('shopware.filesystem.private'),
+                static::getContainer()->get('kernel'),
+                static::getContainer()->get(KernelPluginLoader::class),
+                static::getContainer()->get(CacheInvalidator::class),
                 new StaticSourceResolver(['test' => new Filesystem($fixturePath)]),
-                $this->getContainer()->get('parameter_bag')
+                static::getContainer()->get('parameter_bag')
             ),
             $activeAppsLoaderMock
         );

@@ -51,11 +51,11 @@ class PaymentControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->paymentProcessor = $this->getContainer()->get(PaymentProcessor::class);
+        $this->tokenFactory = static::getContainer()->get(JWTFactoryV2::class);
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+        $this->paymentProcessor = static::getContainer()->get(PaymentProcessor::class);
     }
 
     public function testCallWithoutToken(): void
@@ -138,7 +138,7 @@ class PaymentControllerTest extends TestCase
 
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
-        return $this->getContainer()->get(SalesChannelContextFactory::class)
+        return static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [
                 SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]);
@@ -154,7 +154,7 @@ class PaymentControllerTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
+            'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];

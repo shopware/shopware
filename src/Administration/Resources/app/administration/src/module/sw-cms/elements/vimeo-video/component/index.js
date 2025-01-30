@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
@@ -95,6 +95,10 @@ export default {
             ${this.controls}\
             ${this.title}\
             ${this.portrait}`.replace(/ /g, '');
+        },
+
+        iframeTitle() {
+            return this.element.config.iframeTitle.value;
         },
     },
 

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class RemoteAddressField extends Field implements StorageAware
 {
     public function __construct(

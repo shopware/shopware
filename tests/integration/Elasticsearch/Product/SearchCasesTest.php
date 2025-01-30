@@ -37,9 +37,9 @@ class SearchCasesTest extends TestCase
     {
         $this->clearElasticsearch();
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
 
-        $this->getContainer()->get('product.repository')->create(array_values($products), Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create(array_values($products), Context::createDefaultContext());
 
         $this->indexElasticSearch();
 
@@ -49,7 +49,7 @@ class SearchCasesTest extends TestCase
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->setTerm($term);
 
-        $definition = $this->getContainer()->get(ProductDefinition::class);
+        $definition = static::getContainer()->get(ProductDefinition::class);
 
         $result = $searcher->search($definition, $criteria, Context::createDefaultContext());
 
@@ -87,7 +87,7 @@ class SearchCasesTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     protected function runWorker(): void

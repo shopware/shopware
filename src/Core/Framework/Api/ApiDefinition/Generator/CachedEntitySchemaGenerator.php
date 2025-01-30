@@ -11,7 +11,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CachedEntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
     final public const CACHE_KEY = 'core_framework_api_entity_schema';

@@ -329,7 +329,7 @@ class SetPaymentOrderRouteTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $this->getContainer()->get('order.repository')->create(
+        static::getContainer()->get('order.repository')->create(
             [[
                 'id' => $id,
                 'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
@@ -412,7 +412,7 @@ class SetPaymentOrderRouteTest extends TestCase
     private function getAvailablePaymentMethodId(int $offset = 0): string
     {
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('payment_method.repository');
+        $repository = static::getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
             ->setLimit(1)
@@ -435,7 +435,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderTransactionCollection $transactions */
-        $transactions = $this->getContainer()->get('order_transaction.repository')->search($criteria, Context::createDefaultContext())->getEntities();
+        $transactions = static::getContainer()->get('order_transaction.repository')->search($criteria, Context::createDefaultContext())->getEntities();
 
         return $transactions;
     }
@@ -446,8 +446,8 @@ class SetPaymentOrderRouteTest extends TestCase
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
         $criteria->addSorting(new FieldSorting('createdAt'));
 
-        $transactionId = $this->getContainer()->get('order_transaction.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
-        $this->getContainer()->get('order_transaction.repository')->update([[
+        $transactionId = static::getContainer()->get('order_transaction.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::getContainer()->get('order_transaction.repository')->update([[
             'id' => $transactionId,
             'stateId' => $this->getStateMachineState(OrderTransactionStates::STATE_MACHINE, $state),
         ]], Context::createDefaultContext());

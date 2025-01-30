@@ -84,7 +84,7 @@ CREATE TABLE `named` (
     CONSTRAINT `fk` FOREIGN KEY (`optional_group_id`) REFERENCES `named_optional_group` (`id`) ON DELETE SET NULL
 );
 EOF;
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->connection->executeStatement($dropStatement);
         $this->connection->executeStatement($namedOptionalGroupStatement);
         $this->connection->executeStatement($namedStatement);
@@ -276,7 +276,7 @@ EOF;
 
     public function testCreateAndDeleteWithPermissions(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $user = TestUser::createNewTestUser($connection, ['product:create', 'product:delete', 'tax:create']);
 
@@ -596,7 +596,7 @@ EOF;
         $this->assertEntityExists($browser, 'product', $id);
 
         /** @var EntityRepository $productRepo */
-        $productRepo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $productRepo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$id]);
         $criteria->addFilter(
             new EqualsFilter('versionId', $versionId)
@@ -624,7 +624,7 @@ EOF;
 
         $browser->request('POST', '/api/_action/version/' . Defaults::LIVE_VERSION . '/product/' . $id);
 
-        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $repo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$id]);
         $criteria->addFilter(new EqualsFilter('versionId', Defaults::LIVE_VERSION));
 
@@ -790,7 +790,7 @@ EOF;
         $this->getBrowser()->request('DELETE', '/api/product/' . $id . '/categories/' . $category);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
 
-        $a = $this->getContainer()
+        $a = static::getContainer()
             ->get(Connection::class)
             ->executeQuery(
                 'SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid',
@@ -838,7 +838,7 @@ EOF;
         $browser->request('DELETE', '/api/product/' . $id . '/categories/' . $category);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
-        $a = $this->getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAllAssociative();
+        $a = static::getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAllAssociative();
         static::assertNotEmpty($a);
 
         $this->assertEntityExists($browser, 'product', $id);
@@ -1182,7 +1182,7 @@ EOF;
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -1211,7 +1211,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/product/' . $id . '/prices';
@@ -1346,7 +1346,7 @@ EOF;
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -1375,7 +1375,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/product/' . $id . '/prices';
@@ -1427,7 +1427,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/product/' . $id . '/categories';
@@ -1481,7 +1481,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/search-ids/product-category';
@@ -1540,7 +1540,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $filter = [
@@ -1583,7 +1583,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $filter = [
@@ -1895,7 +1895,7 @@ EOF;
     {
         $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
 
         $salesChannelId = Uuid::randomHex();
         $this->createSalesChannel($salesChannelId);
@@ -1969,7 +1969,7 @@ EOF;
     {
         $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
 
         $salesChannelId = Uuid::randomHex();
         $this->createSalesChannel($salesChannelId);
@@ -2166,7 +2166,7 @@ EOF;
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = static::getContainer()->get('user.repository');
 
         // Change user password
         $userRepository->update([[
@@ -2242,7 +2242,7 @@ EOF;
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $repo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$productId]);
 
         /** @var ProductEntity $product */
@@ -2279,7 +2279,7 @@ EOF;
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $repo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$productId]);
 
         /** @var ProductEntity $product */
@@ -2367,7 +2367,7 @@ EOF;
     #[DataProvider('provideEntityName')]
     public function testMustMatchEntityNameRegex(bool $match, string $entityName, string $routeName): void
     {
-        $router = $this->getContainer()->get(RouterInterface::class);
+        $router = static::getContainer()->get(RouterInterface::class);
         $routes = $router->getRouteCollection();
 
         $urlGenerator = new UrlGenerator(
@@ -2412,7 +2412,7 @@ EOF;
 
     public function testLoader(): void
     {
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         $loader = new ApiRouteLoader($definitionRegistry);
 
         $routers = $loader->load('test');
@@ -2461,13 +2461,13 @@ EOF;
     {
         $data = $this->getSalesChannelData($id);
 
-        $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
+        static::getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
     }
 
     private function getNonSystemLanguageId(): string
     {
         /** @var EntityRepository $languageRepository */
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new NotFilter(
             MultiFilter::CONNECTION_AND,
@@ -2519,7 +2519,7 @@ EOF;
             $data['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()->get('customer.repository')
+        static::getContainer()->get('customer.repository')
             ->create([$data], Context::createDefaultContext());
 
         return $ids;

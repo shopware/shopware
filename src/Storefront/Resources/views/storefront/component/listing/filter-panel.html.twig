@@ -1,7 +1,7 @@
 {% block component_filter_panel %}
     {% block component_filter_panel_header %}
         <div class="filter-panel-offcanvas-header">
-            <div class="filter-panel-offcanvas-only filter-panel-offcanvas-title">{{ "listing.filterTitleText"|trans }}</div>
+            <h2 class="filter-panel-offcanvas-only filter-panel-offcanvas-title">{{ "listing.filterTitleText"|trans }}</h2>
 
             <button type="button" class="btn-close filter-panel-offcanvas-only filter-panel-offcanvas-close js-offcanvas-close" aria-label="{{ 'listing.filterClose'|trans|striptags }}">
             </button>
@@ -100,7 +100,8 @@
             {% endblock %}
 
             {% block component_filter_panel_active_container %}
-                <div class="filter-panel-active-container">
+                {# @deprecated tag:v6.7.0 - Active filters container will be a simple flex layout with gap instead of putting margins on the individual buttons. #}
+                <div class="filter-panel-active-container{% if feature('ACCESSIBILITY_TWEAKS') %} d-flex flex-wrap gap-2{% endif %}">
                     {% block component_filter_panel_active_container_inner %}{% endblock %}
                 </div>
             {% endblock %}

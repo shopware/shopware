@@ -1240,7 +1240,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(0, $apps);
 
         /** @var EntityRepository<AclRoleCollection> $aclRoleRepository */
-        $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
+        $aclRoleRepository = static::getContainer()->get('acl_role.repository');
         $aclRole = $aclRoleRepository->search(new Criteria([$aclRoleId]), $this->context)->getEntities()->first();
         static::assertNotNull($aclRole);
 

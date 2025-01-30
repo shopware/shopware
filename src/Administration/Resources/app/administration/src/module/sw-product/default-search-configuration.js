@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-detail.html.twig';
 import errorConfig from './error-config.json';
@@ -84,7 +84,7 @@ export default {
 
             criteria.getAssociation('discounts').addSorting(Criteria.sort('createdAt', 'ASC'));
 
-            criteria.getAssociation('individualCodes');
+            criteria.getAssociation('individualCodes').setLimit(25);
 
             return criteria;
         },

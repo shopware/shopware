@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Error\Error as TwigError;
 
-#[Package('storefront')]
+#[Package('framework')]
 class StorefrontException extends HttpException
 {
     final public const CAN_NOT_RENDER_VIEW = 'STOREFRONT__CAN_NOT_RENDER_VIEW';

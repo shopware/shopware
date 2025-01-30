@@ -34,8 +34,8 @@ class Migration1720603803RemoveDefaultPaymentMethodRuleTest extends TestCase
         static::assertCount(2, $this->getConditionValues('customerDefaultPaymentMethod'));
 
         $migration = new Migration1720603803RemoveDefaultPaymentMethodRule();
-        $migration->update($this->getContainer()->get(Connection::class));
-        $migration->update($this->getContainer()->get(Connection::class));
+        $migration->update(static::getContainer()->get(Connection::class));
+        $migration->update(static::getContainer()->get(Connection::class));
 
         static::assertCount(0, $this->getConditionValues('customerDefaultPaymentMethod'));
         static::assertSame([
@@ -52,7 +52,7 @@ class Migration1720603803RemoveDefaultPaymentMethodRuleTest extends TestCase
     {
         return array_map(
             function (string $json) { return json_decode($json, true); },
-            $this->getContainer()->get(Connection::class)->fetchAllKeyValue(
+            static::getContainer()->get(Connection::class)->fetchAllKeyValue(
                 'SELECT `id`, `value` FROM `rule_condition` WHERE `type`= :type',
                 ['type' => $type],
             )
@@ -61,7 +61,7 @@ class Migration1720603803RemoveDefaultPaymentMethodRuleTest extends TestCase
 
     private function getTestRulePayload(): mixed
     {
-        return $this->getContainer()->get(Connection::class)->fetchOne(
+        return static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT `payload` FROM `rule` WHERE `id` = :id',
             [
                 'id' => $this->ids->getBytes('rule'),
@@ -71,21 +71,21 @@ class Migration1720603803RemoveDefaultPaymentMethodRuleTest extends TestCase
 
     private function addTestConditions(): void
     {
-        $this->getContainer()->get(Connection::class)->insert('rule', [
+        static::getContainer()->get(Connection::class)->insert('rule', [
             'id' => $this->ids->getBytes('rule'),
             'name' => 'testRemoveDefaultPaymentMethodRule',
             'priority' => 1,
             'payload' => 'someValue',
             'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
         ]);
-        $this->getContainer()->get(Connection::class)->insert('rule_condition', [
+        static::getContainer()->get(Connection::class)->insert('rule_condition', [
             'id' => $this->ids->getBytes('ruleCondition1'),
             'rule_id' => $this->ids->getBytes('rule'),
             'type' => 'customerDefaultPaymentMethod',
             'value' => '{"operator":"=","methodIds":["001235290242435795391d026fa03b5b"]}',
             'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
         ]);
-        $this->getContainer()->get(Connection::class)->insert('rule_condition', [
+        static::getContainer()->get(Connection::class)->insert('rule_condition', [
             'id' => $this->ids->getBytes('ruleCondition2'),
             'rule_id' => $this->ids->getBytes('rule'),
             'type' => 'customerDefaultPaymentMethod',

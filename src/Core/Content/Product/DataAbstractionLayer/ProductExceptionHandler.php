@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class ProductExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int
@@ -14,6 +14,9 @@ class ProductExceptionHandler implements ExceptionHandlerInterface
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
+    /**
+     * @param \Exception $e - @deprecated tag:v6.7.0 - in v6.7.0 parameter type will be changed to \Throwable
+     */
     public function matchException(\Exception $e): ?\Exception
     {
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product.product_number__version_id\'/', $e->getMessage())) {

@@ -122,7 +122,7 @@ class SeoUrlRouteTest extends TestCase
             'name' => 'Test',
         ];
 
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create([$data], Context::createDefaultContext());
 
         $this->browser = $this->createCustomSalesChannelBrowser([
@@ -140,7 +140,7 @@ class SeoUrlRouteTest extends TestCase
             'foreignKey' => $this->ids->get('category'),
         ];
 
-        $this->getContainer()->get('seo_url.repository')
+        static::getContainer()->get('seo_url.repository')
             ->create([$data], Context::createDefaultContext());
     }
 }

@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SearchPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -73,18 +73,18 @@ class SearchPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertSame('Searchresult | Demostore', $page->getMetaInformation()?->getMetaTitle());
+        static::assertSame('Search results | Demostore', $page->getMetaInformation()?->getMetaTitle());
 
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfig->set('core.basicInformation.shopName', 'Teststore', $context->getSalesChannel()->getId());
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.basicInformation.shopName', 'Teststore', $context->getSalesChannelId());
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertSame('Searchresult | Teststore', $page->getMetaInformation()?->getMetaTitle());
+        static::assertSame('Search results | Teststore', $page->getMetaInformation()?->getMetaTitle());
     }
 
     protected function getPageLoader(): SearchPageLoader
     {
-        return $this->getContainer()->get(SearchPageLoader::class);
+        return static::getContainer()->get(SearchPageLoader::class);
     }
 }

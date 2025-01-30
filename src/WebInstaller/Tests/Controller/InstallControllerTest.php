@@ -37,7 +37,7 @@ class InstallControllerTest extends TestCase
         $responseGenerator->method('runJSON')->willReturn(new StreamedResponse());
 
         $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class), $this->createMock(ProjectComposerJsonUpdater::class));
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $response = $controller->index();
 
@@ -72,7 +72,7 @@ class InstallControllerTest extends TestCase
             ->willReturn(new StreamedResponse());
 
         $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class), $this->createMock(ProjectComposerJsonUpdater::class));
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -83,7 +83,7 @@ class InstallControllerTest extends TestCase
         (new Filesystem())->remove($tmpDir);
     }
 
-    private function getContainer(): ContainerInterface
+    private function buildContainer(): ContainerInterface
     {
         $container = new Container();
 

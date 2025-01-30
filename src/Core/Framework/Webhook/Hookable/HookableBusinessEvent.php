@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Webhook\Hookable;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class HookableBusinessEvent implements Hookable
 {
     private function __construct(

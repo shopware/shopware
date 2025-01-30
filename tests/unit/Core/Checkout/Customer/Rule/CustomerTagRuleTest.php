@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Choice;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerTagRule::class)]
 #[Group('rules')]
 class CustomerTagRuleTest extends TestCase

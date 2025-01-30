@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -258,47 +257,9 @@ class StorefrontSubscriberTest extends TestCase
         ];
     }
 
-    #[DoesNotPerformAssertions]
-    #[DataProvider('dataProviderStartSession')]
-    public function testStartSessionNoRequest(?Request $request): void
-    {
-        $requestStack = new RequestStack();
-
-        if ($request) {
-            $requestStack->push($request);
-        }
-
-        $subscriber = new StorefrontSubscriber(
-            $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
-            new StaticSystemConfigService(),
-        );
-
-        $subscriber->startSession();
-    }
-
-    public static function dataProviderStartSession(): \Generator
-    {
-        yield 'no request' => [
-            'request' => null,
-            'expected' => false,
-        ];
-
-        yield 'generic request' => [
-            'request' => new Request(),
-            'expected' => false,
-        ];
-
-        yield 'storefront request without session' => [
-            'request' => new Request([], [], [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]),
-            'expected' => false,
-        ];
-    }
-
     public function testStartSession(): void
     {
-        $request = new Request([], [], [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true, PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::createSalesChannelContext()], [], [], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
+        $request = new Request([], [], [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true, PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::generateSalesChannelContext()], [], [], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
         $request->setSession(new Session(new MockArraySessionStorage()));
         $requestStack = new RequestStack();
 

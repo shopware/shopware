@@ -46,14 +46,14 @@ class ProductConfiguratorOrderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->repository = static::getContainer()->get('product.repository');
 
-        $this->salesChannelProductRepository = $this->getContainer()->get('sales_channel.product.repository');
+        $this->salesChannelProductRepository = static::getContainer()->get('sales_channel.product.repository');
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create('test', TestDefaults::SALES_CHANNEL);
 
-        $this->loader = $this->getContainer()->get(ProductConfiguratorLoader::class);
+        $this->loader = static::getContainer()->get(ProductConfiguratorLoader::class);
 
         parent::setUp();
     }

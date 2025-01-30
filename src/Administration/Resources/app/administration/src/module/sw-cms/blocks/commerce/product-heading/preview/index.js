@@ -3,7 +3,7 @@ import './sw-cms-preview-product-heading.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,

@@ -29,7 +29,7 @@ class AntiJoinSearchTest extends TestCase
     {
         parent::setUp();
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
     }
 
     public function testManyToMany(): void
@@ -51,7 +51,7 @@ class AntiJoinSearchTest extends TestCase
         $ids = array_column($products, 'id');
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
         $notGreenFilter = new NotFilter('AND', [
@@ -110,7 +110,7 @@ class AntiJoinSearchTest extends TestCase
         $ids = array_column($products, 'id');
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
         $notGreenOrRed = new MultiFilter('AND', [
@@ -142,7 +142,7 @@ class AntiJoinSearchTest extends TestCase
         ];
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
         $greenButNotRed = new MultiFilter('AND', [
@@ -196,7 +196,7 @@ class AntiJoinSearchTest extends TestCase
         ];
 
         /** @var EntityRepository $categoryRepository */
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
         $categoryRepository->create($categories, Context::createDefaultContext());
 
         $nonGreen = new NotFilter('AND', [
@@ -270,7 +270,7 @@ class AntiJoinSearchTest extends TestCase
         ];
 
         /** @var EntityRepository $manufacturerRepository */
-        $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
+        $manufacturerRepository = static::getContainer()->get('product_manufacturer.repository');
         $manufacturerRepository->create($manufacturers, Context::createDefaultContext());
 
         $notGreenFilter = new NotFilter('AND', [
@@ -323,7 +323,7 @@ class AntiJoinSearchTest extends TestCase
         ];
 
         /** @var EntityRepository<ProductCollection> $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
         $notGreenFilter = new NotFilter('AND', [new EqualsFilter('product.name', 'green')]);
@@ -388,7 +388,7 @@ class AntiJoinSearchTest extends TestCase
         ];
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
         $tagsNullFilters = new EqualsFilter('product.tags.id', null);

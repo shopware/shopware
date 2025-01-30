@@ -4,7 +4,7 @@ import { reactive } from 'vue';
 import type { ContextState } from '../app/state/context.store';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/application
  */
@@ -12,6 +12,7 @@ import type VueAdapter from '../app/adapter/view/vue.adapter';
 interface bundlesSinglePluginResponse {
     css?: string | string[];
     js?: string | string[];
+    hmrSrc?: string;
     html?: string;
     baseUrl?: null | string;
     type?: 'app' | 'plugin';
@@ -361,18 +362,29 @@ class ApplicationBootstrapper {
     /**
      * Boot the application depending on login status
      */
-    startBootProcess(): Promise<void | ApplicationBootstrapper> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    async startBootProcess(): Promise<void | ApplicationBootstrapper> {
         const loginService = this.getContainer('service').loginService;
-        // eslint-disable-next-line max-len
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-        const isUserLoggedIn = loginService.isLoggedIn();
 
         // if user is not logged in
-        if (!isUserLoggedIn) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+        if (!loginService.isLoggedIn()) {
             loginService.logout(false, false);
             return this.bootLogin();
+        }
+
+        const expiry = loginService.getBearerAuthentication('expiry');
+        // if the access token has expired or will within the next 5 seconds, but still exists:
+        if (expiry < Date.now() + 5000) {
+            try {
+                // directly refresh it, this will also start the auto refresh of the token
+                await loginService.refreshToken();
+            } catch (e) {
+                console.warn('Error while refreshing token', e);
+                loginService.logout(false, false);
+                return this.bootLogin();
+            }
+        } else {
+            // else just start the auto refresh of the token
+            loginService.restartAutoTokenRefresh(expiry);
         }
 
         if (window._features_.ADMIN_VITE) {
@@ -447,21 +459,19 @@ class ApplicationBootstrapper {
         const initContainer = this.getContainer('init');
         const initPostContainer = this.getContainer('init-post');
 
-        return (
-            this.initializeInitializersVite(initPreContainer, '-pre')
-                .then(() => this.initializeInitializersVite(initContainer))
-                .then(() => this.initializeInitializersVite(initPostContainer, '-post'))
-                // .then(() => this.loadPlugins())
-                .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
-                .then(() => {
-                    if (!this.view) {
-                        return Promise.reject();
-                    }
+        return this.initializeInitializersVite(initPreContainer, '-pre')
+            .then(() => this.initializeInitializersVite(initContainer))
+            .then(() => this.initializeInitializersVite(initPostContainer, '-post'))
+            .then(() => this.loadPlugins())
+            .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
+            .then(() => {
+                if (!this.view) {
+                    return Promise.reject();
+                }
 
-                    return this.view.initDependencies();
-                })
-                .then(() => this.createApplicationRoot())
-        );
+                return this.view.initDependencies();
+            })
+            .then(() => this.createApplicationRoot());
         // .catch((error) => this.createApplicationRootError(error));
     }
 
@@ -607,7 +617,7 @@ class ApplicationBootstrapper {
             const exists = initContainer.hasOwnProperty(key);
 
             if (!exists) {
-                console.error(`The initializer "${key}" does not exists`);
+                console.error(`The initializer "${key}" does not exist`);
             }
         });
 
@@ -685,7 +695,7 @@ class ApplicationBootstrapper {
             const response = await fetch('./sw-plugin-dev.json');
             plugins = (await response.json()) as bundlesPluginResponse;
 
-            // Added via webpack.config.js@193
+            // Added via webpack.config.js@193 || plugins.vite.ts@123
             if (Shopware.Utils.object.hasOwnProperty(plugins, 'metadata')) {
                 delete plugins.metadata;
             }
@@ -706,6 +716,13 @@ class ApplicationBootstrapper {
         const injectAllPlugins = Object.entries(plugins)
             .filter(([pluginName]) => {
                 // Filter the swag-commercial plugin because it was loaded beforehand
+                if (window._features_.ADMIN_VITE) {
+                    return ![
+                        'swag-commercial',
+                        'SwagCommercial',
+                        'Administration',
+                    ].includes(pluginName);
+                }
                 return ![
                     'swag-commercial',
                     'SwagCommercial',
@@ -726,8 +743,10 @@ class ApplicationBootstrapper {
                 bundleName,
                 bundle,
             ]) => {
-                if (!bundle.baseUrl) {
-                    return;
+                if (!window._features_.ADMIN_VITE) {
+                    if (!bundle.baseUrl) {
+                        return;
+                    }
                 }
 
                 if (isDevelopmentMode) {
@@ -752,38 +771,46 @@ class ApplicationBootstrapper {
                     );
                 }
 
+                if (window._features_.ADMIN_VITE) {
+                    if (!bundle.baseUrl) {
+                        return;
+                    }
+                }
+
                 this.injectIframe({
                     active: bundle.active,
                     integrationId: bundle.integrationId,
                     bundleName,
                     bundleVersion: bundle.version,
-                    iframeSrc: bundle.baseUrl,
+                    iframeSrc: bundle.baseUrl!,
                     bundleType: bundle.type,
                 });
             },
         );
 
-        if (isDevelopmentMode) {
-            // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
-            Object.entries(plugins).forEach(
-                ([
-                    pluginName,
-                    entryFiles,
-                ]) => {
-                    const stringUtils = Shopware.Utils.string;
-                    const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
+        if (!window._features_.ADMIN_VITE) {
+            if (isDevelopmentMode) {
+                // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
+                Object.entries(plugins).forEach(
+                    ([
+                        pluginName,
+                        entryFiles,
+                    ]) => {
+                        const stringUtils = Shopware.Utils.string;
+                        const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
 
-                    if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
-                        return;
-                    }
+                        if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
+                            return;
+                        }
 
-                    this.injectIframe({
-                        bundleVersion: undefined,
-                        bundleName: camelCasePluginName,
-                        iframeSrc: entryFiles.html,
-                    });
-                },
-            );
+                        this.injectIframe({
+                            bundleVersion: undefined,
+                            bundleName: camelCasePluginName,
+                            iframeSrc: entryFiles.html,
+                        });
+                    },
+                );
+            }
         }
 
         return Promise.all(injectAllPlugins);
@@ -795,6 +822,22 @@ class ApplicationBootstrapper {
     private async injectPlugin(plugin: bundlesSinglePluginResponse): Promise<unknown[] | null> {
         let allScripts = [];
         let allStyles = [];
+
+        // if dev and vite feature flag
+        if (window._features_.ADMIN_VITE && process.env.NODE_ENV === 'development' && plugin.hmrSrc && plugin.js) {
+            allScripts.push(this.injectJs(plugin.hmrSrc));
+            allScripts.push(this.injectJs(plugin.js as string));
+
+            try {
+                return await Promise.all([
+                    ...allScripts,
+                ]);
+            } catch (_) {
+                console.warn('Error while loading plugin', plugin);
+
+                return null;
+            }
+        }
 
         // load multiple js scripts
         if (plugin.js && Array.isArray(plugin.js)) {
@@ -831,6 +874,10 @@ class ApplicationBootstrapper {
             const script = document.createElement('script');
             script.src = scriptSrc;
             script.async = true;
+
+            if (window._features_.ADMIN_VITE) {
+                script.type = 'module';
+            }
 
             // resolve when script was loaded succcessfully
             script.onload = (): void => {

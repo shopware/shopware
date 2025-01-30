@@ -26,7 +26,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(MakeCoverageTestCommand::class)]
 class MakeCoverageTestCommandTest extends TestCase
 {
@@ -171,7 +171,7 @@ use Shopware\Core\DevOps\DevOps;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(DevOps::class)]
 class DevOpsTest extends TestCase
 {
@@ -200,7 +200,7 @@ use Shopware\Core\Migration\V6_5\Migration1670854818RemoveEventActionTable;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1670854818RemoveEventActionTable::class)]
 class Migration1670854818RemoveEventActionTableTest extends TestCase
 {

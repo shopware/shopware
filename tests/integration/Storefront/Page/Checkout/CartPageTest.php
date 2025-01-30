@@ -54,11 +54,11 @@ class CartPageTest extends TestCase
             ->willReturn($response);
 
         $loader = new CheckoutCartPageLoader(
-            $this->getContainer()->get(GenericPageLoader::class),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(StorefrontCartFacade::class),
+            static::getContainer()->get(GenericPageLoader::class),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(StorefrontCartFacade::class),
             $route,
-            $this->getContainer()->get(CountryRoute::class)
+            static::getContainer()->get(CountryRoute::class)
         );
 
         $context = $this->createSalesChannelContextWithNavigation();
@@ -70,6 +70,6 @@ class CartPageTest extends TestCase
 
     protected function getPageLoader(): CheckoutCartPageLoader
     {
-        return $this->getContainer()->get(CheckoutCartPageLoader::class);
+        return static::getContainer()->get(CheckoutCartPageLoader::class);
     }
 }

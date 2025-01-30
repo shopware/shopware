@@ -24,7 +24,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class ChangeCustomerStatusActionTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -41,9 +41,9 @@ class ChangeCustomerStatusActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $this->ids = new IdsCollection();
 

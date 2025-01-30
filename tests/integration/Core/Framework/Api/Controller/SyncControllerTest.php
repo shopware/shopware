@@ -39,8 +39,8 @@ class SyncControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->gateway = $this->getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->gateway = static::getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
         $this->gateway->reset('message_queue_stats');
     }
 
@@ -77,7 +77,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'entity' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $id1,
@@ -131,7 +131,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'entity' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $id,
@@ -180,7 +180,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(CategoryDefinition::class)->getEntityName(),
+                'entity' => static::getContainer()->get(CategoryDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $categoryId,
@@ -191,7 +191,7 @@ class SyncControllerTest extends TestCase
             ],
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'entity' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $productId,
@@ -242,7 +242,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'entity' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $product,
@@ -305,7 +305,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'entity' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $product,
@@ -341,7 +341,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_DELETE,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'entity' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     ['id' => $product],
                     ['id' => $product2],
@@ -482,7 +482,7 @@ class SyncControllerTest extends TestCase
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_search_keyword WHERE product_id = ?', [Uuid::fromHexToBytes($id1)]);
         static::assertSame(0, $count, 'Search keywords should be empty as we skipped it');

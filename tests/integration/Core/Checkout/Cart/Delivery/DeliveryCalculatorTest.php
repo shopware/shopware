@@ -69,7 +69,7 @@ class DeliveryCalculatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->deliveryCalculator = $this->getContainer()->get(DeliveryCalculator::class);
+        $this->deliveryCalculator = static::getContainer()->get(DeliveryCalculator::class);
         $this->deliveryTime = (new DeliveryTime())->assign([
             'min' => 1,
             'max' => 3,
@@ -1243,7 +1243,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCurrency')->willReturn($currency);
+        $context->method('getCurrencyId')->willReturn($currency->getId());
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
@@ -2005,7 +2005,7 @@ class DeliveryCalculatorTest extends TestCase
         $cart = new Cart('test');
         $cart->setLineItems($lineItems);
 
-        return $this->getContainer()->get(DeliveryBuilder::class)
+        return static::getContainer()->get(DeliveryBuilder::class)
             ->build($cart, $data, $context, new CartBehavior());
     }
 
@@ -2078,7 +2078,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $calculator = new AmountCalculator(
             new CashRounding(),
-            $this->getContainer()->get(PercentageTaxRuleBuilder::class),
+            static::getContainer()->get(PercentageTaxRuleBuilder::class),
             new TaxCalculator()
         );
 

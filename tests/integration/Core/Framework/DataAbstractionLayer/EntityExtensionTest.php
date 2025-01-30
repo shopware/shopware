@@ -57,16 +57,16 @@ class EntityExtensionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
     }
 
     protected function tearDown(): void
     {
         $this->tearDownDefinitions();
         parent::tearDown();
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myPrices');
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myCategories');
+        static::getContainer()->get(ProductDefinition::class)->getFields()->remove('myPrices');
+        static::getContainer()->get(ProductDefinition::class)->getFields()->remove('myCategories');
     }
 
     public function testICanWriteAndReadManyToOneAssociationExtension(): void
@@ -80,10 +80,10 @@ class EntityExtensionTest extends TestCase
 
         $this->connection->beginTransaction();
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField(
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField(
             (new ManyToOneAssociationField('myTax', 'my_tax_id', TaxDefinition::class, 'id'))->addFlags(new ApiAware(), new Extension())
         );
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField(
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField(
             (new FkField('my_tax_id', 'myTaxId', TaxDefinition::class))->addFlags(new ApiAware(), new Extension())
         );
 
@@ -124,15 +124,15 @@ class EntityExtensionTest extends TestCase
 
         $this->connection->beginTransaction();
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myTax');
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myTaxId');
+        static::getContainer()->get(ProductDefinition::class)->getFields()->remove('myTax');
+        static::getContainer()->get(ProductDefinition::class)->getFields()->remove('myTaxId');
     }
 
     public function testICanWriteOneToManyAssociationsExtensions(): void
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -168,7 +168,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -193,7 +193,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -237,7 +237,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -272,7 +272,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -310,7 +310,7 @@ class EntityExtensionTest extends TestCase
             'category_id'
         ))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -352,7 +352,7 @@ class EntityExtensionTest extends TestCase
             'category_id'
         ))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -383,7 +383,7 @@ class EntityExtensionTest extends TestCase
             'category_id'
         ))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -433,7 +433,7 @@ class EntityExtensionTest extends TestCase
             'category_id'
         ))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -474,7 +474,7 @@ class EntityExtensionTest extends TestCase
             'category_id'
         ))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
         $id = Uuid::randomHex();
 
@@ -520,7 +520,7 @@ class EntityExtensionTest extends TestCase
         static::expectExceptionMessage('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
 
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarExtension::class);
-        $extension = $this->getContainer()->get(ExtendableDefinition::class);
+        $extension = static::getContainer()->get(ExtendableDefinition::class);
 
         static::assertInstanceOf(ExtendableDefinition::class, $extension);
         $extension->getFields()->has('test');
@@ -529,7 +529,7 @@ class EntityExtensionTest extends TestCase
     public function testICanAddRuntimeExtensions(): void
     {
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarRuntimeExtension::class);
-        $extension = $this->getContainer()->get(ExtendableDefinition::class);
+        $extension = static::getContainer()->get(ExtendableDefinition::class);
 
         static::assertInstanceOf(ExtendableDefinition::class, $extension);
         static::assertTrue($extension->getFields()->has('test'));
@@ -538,7 +538,7 @@ class EntityExtensionTest extends TestCase
     public function testICanAddFkFieldsAsExtensions(): void
     {
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, FkFieldExtension::class);
-        $extension = $this->getContainer()->get(ExtendableDefinition::class);
+        $extension = static::getContainer()->get(ExtendableDefinition::class);
 
         static::assertInstanceOf(ExtendableDefinition::class, $extension);
         static::assertTrue($extension->getFields()->has('test'));
@@ -548,7 +548,7 @@ class EntityExtensionTest extends TestCase
     {
         $this->registerDefinition(ExtendedDefinition::class);
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, AssociationExtension::class);
-        $extension = $this->getContainer()->get(ExtendableDefinition::class);
+        $extension = static::getContainer()->get(ExtendableDefinition::class);
 
         static::assertInstanceOf(ExtendableDefinition::class, $extension);
         static::assertTrue($extension->getFields()->has('toOne'));
@@ -559,7 +559,7 @@ class EntityExtensionTest extends TestCase
     {
         $this->registerDefinition(ExtendedDefinition::class);
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ReferenceVersionExtension::class);
-        $extension = $this->getContainer()->get(ExtendableDefinition::class);
+        $extension = static::getContainer()->get(ExtendableDefinition::class);
 
         static::assertInstanceOf(ExtendableDefinition::class, $extension);
         static::assertTrue($extension->getFields()->has('toOne'));
@@ -574,7 +574,7 @@ class EntityExtensionTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create(
+        static::getContainer()->get('rule.repository')->create(
             [
                 ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
                 ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
@@ -620,7 +620,7 @@ class EntityExtensionTest extends TestCase
         $categoryA = Uuid::randomHex();
         $categoryB = Uuid::randomHex();
 
-        $this->getContainer()->get('category.repository')->create(
+        static::getContainer()->get('category.repository')->create(
             [
                 ['id' => $categoryA, 'name' => 'test', 'position' => 0, 'level' => 1],
                 ['id' => $categoryB, 'name' => 'test', 'position' => 1, 'level' => 2],

@@ -24,13 +24,13 @@ class CleanupVersionTaskHandlerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->handler = $this->getContainer()->get(CleanupVersionTaskHandler::class);
+        $this->handler = static::getContainer()->get(CleanupVersionTaskHandler::class);
     }
 
     public function testCleanup(): void
     {
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM version');
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM version_commit');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM version');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM version_commit');
 
         $ids = new IdsCollection();
 
@@ -43,15 +43,15 @@ class CleanupVersionTaskHandlerTest extends TestCase
 
         $this->handler->run();
 
-        $versions = $this->getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM version');
+        $versions = static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM version');
         static::assertCount(1, $versions);
         static::assertContains($ids->get('version-1'), $versions);
 
-        $commits = $this->getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM version_commit');
+        $commits = static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM version_commit');
         static::assertCount(1, $commits);
         static::assertContains($ids->get('version-1'), $commits);
 
-        $data = $this->getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM version_commit_data');
+        $data = static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM version_commit_data');
         static::assertCount(1, $data);
         static::assertContains($ids->get('version-1'), $data);
     }
@@ -64,7 +64,7 @@ class CleanupVersionTaskHandlerTest extends TestCase
             'created_at' => $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->insert('version', $version);
 
         $commit = [
@@ -73,7 +73,7 @@ class CleanupVersionTaskHandlerTest extends TestCase
             'created_at' => $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->insert('version_commit', $commit);
 
         $data = [
@@ -86,7 +86,7 @@ class CleanupVersionTaskHandlerTest extends TestCase
             'created_at' => $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->insert('version_commit_data', $data);
     }
 }

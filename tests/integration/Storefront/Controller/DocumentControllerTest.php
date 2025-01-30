@@ -57,7 +57,7 @@ class DocumentControllerTest extends TestCase
 
         $customerId = $this->createCustomer($paymentMethod->getId());
         $shippingMethod = $this->getAvailableShippingMethod();
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -87,7 +87,7 @@ class DocumentControllerTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], null, true);
 
-        $document = $this->getContainer()->get(DocumentGenerator::class)->generate(
+        $document = static::getContainer()->get(DocumentGenerator::class)->generate(
             InvoiceRenderer::TYPE,
             [$operation->getOrderId() => $operation],
             $context,
@@ -96,7 +96,7 @@ class DocumentControllerTest extends TestCase
         static::assertNotNull($document);
 
         $expectedFileContent = 'simple invoice';
-        $expectedContentType = 'text/plain; charset=UTF-8';
+        $expectedContentType = 'application/pdf';
 
         $request = new Request([], [], [], [], [], [], $expectedFileContent);
         $request->query->set('fileName', $fileName);
@@ -104,9 +104,9 @@ class DocumentControllerTest extends TestCase
         $request->server->set('HTTP_CONTENT_LENGTH', (string) mb_strlen($expectedFileContent));
         $request->headers->set('content-length', (string) mb_strlen($expectedFileContent));
 
-        $request->query->set('extension', 'txt');
+        $request->query->set('extension', 'pdf');
 
-        $documentIdStruct = $this->getContainer()->get(DocumentGenerator::class)->upload(
+        $documentIdStruct = static::getContainer()->get(DocumentGenerator::class)->upload(
             $document->getId(),
             $context,
             $request
@@ -117,7 +117,7 @@ class DocumentControllerTest extends TestCase
         $browser->request(
             'GET',
             $_SERVER['APP_URL'] . '/account/order/document/' . $documentIdStruct->getId() . '/' . $documentIdStruct->getDeepLinkCode(),
-            $this->tokenize('frontend.account.order.single.document', [])
+            $this->tokenize('frontend.account.order.single.document', ['fileType' => 'pdf'])
         );
 
         $response = $browser->getResponse();
@@ -195,19 +195,19 @@ class DocumentControllerTest extends TestCase
             $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
         }
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
+        $cart = static::getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
 
         return $cart;
     }
 
     private function persistCart(Cart $cart): string
     {
-        $cart = $this->getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
+        $cart = static::getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
 
-        return $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
+        return static::getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
     }
 
     private function createCustomer(string $paymentMethodId): string
@@ -248,7 +248,7 @@ class DocumentControllerTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
+        static::getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 
         return $customerId;
     }

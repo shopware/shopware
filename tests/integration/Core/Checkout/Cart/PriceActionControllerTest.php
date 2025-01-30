@@ -65,7 +65,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestNetToGross')]
     public function testNetToGross(array $tax, float $expectedPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $price = $this->sendRequest([
             'price' => 10,
@@ -94,7 +94,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestNetToNet')]
     public function testNetToNet(array $tax, float $expectedPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $price = $this->sendRequest([
             'price' => 10.002,
@@ -124,7 +124,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestGrossToGross')]
     public function testGrossToGross(array $tax, float $expectedPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $price = $this->sendRequest([
             'price' => 11.9,
@@ -153,7 +153,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestNetToGrossWithQuantity')]
     public function testNetToGrossWithQuantity(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $price = $this->sendRequest([
             'price' => 10,
@@ -184,7 +184,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestGrossToGrossWithQuantity')]
     public function testGrossToGrossWithQuantity(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $price = $this->sendRequest([
             'price' => 10,
@@ -215,7 +215,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestGrossToNet')]
     public function testGrossToNet(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $price = $this->sendRequest([
             'price' => 11.9,
@@ -287,7 +287,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestCalculatePricesNetToGross')]
     public function testCalculatePricesNetToGross(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
@@ -323,7 +323,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestCalculatePricesNetToNet')]
     public function testCalculatePricesNetToNet(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
@@ -360,7 +360,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestCalculatePricesGrossToGross')]
     public function testCalculatePricesGrossToGross(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
@@ -396,7 +396,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestCalculatePricesNetToGrossWithQuantity')]
     public function testCalculatePricesNetToGrossWithQuantity(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
@@ -434,7 +434,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestCalculatePricesGrossToGrossWithQuantity')]
     public function testCalculatePricesGrossToGrossWithQuantity(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
@@ -472,7 +472,7 @@ class PriceActionControllerTest extends TestCase
     #[DataProvider('dataProviderTestCalculatePricesGrossToNet')]
     public function testCalculatePricesGrossToNet(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
-        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+        static::getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
 
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();

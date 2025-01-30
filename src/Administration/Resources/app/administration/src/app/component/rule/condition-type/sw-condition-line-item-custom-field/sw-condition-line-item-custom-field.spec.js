@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
@@ -240,5 +240,19 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await flushPromises();
 
         expect(wrapper.vm.renderedFieldValue).toBe('test123');
+    });
+
+    it('should truncate custom field description', async () => {
+        mockCustomFields.at(0).customFieldSet.config.label = 'Product migration custom fields (attributes)';
+
+        const testWrapper = await createWrapper();
+        await flushPromises();
+
+        await testWrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        const description = document.body.querySelector('.sw-select-result__result-item-description').textContent;
+        expect(description).toHaveLength(20);
+        expect(description.endsWith('...')).toBe(true);
     });
 });

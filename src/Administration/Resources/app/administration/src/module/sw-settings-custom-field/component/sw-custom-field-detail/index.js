@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
@@ -75,7 +75,7 @@ export default {
 
         labelSaveButton() {
             if (this.currentCustomField._isNew) {
-                return this.$tc('sw-settings-custom-field.customField.detail.buttonSaveApply');
+                return this.$tc('global.default.add');
             }
 
             return this.$tc('sw-settings-custom-field.customField.detail.buttonEditApply');

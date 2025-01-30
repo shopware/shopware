@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/factory/router
  */
@@ -76,8 +76,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const assetPath = getAssetPath();
 
         router.beforeEach((to) => {
-            const cookieStorage = Shopware.Service('loginService').getStorage();
-            cookieStorage.setItem('lastActivity', `${Math.round(+new Date() / 1000)}`);
+            Shopware.Service('userActivityService').updateLastUserActivity();
 
             setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();

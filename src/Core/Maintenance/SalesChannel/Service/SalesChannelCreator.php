@@ -17,7 +17,7 @@ use Shopware\Core\Maintenance\MaintenanceException;
 /**
  * @deprecated tag:v6.7.0 - reason:becomes-internal
  */
-#[Package('core')]
+#[Package('discovery')]
 class SalesChannelCreator
 {
     /**

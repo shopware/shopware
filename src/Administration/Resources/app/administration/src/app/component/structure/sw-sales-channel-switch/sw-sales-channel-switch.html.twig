@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_switch %}
 <div class="sw-sales-channel-switch">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_switch_modal %}
     <sw-modal
         v-if="showUnsavedChangesModal"
@@ -9,14 +7,11 @@
         variant="small"
         @modal-close="onCloseChangesModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_switch_message %}
         <p>{{ $tc('sw-sales-channel-switch.messageModalUnsavedChanges') }}</p>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_switch_footer %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_switch_footer_button_close %}
             <sw-button
                 size="small"
@@ -26,7 +21,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_switch_footer_button_revert %}
             <sw-button
                 size="small"
@@ -36,7 +30,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_switch_footer_button_save %}
             <sw-button
                 variant="primary"
@@ -50,7 +43,6 @@
         {% endblock %}
     </sw-modal>
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_switch_select %}
     <sw-entity-single-select
         id="salesChannelSelect"

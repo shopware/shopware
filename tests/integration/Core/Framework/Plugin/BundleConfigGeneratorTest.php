@@ -25,19 +25,19 @@ class BundleConfigGeneratorTest extends TestCase
     protected function setUp(): void
     {
         $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
-        $this->configGenerator = $this->getContainer()->get(BundleConfigGenerator::class);
+        $this->configGenerator = static::getContainer()->get(BundleConfigGenerator::class);
     }
 
     protected function tearDown(): void
     {
-        $this->getContainer()->get(SourceResolver::class)->reset();
+        static::getContainer()->get(SourceResolver::class)->reset();
     }
 
     public function testGenerateAppConfigWithThemeAndScriptAndStylePaths(): void
     {
         $appPath = $this->fixturePath . 'apps/theme/';
         $this->loadAppsFromDir($appPath);
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
 
         if (mb_strpos($appPath, $projectDir) === 0) {
             // make relative
@@ -65,7 +65,7 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertNull($storefrontConfig['webpack']);
 
         // Style files can and need only be imported if storefront is installed
-        if ($this->getContainer()->has(StorefrontPluginRegistry::class)) {
+        if (static::getContainer()->has(StorefrontPluginRegistry::class)) {
             $appPath = 'src/Core/Framework/Test/Plugin/_fixture/apps/theme/';
             $expectedStyles = [
                 $appPath . 'Resources/app/storefront/src/scss/base.scss',
@@ -81,7 +81,7 @@ class BundleConfigGeneratorTest extends TestCase
         $this->loadAppsFromDir($appPath);
 
         $configs = $this->configGenerator->getConfig();
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
 
         static::assertArrayHasKey('SwagApp', $configs);
 
@@ -102,7 +102,7 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertNull($storefrontConfig['webpack']);
 
         // Style files can and need only be imported if storefront is installed
-        if ($this->getContainer()->has(StorefrontPluginRegistry::class)) {
+        if (static::getContainer()->has(StorefrontPluginRegistry::class)) {
             if (mb_strpos($appPath, $projectDir) === 0) {
                 // make relative
                 $appPath = ltrim(mb_substr((string) realpath($appPath), mb_strlen($projectDir)), '/');
@@ -139,7 +139,7 @@ class BundleConfigGeneratorTest extends TestCase
         $appConfig = $configs['SwagTest'];
         static::assertEquals(
             $appPath,
-            $this->getContainer()->getParameter('kernel.project_dir') . '/' . $appConfig['basePath']
+            static::getContainer()->getParameter('kernel.project_dir') . '/' . $appConfig['basePath']
         );
         static::assertEquals(['Resources/views'], $appConfig['views']);
         static::assertEquals('swag-test', $appConfig['technicalName']);

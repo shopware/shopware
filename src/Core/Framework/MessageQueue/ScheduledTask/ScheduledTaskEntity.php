@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class ScheduledTaskEntity extends Entity
 {
     use EntityIdTrait;
@@ -102,10 +102,13 @@ class ScheduledTaskEntity extends Entity
 
     public function isExecutionAllowed(): bool
     {
-        // If the status is failed, skipped or queued, the execution is still allowed, so retries are possible
+        // If the status is failed, skipped or queued, the execution is still allowed, so retries are possible.
+        // To ensure idempotency, even allow execution if the task is currently running.
+        // The messenger transport must ensure no concurrent execution happens.
         return $this->status === ScheduledTaskDefinition::STATUS_QUEUED
             || $this->status === ScheduledTaskDefinition::STATUS_FAILED
-            || $this->status === ScheduledTaskDefinition::STATUS_SKIPPED;
+            || $this->status === ScheduledTaskDefinition::STATUS_SKIPPED
+            || $this->status === ScheduledTaskDefinition::STATUS_RUNNING;
     }
 
     public function setStatus(string $status): void

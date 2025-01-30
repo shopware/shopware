@@ -50,14 +50,14 @@ class SalesChannelRequestContextResolverTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->currencyRepository = $this->getContainer()->get('currency.repository');
-        $this->contextService = $this->getContainer()->get(SalesChannelContextService::class);
+        $this->currencyRepository = static::getContainer()->get('currency.repository');
+        $this->contextService = static::getContainer()->get(SalesChannelContextService::class);
     }
 
     public function testRequestSalesChannelCurrency(): void
     {
         $this->createTestSalesChannel();
-        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $phpunit = $this;
         $currencyId = $this->getCurrencyId('USD');
@@ -67,7 +67,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
         $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
@@ -124,7 +124,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
     #[DataProvider('loginRequiredAnnotationData')]
     public function testLoginRequiredAnnotation(bool $doLogin, bool $isGuest, array $attributes, bool $pass): void
     {
-        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $currencyId = $this->getCurrencyId('USD');
 
@@ -163,7 +163,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
     public function testRequestAdminSalesChannelApiSource(): void
     {
         $this->createTestSalesChannel();
-        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $phpunit = $this;
         $currencyId = $this->getCurrencyId('USD');
@@ -174,7 +174,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createDefaultContext());
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
         $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
@@ -194,7 +194,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
     public function testImitatingUserIdWithCustomer(): void
     {
-        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $currencyId = $this->getCurrencyId('USD');
 
@@ -220,7 +220,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
     public function testImitatingUserIdClearWithoutCustomer(): void
     {
-        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $currencyId = $this->getCurrencyId('USD');
 
@@ -333,7 +333,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $customerId = $this->createCustomer($email, $isGuest);
 
         $token = Random::getAlphanumericString(32);
-        $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, ['customerId' => $customerId], TestDefaults::SALES_CHANNEL);
+        static::getContainer()->get(SalesChannelContextPersister::class)->save($token, ['customerId' => $customerId], TestDefaults::SALES_CHANNEL);
 
         return $token;
     }

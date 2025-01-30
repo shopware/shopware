@@ -147,7 +147,7 @@ class ProductDetailRouteTest extends TestCase
             ])
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
         $this->browser->request(
             'POST',
@@ -283,7 +283,7 @@ class ProductDetailRouteTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
     }
 
@@ -327,7 +327,7 @@ class ProductDetailRouteTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
     }
 

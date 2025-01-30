@@ -16,13 +16,13 @@
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry">
-            <argument type="tagged" tag="shopware.scheduled.task" />
+            <argument type="tagged_iterator" tag="shopware.scheduled.task" />
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="parameter_bag"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider">
-            <argument type="tagged" tag="shopware.scheduled.task" />
+            <argument type="tagged_iterator" tag="shopware.scheduled.task" />
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="lock.factory"/>
@@ -46,7 +46,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner">
-            <argument type="tagged" tag="messenger.message_handler"/>
+            <argument type="tagged_iterator" tag="messenger.message_handler"/>
             <argument type="service" id="scheduled_task.repository"/>
         </service>
 

@@ -67,6 +67,6 @@ class OrderDetailPageTest extends TestCase
 
     protected function getPageLoader(): AccountOrderDetailPageLoader
     {
-        return $this->getContainer()->get(AccountOrderDetailPageLoader::class);
+        return static::getContainer()->get(AccountOrderDetailPageLoader::class);
     }
 }

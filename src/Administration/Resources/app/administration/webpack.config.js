@@ -35,7 +35,7 @@ if (fs.existsSync(flagsPath)) {
 }
 
 const nodeMajor = process.versions.node.split('.')[0];
-const supportedNodeVersions = ['20', '21', '22'];
+const supportedNodeVersions = ['20', '21', '22', '23'];
 if (!supportedNodeVersions.includes(nodeMajor)) {
     console.log();
     console.log(chalk.red(`@Deprecated: You are using an incompatible Node.js version. Supported versions are ` + supportedNodeVersions.join(', ')));
@@ -49,6 +49,11 @@ const isProd = process.env.mode !== 'development';
 const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
 const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
 const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+const disableAdminImportsFromPlugins = process.env.DISABLE_ADMIN_IMPORTS_FROM_PLUGINS === '1' || process.env.DISABLE_ADMIN_IMPORTS_FROM_PLUGINS === 'true';
+
+if (buildOnlyExtensions && isDev) {
+    console.log(chalk.yellow('# Build only extensions is deactivated in development mode'));
+}
 
 if (isDev) {
     console.log(chalk.yellow('# Development mode is activated \u{1F6E0}'));
@@ -815,7 +820,9 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 return {
                     resolve: {
                         alias: {
-                            '@administration': path.join(__dirname, 'src'),
+                            ...disableAdminImportsFromPlugins ? {} : {
+                                '@administration': path.join(__dirname, 'src'),
+                            }
                         },
                     },
                 };
@@ -832,7 +839,8 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 filename: isDev ? 'js/[name].js' : 'static/js/[name].js',
                 chunkFilename: isDev ? 'js/[chunkhash].js' : 'static/js/[chunkhash].js',
                 globalObject: 'window',
-                chunkLoadingGlobal: `webpackJsonpPlugin${plugin.technicalName}`
+                chunkLoadingGlobal: `webpackJsonpPlugin${plugin.technicalName}`,
+                uniqueName: plugin.technicalName,
             },
 
             plugins: [
@@ -975,6 +983,6 @@ coreSvgInlineLoader.include.push(/@shopware-ag\/meteor-icon-kit\/icons/);
  * Export all single configs in a array. Webpack uses then the webpack-multi-compiler for isolated
  * builds for each configuration (core + plugins).
  */
-module.exports = buildOnlyExtensions
+module.exports = (buildOnlyExtensions && isProd)
     ? [...configsForPlugins]
     : [mergedCoreConfig, ...configsForPlugins];

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';

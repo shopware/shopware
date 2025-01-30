@@ -36,7 +36,7 @@ class UpsertAddressTest extends TestCase
             'id' => $ids->create('sales-channel'),
         ]);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->assignSalesChannelContext($this->browser);
 

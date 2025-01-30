@@ -19,7 +19,7 @@ class SourceTest extends TestCase
         $url = 'https://foo.bar';
         $shopId = 'foo';
         $appVersion = '1.0.0';
-        $inAppPurchases = ['purchase-1', 'purchase-2'];
+        $inAppPurchases = 'jwt-1';
 
         $source = new Source($url, $shopId, $appVersion, $inAppPurchases);
 

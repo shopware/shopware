@@ -32,13 +32,13 @@ class UninstallAppsStrategyTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
+        $this->shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
         $this->context = Context::createDefaultContext();
     }
 
     public function testGetName(): void
     {
-        $uninstallAppsResolver = $this->getContainer()->get(UninstallAppsStrategy::class);
+        $uninstallAppsResolver = static::getContainer()->get(UninstallAppsStrategy::class);
 
         static::assertSame(
             UninstallAppsStrategy::STRATEGY_NAME,
@@ -68,7 +68,7 @@ class UninstallAppsStrategyTest extends TestCase
         }
 
         $uninstallAppsResolver = new UninstallAppsStrategy(
-            $this->getContainer()->get('app.repository'),
+            static::getContainer()->get('app.repository'),
             $this->shopIdProvider,
             $themeLifecycleHandler
         );
@@ -101,7 +101,7 @@ class UninstallAppsStrategyTest extends TestCase
     private function getInstalledApp(Context $context): ?AppEntity
     {
         /** @var EntityRepository<AppCollection> $appRepo */
-        $appRepo = $this->getContainer()->get('app.repository');
+        $appRepo = static::getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('integration');

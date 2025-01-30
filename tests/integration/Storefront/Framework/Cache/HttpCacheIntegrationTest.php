@@ -35,7 +35,7 @@ class HttpCacheIntegrationTest extends TestCase
 
     private static string $originalHttpCacheValue;
 
-    public static function setupBeforeClass(): void
+    public static function setUpBeforeClass(): void
     {
         self::$originalHttpCacheValue = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] ?? '';
     }
@@ -46,7 +46,7 @@ class HttpCacheIntegrationTest extends TestCase
 
         KernelLifecycleManager::bootKernel();
 
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->beginTransaction();
     }
@@ -55,7 +55,7 @@ class HttpCacheIntegrationTest extends TestCase
     {
         $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = self::$originalHttpCacheValue;
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         static::assertEquals(
             1,
@@ -161,7 +161,7 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertEquals(\sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
 
-        $cacheInvalidator = $this->getContainer()->get(CacheInvalidator::class);
+        $cacheInvalidator = static::getContainer()->get(CacheInvalidator::class);
         $cacheInvalidator->invalidate(['my-custom-tag'], true);
 
         $response = $kernel->handle($request);
@@ -187,7 +187,7 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
 
         $ids = new IdsCollection();
-        $productRepo = $this->getContainer()->get('product.repository');
+        $productRepo = static::getContainer()->get('product.repository');
         // entity written event will execute the cache invalidation script, which will invalidate our custom tag
         $productRepo->create([
             (new ProductBuilder($ids, 'p1'))
@@ -209,7 +209,7 @@ class HttpCacheIntegrationTest extends TestCase
         $route = '/storefront/script/custom-cache-config';
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, function (ResponseEvent $event): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, function (ResponseEvent $event): void {
             static::assertEquals(5, $event->getResponse()->getMaxAge());
             static::assertEquals('logged-in', $event->getResponse()->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
         }, -1501);
@@ -226,19 +226,19 @@ class HttpCacheIntegrationTest extends TestCase
     private function createRequest(?string $url = null): Request
     {
         if ($url === null) {
-            $url = $this->getContainer()->get(Connection::class)->fetchOne('SELECT url FROM sales_channel_domain LIMIT 1');
+            $url = static::getContainer()->get(Connection::class)->fetchOne('SELECT url FROM sales_channel_domain LIMIT 1');
         }
 
         $request = Request::create($url);
 
         // resolves seo urls and detects storefront sales channels
-        return $this->getContainer()
+        return static::getContainer()
             ->get(RequestTransformerInterface::class)
             ->transform($request);
     }
 
     private function getCacheKernel(): HttpCacheKernel
     {
-        return $this->getContainer()->get('http_kernel.cache');
+        return static::getContainer()->get('http_kernel.cache');
     }
 }

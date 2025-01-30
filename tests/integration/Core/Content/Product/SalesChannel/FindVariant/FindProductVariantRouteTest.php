@@ -34,12 +34,12 @@ class FindProductVariantRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->repository = static::getContainer()->get('product.repository');
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create('test', TestDefaults::SALES_CHANNEL);
 
-        $this->findProductVariantRoute = $this->getContainer()->get(FindProductVariantRoute::class);
+        $this->findProductVariantRoute = static::getContainer()->get(FindProductVariantRoute::class);
 
         $this->ids = new IdsCollection();
 
@@ -145,23 +145,23 @@ class FindProductVariantRouteTest extends TestCase
         )->configuratorSetting(
             'L',
             'Size'
-        )->visibility()->price(10)->write($this->getContainer());
+        )->visibility()->price(10)->write(static::getContainer());
 
         (new ProductBuilder($this->ids, 'redXL', 10))->visibility()->parent('base')->price(10)->option(
             'Red',
             'Color'
-        )->option('XL', 'Size')->stock(10)->write($this->getContainer());
+        )->option('XL', 'Size')->stock(10)->write(static::getContainer());
         (new ProductBuilder($this->ids, 'greenXL', 10))->visibility()->parent('base')->price(10)->option(
             'Green',
             'Color'
-        )->option('XL', 'Size')->stock(10)->write($this->getContainer());
+        )->option('XL', 'Size')->stock(10)->write(static::getContainer());
         (new ProductBuilder($this->ids, 'redL', 10))->visibility()->parent('base')->price(10)->option(
             'Red',
             'Color'
-        )->option('L', 'Size')->stock(10)->write($this->getContainer());
+        )->option('L', 'Size')->stock(10)->write(static::getContainer());
         (new ProductBuilder($this->ids, 'greenL', 10))->visibility()->parent('base')->price(10)->option(
             'Green',
             'Color'
-        )->option('L', 'Size')->stock(10)->write($this->getContainer());
+        )->option('L', 'Size')->stock(10)->write(static::getContainer());
     }
 }

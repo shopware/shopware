@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-settings-salutation-detail.html.twig';
 

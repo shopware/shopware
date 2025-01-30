@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerCreatedByAdminRule::class)]
 #[Group('rules')]
 class CustomerCreatedByAdminRuleTest extends TestCase

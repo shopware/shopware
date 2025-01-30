@@ -81,8 +81,8 @@ class PreparedPaymentServiceTest extends TestCase
         PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
         PreparedTestPaymentHandler::$fail = false;
 
-        $this->paymentService = $this->getContainer()->get(PreparedPaymentService::class);
-        $this->orderTransactionStateHandler = $this->getContainer()->get(OrderTransactionStateHandler::class);
+        $this->paymentService = static::getContainer()->get(PreparedPaymentService::class);
+        $this->orderTransactionStateHandler = static::getContainer()->get(OrderTransactionStateHandler::class);
         $this->orderRepository = $this->getRepository(OrderDefinition::ENTITY_NAME);
         $this->customerRepository = $this->getRepository(CustomerDefinition::ENTITY_NAME);
         $this->orderTransactionRepository = $this->getRepository(OrderTransactionDefinition::ENTITY_NAME);
@@ -229,7 +229,7 @@ class PreparedPaymentServiceTest extends TestCase
 
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
-        return $this->getContainer()->get(SalesChannelContextFactory::class)
+        return static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [
                 SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]);
@@ -245,7 +245,7 @@ class PreparedPaymentServiceTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
+            'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -278,7 +278,7 @@ class PreparedPaymentServiceTest extends TestCase
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
-            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
+            'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'paymentMethodId' => $paymentMethodId,
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
@@ -369,7 +369,7 @@ class PreparedPaymentServiceTest extends TestCase
 
     private function getRepository(string $entityName): EntityRepository
     {
-        $repository = $this->getContainer()->get(\sprintf('%s.repository', $entityName));
+        $repository = static::getContainer()->get(\sprintf('%s.repository', $entityName));
         static::assertInstanceOf(EntityRepository::class, $repository);
 
         return $repository;

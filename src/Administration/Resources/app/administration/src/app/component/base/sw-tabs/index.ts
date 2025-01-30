@@ -5,7 +5,7 @@ import template from './sw-tabs.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -101,11 +101,34 @@ Component.register('sw-tabs', {
                                 })
                         );
                     }
+
+                    // eslint-disable-next-line max-len
+                    /* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call */
+                    let label = item.props?.title;
+                    let name = item.props?.name ?? item.props?.title;
+
+                    if (label === undefined) {
+                        // @ts-expect-error
+                        // Get label from default slot content of item
+                        const defaultSlot = item.children?.default?.()?.[0];
+                        // Check if default slot is Symbol(v-txt)
+                        if (defaultSlot?.type?.toString() === 'Symbol(v-txt)') {
+                            label = defaultSlot.children;
+                        }
+                    }
+
+                    if (name === undefined) {
+                        // Use label as name if name is not set
+                        name = label;
+                    }
+
+                    /* eslint-enable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access */
+
                     return {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                        label: item.props?.title,
+                        label,
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                        name: item.props?.name ?? item.props?.title,
+                        name,
                         onClick: () => {
                             if (item.props?.route) {
                                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -122,7 +145,7 @@ Component.register('sw-tabs', {
             return items;
         },
 
-        // eslint-disable-next-line @typescript-eslint/ban-types
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
         listeners(): Record<string, Function | Function[]> {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             if (this.isCompatEnabled('INSTANCE_LISTENERS')) {

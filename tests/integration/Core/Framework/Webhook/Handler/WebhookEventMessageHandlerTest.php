@@ -31,8 +31,8 @@ class WebhookEventMessageHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->webhookEventMessageHandler = $this->getContainer()->get(WebhookEventMessageHandler::class);
-        $this->getContainer()->get(SourceResolver::class)->reset();
+        $this->webhookEventMessageHandler = static::getContainer()->get(WebhookEventMessageHandler::class);
+        static::getContainer()->get(SourceResolver::class)->reset();
     }
 
     public function testSendSuccessful(): void
@@ -40,7 +40,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $appRepository->create([[
             'id' => $appId,
             'name' => 'SwagApp',
@@ -67,7 +67,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $webhookEventLogRepository = $this->getContainer()->get('webhook_event_log.repository');
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
         $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
 
@@ -120,7 +120,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $appRepository->create([[
             'id' => $appId,
             'name' => 'SwagApp',
@@ -147,7 +147,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $webhookEventLogRepository = $this->getContainer()->get('webhook_event_log.repository');
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
         $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
 
@@ -198,7 +198,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $appRepository->create([[
             'id' => $appId,
             'name' => 'SwagApp',
@@ -225,7 +225,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $webhookEventLogRepository = $this->getContainer()->get('webhook_event_log.repository');
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
         $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
 

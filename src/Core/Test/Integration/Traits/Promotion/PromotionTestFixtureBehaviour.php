@@ -75,7 +75,7 @@ trait PromotionTestFixtureBehaviour
                     'manufacturer' => ['name' => 'test'],
                     'tax' => $tax,
                     'visibilities' => [
-                        ['salesChannelId' => $context->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                        ['salesChannelId' => $context->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                     ],
                     'categories' => [
                         ['id' => Uuid::randomHex(), 'name' => 'Clothing'],
@@ -275,7 +275,7 @@ trait PromotionTestFixtureBehaviour
             'useCodes' => false,
             'useSetGroups' => false,
             'salesChannels' => [
-                ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
+                ['salesChannelId' => $context->getSalesChannelId(), 'priority' => 1],
             ],
         ], $data);
 
@@ -305,7 +305,7 @@ trait PromotionTestFixtureBehaviour
             'useCodes' => false,
             'useSetGroups' => true,
             'salesChannels' => [
-                ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
+                ['salesChannelId' => $context->getSalesChannelId(), 'priority' => 1],
             ],
         ];
 
@@ -380,7 +380,7 @@ trait PromotionTestFixtureBehaviour
             $scope,
             $fixedPrice,
             null,
-            $this->getContainer(),
+            static::getContainer(),
             $context,
             $considerAdvancedRules
         );
@@ -410,7 +410,7 @@ trait PromotionTestFixtureBehaviour
             $scope,
             $fixedPrice,
             null,
-            $this->getContainer(),
+            static::getContainer(),
             $context,
             false
         );

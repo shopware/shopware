@@ -3,7 +3,7 @@ import template from './sw-cms-section-actions.html.twig';
 import './sw-cms-section-actions.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -13,7 +13,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         section: {
-            type: Object as PropType<EntitySchema.Entity<'cms_section'>>,
+            type: Object as PropType<Entity<'cms_section'>>,
             required: true,
         },
 

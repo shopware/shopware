@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Create and verify customer group in the admin', { tag: '@CustomerGroups' }, async ({
+test('As an admin, I can create and verify customer groups in the admin.', { tag: '@CustomerGroups' }, async ({
     TestDataService,
     ShopAdmin,
     AdminCustomerGroupListing,
@@ -28,7 +28,7 @@ test('Create and verify customer group in the admin', { tag: '@CustomerGroups' }
     });
 
 });
-test('Customers must be able to register as a custom customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
+test('As a customer, I must be able to register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
     TestDataService,
     ShopAdmin,
     ShopCustomer,
@@ -38,22 +38,20 @@ test('Customers must be able to register as a custom customer group in the Store
     Register,
     CustomerGroupActivation,
 }) => {
-    const customer = {
-        email: IdProvider.getIdPair().uuid + '@test.com',
-        password: 'shopware',
-    };
+
+    const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
     const customerGroup = await TestDataService.createCustomerGroup();
 
     await test.step('Register the customer and activate it for the customer group', async () => {
         await ShopCustomer.goesTo(StorefrontCustomRegister.url(customerGroup.name));
-        await ShopCustomer.attemptsTo(Register(customer.email));
+        await ShopCustomer.attemptsTo(Register(customer));
         await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         const customerGroupAlert = await StorefrontAccount.getCustomerGroupAlert(customerGroup.name);
         await ShopCustomer.expects(customerGroupAlert).toContainText(customerGroup.name);
         await ShopAdmin.attemptsTo(CustomerGroupActivation(customer.email, customerGroup.name));
     });
 
-    await test.step('Login and verify the customer in the Storefront', async () => {
+    await test.step('Verify that the customer group request message is not displayed on the Storefront', async () => {
         await ShopCustomer.goesTo(StorefrontAccount.url());
         await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         await ShopCustomer.expects(StorefrontAccount.customerGroupRequestMessage).not.toBeVisible();
@@ -61,7 +59,7 @@ test('Customers must be able to register as a custom customer group in the Store
 
 });
 
-test('Commercial customers must be able to register as a custom customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
+test('As a commercial customer, I must be able to register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
     TestDataService,
     ShopAdmin,
     ShopCustomer,
@@ -71,24 +69,24 @@ test('Commercial customers must be able to register as a custom customer group i
     Register,
     CustomerGroupActivation,
 }) => {
-    const commercialCustomer = {
-        email: IdProvider.getIdPair().uuid + '@test.com',
-        password: 'shopware',
-    };
+
+    const uuid = IdProvider.getIdPair().uuid;
+    const customer = { isCommercial: true, email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
     const commercialCustomerGroup = await TestDataService.createCustomerGroup({ registrationOnlyCompanyRegistration: true });
 
     await test.step('Register the commercial customer and activate it for the customer group', async () => {
         await ShopCustomer.goesTo(StorefrontCustomRegister.url(commercialCustomerGroup.name));
-        await ShopCustomer.attemptsTo(Register(commercialCustomer.email, true));
-        await ShopCustomer.expects(StorefrontAccount.page.getByText(commercialCustomer.email, { exact: true })).toBeVisible();
+        await ShopCustomer.attemptsTo(Register(customer));
+        await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         const customerGroupAlert = await StorefrontAccount.getCustomerGroupAlert(commercialCustomerGroup.name);
         await ShopCustomer.expects(customerGroupAlert).toContainText(commercialCustomerGroup.name);
-        await ShopAdmin.attemptsTo(CustomerGroupActivation(commercialCustomer.email, commercialCustomerGroup.name));
+        await ShopAdmin.attemptsTo(CustomerGroupActivation(customer.email, commercialCustomerGroup.name));
     });
 
-    await test.step('Login and verify the commercial customer in the Storefront', async () => {
+    await test.step('Verify that the customer group request message is not displayed on the Storefront', async () => {
         await ShopCustomer.goesTo(StorefrontAccount.url());
-        await ShopCustomer.expects(StorefrontAccount.page.getByText(commercialCustomer.email, { exact: true })).toBeVisible();
+        await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
+        await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.vatRegNo)).toBeVisible();
         await ShopCustomer.expects(StorefrontAccount.customerGroupRequestMessage).not.toBeVisible();
     });
 

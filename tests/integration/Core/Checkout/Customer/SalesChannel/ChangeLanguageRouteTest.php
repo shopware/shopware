@@ -64,7 +64,7 @@ class ChangeLanguageRouteTest extends TestCase
     {
         $languageId = $this->getDeDeLanguageId();
 
-        $this->getContainer()->get('sales_channel.repository')->update(
+        static::getContainer()->get('sales_channel.repository')->update(
             [
                 [
                     'id' => $this->ids->get('sales-channel'),
@@ -94,7 +94,7 @@ class ChangeLanguageRouteTest extends TestCase
         static::assertArrayHasKey('success', $response);
 
         /** @var Connection $connection */
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $customer = $connection->fetchAllAssociative('SELECT * FROM customer WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
         static::assertEquals($languageId, Uuid::fromBytesToHex($customer[0]['language_id']));
@@ -121,7 +121,7 @@ class ChangeLanguageRouteTest extends TestCase
         static::assertEquals('The "language" entity with id "' . $languageId . '" does not exist.', $response['errors'][0]['detail']);
 
         /** @var Connection $connection */
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $customer = $connection->fetchAllAssociative('SELECT * FROM customer WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
         static::assertEquals(Defaults::LANGUAGE_SYSTEM, Uuid::fromBytesToHex($customer[0]['language_id']));

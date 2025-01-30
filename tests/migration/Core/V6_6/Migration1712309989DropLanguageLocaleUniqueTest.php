@@ -26,7 +26,7 @@ class Migration1712309989DropLanguageLocaleUniqueTest extends TestCase
     {
         Feature::skipTestIfInActive('v6.6.0.0', $this);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testGetCreationTimestamp(): void

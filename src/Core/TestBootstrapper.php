@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;
@@ -80,7 +80,7 @@ class TestBootstrapper
 
     public function getStaticAnalyzeKernel(): StaticAnalyzeKernel
     {
-        $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getContainer()->get(Connection::class));
+        $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getKernelContainer()->get(Connection::class));
 
         KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
 
@@ -102,8 +102,14 @@ class TestBootstrapper
         if ($this->classLoader !== null) {
             return $this->classLoader;
         }
-
         $classLoader = require $this->getProjectDir() . '/vendor/autoload.php';
+
+        // TODO: NEXT-39363 - Remove on league/oauth2-server update
+        // Workaround for league/event deprecation in php 8.4
+        $prev = error_reporting(0);
+        class_exists(\League\OAuth2\Server\AuthorizationServer::class);
+        error_clear_last();
+        error_reporting($prev);
 
         $this->addPluginAutoloadDev($classLoader);
 
@@ -381,7 +387,7 @@ class TestBootstrapper
         return KernelLifecycleManager::getKernel();
     }
 
-    private function getContainer(): ContainerInterface
+    private function getKernelContainer(): ContainerInterface
     {
         return $this->getKernel()->getContainer();
     }
@@ -389,7 +395,7 @@ class TestBootstrapper
     private function dbExists(): bool
     {
         try {
-            $connection = $this->getContainer()->get(Connection::class);
+            $connection = $this->getKernelContainer()->get(Connection::class);
             $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAllAssociative();
 
             return true;

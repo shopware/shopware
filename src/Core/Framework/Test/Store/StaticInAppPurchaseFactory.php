@@ -25,7 +25,9 @@ class StaticInAppPurchaseFactory
     {
         $inAppPurchase = new InAppPurchase(
             new InAppPurchaseProvider(
-                new StaticSystemConfigService(),
+                new StaticSystemConfigService([
+                    InAppPurchaseProvider::CONFIG_STORE_IAP_KEY => \json_encode(self::purchasesToJWTS($activePurchases), \JSON_THROW_ON_ERROR),
+                ]),
                 new JWTDecoder(),
                 new KeyFetcher(
                     new Client(),
@@ -48,5 +50,19 @@ class StaticInAppPurchaseFactory
         $reflection->setValue($inAppPurchase, $activePurchases);
 
         return $inAppPurchase;
+    }
+
+    /**
+     * @param array<string, array<int, string>> $activePurchases
+     *
+     * @return array<string, string>
+     */
+    private static function purchasesToJWTS(array $activePurchases): array
+    {
+        return \array_map(
+            /** @var array<int, string> $purchases */
+            static fn (array $purchases) => \md5(\json_encode($purchases, \JSON_THROW_ON_ERROR)),
+            $activePurchases
+        );
     }
 }

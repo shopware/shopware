@@ -36,7 +36,7 @@ class ProductExportControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product_export.repository');
+        $this->repository = static::getContainer()->get('product_export.repository');
         $this->context = Context::createDefaultContext();
     }
 
@@ -81,17 +81,17 @@ class ProductExportControllerTest extends TestCase
 
     public function testUtf8CsvExportWithTheme(): void
     {
-        if (!$this->getContainer()->has(ThemeService::class) || !$this->getContainer()->has('theme.repository')) {
+        if (!static::getContainer()->has(ThemeService::class) || !static::getContainer()->has('theme.repository')) {
             static::markTestSkipped('This test needs storefront to be installed.');
         }
 
-        $themeService = $this->getContainer()->get(ThemeService::class);
-        $themeRepo = $this->getContainer()->get('theme.repository');
+        $themeService = static::getContainer()->get(ThemeService::class);
+        $themeRepo = static::getContainer()->get('theme.repository');
 
         $salesChannelId = Uuid::randomHex();
         $salesChannelDomainId = Uuid::randomHex();
 
-        $this->getContainer()->get(Translator::class)->reset();
+        static::getContainer()->get(Translator::class)->reset();
 
         $client = $this->createSalesChannelBrowser(null, false, [
             'id' => $salesChannelId,
@@ -121,7 +121,7 @@ class ProductExportControllerTest extends TestCase
         $themeId = $themeRepo->searchIds($criteria, $context)->firstId();
         static::assertNotNull($themeId);
 
-        $this->getContainer()->get(Translator::class)->reset();
+        static::getContainer()->get(Translator::class)->reset();
 
         $themeService->assignTheme($themeId, $salesChannelId, $context, true);
 
@@ -156,7 +156,7 @@ class ProductExportControllerTest extends TestCase
             ],
         ]);
 
-        $this->getContainer()->get(Translator::class)->reset();
+        static::getContainer()->get(Translator::class)->reset();
 
         $themeService->assignTheme($themeId, $deSalesChannelId, $context);
         $productExportDe = $this->createCsvExport(
@@ -277,7 +277,7 @@ class ProductExportControllerTest extends TestCase
     protected function getSalesChannelDomain(): SalesChannelDomainEntity
     {
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('sales_channel_domain.repository');
+        $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         /** @var SalesChannelDomainEntity $salesChannelDomain */
         $salesChannelDomain = $repository->search(new Criteria(), $this->context)->first();
@@ -353,7 +353,7 @@ class ProductExportControllerTest extends TestCase
 
     private function createProductStream(string $salesChannelId): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts($salesChannelId), 'id'), 0, 2));
 
@@ -383,7 +383,7 @@ class ProductExportControllerTest extends TestCase
      */
     private function createProducts(string $salesChannelId): array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
         $products = [];

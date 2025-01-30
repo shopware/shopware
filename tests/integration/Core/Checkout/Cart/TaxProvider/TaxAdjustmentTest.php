@@ -17,7 +17,7 @@ class TaxAdjustmentTest extends TestCase
 
     public function testUsesCorrectCalculator(): void
     {
-        $adjustment = $this->getContainer()->get(TaxAdjustment::class);
+        $adjustment = static::getContainer()->get(TaxAdjustment::class);
         $ref = new \ReflectionClass(TaxAdjustment::class);
 
         static::assertTrue($ref->hasProperty('amountCalculator'));

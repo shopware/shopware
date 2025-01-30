@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
@@ -134,6 +134,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
                     'sw-field-error': true,
+                    'sw-provide': true,
                 },
             },
         });

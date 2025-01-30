@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\PluginException;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(PluginException::class)]
 class PluginExceptionTest extends TestCase
 {

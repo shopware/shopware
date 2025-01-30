@@ -37,7 +37,7 @@ final class EntitySchemaGeneratorTest extends TestCase
     public function testNoEntriesHaveBothProtectionHintsTrue(): void
     {
         $definitionRegistry = new DefinitionInstanceRegistry(
-            $this->getContainer(),
+            static::getContainer(),
             ['simple' => SimpleDefinition::class],
             ['simple' => 'simple.repository']
         );

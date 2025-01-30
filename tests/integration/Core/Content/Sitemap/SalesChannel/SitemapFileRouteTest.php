@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 #[Group('store-api')]
 class SitemapFileRouteTest extends TestCase
 {
@@ -38,13 +38,13 @@ class SitemapFileRouteTest extends TestCase
 
     public function testSitemapFiles(): void
     {
-        $fileSystem = $this->getContainer()->get('shopware.filesystem.sitemap');
+        $fileSystem = static::getContainer()->get('shopware.filesystem.sitemap');
         static::assertInstanceOf(FilesystemOperator::class, $fileSystem);
 
-        $sitemapLister = $this->getContainer()->get(SitemapLister::class);
+        $sitemapLister = static::getContainer()->get(SitemapLister::class);
         static::assertInstanceOf(SitemapLister::class, $sitemapLister);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create('', $this->ids->get('sales-channel'));
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create('', $this->ids->get('sales-channel'));
 
         $sitemapPath = 'sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId();
 

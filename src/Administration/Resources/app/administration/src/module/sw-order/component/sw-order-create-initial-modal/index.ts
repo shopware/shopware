@@ -1,4 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
@@ -14,7 +13,7 @@ interface PromotionCodeItem {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({

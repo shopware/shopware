@@ -31,7 +31,7 @@ trait PromotionIntegrationTestBehaviour
      */
     public function getContext(): SalesChannelContext
     {
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         return $this->context;
     }
@@ -43,7 +43,7 @@ trait PromotionIntegrationTestBehaviour
      */
     public function addProduct(string $productId, int $quantity, Cart $cart, CartService $cartService, SalesChannelContext $context): Cart
     {
-        $factory = $this->getContainer()->get(ProductLineItemFactory::class);
+        $factory = static::getContainer()->get(ProductLineItemFactory::class);
         $product = $factory->create(['id' => $productId, 'referencedId' => $productId, 'quantity' => $quantity], $context);
 
         return $cartService->add($cart, $product, $context);
@@ -88,7 +88,7 @@ trait PromotionIntegrationTestBehaviour
      */
     public function getSessionCodes(): array
     {
-        $mockFileSessionStorage = $this->getContainer()->get('session.storage.mock_file');
+        $mockFileSessionStorage = static::getContainer()->get('session.storage.mock_file');
         static::assertInstanceOf(SessionStorageInterface::class, $mockFileSessionStorage);
         $session = new Session($mockFileSessionStorage);
 

@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionException::class)]
 class PromotionExceptionTest extends TestCase
 {
@@ -115,5 +115,16 @@ class PromotionExceptionTest extends TestCase
         static::assertSame(PromotionException::CHECKOUT_UNKNOWN_PROMOTION_DISCOUNT_TYPE, $exception->getErrorCode());
         static::assertSame('Unknown promotion discount type detected: test', $exception->getMessage());
         static::assertSame(['type' => 'test'], $exception->getParameters());
+    }
+
+    public function testPromotionSetGroupNotFound(): void
+    {
+        $exception = PromotionException::promotionSetGroupNotFound('fooGroupId');
+
+        static::assertInstanceOf(PromotionException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::PROMOTION_SET_GROUP_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Promotion SetGroup "fooGroupId" has not been found!', $exception->getMessage());
+        static::assertSame(['id' => 'fooGroupId'], $exception->getParameters());
     }
 }

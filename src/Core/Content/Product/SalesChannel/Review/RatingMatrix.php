@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('inventory')]
+#[Package('after-sales')]
 class RatingMatrix extends Struct
 {
     private const MAX_POINTS = 5;

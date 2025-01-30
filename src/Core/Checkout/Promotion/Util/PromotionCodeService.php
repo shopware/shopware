@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @phpstan-type CodePattern array{prefix?: string, replacement: string, suffix?: string, replacementString: string, replacementArray: array<string>}
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionCodeService
 {
     final public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';

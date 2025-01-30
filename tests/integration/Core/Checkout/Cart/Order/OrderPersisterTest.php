@@ -51,10 +51,10 @@ class OrderPersisterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
-        $this->cartProcessor = $this->getContainer()->get(Processor::class);
-        $this->orderConverter = $this->getContainer()->get(OrderConverter::class);
-        $this->serializationCleaner = $this->getContainer()->get(CartSerializationCleaner::class);
+        $this->orderPersister = static::getContainer()->get(OrderPersister::class);
+        $this->cartProcessor = static::getContainer()->get(Processor::class);
+        $this->orderConverter = static::getContainer()->get(OrderConverter::class);
+        $this->serializationCleaner = static::getContainer()->get(CartSerializationCleaner::class);
     }
 
     public function testSave(): void
@@ -114,7 +114,7 @@ class OrderPersisterTest extends TestCase
                 ->setPriceDefinition(new AbsolutePriceDefinition(1))
         );
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $processedCart = $this->cartProcessor->process($cart, $context, new CartBehavior());

@@ -2,7 +2,7 @@ import './sw-order-promotion-field.scss';
 import template from './sw-order-promotion-field.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component } = Shopware;

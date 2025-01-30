@@ -18,7 +18,7 @@ class MySQLIncrementerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mysqlIncrementer = new MySQLIncrementer($this->getContainer()->get(Connection::class));
+        $this->mysqlIncrementer = new MySQLIncrementer(static::getContainer()->get(Connection::class));
         $this->mysqlIncrementer->setPool('user-activity-pool');
     }
 

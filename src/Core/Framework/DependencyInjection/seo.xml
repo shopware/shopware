@@ -41,7 +41,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry" lazy="true">
-            <argument type="tagged" tag="shopware.seo_url.route"/>
+            <argument type="tagged_iterator" tag="shopware.seo_url.route"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\EmptyPathInfoResolver" public="true" decorates="Shopware\Core\Content\Seo\SeoResolver" decoration-priority="-2000">
@@ -141,7 +141,7 @@
         <service id="shopware.seo_url.twig" class="Twig\Environment">
             <factory service="Shopware\Core\Content\Seo\SeoUrlTwigFactory" method="createTwigEnvironment"/>
             <argument type="service" id="slugify"/>
-            <argument type="tagged" tag="shopware.seo_url.twig.extension"/>
+            <argument type="tagged_iterator" tag="shopware.seo_url.twig.extension"/>
             <argument>%kernel.cache_dir%</argument>
         </service>
     </services>

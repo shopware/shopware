@@ -32,7 +32,7 @@ trait StorefrontSalesChannelTestHelper
         ]);
 
         /** @var Container $container */
-        $container = $this->getContainer();
+        $container = static::getContainer();
 
         /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = $container->get('sales_channel.repository');
@@ -73,7 +73,7 @@ trait StorefrontSalesChannelTestHelper
         ?string $categoryEntrypoint = null
     ): SalesChannelContext {
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('sales_channel.repository');
+        $repo = static::getContainer()->get('sales_channel.repository');
         $languageIds[] = $defaultLanguageId;
         $languageIds = array_unique($languageIds);
 
@@ -125,7 +125,7 @@ trait StorefrontSalesChannelTestHelper
     public function updateSalesChannelNavigationEntryPoint(string $id, string $categoryId): void
     {
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('sales_channel.repository');
+        $repo = static::getContainer()->get('sales_channel.repository');
 
         $repo->update([['id' => $id, 'navigationCategoryId' => $categoryId]], Context::createDefaultContext());
     }
@@ -133,7 +133,7 @@ trait StorefrontSalesChannelTestHelper
     private function createCustomerWithEmail(string $customerId, string $email, string $password, SalesChannelEntity $salesChannel): CustomerEntity
     {
         /** @var Container $container */
-        $container = $this->getContainer();
+        $container = static::getContainer();
 
         $defaultBillingAddress = Uuid::randomHex();
 
@@ -177,11 +177,11 @@ trait StorefrontSalesChannelTestHelper
 
     private function createNewContext(SalesChannelEntity $salesChannel): SalesChannelContext
     {
-        $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $factory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         $context = $factory->create(Uuid::randomHex(), $salesChannel->getId(), []);
 
-        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
         $ruleLoader->loadByToken($context, $context->getToken());
 
         return $context;

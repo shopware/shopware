@@ -63,7 +63,7 @@ class AppPayloadServiceHelperTest extends TestCase
         static::assertSame('https://shopware.com', $source->getUrl());
         static::assertSame($this->ids->get('shop-id'), $source->getShopId());
         static::assertSame('1.0.0', $source->getAppVersion());
-        static::assertSame(['purchase-1', 'purchase-2'], $source->getInAppPurchases());
+        static::assertSame('a6a4063ffda65516983ad40e8dc91db6', $source->getInAppPurchases());
     }
 
     public function testEncode(): void

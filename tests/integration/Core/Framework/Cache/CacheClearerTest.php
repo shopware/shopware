@@ -5,10 +5,13 @@ namespace Shopware\Tests\Integration\Core\Framework\Cache;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -16,7 +19,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -66,7 +72,7 @@ class CacheClearerTest extends TestCase
 
         static::assertNotContains($second->getCacheDir(), $oldCacheDirs);
 
-        $this->getContainer()->get(CacheClearer::class)->clear();
+        static::getContainer()->get(CacheClearer::class)->clear();
 
         foreach ($oldCacheDirs as $oldCacheDir) {
             static::assertFileDoesNotExist($oldCacheDir);
@@ -86,7 +92,7 @@ class CacheClearerTest extends TestCase
             true,
             KernelLifecycleManager::getClassLoader(),
             new StaticKernelPluginLoader(KernelLifecycleManager::getClassLoader()),
-            $this->getContainer()->get(Connection::class)
+            static::getContainer()->get(Connection::class)
         );
 
         // reset kernel class for further tests
@@ -105,17 +111,18 @@ class CacheClearerTest extends TestCase
 
         static::assertCount(1, $containerCaches);
 
-        $filesystem = $this->getContainer()->get('filesystem');
+        $filesystem = static::getContainer()->get('filesystem');
         $cacheClearer = new CacheClearer(
             [],
-            $this->getContainer()->get('cache_clearer'),
-            $this->getContainer()->get(CacheInvalidator::class),
+            static::getContainer()->get('cache_clearer'),
+            null,
+            static::getContainer()->get(CacheInvalidator::class),
             $filesystem,
             $cacheDir,
             'test',
             false,
-            $this->getContainer()->get('messenger.bus.shopware'),
-            $this->getContainer()->get('logger')
+            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get('logger')
         );
 
         $cacheClearer->clearContainerCache();
@@ -129,7 +136,7 @@ class CacheClearerTest extends TestCase
 
     public function testUrlGeneratorCacheGetsCleared(): void
     {
-        $cacheClearer = $this->getContainer()->get(CacheClearer::class);
+        $cacheClearer = static::getContainer()->get(CacheClearer::class);
 
         touch(\sprintf('%s%sUrlGenerator.php', $this->getKernel()->getCacheDir(), \DIRECTORY_SEPARATOR));
         touch(\sprintf('%s%sUrlGenerator.php.meta', $this->getKernel()->getCacheDir(), \DIRECTORY_SEPARATOR));
@@ -149,14 +156,15 @@ class CacheClearerTest extends TestCase
     {
         $cacheClearer = new CacheClearer(
             [],
-            $this->getContainer()->get('cache_clearer'),
-            $this->getContainer()->get(CacheInvalidator::class),
-            $this->getContainer()->get('filesystem'),
+            static::getContainer()->get('cache_clearer'),
+            null,
+            static::getContainer()->get(CacheInvalidator::class),
+            static::getContainer()->get('filesystem'),
             $this->getKernel()->getCacheDir(),
             'test',
             true,
-            $this->getContainer()->get('messenger.bus.shopware'),
-            $this->getContainer()->get('logger')
+            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get('logger')
         );
 
         touch(\sprintf('%s%sUrlGenerator.php', $this->getKernel()->getCacheDir(), \DIRECTORY_SEPARATOR));
@@ -171,5 +179,47 @@ class CacheClearerTest extends TestCase
         foreach ($urlGeneratorCacheFileFinder->getIterator() as $generatorFile) {
             static::assertFileExists($generatorFile->getRealPath());
         }
+    }
+
+    public function testClearHttpCache(): void
+    {
+        $reverseProxyCache = $this->createMock(AbstractReverseProxyGateway::class);
+        $reverseProxyCache->expects(static::once())->method('banAll');
+
+        $cacheClearer = new CacheClearer(
+            [],
+            $this->createMock(CacheClearerInterface::class),
+            $reverseProxyCache,
+            $this->createMock(CacheInvalidator::class),
+            new Filesystem(),
+            $this->getKernel()->getCacheDir(),
+            'test',
+            true,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(LoggerInterface::class),
+        );
+
+        $cacheClearer->clearHttpCache();
+    }
+
+    public function testClearHttpCacheWithoutReverseProxy(): void
+    {
+        $pool = $this->createMock(CacheItemPoolInterface::class);
+        $pool->expects(static::once())->method('clear');
+
+        $cacheClearer = new CacheClearer(
+            ['http' => $pool],
+            $this->createMock(CacheClearerInterface::class),
+            null,
+            $this->createMock(CacheInvalidator::class),
+            new Filesystem(),
+            $this->getKernel()->getCacheDir(),
+            'test',
+            true,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(LoggerInterface::class),
+        );
+
+        $cacheClearer->clearHttpCache();
     }
 }

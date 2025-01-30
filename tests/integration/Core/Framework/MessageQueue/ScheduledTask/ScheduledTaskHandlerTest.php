@@ -37,8 +37,8 @@ class ScheduledTaskHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
         $this->logger = $this->createMock(LoggerInterface::class);
     }
 
@@ -90,6 +90,7 @@ class ScheduledTaskHandlerTest extends TestCase
     public static function allowedStatus(): array
     {
         return [
+            [ScheduledTaskDefinition::STATUS_RUNNING],
             [ScheduledTaskDefinition::STATUS_QUEUED],
             [ScheduledTaskDefinition::STATUS_FAILED],
         ];
@@ -265,7 +266,6 @@ class ScheduledTaskHandlerTest extends TestCase
     public static function notAllowedStatus(): array
     {
         return [
-            [ScheduledTaskDefinition::STATUS_RUNNING],
             [ScheduledTaskDefinition::STATUS_SCHEDULED],
             [ScheduledTaskDefinition::STATUS_INACTIVE],
         ];

@@ -73,8 +73,8 @@ class PaymentServiceTest extends TestCase
     {
         Feature::skipTestIfActive('v6.7.0.0', $this);
 
-        $this->paymentService = $this->getContainer()->get(PaymentService::class);
-        $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
+        $this->paymentService = static::getContainer()->get(PaymentService::class);
+        $this->tokenFactory = static::getContainer()->get(JWTFactoryV2::class);
         $this->orderRepository = $this->getRepository(OrderDefinition::ENTITY_NAME);
         $this->customerRepository = $this->getRepository(CustomerDefinition::ENTITY_NAME);
         $this->orderTransactionRepository = $this->getRepository(OrderTransactionDefinition::ENTITY_NAME);
@@ -87,7 +87,7 @@ class PaymentServiceTest extends TestCase
     public function testHandlePaymentByOrderWithInvalidOrderId(): void
     {
         $orderId = Uuid::randomHex();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage(\sprintf('The order with id %s is invalid or could not be found.', $orderId));
@@ -360,7 +360,7 @@ class PaymentServiceTest extends TestCase
 
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
-        return $this->getContainer()->get(SalesChannelContextFactory::class)
+        return static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [
                 SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]);
@@ -501,7 +501,7 @@ class PaymentServiceTest extends TestCase
 
     private function getRepository(string $entityName): EntityRepository
     {
-        $repository = $this->getContainer()->get(\sprintf('%s.repository', $entityName));
+        $repository = static::getContainer()->get(\sprintf('%s.repository', $entityName));
         static::assertInstanceOf(EntityRepository::class, $repository);
 
         return $repository;
@@ -512,9 +512,9 @@ class PaymentServiceTest extends TestCase
      */
     private function getInitialOrderTransactionStateId(): string
     {
-        $this->getContainer()->get(InitialStateIdLoader::class)->reset();
+        static::getContainer()->get(InitialStateIdLoader::class)->reset();
 
-        return $this->getContainer()->get(InitialStateIdLoader::class)
+        return static::getContainer()->get(InitialStateIdLoader::class)
             ->get(OrderTransactionStates::STATE_MACHINE);
     }
 }

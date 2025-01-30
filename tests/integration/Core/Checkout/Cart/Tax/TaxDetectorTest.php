@@ -32,7 +32,7 @@ class TaxDetectorTest extends TestCase
         $customerGroup->setDisplayGross(true);
         $context->expects(static::once())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
 
-        $detector = $this->getContainer()->get(TaxDetector::class);
+        $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->useGross($context));
     }
 
@@ -43,7 +43,7 @@ class TaxDetectorTest extends TestCase
         $customerGroup->setDisplayGross(false);
         $context->expects(static::once())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
 
-        $detector = $this->getContainer()->get(TaxDetector::class);
+        $detector = static::getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->useGross($context));
     }
 
@@ -60,7 +60,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($country)
         );
 
-        $detector = $this->getContainer()->get(TaxDetector::class);
+        $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
     }
 
@@ -69,7 +69,7 @@ class TaxDetectorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         /** @var EntityRepository<CountryCollection> $countryRepository */
-        $countryRepository = $this->getContainer()->get('country.repository');
+        $countryRepository = static::getContainer()->get('country.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('iso', 'DE'));
         $criteria->setLimit(1);
@@ -107,7 +107,7 @@ class TaxDetectorTest extends TestCase
             $customer
         );
 
-        $taxDetector = $this->getContainer()->get(TaxDetector::class);
+        $taxDetector = static::getContainer()->get(TaxDetector::class);
 
         static::assertTrue($taxDetector->isNetDelivery($context));
     }
@@ -117,7 +117,7 @@ class TaxDetectorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         /** @var EntityRepository<CountryCollection> $countryRepository */
-        $countryRepository = $this->getContainer()->get('country.repository');
+        $countryRepository = static::getContainer()->get('country.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('iso', 'DE'));
         $criteria->setLimit(1);
@@ -140,7 +140,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($country)
         );
 
-        $detector = $this->getContainer()->get(TaxDetector::class);
+        $detector = static::getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));
     }
 
@@ -149,7 +149,7 @@ class TaxDetectorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         /** @var EntityRepository<CountryCollection> $countryRepository */
-        $countryRepository = $this->getContainer()->get('country.repository');
+        $countryRepository = static::getContainer()->get('country.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('iso', 'DE'));
         $criteria->setLimit(1);
@@ -188,7 +188,7 @@ class TaxDetectorTest extends TestCase
             $customer
         );
 
-        $detector = $this->getContainer()->get(TaxDetector::class);
+        $detector = static::getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));
     }
 
@@ -216,7 +216,7 @@ class TaxDetectorTest extends TestCase
             $customer
         );
 
-        $detector = $this->getContainer()->get(TaxDetector::class);
+        $detector = static::getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));
     }
 
@@ -225,7 +225,7 @@ class TaxDetectorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         /** @var EntityRepository<CountryCollection> $countryRepository */
-        $countryRepository = $this->getContainer()->get('country.repository');
+        $countryRepository = static::getContainer()->get('country.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('iso', 'DE'));
         $criteria->setLimit(1);
@@ -264,7 +264,7 @@ class TaxDetectorTest extends TestCase
             $customer
         );
 
-        $detector = $this->getContainer()->get(TaxDetector::class);
+        $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
     }
 
@@ -273,7 +273,7 @@ class TaxDetectorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         /** @var EntityRepository<CountryCollection> $countryRepository */
-        $countryRepository = $this->getContainer()->get('country.repository');
+        $countryRepository = static::getContainer()->get('country.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('iso', 'DE'));
         $criteria->setLimit(1);
@@ -296,7 +296,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($country)
         );
 
-        $detector = $this->getContainer()->get(TaxDetector::class);
+        $detector = static::getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));
     }
 }

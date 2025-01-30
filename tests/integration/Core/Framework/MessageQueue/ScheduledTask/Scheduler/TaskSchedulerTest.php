@@ -40,12 +40,12 @@ class TaskSchedulerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
+        $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
         $this->messageBus = $this->createMock(MessageBusInterface::class);
 
         $this->scheduler = new TaskScheduler($this->scheduledTaskRepo, $this->messageBus, new ParameterBag());
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testScheduleTasks(): void

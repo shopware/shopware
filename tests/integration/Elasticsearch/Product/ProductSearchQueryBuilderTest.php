@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -37,7 +38,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[CoversClass(ProductSearchQueryBuilder::class)]
 class ProductSearchQueryBuilderTest extends TestCase
 {
@@ -49,6 +50,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use SessionTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private Connection $connection;
@@ -57,9 +61,9 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->customFieldService = $this->getContainer()->get(CustomFieldService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->customFieldService = static::getContainer()->get(CustomFieldService::class);
     }
 
     protected function tearDown(): void
@@ -300,7 +304,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     /**
@@ -442,14 +446,14 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     private function registerCustomFieldsMapping(): void
     {
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
             $event->setMapping('evolvesTo', CustomFieldTypes::SELECT);
             $event->setMapping('evolvesText', CustomFieldTypes::TEXT);
         });
 
-        $definition = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
+        $definition = static::getContainer()->get(ElasticsearchIndexingUtils::class);
         $class = new \ReflectionClass($definition);
         $reflectionProperty = $class->getProperty('customFieldsTypes');
         $reflectionProperty->setAccessible(true);

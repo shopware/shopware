@@ -39,12 +39,12 @@ class WriterExtensionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->registerDefinition(ExtendedProductDefinition::class);
         $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
         $this->connection->rollBack();
 

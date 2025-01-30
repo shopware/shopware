@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -25,15 +26,18 @@ class AdministrationControllerTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $newLanguageId = $this->insertOtherLanguage();
         $this->createSearchConfigFieldForNewLanguage($newLanguageId);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testSnippetRoute(): void
@@ -312,7 +316,7 @@ class AdministrationControllerTest extends TestCase
 
     private function setCustomerBoundToSalesChannels(bool $value): void
     {
-        $this->getContainer()
+        static::getContainer()
             ->get(SystemConfigService::class)
             ->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $value);
     }
@@ -324,8 +328,7 @@ class AdministrationControllerTest extends TestCase
      */
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
-        /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
 
         $criteria = new Criteria();

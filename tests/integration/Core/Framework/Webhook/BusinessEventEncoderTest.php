@@ -31,13 +31,13 @@ class BusinessEventEncoderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->businessEventEncoder = $this->getContainer()->get(BusinessEventEncoder::class);
+        $this->businessEventEncoder = static::getContainer()->get(BusinessEventEncoder::class);
     }
 
     #[DataProvider('getEvents')]
     public function testScalarEvents(FlowEventAware $event): void
     {
-        $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');
+        $shopwareVersion = static::getContainer()->getParameter('kernel.shopware_version');
         static::assertTrue(
             method_exists($event, 'getEncodeValues'),
             'Event does not have method getEncodeValues'

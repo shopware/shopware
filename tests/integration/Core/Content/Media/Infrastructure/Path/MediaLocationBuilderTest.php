@@ -42,13 +42,13 @@ class MediaLocationBuilderTest extends TestCase
         $storage['id'] = $ids->getBytes('media');
         $storage['created_at'] = '2022-01-01';
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
         $queue->addInsert('media', $storage);
         $queue->execute();
 
         $dispatcher = new AssertingEventDispatcher($this, [MediaLocationEvent::class => 1]);
 
-        $builder = new SqlMediaLocationBuilder($dispatcher, $this->getContainer()->get(Connection::class));
+        $builder = new SqlMediaLocationBuilder($dispatcher, static::getContainer()->get(Connection::class));
 
         $locations = $builder->media($ids->getList(['media']));
 
@@ -73,14 +73,14 @@ class MediaLocationBuilderTest extends TestCase
         $thumbnail['id'] = $ids->getBytes('thumbnail');
         $thumbnail['media_id'] = $ids->getBytes('media');
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
         $queue->addInsert('media', $media);
         $queue->addInsert('media_thumbnail', $thumbnail);
         $queue->execute();
 
         $dispatcher = new AssertingEventDispatcher($this, [ThumbnailLocationEvent::class => 1]);
 
-        $builder = new SqlMediaLocationBuilder($dispatcher, $this->getContainer()->get(Connection::class));
+        $builder = new SqlMediaLocationBuilder($dispatcher, static::getContainer()->get(Connection::class));
 
         $locations = $builder->thumbnails($ids->getList(['thumbnail']));
 
@@ -97,7 +97,7 @@ class MediaLocationBuilderTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
 
         $queue->addInsert('media', [
             'id' => $ids->getBytes('media'),
@@ -127,7 +127,7 @@ class MediaLocationBuilderTest extends TestCase
             }
         });
 
-        $builder = new SqlMediaLocationBuilder($dispatcher, $this->getContainer()->get(Connection::class));
+        $builder = new SqlMediaLocationBuilder($dispatcher, static::getContainer()->get(Connection::class));
         $locations = $builder->thumbnails($ids->getList(['thumbnail']));
 
         static::assertArrayHasKey($ids->get('thumbnail'), $locations);
@@ -154,7 +154,7 @@ class MediaLocationBuilderTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
         $queue->addInsert('media', [
             'id' => $ids->getBytes('media'),
             'file_name' => 'test-file-1',
@@ -174,7 +174,7 @@ class MediaLocationBuilderTest extends TestCase
             }
         });
 
-        $builder = new SqlMediaLocationBuilder($dispatcher, $this->getContainer()->get(Connection::class));
+        $builder = new SqlMediaLocationBuilder($dispatcher, static::getContainer()->get(Connection::class));
 
         $locations = $builder->media($ids->getList(['media']));
 

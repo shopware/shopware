@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.7.0 - Use \Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory instead
  */
-#[Package('core')]
+#[Package('checkout')]
 class JWTConfigurationFactory
 {
     public static function createJWTConfiguration(
@@ -53,8 +53,7 @@ class JWTConfigurationFactory
 
         // add basic constraint for token signature validation
         $constraint = new SignedWith($signer, $publicKey);
-        $configuration->setValidationConstraints($constraint);
 
-        return $configuration;
+        return $configuration->withValidationConstraints($constraint);
     }
 }

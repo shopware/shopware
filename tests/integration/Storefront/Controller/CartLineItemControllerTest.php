@@ -44,14 +44,14 @@ class CartLineItemControllerTest extends TestCase
     {
         $contextToken = Uuid::randomHex();
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
         if ($productId && $available) {
             $this->createProduct($productId, $productNumber);
         }
         $request = $this->createRequest(['number' => $productNumber]);
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
-        $response = $this->getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
+        $response = static::getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
 
         $cart = $cartService->getCart($contextToken, $salesChannelContext);
 
@@ -64,7 +64,7 @@ class CartLineItemControllerTest extends TestCase
             static::assertNotNull($cartLineItem);
         } else {
             static::assertArrayHasKey('danger', $flashBagEntries);
-            static::assertSame($this->getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => \strip_tags($productNumber)]), $flashBagEntries['danger'][0]);
+            static::assertSame(static::getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => \strip_tags($productNumber)]), $flashBagEntries['danger'][0]);
             static::assertNull($cartLineItem);
         }
         static::assertSame(200, $response->getStatusCode());
@@ -74,7 +74,7 @@ class CartLineItemControllerTest extends TestCase
             return;
         }
 
-        $response = $this->getContainer()->get(CartLineItemController::class)->deleteLineItem($cart, $productId, $request, $salesChannelContext);
+        $response = static::getContainer()->get(CartLineItemController::class)->deleteLineItem($cart, $productId, $request, $salesChannelContext);
 
         $cartLineItem = $cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->get($productId);
 
@@ -97,12 +97,12 @@ class CartLineItemControllerTest extends TestCase
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
 
         $request = $this->createRequest(['number' => $productNumber]);
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
         $this->createProduct($productId, 'productContainer', $containerProductHasChildren);
 
         /** @var CartLineItemController $controller */
-        $controller = $this->getContainer()->get(CartLineItemController::class);
-        $controller->setContainer($this->getContainer());
+        $controller = static::getContainer()->get(CartLineItemController::class);
+        $controller->setContainer(static::getContainer());
 
         $response = $controller->addProductByNumber($request, $salesChannelContext);
 
@@ -118,7 +118,7 @@ class CartLineItemControllerTest extends TestCase
         } else {
             $flashes = $flashBag->get('danger');
             static::assertNotEmpty($flashes);
-            static::assertSame($this->getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => \strip_tags($productNumber)]), $flashes[0]);
+            static::assertSame(static::getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => \strip_tags($productNumber)]), $flashes[0]);
             static::assertNull($cartLineItem);
         }
         static::assertSame(200, $response->getStatusCode());
@@ -177,11 +177,11 @@ class CartLineItemControllerTest extends TestCase
     {
         $contextToken = Uuid::randomHex();
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
         $request = $this->createRequest(['code' => 'testCode']);
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
-        $this->getContainer()->get(CartLineItemController::class)->addPromotion(
+        static::getContainer()->get(CartLineItemController::class)->addPromotion(
             $cartService->getCart($contextToken, $salesChannelContext),
             $request,
             $salesChannelContext
@@ -190,7 +190,7 @@ class CartLineItemControllerTest extends TestCase
         $flashBagEntries = $this->getFlashBag()->all();
 
         static::assertArrayHasKey('danger', $flashBagEntries);
-        static::assertSame($this->getContainer()->get('translator')->trans('checkout.promotion-not-found', ['%code%' => \strip_tags('testCode')]), $flashBagEntries['danger'][0]);
+        static::assertSame(static::getContainer()->get('translator')->trans('checkout.promotion-not-found', ['%code%' => \strip_tags('testCode')]), $flashBagEntries['danger'][0]);
         static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
     }
 
@@ -206,7 +206,7 @@ class CartLineItemControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
         /** @var string $taxId */
-        $taxId = $this->getContainer()->get('tax.repository')->searchIds(new Criteria(), $context)->firstId();
+        $taxId = static::getContainer()->get('tax.repository')->searchIds(new Criteria(), $context)->firstId();
 
         $product = [
             'id' => $productId,
@@ -253,12 +253,12 @@ class CartLineItemControllerTest extends TestCase
                 ],
             ];
         }
-        $this->getContainer()->get('product.repository')->create([$product], $context);
+        static::getContainer()->get('product.repository')->create([$product], $context);
     }
 
     private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null): SalesChannelContext
     {
-        return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        return static::getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
             TestDefaults::SALES_CHANNEL,
             $paymentMethodId ? [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId] : []
@@ -273,7 +273,7 @@ class CartLineItemControllerTest extends TestCase
         $request = new Request([], $request);
         $request->setSession($this->getSession());
 
-        $requestStack = $this->getContainer()->get('request_stack');
+        $requestStack = static::getContainer()->get('request_stack');
         $requestStack->push($request);
 
         return $request;

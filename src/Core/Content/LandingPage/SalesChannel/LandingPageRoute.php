@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
@@ -21,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageRoute extends AbstractLandingPageRoute
 {
     /**
@@ -68,16 +67,12 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $resolverContext
         );
 
-        if (!$pages->has($pageId)) {
+        $cmsPage = $pages->first();
+        if ($cmsPage === null) {
             throw LandingPageException::notFound($pageId);
         }
 
-        $page = $pages->get($pageId);
-        if (!$page instanceof CmsPageEntity) {
-            throw LandingPageException::notFound($pageId);
-        }
-
-        $landingPage->setCmsPage($page);
+        $landingPage->setCmsPage($cmsPage);
 
         return new LandingPageRouteResponse($landingPage);
     }
@@ -88,7 +83,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
         $criteria->setTitle('landing-page::data');
 
         $criteria->addFilter(new EqualsFilter('active', true));
-        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
 
         $landingPage = $this->landingPageRepository
             ->search($criteria, $context)

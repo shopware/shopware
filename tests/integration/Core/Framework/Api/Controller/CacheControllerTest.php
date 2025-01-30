@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[Group('skip-paratest')]
 class CacheControllerTest extends TestCase
 {
@@ -28,13 +28,13 @@ class CacheControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->cache = $this->getContainer()->get('cache.object');
+        $this->cache = static::getContainer()->get('cache.object');
     }
 
     #[Group('slow')]
     public function testClearCacheEndpoint(): void
     {
-        $this->cache = $this->getContainer()->get('cache.object');
+        $this->cache = static::getContainer()->get('cache.object');
 
         $item = $this->cache->getItem('foo');
         $item->set('bar');
@@ -91,7 +91,7 @@ class CacheControllerTest extends TestCase
     public function testCacheIndexEndpointWithSkipParameter(): void
     {
         /** @var TraceableMessageBus $bus */
-        $bus = $this->getContainer()->get('messenger.bus.shopware');
+        $bus = static::getContainer()->get('messenger.bus.shopware');
         $bus->reset();
 
         $this->getBrowser()->request(
@@ -122,7 +122,7 @@ class CacheControllerTest extends TestCase
     public function testCacheIndexEndpointWithOnlyParameter(): void
     {
         /** @var TraceableMessageBus $bus */
-        $bus = $this->getContainer()->get('messenger.bus.shopware');
+        $bus = static::getContainer()->get('messenger.bus.shopware');
         $bus->reset();
 
         $this->getBrowser()->request(

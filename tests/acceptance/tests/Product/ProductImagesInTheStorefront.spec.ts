@@ -23,6 +23,7 @@ test('Shop customer should be able to see the product image in the Storefront.',
     Login,
     Logout,
 }) => {
+
     const product = await TestDataService.createBasicProduct();
     const media = await TestDataService.createMediaPNG();
 

@@ -25,9 +25,9 @@ class StreamConditionPropertyMappingTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productDefinition = $this->getContainer()->get(SalesChannelProductDefinition::class);
+        $this->productDefinition = static::getContainer()->get(SalesChannelProductDefinition::class);
 
-        $this->elasticDefinition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
+        $this->elasticDefinition = static::getContainer()->get(ElasticsearchProductDefinition::class);
     }
 
     public function testMappingHasConditionField(): void

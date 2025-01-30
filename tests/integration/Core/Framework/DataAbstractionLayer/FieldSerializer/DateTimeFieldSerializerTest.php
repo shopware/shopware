@@ -39,7 +39,7 @@ class DateTimeFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->serializer = $this->getContainer()->get(DateTimeFieldSerializer::class);
+        $this->serializer = static::getContainer()->get(DateTimeFieldSerializer::class);
         $this->field = new DateTimeField('date', 'date');
         $this->field->addFlags(new ApiAware(), new Required());
 

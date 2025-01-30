@@ -18,13 +18,13 @@ class TemplateIteratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->iterator = $this->getContainer()->get(TemplateIterator::class);
+        $this->iterator = static::getContainer()->get(TemplateIterator::class);
     }
 
     public function testIteratorDoesNotFullPath(): void
     {
         $templateList = iterator_to_array($this->iterator, false);
-        $bundles = $this->getContainer()->getParameter('kernel.bundles');
+        $bundles = static::getContainer()->getParameter('kernel.bundles');
         $shopwareBundles = [];
 
         foreach ($bundles as $bundleName => $bundleClass) {

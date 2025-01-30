@@ -4,7 +4,7 @@ import './sw-media-sidebar.scss';
 const { Filter, Context } = Shopware;
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -169,7 +169,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         async onFirstItemUpdated(newItem) {
             const firstItem = this.items[0];

@@ -1,11 +1,10 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import types from 'src/core/service/utils/types.utils';
 import type { AxiosResponse } from 'axios';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import EntityClass from './entity.data';
+import Entity from './entity.data';
 import Criteria from './criteria.data';
 import EntityCollection from './entity-collection.data';
 import type { Property } from './entity-definition.data';
@@ -235,7 +234,7 @@ export default class EntityHydrator {
             return true;
         });
 
-        const e = new EntityClass<EntityName>(id, entityName, data as unknown as EntitySchema.Entities[EntityName]);
+        const e = new Entity<EntityName>(id, entityName, data as unknown as EntitySchema.Entities[EntityName]);
 
         this.cache[cacheKey] = e as unknown as Entity<entityNames>;
 

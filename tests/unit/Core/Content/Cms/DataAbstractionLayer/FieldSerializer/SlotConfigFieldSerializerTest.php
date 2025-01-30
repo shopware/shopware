@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SlotConfigFieldSerializer::class)]
 class SlotConfigFieldSerializerTest extends TestCase
 {

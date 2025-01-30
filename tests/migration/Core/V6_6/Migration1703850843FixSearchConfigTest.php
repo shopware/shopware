@@ -17,7 +17,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1703850843FixSearchConfig::class)]
 class Migration1703850843FixSearchConfigTest extends TestCase
 {

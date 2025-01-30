@@ -32,7 +32,6 @@
       "titleSidebarItemFilterAffiliateCode": "Affiliate code",
       "titleSidebarItemFilterCampaignCode": "Campaign code",
       "buttonDelete": "Delete",
-      "buttonCancel": "Cancel",
       "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?",
       "labelManualOrder": "Created by admin"
     },
@@ -55,7 +54,6 @@
     "create": {
       "textNewOrder": "New order",
       "buttonSaveOrder": "Save order",
-      "buttonCancelOrder": "Cancel",
       "messageSaveError": "Order could not be saved.",
       "messageSwitchCustomerError": "An error occurred during switching customer",
       "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses",
@@ -351,6 +349,7 @@
       "labelMarkAsSent": "Mark as sent",
       "labelMarkAsUnsent": "Mark as unsent",
       "labelCreateNew": "Create new document",
+      "labelAvailableFormats": "Available formats",
       "messageEmptyTitle": "No documents created yet",
       "messageNoDocumentFound": "No documents found",
       "messageEmptySubline": "Manage documents here.",
@@ -407,7 +406,8 @@
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Total",
       "labelNoItems": "No credit shown",
-      "fileInputLabel": "Upload custom document"
+      "fileInputLabel": "Upload custom document",
+      "labelPreviewOnlyHtml": "HTML preview"
     },
     "documentSendModal": {
       "labelNumber": "Number",

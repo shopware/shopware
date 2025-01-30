@@ -62,7 +62,7 @@
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
-            <argument type="tagged" tag="tax.rule_type_filter"/>
+            <argument type="tagged_iterator" tag="tax.rule_type_filter"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="currency_country_rounding.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\BaseContextFactory"/>
@@ -115,6 +115,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack" />
         </service>
@@ -161,6 +162,7 @@
         <service id="Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">

@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookDispatcher implements EventDispatcherInterface
 {
     /**
@@ -28,6 +28,7 @@ class WebhookDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
+        // @deprecated tag:v6.7.0 - remove DISABLE_EXTENSIONS from if condition
         if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false) || !HookableEventFactory::isHookable($event)) {
             return $event;
         }

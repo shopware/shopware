@@ -30,7 +30,7 @@ class OpenNewTabResponseFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->factory = $this->getContainer()->get(OpenNewTabResponseFactory::class);
+        $this->factory = static::getContainer()->get(OpenNewTabResponseFactory::class);
         $app = new AppEntity();
         $app->setName('TestApp');
         $app->setId(Uuid::randomHex());

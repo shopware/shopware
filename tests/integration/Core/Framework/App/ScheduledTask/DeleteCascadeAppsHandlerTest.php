@@ -34,10 +34,10 @@ class DeleteCascadeAppsHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
-        $this->aclRoleRepo = $this->getContainer()->get('acl_role.repository');
-        $this->integrationRepo = $this->getContainer()->get('integration.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
+        $this->aclRoleRepo = static::getContainer()->get('acl_role.repository');
+        $this->integrationRepo = static::getContainer()->get('integration.repository');
     }
 
     public function testCanDelete(): void

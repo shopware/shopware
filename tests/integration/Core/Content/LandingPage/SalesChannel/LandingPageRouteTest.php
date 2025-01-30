@@ -192,7 +192,7 @@ class LandingPageRouteTest extends TestCase
 
         $data = array_merge($data, $override);
 
-        $this->getContainer()->get('landing_page.repository')
+        static::getContainer()->get('landing_page.repository')
             ->create([$data], Context::createDefaultContext());
     }
 }

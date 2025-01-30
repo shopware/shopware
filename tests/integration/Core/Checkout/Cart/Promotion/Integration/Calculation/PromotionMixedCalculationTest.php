@@ -42,10 +42,10 @@ class PromotionMixedCalculationTest extends TestCase
     {
         parent::setUp();
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->promotionRepository = $this->getContainer()->get('promotion.repository');
-        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->promotionRepository = static::getContainer()->get('promotion.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
     }
 
     /**
@@ -60,14 +60,14 @@ class PromotionMixedCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId1 = Uuid::randomHex();
         $promotionId2 = Uuid::randomHex();
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 60, 19, $this->getContainer(), $context);
+        $this->createTestFixtureProduct($productId, 60, 19, static::getContainer(), $context);
 
         // add our existing promotions
-        $this->createTestFixtureAbsolutePromotion($promotionId1, 'sale', 20, $this->getContainer());
-        $this->createTestFixturePercentagePromotion($promotionId2, '100off', 100, null, $this->getContainer());
+        $this->createTestFixtureAbsolutePromotion($promotionId1, 'sale', 20, static::getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId2, '100off', 100, null, static::getContainer());
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
@@ -95,13 +95,13 @@ class PromotionMixedCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $context);
+        $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $context);
 
         // add a new promotion black friday
-        $this->createTestFixturePercentagePromotion($promotionId, $code, 100, null, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 100, null, static::getContainer());
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
@@ -141,12 +141,12 @@ class PromotionMixedCalculationTest extends TestCase
         $code = 'BF19';
 
         // add 2 test products
-        $this->createTestFixtureProduct($productId1, 119, 19, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($productId2, 107, 7, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId1, 119, 19, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId2, 107, 7, static::getContainer(), $this->context);
 
         // add a new promotion
-        $this->createTestFixtureFixedDiscountPromotion($promotionId, 200, PromotionDiscountEntity::SCOPE_SET, $code, $this->getContainer(), $this->context);
-        $this->createSetGroupFixture('COUNT', 5, 'PRICE_ASC', $promotionId, $this->getContainer());
+        $this->createTestFixtureFixedDiscountPromotion($promotionId, 200, PromotionDiscountEntity::SCOPE_SET, $code, static::getContainer(), $this->context);
+        $this->createSetGroupFixture('COUNT', 5, 'PRICE_ASC', $promotionId, static::getContainer());
 
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
@@ -190,24 +190,24 @@ class PromotionMixedCalculationTest extends TestCase
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // add 4 test products
-        $this->createTestFixtureProduct($set1ProductId1, 10, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($set1ProductId2, 20, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($set2ProductId1, 30, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($set2ProductId2, 40, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($set1ProductId1, 10, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($set1ProductId2, 20, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($set2ProductId1, 30, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($set2ProductId2, 40, 10, static::getContainer(), $this->context);
 
         // add 2 test rules
-        $ruleId1 = $this->createRule('Group1Rule', [$set1ProductId1, $set1ProductId2], $this->getContainer());
-        $ruleId2 = $this->createRule('Group2Rule', [$set2ProductId1, $set2ProductId2], $this->getContainer());
+        $ruleId1 = $this->createRule('Group1Rule', [$set1ProductId1, $set1ProductId2], static::getContainer());
+        $ruleId2 = $this->createRule('Group2Rule', [$set2ProductId1, $set2ProductId2], static::getContainer());
 
         $groupId1 = 'c5dd14614714432cb145a2642d80fd23';
         $groupId2 = 'c1fb8da6d041481c962a1a9f62639c87';
 
         // add a new promotion and two setGroup discounts
-        $this->createTestFixtureSetGroupPromotion($promotionId, $code, $this->getContainer());
-        $this->createSetGroupWithRuleFixture($groupId1, 'COUNT', 4, 'PRICE_ASC', $promotionId, $ruleId1, $this->getContainer());
-        $this->createSetGroupWithRuleFixture($groupId2, 'COUNT', 4, 'PRICE_ASC', $promotionId, $ruleId2, $this->getContainer());
-        $discountId1 = $this->createSetGroupDiscount($promotionId, 1, $this->getContainer(), 100, null);
-        $discountId2 = $this->createSetGroupDiscount($promotionId, 2, $this->getContainer(), 100, null);
+        $this->createTestFixtureSetGroupPromotion($promotionId, $code, static::getContainer());
+        $this->createSetGroupWithRuleFixture($groupId1, 'COUNT', 4, 'PRICE_ASC', $promotionId, $ruleId1, static::getContainer());
+        $this->createSetGroupWithRuleFixture($groupId2, 'COUNT', 4, 'PRICE_ASC', $promotionId, $ruleId2, static::getContainer());
+        $discountId1 = $this->createSetGroupDiscount($promotionId, 1, static::getContainer(), 100, null);
+        $discountId2 = $this->createSetGroupDiscount($promotionId, 2, static::getContainer(), 100, null);
 
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
@@ -262,21 +262,21 @@ class PromotionMixedCalculationTest extends TestCase
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // add 3 test products
-        $this->createTestFixtureProduct($setProductId1, 10, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($setProductId2, 20, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($fooProductId, 50, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($setProductId1, 10, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($setProductId2, 20, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($fooProductId, 50, 10, static::getContainer(), $this->context);
 
         // add test rules
-        $ruleId = $this->createRule('Group1Rule', [$setProductId1, $setProductId2], $this->getContainer());
+        $ruleId = $this->createRule('Group1Rule', [$setProductId1, $setProductId2], static::getContainer());
 
         // add a new promotion and two setGroup discounts
-        $this->createTestFixtureSetGroupPromotion($promotionId, $code, $this->getContainer());
-        $this->createSetGroupWithRuleFixture(Uuid::randomHex(), 'COUNT', $groupCount, $groupSorting, $promotionId, $ruleId, $this->getContainer());
+        $this->createTestFixtureSetGroupPromotion($promotionId, $code, static::getContainer());
+        $this->createSetGroupWithRuleFixture(Uuid::randomHex(), 'COUNT', $groupCount, $groupSorting, $promotionId, $ruleId, static::getContainer());
 
         $discountId = $this->createSetGroupDiscount(
             $promotionId,
             1,
-            $this->getContainer(),
+            static::getContainer(),
             $percentage,
             null,
             PromotionDiscountEntity::TYPE_PERCENTAGE,
@@ -629,26 +629,26 @@ class PromotionMixedCalculationTest extends TestCase
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // add 4 test products
-        $this->createTestFixtureProduct($tshirt1, 5, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt2, 10, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt3, 15, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt4, 20, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt5, 25, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt6, 30, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt7, 35, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt8, 40, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt9, 45, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt1, 5, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt2, 10, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt3, 15, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt4, 20, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt5, 25, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt6, 30, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt7, 35, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt8, 40, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt9, 45, 10, static::getContainer(), $this->context);
 
         // add test rules
-        $ruleId = $this->createRule('Group1Rule', [$tshirt1, $tshirt2, $tshirt3, $tshirt4, $tshirt5, $tshirt6, $tshirt7, $tshirt8, $tshirt9], $this->getContainer());
+        $ruleId = $this->createRule('Group1Rule', [$tshirt1, $tshirt2, $tshirt3, $tshirt4, $tshirt5, $tshirt6, $tshirt7, $tshirt8, $tshirt9], static::getContainer());
 
         // add a new promotion and two setGroup discounts
-        $this->createTestFixtureSetGroupPromotion($promotionId, $code, $this->getContainer());
-        $this->createSetGroupWithRuleFixture(Uuid::randomHex(), 'COUNT', 3, 'PRICE_ASC', $promotionId, $ruleId, $this->getContainer());
+        $this->createTestFixtureSetGroupPromotion($promotionId, $code, static::getContainer());
+        $this->createSetGroupWithRuleFixture(Uuid::randomHex(), 'COUNT', 3, 'PRICE_ASC', $promotionId, $ruleId, static::getContainer());
         $discountId = $this->createSetGroupDiscount(
             $promotionId,
             1,
-            $this->getContainer(),
+            static::getContainer(),
             100,
             null,
             PromotionDiscountEntity::TYPE_PERCENTAGE,
@@ -713,26 +713,26 @@ class PromotionMixedCalculationTest extends TestCase
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // add 4 test products
-        $this->createTestFixtureProduct($tshirt1, 5, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt2, 10, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt3, 15, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt4, 20, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt5, 25, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt6, 30, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt7, 35, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt8, 40, 10, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($tshirt9, 45, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt1, 5, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt2, 10, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt3, 15, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt4, 20, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt5, 25, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt6, 30, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt7, 35, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt8, 40, 10, static::getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt9, 45, 10, static::getContainer(), $this->context);
 
         // add test rules
-        $ruleId = $this->createRule('Group1Rule', [$tshirt1, $tshirt2, $tshirt3, $tshirt4, $tshirt5, $tshirt6, $tshirt7, $tshirt8, $tshirt9], $this->getContainer());
+        $ruleId = $this->createRule('Group1Rule', [$tshirt1, $tshirt2, $tshirt3, $tshirt4, $tshirt5, $tshirt6, $tshirt7, $tshirt8, $tshirt9], static::getContainer());
 
         // add a new promotion and two setGroup discounts
-        $this->createTestFixtureSetGroupPromotion($promotionId, $code, $this->getContainer());
-        $this->createSetGroupWithRuleFixture(Uuid::randomHex(), 'COUNT', 3, 'PRICE_ASC', $promotionId, $ruleId, $this->getContainer());
+        $this->createTestFixtureSetGroupPromotion($promotionId, $code, static::getContainer());
+        $this->createSetGroupWithRuleFixture(Uuid::randomHex(), 'COUNT', 3, 'PRICE_ASC', $promotionId, $ruleId, static::getContainer());
         $discountId = $this->createSetGroupDiscount(
             $promotionId,
             1,
-            $this->getContainer(),
+            static::getContainer(),
             100,
             null,
             PromotionDiscountEntity::TYPE_PERCENTAGE,

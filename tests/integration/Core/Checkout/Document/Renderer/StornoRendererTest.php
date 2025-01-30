@@ -37,7 +37,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class StornoRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -62,7 +62,7 @@ class StornoRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -71,10 +71,10 @@ class StornoRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->stornoRenderer = $this->getContainer()->get(StornoRenderer::class);
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->stornoRenderer = static::getContainer()->get(StornoRenderer::class);
+        $this->cartService = static::getContainer()->get(CartService::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
     }
 
     /**
@@ -115,7 +115,7 @@ class StornoRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(StornoOrdersEvent::class, function (StornoOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
@@ -135,7 +135,7 @@ class StornoRendererTest extends TestCase
         static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
         $rendered = $processedTemplate->getSuccess()[$orderId];
         static::assertInstanceOf(RenderedDocument::class, $rendered);
-        static::assertStringContainsString('<html>', $rendered->getHtml());
+        static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
 
         $localeProvider = static::createMock(LanguageLocaleCodeProvider::class);

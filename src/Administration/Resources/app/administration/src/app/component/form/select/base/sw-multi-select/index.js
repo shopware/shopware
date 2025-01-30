@@ -4,7 +4,7 @@ const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -102,6 +102,11 @@ Component.register('sw-multi-select', {
                     return label.toLowerCase().includes(searchTerm.toLowerCase());
                 });
             },
+        },
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
         },
     },
 
@@ -246,6 +251,11 @@ Component.register('sw-multi-select', {
         onSelectCollapsed() {
             this.searchTerm = '';
             this.$refs.selectionList.blur();
+
+            // Focus on the input field when the select is collapsed
+            if (this.$refs.selectionList?.$refs?.swSelectInput) {
+                this.$refs.selectionList.$refs.swSelectInput.focus();
+            }
         },
 
         getKey(object, keyPath, defaultValue) {

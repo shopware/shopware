@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Message;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class DeleteFileMessage implements AsyncMessageInterface
 {
     private array $files = [];

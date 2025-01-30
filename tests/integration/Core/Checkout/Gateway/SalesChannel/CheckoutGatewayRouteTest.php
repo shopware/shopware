@@ -49,13 +49,13 @@ class CheckoutGatewayRouteTest extends TestCase
             ],
         ]);
 
-        $historyCollector = $this->getContainer()->get(GuzzleHistoryCollector::class);
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
         static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
         $historyCollector->resetHistory();
-        $mockHandler = $this->getContainer()->get(MockHandler::class);
+        $mockHandler = static::getContainer()->get(MockHandler::class);
         static::assertInstanceOf(MockHandler::class, $mockHandler);
         $mockHandler->reset();
-        $testServer = $this->getContainer()->get(TestAppServer::class);
+        $testServer = static::getContainer()->get(TestAppServer::class);
         static::assertInstanceOf(TestAppServer::class, $testServer);
         $testServer->reset();
     }
@@ -186,7 +186,7 @@ class CheckoutGatewayRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()
+        static::getContainer()
             ->get('app.repository')
             ->create([$app], Context::createDefaultContext());
 
@@ -207,7 +207,7 @@ class CheckoutGatewayRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()
+        static::getContainer()
             ->get('payment_method.repository')
             ->create($payments, Context::createDefaultContext());
     }

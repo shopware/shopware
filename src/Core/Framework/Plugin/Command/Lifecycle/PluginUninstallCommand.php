@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'plugin:uninstall',
     description: 'Uninstall a plugin',
 )]
-#[Package('core')]
+#[Package('framework')]
 class PluginUninstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'uninstall';

@@ -3,7 +3,7 @@ import template from './sw-checkbox-field.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -13,6 +13,20 @@ Component.register('sw-checkbox-field', {
     template,
 
     compatConfig: Shopware.compatConfig,
+
+    props: {
+        modelValue: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        value: {
+            type: Boolean,
+            required: false,
+            default: null,
+        },
+    },
 
     computed: {
         useMeteorComponent() {
@@ -39,6 +53,20 @@ Component.register('sw-checkbox-field', {
 
             return {};
         },
+
+        compatValue: {
+            get() {
+                if (this.value === null || this.value === undefined) {
+                    return this.modelValue;
+                }
+
+                return this.value;
+            },
+            set(value: string) {
+                this.$emit('update:value', value);
+                this.$emit('update:modelValue', value);
+            },
+        },
     },
 
     methods: {
@@ -52,6 +80,13 @@ Component.register('sw-checkbox-field', {
             }
 
             return this.$slots;
+        },
+
+        handleUpdateChecked(event: unknown) {
+            this.$emit('update:checked', event);
+
+            // Emit old event for backwards compatibility
+            this.$emit('update:value', event);
         },
     },
 });

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 import type { Module } from 'vuex';

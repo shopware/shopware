@@ -6,10 +6,17 @@
         "schemas": {
             "Customer": {
                 "type": "object",
+                "required": [
+                    "apiAlias",
+                    "activeBillingAddress",
+                    "activeShippingAddress"
+                ],
                 "properties": {
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["customer"]
+                        "enum": [
+                            "customer"
+                        ]
                     },
                     "activeBillingAddress": {
                         "$ref": "#/components/schemas/CustomerAddress"
@@ -18,7 +25,46 @@
                         "$ref": "#/components/schemas/CustomerAddress"
                     }
                 },
-                "required": ["apiAlias", "activeBillingAddress", "activeShippingAddress"]
+                "oneOf": [
+                    {
+                        "required": [
+                            "accountType"
+                        ],
+                        "properties": {
+                            "accountType": {
+                                "type": "string",
+                                "enum": [
+                                    "private"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "required": [
+                            "accountType",
+                            "vatIds",
+                            "company"
+                        ],
+                        "properties": {
+                            "accountType": {
+                                "type": "string",
+                                "enum": [
+                                    "business"
+                                ]
+                            },
+                            "vatIds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 1
+                            },
+                            "company": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ]
             }
         }
     }

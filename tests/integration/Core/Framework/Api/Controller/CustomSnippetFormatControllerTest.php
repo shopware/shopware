@@ -50,7 +50,7 @@ class CustomSnippetFormatControllerTest extends TestCase
     public function testGetSnippetsWithPlugins(): void
     {
         $plugin = new BundleWithCustomSnippet(true, __DIR__ . '/Fixtures/BundleWithCustomSnippet');
-        $pluginCollection = $this->getContainer()->get(KernelPluginCollection::class);
+        $pluginCollection = static::getContainer()->get(KernelPluginCollection::class);
         $pluginCollection->add($plugin);
 
         $url = '/api/_action/custom-snippet';

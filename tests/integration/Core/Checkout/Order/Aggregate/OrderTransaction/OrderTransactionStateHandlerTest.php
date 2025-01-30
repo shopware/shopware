@@ -42,10 +42,10 @@ class OrderTransactionStateHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
-        $this->orderTransactionStateHelper = $this->getContainer()->get(OrderTransactionStateHandler::class);
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
+        $this->orderTransactionStateHelper = static::getContainer()->get(OrderTransactionStateHandler::class);
     }
 
     /**
@@ -126,7 +126,7 @@ class OrderTransactionStateHandlerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -218,7 +218,7 @@ class OrderTransactionStateHandlerTest extends TestCase
     private function createOrderTransaction(string $orderId, Context $context): string
     {
         $transactionId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE);
 
         $transaction = [
             'id' => $transactionId,

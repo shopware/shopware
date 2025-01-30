@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class RemoveEventListener
 {
     /**

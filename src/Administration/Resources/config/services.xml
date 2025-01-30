@@ -47,6 +47,7 @@
             <argument type="service" id="parameter_bag"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.asset"/>
+            <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -157,12 +158,8 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Administration\Notification\Extension\IntegrationExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Administration\Notification\Extension\UserExtension">
-            <tag name="shopware.entity.extension"/>
+        <service id="Shopware\Administration\Notification\NotificationBulkEntityExtension">
+            <tag name="shopware.bulk.entity.extension"/>
         </service>
 
         <service id="Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfigSubscriber">

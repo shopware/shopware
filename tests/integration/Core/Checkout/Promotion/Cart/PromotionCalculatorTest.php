@@ -44,7 +44,7 @@ class PromotionCalculatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $this->promotionCalculator = $container->get(PromotionCalculator::class);
         $this->promotionRepository = $container->get(\sprintf('%s.repository', PromotionDefinition::ENTITY_NAME));
 

@@ -31,11 +31,11 @@ class LockValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $definition = $this->getContainer()->get(TestDefinition::class);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $definition = static::getContainer()->get(TestDefinition::class);
         static::assertInstanceOf(TestDefinition::class, $definition);
         $this->testDefinition = $definition;
-        $this->entityWriter = $this->getContainer()->get(EntityWriter::class);
+        $this->entityWriter = static::getContainer()->get(EntityWriter::class);
 
         $table = <<<EOF
 DROP TABLE IF EXISTS _test_lock;

@@ -41,7 +41,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
+        $this->newsletterRecipientRepository = static::getContainer()->get('newsletter_recipient.repository');
     }
 
     public function testNotLoggedin(): void

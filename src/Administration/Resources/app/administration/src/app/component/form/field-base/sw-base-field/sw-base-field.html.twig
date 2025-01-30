@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_base_field %}
 <div
     class="sw-field"
@@ -49,7 +48,9 @@
         v-if="hasHint"
         class="sw-field__hint"
     >
-        <slot name="hint"></slot>
+        <slot name="hint">
+            {{ $tc(hint) }}
+        </slot>
     </div>
 </div>
 {% endblock %}

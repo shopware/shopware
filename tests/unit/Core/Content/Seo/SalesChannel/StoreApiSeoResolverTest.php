@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[CoversClass(StoreApiSeoResolver::class)]
 class StoreApiSeoResolverTest extends TestCase
 {

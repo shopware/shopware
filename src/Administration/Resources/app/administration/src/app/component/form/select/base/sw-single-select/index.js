@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import './sw-single-select.scss';
@@ -95,6 +95,12 @@ Component.register('sw-single-select', {
             type: Boolean,
             required: false,
             default: false,
+        },
+
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
         },
     },
 

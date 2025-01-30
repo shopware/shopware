@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -31,10 +31,10 @@ class SeoResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
-        $this->seoResolver = $this->getContainer()->get(SeoResolver::class);
+        $this->seoUrlRepository = static::getContainer()->get('seo_url.repository');
+        $this->seoResolver = static::getContainer()->get(SeoResolver::class);
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM `sales_channel`');
 
         $this->deLanguageId = $this->getDeDeLanguageId();

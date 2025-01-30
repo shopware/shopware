@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -40,8 +39,8 @@ class CustomerTokenSubscriberTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testCustomerTokenSubscriber(): void
@@ -82,10 +81,10 @@ class CustomerTokenSubscriberTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getToken')->willReturn('test');
-        $context->method('getCustomer')->willReturn((new CustomerEntity())->assign(['id' => $customerId]));
+        $context->method('getCustomerId')->willReturn($customerId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
 
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $newToken = null;
 

@@ -12,7 +12,7 @@ use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class AssetPackageService
 {
     /**

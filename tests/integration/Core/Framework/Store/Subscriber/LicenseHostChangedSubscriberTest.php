@@ -25,12 +25,12 @@ class LicenseHostChangedSubscriberTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set('core.store.licenseHost', 'host');
         $systemConfigService->set('core.store.shopSecret', 'shop-s3cr3t');
 
         /** @var EntityRepository $userRepository */
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = static::getContainer()->get('user.repository');
 
         /** @var UserEntity $adminUser */
         $adminUser = $userRepository->search(new Criteria(), $context)->first();
@@ -72,7 +72,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
      */
     private function fetchAllAdminUsers(): array
     {
-        return $this->getContainer()->get(Connection::class)->executeQuery(
+        return static::getContainer()->get(Connection::class)->executeQuery(
             'SELECT * FROM user'
         )->fetchAllAssociative();
     }

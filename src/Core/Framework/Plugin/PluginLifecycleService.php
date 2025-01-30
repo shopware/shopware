@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -58,7 +59,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PluginLifecycleService
 {
     final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
@@ -143,7 +144,9 @@ class PluginLifecycleService
 
             $pluginBaseClass->install($installContext);
 
-            $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
+            if (!Feature::isActive('v6.7.0.0')) {
+                $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
+            }
 
             $this->runMigrations($installContext);
 
@@ -202,10 +205,18 @@ class PluginLifecycleService
             $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
         }
 
+        if (!$uninstallContext->keepUserData() && Feature::isActive('v6.7.0.0')) {
+            // plugin->uninstall() will remove the tables etc of the plugin,
+            // we drop the migrations before, so we can recover in case of errors by rerunning the migrations
+            $pluginBaseClass->removeMigrations();
+        }
+
         $pluginBaseClass->uninstall($uninstallContext);
 
         if (!$uninstallContext->keepUserData()) {
-            $pluginBaseClass->removeMigrations();
+            if (!Feature::isActive('v6.7.0.0')) {
+                $pluginBaseClass->removeMigrations();
+            }
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
         }
 
@@ -305,7 +316,10 @@ class PluginLifecycleService
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
-        $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
+        }
+
         $this->runMigrations($updateContext);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();

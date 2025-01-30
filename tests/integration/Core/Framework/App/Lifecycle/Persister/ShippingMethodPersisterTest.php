@@ -184,7 +184,7 @@ class ShippingMethodPersisterTest extends TestCase
 
     private function getApp(): AppEntity
     {
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('appShippingMethods.shippingMethod');
@@ -202,11 +202,11 @@ class ShippingMethodPersisterTest extends TestCase
         $manifest = Manifest::createFromXmlFile($manifestXml);
 
         $shippingMethodPersister = new ShippingMethodPersister(
-            $this->getContainer()->get('shipping_method.repository'),
-            $this->getContainer()->get('app_shipping_method.repository'),
-            $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get(SourceResolver::class),
+            static::getContainer()->get('shipping_method.repository'),
+            static::getContainer()->get('app_shipping_method.repository'),
+            static::getContainer()->get('media.repository'),
+            static::getContainer()->get(MediaService::class),
+            static::getContainer()->get(SourceResolver::class),
         );
 
         $shippingMethodPersister->updateShippingMethods($manifest, $appId, Defaults::LANGUAGE_SYSTEM, Context::createDefaultContext());

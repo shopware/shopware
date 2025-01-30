@@ -93,7 +93,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier">
-            <argument type="tagged" tag="shopware.legacy_encoder" />
+            <argument type="tagged_iterator" tag="shopware.legacy_encoder" />
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber">

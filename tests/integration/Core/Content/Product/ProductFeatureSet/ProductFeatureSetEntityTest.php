@@ -24,7 +24,7 @@ class ProductFeatureSetEntityTest extends TestCase
     #[DataProvider('definitionMethodProvider')]
     public function testEntityDefinitionIsComplete(string $method, string $returnValue): void
     {
-        $definition = $this->getContainer()->get(ProductFeatureSetDefinition::class);
+        $definition = static::getContainer()->get(ProductFeatureSetDefinition::class);
 
         static::assertTrue(method_exists($definition, $method));
         static::assertEquals($returnValue, $definition->$method()); /* @phpstan-ignore-line */
@@ -36,7 +36,7 @@ class ProductFeatureSetEntityTest extends TestCase
     #[TestWith(['features'])]
     public function testDefinitionFieldsAreComplete(string $field): void
     {
-        $definition = $this->getContainer()->get(ProductFeatureSetDefinition::class);
+        $definition = static::getContainer()->get(ProductFeatureSetDefinition::class);
 
         static::assertTrue($definition->getFields()->has($field));
     }
@@ -52,12 +52,12 @@ class ProductFeatureSetEntityTest extends TestCase
 
     public function testRepositoryIsWorking(): void
     {
-        static::assertInstanceOf(EntityRepository::class, $this->getContainer()->get('product_feature_set.repository'));
+        static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('product_feature_set.repository'));
     }
 
     public function testTranslationReferenceFieldIsCorrect(): void
     {
-        $translationsField = $this->getContainer()->get(ProductFeatureSetDefinition::class)->getField('translations');
+        $translationsField = static::getContainer()->get(ProductFeatureSetDefinition::class)->getField('translations');
 
         static::assertInstanceOf(TranslationsAssociationField::class, $translationsField);
         static::assertEquals(

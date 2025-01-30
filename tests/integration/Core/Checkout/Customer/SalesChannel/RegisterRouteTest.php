@@ -71,9 +71,9 @@ class RegisterRouteTest extends TestCase
         $this->addCountriesToSalesChannel([], $this->ids->get('sales-channel'));
 
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
     }
 
     public function testRegistration(): void
@@ -91,7 +91,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $result = $connection->fetchOne(
             'SELECT `payload` FROM `sales_channel_api_context` WHERE `customer_id` = :customerId ',
             [
@@ -137,10 +137,10 @@ class RegisterRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
+        static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
@@ -165,7 +165,7 @@ class RegisterRouteTest extends TestCase
     #[DataProvider('customerBoundToSalesChannelProvider')]
     public function testRegistrationWithCustomerScope(bool $isCustomerScoped, bool $hasGlobalAccount, bool $hasBoundAccount, bool $requestOnSameSalesChannel, int $expectedStatus): void
     {
-        $this->getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $isCustomerScoped);
+        static::getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $isCustomerScoped);
 
         if ($hasGlobalAccount || $hasBoundAccount) {
             $boundSalesChannel = $isCustomerScoped && $hasBoundAccount;
@@ -332,7 +332,7 @@ class RegisterRouteTest extends TestCase
 
     public function testDoubleOptin(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
 
@@ -426,14 +426,14 @@ class RegisterRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
+        static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
 
@@ -459,13 +459,13 @@ class RegisterRouteTest extends TestCase
 
     public function testDoubleOptinChangedUrl(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
         $systemConfig->set('core.loginRegistration.confirmationUrl', '/confirm/custom/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
 
         /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $this->addEventListener(
             $dispatcher,
@@ -501,7 +501,7 @@ class RegisterRouteTest extends TestCase
 
     public function testDoubleOptinGivenTokenIsNotLoggedin(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
 
@@ -538,7 +538,7 @@ class RegisterRouteTest extends TestCase
 
     public function testDoubleOptinWithHeaderToken(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
 
@@ -610,7 +610,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationWithRequestedGroup(): void
     {
-        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupRepository = static::getContainer()->get('customer_group.repository');
         $customerGroupRepository->create([
             [
                 'id' => $this->ids->create('group'),
@@ -644,11 +644,11 @@ class RegisterRouteTest extends TestCase
 
     public function testContextChangedBetweenRegistration(): void
     {
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create('test', $this->getSalesChannelApiSalesChannelId());
 
         $bag = new RequestDataBag($this->getRegistrationData());
-        $this->getContainer()->get(RegisterRoute::class)->register($bag, $context);
+        static::getContainer()->get(RegisterRoute::class)->register($bag, $context);
 
         static::assertNotSame('test', $context->getToken());
     }
@@ -693,7 +693,7 @@ class RegisterRouteTest extends TestCase
     public function testRegistrationWithAllowedAccountType(): void
     {
         /** @var string[] $accountTypes */
-        $accountTypes = $this->getContainer()->getParameter('customer.account_types');
+        $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
         $accountType = $accountTypes[array_rand($accountTypes)];
 
@@ -746,7 +746,7 @@ class RegisterRouteTest extends TestCase
     public function testRegistrationWithWrongAccountType(): void
     {
         /** @var string[] $accountTypes */
-        $accountTypes = $this->getContainer()->getParameter('customer.account_types');
+        $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
         $notAllowedAccountType = implode('', $accountTypes);
         $additionalData = [
@@ -938,7 +938,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        if ($this->getContainer()->get(SystemConfigService::class)->get('core.loginRegistration.vatIdFieldRequired', $this->getSalesChannelApiSalesChannelId())) {
+        if (static::getContainer()->get(SystemConfigService::class)->get('core.loginRegistration.vatIdFieldRequired', $this->getSalesChannelApiSalesChannelId())) {
             static::assertArrayHasKey('errors', $response);
         } else {
             static::assertSame('customer', $response['apiAlias']);
@@ -967,7 +967,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationBusinessAccountWithVatIdsNotMatchRegex(): void
     {
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->executeStatement('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->get('sales-channel')))]);
 
         $additionalData = [
@@ -1002,7 +1002,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationBusinessAccountWithVatIdsMatchRegex(): void
     {
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->executeStatement('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId())]);
 
         $additionalData = [
@@ -1258,7 +1258,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationWithExistingNotSpecifiedSalutation(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $registrationData = $this->getRegistrationData();
         unset($registrationData['salutationId']);
@@ -1290,7 +1290,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationToNotSpecifiedWithoutExistingSalutation(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $registrationData = $this->getRegistrationData();
         unset($registrationData['salutationId']);
@@ -1322,7 +1322,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationWithIdnEmail(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $registrationData = $this->getRegistrationData();
         $registrationData['email'] = 'teg-reg@exämple.com';
@@ -1431,7 +1431,7 @@ class RegisterRouteTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()
+        static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], Context::createDefaultContext());
 
@@ -1440,7 +1440,7 @@ class RegisterRouteTest extends TestCase
 
     private function createProductTestData(): void
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create([
             [
                 'id' => $this->ids->create('p1'),

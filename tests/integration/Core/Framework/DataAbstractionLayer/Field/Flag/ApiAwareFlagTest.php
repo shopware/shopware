@@ -27,8 +27,8 @@ class ApiAwareFlagTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
     }
 
     public function testReadWithoutPermissionForAdminSourceWithJsonApiType(): void
@@ -47,7 +47,6 @@ class ApiAwareFlagTest extends TestCase
         $browser->request('GET', $url);
 
         $response = $browser->getResponse();
-        static::assertNotNull($response);
         static::assertIsString($response->getContent());
 
         $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -77,7 +76,6 @@ class ApiAwareFlagTest extends TestCase
         $browser->request('GET', $url);
 
         $response = $browser->getResponse();
-        static::assertNotNull($response);
         static::assertIsString($response->getContent());
 
         $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -128,7 +126,6 @@ class ApiAwareFlagTest extends TestCase
 
         $browser->request('GET', $url);
         $response = $browser->getResponse();
-        static::assertNotNull($response);
         static::assertIsString($response->getContent());
 
         $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);

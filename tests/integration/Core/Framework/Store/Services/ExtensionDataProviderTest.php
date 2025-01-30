@@ -160,7 +160,7 @@ class ExtensionDataProviderTest extends TestCase
         ], $context);
 
         // update apps and set managed = true
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $ids = $appRepository->searchIds(new Criteria(), $context);
 
         $appRepository->update(

@@ -4,7 +4,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry">
-            <argument type="tagged" tag="shopware.rule.definition"/>
+            <argument type="tagged_iterator" tag="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\RuleIdMatcher"/>
@@ -55,7 +55,7 @@
 
         <service id="Shopware\Core\Framework\Rule\Api\RuleConfigController"
                  public="true">
-            <argument type="tagged" tag="shopware.rule.definition"/>
+            <argument type="tagged_iterator" tag="shopware.rule.definition"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

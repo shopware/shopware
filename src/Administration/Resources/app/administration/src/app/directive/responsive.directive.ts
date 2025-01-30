@@ -7,7 +7,7 @@ interface ResponsiveDirectiveBinding extends ObjectDirective {
 }
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * Directive for responsive element classes

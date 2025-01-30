@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsPageTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

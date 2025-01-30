@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleValidator implements EventSubscriberInterface
 {
     /**

@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
  *     appAclRoleId: string|null
  * }
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookLoader
 {
     public function __construct(private readonly Connection $connection)
@@ -67,7 +67,7 @@ class WebhookLoader
     /**
      * @return list<Webhook>
      */
-    public function getWebhooksForEvent(string $eventName): array
+    public function getWebhooks(): array
     {
         $sql = <<<'SQL'
             SELECT
@@ -86,14 +86,10 @@ class WebhookLoader
             FROM webhook w
             LEFT JOIN app a ON (a.id = w.app_id)
             WHERE w.active = 1
-                AND event_name = :event
             GROUP BY event_name, url, only_live_version
         SQL;
 
-        $webhooks = $this->connection->fetchAllAssociative(
-            $sql,
-            ['event' => $eventName]
-        );
+        $webhooks = $this->connection->fetchAllAssociative($sql);
 
         foreach ($webhooks as $k => $webhook) {
             $webhooks[$k]['appActive'] = (bool) $webhook['appActive'];

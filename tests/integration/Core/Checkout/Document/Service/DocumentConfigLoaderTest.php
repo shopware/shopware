@@ -18,7 +18,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentConfigLoaderTest extends TestCase
 {
     use DocumentTrait;
@@ -37,7 +37,7 @@ class DocumentConfigLoaderTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -45,7 +45,7 @@ class DocumentConfigLoaderTest extends TestCase
             ]
         );
 
-        $this->documentConfigLoader = $this->getContainer()->get(DocumentConfigLoader::class);
+        $this->documentConfigLoader = static::getContainer()->get(DocumentConfigLoader::class);
     }
 
     protected function tearDown(): void
@@ -61,7 +61,7 @@ class DocumentConfigLoaderTest extends TestCase
         $globalConfig['displayCompanyAddress'] = true;
         $this->upsertBaseConfig($globalConfig, 'invoice');
 
-        $salesChannelId = $this->salesChannelContext->getSalesChannel()->getId();
+        $salesChannelId = $this->salesChannelContext->getSalesChannelId();
         $config = $this->documentConfigLoader->load('invoice', $salesChannelId, $this->context);
 
         $config = $config->jsonSerialize();
@@ -87,7 +87,7 @@ class DocumentConfigLoaderTest extends TestCase
             'pageSize' => 'a5',
         ]);
 
-        $salesChannelId = $this->salesChannelContext->getSalesChannel()->getId();
+        $salesChannelId = $this->salesChannelContext->getSalesChannelId();
         $this->upsertBaseConfig($salesChannelConfig->jsonSerialize(), InvoiceRenderer::TYPE, $salesChannelId);
 
         $config = $this->documentConfigLoader->load(InvoiceRenderer::TYPE, $salesChannelId, $this->context);

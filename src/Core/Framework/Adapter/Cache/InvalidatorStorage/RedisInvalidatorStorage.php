@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class RedisInvalidatorStorage extends AbstractInvalidatorStorage
 {
     private const KEY = 'invalidation';

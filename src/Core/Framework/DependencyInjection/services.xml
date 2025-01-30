@@ -120,6 +120,12 @@ frame-ancestors 'none';
             <tag name="shopware.migration_source"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_8"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">core.V6_8</argument>
+            <tag name="shopware.migration_source"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\MigrationSource.null"
                  class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">null</argument>
@@ -136,7 +142,7 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
-            <argument type="tagged" tag="shopware.migration_source"/>
+            <argument type="tagged_iterator" tag="shopware.migration_source"/>
             <argument type="service" id="logger"/>
         </service>
 
@@ -206,7 +212,7 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Routing\RouteScopeListener">
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
             <argument type="service" id="request_stack"/>
-            <argument type="tagged" tag="shopware.route_scope_whitelist"/>
+            <argument type="tagged_iterator" tag="shopware.route_scope_whitelist"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -301,7 +307,7 @@ frame-ancestors 'none';
         </service>
 
         <service id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory" public="true">
-            <argument type="tagged" tag="shopware.snippet.filter"/>
+            <argument type="tagged_iterator" tag="shopware.snippet.filter"/>
         </service>
 
         <!--SnippetFilters-->
@@ -346,7 +352,7 @@ frame-ancestors 'none';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder">
-            <argument type="tagged" tag="shopware.twig.hierarchy_builder"/>
+            <argument type="tagged_iterator" tag="shopware.twig.hierarchy_builder"/>
         </service>
 
 
@@ -497,7 +503,7 @@ frame-ancestors 'none';
         </service>
 
         <service id="Shopware\Core\Framework\Routing\RouteScopeRegistry">
-            <argument type="tagged" tag="shopware.route_scope"/>
+            <argument type="tagged_iterator" tag="shopware.route_scope"/>
         </service>
 
         <!-- Logging -->

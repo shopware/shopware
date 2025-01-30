@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Subscriber\UpdateSubscriber;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 
@@ -24,14 +26,14 @@ class UpdateSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM `theme`');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM `theme`');
     }
 
     public function testCompilesAllThemes(): void
     {
         $themeService = $this->createMock(ThemeService::class);
         $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();
 
@@ -75,8 +77,8 @@ class UpdateSubscriberTest extends TestCase
         $themeService = $this->createMock(ThemeService::class);
         $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
 
-        /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();
 
@@ -98,9 +100,9 @@ class UpdateSubscriberTest extends TestCase
      */
     private function setupThemes(Context $context): array
     {
-        /** @var EntityRepository $themeRepository */
-        $themeRepository = $this->getContainer()->get('theme.repository');
-        $themeSalesChannelRepository = $this->getContainer()->get('theme_sales_channel.repository');
+        /** @var EntityRepository<ThemeCollection> $themeRepository */
+        $themeRepository = static::getContainer()->get('theme.repository');
+        $themeSalesChannelRepository = static::getContainer()->get('theme_sales_channel.repository');
 
         $parentThemeId = Uuid::randomHex();
         $otherThemeId = Uuid::randomHex();

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class InstallerException extends \RuntimeException
 {
     public static function cannotFindShopwareInstallation(): self

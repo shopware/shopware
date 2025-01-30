@@ -30,7 +30,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $email = 'john.doe@example.com';
 
         $salesChannelContext1 = $this->createSalesChannelContext();
-        $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannel()->getId(), $email);
+        $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannelId(), $email);
 
         $salesChannelParameters = [
             'domains' => [
@@ -53,7 +53,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $validation = new DataValidationDefinition('customer.email.update');
         $validation->add('email', $constraint);
 
-        $validator = $this->getContainer()->get(DataValidator::class);
+        $validator = static::getContainer()->get(DataValidator::class);
         $validator->validate(['email' => $email], $validation);
     }
 
@@ -62,7 +62,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $email = 'john.doe@example.com';
 
         $salesChannelContext1 = $this->createSalesChannelContext();
-        $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannel()->getId(), $email);
+        $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannelId(), $email);
 
         $constraint = new CustomerEmailUnique([
             'context' => $salesChannelContext1->getContext(),
@@ -73,7 +73,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
 
         $validation->add('email', $constraint);
 
-        $validator = $this->getContainer()->get(DataValidator::class);
+        $validator = static::getContainer()->get(DataValidator::class);
 
         try {
             $validator->validate([
@@ -96,7 +96,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $email = 'john.doe@example.com';
 
         $salesChannelContext1 = $this->createSalesChannelContext();
-        $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannel()->getId(), $email);
+        $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannelId(), $email);
 
         $constraint = new CustomerEmailUnique([
             'context' => $salesChannelContext1->getContext(),
@@ -107,7 +107,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
 
         $validation->add('email', $constraint);
 
-        $validator = $this->getContainer()->get(DataValidator::class);
+        $validator = static::getContainer()->get(DataValidator::class);
 
         try {
             $validator->validate([
@@ -163,7 +163,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
-        $this->getContainer()
+        static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], Context::createDefaultContext());
 

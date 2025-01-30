@@ -40,8 +40,8 @@ class ProductExportValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productExportRepository = $this->getContainer()->get('product_export.repository');
-        $this->service = $this->getContainer()->get(ProductExportGenerator::class);
+        $this->productExportRepository = static::getContainer()->get('product_export.repository');
+        $this->service = static::getContainer()->get(ProductExportGenerator::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -81,7 +81,7 @@ class ProductExportValidatorTest extends TestCase
     private function getSalesChannelId(): string
     {
         /** @var EntityRepository<SalesChannelCollection> $repository */
-        $repository = $this->getContainer()->get('sales_channel.repository');
+        $repository = static::getContainer()->get('sales_channel.repository');
 
         $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelEntity::class, $first);
@@ -92,7 +92,7 @@ class ProductExportValidatorTest extends TestCase
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
         /** @var EntityRepository<SalesChannelDomainCollection> $repository */
-        $repository = $this->getContainer()->get('sales_channel_domain.repository');
+        $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
 
@@ -136,7 +136,7 @@ class ProductExportValidatorTest extends TestCase
 
     private function createProductStream(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
@@ -166,7 +166,7 @@ class ProductExportValidatorTest extends TestCase
      */
     private function createProducts(): array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
         $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();

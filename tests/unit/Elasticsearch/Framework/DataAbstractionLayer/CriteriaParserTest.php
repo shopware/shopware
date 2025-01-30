@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -33,6 +34,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
+use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -114,6 +117,27 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
+     * @param array<mixed> $expectedEsStats
+     */
+    #[DataProvider('parseStatsDataProvider')]
+    public function testParseStatsAggregation(string $fieldName, array $expectedEsStats): void
+    {
+        $aggs = new StatsAggregation('fooStats', $fieldName);
+
+        $definition = $this->getDefinition();
+
+        $parser = new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            $this->createMock(CustomFieldService::class),
+        );
+
+        $esAgg = $parser->parseAggregation($aggs, $definition, Context::createDefaultContext());
+
+        static::assertInstanceOf(\OpenSearchDSL\Aggregation\Metric\StatsAggregation::class, $esAgg);
+        static::assertSame($expectedEsStats, $esAgg->toArray());
+    }
+
+    /**
      * @param array<mixed> $expectedEsFilter
      */
     #[DataProvider('parseFilterDataProvider')]
@@ -156,6 +180,97 @@ class CriteriaParserTest extends TestCase
         $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->buildAccessor($definition, $field, $context);
 
         static::assertSame($expectedAccessor, $accessor);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<mixed>}>
+     */
+    public static function parseStatsDataProvider(): iterable
+    {
+        yield 'cheapest_price stats aggregation' => [
+            'cheapestPrice',
+            [
+                'stats' => [
+                    'script' => [
+                        'source' => <<<EOT
+double getPrice(def accessors, def doc, def decimals, def round, def multiplier) {
+    for (accessor in accessors) {
+        def key = accessor['key'];\n
+        if (!doc.containsKey(key) || doc[key].empty) {
+            continue;
+        }\n
+        def factor = accessor['factor'];
+        def value = doc[key].value * factor;\n
+        value = Math.round(value * decimals);
+        value = (double) value / decimals;\n
+        if (!round) {
+            return (double) value;
+        }\n
+        value = Math.round(value * multiplier);\n
+        value = (double) value / multiplier;\n
+        return (double) value;
+    }\n
+    return 0;
+}\n
+return getPrice(params['accessors'], doc, params['decimals'], params['round'], params['multiplier']);\n
+EOT,
+                        'lang' => 'painless',
+                        'params' => [
+                            'accessors' => [
+                                [
+                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross',
+                                    'factor' => 1,
+                                ],
+                            ],
+                            'decimals' => 100,
+                            'round' => true,
+                            'multiplier' => 100.0,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'cheapest_price_percentage stats aggregation' => [
+            'cheapestPrice.percentage',
+            [
+                'stats' => [
+                    'script' => [
+                        'source' => <<<EOT
+double getPercentage(def accessors, def doc) {
+    for (accessor in accessors) {
+        def key = accessor['key'];
+        if (!doc.containsKey(key) || doc[key].empty) {
+            continue;
+        }\n
+        return (double) doc[key].value;
+    }\n
+    return 0;
+}\n
+return getPercentage(params['accessors'], doc);\n
+EOT,
+                        'lang' => 'painless',
+                        'params' => [
+                            'accessors' => [
+                                [
+                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
+                                    'factor' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'other field stats aggregation' => [
+            'name',
+            [
+                'stats' => [
+                    'field' => 'name.2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                ],
+            ],
+        ];
     }
 
     /**
@@ -1066,12 +1181,36 @@ class CriteriaParserTest extends TestCase
                 ],
             ],
         ];
+
+        yield 'translated property of related entity with a name that doesn\'t exist in the product definition' => [
+            new EqualsFilter('unit.shortCode', 'value'),
+            [
+                'nested' => [
+                    'path' => 'unit',
+                    'query' => [
+                        'multi_match' => [
+                            'query' => 'value',
+                            'fields' => [
+                                'unit.shortCode.2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                            ],
+                            'type' => 'best_fields',
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
     public function getDefinition(): EntityDefinition
     {
         $instanceRegistry = new StaticDefinitionInstanceRegistry(
-            [ProductDefinition::class, ProductManufacturerDefinition::class, ProductTranslationDefinition::class],
+            [
+                ProductDefinition::class,
+                ProductManufacturerDefinition::class,
+                UnitDefinition::class,
+                ProductTranslationDefinition::class,
+                UnitTranslationDefinition::class,
+            ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
         );

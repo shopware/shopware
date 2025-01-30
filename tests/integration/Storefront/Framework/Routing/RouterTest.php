@@ -24,7 +24,7 @@ class RouterTest extends TestCase
         $request = new Request();
         $request->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, $case->baseUrl);
 
-        $stack = $this->getContainer()->get('request_stack');
+        $stack = static::getContainer()->get('request_stack');
 
         // remove all request from stack
         while ($stack->pop()) {
@@ -32,7 +32,7 @@ class RouterTest extends TestCase
 
         $stack->push($request);
 
-        $router = $this->getContainer()->get('router');
+        $router = static::getContainer()->get('router');
         $context = $router->getContext();
         $router->setContext(new RequestContext('', 'GET', $case->host));
 

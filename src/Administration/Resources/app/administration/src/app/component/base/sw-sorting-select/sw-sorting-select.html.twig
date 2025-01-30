@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sorting_select %}
 <div class="sw-cms-list__actions-sorting">
     <sw-select-field
@@ -9,7 +8,6 @@
         @update:value="onSortingChanged"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sorting_select_options %}
         <option
             v-for="sortOption in sortOptions"

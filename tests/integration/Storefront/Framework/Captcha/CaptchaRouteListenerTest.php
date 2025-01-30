@@ -51,14 +51,14 @@ class CaptchaRouteListenerTest extends TestCase
 
         (new CaptchaRouteListener(
             $this->getCaptchas(true, false),
-            $this->getContainer()->get(SystemConfigService::class),
-            $this->getContainer()
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()
         ))->validateCaptcha($event);
     }
 
     public function testJsonResponseWhenCaptchaValidationFails(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
             BasicCaptcha::CAPTCHA_NAME => [
@@ -68,7 +68,7 @@ class CaptchaRouteListenerTest extends TestCase
         ]);
 
         /** @var EntityRepository<SalutationCollection> $repo */
-        $repo = $this->getContainer()->get('salutation.repository');
+        $repo = static::getContainer()->get('salutation.repository');
         $salutation = $repo->search(
             (new Criteria())->setLimit(1),
             Context::createDefaultContext()
@@ -114,7 +114,7 @@ class CaptchaRouteListenerTest extends TestCase
 
     public function testResponseWhenCaptchaValidationFails(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
             BasicCaptcha::CAPTCHA_NAME => [

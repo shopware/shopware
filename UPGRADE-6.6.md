@@ -1,3 +1,92 @@
+# 6.6.9.0
+## SCSS Values will be validated and sanitized
+From now on, every scss value added by a theme will be validated when changed in the administration interface.
+The values will be sanitized when they are invalid to a standard value when they are not valid when changed before or via api.
+## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` methods will change
+This will only have an effect if you are using the named parameter feature of PHP with those methods.
+If you want to be forward compatible, call the methods without using named parameters.
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` will change to `columnName`
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` will change to `foreignKeyName`
+* Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` will change to `indexName`
+## Environment Configuration
+
+The web installer now supports configurable command timeouts through the environment variable `SHOPWARE_INSTALLER_TIMEOUT`. This value should be provided in seconds.
+
+### Default Behavior
+If the environment variable is not set, the installer will use the default timeout of 900 seconds (15 minutes).
+
+### Configuration Examples
+```bash
+# Set timeout to 30 minutes
+export SHOPWARE_INSTALLER_TIMEOUT=1800
+
+# Set timeout to 1 hour
+export SHOPWARE_INSTALLER_TIMEOUT=3600
+```
+
+Or in the projects' `.env.installer` file:
+
+```bash
+SHOPWARE_INSTALLER_TIMEOUT=1800
+```
+
+### Validation
+The provided timeout value must be:
+- A numeric value
+- Non-negative
+
+If these conditions are not met, the installer will fall back to the default timeout of 900 seconds.
+## Product review loading moved to core
+The logic responsible for loading product reviews was unified and moved to the core.
+* The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
+* The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
+* The hook `\Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook` instead.
+* The struct `\Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult` instead.
+## Native types for PHP class properties
+A "deprecation" message was added to every PHP class property without a native type.
+The native types will be added with Shopware 6.7.0.0.
+If you extend classes with such properties, you will also need to add the type accordingly during the major update.
+## New skip to content links
+The "Skip to content" link for accessibility inside `@Storefront/storefront/base.html.twig` is now inside a separate include template `@Storefront/storefront/component/skip-to-content.html.twig`.
+The new template also has additional links to skip directly to the search field and main navigation. The links can be enabled or disabled by passing boolean variables. By default, only "Skip to main content" is shown:
+
+```twig
+{% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' with {
+    skipToContent: true,
+    skipToSearch: true,
+    skipToMainNav: true
+} %}
+```
+## Storefront product box accessibility: Replace duplicate links around the product image with stretched link in product name
+**Affected template: `Resources/views/storefront/component/product/card/box-standard.html.twig`**
+
+Currently, the link to the product detail page is always duplicated in the default product box because the image is wrapped with the same link.
+This is not ideal for accessibility because the link is read twice when using a screen reader. Therefore, we want to remove the link around the product image that also points to the detail page.
+To make the image still click-able the Bootstrap helper class `stretched-link` will be used on the product name link.
+
+When the `ACESSIBILITY_TWEAKS` flag is active, the product card will no longer contain a link around the product image:
+```diff
+<div class="card product-box box-standard">
+    <div class="card-body">
+        <div class="product-image-wrapper">
+-            <a href="https://shopware.local/Example-Product/SW-01931a101dcc725aa3affc0ff408ee31">
+                <img src="https://shopware.local/media/a3/22/75/1731309077/Example-Product_%283%29.webp?ts=1731309077" alt="Example-Product">
+-            </a>
+        </div>
+
+        <div class="product-info">
+            <a href="https://shopware.local/Example-Product/SW-01931a101dcc725aa3affc0ff408ee31"
++               class="product-name stretched-link"> {# <------ stretched-link is used instead #}
+                Example-Product
+            </a>
+        </div>
+    </div>
+</div>
+```
+## Required foreign key in mapping definition for many-to-many associations
+For many-to-many associations it is necessary that the mapping definition contains the foreign key fields.
+Until now there was a silent error triggered, which is now changed to a proper deprecation message. An exception will be thrown in the next major version.
+
 # 6.6.8.0
 ## Search server now provides OpenSearch/Elasticsearch shards and replicas
 
@@ -765,9 +854,11 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: cache
+                storage: redis
                 dsn: 'redis://localhost'
 ```
+
+Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 # General Core Breaking Changes
 
@@ -966,7 +1057,7 @@ public function loadCombinations(string $productId, SalesChannelContext $salesCh
 
 The `loadCombinations` method has been made abstract so it must be implemented. The `SalesChannelContext` instance, contains the data which was previously in the defined on the `load` method.
 
-`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannel()->getId()`.
+`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannelId()`.
 
 `$context` can be replaced with `$salesChannelContext->getContext()`.
 
@@ -1979,9 +2070,11 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: cache
+                storage: redis
                 dsn: 'redis://localhost'
 ```
+
+Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 ## Introduced in 6.5.5.0
 ## New stock handling implementation is now the default
@@ -2016,7 +2109,7 @@ public function loadCombinations(string $productId, SalesChannelContext $salesCh
 
 The `loadCombinations` method has been made abstract so it must be implemented. The `SalesChannelContext` instance, contains the data which was previously in the defined on the `load` method. 
 
-`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannel()->getId()`.
+`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannelId()`.
 
 `$context` can be replaced with `$salesChannelContext->getContext()`.
 

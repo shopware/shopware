@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-products-assignment-dynamic-product-groups.html.twig';

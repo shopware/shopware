@@ -90,8 +90,8 @@
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry">
-            <argument type="tagged" tag="shopware.import_export.entity_serializer"/>
-            <argument type="tagged" tag="shopware.import_export.field_serializer"/>
+            <argument type="tagged_iterator" tag="shopware.import_export.entity_serializer"/>
+            <argument type="tagged_iterator" tag="shopware.import_export.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\EntitySerializer">
@@ -227,9 +227,9 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\FileService"/>
 
-            <argument type="tagged" tag="shopware.import_export.reader_factory"/>
-            <argument type="tagged" tag="shopware.import_export.writer_factory"/>
-            <argument type="tagged" tag="shopware.import_export.pipe_factory"/>
+            <argument type="tagged_iterator" tag="shopware.import_export.reader_factory"/>
+            <argument type="tagged_iterator" tag="shopware.import_export.writer_factory"/>
+            <argument type="tagged_iterator" tag="shopware.import_export.pipe_factory"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Message\ImportExportHandler" public="true">

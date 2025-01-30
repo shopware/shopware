@@ -47,7 +47,7 @@ class IconCacheTwigFilterTest extends TestCase
             new BundleFixture('Storefront', \dirname((string) ReflectionHelper::getFileName(Storefront::class))),
         ]);
 
-        $container = $this->getContainer();
+        $container = $this->buildContainer();
         $container->set('twig', $twig);
 
         $controller = new TestController();
@@ -74,7 +74,7 @@ class IconCacheTwigFilterTest extends TestCase
             </span>'), str_replace(' ', '', $rendered->getContent() ?: ''));
     }
 
-    public function getContainer(): ContainerInterface
+    public function buildContainer(): ContainerInterface
     {
         $container = new ContainerBuilder();
         $container->set('request_stack', new RequestStack());

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
@@ -20,6 +20,7 @@ export default {
 
     mixins: [
         Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -129,6 +130,40 @@ export default {
 
         updateTotal({ total }) {
             this.total = total;
+        },
+
+        async onDuplicatePromotion(referencePromotion) {
+            this.isLoading = true;
+
+            try {
+                const behavior = {
+                    overwrites: {
+                        name: `${referencePromotion.name} ${this.$tc('global.default.copy')}`,
+                        code: null,
+                        useCodes: false,
+                        useIndividualCodes: false,
+                        individualCodePattern: '',
+                        individualCodes: null,
+                        active: false,
+                    },
+                };
+                const clone = await this.promotionRepository.clone(referencePromotion.id, behavior, Shopware.Context.api);
+
+                this.$nextTick(() => {
+                    this.$router.push({
+                        name: 'sw.promotion.v2.detail',
+                        params: { id: clone.id },
+                    });
+                });
+
+                this.createNotificationInfo({
+                    message: this.$tc('sw-promotion-v2.list.duplicatePromotionInfo'),
+                });
+            } catch (error) {
+                throw new Error(error);
+            } finally {
+                this.isLoading = false;
+            }
         },
     },
 };

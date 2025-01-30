@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_select_base %}
 <sw-block-field
     class="sw-select"
@@ -13,6 +12,7 @@
             ref="selectWrapper"
             class="sw-select__selection"
             tabindex="0"
+            :aria-expanded="expanded ? 'true' : 'false'"
             @click.stop="expand"
             @focus="expand"
             @keydown.tab="collapse"
@@ -34,6 +34,7 @@
                 v-if="!disabled && showClearableButton"
                 class="sw-select__select-indicator-hitbox"
                 data-clearable-button
+                :aria-label="$tc('global.sw-select-base.buttonClear')"
                 @click.prevent.stop="emitClear"
                 @keydown.tab.stop="focusParentSelect"
             >

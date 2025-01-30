@@ -47,7 +47,7 @@ class DeliveryProcessorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $shippingMethodCriteria = new Criteria([$this->salesChannelContext->getShippingMethod()->getId()]);
@@ -55,7 +55,7 @@ class DeliveryProcessorTest extends TestCase
         $shippingMethodCriteria->addAssociation('deliveryTime');
 
         $this->salesChannelContext->assign([
-            'shippingMethod' => $this->getContainer()->get('shipping_method.repository')->search($shippingMethodCriteria, $this->salesChannelContext->getContext())->first(),
+            'shippingMethod' => static::getContainer()->get('shipping_method.repository')->search($shippingMethodCriteria, $this->salesChannelContext->getContext())->first(),
         ]);
 
         $shippingMethodPriceEntity = new ShippingMethodPriceEntity();
@@ -67,7 +67,7 @@ class DeliveryProcessorTest extends TestCase
 
     public function testProcessShouldRecalculateAll(): void
     {
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        $deliveryProcessor = static::getContainer()->get(DeliveryProcessor::class);
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(
@@ -110,7 +110,7 @@ class DeliveryProcessorTest extends TestCase
     {
         $factor = 1.1;
         $this->salesChannelContext->getContext()->assign(['currencyFactor' => $factor]);
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        $deliveryProcessor = static::getContainer()->get(DeliveryProcessor::class);
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(
@@ -163,7 +163,7 @@ class DeliveryProcessorTest extends TestCase
 
     public function testDeliveriesContainDiscountButSkipRecalculation(): void
     {
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        $deliveryProcessor = static::getContainer()->get(DeliveryProcessor::class);
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(

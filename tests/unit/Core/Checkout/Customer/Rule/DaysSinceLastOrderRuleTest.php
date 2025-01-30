@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(DaysSinceLastOrderRule::class)]
 #[CoversClass(DaysSinceRule::class)]
 #[Group('rules')]

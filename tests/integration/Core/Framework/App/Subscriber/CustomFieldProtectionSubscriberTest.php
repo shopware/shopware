@@ -41,8 +41,8 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->customFieldSetRepo = $this->getContainer()->get('custom_field_set.repository');
-        $this->appRepo = $this->getContainer()->get('app.repository');
+        $this->customFieldSetRepo = static::getContainer()->get('custom_field_set.repository');
+        $this->appRepo = static::getContainer()->get('app.repository');
     }
 
     public function testGetSubscribedEvents(): void

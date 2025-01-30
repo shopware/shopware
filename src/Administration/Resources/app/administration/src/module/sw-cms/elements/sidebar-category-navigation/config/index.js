@@ -2,7 +2,7 @@ import template from './sw-cms-el-config-category-navigation.html.twig';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,

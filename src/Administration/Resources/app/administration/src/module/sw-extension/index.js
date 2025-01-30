@@ -81,7 +81,7 @@ Shopware.Component.register('sw-extension-app-module-page', () => import('./page
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 Shopware.Module.register('sw-extension', {
@@ -93,6 +93,7 @@ Shopware.Module.register('sw-extension', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     entity: 'extension',
+    // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
     display: !Shopware.Context.app.disableExtensions,
 
     searchMatcher: (regex, labelType, manifest) => {

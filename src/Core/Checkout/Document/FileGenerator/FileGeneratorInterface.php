@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Document\FileGenerator;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 interface FileGeneratorInterface
 {
     public function supports(): string;

@@ -40,10 +40,10 @@ class SqlQueryParserTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
+        $this->manufacturerRepository = static::getContainer()->get('product_manufacturer.repository');
 
         $this->context = Context::createDefaultContext();
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->repository = static::getContainer()->get('product.repository');
 
         $this->ids = new IdsCollection();
 
@@ -54,7 +54,12 @@ class SqlQueryParserTest extends TestCase
 
     public function testFindProductsWithoutCategory(): void
     {
-        $criteria = new Criteria();
+        $criteria = new Criteria([
+            $this->ids->get('product1-with-category'),
+            $this->ids->get('product2-with-category'),
+            $this->ids->get('product1-without-category'),
+            $this->ids->get('product2-without-category'),
+        ]);
         $criteria->addFilter(new EqualsFilter('categoryIds', null));
 
         $result = $this->repository->searchIds($criteria, $this->context);
@@ -84,9 +89,9 @@ class SqlQueryParserTest extends TestCase
     #[DataProvider('whenToUseNullSafeOperatorProvider')]
     public function testWhenToUseNullSafeOperator(Filter $filter, bool $expected): void
     {
-        $parser = $this->getContainer()->get(SqlQueryParser::class);
+        $parser = static::getContainer()->get(SqlQueryParser::class);
 
-        $definition = $this->getContainer()->get(ProductDefinition::class);
+        $definition = static::getContainer()->get(ProductDefinition::class);
 
         $parsed = $parser->parse($filter, $definition, Context::createDefaultContext(), 'product');
 
@@ -248,6 +253,6 @@ class SqlQueryParserTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
     }
 }

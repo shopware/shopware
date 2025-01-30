@@ -32,7 +32,7 @@ class CustomerTagTest extends TestCase
     {
         parent::setUp();
 
-        $this->repository = $this->getContainer()->get('customer.repository');
+        $this->repository = static::getContainer()->get('customer.repository');
     }
 
     public function testEqualsAnyFilter(): void

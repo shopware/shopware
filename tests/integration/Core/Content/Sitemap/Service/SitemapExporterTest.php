@@ -36,7 +36,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -53,7 +53,7 @@ class SitemapExporterTest extends TestCase
     {
         parent::setUp();
         $this->context = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'sitemap-exporter-test');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
     }
 
     public function testNotLocked(): void
@@ -197,7 +197,7 @@ class SitemapExporterTest extends TestCase
         $languageIds = array_unique($languageIds);
 
         foreach ($languageIds as $languageId) {
-            $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $languageId]);
 
             $this->generateSitemap($salesChannelContext, false);
@@ -250,7 +250,7 @@ class SitemapExporterTest extends TestCase
             $this->createMock(EventDispatcher::class)
         );
 
-        $salesChannel = Generator::createSalesChannelContext();
+        $salesChannel = Generator::generateSalesChannelContext();
         $salesChannel->getSalesChannel()->setDomains(new SalesChannelDomainCollection([
             (new SalesChannelDomainEntity())->assign(['id' => '11', 'url' => 'https://test.com/de', 'languageId' => Defaults::LANGUAGE_SYSTEM]),
         ]));
@@ -302,7 +302,7 @@ class SitemapExporterTest extends TestCase
         ?string $lastProvider = null,
         ?int $offset = null
     ): void {
-        $result = $this->getContainer()->get(SitemapExporter::class)->generate($salesChannelContext, $force, $lastProvider, $offset);
+        $result = static::getContainer()->get(SitemapExporter::class)->generate($salesChannelContext, $force, $lastProvider, $offset);
         if (!$result->isFinish()) {
             $this->generateSitemap($salesChannelContext, $force, $result->getProvider(), $result->getOffset());
         }

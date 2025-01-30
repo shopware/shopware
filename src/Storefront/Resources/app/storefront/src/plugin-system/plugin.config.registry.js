@@ -3,7 +3,7 @@
  *
  * contains all definitions for all plugins
  *
- * @package storefront
+ * @sw-package framework
  */
 export default class PluginConfigRegistry {
 

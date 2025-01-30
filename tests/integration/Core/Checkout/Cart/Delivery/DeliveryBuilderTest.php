@@ -41,11 +41,11 @@ class DeliveryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->builder = $this->getContainer()->get(DeliveryBuilder::class);
+        $this->builder = static::getContainer()->get(DeliveryBuilder::class);
 
-        $this->processor = $this->getContainer()->get(DeliveryProcessor::class);
+        $this->processor = static::getContainer()->get(DeliveryProcessor::class);
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 

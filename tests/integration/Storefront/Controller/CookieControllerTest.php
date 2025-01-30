@@ -30,7 +30,7 @@ class CookieControllerTest extends TestCase
 
     public function testCookieGroupIncludeComfortFeatures(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.cart.wishlistEnabled', true);
 
@@ -43,7 +43,7 @@ class CookieControllerTest extends TestCase
 
     public function testCookieGroupNotIncludeWishlistInComfortFeatures(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.cart.wishlistEnabled', false);
 
@@ -56,7 +56,7 @@ class CookieControllerTest extends TestCase
 
     public function testCookieRequiredGroupIncludeGoogleReCaptchaWhenActive(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
             GoogleReCaptchaV2::CAPTCHA_NAME => [

@@ -24,7 +24,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class PdfRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -46,7 +46,7 @@ class PdfRendererTest extends TestCase
         $this->context = Context::createDefaultContext();
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -55,9 +55,9 @@ class PdfRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->deliveryNoteRenderer = $this->getContainer()->get(DeliveryNoteRenderer::class);
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-        $this->pdfRenderer = $this->getContainer()->get(PdfRenderer::class);
+        $this->deliveryNoteRenderer = static::getContainer()->get(DeliveryNoteRenderer::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        $this->pdfRenderer = static::getContainer()->get(PdfRenderer::class);
     }
 
     public function testRender(): void
@@ -100,7 +100,7 @@ class PdfRendererTest extends TestCase
 
         $rendered = $processedTemplate->getSuccess()[$orderId];
 
-        static::assertStringContainsString('<html>', $rendered->getHtml());
+        static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
 
         $generatorOutput = $this->pdfRenderer->render($rendered);

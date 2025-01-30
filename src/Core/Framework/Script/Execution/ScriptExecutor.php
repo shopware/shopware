@@ -24,7 +24,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
-#[Package('core')]
+#[Package('framework')]
 class ScriptExecutor
 {
     public static bool $isInScriptExecutionContext = false;
@@ -43,6 +43,7 @@ class ScriptExecutor
 
     public function execute(Hook $hook): void
     {
+        // @deprecated tag:v6.7.0 - remove if condition
         if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
             return;
         }

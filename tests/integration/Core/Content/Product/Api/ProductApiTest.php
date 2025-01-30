@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,7 +31,7 @@ class ProductApiTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->repository = static::getContainer()->get('product.repository');
     }
 
     public function testModifyProductPriceMatrixOverApi(): void
@@ -40,7 +39,7 @@ class ProductApiTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -76,11 +75,8 @@ class ProductApiTest extends TestCase
         $criteria->addAssociation('prices');
 
         $products = $this->repository->search($criteria, $context);
-        static::assertTrue($products->has($id));
-
         $product = $products->get($id);
-
-        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
         static::assertCount(1, $product->getPrices());
 
@@ -116,11 +112,8 @@ class ProductApiTest extends TestCase
         $criteria->addAssociation('prices');
 
         $products = $this->repository->search($criteria, $context);
-        static::assertTrue($products->has($id));
-
         $product = $products->get($id);
-
-        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
         static::assertCount(2, $product->getPrices());
 
@@ -155,11 +148,8 @@ class ProductApiTest extends TestCase
         $criteria->addAssociation('prices');
 
         $products = $this->repository->search($criteria, $context);
-        static::assertTrue($products->has($id));
-
         $product = $products->get($id);
-
-        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
         static::assertCount(3, $product->getPrices());
 
@@ -225,7 +215,7 @@ class ProductApiTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $this->getBrowser()->request('POST', '/api/search/product', [], [], [], json_encode([
@@ -269,7 +259,7 @@ class ProductApiTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $this->getBrowser()->request('POST', '/api/search/product', [], [], [], json_encode([

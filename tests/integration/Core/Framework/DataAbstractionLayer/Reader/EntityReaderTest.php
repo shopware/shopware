@@ -42,7 +42,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ConsistsOfManyToManyDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdFieldNamePrimaryKeyTestDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -87,14 +87,14 @@ class EntityReaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->languageRepository = $this->getContainer()->get('language.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->deLanguageId = $this->getDeDeLanguageId();
 
-        $this->registerDefinition(NonIdPrimaryKeyTestDefinition::class);
+        $this->registerDefinition(NonIdFieldNamePrimaryKeyTestDefinition::class);
         $this->registerDefinition(ConsistsOfManyToManyDefinition::class);
 
         $this->connection->rollBack();
@@ -103,6 +103,7 @@ class EntityReaderTest extends TestCase
             DROP TABLE IF EXISTS `non_id_primary_key_test`;
             CREATE TABLE `non_id_primary_key_test` (
                 `test_field` BINARY(16) NOT NULL,
+                `non_pk` BINARY(16) NULL,
                 `name` VARCHAR(255) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
@@ -146,7 +147,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository
             ->create([$product->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('p1')]);
         $criteria->addFields(['productNumber', 'name', 'categories.name']);
 
         $values = $this->productRepository
@@ -179,13 +180,13 @@ class EntityReaderTest extends TestCase
             ->visibility()
             ->manufacturer('m1');
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('p1')]);
         $criteria->addFields(['id', 'productNumber', 'name', 'manufacturer.id', 'manufacturer.name']);
 
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -225,7 +226,7 @@ class EntityReaderTest extends TestCase
         $criteria->addAssociation('seoUrls');
         $criteria->addFields(['name', 'seoUrls.routeName']);
 
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('category.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -243,7 +244,7 @@ class EntityReaderTest extends TestCase
 
         $criteria->setLimit(50);
         $criteria->getAssociation('seoUrls')->setLimit(50);
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('category.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -271,7 +272,7 @@ class EntityReaderTest extends TestCase
             ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$ids->get('p1')]);
@@ -280,7 +281,7 @@ class EntityReaderTest extends TestCase
         $criteria->getAssociation('categories')->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         $criteria->addFields(['name', 'categories.name', 'manufacturer.name']);
 
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -300,7 +301,7 @@ class EntityReaderTest extends TestCase
         $criteria->getAssociation('categories')->setLimit(50);
         $criteria->getAssociation('manufacturer')->setLimit(50);
 
-        $values = $this->getContainer()
+        $values = static::getContainer()
             ->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
@@ -594,7 +595,7 @@ class EntityReaderTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -682,7 +683,7 @@ class EntityReaderTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -1594,7 +1595,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $manufacturerRepo = $this->getContainer()->get('product_manufacturer.repository');
+        $manufacturerRepo = static::getContainer()->get('product_manufacturer.repository');
         $context = Context::createDefaultContext();
         $manufacturerRepo->upsert([$manufacturer], $context);
 
@@ -2144,13 +2145,13 @@ class EntityReaderTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $exception = null;
 
         try {
-            $this->getContainer()->get('product.repository')
+            static::getContainer()->get('product.repository')
                 ->search($criteria, Context::createDefaultContext());
         } catch (ParentAssociationCanNotBeFetched $e) {
             $exception = $e;
@@ -2176,7 +2177,7 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create($products, Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('product-1'), $ids->get('product-2')]);
         $criteria->addAssociation('translations.language.categoryTranslations');
 
         $products = $this->productRepository
@@ -2206,6 +2207,7 @@ class EntityReaderTest extends TestCase
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
 
         $data = [
             [
@@ -2214,19 +2216,37 @@ class EntityReaderTest extends TestCase
             ],
             [
                 'testField' => $id2,
+                'nonPk' => null,
                 'name' => 'test2',
+            ],
+            [
+                'testField' => $id3,
+                'nonPk' => $id3,
+                'name' => 'test3',
             ],
         ];
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
+        $repository = static::getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());
 
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
-        static::assertEquals(2, $result->count());
+        static::assertEquals(3, $result->getTotal());
+        static::assertEquals(3, $result->count());
+
+        $foundIds = [];
+        foreach ($result as $entity) {
+            $foundIds[] = $entity->getUniqueIdentifier();
+            if ($entity->getUniqueIdentifier() === $id3) {
+                static::assertSame($id3, $entity->get('nonPk'));
+            } else {
+                static::assertNull($entity->get('nonPk'));
+            }
+        }
+
+        static::assertEqualsCanonicalizing([$id1, $id2, $id3], $foundIds);
     }
 
     public function testReadWithNonIdPKOverPropertyName(): void
@@ -2246,7 +2266,7 @@ class EntityReaderTest extends TestCase
         ];
 
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
+        $repository = static::getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());
 
@@ -2277,7 +2297,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'system'));
 
-        $result = $this->getContainer()->get('category_translation.repository')->search($criteria, Context::createDefaultContext());
+        $result = static::getContainer()->get('category_translation.repository')->search($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
         static::assertEquals(1, $result->count());
@@ -2499,7 +2519,7 @@ class EntityReaderTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create([
             $product->build(),
         ], $context);
@@ -2536,9 +2556,9 @@ class EntityReaderTest extends TestCase
         ))
             ->addFlags(new ApiAware(), new Extension());
 
-        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
-        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
+        static::getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $ids = new IdsCollection();
 
@@ -2555,14 +2575,14 @@ class EntityReaderTest extends TestCase
             ->active(false)
             ->price(50, 50);
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create([
             $product->build(),
             $product2->build(),
             $product3->build(),
         ], Context::createDefaultContext());
 
-        $repository = $this->getContainer()->get('acme_consists_of_mapping.repository');
+        $repository = static::getContainer()->get('acme_consists_of_mapping.repository');
         static::assertInstanceOf(EntityRepository::class, $repository);
 
         $repository
@@ -2582,7 +2602,7 @@ class EntityReaderTest extends TestCase
 
         $criteria->getAssociation('consistsOf')->addFilter(new EqualsFilter('active', true));
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
         static::assertCount(1, $result->getEntities());

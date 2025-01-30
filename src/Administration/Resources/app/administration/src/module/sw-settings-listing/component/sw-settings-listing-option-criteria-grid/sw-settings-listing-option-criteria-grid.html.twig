@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_listing_option_criteria_card %}
 <sw-card
     class="sw-settings-listing-option-criteria-grid__criteria-card"
@@ -6,11 +5,9 @@
     :title="$tc('sw-settings-listing.base.criteria.title')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_option_criteria_card_toolbar %}
     <template #toolbar>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_criteria_card_toolbar_select %}
         <sw-single-select
             :value="selectedCriteria"
@@ -25,7 +22,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_option_criteria_card_grid %}
     <sw-data-grid
         v-if="productSortingEntity && productSortingEntity.fields.length > 0"
@@ -42,11 +38,9 @@
         @inline-edit-cancel="onCancelInlineEdit"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_criteria_card_grid_column_field %}
         <template #column-field="{item, isInlineEdit}">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_option_criteria_card_grid_column_field_select %}
             <sw-entity-single-select
                 v-if="item.field === 'customField' || (isItemACustomField(item.field) && isInlineEdit)"
@@ -61,14 +55,12 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_option_criteria_card_grid_column_field_custom_field %}
             <span v-else-if="isItemACustomField(item.field)">
                 {{ getCustomFieldLabelByCriteriaName(item.field) }}
             </span>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_option_criteria_card_grid_column_field_custom_criteria %}
             <span v-else>
                 {{ getCriteriaSnippetByFieldName(item.field) }}
@@ -77,18 +69,15 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_criteria_card_grid_column_order %}
         <template #column-order="{item, isInlineEdit}">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_option_criteria_card_grid_column_order_text %}
             <div v-if="!isInlineEdit">
                 {{ getOrderSnippet(item.order) }}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_option_criteria_card_grid_column_order_select %}
             <sw-single-select
                 v-else
@@ -102,11 +91,9 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_criteria_card_grid_column_actions %}
         <template #actions="{item}">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_option_criteria_card_grid_column_actions_delete %}
             <sw-context-menu-item
                 variant="danger"
@@ -120,7 +107,6 @@
     </sw-data-grid>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_option_criteria_card_empty_state %}
     <sw-empty-state
         v-else
@@ -129,7 +115,6 @@
         :subline="$tc('sw-settings-listing.base.criteria.emptyStateSubline')"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_criteria_card_empty_state_icon %}
         <template #icon>
             <img

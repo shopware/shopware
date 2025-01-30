@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(RuleComparison::class)]
 class RuleComparisonTest extends TestCase
 {

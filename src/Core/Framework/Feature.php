@@ -11,10 +11,15 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 /**
  * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string, active?: bool, static?: bool}
  */
-#[Package('core')]
+#[Package('framework')]
 class Feature
 {
     final public const ALL_MAJOR = 'major';
+
+    /**
+     * @internal
+     */
+    public static bool $emitDeprecations = true;
 
     /**
      * @var array<bool>
@@ -230,7 +235,7 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
-        if (!empty(self::$silent[$majorFlag])) {
+        if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
             return;
         }
 

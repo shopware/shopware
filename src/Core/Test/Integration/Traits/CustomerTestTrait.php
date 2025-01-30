@@ -21,7 +21,7 @@ trait CustomerTestTrait
     private function getLoggedInContextToken(string $customerId, string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
         $token = Random::getAlphanumericString(32);
-        $this->getContainer()->get(SalesChannelContextPersister::class)->save(
+        static::getContainer()->get(SalesChannelContextPersister::class)->save(
             $token,
             [
                 'customerId' => $customerId,

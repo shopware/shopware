@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class JsonType extends JsonFactoryBase
 {
     /**

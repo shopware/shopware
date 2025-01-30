@@ -147,8 +147,8 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry">
-            <argument type="tagged" tag="promotion.filter.sorter"/>
-            <argument type="tagged" tag="promotion.filter.picker"/>
+            <argument type="tagged_iterator" tag="promotion.filter.sorter"/>
+            <argument type="tagged_iterator" tag="promotion.filter.picker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceAsc">

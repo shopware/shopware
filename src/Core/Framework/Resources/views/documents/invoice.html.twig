@@ -14,7 +14,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
 {% endblock %}
 
 {% block document_headline %}
-    <h1 class="headline">
+    <h1 class="headline" tabindex="0">
         {% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}
     </h1>
 {% endblock %}
@@ -37,7 +37,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
 
 {% block shipping_address %}
     {% if config.displayDivergentDeliveryAddress %}
-        <div class="shipping-address-container">
+        <div class="shipping-address-container" tabindex="0">
             <br><p class="bold">{{ 'document.shippingAddress'|trans|sw_sanitize }}</p>
             {{ shippingAddress.company }}
             {{ shippingAddress.department }} <br>

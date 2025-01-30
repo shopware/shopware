@@ -21,7 +21,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->configFactory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
+        $this->configFactory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
     }
 
     public function testCreateThemeConfig(): void

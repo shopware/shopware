@@ -42,9 +42,9 @@ class PromotionSetGroupCalculationTest extends TestCase
     {
         parent::setUp();
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->promotionRepository = $this->getContainer()->get('promotion.repository');
-        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->promotionRepository = static::getContainer()->get('promotion.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
 
         $this->context = $this->getContext();
     }
@@ -64,7 +64,7 @@ class PromotionSetGroupCalculationTest extends TestCase
     #[Group('promotions')]
     public function testPercentageOnMultipleItemsAndSubsetQuantities(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
@@ -103,7 +103,7 @@ class PromotionSetGroupCalculationTest extends TestCase
     #[Group('promotions')]
     public function testAbsoluteOnMultipleItemsAndSubsetQuantities(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
@@ -149,7 +149,7 @@ class PromotionSetGroupCalculationTest extends TestCase
     #[Group('promotions')]
     public function testFixedUnitPriceOnMultipleItemsAndSubsetQuantities(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
@@ -195,7 +195,7 @@ class PromotionSetGroupCalculationTest extends TestCase
     #[Group('promotions')]
     public function testFixedPriceOnMultipleItemsAndSubsetQuantities(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 

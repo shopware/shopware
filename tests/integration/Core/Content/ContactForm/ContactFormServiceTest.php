@@ -28,17 +28,17 @@ class ContactFormServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->contactFormRoute = $this->getContainer()->get(ContactFormRoute::class);
+        $this->contactFormRoute = static::getContainer()->get(ContactFormRoute::class);
     }
 
     public function testContactFormSendMail(): void
     {
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
         $eventDidRun = false;
@@ -59,7 +59,7 @@ class ContactFormServiceTest extends TestCase
 
         $this->addEventListener($dispatcher, $validationEventName, $validationListenerClosure);
 
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);
         $systemConfig->set('core.basicInformation.lastNameFieldRequired', true);
         $systemConfig->set('core.basicInformation.phoneNumberFieldRequired', true);
@@ -88,11 +88,11 @@ class ContactFormServiceTest extends TestCase
     public function testContactFormFirstNameRequiredException(): void
     {
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
         $eventDidRun = false;
@@ -104,7 +104,7 @@ class ContactFormServiceTest extends TestCase
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);
         $systemConfig->set('core.basicInformation.lastNameFieldRequired', false);
         $systemConfig->set('core.basicInformation.phoneNumberFieldRequired', false);
@@ -129,11 +129,11 @@ class ContactFormServiceTest extends TestCase
     public function testContactFormLastNameRequiredException(): void
     {
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
         $eventDidRun = false;
@@ -145,7 +145,7 @@ class ContactFormServiceTest extends TestCase
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', false);
         $systemConfig->set('core.basicInformation.lastNameFieldRequired', true);
         $systemConfig->set('core.basicInformation.phoneNumberFieldRequired', false);
@@ -170,11 +170,11 @@ class ContactFormServiceTest extends TestCase
     public function testContactFormPhoneNumberRequiredException(): void
     {
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
         $eventDidRun = false;
@@ -186,7 +186,7 @@ class ContactFormServiceTest extends TestCase
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', false);
         $systemConfig->set('core.basicInformation.lastNameFieldRequired', false);
         $systemConfig->set('core.basicInformation.phoneNumberFieldRequired', true);
@@ -211,11 +211,11 @@ class ContactFormServiceTest extends TestCase
     public function testContactFormOptionalFieldsSendMail(): void
     {
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
         $eventDidRun = false;
@@ -227,7 +227,7 @@ class ContactFormServiceTest extends TestCase
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', false);
         $systemConfig->set('core.basicInformation.lastNameFieldRequired', false);
         $systemConfig->set('core.basicInformation.phoneNumberFieldRequired', false);

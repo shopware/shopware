@@ -9,7 +9,7 @@ use OpenSearch\ClientBuilder;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class ClientFactory
 {
     /**

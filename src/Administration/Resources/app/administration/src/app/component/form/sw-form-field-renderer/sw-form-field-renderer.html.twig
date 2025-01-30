@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_form_field_renderer %}
 <component
     :is="componentName"
@@ -11,7 +10,6 @@
     @update:ids="emitUpdate"
     @update:entity-collection="emitUpdate"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_form_field_renderer_scope_slots %}
     <!-- eslint-disable vue/v-slot-style -->
     <template
@@ -27,10 +25,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_form_field_renderer_inner %}
     <slot>
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_form_field_renderer_inner_slot %}{% endblock %}
     </slot>
     {% endblock %}

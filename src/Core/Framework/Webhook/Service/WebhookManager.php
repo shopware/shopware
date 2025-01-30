@@ -35,11 +35,11 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @phpstan-import-type Webhook from WebhookLoader
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookManager implements ResetInterface
 {
     /**
-     * @var array<Webhook>|null
+     * @var array<string, array<Webhook>>
      */
     private ?array $webhooks = null;
 
@@ -191,7 +191,6 @@ class WebhookManager implements ResetInterface
         string $userLocale
     ): void {
         $requests = [];
-
         foreach ($webhooksForEvent as $webhook) {
             if (!$this->isEventDispatchingAllowed($webhook, $event)) {
                 continue;
@@ -261,7 +260,7 @@ class WebhookManager implements ResetInterface
         if ($webhook['appId'] !== null && $webhook['appVersion'] !== null) {
             $source = \array_merge(
                 $source,
-                $this->appPayloadServiceHelper->buildSource($webhook['appVersion'], $webhook['appId'])->jsonSerialize()
+                $this->appPayloadServiceHelper->buildSource($webhook['appVersion'], $webhook['appName'] ?? '')->jsonSerialize()
             );
         }
 
@@ -339,11 +338,21 @@ class WebhookManager implements ResetInterface
      */
     private function getWebhooks(string $eventName): array
     {
+        $this->loadWebhooks();
+
+        return $this->webhooks[$eventName] ?? [];
+    }
+
+    private function loadWebhooks(): void
+    {
         if ($this->webhooks !== null) {
-            return $this->webhooks;
+            return;
         }
 
-        return $this->webhooks = $this->webhookLoader->getWebhooksForEvent($eventName);
+        $webhooks = $this->webhookLoader->getWebhooks();
+        foreach ($webhooks as $webhook) {
+            $this->webhooks[$webhook['eventName']][] = $webhook;
+        }
     }
 
     /**

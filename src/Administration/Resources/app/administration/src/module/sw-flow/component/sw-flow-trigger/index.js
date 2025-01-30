@@ -9,7 +9,7 @@ const { isEmpty } = utils.types;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
@@ -401,7 +401,7 @@ export default {
         },
 
         getClosestSiblingAncestor(parentId) {
-            // when sibling does not exists, go to next parent sibling
+            // when sibling does not exist, go to next parent sibling
             const parent = this.findTreeItemVNodeById(parentId);
             const nextParent = this.getSibling(true, parent.item);
             if (nextParent) {
@@ -588,10 +588,10 @@ export default {
             }
 
             // set first item or selected event as focus
-            this.$nextTick(() => {
+            this.$nextTick().then(() => {
                 if (this.searchTerm === this.formatEventName) {
                     const currentEvent = this.eventTree.find((event) => event.id === this.eventName);
-                    this.selectedTreeItem = currentEvent || this.$refs.flowTriggerTree.treeItems[0];
+                    this.selectedTreeItem = currentEvent || this.eventTree[0];
                 }
             });
         },

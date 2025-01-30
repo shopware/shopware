@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -31,7 +32,7 @@ class SaleChannelsReadinessCheckTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testWhereAllChannelsAreReturningHealthy(): void
@@ -80,13 +81,27 @@ class SaleChannelsReadinessCheckTest extends TestCase
         static::assertSame(Status::FAILURE, $result->status);
     }
 
+    public function testTrustedHostsAreTheSameBeforeAndAfterCheck(): void
+    {
+        // empty test state, if this assertion fails, some other test is leaking.
+        static::assertEmpty(Request::getTrustedHosts());
+        Request::setTrustedHosts(['foo.bar', 'test.com']);
+        $trustedHostsBefore = Request::getTrustedHosts();
+        $check = $this->createCheck();
+        $check->run();
+
+        static::assertSame($trustedHostsBefore, Request::getTrustedHosts());
+        // reset the trusted hosts to avoid leaking state
+        Request::setTrustedHosts([]);
+    }
+
     private function createCheck((MockObject&Kernel)|null $kernel = null): SaleChannelsReadinessCheck
     {
         return new SaleChannelsReadinessCheck(
-            $kernel ?? $this->getContainer()->get('kernel'),
-            $this->getContainer()->get('router'),
+            $kernel ?? static::getContainer()->get('kernel'),
+            static::getContainer()->get('router'),
             $this->connection,
-            $this->getContainer()->get('request_stack')
+            static::getContainer()->get('request_stack')
         );
     }
 

@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_buy_box_config %}
 <div class="sw-cms-el-config-buy-box">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_buy_box_config_tabs %}
     <sw-tabs
         position-identifier="sw-cms-element-config-buy-box"
@@ -11,7 +9,6 @@
     >
         <template #default="{ active }">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_buy_box_config_tab_content %}
             <sw-tabs-item
                 name="content"
@@ -22,7 +19,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_buy_box_config_tab_option %}
             <sw-tabs-item
                 name="options"
@@ -39,7 +35,6 @@
                 v-if="active === 'content'"
                 class="sw-cms-el-config-buy-box__tab-content"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_buy_box_config_content_warning %}
                 <sw-alert
                     v-if="isProductPage"
@@ -50,7 +45,6 @@
                 </sw-alert>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_buy_box_config_product_select %}
                 <sw-entity-single-select
                     v-if="!isProductPage"
@@ -65,7 +59,6 @@
                     @update:value="onProductChange"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_buy_box_config_product_variant_label %}
                     <template #selection-label-property="{ item }">
                         <sw-product-variant-info :variations="item.variation">
@@ -74,14 +67,12 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_buy_box_config_product_select_result_item %}
                     <template #result-item="{ item, index }">
                         <sw-select-result
                             v-bind="{ item, index }"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_entity_single_select_base_results_list_result_label %}
                             <span class="sw-select-result__result-item-text">
                                 <sw-product-variant-info :variations="item.variation">
@@ -102,7 +93,6 @@
                 class="sw-cms-el-config-buy-box__tab-options"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_buy_box_config_options %}
                 <sw-select-field
                     v-model:value="element.config.alignment.value"
@@ -111,7 +101,6 @@
                     :placeholder="$tc('sw-cms.elements.general.config.label.alignment')"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_box_config_alignment_options %}
                     <option value="flex-start">
                         {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}

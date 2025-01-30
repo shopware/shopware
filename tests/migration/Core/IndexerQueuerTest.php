@@ -22,13 +22,13 @@ class IndexerQueuerTest extends TestCase
     {
         parent::setUp();
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->delete('system_config', ['configuration_key' => IndexerQueuer::INDEXER_KEY]);
     }
 
     public function testMultipleEntriesAreMerged(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         IndexerQueuer::registerIndexer($connection, 'test.indexer', ['test1']);
         IndexerQueuer::registerIndexer($connection, 'test.indexer', ['test2']);
@@ -47,7 +47,7 @@ class IndexerQueuerTest extends TestCase
 
     public function testOldEntriesGetsMerged(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => IndexerQueuer::INDEXER_KEY,
@@ -68,7 +68,7 @@ class IndexerQueuerTest extends TestCase
 
     public function testOldEntriesCanBeFinished(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => IndexerQueuer::INDEXER_KEY,
@@ -84,7 +84,7 @@ class IndexerQueuerTest extends TestCase
 
     public function testWithOldEntriesAndNewCanBeFinished(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => IndexerQueuer::INDEXER_KEY,
@@ -102,7 +102,7 @@ class IndexerQueuerTest extends TestCase
 
     public function testFinishCreatedEntries(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $queuer = new IndexerQueuer($connection);
         IndexerQueuer::registerIndexer($connection, 'test.indexer', ['test1']);

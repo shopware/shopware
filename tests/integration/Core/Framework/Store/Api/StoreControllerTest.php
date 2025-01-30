@@ -39,7 +39,7 @@ class StoreControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->defaultContext = Context::createDefaultContext();
-        $this->userRepository = $this->getContainer()->get('user.repository');
+        $this->userRepository = static::getContainer()->get('user.repository');
     }
 
     public function testCheckLoginWithoutStoreToken(): void
@@ -194,7 +194,7 @@ class StoreControllerTest extends TestCase
         return new StoreController(
             $storeClient ?? $this->getStoreClientMock(),
             $this->userRepository,
-            $this->getContainer()->get(AbstractExtensionDataProvider::class)
+            static::getContainer()->get(AbstractExtensionDataProvider::class)
         );
     }
 

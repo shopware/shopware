@@ -27,7 +27,7 @@
         <service id="Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
-            <argument type="tagged" tag="shopware.cart.collector"/>
+            <argument type="tagged_iterator" tag="shopware.cart.collector"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowExecutor" public="true">
@@ -136,7 +136,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Flow\Api\FlowActionCollector">
-            <argument type="tagged" tag="flow.action" />
+            <argument type="tagged_iterator" tag="flow.action" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="app_flow_action.repository"/>
         </service>
@@ -185,6 +185,13 @@
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer">
             <argument type="service" id="product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\A11yRenderedDocumentStorer">
+            <argument type="service" id="document.repository"/>
             <argument type="service" id="event_dispatcher"/>
 
             <tag name="flow.storer"/>

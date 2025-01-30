@@ -27,7 +27,7 @@ class CriteriaQueryHelperTest extends TestCase
     {
         $context = Context::createDefaultContext();
         /** @var EntityRepository $taxRepository */
-        $taxRepository = $this->getContainer()->get('tax.repository');
+        $taxRepository = static::getContainer()->get('tax.repository');
 
         $criteria = new Criteria();
 
@@ -39,13 +39,13 @@ class CriteriaQueryHelperTest extends TestCase
 
     public function testDoNotSortByScoreAutomaticallyIfNoScoreQueryOrSearchTermIsSet(): void
     {
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
             ->expects(static::never())
             ->method('addOrderBy');
 
-        $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
+        $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryMock, $productDefinition, new Criteria(), Context::createDefaultContext());
     }
 
@@ -53,19 +53,19 @@ class CriteriaQueryHelperTest extends TestCase
     {
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('_score'));
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
             ->expects(static::never())
             ->method('addOrderBy');
 
-        $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
+        $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
     }
 
     public function testSortByScoreIfScoreQueryIsSet(): void
     {
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'test matching'), 1000));
         $queryMock = $this->createMock(QueryBuilder::class);
@@ -74,13 +74,13 @@ class CriteriaQueryHelperTest extends TestCase
             ->method('addOrderBy')
             ->with('_score', 'DESC');
 
-        $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
+        $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
     }
 
     public function testSortByScoreIfSearchTermIsSet(): void
     {
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTerm('searchTerm');
         $queryMock = $this->createMock(QueryBuilder::class);
@@ -89,20 +89,20 @@ class CriteriaQueryHelperTest extends TestCase
             ->method('addOrderBy')
             ->with('_score', 'DESC');
 
-        $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
+        $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
     }
 
     public function testSortByScoreAndAdditionalSorting(): void
     {
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
 
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
-        $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
+        $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
 
         static::assertEquals($queryBuilder->getQueryPart('orderBy'), [
@@ -113,14 +113,14 @@ class CriteriaQueryHelperTest extends TestCase
 
     public function testSortByScoreAndAdditionalSortingWithScore(): void
     {
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
         $criteria->addSorting(new FieldSorting('_score', FieldSorting::ASCENDING));
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
-        $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
+        $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
 
         static::assertEquals($queryBuilder->getQueryPart('orderBy'), [

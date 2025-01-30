@@ -9,6 +9,7 @@ use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
@@ -36,13 +37,16 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private AdminExtensionApiController $adminExtensionApiController;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     private MockObject&Executor $executor;
 
     protected function setUp(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $this->appRepository = $container->get('app.repository');
         $this->executor = $this->createMock(Executor::class);
         $this->context = Context::createDefaultContext();

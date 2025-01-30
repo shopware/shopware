@@ -211,7 +211,7 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry">
-            <argument type="tagged" tag="shopware.es.definition"/>
+            <argument type="tagged_iterator" tag="shopware.es.definition"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchStagingHandler">
@@ -391,7 +391,7 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearchRegistry">
-            <argument type="tagged" tag="shopware.elastic.admin-searcher-index" index-by="key"/>
+            <argument type="tagged_iterator" tag="shopware.elastic.admin-searcher-index" index-by="key"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="event_dispatcher"/>

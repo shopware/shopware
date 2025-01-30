@@ -98,6 +98,11 @@ $sw-field-color-inherited: $color-module-purple-900;
                     color: lighten($sw-field-color-text, 40%);
                 }
             }
+
+            &:focus ~ .sw-field__checkbox-state {
+                outline: 2px solid $sw-field-color-focus;
+                outline-offset: 2px;
+            }
         }
 
         .sw-field__checkbox-state {

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -19,6 +19,9 @@ const defaultElement = {
             value: 0,
         },
         videoID: {
+            value: 'foo-bar',
+        },
+        iframeTitle: {
             value: 'foo-bar',
         },
         showControls: {

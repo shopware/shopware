@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\WeekdayRule;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(WeekdayRule::class)]
 class WeekdayRuleTest extends TestCase
 {

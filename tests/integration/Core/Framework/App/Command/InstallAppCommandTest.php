@@ -25,7 +25,7 @@ class InstallAppCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
     }
 
     public function testInstallWithoutPermissions(): void
@@ -191,9 +191,9 @@ class InstallAppCommandTest extends TestCase
     {
         return new InstallAppCommand(
             new AppLoader($appFolder, new NullLogger()),
-            $this->getContainer()->get(AppLifecycle::class),
+            static::getContainer()->get(AppLifecycle::class),
             new AppPrinter($this->appRepository),
-            $this->getContainer()->get(ManifestValidator::class)
+            static::getContainer()->get(ManifestValidator::class)
         );
     }
 }

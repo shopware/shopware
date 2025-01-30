@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(MigrationCollection::class)]
 class MigrationNameAndTimestampTest extends TestCase
 {
@@ -20,7 +20,7 @@ class MigrationNameAndTimestampTest extends TestCase
 
     public function testMigrationNameAndTimestampAreNamedAfterOptionalConvention(): void
     {
-        $loader = $this->getContainer()->get(MigrationCollectionLoader::class);
+        $loader = static::getContainer()->get(MigrationCollectionLoader::class);
         $migrationCollection = $loader->collectAll();
 
         foreach ($migrationCollection as $migrations) {

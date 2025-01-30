@@ -146,6 +146,9 @@ General styling for cms elements
             padding: $spacer;
         }
     }
+    &__container:hover .js-vimeo-link {
+        display: block;
+    }
 }
 
 

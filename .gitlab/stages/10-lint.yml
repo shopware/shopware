@@ -103,23 +103,6 @@ ESLint (Storefront):
     after_script:
         - grep 'failure message' eslint.junit.xml
 
-ESLint (E2E):
-  extends: .base-with-node
-  stage: lint
-  rules:
-    - !reference [.rules, skip]
-    - !reference [.rules, run]
-    - changes:
-        - 'tests/e2e/**/*'
-  before_script:
-    - !reference [ .scripts, init, composer ]
-    - !reference [ .scripts, init, npm, e2e ]
-  script:
-    - cd tests/e2e
-    - npm run lint -- --format junit --cache-location ${npm_config_cache}/eslint/e2e --output-file $CI_PROJECT_DIR/eslint.junit.xml
-  after_script:
-    - grep 'failure message' eslint.junit.xml
-
 Stylelint (Administration):
     extends: .base-with-node
     stage: lint

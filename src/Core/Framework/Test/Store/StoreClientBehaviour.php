@@ -28,7 +28,7 @@ trait StoreClientBehaviour
     public function getStoreRequestHandler(): MockHandler
     {
         /** @var MockHandler $handler */
-        $handler = $this->getContainer()->get('shopware.store.mock_handler');
+        $handler = static::getContainer()->get('shopware.store.mock_handler');
 
         return $handler;
     }
@@ -36,7 +36,7 @@ trait StoreClientBehaviour
     public function getFrwRequestHandler(): MockHandler
     {
         /** @var MockHandler $handler */
-        $handler = $this->getContainer()->get('shopware.frw.mock_handler');
+        $handler = static::getContainer()->get('shopware.frw.mock_handler');
 
         return $handler;
     }
@@ -118,7 +118,7 @@ trait StoreClientBehaviour
         );
 
         /** @var UserConfigEntity|null $config */
-        $config = $this->getContainer()->get('user_config.repository')->search($criteria, $context)->first();
+        $config = static::getContainer()->get('user_config.repository')->search($criteria, $context)->first();
 
         return $config ? $config->getValue()[FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null : null;
     }
@@ -130,7 +130,7 @@ trait StoreClientBehaviour
             throw new \RuntimeException('Context with AdminApiSource expected.');
         }
 
-        $this->getContainer()->get('user_config.repository')->create([
+        static::getContainer()->get('user_config.repository')->create([
             [
                 'userId' => $source->getUserId(),
                 'key' => FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN,
@@ -143,7 +143,7 @@ trait StoreClientBehaviour
 
     protected function setLicenseDomain(?string $licenseDomain): void
     {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfigService->set(
             'core.store.licenseHost',
@@ -153,7 +153,7 @@ trait StoreClientBehaviour
 
     protected function setShopSecret(string $shopSecret): void
     {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfigService->set(
             'core.store.shopSecret',
@@ -163,7 +163,7 @@ trait StoreClientBehaviour
 
     protected function getShopwareVersion(): string
     {
-        $instanceService = $this->getContainer()->get(InstanceService::class);
+        $instanceService = static::getContainer()->get(InstanceService::class);
 
         return $instanceService->getShopwareVersion();
     }
@@ -173,6 +173,6 @@ trait StoreClientBehaviour
      */
     protected function getUserRepository(): EntityRepository
     {
-        return $this->getContainer()->get('user.repository');
+        return static::getContainer()->get('user.repository');
     }
 }

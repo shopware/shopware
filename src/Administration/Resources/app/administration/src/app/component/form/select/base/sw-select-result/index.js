@@ -4,7 +4,7 @@ import template from './sw-select-result.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -56,6 +56,11 @@ Component.register('sw-select-result', {
                     'left',
                 ].includes(value);
             },
+        },
+        ariaLabel: {
+            type: String,
+            required: false,
+            default: undefined,
         },
     },
 
@@ -121,8 +126,12 @@ Component.register('sw-select-result', {
             if (selectedItemIndex === this.index) this.onClickResult({});
         },
 
-        checkIfActive(activeItemIndex) {
+        checkIfActive(activeItemIndex, { shouldFocus } = { shouldFocus: false }) {
             this.active = this.index === activeItemIndex;
+
+            if (this.active && shouldFocus) {
+                this.$el.focus();
+            }
         },
 
         onClickResult() {

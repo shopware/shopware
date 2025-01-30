@@ -152,7 +152,7 @@ class ProductListRouteTest extends TestCase
             ->review('test hidden review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false)
             ->build();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
         $this->browser->request(
@@ -192,7 +192,7 @@ class ProductListRouteTest extends TestCase
             ->review('test hidden own review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false, $customerId)
             ->build();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
         $this->browser->request(
@@ -228,7 +228,7 @@ class ProductListRouteTest extends TestCase
     {
         $products = [];
 
-        $this->getContainer()->get('language.repository')->create(
+        static::getContainer()->get('language.repository')->create(
             [
                 [
                     'id' => $this->ids->create('language'),
@@ -282,7 +282,7 @@ class ProductListRouteTest extends TestCase
             'products' => $products,
         ];
 
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create([$data], Context::createDefaultContext());
     }
 
@@ -298,7 +298,7 @@ class ProductListRouteTest extends TestCase
             ];
         }
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->update($products, Context::createDefaultContext());
     }
 

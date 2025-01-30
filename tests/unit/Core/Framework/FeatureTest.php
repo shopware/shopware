@@ -240,7 +240,7 @@ class FeatureTest extends TestCase
     public function testFeatureAllMajorOnlyActivatesMajorFlags(): void
     {
         // Fake FEATURE_ALL so Core/DevOps/Environment/EnvironmentHelper::getVariable returns "major"
-        $orgFeatureAll = $_SERVER['FEATURE_ALL'];
+        $orgFeatureAll = $_SERVER['FEATURE_ALL'] ?? '';
         $_SERVER['FEATURE_ALL'] = 'major';
 
         static::assertSame('major', EnvironmentHelper::getVariable('FEATURE_ALL'));

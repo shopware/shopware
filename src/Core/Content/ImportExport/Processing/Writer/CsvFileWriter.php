@@ -7,7 +7,7 @@ use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CsvFileWriter extends AbstractFileWriter
 {
     /**
@@ -36,7 +36,7 @@ class CsvFileWriter extends AbstractFileWriter
      */
     private function writeToBuffer(array $data): void
     {
-        if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure) === false) {
+        if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure, '\\') === false) {
             throw ImportExportException::couldNotWriteToBuffer();
         }
     }

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Plugin\Util;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
 
-#[Package('core')]
+#[Package('framework')]
 class ZipUtils
 {
     private const HEADER_SIGNATURE = '504b0304';

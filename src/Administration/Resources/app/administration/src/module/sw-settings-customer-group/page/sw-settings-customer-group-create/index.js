@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package discovery
  *
  * @private
  */

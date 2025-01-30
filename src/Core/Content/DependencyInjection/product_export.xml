@@ -95,7 +95,7 @@
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportValidator">
-            <argument type="tagged" tag="shopware.product_export.validator"/>
+            <argument type="tagged_iterator" tag="shopware.product_export.validator"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Validator\XmlValidator">

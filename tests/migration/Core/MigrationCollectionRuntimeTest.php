@@ -33,7 +33,7 @@ class MigrationCollectionRuntimeTest extends TestCase
 
     protected function setUp(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
 
         $this->connection = $container->get(Connection::class);
         $loader = $container->get(MigrationCollectionLoader::class);
@@ -283,7 +283,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         $runtime = new MigrationRuntime($connection, $logger);
 
         /** @var MigrationSource $source */
-        $source = $this->getContainer()->get(MigrationSource::class . '.core');
+        $source = static::getContainer()->get(MigrationSource::class . '.core');
 
         iterator_to_array($runtime->migrate($source), true);
     }

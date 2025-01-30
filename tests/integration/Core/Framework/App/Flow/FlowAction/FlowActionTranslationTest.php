@@ -20,7 +20,7 @@ class FlowActionTranslationTest extends TestCase
     public function testHeadlineAndDescriptionTranslation(): void
     {
         /** @var EntityRepository<AppFlowActionCollection> $appFlowActionRepository */
-        $appFlowActionRepository = $this->getContainer()->get('app_flow_action.repository');
+        $appFlowActionRepository = static::getContainer()->get('app_flow_action.repository');
 
         $idFlowAction = $this->registerFlowAction();
 
@@ -34,7 +34,7 @@ class FlowActionTranslationTest extends TestCase
 
     private function registerFlowAction(): string
     {
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $idFlowAction = Uuid::randomHex();
 

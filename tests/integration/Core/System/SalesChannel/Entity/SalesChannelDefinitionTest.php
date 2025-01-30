@@ -28,7 +28,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelDefinitionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -46,35 +46,35 @@ class SalesChannelDefinitionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->registry = $this->getContainer()->get(SalesChannelDefinitionInstanceRegistry::class);
-        $this->apiRepository = $this->getContainer()->get('product.repository');
-        $this->salesChannelProductRepository = $this->getContainer()->get('sales_channel.product.repository');
-        $this->factory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->registry = static::getContainer()->get(SalesChannelDefinitionInstanceRegistry::class);
+        $this->apiRepository = static::getContainer()->get('product.repository');
+        $this->salesChannelProductRepository = static::getContainer()->get('sales_channel.product.repository');
+        $this->factory = static::getContainer()->get(SalesChannelContextFactory::class);
     }
 
     public function testAssociationReplacement(): void
     {
-        $fields = $this->getContainer()->get(SalesChannelProductDefinition::class)->getFields();
+        $fields = static::getContainer()->get(SalesChannelProductDefinition::class)->getFields();
 
         $categories = $fields->get('categories');
 
         /** @var ManyToManyAssociationField $categories */
         static::assertSame(
-            $this->getContainer()->get(SalesChannelCategoryDefinition::class)->getClass(),
+            static::getContainer()->get(SalesChannelCategoryDefinition::class)->getClass(),
             $categories->getToManyReferenceDefinition()->getClass()
         );
 
         static::assertSame(
-            $this->getContainer()->get(SalesChannelCategoryDefinition::class),
+            static::getContainer()->get(SalesChannelCategoryDefinition::class),
             $categories->getToManyReferenceDefinition()
         );
 
-        $fields = $this->getContainer()->get(ProductDefinition::class)->getFields();
+        $fields = static::getContainer()->get(ProductDefinition::class)->getFields();
         $categories = $fields->get('categories');
 
         /** @var ManyToManyAssociationField $categories */
         static::assertSame(
-            $this->getContainer()->get(CategoryDefinition::class),
+            static::getContainer()->get(CategoryDefinition::class),
             $categories->getToManyReferenceDefinition()
         );
     }
@@ -82,7 +82,7 @@ class SalesChannelDefinitionTest extends TestCase
     public function testDefinitionRegistry(): void
     {
         static::assertSame(
-            $this->getContainer()->get(SalesChannelProductDefinition::class),
+            static::getContainer()->get(SalesChannelProductDefinition::class),
             $this->registry->getByEntityName('product')
         );
     }
@@ -91,7 +91,7 @@ class SalesChannelDefinitionTest extends TestCase
     {
         static::assertInstanceOf(
             SalesChannelRepository::class,
-            $this->getContainer()->get('sales_channel.product.repository')
+            static::getContainer()->get('sales_channel.product.repository')
         );
     }
 
@@ -121,7 +121,7 @@ class SalesChannelDefinitionTest extends TestCase
 
         $this->apiRepository->create([$data], Context::createDefaultContext());
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
         $this->addEventListener($dispatcher, 'sales_channel.product.loaded', $listener);

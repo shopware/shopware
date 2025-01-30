@@ -14,7 +14,7 @@ use Shopware\Tests\Bench\AbstractBenchCase;
  */
 class ProductBench extends AbstractBenchCase
 {
-    #[BeforeMethods(['setup'])]
+    #[BeforeMethods(['setUp'])]
     #[AfterMethods(['tearDown'])]
     #[Bench\Assert('mode(variant.time.avg) < 10ms')]
     public function bench_loading_a_simple_product(): void
@@ -23,7 +23,7 @@ class ProductBench extends AbstractBenchCase
             $this->ids->getList(['simple-product'])
         );
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
     }
 }

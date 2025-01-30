@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
-#[Package('core')]
+#[Package('framework')]
 class EntityExists extends Constraint
 {
     final public const ENTITY_DOES_NOT_EXISTS = 'f1e5c873-5baf-4d5b-8ab7-e422bfce91f1';

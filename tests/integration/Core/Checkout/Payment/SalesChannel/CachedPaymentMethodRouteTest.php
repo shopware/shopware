@@ -54,41 +54,41 @@ class CachedPaymentMethodRouteTest extends TestCase
         Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     #[AfterClass]
     public function cleanup(): void
     {
-        $this->getContainer()->get('cache.object')
+        static::getContainer()->get('cache.object')
             ->invalidateTags([self::ALL_TAG]);
     }
 
     #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
-        $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
+        static::getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(PaymentMethodRouteCacheTagsEvent::class, static function (PaymentMethodRouteCacheTagsEvent $event): void {
                 $event->addTags([self::ALL_TAG]);
             });
 
-        $route = $this->getContainer()->get(PaymentMethodRoute::class);
+        $route = static::getContainer()->get(PaymentMethodRoute::class);
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
 
-        $this->getContainer()
+        static::getContainer()
             ->get('event_dispatcher')
             ->addListener(PaymentMethodRouteCacheTagsEvent::class, $listener);
 
-        $before($this->getContainer());
+        $before(static::getContainer());
 
         $route->load(new Request(), $this->context, new Criteria());
         $route->load(new Request(), $this->context, new Criteria());
 
-        $after($this->getContainer());
+        $after(static::getContainer());
 
         $route->load(new Request(), $this->context, new Criteria());
         $route->load(new Request(), $this->context, new Criteria());

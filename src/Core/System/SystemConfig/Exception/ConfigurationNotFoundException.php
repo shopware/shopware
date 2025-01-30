@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - Exception will be removed
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class ConfigurationNotFoundException extends SystemConfigException
 {
     public function __construct(string $scope)

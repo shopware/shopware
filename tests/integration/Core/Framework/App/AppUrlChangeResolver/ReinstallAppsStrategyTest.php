@@ -16,7 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -34,13 +36,13 @@ class ReinstallAppsStrategyTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
+        $this->shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
         $this->context = Context::createDefaultContext();
     }
 
     public function testGetName(): void
     {
-        $reinstallAppsResolver = $this->getContainer()->get(ReinstallAppsStrategy::class);
+        $reinstallAppsResolver = static::getContainer()->get(ReinstallAppsStrategy::class);
 
         static::assertSame(
             ReinstallAppsStrategy::STRATEGY_NAME,
@@ -51,7 +53,7 @@ class ReinstallAppsStrategyTest extends TestCase
 
     public function testItReRegistersInstalledApps(): void
     {
-        $appDir = __DIR__ . '/../Manifest/_fixtures/test';
+        $appDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/test');
         $this->loadAppsFromDir($appDir);
 
         $app = $this->getInstalledApp($this->context);
@@ -74,8 +76,8 @@ class ReinstallAppsStrategyTest extends TestCase
             ->with(static::isInstanceOf(AppInstalledEvent::class));
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
-            $this->getAppLoader($appDir),
-            $this->getContainer()->get('app.repository'),
+            new StaticSourceResolver(['test' => new Filesystem($appDir)]),
+            static::getContainer()->get('app.repository'),
             $registrationsService,
             $this->shopIdProvider,
             $eventDispatcher
@@ -112,8 +114,8 @@ class ReinstallAppsStrategyTest extends TestCase
             ->method('dispatch');
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
-            $this->getAppLoader($appDir),
-            $this->getContainer()->get('app.repository'),
+            new StaticSourceResolver(['no-setup' => new Filesystem($appDir)]),
+            static::getContainer()->get('app.repository'),
             $registrationsService,
             $this->shopIdProvider,
             $eventDispatcher
@@ -144,7 +146,7 @@ class ReinstallAppsStrategyTest extends TestCase
     private function getInstalledApp(Context $context): AppEntity
     {
         /** @var EntityRepository<AppCollection> $appRepo */
-        $appRepo = $this->getContainer()->get('app.repository');
+        $appRepo = static::getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('integration');

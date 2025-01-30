@@ -22,10 +22,12 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
@@ -48,7 +50,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentGeneratorTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -74,7 +76,7 @@ class DocumentGeneratorTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -82,9 +84,9 @@ class DocumentGeneratorTest extends TestCase
             ]
         );
 
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
 
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeRepository = static::getContainer()->get('document_type.repository');
 
         $this->documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
@@ -94,7 +96,7 @@ class DocumentGeneratorTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $this->orderId = $this->persistCart($cart);
 
-        $this->documentRepository = $this->getContainer()->get('document.repository');
+        $this->documentRepository = static::getContainer()->get('document.repository');
     }
 
     public function testCreateDeliveryNotePdf(): void
@@ -142,7 +144,7 @@ class DocumentGeneratorTest extends TestCase
         $this->expectException(DocumentException::class);
 
         /** @var OrderEntity $order */
-        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
+        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
 
         $operation = new DocumentGenerateOperation($this->orderId);
         $operation->assign([
@@ -159,7 +161,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewInvoice(): void
     {
-        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
+        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);
 
@@ -172,7 +174,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewStorno(): void
     {
-        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
+        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);
         $orderCustomer = $order->getOrderCustomer();
@@ -219,7 +221,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertStringContainsString('Cancellation 1000 for Invoice ' . $invoiceNumber, $stornoStruct->getHtml());
         static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
 
-        $this->getContainer()->get('order_customer.repository')->update([[
+        static::getContainer()->get('order_customer.repository')->update([[
             'id' => $orderCustomer->getId(),
             'customerNumber' => 'CHANGED NUMBER',
         ]], $this->context);
@@ -259,6 +261,7 @@ class DocumentGeneratorTest extends TestCase
                 'config' => [],
                 'documentMediaFileId' => null,
                 'deepLinkCode' => Random::getAlphanumericString(32),
+                'documentA11yMediaFileId' => null,
             ]], $this->context);
         }
 
@@ -266,6 +269,7 @@ class DocumentGeneratorTest extends TestCase
             $this->documentRepository->update([[
                 'id' => $documentId,
                 'documentMediaFileId' => null,
+                'documentA11yMediaFileId' => null,
                 'static' => false,
             ]], $this->context);
         }
@@ -278,7 +282,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document);
         static::assertNotNull($document->getDocumentMediaFileId());
 
-        $savedContent = $this->getContainer()->get(MediaService::class)->loadFile($document->getDocumentMediaFileId(), $this->context);
+        $savedContent = static::getContainer()->get(MediaService::class)->loadFile($document->getDocumentMediaFileId(), $this->context);
         static::assertEquals($uploadFileRequest->getContent(), $savedContent);
     }
 
@@ -386,7 +390,7 @@ class DocumentGeneratorTest extends TestCase
     public function testCreateFileIsWrittenInFs(): void
     {
         /** @var FilesystemOperator $fileSystem */
-        $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+        $fileSystem = static::getContainer()->get('shopware.filesystem.private');
         $document = $this->createDocumentWithFile();
 
         static::assertNotNull($document->getDocumentMediaFile());
@@ -415,9 +419,9 @@ class DocumentGeneratorTest extends TestCase
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
         /** @var FilesystemOperator $fileSystem */
-        $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+        $fileSystem = static::getContainer()->get('shopware.filesystem.private');
 
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeRepository = static::getContainer()->get('document_type.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteRenderer::TYPE));
@@ -481,7 +485,7 @@ class DocumentGeneratorTest extends TestCase
             'companyName' => 'Custom corp.',
             'displayCompanyAddress' => false,
         ];
-        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannel()->getId());
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannelId());
 
         $operation = new DocumentGenerateOperation($this->orderId);
 
@@ -516,11 +520,12 @@ class DocumentGeneratorTest extends TestCase
             'displayCompanyAddress' => false,
             'pageSize' => 'a5',
         ];
-        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannel()->getId());
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannelId());
 
         $overrides = [
             'companyName' => 'Override corp.',
             'displayCompanyAddress' => true,
+            'fileType' => FileTypes::PDF,
         ];
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $overrides);
@@ -732,7 +737,7 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertNotNull($mediaId);
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertInstanceOf(StreamInterface::class, $media);
     }
@@ -762,6 +767,7 @@ class DocumentGeneratorTest extends TestCase
             'documentMediaFileId' => null,
             'config' => [],
             'deepLinkCode' => Random::getAlphanumericString(32),
+            'documentA11yMediaFileId' => null,
         ]], $this->context);
 
         $generatedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
@@ -779,7 +785,7 @@ class DocumentGeneratorTest extends TestCase
         $mediaId = $document->getDocumentMediaFileId();
         static::assertNotNull($mediaId);
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media);
     }
@@ -787,12 +793,19 @@ class DocumentGeneratorTest extends TestCase
     #[DataProvider('readDocumentDataProvider')]
     public function testReadDocument(bool $withMedia, bool $static): void
     {
-        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, $static);
+        $operation = new DocumentGenerateOperation(
+            $this->orderId,
+            FileTypes::PDF,
+            ['fileTypes' => [HtmlRenderer::FILE_EXTENSION, PdfRenderer::FILE_EXTENSION]],
+            null,
+            $static,
+        );
 
         $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($invoiceStruct);
         static::assertInstanceOf(DocumentIdStruct::class, $invoiceStruct);
         $documentMediaFileId = $invoiceStruct->getMediaId();
+
         $documentId = $invoiceStruct->getId();
 
         if ($static && $withMedia === false) {
@@ -823,26 +836,54 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($documentMediaFileId);
 
         if ($withMedia === false) {
-            $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
-            $mediaRepository = $this->getContainer()->get('media.repository');
-            /** @var MediaEntity $media */
-            $media = $mediaRepository->search(new Criteria([$documentMediaFileId]), $this->context)->get($documentMediaFileId);
+            $documentA11yMediaFileId = $invoiceStruct->getA11yMediaId();
+            static::assertNotNull($documentA11yMediaFileId);
 
+            $criteria = new Criteria([$documentId]);
+            $criteria->addAssociation('documentMediaFile')
+                ->addAssociation('documentA11yMediaFile');
+
+            $documentRepository = static::getContainer()->get('document.repository');
+            /** @var DocumentEntity $document */
+            $document = $documentRepository->search($criteria, $this->context)->get($documentId);
+
+            static::assertNotNull($document);
+
+            $fileSystem = static::getContainer()->get('shopware.filesystem.private');
+            $mediaRepository = static::getContainer()->get('media.repository');
+
+            /** @var MediaCollection $mediaFiles */
+            $mediaFiles = $mediaRepository->search(new Criteria([$documentMediaFileId, $documentA11yMediaFileId]), $this->context);
+            static::assertNotNull($mediaFiles);
+
+            /** @var MediaEntity $media */
+            $media = $mediaFiles->get($documentMediaFileId);
             static::assertNotNull($media);
+
+            /** @var MediaEntity $mediaAyy1 */
+            $mediaAyy1 = $mediaFiles->get($documentA11yMediaFileId);
+            static::assertNotNull($mediaAyy1);
 
             $filePath = $media->getPath();
 
             static::assertTrue($fileSystem->has($filePath));
             $fileSystem->delete($filePath);
 
+            $filePathA11y = $mediaAyy1->getPath();
+
+            static::assertTrue($fileSystem->has($filePathA11y));
+            $fileSystem->delete($filePathA11y);
+
             $this->documentRepository->update([[
                 'id' => $documentId,
                 'documentMediaFileId' => null,
+                'documentA11yMediaFileId' => null,
             ]], $this->context);
 
-            $mediaRepository->delete([[
-                'id' => $documentMediaFileId,
-            ]], $this->context);
+            $mediaRepository->delete([
+                ['id' => $documentMediaFileId],
+                ['id' => $documentA11yMediaFileId],
+            ], $this->context);
         }
 
         $generatedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
@@ -865,7 +906,7 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertNotNull($mediaId);
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media);
     }
@@ -879,7 +920,9 @@ class DocumentGeneratorTest extends TestCase
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
         $criteria = new Criteria([$documentStruct->getId()]);
-        $criteria->addAssociation('documentType');
+        $criteria->addAssociation('documentType')
+            ->addAssociation('documentMediaFile')
+            ->addAssociation('documentA11yMediaFile');
 
         /** @var DocumentEntity $document */
         $document = $this->documentRepository
@@ -928,8 +971,9 @@ class DocumentGeneratorTest extends TestCase
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
         $criteria = new Criteria([$documentStruct->getId()]);
-        $criteria->addAssociation('documentMediaFile');
-        $criteria->addAssociation('documentType');
+        $criteria->addAssociation('documentMediaFile')
+            ->addAssociation('documentA11yMediaFile')
+            ->addAssociation('documentType');
 
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search($criteria, $this->context)->get($documentStruct->getId());

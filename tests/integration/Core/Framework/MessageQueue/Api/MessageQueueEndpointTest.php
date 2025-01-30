@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class MessageQueueEndpointTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -19,7 +19,7 @@ class MessageQueueEndpointTest extends TestCase
 
     public function testEndpoint(): void
     {
-        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $gatewayRegistry = static::getContainer()->get('shopware.increment.gateway.registry');
 
         $gateway = $gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
 

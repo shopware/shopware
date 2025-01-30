@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class IntegrationRoleDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'integration_role';

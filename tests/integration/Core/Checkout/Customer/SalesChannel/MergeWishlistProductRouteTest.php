@@ -55,12 +55,12 @@ class MergeWishlistProductRouteTest extends TestCase
         ]);
         $this->assignSalesChannelContext($this->browser);
 
-        $this->wishlistProductRepository = $this->getContainer()->get('customer_wishlist_product.repository');
+        $this->wishlistProductRepository = static::getContainer()->get('customer_wishlist_product.repository');
 
         $email = Uuid::randomHex() . '@example.com';
         $this->customerId = $this->createCustomer($email);
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 
         $this->browser
@@ -359,7 +359,7 @@ class MergeWishlistProductRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')->create([$data], $context);
+        static::getContainer()->get('product.repository')->create([$data], $context);
 
         return $productId;
     }
@@ -367,7 +367,7 @@ class MergeWishlistProductRouteTest extends TestCase
     private function createCustomerWishlist(?string $productId = null): string
     {
         $customerWishlistId = Uuid::randomHex();
-        $customerWishlistRepository = $this->getContainer()->get('customer_wishlist.repository');
+        $customerWishlistRepository = static::getContainer()->get('customer_wishlist.repository');
 
         $data = [
             'id' => $customerWishlistId,

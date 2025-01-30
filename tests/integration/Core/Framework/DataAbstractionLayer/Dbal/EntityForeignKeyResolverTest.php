@@ -46,7 +46,7 @@ class EntityForeignKeyResolverTest extends TestCase
         $productId = Uuid::randomHex();
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $context = Context::createDefaultContext();
 
         $productRepository->create([
@@ -118,14 +118,14 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $definition = $this->getContainer()->get(OrderDefinition::class);
+        $definition = static::getContainer()->get(OrderDefinition::class);
 
         $pk = [
             ['id' => $ids->get('order1')],
             ['id' => $ids->get('order2')],
         ];
 
-        $affected = $this->getContainer()->get(EntityForeignKeyResolver::class)
+        $affected = static::getContainer()->get(EntityForeignKeyResolver::class)
             ->getAffectedDeletes($definition, $pk, $context);
 
         static::assertCount(5, $affected);
@@ -164,7 +164,7 @@ class EntityForeignKeyResolverTest extends TestCase
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
 
-        $ruleDefinition = $this->getContainer()->get(RuleDefinition::class);
+        $ruleDefinition = static::getContainer()->get(RuleDefinition::class);
 
         $this->createRule($ids);
         $this->createShippingMethod($ids);
@@ -174,7 +174,7 @@ class EntityForeignKeyResolverTest extends TestCase
             'id' => $ids->get('rule'),
         ];
 
-        $affected = $this->getContainer()->get(EntityForeignKeyResolver::class)
+        $affected = static::getContainer()->get(EntityForeignKeyResolver::class)
             ->getAffectedDeleteRestrictions($ruleDefinition, $deleteIds, $context, true);
 
         static::assertCount(1, $affected);
@@ -192,12 +192,12 @@ class EntityForeignKeyResolverTest extends TestCase
         $builder->price(100);
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $productRepository->create([$builder->build()], $context);
 
         /** @var Connection $connection */
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         // self referencing is not allowed over the application anymore, but we still want to support the deletion
         $connection->executeStatement('UPDATE product SET parent_id = :id WHERE id = :id', [
             'id' => $ids->getBytes('product'),
@@ -214,7 +214,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
     private function getStateId(string $state, string $machine): string
     {
-        $stateId = $this->getContainer()->get(Connection::class)
+        $stateId = static::getContainer()->get(Connection::class)
             ->fetchOne('
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
@@ -308,13 +308,13 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->getContainer()->get('order.repository')
+        static::getContainer()->get('order.repository')
             ->create([$data], $context);
     }
 
     private function createShippingMethod(IdsCollection $ids): void
     {
-        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
 
         $data = [
             'id' => $ids->create('shipping-method'),
@@ -360,7 +360,7 @@ class EntityForeignKeyResolverTest extends TestCase
     private function createRule(IdsCollection $ids): void
     {
         $ruleId = $ids->create('rule');
-        $ruleRepository = $this->getContainer()->get('rule.repository');
+        $ruleRepository = static::getContainer()->get('rule.repository');
 
         $ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
@@ -395,7 +395,7 @@ class EntityForeignKeyResolverTest extends TestCase
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];
 
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $salesChannelRepository->create([$data], Context::createDefaultContext());
     }
 }

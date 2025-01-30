@@ -20,7 +20,7 @@ class StorefrontPluginRegistryTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme');
 
-        $registry = $this->getContainer()
+        $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
 
         static::assertInstanceOf(
@@ -33,7 +33,7 @@ class StorefrontPluginRegistryTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme', false);
 
-        $registry = $this->getContainer()
+        $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
 
         static::assertNull(
@@ -45,7 +45,7 @@ class StorefrontPluginRegistryTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeCustomCss');
 
-        $registry = $this->getContainer()
+        $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
 
         static::assertInstanceOf(
@@ -58,7 +58,7 @@ class StorefrontPluginRegistryTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeNoCss');
 
-        $registry = $this->getContainer()
+        $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
 
         static::assertInstanceOf(

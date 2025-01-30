@@ -3,7 +3,7 @@ import type RuleConditionService from '../service/rule-condition.service';
 const { Application, Feature } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService: RuleConditionService) => {
     ruleConditionService.addCondition('dateRange', {
@@ -586,6 +586,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderDeliveryStatusRule',
         scopes: ['order'],
+        group: 'order',
+    });
+
+    ruleConditionService.addCondition('adminSalesChannelSource', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.adminSalesChannelSourceRule',
+        scopes: ['checkout'],
         group: 'order',
     });
 

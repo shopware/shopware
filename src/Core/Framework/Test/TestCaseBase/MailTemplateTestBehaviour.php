@@ -38,7 +38,7 @@ trait MailTemplateTestBehaviour
      */
     protected function catchEvent(string $eventName, ?object &$eventResult): void
     {
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
         $this->addEventListener($eventDispatcher, $eventName, static function ($event) use (&$eventResult): void {
             $eventResult = $event;
         });

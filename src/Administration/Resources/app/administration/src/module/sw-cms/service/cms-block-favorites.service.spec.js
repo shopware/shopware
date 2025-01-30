@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import CmsBlockFavorites from 'src/module/sw-cms/service/cms-block-favorites.service';
 

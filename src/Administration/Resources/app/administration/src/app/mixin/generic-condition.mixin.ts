@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import { defineComponent } from 'vue';
@@ -154,11 +154,11 @@ export default Mixin.register(
             boolOptions() {
                 return [
                     {
-                        label: this.$tc('global.sw-condition.condition.yes'),
+                        label: this.$tc('global.default.yes'),
                         value: true,
                     },
                     {
-                        label: this.$tc('global.sw-condition.condition.no'),
+                        label: this.$tc('global.default.no'),
                         value: false,
                     },
                 ];

@@ -4,7 +4,7 @@ import './sw-select-selection-list.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -92,6 +92,11 @@ Component.register('sw-select-selection-list', {
             type: Boolean,
             required: false,
             default: false,
+        },
+        inputLabel: {
+            type: String,
+            required: false,
+            default: undefined,
         },
     },
 

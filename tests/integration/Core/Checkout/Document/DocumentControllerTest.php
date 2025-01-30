@@ -42,7 +42,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -65,7 +65,7 @@ class DocumentControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -76,7 +76,7 @@ class DocumentControllerTest extends TestCase
 
         $this->addCountriesToSalesChannel();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -95,11 +95,11 @@ class DocumentControllerTest extends TestCase
         }
         $this->salesChannelContext->setRuleIds($ruleIds);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
 
-        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
     }
 
     public function testCustomUploadDocument(): void
@@ -107,7 +107,7 @@ class DocumentControllerTest extends TestCase
         $context = Context::createDefaultContext();
 
         /** @var EntityRepository $documentTypeRepository */
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
         /** @var DocumentTypeEntity $type */
         $type = $documentTypeRepository->search($criteria, $context)->first();
@@ -141,11 +141,11 @@ class DocumentControllerTest extends TestCase
 
         $filename = 'invoice';
         $expectedFileContent = 'simple invoice';
-        $expectedContentType = 'text/plain; charset=UTF-8';
+        $expectedContentType = 'application/pdf';
 
         $this->getBrowser()->request(
             'POST',
-            $baseResource . '_action/document/' . $response['data'][0]['documentId'] . '/upload?fileName=' . $filename . '&extension=txt',
+            $baseResource . '_action/document/' . $response['data'][0]['documentId'] . '/upload?fileName=' . $filename . '&extension=pdf',
             [],
             [],
             ['HTTP_CONTENT_TYPE' => $expectedContentType, 'HTTP_CONTENT_LENGTH' => mb_strlen($expectedFileContent)],
@@ -156,6 +156,7 @@ class DocumentControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
         $response = $this->getBrowser()->getResponse();
+
         static::assertEquals(200, $response->getStatusCode());
 
         static::assertEquals($expectedFileContent, $response->getContent());
@@ -206,7 +207,7 @@ class DocumentControllerTest extends TestCase
         static::assertNotNull($order);
 
         TestUser::createNewTestUser(
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             []
         )->authorizeBrowser($this->getBrowser());
 
@@ -220,7 +221,7 @@ class DocumentControllerTest extends TestCase
         static::assertEquals($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
 
         TestUser::createNewTestUser(
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             ['document:read']
         )->authorizeBrowser($this->getBrowser());
 
@@ -442,7 +443,7 @@ class DocumentControllerTest extends TestCase
     public function testDownloadPermission(): void
     {
         TestUser::createNewTestUser(
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             []
         )->authorizeBrowser($this->getBrowser());
 
@@ -454,7 +455,7 @@ class DocumentControllerTest extends TestCase
         static::assertEquals($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
 
         TestUser::createNewTestUser(
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             ['document:read']
         )->authorizeBrowser($this->getBrowser());
 
@@ -493,7 +494,7 @@ class DocumentControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): OrderEntity
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -583,7 +584,7 @@ class DocumentControllerTest extends TestCase
             [
                 'documentIds' => $documentIds,
             ],
-            ['documentIds' => ArrayParameterType::BINARY]
+            ['documentIds' => ArrayParameterType::STRING]
         );
     }
 

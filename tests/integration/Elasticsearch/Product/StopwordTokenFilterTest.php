@@ -23,7 +23,7 @@ class StopwordTokenFilterTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     /**

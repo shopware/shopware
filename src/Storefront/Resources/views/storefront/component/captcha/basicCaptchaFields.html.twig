@@ -1,3 +1,4 @@
+{# @deprecated tag:v6.7.0 - This template will become obsolete. All fields are already implemented in basicCaptcha.html.twig #}
 {% block component_basic_captcha_fields_title_input %}
     <div id="{{ formId }}-basic-captcha-field">
         {% if formViolations.getViolations("/#{constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER')}") is not empty %}

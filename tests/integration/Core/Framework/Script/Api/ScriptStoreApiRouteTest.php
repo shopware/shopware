@@ -85,7 +85,7 @@ class ScriptStoreApiRouteTest extends TestCase
             (new ProductBuilder($ids, 'p2'))->visibility($salesChannelId)->price(200)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $criteria = [
             'filter' => [
@@ -176,7 +176,7 @@ class ScriptStoreApiRouteTest extends TestCase
             (new ProductBuilder($ids, 'p1'))->price(100)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $this->browser->followRedirects(false);
         $this->browser->request('POST', '/store-api/script/redirect-response', ['productId' => $ids->get('p1')]);
@@ -282,7 +282,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
         // invalidate the custom cache tag
-        $cacheInvalidator = $this->getContainer()->get(CacheInvalidator::class);
+        $cacheInvalidator = static::getContainer()->get(CacheInvalidator::class);
         $cacheInvalidator->invalidate(['my-custom-tag'], true);
 
         $this->browser->request('GET', '/store-api/script/cache-script');

@@ -43,34 +43,34 @@ class MediaUploadControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
 
         $this->context = Context::createDefaultContext();
         $this->mediaId = $this->getEmptyMedia()->getId();
         $this->thrownMediaEvent = null;
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             MediaUploadedEvent::class,
             function (MediaUploadedEvent $event): void {
                 $this->thrownMediaEvent = $event;
             }
         );
 
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
         if (!\is_dir($projectDir . '/public/media')) {
             mkdir($projectDir . '/public/media');
             $this->mediaDirCreated = true;
         }
-        \copy(self::TEST_IMAGE, $this->getContainer()->getParameter('kernel.project_dir') . '/public/media/shopware-logo.png');
+        \copy(self::TEST_IMAGE, static::getContainer()->getParameter('kernel.project_dir') . '/public/media/shopware-logo.png');
     }
 
     protected function tearDown(): void
     {
-        \unlink($this->getContainer()->getParameter('kernel.project_dir') . '/public/media/shopware-logo.png');
+        \unlink(static::getContainer()->getParameter('kernel.project_dir') . '/public/media/shopware-logo.png');
 
         if ($this->mediaDirCreated) {
-            rmdir($this->getContainer()->getParameter('kernel.project_dir') . '/public/media');
+            rmdir(static::getContainer()->getParameter('kernel.project_dir') . '/public/media');
             $this->mediaDirCreated = false;
         }
     }
@@ -105,7 +105,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromBinaryUsesFileName(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
@@ -139,7 +139,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromURL(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
@@ -183,7 +183,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::never())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);

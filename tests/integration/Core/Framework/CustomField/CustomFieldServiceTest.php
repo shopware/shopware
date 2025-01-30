@@ -35,8 +35,8 @@ class CustomFieldServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->attributeRepository = $this->getContainer()->get('custom_field.repository');
-        $this->attributeService = $this->getContainer()->get(CustomFieldService::class);
+        $this->attributeRepository = static::getContainer()->get('custom_field.repository');
+        $this->attributeService = static::getContainer()->get(CustomFieldService::class);
     }
 
     /**

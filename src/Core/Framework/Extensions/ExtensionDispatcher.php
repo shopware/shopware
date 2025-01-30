@@ -8,7 +8,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
  */
-#[Package('core')]
+#[Package('framework')]
 final class ExtensionDispatcher
 {
     /**

@@ -14,7 +14,7 @@ use Shopware\Core\Migration\V6_6\Migration1710493619ScheduleMediaPathIndexer;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1710493619ScheduleMediaPathIndexer::class)]
 class Migration1710493619ScheduleMediaPathIndexerTest extends TestCase
 {
@@ -29,7 +29,7 @@ class Migration1710493619ScheduleMediaPathIndexerTest extends TestCase
 
     public function testMigrate(): void
     {
-        $queuer = $this->getContainer()->get(IndexerQueuer::class);
+        $queuer = static::getContainer()->get(IndexerQueuer::class);
         $queuer->finishIndexer(['media.path.post_update']);
         $queuedIndexers = $queuer->getIndexers();
 

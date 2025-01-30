@@ -22,7 +22,7 @@ class Migration1696515133AddCheckoutGatewayUrlTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testMigrate(): void

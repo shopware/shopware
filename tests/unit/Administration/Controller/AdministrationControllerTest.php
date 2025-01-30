@@ -54,6 +54,7 @@ class AdministrationControllerTest extends TestCase
 
     private Context $context;
 
+    /** @var MockObject&EntityRepository<CurrencyCollection> */
     private MockObject&EntityRepository $currencyRepository;
 
     private MockObject&DefinitionInstanceRegistry $definitionRegistry;
@@ -68,6 +69,8 @@ class AdministrationControllerTest extends TestCase
 
     private string $shopwareCoreDir;
 
+    private string $refreshTokenTtl;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
@@ -79,6 +82,7 @@ class AdministrationControllerTest extends TestCase
         $this->htmlSanitizer = $this->createMock(HtmlSanitizer::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->shopwareCoreDir = __DIR__ . '/../../../../src/Core/';
+        $this->refreshTokenTtl = 'P1W';
     }
 
     public function testIndexPerformsOnSearchOfCurrency(): void
@@ -108,6 +112,7 @@ class AdministrationControllerTest extends TestCase
                     'cspNonce' => null,
                     'adminEsEnable' => true,
                     'storefrontEsEnable' => true,
+                    'refreshTokenTtl' => 7 * 86400 * 1000,
                 ]
             );
 
@@ -243,7 +248,7 @@ class AdministrationControllerTest extends TestCase
 
         $this->fileSystemOperator->expects(static::once())
             ->method('read')
-            ->with('bundles/foo/administration/index.html')
+            ->with('bundles/foo/meteor-app/index.html')
             ->willThrowException(new UnableToReadFile());
         $response = $controller->pluginIndex('foo');
 
@@ -258,7 +263,7 @@ class AdministrationControllerTest extends TestCase
         $fileContent = '<html><head></head><body></body></html>';
         $this->fileSystemOperator->expects(static::once())
             ->method('read')
-            ->with('bundles/foo/administration/index.html')
+            ->with('bundles/foo/meteor-app/index.html')
             ->willReturn($fileContent);
         $response = $controller->pluginIndex('foo');
 
@@ -273,7 +278,7 @@ class AdministrationControllerTest extends TestCase
         $fileContent = '<html><head><base href="__$ASSET_BASE_PATH$__" /></head><body></body></html>';
         $this->fileSystemOperator->expects(static::once())
             ->method('read')
-            ->with('bundles/foo/administration/index.html')
+            ->with('bundles/foo/meteor-app/index.html')
             ->willReturn($fileContent);
 
         $this->fileSystemOperator->expects(static::once())
@@ -463,6 +468,9 @@ class AdministrationControllerTest extends TestCase
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository([$collection]);
+
         return new AdministrationController(
             $this->createMock(TemplateFinder::class),
             $this->createMock(FirstRunWizardService::class),
@@ -472,7 +480,7 @@ class AdministrationControllerTest extends TestCase
             $this->connection,
             $this->eventDispatcher,
             $this->shopwareCoreDir,
-            new StaticEntityRepository([$collection]),
+            $customerRepository,
             $this->currencyRepository,
             $this->htmlSanitizer,
             $this->definitionRegistry,
@@ -481,6 +489,7 @@ class AdministrationControllerTest extends TestCase
                 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
             ]),
             $this->fileSystemOperator,
+            $this->refreshTokenTtl,
         );
     }
 

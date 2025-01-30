@@ -95,7 +95,7 @@ class ResponseHeaderListenerTest extends TestCase
     #[DataProvider('dataProviderRevalidateRoutes')]
     public function testNoStoreHeaderPresent(string $routeName, array $routeParameters): void
     {
-        $router = $this->getContainer()->get('router');
+        $router = static::getContainer()->get('router');
         $route = $router->generate($routeName, $routeParameters);
 
         $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
@@ -123,7 +123,7 @@ class ResponseHeaderListenerTest extends TestCase
      */
     private function toggleNotFoundSubscriber(bool $debug): void
     {
-        $subscriber = $this->getContainer()->get(NotFoundSubscriber::class);
+        $subscriber = static::getContainer()->get(NotFoundSubscriber::class);
         $reflection = new \ReflectionClass($subscriber);
         $reflectionProperty = $reflection->getProperty('kernelDebug');
 

@@ -43,7 +43,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class InvoiceRendererTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -69,7 +69,7 @@ class InvoiceRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -78,16 +78,16 @@ class InvoiceRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
-        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->invoiceRenderer = static::getContainer()->get(InvoiceRenderer::class);
+        $this->cartService = static::getContainer()->get(CartService::class);
         self::$deLanguageId = $this->getDeDeLanguageId();
     }
 
     protected function tearDown(): void
     {
         if (self::$callback instanceof \Closure) {
-            $this->getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
+            static::getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
         }
     }
 
@@ -104,13 +104,13 @@ class InvoiceRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(InvoiceOrdersEvent::class, function (InvoiceOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
         if ($beforeRenderHook instanceof \Closure) {
-            $beforeRenderHook($operationInvoice, $this->getContainer());
+            $beforeRenderHook($operationInvoice, static::getContainer());
         }
 
         $processedTemplate = $this->invoiceRenderer->render(
@@ -135,12 +135,10 @@ class InvoiceRendererTest extends TestCase
             static::assertInstanceOf(OrderLineItemCollection::class, $lineItems = $order->getLineItems());
             static::assertInstanceOf(OrderLineItemEntity::class, $firstLineItem = $lineItems->first());
             static::assertInstanceOf(OrderLineItemEntity::class, $lastLineItem = $lineItems->last());
-            static::assertStringContainsString('<html>', $rendered->getHtml());
-            static::assertStringContainsString('</html>', $rendered->getHtml());
             static::assertStringContainsString($firstLineItem->getLabel(), $rendered->getHtml());
             static::assertStringContainsString($lastLineItem->getLabel(), $rendered->getHtml());
 
-            $assertionCallback($rendered, $order, $this->getContainer());
+            $assertionCallback($rendered, $order, static::getContainer());
         } else {
             $assertionCallback($order->getId(), $processedTemplate->getErrors());
         }
@@ -184,6 +182,9 @@ class InvoiceRendererTest extends TestCase
                     \sprintf('Date %s', $formattedDate),
                     $rendered->getHtml()
                 );
+
+                static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
+                static::assertStringContainsString('</html>', $rendered->getHtml());
             },
         ];
 
@@ -246,6 +247,9 @@ class InvoiceRendererTest extends TestCase
                     \sprintf('Datum %s', $formattedDate),
                     $rendered->getHtml()
                 );
+
+                static::assertStringContainsString('<html lang="de-DE">', $rendered->getHtml());
+                static::assertStringContainsString('</html>', $rendered->getHtml());
             },
         ];
 
@@ -580,7 +584,7 @@ class InvoiceRendererTest extends TestCase
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
-        $order = $this->getContainer()->get('order.repository')
+        $order = static::getContainer()->get('order.repository')
             ->search($criteria, Context::createDefaultContext())->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
 
@@ -706,7 +710,7 @@ class InvoiceRendererTest extends TestCase
      */
     private function updateCustomer(OrderEntity $order, array $config): void
     {
-        $this->getContainer()->get('customer.repository')->update([[
+        static::getContainer()->get('customer.repository')->update([[
             'id' => $order->getOrderCustomer()?->getCustomerId(),
             'accountType' => $config['accountType'],
         ]], Context::createDefaultContext());
@@ -726,7 +730,7 @@ class InvoiceRendererTest extends TestCase
 
     private function updateCountryMemberState(OrderEntity $order, bool $isEu): void
     {
-        $this->getContainer()->get('country.repository')->upsert([[
+        static::getContainer()->get('country.repository')->upsert([[
             'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
             'isEu' => $isEu,
         ]], Context::createDefaultContext());
@@ -734,7 +738,7 @@ class InvoiceRendererTest extends TestCase
 
     private function updateCountrySettings(OrderEntity $order): void
     {
-        $this->getContainer()->get('country.repository')->upsert([[
+        static::getContainer()->get('country.repository')->upsert([[
             'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
             'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => Context::createDefaultContext()->getCurrencyId()],
         ]], Context::createDefaultContext());

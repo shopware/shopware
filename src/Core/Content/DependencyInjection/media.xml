@@ -185,7 +185,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader">
-            <argument type="tagged" tag="shopware.metadata.loader"/>
+            <argument type="tagged_iterator" tag="shopware.metadata.loader"/>
         </service>
 
         <!-- TypeDetector -->
@@ -214,7 +214,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\TypeDetector\TypeDetector">
-            <argument type="tagged" tag="shopware.media_type.detector"/>
+            <argument type="tagged_iterator" tag="shopware.media_type.detector"/>
         </service>
 
         <!-- Services -->

@@ -46,7 +46,7 @@ class CmsEntityTest extends TestCase
     #[DataProvider('provideEntityClasses')]
     public function testCmsEntityIsVersionable(string $entityDefinitionClass): void
     {
-        $definition = $this->getContainer()->get($entityDefinitionClass);
+        $definition = static::getContainer()->get($entityDefinitionClass);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         static::assertTrue($definition->getFields()->has('versionId'));
@@ -57,10 +57,10 @@ class CmsEntityTest extends TestCase
     #[DataProvider('provideEntityClasses')]
     public function testCmsRepositoryLoadsData(string $entityDefinitionClass): void
     {
-        $definition = $this->getContainer()->get($entityDefinitionClass);
+        $definition = static::getContainer()->get($entityDefinitionClass);
         static::assertInstanceOf(EntityDefinition::class, $definition);
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get($definition->getEntityName() . '.repository');
+        $repository = static::getContainer()->get($definition->getEntityName() . '.repository');
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 
         static::assertInstanceOf(EntitySearchResult::class, $result);
@@ -68,14 +68,14 @@ class CmsEntityTest extends TestCase
 
     public function testTranslationDefinitionsAreVersionAware(): void
     {
-        static::assertTrue($this->getContainer()->get(CmsPageTranslationDefinition::class)->isVersionAware());
-        static::assertTrue($this->getContainer()->get(CmsSlotTranslationDefinition::class)->isVersionAware());
+        static::assertTrue(static::getContainer()->get(CmsPageTranslationDefinition::class)->isVersionAware());
+        static::assertTrue(static::getContainer()->get(CmsSlotTranslationDefinition::class)->isVersionAware());
     }
 
     public function testCreatingAPageVersion(): void
     {
         /** @var EntityRepository<CmsPageCollection> $repository */
-        $repository = $this->getContainer()->get('cms_page.repository');
+        $repository = static::getContainer()->get('cms_page.repository');
         $context = Context::createDefaultContext();
         $fixture = $this->getCmsPageFixture();
         $initialCount = $repository->search(new Criteria(), $context)->getEntities()->count();

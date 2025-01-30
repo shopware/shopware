@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MigrationQueryGenerator
 {
     public function __construct(private readonly Connection $connection, private readonly SchemaBuilder $schemaBuilder)
@@ -63,7 +63,7 @@ class MigrationQueryGenerator
 
         $this->dropIndexes($tableSchema);
 
-        return $this->getPlatform()->getCreateTableSQL($tableSchema);
+        return $this->getPlatform()->getCreateTableSQL($tableSchema, AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS);
     }
 
     private function getPlatform(): AbstractPlatform

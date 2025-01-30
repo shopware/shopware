@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 
 /* eslint-disable max-len */

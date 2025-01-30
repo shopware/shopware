@@ -10,7 +10,7 @@ use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityException extends HttpException
 {
     public const CUSTOM_FIELDS_AWARE_NO_LABEL_PROPERTY = 'NO_LABEL_PROPERTY';

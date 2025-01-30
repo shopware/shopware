@@ -21,7 +21,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(CustomerGroupStorer::class)]
 class CustomerGroupStorerTest extends TestCase
 {

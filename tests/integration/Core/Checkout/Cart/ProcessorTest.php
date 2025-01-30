@@ -54,8 +54,8 @@ class ProcessorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->processor = $this->getContainer()->get(Processor::class);
-        $this->factory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->processor = static::getContainer()->get(Processor::class);
+        $this->factory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->context = $this->factory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
@@ -82,7 +82,7 @@ class ProcessorTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
         $this->addTaxDataToSalesChannel($this->context, $tax);
@@ -167,7 +167,7 @@ class ProcessorTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
         $this->addTaxDataToSalesChannel($this->context, $tax);
@@ -264,7 +264,7 @@ class ProcessorTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
         $this->addTaxDataToSalesChannel($this->context, $tax);
@@ -305,7 +305,7 @@ class ProcessorTest extends TestCase
 
         $cart->addErrors(new NonePersistentError(), new PersistentError());
 
-        $cart = $this->getContainer()->get(Processor::class)
+        $cart = static::getContainer()->get(Processor::class)
             ->process($cart, $this->context, new CartBehavior());
 
         static::assertCount(1, $cart->getErrors());
@@ -325,7 +325,7 @@ class ProcessorTest extends TestCase
 
         $product = $this->createDummyProduct($id, $tax);
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
         $this->addTaxDataToSalesChannel($this->context, $tax);
@@ -363,12 +363,12 @@ class ProcessorTest extends TestCase
             ->method('process');
 
         $processor = new Processor(
-            $this->getContainer()->get(Validator::class),
-            $this->getContainer()->get(AmountCalculator::class),
-            $this->getContainer()->get(TransactionProcessor::class),
+            static::getContainer()->get(Validator::class),
+            static::getContainer()->get(AmountCalculator::class),
+            static::getContainer()->get(TransactionProcessor::class),
             [$processorMock],
             [$collector],
-            $this->getContainer()->get(ScriptExecutor::class)
+            static::getContainer()->get(ScriptExecutor::class)
         );
         $processor->process($cart, $this->context, new CartBehavior());
     }

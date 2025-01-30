@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportFileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -31,8 +31,8 @@ class ImportExportFileRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('import_export_file.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('import_export_file.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 

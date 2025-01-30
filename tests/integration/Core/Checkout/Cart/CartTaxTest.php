@@ -64,11 +64,11 @@ class CartTaxTest extends TestCase
     {
         $this->ids = new IdsCollection();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->countryRepository = $this->getContainer()->get('country.repository');
-        $this->currencyRepository = $this->getContainer()->get('currency.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->countryRepository = static::getContainer()->get('country.repository');
+        $this->currencyRepository = static::getContainer()->get('currency.repository');
     }
 
     /**
@@ -531,7 +531,7 @@ class CartTaxTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('shipping_method.repository')
+        static::getContainer()->get('shipping_method.repository')
             ->create($data, Context::createDefaultContext());
     }
 }

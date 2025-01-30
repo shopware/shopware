@@ -26,7 +26,7 @@ class CleanupProductKeywordDictionaryTaskHandlerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->handler = $this->getContainer()->get(CleanupProductKeywordDictionaryTaskHandler::class);
+        $this->handler = static::getContainer()->get(CleanupProductKeywordDictionaryTaskHandler::class);
     }
 
     public function testCleanup(): void
@@ -37,9 +37,9 @@ class CleanupProductKeywordDictionaryTaskHandlerTest extends TestCase
 
         $product = (new ProductBuilder($ids, 'test'))->price(100)->build();
 
-        $this->getContainer()->get('product.repository')->create([$product], $context);
+        static::getContainer()->get('product.repository')->create([$product], $context);
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product_keyword_dictionary');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product_keyword_dictionary');
 
         $productId = Uuid::fromHexToBytes($product['id']);
         $this->createProductSearchKeyword('test 1', $productId, $now, $context);
@@ -52,7 +52,7 @@ class CleanupProductKeywordDictionaryTaskHandlerTest extends TestCase
 
         $this->handler->run();
 
-        $keywordDictionaries = $this->getContainer()->get(Connection::class)
+        $keywordDictionaries = static::getContainer()->get(Connection::class)
             ->fetchFirstColumn('SELECT keyword FROM product_keyword_dictionary');
 
         static::assertCount(2, $keywordDictionaries);
@@ -73,7 +73,7 @@ class CleanupProductKeywordDictionaryTaskHandlerTest extends TestCase
             'created_at' => $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->getContainer()->get(Connection::class)->insert('product_search_keyword', $searchKeyword);
+        static::getContainer()->get(Connection::class)->insert('product_search_keyword', $searchKeyword);
     }
 
     private function createProductKeywordDictionary(string $keyword): void
@@ -84,6 +84,6 @@ class CleanupProductKeywordDictionaryTaskHandlerTest extends TestCase
             'keyword' => $keyword,
         ];
 
-        $this->getContainer()->get(Connection::class)->insert('product_keyword_dictionary', $searchKeyword);
+        static::getContainer()->get(Connection::class)->insert('product_keyword_dictionary', $searchKeyword);
     }
 }

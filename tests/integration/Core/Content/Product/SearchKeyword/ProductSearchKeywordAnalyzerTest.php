@@ -52,9 +52,9 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->productSearchConfigRepository = static::getContainer()->get('product_search_config.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
         $this->createDataTest();
@@ -125,7 +125,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             'ignored' => 'ignored',
         ]);
 
-        $analyzer = $this->getContainer()->get(ProductSearchKeywordAnalyzer::class);
+        $analyzer = static::getContainer()->get(ProductSearchKeywordAnalyzer::class);
 
         $result = $analyzer->analyze($product, Context::createDefaultContext(), $config);
 
@@ -144,7 +144,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $product = $this->getProduct();
         $configFields = $this->getConfigFieldsByLanguageId($this->enSearchConfigId);
-        $analyzer = $this->getContainer()->get(ProductSearchKeywordAnalyzer::class);
+        $analyzer = static::getContainer()->get(ProductSearchKeywordAnalyzer::class);
         $analyzer = $analyzer->analyze($product, $this->context, $configFields);
         $analyzerResult = $analyzer->getKeys();
         sort($analyzerResult);
@@ -222,7 +222,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $product = $this->getProduct();
         $configFields = $this->getConfigFieldsByLanguageId($this->deSearchConfigId);
-        $analyzer = $this->getContainer()->get(ProductSearchKeywordAnalyzer::class);
+        $analyzer = static::getContainer()->get(ProductSearchKeywordAnalyzer::class);
         $analyzer = $analyzer->analyze($product, $this->context, $configFields);
         $analyzerResult = $analyzer->getKeys();
         sort($analyzerResult);

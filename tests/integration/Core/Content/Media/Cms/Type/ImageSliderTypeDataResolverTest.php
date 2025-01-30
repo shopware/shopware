@@ -359,7 +359,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         return new EntityResolverContext(
             $this->createMock(SalesChannelContext::class),
             new Request(),
-            $this->getContainer()->get(SalesChannelProductDefinition::class),
+            static::getContainer()->get(SalesChannelProductDefinition::class),
             $product
         );
     }

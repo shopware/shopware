@@ -5,7 +5,7 @@ import CMS from '../../constant/sw-cms.constant';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -16,7 +16,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         page: {
-            type: Object as PropType<EntitySchema.Entity<'cms_page'>>,
+            type: Object as PropType<Entity<'cms_page'>>,
             required: true,
         },
         elementUpdate: {
@@ -74,7 +74,7 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        getBlockTitle(block: EntitySchema.Entity<'cms_block'>) {
+        getBlockTitle(block: Entity<'cms_block'>) {
             if (typeof block.name === 'string' && block.name.length !== 0) {
                 return block.name;
             }
@@ -86,7 +86,7 @@ export default Shopware.Component.wrapComponentConfig({
             return '';
         },
 
-        displaySectionType(block: EntitySchema.Entity<'cms_block'>) {
+        displaySectionType(block: Entity<'cms_block'>) {
             const blockSection = this.page.sections!.find((section) => section.id === block.sectionId);
 
             if (!blockSection) {
@@ -111,7 +111,7 @@ export default Shopware.Component.wrapComponentConfig({
             return firstBlockInPosition.id === block.id;
         },
 
-        getSectionName(section: EntitySchema.Entity<'cms_section'>) {
+        getSectionName(section: Entity<'cms_section'>) {
             if (section.name) {
                 return section.name;
             }
@@ -119,17 +119,13 @@ export default Shopware.Component.wrapComponentConfig({
             return section.type === 'sidebar' ? this.$tc('sw-cms.section.isSidebar') : this.$tc('sw-cms.section.isDefault');
         },
 
-        getSectionPosition(block: EntitySchema.Entity<'cms_block'>) {
+        getSectionPosition(block: Entity<'cms_block'>) {
             return block.sectionPosition === 'main'
                 ? this.$tc('sw-cms.section.positionRight')
                 : this.$tc('sw-cms.section.positionLeft');
         },
 
-        getDeviceActive(
-            viewport: string,
-            section: EntitySchema.Entity<'cms_section'>,
-            block: EntitySchema.Entity<'cms_block'> | null = null,
-        ) {
+        getDeviceActive(viewport: string, section: Entity<'cms_section'>, block: Entity<'cms_block'> | null = null) {
             const sectionVisibility = section.visibility as {
                 [key: string]: boolean;
             };
@@ -142,7 +138,7 @@ export default Shopware.Component.wrapComponentConfig({
             return isActive ? `regular-${viewport}` : `regular-${viewport}-slash`;
         },
 
-        displayNotification(section: EntitySchema.Entity<'cms_section'>, block: EntitySchema.Entity<'cms_block'>) {
+        displayNotification(section: Entity<'cms_section'>, block: Entity<'cms_block'>) {
             const sectionVisibility = section.visibility as {
                 [key: string]: boolean;
             };

@@ -35,6 +35,13 @@
             <tag name="shopware.cache.invalidator.storage" storage="redis"/>
         </service>
 
+        <service id="shopware.cache.invalidator.storage.mysql" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage" lazy="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="shopware.cache.invalidator.storage" storage="mysql"/>
+        </service>
+
         <service id="shopware.cache.invalidator.storage.locator" class="Shopware\Core\Framework\DependencyInjection\TaggedServiceLocator">
             <argument type="tagged_locator" tag="shopware.cache.invalidator.storage" index-by="storage" />
         </service>
@@ -54,6 +61,7 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Psr\Log\LoggerInterface"/>
+            <argument type="service" id="request_stack"/>
             <argument>%kernel.environment%</argument>
         </service>
 
@@ -71,10 +79,11 @@
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheClearer">
             <argument type="collection">
-                <argument type="service" id="cache.object"/>
-                <argument type="service" id="cache.http"/>
+                <argument type="service" key="object" id="cache.object"/>
+                <argument type="service" key="http" id="cache.http"/>
             </argument>
             <argument type="service" id="cache_clearer"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
@@ -105,6 +114,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%shopware.cache.tagging.each_snippet%</argument>
             <argument>%shopware.cache.tagging.each_config%</argument>
+            <argument>%shopware.product_stream.indexing%</argument>
+
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateCategoryRouteByCategoryIds" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateListingRouteByCategoryIds" priority="2001" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent" method="invalidateIndexedLandingPages" priority="2000" />
@@ -207,6 +218,7 @@
         <service id="shopware.cache.reverse_proxy.redis" class="Redis">
             <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
             <argument>%shopware.http_cache.reverse_proxy.redis_url%</argument>
+
             <deprecated package="shopware/core" version="6.7.0.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 without replacement.</deprecated>
         </service>
 
@@ -227,6 +239,11 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument>%kernel.environment%</argument>
             <argument>%kernel.debug%</argument>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Command\CacheClearHttpCommand">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer" />
             <tag name="console.command"/>
         </service>
 
@@ -267,6 +284,7 @@
             <argument type="service" id="logger"/>
         </service>
 
+        <!-- @deprecated tag:v6.7.0 - Remove-->
         <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
             <tag name="kernel.cache_clearer"/>

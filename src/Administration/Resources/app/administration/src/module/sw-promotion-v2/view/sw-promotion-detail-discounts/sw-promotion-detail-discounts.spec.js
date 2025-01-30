@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
 import promotionState from 'src/module/sw-promotion-v2/page/sw-promotion-v2-detail/state';

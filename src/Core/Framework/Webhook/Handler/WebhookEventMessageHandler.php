@@ -21,7 +21,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('core')]
+#[Package('framework')]
 final class WebhookEventMessageHandler
 {
     private const TIMEOUT = 20;

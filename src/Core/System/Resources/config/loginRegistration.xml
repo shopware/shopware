@@ -37,6 +37,7 @@
             <label lang="de-DE">E-Mail-Adresse muss zweimal eingegeben werden</label>
             <helpText>Email address has to be filled in twice to avoid errors.</helpText>
             <helpText lang="de-DE">Die E-Mail-Adresse wird zweimal abgefragt, um Fehler bei der Eingabe zu vermeiden.</helpText>
+            <hint>global.accessibility.optionWarning</hint>
         </input-field>
 
         <input-field type="bool">

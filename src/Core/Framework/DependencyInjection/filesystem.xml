@@ -7,7 +7,7 @@
     <services>
         <!-- Filesystem -->
         <service id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory">
-            <argument type="tagged" tag="shopware.filesystem.factory"/>
+            <argument type="tagged_iterator" tag="shopware.filesystem.factory"/>
         </service>
 
         <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.public" public="true">

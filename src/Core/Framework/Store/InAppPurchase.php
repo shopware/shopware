@@ -59,6 +59,11 @@ final class InAppPurchase implements ResetInterface
         return $this->activePurchases[$extensionName] ?? [];
     }
 
+    public function getJWTByExtension(string $extensionName): ?string
+    {
+        return $this->inAppPurchaseProvider->getPurchasesJWT()[$extensionName] ?? null;
+    }
+
     public function reset(): void
     {
         $this->activePurchases = [];

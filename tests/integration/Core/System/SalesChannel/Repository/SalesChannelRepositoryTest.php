@@ -26,7 +26,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -63,12 +63,12 @@ class SalesChannelRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $this->currencyRepository = $this->getContainer()->get('currency.repository');
-        $this->languageRepository = $this->getContainer()->get('language.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->countryRepository = $this->getContainer()->get('country.repository');
-        $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+        $this->currencyRepository = static::getContainer()->get('currency.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+        $this->countryRepository = static::getContainer()->get('country.repository');
+        $this->shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
     }
 
     public function testCreateSalesChannelTest(): void

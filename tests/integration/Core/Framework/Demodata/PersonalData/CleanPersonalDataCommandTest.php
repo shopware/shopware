@@ -37,8 +37,8 @@ class CleanPersonalDataCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->clearTable('cart');
         $this->clearTable('customer');
     }
@@ -263,7 +263,7 @@ class CleanPersonalDataCommandTest extends TestCase
             'payload' => '{}',
         ];
 
-        $this->getContainer()->get('order.repository')->upsert([$order], Context::createDefaultContext());
+        static::getContainer()->get('order.repository')->upsert([$order], Context::createDefaultContext());
     }
 
     private function clearTable(string $table): void

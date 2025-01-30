@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapExporter">
-            <argument type="tagged" tag="shopware.sitemap_url_provider"/>
+            <argument type="tagged_iterator" tag="shopware.sitemap_url_provider"/>
             <argument type="service" id="cache.system"/>
             <argument>%shopware.sitemap.batchsize%</argument>
             <argument type="service" id="shopware.filesystem.sitemap"/>
@@ -19,7 +19,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\ConfigHandler">
-            <argument type="tagged" tag="shopware.sitemap.config_handler"/>
+            <argument type="tagged_iterator" tag="shopware.sitemap.config_handler"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface" class="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactory">

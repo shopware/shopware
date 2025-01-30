@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
@@ -20,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryRoute extends AbstractCategoryRoute
 {
     final public const HOME = 'home';
@@ -91,13 +90,12 @@ class CategoryRoute extends AbstractCategoryRoute
             $resolverContext
         );
 
-        if (!$pages->has($pageId)) {
+        $cmsPage = $pages->first();
+        if ($cmsPage === null) {
             throw CategoryException::pageNotFound($pageId);
         }
 
-        /** @var CmsPageEntity $page */
-        $page = $pages->get($pageId);
-        $category->setCmsPage($page);
+        $category->setCmsPage($cmsPage);
         $category->setCmsPageId($pageId);
 
         return new CategoryRouteResponse($category);

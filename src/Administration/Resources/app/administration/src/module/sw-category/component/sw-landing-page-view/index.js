@@ -3,7 +3,7 @@ import template from './sw-landing-page-view.html.twig';
 const { Mixin } = Shopware;
 
 /**
- * @package inventory
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

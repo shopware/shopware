@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(QuerySigner::class)]
 class QuerySignerTest extends TestCase
 {
@@ -65,7 +65,7 @@ class QuerySignerTest extends TestCase
         static::assertSame('http://shop.url', $url['shop-url']);
         static::assertIsNumeric($url['timestamp']);
         static::assertSame('1.0.0', $url['sw-version']);
-        static::assertSame('purchase-1,purchase-2', $url['in-app-purchases']);
+        static::assertSame('a6a4063ffda65516983ad40e8dc91db6', $url['in-app-purchases']);
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $url['sw-context-language']);
         static::assertSame('en-GB', $url['sw-user-language']);
     }

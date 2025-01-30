@@ -1,10 +1,11 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
+import { ref } from 'vue';
 
 const defaultData = {
     indeterminateOne: false,
@@ -18,7 +19,7 @@ const createWrapper = async (data = defaultData) => {
         template: `
             <div>
                 <sw-checkbox-field v-model:value="checkOne" label="CheckOne"  bordered :partly-checked="indeterminateOne" name="sw-field--checkOne" />
-                <sw-checkbox-field v-model:value="checkTwo" label="CheckTwo" padded name="sw-field--checkTwo" />
+                <sw-checkbox-field v-model:value="checkTwo" label="CheckTwo" aria-label="Check Two" padded name="sw-field--checkTwo" />
                 <sw-checkbox-field v-model:value="checkThree" label="CheckThree" bordered padded name="sw-field--checkThree" />
             </div>
         `,
@@ -239,5 +240,41 @@ describe('app/component/form/sw-checkbox-field', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-field--checkbox').classes()).toContain('is--partly-checked');
+    });
+
+    it('should add the ariaLabel prop to the input element', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const firstCheckbox = wrapper.find('.sw-field--checkbox');
+        expect(firstCheckbox.find('input').attributes('aria-label')).toBe('CheckOne');
+
+        const secondCheckbox = wrapper.findAll('.sw-field--checkbox').at(1);
+        expect(secondCheckbox.find('input').attributes('aria-label')).toBe('Check Two');
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = mount(
+            { template: `<sw-checkbox-field-deprecated />` },
+            {
+                global: {
+                    stubs: {
+                        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-icon': true,
+                        'sw-field-error': { template: '<div></div>' },
+                        'sw-help-text': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-inheritance-switch': true,
+                    },
+                    provide: {
+                        ariaLabel: ref('Aria Label'),
+                    },
+                },
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

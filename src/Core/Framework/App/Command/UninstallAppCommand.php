@@ -25,7 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'app:uninstall',
     description: 'Uninstalls an app',
 )]
-#[Package('core')]
+#[Package('framework')]
 class UninstallAppCommand extends Command
 {
     /**

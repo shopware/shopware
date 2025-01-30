@@ -53,13 +53,13 @@ class PluginServiceTest extends TestCase
         $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
         require_once $this->fixturePath . 'plugins/SwagTestPlugin/src/SwagTestPlugin.php';
         require_once $this->fixturePath . 'plugins/SwagTestNoDefaultLang/src/SwagTestNoDefaultLang.php';
-        $this->pluginRepo = $this->getContainer()->get('plugin.repository');
+        $this->pluginRepo = static::getContainer()->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
             $this->fixturePath . 'plugins/',
-            $this->getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->getParameter('kernel.project_dir'),
             $this->pluginRepo,
-            $this->getContainer()->get('language.repository'),
-            $this->getContainer()->get(PluginFinder::class)
+            static::getContainer()->get('language.repository'),
+            static::getContainer()->get(PluginFinder::class)
         );
         $this->context = Context::createDefaultContext();
     }
@@ -83,8 +83,8 @@ class PluginServiceTest extends TestCase
             $this->fixturePath . 'plugins',
             $this->fixturePath . 'root-plugin',
             $this->pluginRepo,
-            $this->getContainer()->get('language.repository'),
-            $this->getContainer()->get(PluginFinder::class)
+            static::getContainer()->get('language.repository'),
+            static::getContainer()->get(PluginFinder::class)
         );
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
@@ -331,7 +331,7 @@ class PluginServiceTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
         $localeId = $this->getIsoId($iso);
         $languageRepository->create(
             [
@@ -350,7 +350,7 @@ class PluginServiceTest extends TestCase
 
     private function setNewSystemLanguage(string $iso): void
     {
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
 
         $localeId = $this->getIsoId($iso);
         $languageRepository->update(
@@ -369,7 +369,7 @@ class PluginServiceTest extends TestCase
     private function getIsoId(string $iso): string
     {
         /** @var EntityRepository $localeRepository */
-        $localeRepository = $this->getContainer()->get('locale.repository');
+        $localeRepository = static::getContainer()->get('locale.repository');
 
         $criteria = new Criteria();
 

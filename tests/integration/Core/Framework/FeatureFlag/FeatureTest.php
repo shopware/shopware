@@ -59,7 +59,7 @@ class FeatureTest extends TestCase
         unset($_SERVER['FEATURE_NEXT_101'], $_SERVER['FEATURE_NEXT_102']);
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeatures($this->getContainer()->getParameter('shopware.feature.flags'));
+        Feature::registerFeatures(static::getContainer()->getParameter('shopware.feature.flags'));
     }
 
     protected function tearDown(): void
@@ -131,7 +131,7 @@ class FeatureTest extends TestCase
     {
         $this->setUp();
         $currentConfig = array_keys(Feature::getAll(false));
-        $featureFlags = array_keys($this->getContainer()->getParameter('shopware.feature.flags'));
+        $featureFlags = array_keys(static::getContainer()->getParameter('shopware.feature.flags'));
 
         static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
 

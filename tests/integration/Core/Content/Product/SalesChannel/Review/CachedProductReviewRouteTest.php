@@ -52,14 +52,14 @@ class CachedProductReviewRouteTest extends TestCase
         Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     #[AfterClass]
     public function cleanup(): void
     {
-        $this->getContainer()->get('cache.object')
+        static::getContainer()->get('cache.object')
             ->invalidateTags([CachedProductReviewRoute::ALL_TAG]);
     }
 
@@ -79,9 +79,9 @@ class CachedProductReviewRouteTest extends TestCase
         $route = new CachedProductReviewRoute(
             $core,
             new TagAwareAdapter(new ArrayAdapter(100)),
-            $this->getContainer()->get(EntityCacheKeyGenerator::class),
-            $this->getContainer()->get(CacheTracer::class),
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(EntityCacheKeyGenerator::class),
+            static::getContainer()->get(CacheTracer::class),
+            static::getContainer()->get('event_dispatcher'),
             []
         );
 
@@ -110,7 +110,7 @@ class CachedProductReviewRouteTest extends TestCase
     #[DataProvider('invalidationProvider')]
     public function testInvalidation(IdsCollection $ids, \Closure $before, \Closure $after, int $calls): void
     {
-        $this->getContainer()->get('cache.object')
+        static::getContainer()->get('cache.object')
             ->invalidateTags([CachedProductReviewRoute::ALL_TAG]);
 
         $products = [
@@ -127,26 +127,26 @@ class CachedProductReviewRouteTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->upsert($products, Context::createDefaultContext());
 
         $productId = $ids->get('product');
 
-        $route = $this->getContainer()->get(ProductReviewRoute::class);
+        $route = static::getContainer()->get(ProductReviewRoute::class);
 
         static::assertInstanceOf(CachedProductReviewRoute::class, $route);
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
         $this->addEventListener($dispatcher, 'product_review.loaded', $listener);
 
-        $before($ids, $this->getContainer());
+        $before($ids, static::getContainer());
 
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());
 
-        $after($ids, $this->getContainer());
+        $after($ids, static::getContainer());
 
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());

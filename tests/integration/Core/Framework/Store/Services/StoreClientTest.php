@@ -34,8 +34,8 @@ class StoreClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->configService = $this->getContainer()->get(SystemConfigService::class);
-        $this->storeClient = $this->getContainer()->get(StoreClient::class);
+        $this->configService = static::getContainer()->get(SystemConfigService::class);
+        $this->storeClient = static::getContainer()->get(StoreClient::class);
 
         $this->setLicenseDomain('shopware-test');
 
@@ -207,5 +207,24 @@ class StoreClientTest extends TestCase
         $returnedUserInfo = $this->storeClient->getExtensionUpdateList($pluginList, $this->storeContext);
 
         static::assertSame([], $returnedUserInfo);
+    }
+
+    public function testCancelExtensionAlreadyCancelled(): void
+    {
+        $errorInfo = [
+            'success' => false,
+            'code' => StoreClient::EXTENSION_LICENSE_IS_ALREADY_CANCELLED,
+            'title' => 'Error',
+            'description' => 'The license is already cancelled',
+        ];
+        $this->getStoreRequestHandler()->append(new Response(400, [], \json_encode($errorInfo, \JSON_THROW_ON_ERROR)));
+
+        $this->storeClient->cancelSubscription(123, $this->storeContext);
+
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
+
+        static::assertEquals('/swplatform/pluginlicenses/123/cancel', $lastRequest->getUri()->getPath());
+        static::assertEquals('POST', $lastRequest->getMethod());
     }
 }

@@ -2,11 +2,15 @@
 
 namespace Shopware\Core\Checkout\Promotion\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+/**
+ * @deprecated tag:v6.7.0 - Will be removed. Use PromotionException::promotionSetGroupNotFound instead
+ */
+#[Package('checkout')]
 class SetGroupNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $groupId)
@@ -16,11 +20,21 @@ class SetGroupNotFoundException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'PromotionException::promotionSetGroupNotFound')
+        );
+
         return 'CHECKOUT__PROMOTION_SETGROUP_NOT_FOUND';
     }
 
     public function getStatusCode(): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'PromotionException::promotionSetGroupNotFound')
+        );
+
         return Response::HTTP_BAD_REQUEST;
     }
 }

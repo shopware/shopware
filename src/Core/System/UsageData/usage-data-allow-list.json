@@ -1603,6 +1603,7 @@
     "availabilityRuleId",
     "mediaId",
     "salesChannels",
+    "technicalName",
     "createdAt",
     "updatedAt"
   ],

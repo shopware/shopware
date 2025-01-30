@@ -26,10 +26,10 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends Test
         }
 
         $migration = new Migration1720610755RemoveDefaultPaymentMethodFromCustomer();
-        $migration->update($this->getContainer()->get(Connection::class));
-        $migration->update($this->getContainer()->get(Connection::class));
+        $migration->update(static::getContainer()->get(Connection::class));
+        $migration->update(static::getContainer()->get(Connection::class));
 
-        $column = $this->getContainer()->get(Connection::class)->fetchAssociative(
+        $column = static::getContainer()->get(Connection::class)->fetchAssociative(
             'SHOW COLUMNS FROM `customer` WHERE `Field` LIKE "default_payment_method_id"',
         ) ?: [];
         static::assertArrayHasKey('Null', $column);
@@ -45,8 +45,8 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends Test
         }
 
         $migration = new Migration1720610755RemoveDefaultPaymentMethodFromCustomer();
-        $migration->updateDestructive($this->getContainer()->get(Connection::class));
-        $migration->updateDestructive($this->getContainer()->get(Connection::class));
+        $migration->updateDestructive(static::getContainer()->get(Connection::class));
+        $migration->updateDestructive(static::getContainer()->get(Connection::class));
 
         static::assertFalse($this->columnExists());
 
@@ -57,7 +57,7 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends Test
 
     private function addColumn(): void
     {
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->executeStatement(
                 'ALTER TABLE `customer`
                     ADD COLUMN `default_payment_method_id` BINARY(16) NOT NULL DEFAULT :defaultPaymentMethodId,
@@ -68,7 +68,7 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends Test
 
     private function columnExists(): bool
     {
-        return (bool) $this->getContainer()->get(Connection::class)->fetchOne(
+        return (bool) static::getContainer()->get(Connection::class)->fetchOne(
             'SHOW COLUMNS FROM `customer` WHERE `Field` LIKE "default_payment_method_id"',
         );
     }

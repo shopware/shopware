@@ -4,7 +4,7 @@ namespace Shopware\Core\System\NumberRange;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeEvents
 {
     final public const NUMBER_RANGE_WRITTEN_EVENT = 'number_range.written';

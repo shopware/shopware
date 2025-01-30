@@ -42,6 +42,6 @@ class PaymentMethodPageTest extends TestCase
 
     protected function getPageLoader(): AccountPaymentMethodPageLoader
     {
-        return $this->getContainer()->get(AccountPaymentMethodPageLoader::class);
+        return static::getContainer()->get(AccountPaymentMethodPageLoader::class);
     }
 }

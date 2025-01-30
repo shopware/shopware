@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 const mockItems = [
     {
@@ -154,6 +154,32 @@ const mockMultipleTaxesItem = {
     },
 };
 
+const mockNestedItem = {
+    ...mockItems[0],
+    children: [
+        {
+            ...mockItems[0],
+            id: '6',
+            label: 'Nested in level 1',
+            quantity: 3,
+        },
+        {
+            ...mockItems[0],
+            id: '7',
+            label: 'Nested in level 1 (2)',
+            quantity: 1,
+            children: [
+                {
+                    ...mockItems[0],
+                    id: '8',
+                    label: 'Nested in level 2',
+                    quantity: 2,
+                },
+            ],
+        },
+    ],
+};
+
 const deleteEndpoint = jest.fn(() => Promise.resolve());
 
 async function createWrapper() {
@@ -268,6 +294,7 @@ async function createWrapper() {
                 'sw-field-error': true,
                 'sw-icon-deprecated': true,
                 'sw-highlight-text': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
                 $tc: (t, count, value) => {
@@ -923,5 +950,25 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const labelLink = wrapper.find('.sw-order-line-items-grid__item-product');
 
         expect(labelLink.exists()).toBeFalsy();
+    });
+
+    it('should recursively update nested line item quantities', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [mockNestedItem],
+            },
+        });
+
+        const productItem = wrapper.vm.order.lineItems[0];
+
+        wrapper.vm.updateItemQuantity(productItem, 3);
+
+        expect(productItem.quantity).toBe(3);
+        expect(productItem.children[0].quantity).toBe(9);
+        expect(productItem.children[1].quantity).toBe(3);
+        expect(productItem.children[1].children[0].quantity).toBe(6);
     });
 });

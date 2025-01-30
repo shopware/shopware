@@ -14,10 +14,10 @@ trait CacheTestBehaviour
     public function clearCacheData(): void
     {
         /** @var TestCacheClearer $cacheClearer */
-        $cacheClearer = $this->getContainer()->get(TestCacheClearer::class);
+        $cacheClearer = static::getContainer()->get(TestCacheClearer::class);
         $cacheClearer->clear();
 
-        $this->getContainer()
+        static::getContainer()
             ->get('services_resetter')
             ->reset();
     }

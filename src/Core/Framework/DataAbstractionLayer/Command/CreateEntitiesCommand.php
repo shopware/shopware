@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'dal:create:entities',
     description: 'Creates the entity classes',
 )]
-#[Package('core')]
+#[Package('framework')]
 class CreateEntitiesCommand extends Command
 {
     private readonly string $dir;

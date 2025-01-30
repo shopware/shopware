@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TranslatorCacheInvalidate implements EventSubscriberInterface
 {
     /**
@@ -56,7 +56,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
             $setIds = $this->connection->fetchFirstColumn(
                 'SELECT LOWER(HEX(snippet_set_id)) FROM snippet WHERE HEX(id) IN (:ids)',
                 ['ids' => $snippetIds],
-                ['ids' => ArrayParameterType::BINARY]
+                ['ids' => ArrayParameterType::STRING]
             );
 
             $this->clearCache($setIds);

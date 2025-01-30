@@ -18,7 +18,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(CurrencyRule::class)]
 class CurrencyRuleTest extends TestCase
 {

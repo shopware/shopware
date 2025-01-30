@@ -1,17 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_cross_selling %}
 <div class="sw-cms-el-cross-selling">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_cross_selling_title %}
     <h2 class="sw-cms-el-cross-selling__title">
         {{ placeholder(crossSelling, 'name', crossSelling.name) }}
     </h2>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_cross_selling_content %}
     <div class="sw-cms-el-cross-selling__content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_cross_selling_arrow_left %}
         <div class="sw-cms-el-cross-selling__navigation">
             <sw-icon
@@ -22,7 +18,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_cross_selling_product_holder %}
         <div
             ref="productHolder"
@@ -30,7 +25,6 @@
             :style="sliderBoxMinWidth"
         >
             <template v-if="!element.data.product || !element.data.product.crossSellings.length">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_demo_data %}
                 <sw-cms-el-product-box
                     v-for="index in sliderBoxLimit"
@@ -41,7 +35,6 @@
             </template>
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_products %}
                 <template
                     v-for="(crossSelling, index) in crossSellingProducts"
@@ -57,7 +50,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_cross_selling_arrow_right %}
         <div class="sw-cms-el-cross-selling__navigation">
             <sw-icon

@@ -17,7 +17,7 @@ class CacheClearAllCommandTest extends TestCase
     public function testExecute(): void
     {
         $cacheClearer = $this->createMock(CacheClearer::class);
-        $cacheClearer->expects(static::once())->method('clear');
+        $cacheClearer->expects(static::once())->method('clear')->with(true);
 
         $command = new CacheClearAllCommand($cacheClearer, 'dev', true);
         $commandTester = new CommandTester($command);

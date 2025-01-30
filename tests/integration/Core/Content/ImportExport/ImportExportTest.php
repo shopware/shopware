@@ -99,7 +99,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportTest extends AbstractImportExportTestCase
 {
     use OrderFixture;
@@ -1719,7 +1719,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
-        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $importExportService = static::getContainer()->get(ImportExportService::class);
         $expireDate = new \DateTimeImmutable('2099-01-01');
 
         $file = new UploadedFile(__DIR__ . '/fixtures/products.csv', 'products.csv', 'text/csv');
@@ -1733,24 +1733,24 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
 
-        $pipeFactory = $this->getContainer()->get(PipeFactory::class);
-        $readerFactory = $this->getContainer()->get(CsvReaderFactory::class);
-        $writerFactory = $this->getContainer()->get(CsvFileWriterFactory::class);
-        $eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
+        $pipeFactory = static::getContainer()->get(PipeFactory::class);
+        $readerFactory = static::getContainer()->get(CsvReaderFactory::class);
+        $writerFactory = static::getContainer()->get(CsvFileWriterFactory::class);
+        $eventDispatcher = static::getContainer()->get(EventDispatcherInterface::class);
 
-        $mockRepository = new MockRepository($this->getContainer()->get(CustomerDefinition::class));
+        $mockRepository = new MockRepository(static::getContainer()->get(CustomerDefinition::class));
 
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
-            $this->getContainer()->get('shopware.filesystem.private'),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get('shopware.filesystem.private'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(Connection::class),
             $mockRepository,
             $pipeFactory->create($logEntity),
             $readerFactory->create($logEntity),
             $writerFactory->create($logEntity),
-            $this->getContainer()->get(FileService::class),
+            static::getContainer()->get(FileService::class),
             new BatchImportStrategy($eventDispatcher, $mockRepository),
             10,
             10

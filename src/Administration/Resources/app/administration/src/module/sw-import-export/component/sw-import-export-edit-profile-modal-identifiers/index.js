@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-edit-profile-modal-identifiers.html.twig';
 import './sw-import-export-edit-profile-modal-identifiers.scss';

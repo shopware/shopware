@@ -32,7 +32,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @phpstan-type ConfigField array{field: string, tokenize: '1'|'0', ranking: numeric-string, language_id: string}
  */
-#[Package('core')]
+#[Package('framework')]
 class SearchKeywordUpdater implements ResetInterface
 {
     /**
@@ -75,7 +75,7 @@ class SearchKeywordUpdater implements ResetInterface
                 new SystemSource(),
                 [],
                 Defaults::CURRENCY,
-                array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]),
+                array_values(array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM])),
                 $context->getVersionId()
             );
 

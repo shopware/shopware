@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initializeAppModules from 'src/app/init/modules.init';
 import baseModules from 'src/module';

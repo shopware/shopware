@@ -11,7 +11,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @deprecated tag:v6.7.0 - will be removed. Use DatabaseSalesChannelThemeLoader instead
  */
-#[Package('storefront')]
+#[Package('framework')]
 class SalesChannelThemeLoader implements ResetInterface
 {
     /**

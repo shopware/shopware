@@ -88,6 +88,7 @@
         <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
             <argument type="service" id="request_stack"/>
             <argument>%shopware.staging.storefront.show_banner%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="twig.extension"/>
         </service>
@@ -144,7 +145,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry" public="true">
-            <argument type="tagged" tag="storefront.media.upload.validator"/>
+            <argument type="tagged_iterator" tag="storefront.media.upload.validator"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Media\Validator\StorefrontMediaImageValidator">
@@ -253,6 +254,8 @@
         <service id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\GenericPageLoader">
@@ -465,7 +468,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
-            <argument type="tagged" tag="shopware.storefront.captcha"/>
+            <argument type="tagged_iterator" tag="shopware.storefront.captcha"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="service_container" />
 

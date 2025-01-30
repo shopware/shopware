@@ -16,7 +16,8 @@
             "descriptionEmpty": "Steigere Deinen Umsatz durch Rabatte auf Deine Produkte und Leistungen.",
             "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
             "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
-            "titleSidebarItemRefresh": "Aktualisieren"
+            "titleSidebarItemRefresh": "Aktualisieren",
+            "duplicatePromotionInfo": "Aktionscodes werden nicht dupliziert und müssen neu generiert werden."
         },
         "detail": {
             "header": {
@@ -70,6 +71,7 @@
                         "columnCode": "Code",
                         "columnRedeemed": "Eingelöst",
                         "columnCustomer": "Kunde",
+                        "columnCreatedAt": "Erzeugt am",
                         "textDeleteConfirm": "Möchtest Du den Aktionscode \"{code}\" wirklich löschen? | Möchtest Du diese {count} Aktionscodes wirklich löschen?",
                         "openCustomer": "Kunde öffnen",
                         "routingError": "Der Kunde \"{name}\" konnte nicht gefunden werden.",
@@ -97,7 +99,7 @@
                             "labelCodeAmount": "Anzahl der Aktionscodes",
                             "notComplexEnoughException": "Die angeforderte Anzahl von Aktionscodes konnte nicht erstellt werden. Stelle sicher, dass das Muster ausreichend komplex ist. Um zu gewährleisten, dass die Aktionscodes ausreichend zufällig sind, dürfen höchstens 50% aller möglichen Codes generiert werden.",
                             "alreadyInUseException": "Das gewählte Code-Muster existiert bereits in einer anderen Aktion. Bitte gebe ein anderes Muster an.",
-                            "unknownErrorCode": "Beim Generieren von Promotion-Codes ist etwas schief gelaufen. Bitte verwende die Entwickler-Tools für weitere Informationen."
+                            "unknownErrorCode": "Beim Generieren von Promotion-Codes ist etwas schiefgelaufen. Bitte verwende die Entwickler-Tools für weitere Informationen."
                         }
                     }
                 }
@@ -272,7 +274,6 @@
                     "delete": {
                         "confirmTitle": "Rabatt entfernen",
                         "confirmText": "Möchtest Du diesen Rabatt wirklich aus der Rabattaktion entfernen?",
-                        "buttonCancel": "Abbrechen",
                         "buttonDelete": "Rabatt entfernen"
                     },
                     "labelSorting": "Sortieren nach",

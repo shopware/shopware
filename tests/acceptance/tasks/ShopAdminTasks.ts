@@ -30,11 +30,6 @@ import { CreateLandingPage } from '@tasks/ShopAdmin/Category/CreateLandingPage';
  */
 import { CustomerGroupActivation } from '@tasks/ShopAdmin/Customers/CustomerGroupActivation';
 
-/**
- * Add Link Type Category
- */
-import { CreateLinkTypeCategory} from '@tasks/ShopAdmin/Category/CreateLinkTypeCategory';
-
 export const test = mergeTests(
     GenerateVariants,
     UploadImage,
@@ -42,5 +37,4 @@ export const test = mergeTests(
     CreateCustomField,
     CreateLandingPage,
     CustomerGroupActivation,
-    CreateLinkTypeCategory,
 );

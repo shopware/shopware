@@ -111,11 +111,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
             throw CartException::invalidPaymentOrderNotStored($orderId);
         }
 
-        $event = new CheckoutOrderPlacedEvent(
-            $context->getContext(),
-            $orderEntity,
-            $context->getSalesChannel()->getId()
-        );
+        $event = new CheckoutOrderPlacedEvent($context, $orderEntity);
 
         Profiler::trace('checkout-order::event-listeners', function () use ($event): void {
             $this->eventDispatcher->dispatch($event);

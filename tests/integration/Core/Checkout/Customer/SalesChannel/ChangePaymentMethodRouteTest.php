@@ -54,7 +54,7 @@ class ChangePaymentMethodRouteTest extends TestCase
             ],
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $email = Uuid::randomHex() . '@example.com';
         $this->createCustomer($email);
@@ -182,7 +182,7 @@ class ChangePaymentMethodRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('payment_method.repository')
+        static::getContainer()->get('payment_method.repository')
             ->create($data, Context::createDefaultContext());
     }
 }

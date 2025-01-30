@@ -18,7 +18,7 @@ class HookableEventCollectorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->hookableEventCollector = $this->getContainer()->get(HookableEventCollector::class);
+        $this->hookableEventCollector = static::getContainer()->get(HookableEventCollector::class);
     }
 
     public function testGetHookableEventNamesWithPrivileges(): void

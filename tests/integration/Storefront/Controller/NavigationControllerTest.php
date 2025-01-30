@@ -37,7 +37,7 @@ class NavigationControllerTest extends TestCase
         $response = $this->request('GET', '/', []);
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -48,7 +48,7 @@ class NavigationControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -58,7 +58,7 @@ class NavigationControllerTest extends TestCase
         $response = $this->request('GET', '/widgets/menu/offcanvas', []);
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MenuOffcanvasPageletLoadedHook::HOOK_NAME, $traces);
     }
@@ -66,7 +66,7 @@ class NavigationControllerTest extends TestCase
     private function createData(): void
     {
         /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
+        $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
             (new Criteria())->addFilter(
                 new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
                 new EqualsFilter('domains.url', $_SERVER['APP_URL'])
@@ -81,6 +81,6 @@ class NavigationControllerTest extends TestCase
             'parentId' => $salesChannel->getNavigationCategoryId(),
         ];
 
-        $this->getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
     }
 }

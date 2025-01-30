@@ -32,15 +32,15 @@ class MediaPathPostUpdaterTest extends TestCase
     public function testIterate(): void
     {
         $updater = new MediaPathPostUpdater(
-            $this->getContainer()->get(IteratorFactory::class),
-            $this->getContainer()->get(MediaPathUpdater::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(EntityIndexerRegistry::class),
+            static::getContainer()->get(IteratorFactory::class),
+            static::getContainer()->get(MediaPathUpdater::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(EntityIndexerRegistry::class),
         );
 
         $ids = new IdsCollection();
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class), 250);
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class), 250);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-1'), 'file_name' => 'test', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-2'), 'file_name' => 'test', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-3'), 'file_name' => 'test', 'path' => 'foo', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
@@ -64,8 +64,8 @@ class MediaPathPostUpdaterTest extends TestCase
     {
         $internal = new MediaPathUpdater(
             new PlainPathStrategy(),
-            $this->getContainer()->get(MediaLocationBuilder::class),
-            $this->getContainer()->get(MediaPathStorage::class)
+            static::getContainer()->get(MediaLocationBuilder::class),
+            static::getContainer()->get(MediaPathStorage::class)
         );
 
         $ids = new IdsCollection();
@@ -83,13 +83,13 @@ class MediaPathPostUpdaterTest extends TestCase
             }));
 
         $updater = new MediaPathPostUpdater(
-            $this->getContainer()->get(IteratorFactory::class),
+            static::getContainer()->get(IteratorFactory::class),
             $internal,
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             $indexerRegistry
         );
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class), 250);
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class), 250);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-1'), 'file_name' => 'media-1', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-2'), 'file_name' => 'media-2', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-3'), 'file_name' => 'media-3', 'path' => 'already/generated.png', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
@@ -97,7 +97,7 @@ class MediaPathPostUpdaterTest extends TestCase
 
         $updater->handle($message);
 
-        $paths = $this->getContainer()
+        $paths = static::getContainer()
             ->get(Connection::class)
             ->fetchFirstColumn(
                 'SELECT path FROM media WHERE id IN (:ids)',

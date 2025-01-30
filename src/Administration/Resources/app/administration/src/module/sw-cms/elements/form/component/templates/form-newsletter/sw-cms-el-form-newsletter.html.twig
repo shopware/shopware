@@ -1,3 +1,4 @@
+{% block sw_cms_el_form_newsletter %}
 <div class="sw-cms-el-form-newsletter">
     <h3
         v-if="formSettings.title.value.length > 0"
@@ -53,4 +54,4 @@
         {{ $tc('sw-cms.elements.form.element.label.send') }}
     </div>
 </div>
-
+{% endblock %}

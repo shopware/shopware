@@ -33,10 +33,10 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testFirstIndexDoesNotCreateTask(): void
     {
-        $c = $this->getContainer()->get(Connection::class);
+        $c = static::getContainer()->get(Connection::class);
         static::assertEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
 
-        $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
+        $indexer = static::getContainer()->get(ElasticsearchIndexer::class);
         static::assertNotNull($indexer);
         $indexer->iterate(null);
 
@@ -45,11 +45,11 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testSecondIndexingCreatesTask(): void
     {
-        $c = $this->getContainer()->get(Connection::class);
+        $c = static::getContainer()->get(Connection::class);
         $before = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
         static::assertEmpty($before);
 
-        $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
+        $indexer = static::getContainer()->get(ElasticsearchIndexer::class);
         static::assertNotNull($indexer);
 
         $indexer->iterate(null);
@@ -61,7 +61,7 @@ class ElasticsearchIndexerTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     protected function runWorker(): void

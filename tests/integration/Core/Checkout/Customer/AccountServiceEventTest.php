@@ -52,13 +52,13 @@ class AccountServiceEventTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->accountService = $this->getContainer()->get(AccountService::class);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->logoutRoute = $this->getContainer()->get(LogoutRoute::class);
-        $this->changePaymentMethodRoute = $this->getContainer()->get(ChangePaymentMethodRoute::class);
-        $this->loginRoute = $this->getContainer()->get(LoginRoute::class);
+        $this->accountService = static::getContainer()->get(AccountService::class);
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->logoutRoute = static::getContainer()->get(LogoutRoute::class);
+        $this->changePaymentMethodRoute = static::getContainer()->get(ChangePaymentMethodRoute::class);
+        $this->loginRoute = static::getContainer()->get(LoginRoute::class);
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $this->createCustomer('info@example.com');
@@ -66,7 +66,7 @@ class AccountServiceEventTest extends TestCase
 
     public function testLoginBeforeEventNotDispatchedIfNoCredentialsGiven(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
 
@@ -92,7 +92,7 @@ class AccountServiceEventTest extends TestCase
 
     public function testLoginEventsDispatched(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventsToTest = [
             CustomerBeforeLoginEvent::class,
@@ -136,7 +136,7 @@ class AccountServiceEventTest extends TestCase
     public function testLogoutEventsDispatched(): void
     {
         $email = 'info@example.com';
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
 
@@ -168,7 +168,7 @@ class AccountServiceEventTest extends TestCase
         Feature::skipTestIfActive('v6.7.0.0', $this);
 
         $email = 'info@example.com';
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
 

@@ -19,7 +19,7 @@ trait CountryAddToSalesChannelTestBehaviour
     protected function addCountriesToSalesChannel(array $additionalCountryIds = [], string $salesChannelId = TestDefaults::SALES_CHANNEL): void
     {
         /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $countryIds = array_merge([
             ['id' => $this->getValidCountryId($salesChannelId)],

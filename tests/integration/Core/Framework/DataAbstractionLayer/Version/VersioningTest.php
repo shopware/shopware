@@ -99,14 +99,14 @@ class VersioningTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->processor = $this->getContainer()->get(Processor::class);
-        $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
+        $this->processor = static::getContainer()->get(Processor::class);
+        $this->orderPersister = static::getContainer()->get(OrderPersister::class);
         $this->context = Context::createDefaultContext();
 
         $this->registerDefinition(CalculatedPriceFieldTestDefinition::class);
@@ -136,7 +136,7 @@ class VersioningTest extends TestCase
 
         $ruleId = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
@@ -155,7 +155,7 @@ class VersioningTest extends TestCase
             ],
         ];
 
-        $priceRepository = $this->getContainer()->get('product_price.repository');
+        $priceRepository = static::getContainer()->get('product_price.repository');
 
         $event = $priceRepository->create([$price], $context);
         $productEvent = $event->getEventByEntityName('product');
@@ -171,7 +171,7 @@ class VersioningTest extends TestCase
         $commits = $this->getCommits('product', $id, $versionId);
         static::assertCount(1, $commits);
 
-        $mappingRepository = $this->getContainer()->get('product_category.repository');
+        $mappingRepository = static::getContainer()->get('product_category.repository');
 
         $event = $mappingRepository->delete([['productId' => $id, 'categoryId' => $categoryId]], $version);
 
@@ -196,9 +196,9 @@ class VersioningTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->getContainer()->get('tax.repository')->create([$data], $context);
+        static::getContainer()->get('tax.repository')->create([$data], $context);
 
-        $changelog = $this->getVersionData($this->getContainer()->get(TaxDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
+        $changelog = $this->getVersionData(static::getContainer()->get(TaxDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
         static::assertCount(0, $changelog);
 
         $product = [
@@ -218,13 +218,13 @@ class VersioningTest extends TestCase
         $this->productRepository->update([['id' => $id, 'name' => 'test']], $version);
         $this->productRepository->merge($versionId, $context);
 
-        $changelog = $this->getVersionData($this->getContainer()->get(TaxDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
+        $changelog = $this->getVersionData(static::getContainer()->get(TaxDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
         static::assertCount(0, $changelog);
 
-        $changelog = $this->getVersionData($this->getContainer()->get(ProductDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
+        $changelog = $this->getVersionData(static::getContainer()->get(ProductDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
         static::assertCount(1, $changelog);
 
-        $changelog = $this->getVersionData($this->getContainer()->get(ProductManufacturerDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
+        $changelog = $this->getVersionData(static::getContainer()->get(ProductManufacturerDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
         static::assertCount(0, $changelog);
     }
 
@@ -238,28 +238,28 @@ class VersioningTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->getContainer()
+        static::getContainer()
             ->get('product.repository')
             ->create([$product], $context);
 
-        $versionId = $this->getContainer()
+        $versionId = static::getContainer()
             ->get('product.repository')
             ->createVersion($ids->get('p1'), $context);
 
         $version = $context->createWithVersionId($versionId);
 
-        $this->getContainer()
+        static::getContainer()
             ->get('product.repository')
             ->delete([['id' => $ids->get('p1')]], $version);
 
-        $this->getContainer()
+        static::getContainer()
             ->get('version.repository')
             ->delete([['id' => $versionId]], $context);
 
         $e = null;
 
         try {
-            $this->getContainer()
+            static::getContainer()
                 ->get('product.repository')
                 ->merge($versionId, $context);
         } catch (DataAbstractionLayerException $e) {
@@ -268,7 +268,7 @@ class VersioningTest extends TestCase
         static::assertInstanceOf(DataAbstractionLayerException::class, $e);
         static::assertSame(DataAbstractionLayerException::VERSION_NOT_EXISTS, $e->getErrorCode());
 
-        $versions = $this->getContainer()
+        $versions = static::getContainer()
             ->get(Connection::class)
             ->fetchFirstColumn(
                 'SELECT LOWER(HEX(version_id)) FROM product WHERE id = :id',
@@ -400,16 +400,16 @@ class VersioningTest extends TestCase
             ])
         );
 
-        $definition = $this->getContainer()->get(CalculatedPriceFieldTestDefinition::class);
+        $definition = static::getContainer()->get(CalculatedPriceFieldTestDefinition::class);
         static::assertInstanceOf(CalculatedPriceFieldTestDefinition::class, $definition);
         $repository = new EntityRepository(
             $definition,
-            $this->getContainer()->get(EntityReaderInterface::class),
-            $this->getContainer()->get(VersionManager::class),
-            $this->getContainer()->get(EntitySearcherInterface::class),
-            $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(EntityLoadedEventFactory::class)
+            static::getContainer()->get(EntityReaderInterface::class),
+            static::getContainer()->get(VersionManager::class),
+            static::getContainer()->get(EntitySearcherInterface::class),
+            static::getContainer()->get(EntityAggregatorInterface::class),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(EntityLoadedEventFactory::class)
         );
 
         $context = Context::createDefaultContext();
@@ -569,7 +569,7 @@ class VersioningTest extends TestCase
         $this->productRepository->update([['id' => $id, 'name' => 'test']], $version);
         $this->productRepository->merge($versionId, $context);
 
-        $changelog = $this->getTranslationVersionData($this->getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId(), 'productVersionId');
+        $changelog = $this->getTranslationVersionData(static::getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId(), 'productVersionId');
 
         static::assertCount(1, $changelog);
         static::assertArrayHasKey('name', $changelog[0]['payload']);
@@ -580,7 +580,7 @@ class VersioningTest extends TestCase
         $this->productRepository->update([['id' => $id, 'name' => 'updated']], $version);
         $this->productRepository->merge($versionId, $context);
 
-        $changelog = $this->getTranslationVersionData($this->getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId(), 'productVersionId');
+        $changelog = $this->getTranslationVersionData(static::getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId(), 'productVersionId');
 
         static::assertCount(2, $changelog);
         static::assertArrayHasKey('name', $changelog[1]['payload']);
@@ -698,7 +698,7 @@ class VersioningTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
@@ -861,7 +861,7 @@ class VersioningTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
@@ -961,7 +961,7 @@ class VersioningTest extends TestCase
         static::assertSame(10.0, $price2->getNet());
 
         // now delete the prices in version context
-        $priceRepository = $this->getContainer()->get('product_price.repository');
+        $priceRepository = static::getContainer()->get('product_price.repository');
         $priceRepository->delete([
             ['id' => $priceId1, 'versionId' => $versionId],
             ['id' => $priceId2, 'versionId' => $versionId],
@@ -1206,7 +1206,7 @@ class VersioningTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
@@ -1272,7 +1272,7 @@ class VersioningTest extends TestCase
         static::assertContains($productId, $result->getIds());
 
         // delete second price to check if the delete is applied too
-        $this->getContainer()->get('product_price.repository')->delete([
+        static::getContainer()->get('product_price.repository')->delete([
             ['id' => $priceId2, 'versionId' => $versionId],
         ], $versionContext);
 
@@ -1479,7 +1479,7 @@ class VersioningTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
@@ -1789,7 +1789,7 @@ class VersioningTest extends TestCase
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
 
-        $affected = $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+        $affected = static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
         static::assertInstanceOf(EntityWrittenEvent::class, $affected->getEventByEntityName(ProductTranslationDefinition::ENTITY_NAME));
         $writtenProductTranslations = $affected->getEventByEntityName(ProductTranslationDefinition::ENTITY_NAME)->getPayloads();
 
@@ -1849,7 +1849,7 @@ class VersioningTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $version = Uuid::randomHex();
@@ -1887,7 +1887,7 @@ class VersioningTest extends TestCase
         $commits = $this->getCommits('product', $id, $versionId);
         static::assertCount(2, $commits);
 
-        $lockFactory = $this->getContainer()->get('lock.factory');
+        $lockFactory = static::getContainer()->get('lock.factory');
         $lock = $lockFactory->createLock('sw-merge-version-' . $versionId);
         $lock->acquire();
 
@@ -1924,7 +1924,7 @@ class VersioningTest extends TestCase
 
         $live = Context::createDefaultContext();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product->build()], $live);
 
         // after having a simple product - create new version
@@ -1939,7 +1939,7 @@ class VersioningTest extends TestCase
         $this->productRepository->update([$update->build()], $version);
 
         // when the version is merged - the manufacturer should be created first
-        $this->getContainer()->get('product.repository')->merge($versionId, $live);
+        static::getContainer()->get('product.repository')->merge($versionId, $live);
     }
 
     private function getReviewCount(string $productId, string $versionId): int
@@ -1973,7 +1973,7 @@ class VersioningTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
         $this->addTaxDataToSalesChannel($salesChannelContext, $product['tax']);
@@ -2119,9 +2119,9 @@ class VersioningTest extends TestCase
     private function createPaymentMethod(string $ruleId): string
     {
         $paymentMethodId = Uuid::randomHex();
-        $repository = $this->getContainer()->get('payment_method.repository');
+        $repository = static::getContainer()->get('payment_method.repository');
 
-        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
+        $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 

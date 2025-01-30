@@ -57,6 +57,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "type": "object",
                                 "required": [
                                     "salutationId",
                                     "firstName",
@@ -79,10 +80,6 @@
                                         "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
                                         "type": "string"
                                     },
-                                    "company": {
-                                        "description": "Company of the customer. Only required when `accountType` is `business`.",
-                                        "type": "string"
-                                    },
                                     "birthdayDay": {
                                         "description": "Birthday day",
                                         "type": "integer"
@@ -96,7 +93,54 @@
                                         "type": "integer"
                                     }
                                 },
-                                "type": "object"
+                                "oneOf": [
+                                    {
+                                        "properties": {
+                                            "accountType": {
+                                                "description": "Type of the customer account. Default value is 'private'.",
+                                                "type": "string",
+                                                "enum": [
+                                                    "private"
+                                                ],
+                                                "default": "private"
+                                            },
+                                            "company": {
+                                                "type": "null"
+                                            },
+                                            "vatIds": {
+                                                "type": "null"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "required": [
+                                            "accountType",
+                                            "company",
+                                            "vatIds"
+                                        ],
+                                        "properties": {
+                                            "accountType": {
+                                                "description": "Type of the customer account. Can be `private` or `business`.",
+                                                "type": "string",
+                                                "enum": [
+                                                    "business"
+                                                ]
+                                            },
+                                            "company": {
+                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
+                                                "type": "string"
+                                            },
+                                            "vatIds": {
+                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "minItems": 1
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         }
                     }
@@ -497,7 +541,6 @@
                                         {
                                             "$ref": "#/components/schemas/CustomerAddress"
                                         },
-
                                         {
                                             "$ref": "#/components/schemas/CustomerAddressRead"
                                         }
@@ -773,11 +816,6 @@
                                     "shippingAddress": {
                                         "$ref": "#/components/schemas/CustomerAddress"
                                     },
-                                    "accountType": {
-                                        "description": "Account type of the customer which can be either `private` or `business`.",
-                                        "type": "string",
-                                        "default": "private"
-                                    },
                                     "guest": {
                                         "description": "If set, will create a guest customer. Guest customers can re-use an email address and don't need a password.",
                                         "type": "boolean",
@@ -817,6 +855,54 @@
                                     "acceptedDataProtection",
                                     "storefrontUrl",
                                     "billingAddress"
+                                ],
+                                "oneOf": [
+                                    {
+                                        "properties": {
+                                            "accountType": {
+                                                "description": "Type of the customer account. Default value is 'private'.",
+                                                "type": "string",
+                                                "enum": [
+                                                    "private"
+                                                ],
+                                                "default": "private"
+                                            },
+                                            "company": {
+                                                "type": "null"
+                                            },
+                                            "vatIds": {
+                                                "type": "null"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "required": [
+                                            "accountType",
+                                            "company",
+                                            "vatIds"
+                                        ],
+                                        "properties": {
+                                            "accountType": {
+                                                "description": "Type of the customer account. Can be `private` or `business`.",
+                                                "type": "string",
+                                                "enum": [
+                                                    "business"
+                                                ]
+                                            },
+                                            "company": {
+                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
+                                                "type": "string"
+                                            },
+                                            "vatIds": {
+                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "minItems": 1
+                                            }
+                                        }
+                                    }
                                 ],
                                 "type": "object"
                             }

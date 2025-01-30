@@ -42,13 +42,13 @@ class CustomFieldUpdaterTest extends TestCase
 
         $this->ids = new IdsCollection();
 
-        $this->client = $this->getContainer()->get(Client::class);
-        $this->indexDetector = $this->getContainer()->get(ElasticsearchOutdatedIndexDetector::class);
+        $this->client = static::getContainer()->get(Client::class);
+        $this->indexDetector = static::getContainer()->get(ElasticsearchOutdatedIndexDetector::class);
     }
 
     protected function tearDown(): void
     {
-        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
+        $customFieldRepository = static::getContainer()->get('custom_field_set.repository');
 
         $customFieldRepository->delete([
             ['id' => $this->ids->get('custom-field-set-1')],
@@ -59,14 +59,14 @@ class CustomFieldUpdaterTest extends TestCase
     {
         $this->clearElasticsearch();
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $connection->executeStatement('DELETE FROM custom_field');
 
         $command = new ElasticsearchIndexingCommand(
-            $this->getContainer()->get(ElasticsearchIndexer::class),
-            $this->getContainer()->get('messenger.bus.shopware'),
-            $this->getContainer()->get(CreateAliasTaskHandler::class),
+            static::getContainer()->get(ElasticsearchIndexer::class),
+            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get(CreateAliasTaskHandler::class),
             true
         );
 
@@ -78,7 +78,7 @@ class CustomFieldUpdaterTest extends TestCase
     #[Depends('testCreateIndices')]
     public function testCreateCustomFields(): void
     {
-        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
+        $customFieldRepository = static::getContainer()->get('custom_field_set.repository');
 
         $customFieldRepository->create([
             [
@@ -124,7 +124,7 @@ class CustomFieldUpdaterTest extends TestCase
     #[Depends('testCreateCustomFields')]
     public function testRelationWillBeSetLaterOn(): void
     {
-        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
+        $customFieldRepository = static::getContainer()->get('custom_field_set.repository');
 
         $customFieldRepository->create([
             [
@@ -174,12 +174,12 @@ class CustomFieldUpdaterTest extends TestCase
         static::assertSame('keyword', $properties['test_later_created_field_text']['type']);
 
         $this->clearElasticsearch();
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM elasticsearch_index_task');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM elasticsearch_index_task');
     }
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     protected function runWorker(): void

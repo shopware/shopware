@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-#[Package('core')]
+#[Package('framework')]
 class CriteriaValueResolver implements ValueResolverInterface
 {
     /**

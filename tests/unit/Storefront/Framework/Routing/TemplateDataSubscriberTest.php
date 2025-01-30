@@ -17,6 +17,7 @@ use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -81,7 +82,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->hreflangLoader->expects(static::never())->method('load');
@@ -94,13 +95,13 @@ class TemplateDataSubscriberTest extends TestCase
         $request = new Request();
         $request->attributes->set('_route', 'frontend.home');
         $request->attributes->set('_route_params', ['param' => 'value']);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::createSalesChannelContext());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
 
         $event = new StorefrontRenderEvent(
             'test',
             [],
             $request,
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->hreflangLoader
@@ -119,7 +120,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->activeAppsLoader
@@ -139,7 +140,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->activeAppsLoader
@@ -160,7 +161,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->activeAppsLoader
@@ -183,7 +184,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             new Request(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->themeRegistry
@@ -202,7 +203,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             $request,
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $this->themeRegistry
@@ -222,7 +223,7 @@ class TemplateDataSubscriberTest extends TestCase
             'test',
             [],
             $request,
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         $themeConfig = new StorefrontPluginConfiguration('Storefront');
@@ -236,6 +237,44 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn($collection);
 
         $this->subscriber->addIconSetConfig($event);
+
+        static::assertArrayHasKey('themeIconConfig', $event->getParameters());
+    }
+
+    public function testAddIconSetConfigWithRegistryWithGetByTechnicalName(): void
+    {
+        $request = new Request();
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
+
+        $event = new StorefrontRenderEvent(
+            'test',
+            [],
+            $request,
+            Generator::generateSalesChannelContext()
+        );
+
+        $themeConfig = new StorefrontPluginConfiguration('Storefront');
+        $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
+
+        $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
+
+        $themeRegistry
+            ->expects(static::never())
+            ->method('getConfigurations');
+
+        $themeRegistry
+            ->expects(static::once())
+            ->method('getByTechnicalName')
+            ->willReturn($themeConfig);
+
+        $subscriber = new TemplateDataSubscriber(
+            $this->hreflangLoader,
+            $this->shopIdProvider,
+            $themeRegistry,
+            $this->activeAppsLoader
+        );
+
+        $subscriber->addIconSetConfig($event);
 
         static::assertArrayHasKey('themeIconConfig', $event->getParameters());
     }

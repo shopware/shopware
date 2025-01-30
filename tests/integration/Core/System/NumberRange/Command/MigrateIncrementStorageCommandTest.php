@@ -27,7 +27,7 @@ class MigrateIncrementStorageCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->sqlStorage = $this->getContainer()->get(IncrementSqlStorage::class);
+        $this->sqlStorage = static::getContainer()->get(IncrementSqlStorage::class);
         $this->arrayStorage = new IncrementArrayStorage([]);
 
         $command = new MigrateIncrementStorageCommand(

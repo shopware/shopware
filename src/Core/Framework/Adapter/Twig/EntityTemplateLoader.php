@@ -15,11 +15,11 @@ use Twig\Source;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface, ResetInterface
 {
     /**
-     * @var array<string, array<string, array{template: string, updatedAt: \DateTimeInterface|null}|null>>
+     * @var array<string, array<string, array{template: string, hash: string, updatedAt: \DateTimeInterface|null}|null>>
      */
     private array $databaseTemplateCache = [];
 
@@ -55,7 +55,14 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
 
     public function getCacheKey(string $name): string
     {
-        return $name;
+        $template = $this->findDatabaseTemplate($name);
+
+        if (!$template) {
+            // should not happen as exists() is called before
+            return $name;
+        }
+
+        return $name . '_' . $template['hash'];
     }
 
     public function isFresh(string $name, int $time): bool
@@ -82,10 +89,11 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
     }
 
     /**
-     * @return array{template: string, updatedAt: \DateTimeInterface|null}|null
+     * @return array{template: string, hash: string, updatedAt: \DateTimeInterface|null}|null
      */
     private function findDatabaseTemplate(string $name): ?array
     {
+        // @deprecated tag:v6.7.0 - remove if condition
         if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
             return null;
         }
@@ -103,11 +111,12 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         $path = $templateName['path'];
 
         if (empty($this->databaseTemplateCache)) {
-            /** @var array<array{path: string, template: string, updatedAt: string|null, namespace: string}> $templates */
+            /** @var array<array{path: string, template: string, updatedAt: string|null, namespace: string, hash: string}> $templates */
             $templates = $this->connection->fetchAllAssociative('
                 SELECT
                     `app_template`.`path` AS `path`,
                     `app_template`.`template` AS `template`,
+                    `app_template`.`hash` AS `hash`,
                     `app_template`.`updated_at` AS `updatedAt`,
                     `app`.`name` AS `namespace`
                 FROM `app_template`
@@ -119,6 +128,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
                 $this->databaseTemplateCache[$template['path']][$template['namespace']] = [
                     'template' => $template['template'],
                     'updatedAt' => $template['updatedAt'] ? new \DateTimeImmutable($template['updatedAt']) : null,
+                    'hash' => $template['hash'],
                 ];
             }
         }

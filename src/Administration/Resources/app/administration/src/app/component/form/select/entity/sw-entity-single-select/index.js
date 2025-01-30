@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
 
@@ -158,6 +162,11 @@ Component.register('sw-entity-single-select', {
             type: Boolean,
             required: false,
             // eslint-disable-next-line vue/no-boolean-default
+            default: undefined,
+        },
+        label: {
+            type: String,
+            required: false,
             default: undefined,
         },
     },

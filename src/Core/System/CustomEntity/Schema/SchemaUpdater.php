@@ -143,38 +143,38 @@ class SchemaUpdater
         foreach ($fields as $field) {
             $required = $field['required'] ?? false;
 
-            $nullable = $required ? [] : ['notnull' => false, 'default' => null];
+            $fieldOptions = $required ? [] : ['notnull' => false, 'default' => null];
 
             switch ($field['type']) {
                 case 'int':
-                    $table->addColumn($field['name'], Types::INTEGER, $nullable + ['unsigned' => true]);
+                    $table->addColumn($field['name'], Types::INTEGER, $fieldOptions + ['unsigned' => true]);
 
                     break;
                 case 'bool':
-                    $table->addColumn($field['name'], Types::BOOLEAN, $nullable);
+                    $table->addColumn($field['name'], Types::BOOLEAN, $fieldOptions);
 
                     break;
                 case 'float':
-                    $table->addColumn($field['name'], Types::FLOAT, $nullable);
+                    $table->addColumn($field['name'], Types::FLOAT, $fieldOptions);
 
                     break;
                 case 'string':
                 case 'email':
-                    $nullable['length'] = 255;
-                    $table->addColumn($field['name'], Types::STRING, $nullable);
+                    $fieldOptions['length'] = 255;
+                    $table->addColumn($field['name'], Types::STRING, $fieldOptions);
 
                     break;
                 case 'text':
-                    $table->addColumn($field['name'], Types::TEXT, $nullable);
+                    $table->addColumn($field['name'], Types::TEXT, $fieldOptions);
 
                     break;
                 case 'date':
-                    $table->addColumn($field['name'], Types::DATETIME_MUTABLE, $nullable);
+                    $table->addColumn($field['name'], Types::DATETIME_MUTABLE, $fieldOptions);
 
                     break;
                 case 'json':
                 case 'price':
-                    $table->addColumn($field['name'], Types::JSON, $nullable);
+                    $table->addColumn($field['name'], Types::JSON, $fieldOptions);
 
                     break;
                 case 'many-to-many':
@@ -237,7 +237,7 @@ class SchemaUpdater
                 case 'many-to-one':
                 case 'one-to-one':
                     // first add foreign key column to custom entity table: `top_seller_id`
-                    $table->addColumn(self::id($field['name']), Types::BINARY, $nullable + $binary);
+                    $table->addColumn(self::id($field['name']), Types::BINARY, $fieldOptions + $binary);
 
                     // now check for on-delete foreign key configuration (cascade, restrict, set-null)
                     $options = $onDelete[$field['onDelete']];
@@ -250,7 +250,7 @@ class SchemaUpdater
 
                     // check for version support and consider version id in foreign key
                     if ($reference->hasColumn('version_id')) {
-                        $table->addColumn($field['name'] . '_version_id', Types::BINARY, $nullable + $binary);
+                        $table->addColumn($field['name'] . '_version_id', Types::BINARY, $fieldOptions + $binary);
                         $fkName = substr('fk_ce_' . $table->getName() . '_' . $field['name'], 0, 64);
                         $table->addForeignKeyConstraint($reference->getName(), [self::id($field['name']), $field['name'] . '_version_id'], ['id', 'version_id'], $options, $fkName);
 
@@ -276,7 +276,7 @@ class SchemaUpdater
                     $options = $onDelete[$field['onDelete']];
 
                     // important: we add a `comment` to the column. This allows us to identify the custom entity modification in sw-core tables when run the cleanup
-                    $reference->addColumn($foreignKey, Types::BINARY, $nullable + $binary + ['comment' => self::COMMENT]);
+                    $reference->addColumn($foreignKey, Types::BINARY, $fieldOptions + $binary + ['comment' => self::COMMENT]);
 
                     // build foreign key with special naming. This allows us to identify the custom entity modification in sw-core tables when run the cleanup
                     $fk = substr('fk_ce_' . $reference->getName() . '_' . $foreignKey, 0, 64);

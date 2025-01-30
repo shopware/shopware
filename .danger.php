@@ -422,4 +422,14 @@ return (new Config())
             }
         }
     })
+    ->useRule(function (Context $context): void {
+        $conventionalCommitRegex = '/\s*(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^)]+\))?!?:\s*.+$/i';
+
+        $prTitle = $context->platform->pullRequest->title;
+        $pregMatch = preg_match($conventionalCommitRegex, $prTitle);
+
+        if ($pregMatch === 0 || $pregMatch === false) {
+            $context->failure(sprintf('The pr title "%s" does not conform to conventional commits standard (%s)', $prTitle, $conventionalCommitRegex));
+        }
+    })
 ;

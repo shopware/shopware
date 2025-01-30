@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_skeleton %}
 <tbody
     class="sw-data-grid-skeleton"
     aria-busy="true"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_skeleton_row %}
     <tr
         v-for="(item, itemIndex) in itemAmount"
@@ -13,20 +11,17 @@
         class="sw-data-grid__row"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_skeleton_cell_selection %}
         <td
             v-if="showSelection"
             class="sw-data-grid__cell"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_skeleton_cell_selection_content %}
             <div class="sw-grid__cell-content"></div>
             {% endblock %}
         </td>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_skeleton_columns %}
         <td
             v-for="(column, columnIndex) in currentColumns"
@@ -34,13 +29,11 @@
             :key="`grid-skeleton-columns-${itemIndex}-${columnIndex}`"
             class="sw-data-grid__cell"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_skeleton_columns_content %}
             <div
                 class="sw-data-grid__cell-content"
                 :style="{ 'width': getRandomLength() + '%', 'min-width': '100px' }"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_data_grid_skeleton_element %}
                 <sw-skeleton variant="listing" />
                 {% endblock %}
@@ -49,27 +42,23 @@
         </td>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_skeleton_spacer %}
         <td
             v-if="hasResizeColumns"
             class="sw-data-grid__cell"
             aria-hidden="true"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_skeleton_spacer_content %}
             <div class="sw-grid__cell-content"></div>
             {% endblock %}
         </td>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_skeleton_cell_actions %}
         <td
             v-if="showActions"
             class="sw-data-grid__cell"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_skeleton_cell_actions_content %}
             <div class="sw-grid__cell-content"></div>
             {% endblock %}

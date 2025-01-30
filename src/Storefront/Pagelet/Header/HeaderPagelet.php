@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Pagelet\Header;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Tree\Tree;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -45,12 +46,14 @@ class HeaderPagelet extends NavigationPagelet
     /**
      * @var CategoryCollection
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.7.0 - Will be removed as it is unused
      */
     protected $serviceMenu;
 
     /**
      * @internal
+     *
+     * @deprecated tag:v6.7.0 - Parameter `serviceMenu` will be removed as it is unused
      */
     public function __construct(
         Tree $navigation,
@@ -89,8 +92,13 @@ class HeaderPagelet extends NavigationPagelet
         return $this->activeCurrency;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed as `serviceMenu` is unused
+     */
     public function getServiceMenu(): CategoryCollection
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
+
         return $this->serviceMenu;
     }
 }

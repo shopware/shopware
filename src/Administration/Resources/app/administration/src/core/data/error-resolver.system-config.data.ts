@@ -62,6 +62,7 @@ export default class ErrorResolverSystemConfig {
         errors.forEach((current) => {
             if (!current.source || !current.source.pointer) {
                 const systemError = new ShopwareError({
+                    // @ts-expect-error
                     code: current.code,
                     meta: current.meta,
                     detail: current.detail,

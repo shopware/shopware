@@ -193,7 +193,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
                 return true;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
             return this.selectionDisablingMethod(selection);
         },
 

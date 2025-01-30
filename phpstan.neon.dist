@@ -27,6 +27,9 @@ parameters:
         # vendor patches over autoload files
         - src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
 
+        # Code copied and adapted from twig
+        - src/Core/Framework/Adapter/Twig/TokenParser/SwMacroFunctionTokenParser.php
+
         # node_modules
         - src/**/node_modules/*
         - tests/**/node_modules/*
@@ -180,7 +183,6 @@ parameters:
         - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
             message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
             paths:
-                - src/Administration/**
                 - src/Core/Checkout/**
                 - src/Core/Content/**
                 - src/Core/Framework/**
@@ -189,28 +191,19 @@ parameters:
                 - src/Core/Service/**
                 - src/Core/System/**
                 - src/Core/Test/**
-                - src/Elasticsearch/**
-                - src/Storefront/**
-                - tests/integration/Administration/**
                 - tests/integration/Core/Checkout/**
                 - tests/integration/Core/Content/**
                 - tests/integration/Core/Framework/**
                 - tests/integration/Core/System/**
-                - tests/integration/Elasticsearch/**
-                - tests/integration/Storefront/**
-                - tests/unit/Administration/**
                 - tests/unit/Core/**
-                - tests/unit/Storefront/**
 
         - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
             message: '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
             paths:
-                - src/Administration/**
                 - src/Core/Checkout/**
                 - src/Core/Content/**
                 - src/Core/System/**
                 - tests/integration/Core/**
-                - tests/unit/Administration/**
                 - tests/unit/Core/Content/**
 
         - # No need to fix for now, as the facades are only used in twig context

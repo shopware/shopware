@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_admin_menu_item %}
 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <li
@@ -13,7 +12,6 @@
     @mouseenter="$emit('menu-item-enter', entry, $event, parentEntries)"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_admin_menu_item_router_link %}
     <router-link
         v-if="entryPath"
@@ -22,7 +20,6 @@
         :to="getLinkToProp"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_item_icon %}
         <sw-icon
             v-if="displayIcon"
@@ -33,7 +30,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_item_text %}
         <span
             class="sw-admin-menu__navigation-link-label"
@@ -44,7 +40,6 @@
         </span>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_item_arrow_indicato %}
         <sw-icon
             v-if="entry.level > 1 && children.length"
@@ -58,7 +53,6 @@
     </router-link>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_admin_menu_item_external_link %}
     <a
         v-else-if="entry.link"
@@ -68,7 +62,6 @@
         class="sw-admin-menu__navigation-link"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_item_external_icon %}
         <sw-icon
             v-if="displayIcon"
@@ -79,7 +72,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_item_external_text %}
         <span
             class="sw-admin-menu__navigation-link-label"
@@ -90,7 +82,6 @@
         </span>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_item_external_arrow_indicato %}
         <sw-icon
             v-if="entry.level > 1 && children.length"
@@ -104,7 +95,6 @@
     </a>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_admin_menu_item_navigation_link %}
     <span
         v-else
@@ -112,7 +102,6 @@
         :class="{ 'router-link-active': subIsActive(entry.id) }"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_item_navigation_icon %}
         <sw-icon
             v-if="displayIcon"
@@ -123,7 +112,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_item_navigation_text %}
         <span
             class="sw-admin-menu__navigation-link-label"
@@ -136,7 +124,6 @@
 
         <slot name="additional-text"></slot>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_item_arrow_indicator %}
         <sw-icon
             v-if="entry.level > 1 && children.length"
@@ -148,7 +135,6 @@
     </span>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_sub_items_list %}
     <ul
         v-if="children.length > 0"

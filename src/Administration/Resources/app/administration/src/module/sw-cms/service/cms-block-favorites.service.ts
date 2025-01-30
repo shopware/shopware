@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package discovery
  */
 
 import { reactive } from 'vue';

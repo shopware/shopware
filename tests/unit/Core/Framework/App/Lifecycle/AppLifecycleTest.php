@@ -100,7 +100,7 @@ class AppLifecycleTest extends TestCase
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
-                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
             ],
         ])]);
 
@@ -155,7 +155,7 @@ class AppLifecycleTest extends TestCase
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
-                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
             ],
         ])]);
 
@@ -201,7 +201,7 @@ class AppLifecycleTest extends TestCase
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
-                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
             ],
         ])]);
 
@@ -245,7 +245,7 @@ class AppLifecycleTest extends TestCase
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
-                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
             ],
         ])]);
 
@@ -301,7 +301,7 @@ class AppLifecycleTest extends TestCase
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
-                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
             ],
         ])]);
 

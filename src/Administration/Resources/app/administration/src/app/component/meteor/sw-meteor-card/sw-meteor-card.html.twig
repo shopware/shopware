@@ -1,22 +1,18 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_meteor_card %}
 <div
     class="sw-meteor-card"
     :class="cardClasses"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_meteor_card_header %}
     <div
         v-if="hasHeader"
         class="sw-meteor-card__header"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_card_header_grid %}
         <div
             v-if="!!title || !!$slots.action"
             class="sw-meteor-card__header-grid"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_meteor_card_title %}
             <slot name="title">
                 <div
@@ -28,16 +24,13 @@
             </slot>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_meteor_card_header_action %}
             <div
                 v-if="!!$slots.action"
                 class="sw-meteor-card__header-action"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_meteor_card_header_action_inner %}
                 <slot name="action">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_meteor_card_slot_header_action %}{% endblock %}
                 </slot>
                 {% endblock %}
@@ -46,23 +39,19 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_card_toolbar %}
         <div
             v-if="!!$slots.toolbar"
             class="sw-meteor-card__toolbar"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_meteor_card_toolbar_inner %}
             <slot name="toolbar">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_meteor_card_slot_toolbar %}{% endblock %}
             </slot>
             {% endblock %}
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_card_tabs %}
         <sw-tabs
             v-if="hasTabs"
@@ -80,22 +69,18 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_meteor_card_content %}
     <div
         v-if="hasContent"
         class="sw-meteor-card__content"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_card_content_wrapper %}
         <div
             v-if="hasDefaultSlot"
             class="sw-meteor-card__content-wrapper"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_meteor_card_default_inner %}
             <slot v-bind="{ activeTab }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_meteor_card_slot_default %}{% endblock %}
             </slot>
             {% endblock %}
@@ -106,27 +91,22 @@
             name="grid"
             :title="title"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_meteor_card_slot_grid %}{% endblock %}
         </slot>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_card_loader %}
         <sw-loader v-if="isLoading" />
         {% endblock %}
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_meteor_card_footer %}
     <div
         v-if="!!$slots.footer"
         class="sw-meteor-card__footer"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_card_footer_inner %}
         <slot name="footer">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_meteor_card_slot_footer %}{% endblock %}
         </slot>
         {% endblock %}

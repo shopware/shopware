@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_item %}
 <router-link
     :to="to"
     class="sw-settings-item"
     :class="classes"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_item_icon %}
     <div
         class="sw-settings-item__icon"
@@ -15,7 +13,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_item_label %}
     <div class="sw-settings-item__label">
         <slot name="label">

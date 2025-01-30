@@ -27,7 +27,6 @@
     </template>
 
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_index_smart_bar_actions_extension %}
         <sw-extension-teaser-popover
             position-identifier="sw-flow-upload-flow-button"
@@ -75,7 +74,6 @@
                     {{ $tc('sw-flow.general.tabFlowTemplates') }}
                 </sw-tabs-item>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_tabs_header_extension %}{% endblock %}
 
                 <template #content="{ active }">
@@ -100,7 +98,6 @@
             </sw-tabs>
         </sw-card-view>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_index_modal_content_custom %}
         {% endblock %}
     </template>

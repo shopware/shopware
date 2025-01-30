@@ -2,7 +2,7 @@ import template from './sw-media-compact-upload-v2.html.twig';
 import './sw-media-compact-upload-v2.scss';
 
 /**
- * @sw-package content
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

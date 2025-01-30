@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SearchPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

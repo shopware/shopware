@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 #[Package('inventory')]
@@ -19,6 +20,8 @@ final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<SalesChannelCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,

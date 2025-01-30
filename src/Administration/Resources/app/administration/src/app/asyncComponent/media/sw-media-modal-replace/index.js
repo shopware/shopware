@@ -7,7 +7,7 @@ const { Mixin } = Shopware;
  * @status ready
  * @description The <u>sw-media-modal-replace</u> component is used to let the user upload a new image for an
  * existing media object.
- * @sw-package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-modal-replace itemToReplace="item">

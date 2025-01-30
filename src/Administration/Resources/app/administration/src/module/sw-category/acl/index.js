@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package discovery
  */
 
 Shopware.Service('privileges')

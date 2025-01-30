@@ -1,10 +1,7 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
-/**
- * @package admin
-*/
 /* eslint-disable sw-test-rules/await-async-functions */
 import { defineAsyncComponent } from 'vue';
 // eslint-disable-next-line import/no-unresolved, import/extensions

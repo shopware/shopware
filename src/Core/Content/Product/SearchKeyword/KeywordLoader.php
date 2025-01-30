@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class KeywordLoader
 {
     /**

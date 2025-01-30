@@ -66,7 +66,7 @@ Component.register('sw-colorpicker', {
             },
         },
 
-        // eslint-disable-next-line @typescript-eslint/ban-types
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
         listeners(): Record<string, Function | Function[]> {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             if (this.isCompatEnabled('INSTANCE_LISTENERS')) {

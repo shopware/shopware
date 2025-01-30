@@ -1,22 +1,18 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_profile_index %}
 <sw-page class="sw-profile-index">
     <template #smart-bar-back>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_smart_bar_back %}
         <span></span>
         {% endblock %}
     </template>
 
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_headline %}
         <h2>{{ $tc('sw-profile.general.headlineProfile') }}</h2>
         {% endblock %}
     </template>
 
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_actions %}
         <sw-button-process
             class="sw-profile__save-action"
@@ -34,12 +30,10 @@
 
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_tabs %}
             <sw-tabs
                 position-identifier="sw-profile-index"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_profile_index_tabs_item_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.profile.index.general' }"
@@ -49,7 +43,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_profile_index_tabs_item_search_preferences %}
                 <sw-tabs-item
                     :route="{ name: 'sw.profile.index.searchPreferences' }"
@@ -61,7 +54,6 @@
             </sw-tabs>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_router_view %}
             <template v-if="isUserLoading">
                 <sw-skeleton />
@@ -97,7 +89,6 @@
             {% endblock %}
         </sw-card-view>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_content_confirm_password_modal %}
         <sw-verify-user-modal
             v-if="confirmPasswordModal"
@@ -106,7 +97,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_media_upload_actions_media_modal %}
         <sw-media-modal-v2
             v-if="showMediaModal"

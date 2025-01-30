@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ContactFormValidationFactory implements DataValidationFactoryInterface
 {
     /**

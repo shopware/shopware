@@ -5,23 +5,37 @@
         {% set level = 0 %}
     {% endif %}
 
+    {% if feature('cache_rework') %}
+        {% set activeId = shopware.navigation.id %}
+        {% set activePath = shopware.navigation.pathIdList %}
+    {% else %}
+        {% set activeId = activeResult.id %}
+        {% set activePath = activeResult.path %}
+    {% endif %}
+
     {% block layout_navigation_categories_list %}
         <ul class="category-navigation level-{{ level }}">
             {% for item in navigationTree %}
+                {% set categoryId = item.category.id %}
+                {% set categoryName = item.category.translated.name %}
+                {% set categoryType = item.category.type %}
+                {% set categoryUrl = category_url(item.category) %}
+                {% set categoryLinkNewTab = category_linknewtab(item.category) %}
+
                 {% block layout_navigation_categories_list_entry %}
                     <li class="category-navigation-entry">
-                        {% if (item.category.id in activeResult.id) or (item.category.id in activeResult.path) %}
-                            {% if item.category.type == 'folder' %}
+                        {% if (categoryId in activeId) or (categoryId in activePath) %}
+                            {% if categoryType == 'folder' %}
                                 {% block layout_navigation_categories_folder_children %}
-                                    <span class="category-navigation-link">{{ item.category.translated.name }}</span>
+                                    <span class="category-navigation-link">{{ categoryName }}</span>
                                 {% endblock %}
                             {% else %}
                                 {% block layout_navigation_categories_link_children %}
-                                    <a class="category-navigation-link{% if item.category.id is same as(activeResult.id) %} is-active{% endif %}{% if item.category.id in activeResult.path %} in-path{% endif %}"
-                                        href="{{ category_url(item.category) }}"
-                                        {% if category_linknewtab(item.category) %}target="_blank"{% endif %}>
+                                    <a class="category-navigation-link{% if categoryId is same as(activeId) %} is-active{% endif %}{% if categoryId in activePath %} in-path{% endif %}"
+                                        href="{{ categoryUrl }}"
+                                        {% if categoryLinkNewTab %}target="_blank"{% endif %}>
                                         {% block layout_navigation_categories_link_children_name %}
-                                            {{ item.category.translated.name }}
+                                            {{ categoryName }}
                                         {% endblock %}
                                     </a>
                                 {% endblock %}
@@ -29,6 +43,7 @@
 
                             {% block layout_navigation_categories_recoursion %}
                                 {% if level < navigationMaxDepth %}
+                                    {# @deprecated tag:v6.7.0 - Parameter `activeResult` will be removed, as it is unused #}
                                     {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {
                                         navigationTree: item.children,
                                         activeResult: activeResult,
@@ -37,17 +52,17 @@
                                 {% endif %}
                             {% endblock %}
                         {% else %}
-                            {% if item.category.type == 'folder' %}
+                            {% if categoryType == 'folder' %}
                                 {% block layout_navigation_categories_text %}
-                                    <span class="category-navigation-link">{{ item.category.translated.name }}</span>
+                                    <span class="category-navigation-link">{{ categoryName }}</span>
                                 {% endblock %}
                             {% else %}
-                                {% block layout_navigation_categories_link %}                        
-                                    <a class="category-navigation-link{% if item.category.id is same as(activeResult.id) %} is-active{% endif %}"
-                                        href="{{ category_url(item.category) }}"
-                                        {% if category_linknewtab(item.category) %}target="_blank"{% endif %}>
+                                {% block layout_navigation_categories_link %}
+                                    <a class="category-navigation-link{% if categoryId is same as(activeId) %} is-active{% endif %}"
+                                        href="{{ categoryUrl }}"
+                                        {% if categoryLinkNewTab %}target="_blank"{% endif %}>
                                         {% block layout_navigation_categories_link_name %}
-                                            {{ item.category.translated.name }}
+                                            {{ categoryName }}
                                         {% endblock %}
                                     </a>
                                 {% endblock %}

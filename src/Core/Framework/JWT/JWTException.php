@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 class JWTException extends HttpException
 {
     private const INVALID_JWT = 'UTIL__INVALID_JWT';
+    private const INVALID_JWK = 'UTIL__INVALID_JWK';
     private const MISSING_DOMAIN = 'UTIL__MISSING_DOMAIN';
     private const INVALID_DOMAIN = 'UTIL__INVALID_DOMAIN';
     private const INVALID_TYPE = 'UTIL__INVALID_TYPE';
@@ -23,6 +24,17 @@ class JWTException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::INVALID_JWT,
             (!str_contains($reason, 'Invalid JWT: ') ? 'Invalid JWT: ' : '') . '{{ message }}',
+            ['message' => $reason],
+            $e
+        );
+    }
+
+    public static function invalidJwk(string $reason, ?\Exception $e = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_JWK,
+            (!str_contains($reason, 'Invalid JWK: ') ? 'Invalid JWK: ' : '') . '{{ message }}',
             ['message' => $reason],
             $e
         );

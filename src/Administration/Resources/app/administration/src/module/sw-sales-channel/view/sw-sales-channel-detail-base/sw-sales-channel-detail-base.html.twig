@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_base %}
 <div class="sw-sales-channel-detail-base">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_base_general %}
     <sw-card
         v-if="salesChannel"
@@ -10,7 +8,6 @@
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.titleGeneralSettings')"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
         <sw-select-field
             v-if="isProductComparison"
@@ -31,7 +28,6 @@
         </sw-select-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_product_comparison_template_modal %}
         <sw-modal
             v-if="showTemplateModal"
@@ -39,7 +35,6 @@
             @modal-close="$emit('template-modal-close')"
             @template-modal-confirm="$emit('template-modal-confirm')"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_template_modal_notification %}
             <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
 
@@ -62,7 +57,6 @@
         </sw-modal>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_name %}
         <sw-text-field
             v-model:value="salesChannel.name"
@@ -76,7 +70,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_favorite %}
         <sw-switch-field
             :disabled="!acl.can('user_config:create') || !acl.can('user_config:update') || salesChannel._isNew"
@@ -86,7 +79,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_navigation_category_container %}
         <sw-container
             v-if="!isProductComparison"
@@ -94,7 +86,6 @@
             gap="0 30px"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_base_general_input_navigation_category %}
             <sw-category-tree-field
                 v-if="!isProductComparison"
@@ -113,7 +104,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_base_general_input_navigation_category_depth %}
             <sw-number-field
                 v-model:value="salesChannel.navigationCategoryDepth"
@@ -126,7 +116,6 @@
         </sw-container>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_footer_category %}
         <sw-category-tree-field
             v-if="!isProductComparison"
@@ -141,7 +130,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_service_category %}
         <sw-category-tree-field
             v-if="!isProductComparison"
@@ -156,7 +144,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_customer_group %}
         <sw-entity-single-select
             v-if="!isProductComparison"
@@ -171,7 +158,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_disabled_countries_warning %}
         <sw-alert
             v-if="disabledCountries.length > 0"
@@ -182,7 +168,6 @@
         </sw-alert>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_countries %}
         <sw-sales-channel-defaults-select
             v-if="!isProductComparison"
@@ -207,7 +192,6 @@
             <span v-html="buildUnservedLanguagesAlert('sw-sales-channel.detail.warningUnservedLanguage', unservedLanguages)"></span>
         </sw-alert>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_languages %}
         <sw-sales-channel-defaults-select
             v-if="!isProductComparison"
@@ -223,7 +207,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_shipping_payment %}
     <sw-card
         v-if="salesChannel"
@@ -231,7 +214,6 @@
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.titleShippingPayment')"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_disabled_payments_methods_warning %}
         <sw-alert
             v-if="disabledPaymentMethods.length > 0"
@@ -242,7 +224,6 @@
         </sw-alert>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_payments_methods %}
         <sw-sales-channel-defaults-select
             v-if="!isProductComparison"
@@ -258,7 +239,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_disabled_shipping_methods_warning %}
         <sw-alert
             v-if="disabledShippingMethods.length > 0"
@@ -269,7 +249,6 @@
         </sw-alert>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
         <sw-sales-channel-defaults-select
             v-if="!isProductComparison"
@@ -285,7 +264,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_currencies %}
         <sw-sales-channel-defaults-select
             v-if="!isProductComparison"
@@ -314,7 +292,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_base_options_hreflang %}
     <sw-sales-channel-detail-hreflang
         v-if="salesChannel && isStorefront"
@@ -324,7 +301,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_base_options_domains %}
     <sw-sales-channel-detail-domains
         v-if="salesChannel && isDomainAware"
@@ -334,7 +310,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
     <sw-card
         v-if="salesChannel && isProductComparison"
@@ -342,7 +317,6 @@
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.productComparison.storefront')"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_select %}
         <sw-entity-single-select
             v-model:value="productExport.storefrontSalesChannelId"
@@ -359,7 +333,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain %}
         <sw-entity-single-select
             v-model:value="productExport.salesChannelDomainId"
@@ -377,7 +350,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_currency %}
         <div
             v-if="productExport.salesChannelDomain"
@@ -398,7 +370,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_language %}
         <div
             v-if="productExport.salesChannelDomain"
@@ -422,7 +393,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_sales_channel_customer_group %}
         <div class="sw-sales-channel-detail-base__product-comparison-container">
             <sw-entity-single-select
@@ -444,7 +414,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_base_general_input_product_comparison_settings %}
     <sw-card
         v-if="salesChannel && isProductComparison"
@@ -452,7 +421,6 @@
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.productComparison.settings')"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_filename %}
         <sw-text-field
             v-model:value="productExport.fileName"
@@ -465,7 +433,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_encoding %}
         <sw-select-field
             v-model:value="productExport.encoding"
@@ -478,7 +445,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_file_format %}
         <sw-select-field
             v-model:value="productExport.fileFormat"
@@ -491,7 +457,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_include_variants %}
         <sw-switch-field
             v-model:value="productExport.includeVariants"
@@ -501,7 +466,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
         <mt-select
             :model-value="productExport.interval"
@@ -514,7 +478,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob %}
         <sw-switch-field
             v-model:value="productExport.generateByCronjob"
@@ -524,7 +487,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_last_generation %}
         <div v-if="productExport.salesChannelDomainId">
             <div
@@ -542,7 +504,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_product_stream %}
         <sw-entity-single-select
             v-model:value="productExport.productStreamId"
@@ -569,7 +530,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_base_options_api %}
     <sw-card
         v-if="salesChannel"
@@ -577,7 +537,6 @@
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.titleOptionsApiKey')"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_options_api_description %}
         <div
             class="sw-sales-channel-detail-base__description-text"
@@ -585,7 +544,6 @@
         ></div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_options_input_access_key %}
         <sw-text-field
             v-if="!isProductComparison"
@@ -595,7 +553,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_options_input_generate_key %}
         <div
             v-if="!isProductComparison"
@@ -620,9 +577,7 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_product_comparison_access_key %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_product_comparison_input_access_key %}
         <sw-text-field
             v-if="isProductComparison"
@@ -633,7 +588,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_product_comparison_input_access_url %}
         <sw-text-field
             v-if="isProductComparison && productExport.salesChannelDomainId"
@@ -644,7 +598,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_product_comparison_input_generate_key %}
         <div class="sw-sales-channel-detail__action-button">
             <sw-button
@@ -663,7 +616,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_base_options_status %}
     <sw-card
         v-if="salesChannel"
@@ -671,14 +623,12 @@
         :title="$tc('sw-sales-channel.detail.titleStatus')"
         :is-loading="isLoading"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_options_status_description %}
         <div class="sw-sales-channel-detail-base__description-text">
             {{ $tc('sw-sales-channel.detail.textActiveDescription') }}
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_status_input_active %}
         <sw-switch-field
             v-model:value="salesChannel.active"
@@ -688,7 +638,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_options_maintenance_header %}
         <h4 class="sw-sales-channel-detail-base__headline-text">
             {{ $tc('sw-sales-channel.detail.maintenanceModeTitle') }}
@@ -699,7 +648,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_maintenance_input_active %}
         <sw-switch-field
             v-model:value="salesChannel.maintenance"
@@ -709,7 +657,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
         <sw-multi-tag-ip-select
             v-model:value="maintenanceIpAllowlist"
@@ -724,7 +671,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_settings_link %}
         <div class="sw-sales-channel-detail-base__settings-link">
             <router-link
@@ -743,7 +689,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_base_options_delete %}
     <sw-card
         v-if="salesChannel && acl.can('sales_channel.deleter')"
@@ -761,7 +706,6 @@
                 {{ $tc('sw-sales-channel.detail.textDeleteSalesChannelWarning') }}
             </div>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_base_options_delete_button %}
             <div class="sw-sales-channel-detail-base__button-delete">
                 <sw-button
@@ -775,7 +719,6 @@
             {% endblock %}
         </sw-container>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_options_delete_modal %}
         <sw-modal
             v-if="showDeleteModal"
@@ -786,7 +729,6 @@
             @modal-close="onCloseDeleteModal"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_options_delete_modal_confirmtext %}
             <p class="sw-sales-channel-detail-base__delete-modal-confirm-text">
                 {{ $tc('sw-sales-channel.detail.textConfirmDelete') }}
@@ -797,10 +739,8 @@
             <p>{{ $tc('sw-sales-channel.detail.textDeleteInfo') }}</p>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_options_delete_modal_footer %}
             <template #modal-footer>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_options_delete_modal_abort %}
                 <sw-button
                     size="small"
@@ -810,7 +750,6 @@
                 </sw-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_options_delete_modal_confirm %}
                 <sw-button
                     size="small"
@@ -827,7 +766,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_custom_field_sets %}
     <sw-card
         v-if="salesChannel && customFieldSets.length > 0"

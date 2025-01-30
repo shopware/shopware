@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
     private const RELEVANT_KEYWORD_COUNT = 8;

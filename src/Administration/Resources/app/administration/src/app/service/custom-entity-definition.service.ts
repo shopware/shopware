@@ -97,7 +97,7 @@ type NavigationMenuEntry = {
 
 /**
  * @private
- * @sw-package content
+ * @sw-package framework
  */
 export default class CustomEntityDefinitionService {
     #state = reactive({

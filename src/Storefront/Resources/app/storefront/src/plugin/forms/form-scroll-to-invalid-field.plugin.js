@@ -92,7 +92,6 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        // debugger;
         this._formFields.forEach((field) => {
             field.addEventListener('invalid', this._onInvalid.bind(this), false);
         });

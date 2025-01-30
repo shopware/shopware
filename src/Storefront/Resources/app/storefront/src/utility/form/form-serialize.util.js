@@ -1,5 +1,3 @@
-import Iterator from 'src/helper/iterator.helper';
-
 /**
  * This utility serializes a form via the FormData class
  *

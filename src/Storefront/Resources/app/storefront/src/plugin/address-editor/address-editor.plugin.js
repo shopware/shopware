@@ -4,7 +4,6 @@ import ButtonLoadingIndicatorUtil from 'src/utility/loading-indicator/button-loa
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @package checkout

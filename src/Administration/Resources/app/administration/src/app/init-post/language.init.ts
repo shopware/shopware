@@ -6,7 +6,7 @@
 export default function initLanguageService() {
     Shopware.Application.addServiceProviderMiddleware('repositoryFactory', (repositoryFactory) => {
         // load the language when repositoryFactory is created
-        // eslint-disable-next-line no-unused-expressions
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         Shopware.Application.getContainer('service').languageAutoFetchingService;
 
         return repositoryFactory;

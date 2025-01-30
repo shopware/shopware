@@ -1,19 +1,15 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail %}
 <sw-page
     v-if="orderId"
     class="sw-order-detail"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_header %}
     <template #smart-bar-header>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_header_title %}
         <h2 v-if="orderIdentifier">
             {{ $tc('sw-order.detail.textHeadline') }} {{ orderIdentifier }}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_header_label_manual_order %}
             <sw-label
                 v-if="createdById"
@@ -27,7 +23,6 @@
         </h2>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_header_title_new %}
         <h2 v-else>
             {{ $tc('sw-order.detail.textHeadlineNew') }}
@@ -37,7 +32,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -46,13 +40,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_actions %}
     <template #smart-bar-actions>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_slot_smart_bar_actions %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_abort %}
         <sw-button
             v-tooltip="{
@@ -68,7 +59,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_save %}
         <sw-button-process
             v-tooltip="{
@@ -92,10 +82,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_content %}
     <template #content>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_content_leave_page_modal %}
         <sw-order-leave-page-modal
             v-if="isDisplayingLeavePageWarning"
@@ -151,7 +139,6 @@
                 {{ $tc('sw-order.detailBase.textConvertedProductLineItemsDescription') }}
             </sw-alert>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_content_tabs %}
             <sw-tabs
                 v-if="showTabs"
@@ -160,7 +147,6 @@
                 position-identifier="sw-order-detail"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_general %}
                 <sw-tabs-item
                     class="sw-order-detail__tabs-tab-general"
@@ -171,7 +157,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_details %}
                 <sw-tabs-item
                     class="sw-order-detail__tabs-tab-details"
@@ -182,7 +167,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_documents %}
                 <sw-tabs-item
                     class="sw-order-detail__tabs-tab-documents"
@@ -202,7 +186,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
@@ -211,7 +194,6 @@
                 position-identifier="sw-order-detail__before-content"
             />
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_content_view %}
             <template v-if="isLoading">
                 <sw-skeleton />

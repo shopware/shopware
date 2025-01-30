@@ -1,12 +1,10 @@
-{% apply spaceless %}
-    {% macro foo() %}
-        {% return [1, 2] %}
-    {% endmacro %}
+{% macro arrayCase() %}
+    {% return [1, 2] %}
+{% endmacro %}
 
-    {% set foo = _self.foo() %}
+{% set foo = _self.arrayCase() %}
 
-    {% if foo is empty %}
-        should not be empty
-    {% endif %}
-    {{ foo[1] }}
-{% endapply  %}
+{% if foo is empty %}
+    should not be empty
+{% endif %}
+{{ foo[1] }}

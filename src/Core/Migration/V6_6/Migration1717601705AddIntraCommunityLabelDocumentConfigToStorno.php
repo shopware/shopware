@@ -48,8 +48,4 @@ class Migration1717601705AddIntraCommunityLabelDocumentConfigToStorno extends Mi
             );
         });
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

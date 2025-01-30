@@ -33,7 +33,7 @@ class AdminSearcher
     /**
      * @param array<string> $entities
      *
-     * @return array<string, array{total: int, data:EntityCollection<Entity>, indexer: string, index: string}>
+     * @return array<string, array{total: int, data: EntityCollection<covariant Entity>, indexer: string, index: string}>
      */
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {

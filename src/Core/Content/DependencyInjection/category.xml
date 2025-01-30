@@ -117,5 +117,11 @@
         <service id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryNonExistentExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\Cms\CategoryNavigationCmsElementResolver">
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
+
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
     </services>
 </container>

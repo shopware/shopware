@@ -1,0 +1,10 @@
+{% sw_macro_function arrayCase() %}
+    {% return [1, 2] %}
+{% end_sw_macro_function %}
+
+{% set foo = _self.arrayCase() %}
+
+{% if foo is empty %}
+    should not be empty
+{% endif %}
+{{ foo[1] }}

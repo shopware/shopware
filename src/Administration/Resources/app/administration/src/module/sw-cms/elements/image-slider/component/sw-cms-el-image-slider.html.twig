@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_image_slider %}
 <div
     class="sw-cms-el-image-slider"
     :class="outsideNavArrows"
     :style="verticalAlignStyle"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_slider_img %}
     <div
         class="sw-cms-el-image-slider__image-box"
@@ -30,10 +28,8 @@
     {% endblock %}
 
     <template v-if="element.data !== null">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_image_slider_nav %}
         <div class="sw-cms-el-image-slider__navigation">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_nav_dots %}
             <div
                 v-if="element.config.navigationDots.value !== null"
@@ -62,7 +58,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_nav_arrows %}
             <div
                 v-if="element.config.navigationArrows.value !== null"
@@ -88,7 +83,6 @@
     </template>
 
     <template v-else>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_image_slider_nav_default %}
         <div class="sw-cms-el-image-slider__navigation">
             <div class="sw-cms-el-image-slider__navigation-arrows is--nav-outside">

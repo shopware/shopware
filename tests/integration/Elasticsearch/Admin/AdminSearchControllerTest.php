@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -29,7 +30,10 @@ class AdminSearchControllerTest extends TestCase
 
     private Connection $connection;
 
-    private EntityRepository $promotionRepo;
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
+    private EntityRepository $promotionRepository;
 
     protected function setUp(): void
     {
@@ -39,7 +43,7 @@ class AdminSearchControllerTest extends TestCase
 
         $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->promotionRepo = static::getContainer()->get('promotion.repository');
+        $this->promotionRepository = static::getContainer()->get('promotion.repository');
     }
 
     public function testIndexing(): IdsCollection
@@ -215,6 +219,6 @@ class AdminSearchControllerTest extends TestCase
             ],
         ];
 
-        $this->promotionRepo->create($promotions, Context::createDefaultContext());
+        $this->promotionRepository->create($promotions, Context::createDefaultContext());
     }
 }

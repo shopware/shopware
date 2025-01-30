@@ -21,10 +21,13 @@ class MigrationCollectionFactory
 
     public function getMigrationCollectionLoader(Connection $connection): MigrationCollectionLoader
     {
+        $nullLogger = new NullLogger();
+
         return new MigrationCollectionLoader(
             $connection,
-            new MigrationRuntime($connection, new NullLogger()),
-            $this->collect()
+            new MigrationRuntime($connection, $nullLogger),
+            $nullLogger,
+            $this->collect(),
         );
     }
 

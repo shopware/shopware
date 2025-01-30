@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_cross_selling_config %}
 <div class="sw-cms-el-config-cross-selling">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_cross_selling_config_tabs %}
     <sw-tabs
         position-identifier="sw-cms-element-cross-selling"
@@ -9,7 +7,6 @@
         default-item="content"
     >
         <template #default="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_cross_selling_config_tab_content %}
             <sw-tabs-item
                 name="content"
@@ -20,7 +17,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_cross_selling_config_tab_options %}
             <sw-tabs-item
                 name="options"
@@ -33,13 +29,11 @@
         </template>
 
         <template #content="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_cross_selling_config_content %}
             <sw-container
                 v-if="active === 'content'"
                 class="sw-cms-el-config-cross-selling__tab-content"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_content_warning_text %}
                 <sw-alert
                     v-if="isProductPageType"
@@ -50,7 +44,6 @@
                 </sw-alert>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_content_products %}
                 <sw-entity-single-select
                     v-if="!isProductPageType"
@@ -65,7 +58,6 @@
                     show-clearable-button
                     @update:value="onProductChange"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_single_select_variant_selected_item %}
                     <template #selection-label-property="{ item }">
                         <sw-product-variant-info
@@ -76,13 +68,11 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_single_select_variant_result_item %}
                     <template #result-item="{ item, index }">
                         <sw-select-result
                             v-bind="{ item, index }"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_entity_single_select_base_results_list_result_label %}
                             <span class="sw-select-result__result-item-text">
                                 <sw-product-variant-info :variations="item.variation">
@@ -98,13 +88,11 @@
             </sw-container>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_cross_selling_config_options %}
             <sw-container
                 v-else-if="active === 'options'"
                 class="sw-cms-el-config-cross-selling__tab-options"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_options_box_layout %}
                 <sw-select-field
                     v-model:value="element.config.boxLayout.value"
@@ -122,7 +110,6 @@
                 </sw-select-field>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_options_display_mode %}
                 <sw-select-field
                     v-model:value="element.config.displayMode.value"
@@ -140,7 +127,6 @@
                 </sw-select-field>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_options_min_width %}
                 <sw-text-field
                     v-model:value="element.config.elMinWidth.value"

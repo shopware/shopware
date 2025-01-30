@@ -14,7 +14,7 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,6 +32,16 @@ class CmsControllerTest extends TestCase
     public function testCmsPageLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/widgets/cms/' . $this->ids->get('page'), []);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCmsPageLoadedHookScriptsAreExecutedForFullPage(): void
+    {
+        $response = $this->request('GET', '/page/cms/' . $this->ids->get('page'), []);
         static::assertEquals(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();

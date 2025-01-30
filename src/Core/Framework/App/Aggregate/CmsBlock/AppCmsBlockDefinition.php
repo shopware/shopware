@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class AppCmsBlockDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'app_cms_block';

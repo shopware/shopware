@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_details_header %}
 <div class="sw-order-create-details-header">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_new_customer_modal %}
     <sw-order-new-customer-modal
         v-if="showNewCustomerModal"
@@ -10,14 +8,12 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_header_profile %}
     <sw-container
         class="sw-order-user-card__container"
         columns="80px 1fr max-content"
         gap="0 24px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_header_profile_avatar %}
         <sw-avatar
             v-if="customer"
@@ -33,7 +29,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_header_profile_searching %}
         <div class="sw-order-user-card__metadata">
             <div class="sw-order-user-card__metadata-user-name">
@@ -43,7 +38,6 @@
                 columns="1fr 128px"
                 gap="0 8px"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_search_customer %}
                 <sw-entity-single-select
                     size="small"
@@ -56,7 +50,6 @@
                     @update:value="onSelectExistingCustomer"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_search_customer_slot_selection_label_property %}
                     <template #selection-label-property="{ item: customer, getKey }">
                         {{ getKey(customer, 'firstName') || getKey(customer, `translated.firstName`) }}
@@ -64,7 +57,6 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_search_customer_slot_result_item %}
                     <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
                         <sw-select-result
@@ -73,12 +65,10 @@
                             class="sw-order-create-details-header__customer-result"
                             @item-select="setValue"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_search_customer_slot_result_item_content_container %}
 
                             <div class="sw-order-create-details-header__customer-result-item has-many-childrens">
                                 <div>
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_order_create_search_customer_slot_result_item_firstname %}
                                     <sw-highlight-text
                                         v-if="highlightSearchTerm"
@@ -87,7 +77,6 @@
                                     />
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_order_create_search_customer_slot_result_item_lastname %}
                                     <sw-highlight-text
                                         v-if="highlightSearchTerm"
@@ -97,7 +86,6 @@
                                     {% endblock %}
                                 </div>
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_create_search_customer_slot_result_item_number %}
                                 <sw-highlight-text
                                     v-if="highlightSearchTerm"
@@ -113,7 +101,6 @@
                                 v-if="getKey(item, 'company') || getKey(item, `translated.company`)"
                                 class="sw-order-create-details-header__customer-result-item"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_create_search_customer_slot_result_item_company %}
                                 <sw-highlight-text
                                     v-if="highlightSearchTerm"
@@ -124,7 +111,6 @@
                             </div>
 
                             <div class="sw-order-create-details-header__customer-result-item text-gray-500">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_create_search_customer_slot_result_item_address %}
                                 {{ item.defaultBillingAddress.street }} <br>
                                 {{ item.defaultBillingAddress.zipcode }} {{ item.defaultBillingAddress.city }} <br>
@@ -147,7 +133,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_header_profile_summary %}
         <div class="sw-order-user-card__info-summary">
             <div class="sw-order-user-card__metadata-price">

@@ -25,7 +25,8 @@ final class ExternalAuthUser implements UserEntityInterface
         public readonly ?\DateTimeInterface $expiry,
         public readonly string $email,
         public readonly bool $isNew,
-    ) {}
+    ) {
+    }
 
     public function getIdentifier(): string
     {

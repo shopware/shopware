@@ -27,7 +27,8 @@ class AdminAuthController extends AbstractController
         private readonly LoginConfig $loginConfig,
         private readonly LoginResponseService $loginResponseService,
         private readonly StateValidator $stateValidator,
-    ) {}
+    ) {
+    }
 
     #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.config', defaults: ['auth_required' => false], methods: ['GET'])]
     public function loginButtonConfig(Request $request): JsonResponse

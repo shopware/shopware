@@ -13,7 +13,8 @@ final class ExternalTokenService
     public function __construct(
         private readonly HttpClientInterface $client,
         private readonly LoginConfig $loginConfigService,
-    ) {}
+    ) {
+    }
 
     public function getUserToken(string $code): TokenResult
     {

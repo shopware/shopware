@@ -20,7 +20,8 @@ final class TokenResult
         public readonly string $refreshToken,
         public readonly int $expiresIn,
         public readonly string $tokenType,
-    ) {}
+    ) {
+    }
 
     public static function createFromResponse(string $token): self
     {

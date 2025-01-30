@@ -12,7 +12,8 @@ final class TemplateData implements \JsonSerializable
         public readonly bool $show,
         public readonly bool $useDefault,
         public readonly string $url,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array{show: bool, useDefault: bool, url: string}

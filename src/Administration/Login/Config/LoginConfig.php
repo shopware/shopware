@@ -52,7 +52,7 @@ final class LoginConfig
 
     public function createTemplateData(): TemplateData
     {
-        $random = ByteString::fromRandom(self::RANDOM_LENGTH, )->toString();
+        $random = ByteString::fromRandom(self::RANDOM_LENGTH)->toString();
 
         return new TemplateData(
             $random,
@@ -134,22 +134,23 @@ final class LoginConfig
     {
         $urlMessage = 'is invalid URL';
         $notBlankMessage = 'is blank';
-        $constraints = new Collection([
-            'use_default' => new Type('boolean', 'is not a boolean'),
-            'client_id' => new NotBlank(null, $notBlankMessage),
-            'client_secret' => new NotBlank(null, $notBlankMessage),
-            'redirect_uri' => [
-                new NotBlank(null, $notBlankMessage),
-                new Url(null, $urlMessage),
+        $constraints = new Collection(
+            [
+                'use_default' => new Type('boolean', 'is not a boolean'),
+                'client_id' => new NotBlank(null, $notBlankMessage),
+                'client_secret' => new NotBlank(null, $notBlankMessage),
+                'redirect_uri' => [
+                    new NotBlank(null, $notBlankMessage),
+                    new Url(null, $urlMessage),
+                ],
+                'base_url' => [
+                    new NotBlank(null, $notBlankMessage),
+                    new Url(null, $urlMessage),
+                ],
+                'session_key' => [
+                    new NotBlank(null, $notBlankMessage),
+                ],
             ],
-            'base_url' => [
-                new NotBlank(null, $notBlankMessage),
-                new Url(null, $urlMessage),
-            ],
-            'session_key' => [
-                new NotBlank(null, $notBlankMessage),
-            ],
-        ],
             null,
             null,
             false,

@@ -20,7 +20,8 @@ final class StateValidator
 {
     public function __construct(
         private readonly LoginConfig $loginConfig,
-    ) {}
+    ) {
+    }
 
     public function validateRequest(Request $request): void
     {

@@ -143,14 +143,15 @@ class LoginConfigTest extends TestCase
 
     public function testCreateWithValidConfig(): void
     {
-        $config = new LoginConfig([
-            'use_default' => false,
-            'client_id' => 'client_id',
-            'client_secret' => 'client_secret',
-            'redirect_uri' => 'https://redirect_uri.com',
-            'base_url' => 'https://base_url.com',
-            'session_key' => 'session_key',
-        ],
+        $config = new LoginConfig(
+            [
+                'use_default' => false,
+                'client_id' => 'client_id',
+                'client_secret' => 'client_secret',
+                'redirect_uri' => 'https://redirect_uri.com',
+                'base_url' => 'https://base_url.com',
+                'session_key' => 'session_key',
+            ],
             'http://test.com',
             '/admin'
         );
@@ -166,14 +167,15 @@ class LoginConfigTest extends TestCase
 
     public function testCreateTemplateData(): void
     {
-        $config = new LoginConfig([
-            'use_default' => true,
-            'client_id' => 'client_id',
-            'client_secret' => 'client_secret',
-            'redirect_uri' => 'https://redirect_uri.com',
-            'base_url' => 'https://base_url.com',
-            'session_key' => 'session_key',
-        ],
+        $config = new LoginConfig(
+            [
+                'use_default' => true,
+                'client_id' => 'client_id',
+                'client_secret' => 'client_secret',
+                'redirect_uri' => 'https://redirect_uri.com',
+                'base_url' => 'https://base_url.com',
+                'session_key' => 'session_key',
+            ],
             'http://test.com',
             '/admin'
         );
@@ -188,14 +190,15 @@ class LoginConfigTest extends TestCase
 
     public function testCreateRedirectUrl(): void
     {
-        $config = new LoginConfig([
-            'use_default' => true,
-            'client_id' => 'client_id',
-            'client_secret' => 'client_secret',
-            'redirect_uri' => 'https://redirect_uri.com',
-            'base_url' => 'https://base_url.com',
-            'session_key' => 'session_key',
-        ],
+        $config = new LoginConfig(
+            [
+                'use_default' => true,
+                'client_id' => 'client_id',
+                'client_secret' => 'client_secret',
+                'redirect_uri' => 'https://redirect_uri.com',
+                'base_url' => 'https://base_url.com',
+                'session_key' => 'session_key',
+            ],
             'http://test.com',
             '/admin'
         );

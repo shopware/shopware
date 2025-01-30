@@ -39,6 +39,11 @@ class Migration1737472122TokenUserTest extends TestCase
         static::assertTrue($this->tableExists());
     }
 
+    public function dropTable(): void
+    {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `token_user`');
+    }
+
     private function tableExists(): bool
     {
         try {
@@ -48,10 +53,5 @@ class Migration1737472122TokenUserTest extends TestCase
         }
 
         return true;
-    }
-
-    public function dropTable(): void
-    {
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `token_user`');
     }
 }

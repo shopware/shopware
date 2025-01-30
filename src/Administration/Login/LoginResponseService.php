@@ -18,7 +18,8 @@ final class LoginResponseService
 
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
-    ) {}
+    ) {
+    }
 
     public function create(ResponseInterface $response): RedirectResponse
     {

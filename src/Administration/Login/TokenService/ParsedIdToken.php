@@ -22,7 +22,8 @@ final class ParsedIdToken
         public readonly string $sub,
         public readonly string $email,
         public readonly \DateTimeInterface $expiry,
-    ) {}
+    ) {
+    }
 
     public static function createFromIdToken(string $idToken): self
     {

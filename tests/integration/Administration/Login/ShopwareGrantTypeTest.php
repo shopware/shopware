@@ -38,8 +38,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 #[CoversClass(ShopwareGrantType::class)]
 class ShopwareGrantTypeTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     public function testRespondToAccessTokenRequest(): void
     {

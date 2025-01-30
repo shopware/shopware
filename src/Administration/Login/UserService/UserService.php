@@ -21,7 +21,8 @@ final class UserService
     public function __construct(
         private readonly Connection $connection,
         private readonly RateLimiter $rateLimiter,
-    ) {}
+    ) {
+    }
 
     public function getUser(string $idToken, string $refreshToken): ?ExternalAuthUser
     {

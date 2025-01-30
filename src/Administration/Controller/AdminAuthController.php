@@ -34,7 +34,7 @@ class AdminAuthController extends AbstractController
     public function loginButtonConfig(Request $request): JsonResponse
     {
         $templateData = $this->loginConfig->createTemplateData();
-        $request->getSession()->set($this->loginConfig->getSessionKey(), $templateData->random);
+        $request->getSession()->set(StateValidator::SESSION_KEY, $templateData->random);
 
         return new JsonResponse($templateData);
     }

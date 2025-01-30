@@ -8,6 +8,7 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Login\Config\LoginConfig;
+use Shopware\Administration\Login\StateValidator;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
@@ -115,7 +116,7 @@ class AdministrationController extends AbstractController
     #[Route(path: '/%shopware_administration.path_name%/sso/auth', name: 'administration.sso.auth', defaults: ['auth_required' => false], methods: ['GET'])]
     public function ssoAuth(Request $request): RedirectResponse
     {
-        $random = $request->getSession()->get($this->loginConfig->getSessionKey());
+        $random = $request->getSession()->get(StateValidator::SESSION_KEY);
 
         $url = $this->loginConfig->createRedirectUrl($random);
 

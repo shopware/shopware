@@ -18,16 +18,13 @@ use Symfony\Component\Validator\Validation;
 #[Package('after-sales')]
 final class StateValidator
 {
-    public function __construct(
-        private readonly LoginConfig $loginConfig,
-    ) {
-    }
+    final public const SESSION_KEY = 'sw_sso_session_key';
 
     public function validateRequest(Request $request): void
     {
         $this->validateState(
             $request->get('rdm'),
-            $request->getSession()->get($this->loginConfig->getSessionKey())
+            $request->getSession()->get(self::SESSION_KEY),
         );
 
         $request->request->set('grant_type', 'shopware_grant');

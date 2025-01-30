@@ -68,14 +68,14 @@ class FakeTokenGenerator
         return $this;
     }
 
-    public function setIssuedAt(\DateTimeImmutable $issuedAt): FakeTokenGenerator
+    public function setIssuedAt(?\DateTimeImmutable $issuedAt): FakeTokenGenerator
     {
         $this->issuedAt = $issuedAt;
 
         return $this;
     }
 
-    public function setExpiresAt(\DateTimeImmutable $expiresAt): FakeTokenGenerator
+    public function setExpiresAt(?\DateTimeImmutable $expiresAt): FakeTokenGenerator
     {
         $this->expiresAt = $expiresAt;
 

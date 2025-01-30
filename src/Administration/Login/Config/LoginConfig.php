@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Login\Config;
 
 use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\String\ByteString;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -13,6 +14,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('after-sales')]
 final class LoginConfig
 {
     public const RANDOM_LENGTH = 64;
@@ -29,8 +31,9 @@ final class LoginConfig
 
     private ?string $baseUrl = null;
 
-    private ?string $sessionKey = null;
-
+    /**
+     * @param array{use_default: bool, client_id: string, client_secret: string, redirect_uri: string, base_url: string}|empty $loginConfig
+     */
     public function __construct(
         private readonly array $loginConfig,
         private readonly string $appUrl,
@@ -47,7 +50,6 @@ final class LoginConfig
         $this->clientSecret = $loginConfig['client_secret'];
         $this->redirectUri = $loginConfig['redirect_uri'];
         $this->baseUrl = $loginConfig['base_url'];
-        $this->sessionKey = $loginConfig['session_key'];
     }
 
     public function createTemplateData(): TemplateData
@@ -57,7 +59,7 @@ final class LoginConfig
         return new TemplateData(
             $random,
             !$this->isEmpty,
-            $this->useDefault,
+            $this->useDefault ?? true,
             \sprintf('%s/%s/sso/auth?rdm=%s', $this->appUrl, $this->adminPath, $random),
         );
     }
@@ -109,11 +111,6 @@ final class LoginConfig
         return $this->baseUrl;
     }
 
-    public function getSessionKey(): ?string
-    {
-        return $this->sessionKey;
-    }
-
     private function validate(array $loginConfig): void
     {
         $validator = Validation::createValidator();
@@ -146,9 +143,6 @@ final class LoginConfig
                 'base_url' => [
                     new NotBlank(null, $notBlankMessage),
                     new Url(null, $urlMessage),
-                ],
-                'session_key' => [
-                    new NotBlank(null, $notBlankMessage),
                 ],
             ],
             null,

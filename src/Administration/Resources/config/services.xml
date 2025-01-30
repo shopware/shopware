@@ -219,9 +219,7 @@
             <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
         </service>
 
-        <service id="Shopware\Administration\Login\StateValidator">
-            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfig"/>
-        </service>
+        <service id="Shopware\Administration\Login\StateValidator" />
 
     </services>
 </container>

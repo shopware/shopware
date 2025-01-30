@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(ParserIdToken::class)]
-class ParserIdTokenTest extends TestCase
+#[CoversClass(ParsedIdToken::class)]
+class ParsedIdTokenTest extends TestCase
 {
     public function testCreateFromIdToken(): void
     {
@@ -25,10 +25,12 @@ class ParserIdTokenTest extends TestCase
         $result = ParsedIdToken::createFromIdToken($token);
 
         static::assertSame('fake-subject', $result->sub);
-        static::assertInstanceOf(\DateTimeInterface::class, $result->expiry);
         static::assertSame('fake@email.com', $result->email);
     }
 
+    /**
+     * @param array<int, string>|null $audience
+     */
     #[DataProvider('createFromIdTokenWithInvalidFieldsTestDataProvider')]
     public function testCreateFromIdTokenWithInvalidFields(
         ?array $audience,
@@ -56,7 +58,10 @@ class ParserIdTokenTest extends TestCase
         }
     }
 
-    public function createFromIdTokenWithInvalidFieldsTestDataProvider(): array
+    /**
+     * @return array<string, array{audience: array<int, string>|null, issuer: string|null, issuedAt: \DateTimeImmutable, expiredAt: \DateTimeImmutable, subject: string|null, email: string|null, expected: string}
+     */
+    public static function createFromIdTokenWithInvalidFieldsTestDataProvider(): array
     {
         return [
             'all is null' => [

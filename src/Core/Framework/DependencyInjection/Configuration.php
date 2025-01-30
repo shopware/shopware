@@ -1062,7 +1062,6 @@ class Configuration implements ConfigurationInterface
                 ->stringNode('client_secret')->isRequired()->end()
                 ->stringNode('redirect_uri')->isRequired()->end()
                 ->stringNode('base_url')->isRequired()->end()
-                ->stringNode('session_key')->isRequired()->end()
             ->end();
 
         return $rootNode;

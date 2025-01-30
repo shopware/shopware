@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.7.0 - Will be removed, use DocumentException instead
+ * @deprecated tag:v6.7.0 - Will be removed, use DocumentException::invalidDocumentGeneratorType instead
  */
 #[Package('after-sales')]
 class InvalidFileGeneratorTypeException extends DocumentException

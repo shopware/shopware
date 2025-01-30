@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
-use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
@@ -74,8 +73,7 @@ class ZugferdBuilderTest extends TestCase
         $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
         $documentConfig->setCompanyCountry($country);
 
-        $xmlContent = (new ZugferdBuilder($this->createMock(EventDispatcherInterface::class)))
-            ->buildDocument($order, new DocumentGenerateOperation('order-id'), $documentConfig, Context::createDefaultContext());
+        $xmlContent = (new ZugferdBuilder($this->createMock(EventDispatcherInterface::class)))->buildDocument($order, $documentConfig, Context::createDefaultContext());
 
         $totalAmount = number_format($this->totalAmount, 2, '.', '');
 

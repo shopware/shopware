@@ -7,7 +7,6 @@ use horstoeko\zugferd\ZugferdProfiles;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -29,7 +28,7 @@ class ZugferdBuilder
     ) {
     }
 
-    public function buildDocument(OrderEntity $order, DocumentGenerateOperation $operation, DocumentConfiguration $config, Context $context): string
+    public function buildDocument(OrderEntity $order, DocumentConfiguration $config, Context $context): string
     {
         /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
@@ -46,7 +45,7 @@ class ZugferdBuilder
             ->withSellerInformation($config)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())
-            ->withGeneralOrderData($deliveryDate, $operation->getConfig()['documentDate'] ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '');
+            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '');
 
         $this->addLineItems($document, $order->getLineItems());
 

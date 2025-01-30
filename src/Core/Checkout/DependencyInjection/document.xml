@@ -178,6 +178,7 @@
 
             <tag name="document.renderer"/>
         </service>
+
         <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer">
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer"/>
@@ -185,6 +186,7 @@
 
             <tag name="document.renderer"/>
         </service>
+
         <service id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder">
             <argument type="service" id="event_dispatcher"/>
         </service>

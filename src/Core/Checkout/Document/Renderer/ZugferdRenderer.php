@@ -99,7 +99,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         }
 
         try {
-            $content = $this->documentBuilder->buildDocument($order, $operation, $config, $context);
+            $content = $this->documentBuilder->buildDocument($order, $config, $context);
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(

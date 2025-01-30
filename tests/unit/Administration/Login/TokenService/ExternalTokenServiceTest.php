@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\TokenService\ExternalTokenService;
-use Shopware\Administration\Login\TokenService\TokenResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -24,7 +23,6 @@ class ExternalTokenServiceTest extends TestCase
         $token = (new FakeTokenGenerator())->generate();
         $result = $this->createExternalTokenService($token)->getUserToken('code');
 
-        static::assertInstanceOf(TokenResult::class, $result);
         static::assertSame($token, $result->idToken);
         static::assertSame('access_token', $result->accessToken);
         static::assertSame('refresh_token', $result->refreshToken);

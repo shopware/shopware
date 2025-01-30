@@ -17,6 +17,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(LoginConfig::class)]
 class LoginConfigTest extends TestCase
 {
+    /**
+     * @param array<string, array<string, mixed>> $config
+     */
     #[DataProvider('createTestDataProvider')]
     public function testCreateWithInvalidConfig(array $config, string $expectedMessage): void
     {
@@ -111,20 +114,6 @@ class LoginConfigTest extends TestCase
                 ],
                 'expectedMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is missing, [client_id] is missing, [client_secret] is missing, [redirect_uri] is missing, [session_key] is missing',
             ],
-
-            'contains empty sessionKey' => [
-                'config' => [
-                    'session_key' => '',
-                ],
-                'expectedMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is missing, [client_id] is missing, [client_secret] is missing, [redirect_uri] is missing, [base_url] is missing, [session_key] is blank',
-            ],
-
-            'contains sessionKey' => [
-                'config' => [
-                    'session_key' => 'session_key',
-                ],
-                'expectedMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is missing, [client_id] is missing, [client_secret] is missing, [redirect_uri] is missing, [base_url] is missing',
-            ],
         ];
     }
 
@@ -138,7 +127,6 @@ class LoginConfigTest extends TestCase
         static::assertNull($config->getClientSecret());
         static::assertNull($config->getRedirectUri());
         static::assertNull($config->getBaseUrl());
-        static::assertNull($config->getSessionKey());
     }
 
     public function testCreateWithValidConfig(): void
@@ -150,7 +138,6 @@ class LoginConfigTest extends TestCase
                 'client_secret' => 'client_secret',
                 'redirect_uri' => 'https://redirect_uri.com',
                 'base_url' => 'https://base_url.com',
-                'session_key' => 'session_key',
             ],
             'http://test.com',
             '/admin'
@@ -162,7 +149,6 @@ class LoginConfigTest extends TestCase
         static::assertSame('client_secret', $config->getClientSecret());
         static::assertSame('https://redirect_uri.com', $config->getRedirectUri());
         static::assertSame('https://base_url.com', $config->getBaseUrl());
-        static::assertSame('session_key', $config->getSessionKey());
     }
 
     public function testCreateTemplateData(): void
@@ -174,14 +160,12 @@ class LoginConfigTest extends TestCase
                 'client_secret' => 'client_secret',
                 'redirect_uri' => 'https://redirect_uri.com',
                 'base_url' => 'https://base_url.com',
-                'session_key' => 'session_key',
             ],
             'http://test.com',
             '/admin'
         );
 
         $templateData = $config->createTemplateData();
-        static::assertIsString($templateData->random);
         static::assertSame(LoginConfig::RANDOM_LENGTH, \strlen($templateData->random));
         static::assertTrue($templateData->show);
         static::assertTrue($templateData->useDefault);
@@ -197,7 +181,6 @@ class LoginConfigTest extends TestCase
                 'client_secret' => 'client_secret',
                 'redirect_uri' => 'https://redirect_uri.com',
                 'base_url' => 'https://base_url.com',
-                'session_key' => 'session_key',
             ],
             'http://test.com',
             '/admin'

@@ -23,7 +23,7 @@ class LoginResponseServiceTest extends TestCase
         $response = new Response(
             200,
             [],
-            json_encode(
+            (string) json_encode(
                 [
                     'access_token' => Uuid::randomHex(),
                     'refresh_token' => Uuid::randomHex(),
@@ -40,7 +40,10 @@ class LoginResponseServiceTest extends TestCase
         static::assertSame(Cookie::SAMESITE_STRICT, $cookie->getSameSite());
         static::assertIsInt($cookie->getExpiresTime());
 
-        $cookieValue = \json_decode($cookie->getValue(), true, 512, \JSON_THROW_ON_ERROR);
+        $cookieValueString = $cookie->getValue();
+        static::assertIsString($cookieValueString);
+
+        $cookieValue = \json_decode($cookieValueString, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($cookieValue);
         static::assertArrayHasKey('access', $cookieValue);
         static::assertArrayHasKey('refresh', $cookieValue);

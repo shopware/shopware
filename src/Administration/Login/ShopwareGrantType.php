@@ -4,6 +4,7 @@ namespace Shopware\Administration\Login;
 
 use League\OAuth2\Server\Grant\AbstractGrant;
 use League\OAuth2\Server\Grant\GrantTypeInterface;
+use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\RequestAccessTokenEvent;
 use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\RequestRefreshTokenEvent;
@@ -13,7 +14,6 @@ use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\TokenService\ExternalTokenService;
 use Shopware\Administration\Login\UserService\ExternalAuthUser;
 use Shopware\Administration\Login\UserService\UserService;
-use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -25,7 +25,7 @@ class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
     private const TYPE = 'shopware_grant';
 
     public function __construct(
-        RefreshTokenRepository $refreshTokenRepository,
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
         private readonly UserService $userService,
         private readonly ExternalTokenService $tokenService
     ) {
@@ -43,9 +43,11 @@ class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
         $scopes = $this->validateScopes($this->getRequestParameter('scope', $request, $this->defaultScope));
         $user = $this->validateUser($request);
 
-        $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $user->getIdentifier());
+        $userIdentifier = $user->getIdentifier();
 
-        $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $user->getIdentifier(), $finalizedScopes);
+        $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $userIdentifier);
+
+        $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $userIdentifier, $finalizedScopes);
         $this->getEmitter()->emit(new RequestAccessTokenEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request, $accessToken));
         $responseType->setAccessToken($accessToken);
 
@@ -59,11 +61,11 @@ class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
         return $responseType;
     }
 
-    private function validateUser(ServerRequestInterface $request)
+    private function validateUser(ServerRequestInterface $request): ExternalAuthUser
     {
         $code = $this->getRequestParameter('code', $request);
 
-        $token = $this->tokenService->getUserToken($code);
+        $token = $this->tokenService->getUserToken((string) $code);
         $user = $this->userService->getUser($token->idToken, $token->refreshToken);
 
         if (!$user instanceof ExternalAuthUser) {

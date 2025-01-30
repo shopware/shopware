@@ -25,10 +25,10 @@ class StateValidatorTest extends TestCase
     public function testValidate(?string $state, ?string $storedState, bool $expectException): void
     {
         $loginConfig = $this->createLoginConfig();
-        $validator = new StateValidator($loginConfig);
+        $validator = new StateValidator();
 
         $session = $this->createMock(SessionInterface::class);
-        $session->method('get')->with($loginConfig->getSessionKey())->willReturn($storedState);
+        $session->method('get')->with(StateValidator::SESSION_KEY)->willReturn($storedState);
 
         $code = Uuid::randomHex();
 
@@ -53,6 +53,9 @@ class StateValidatorTest extends TestCase
         static::assertSame($code, $request->get('code'));
     }
 
+    /**
+     * @return array<string, array{state: string|null, storedState: string|null, expectException: bool}>
+     */
     public static function validateTestDataProvider(): array
     {
         $validRandom = self::createRandom(LoginConfig::RANDOM_LENGTH);

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\UserService\ExternalAuthUser;
 use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -45,6 +46,7 @@ class UserServiceTest extends TestCase
         $refreshToken = Uuid::randomHex();
 
         $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
+        static::assertInstanceOf(ExternalAuthUser::class, $externalAuthUser);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($refreshToken, $externalAuthUser->refreshToken);
         static::assertTrue($externalAuthUser->isNew);
@@ -52,6 +54,10 @@ class UserServiceTest extends TestCase
 
         // ensure data is created and updated
         $tokenUserData = $this->getTokenUserData($subject);
+        static::assertIsArray($tokenUserData);
+        static::assertArrayHasKey('refresh_token', $tokenUserData);
+        static::assertArrayHasKey('user_sub', $tokenUserData);
+        static::assertArrayHasKey('user_id', $tokenUserData);
         static::assertSame($refreshToken, $tokenUserData['refresh_token']);
         static::assertSame($subject, $tokenUserData['user_sub']);
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
@@ -71,12 +77,17 @@ class UserServiceTest extends TestCase
         $refreshToken = Uuid::randomHex();
 
         $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
+        static::assertInstanceOf(ExternalAuthUser::class, $externalAuthUser);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($refreshToken, $externalAuthUser->refreshToken);
         static::assertFalse($externalAuthUser->isNew);
         static::assertSame($email, $externalAuthUser->email);
 
         $tokenUserData = $this->getTokenUserData($subject);
+        static::assertIsArray($tokenUserData);
+        static::assertArrayHasKey('refresh_token', $tokenUserData);
+        static::assertArrayHasKey('user_sub', $tokenUserData);
+        static::assertArrayHasKey('user_id', $tokenUserData);
         static::assertSame($refreshToken, $tokenUserData['refresh_token']);
         static::assertSame($subject, $tokenUserData['user_sub']);
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
@@ -137,6 +148,12 @@ class UserServiceTest extends TestCase
         if (!\is_array($result)) {
             return null;
         }
+
+        static::assertArrayHasKey('id', $result);
+        static::assertArrayHasKey('user_id', $result);
+        static::assertArrayHasKey('user_sub', $result);
+        static::assertArrayHasKey('refresh_token', $result);
+        static::assertArrayHasKey('expiry', $result);
 
         return $result;
     }

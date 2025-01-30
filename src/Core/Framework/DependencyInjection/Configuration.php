@@ -1058,10 +1058,10 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('use_default')->isRequired()->end()
-                ->stringNode('client_id')->isRequired()->end()
-                ->stringNode('client_secret')->isRequired()->end()
-                ->stringNode('redirect_uri')->isRequired()->end()
-                ->stringNode('base_url')->isRequired()->end()
+                ->scalarNode('client_id')->isRequired()->end()
+                ->scalarNode('client_secret')->isRequired()->end()
+                ->scalarNode('redirect_uri')->isRequired()->end()
+                ->scalarNode('base_url')->isRequired()->end()
             ->end();
 
         return $rootNode;

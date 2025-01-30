@@ -59,7 +59,7 @@ class ParsedIdTokenTest extends TestCase
     }
 
     /**
-     * @return array<string, array{audience: array<int, string>|null, issuer: string|null, issuedAt: \DateTimeImmutable, expiredAt: \DateTimeImmutable, subject: string|null, email: string|null, expected: string}
+     * @return array<string, array{audience: array<int, string>|null, issuer: string|null, issuedAt: \DateTimeImmutable, expiredAt: \DateTimeImmutable, subject: string|null, email: string|null, expected: string}>
      */
     public static function createFromIdTokenWithInvalidFieldsTestDataProvider(): array
     {

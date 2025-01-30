@@ -3,11 +3,13 @@
 namespace Shopware\Administration\Login\TokenService;
 
 use Shopware\Administration\Login\Config\LoginConfig;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 final class ExternalTokenService
 {
     public function __construct(

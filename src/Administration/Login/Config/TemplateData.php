@@ -2,9 +2,12 @@
 
 namespace Shopware\Administration\Login\Config;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
  */
+#[Package('after-sales')]
 final class TemplateData implements \JsonSerializable
 {
     public function __construct(

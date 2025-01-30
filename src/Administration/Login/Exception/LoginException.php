@@ -20,6 +20,7 @@ class LoginException extends HttpException
     final public const LOGIN_INVALID_LOGIN_STATE = 'LOGIN__INVALID_LOGIN_STATE';
     final public const LOGIN_INVALID_TOKEN_RESPONSE = 'LOGIN__INVALID_TOKEN_RESPONSE';
     final public const LOGIN_INVALID_ID_TOKEN_RESPONSE = 'LOGIN__INVALID_ID_TOKEN_RESPONSE';
+    final public const LOGIN_EXPECT_UNENCRYPTED_TOKEN = 'LOGIN__EXPECT_UNENCRYPTED_TOKEN';
 
     /**
      * @param array<string> $fieldErrors
@@ -45,6 +46,9 @@ class LoginException extends HttpException
         );
     }
 
+    /**
+     * @param array<int, string> $missingFields
+     */
     public static function loginUserInvalid(array $missingFields): self
     {
         return new self(
@@ -79,6 +83,9 @@ class LoginException extends HttpException
         );
     }
 
+    /**
+     * @param array<int, string> $missingFields
+     */
     public static function tokenNotValid(array $missingFields): self
     {
         return new self(
@@ -91,6 +98,9 @@ class LoginException extends HttpException
         );
     }
 
+    /**
+     * @param array<int, string> $missingFields
+     */
     public static function idTokenNotValid(array $missingFields): self
     {
         return new self(

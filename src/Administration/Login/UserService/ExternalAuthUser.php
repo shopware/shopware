@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Validation;
 final class ExternalAuthUser implements UserEntityInterface
 {
     private function __construct(
-        public readonly ?string $id,
+        public readonly string $id,
         public readonly string $userId,
         public readonly string $sub,
         public readonly ?string $refreshToken,
@@ -33,6 +33,9 @@ final class ExternalAuthUser implements UserEntityInterface
         return $this->userId;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function create(array $data): self
     {
         self::validate($data);
@@ -48,6 +51,9 @@ final class ExternalAuthUser implements UserEntityInterface
         );
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private static function validate(array $data): void
     {
         $violations = Validation::createValidator()->validate($data, self::createConstraints());
@@ -67,6 +73,7 @@ final class ExternalAuthUser implements UserEntityInterface
     {
         return new Collection([
             'id' => [
+                new NotBlank(null, 'is required'),
                 new Type('string'),
             ],
             'user_id' => [

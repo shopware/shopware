@@ -5,6 +5,7 @@ namespace Shopware\Administration\Login\TokenService;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\DataSet;
 use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\UnencryptedToken;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -25,6 +26,9 @@ final class ParsedIdToken
     ) {
     }
 
+    /**
+     * @param non-empty-string $idToken
+     */
     public static function createFromIdToken(string $idToken): self
     {
         $parsedToken = self::parse($idToken);
@@ -37,10 +41,15 @@ final class ParsedIdToken
         );
     }
 
+    /**
+     * @param non-empty-string $idToken
+     */
     private static function parse(string $idToken): DataSet
     {
         $parser = new Parser(new JoseEncoder());
-        $parsed = $parser->parse($idToken);
+        /** for php-stan */
+        /** @var UnencryptedToken $token */
+        $token = $parser->parse($idToken);
 
         /**
          * Example JWT content:
@@ -60,7 +69,7 @@ final class ParsedIdToken
          *      "email" => string: "test@shopware.com"
          * ]
          */
-        return $parsed->claims();
+        return $token->claims();
     }
 
     private static function validate(DataSet $dataSet): void

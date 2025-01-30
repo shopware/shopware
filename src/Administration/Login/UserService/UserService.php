@@ -24,6 +24,9 @@ final class UserService
     ) {
     }
 
+    /**
+     * @param non-empty-string $idToken
+     */
     public function getUser(string $idToken, string $refreshToken): ?ExternalAuthUser
     {
         $parsedIdToken = ParsedIdToken::createFromIdToken($idToken);
@@ -127,7 +130,7 @@ final class UserService
                     'user_id' => Uuid::fromHexToBytes($userSearchResult->userId),
                     'user_sub' => $userSearchResult->sub,
                     'refresh_token' => $userSearchResult->refreshToken,
-                    'expiry' => $userSearchResult->expiry->format(\DATE_RFC3339),
+                    'expiry' => $userSearchResult->expiry?->format(\DATE_RFC3339),
                     'created_at' => (new \DateTime())->format(\DATE_RFC3339),
                     'updated_at' => null,
                 ],
@@ -140,7 +143,7 @@ final class UserService
             'token_user',
             [
                 'refresh_token' => $userSearchResult->refreshToken,
-                'expiry' => $userSearchResult->expiry->format(\DATE_RFC3339),
+                'expiry' => $userSearchResult->expiry?->format(\DATE_RFC3339),
                 'updated_at' => (new \DateTime())->format(\DATE_RFC3339),
             ],
             ['id' => Uuid::fromHexToBytes($userSearchResult->id)]

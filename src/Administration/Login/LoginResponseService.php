@@ -36,7 +36,7 @@ final class LoginResponseService
 
         return new Cookie(
             'bearerAuth',
-            \json_encode($cookieData),
+            \json_encode($cookieData, \JSON_THROW_ON_ERROR),
             (int) $cookieData['expiry'],
             $path,
             null,
@@ -48,7 +48,7 @@ final class LoginResponseService
     }
 
     /**
-     * @param array{access: string, refresh: string, expiry: int} $response
+     * @return array{access: string, refresh: string, expiry: int}
      */
     private function createCookieData(ResponseInterface $response): array
     {

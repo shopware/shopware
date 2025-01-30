@@ -14,6 +14,12 @@ use Symfony\Component\Validator\Validation;
 #[Package('after-sales')]
 final class TokenResult
 {
+    /**
+     * @param non-empty-string $idToken
+     * @param non-empty-string $accessToken
+     * @param non-empty-string $refreshToken
+     * @param non-empty-string $tokenType
+     */
     private function __construct(
         public readonly string $idToken,
         public readonly string $accessToken,
@@ -40,6 +46,9 @@ final class TokenResult
         );
     }
 
+    /**
+     * @param array<string, mixed> $response
+     */
     private static function validateResponse(array $response): void
     {
         $violations = Validation::createValidator()->validate($response, self::createConstraints());

@@ -32,7 +32,7 @@ final class LoginConfig
     private ?string $baseUrl = null;
 
     /**
-     * @param array{use_default: bool, client_id: string, client_secret: string, redirect_uri: string, base_url: string}|empty $loginConfig
+     * @param array<string, mixed> $loginConfig
      */
     public function __construct(
         private readonly array $loginConfig,
@@ -111,6 +111,9 @@ final class LoginConfig
         return $this->baseUrl;
     }
 
+    /**
+     * @param array<string, mixed> $loginConfig
+     */
     private function validate(array $loginConfig): void
     {
         $validator = Validation::createValidator();

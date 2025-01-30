@@ -12,6 +12,9 @@ class FakeTokenGenerator
 {
     private ?string $secret = 'fake-secret';
 
+    /**
+     * @var array<int, string>|null
+     */
     private ?array $audience = ['fake-audience'];
 
     private ?string $issuer = 'fake-issuer';
@@ -20,9 +23,9 @@ class FakeTokenGenerator
 
     private ?string $email = 'fake@email.com';
 
-    private \DateTimeImmutable $issuedAt;
+    private ?\DateTimeImmutable $issuedAt;
 
-    private \DateTimeImmutable $expiresAt;
+    private ?\DateTimeImmutable $expiresAt;
 
     public function __construct()
     {
@@ -30,19 +33,22 @@ class FakeTokenGenerator
         $this->expiresAt = new \DateTimeImmutable();
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function generate(): string
     {
         $header = self::base64UrlEncode('{"alg": "HS512","typ": "JWT"}');
-        $content = self::base64UrlEncode(json_encode([
+        $content = self::base64UrlEncode((string) json_encode([
             'aud' => $this->audience,
             'iss' => $this->issuer,
-            'iat' => $this->issuedAt->getTimestamp(),
-            'exp' => $this->expiresAt->getTimestamp(),
+            'iat' => $this->issuedAt?->getTimestamp(),
+            'exp' => $this->expiresAt?->getTimestamp(),
             'sub' => $this->subject,
             'email' => $this->email,
-        ]));
+        ], \JSON_THROW_ON_ERROR));
 
-        $singing = $this->base64UrlEncode(hash_hmac('sha256', $header . $content, $this->secret, true));
+        $singing = $this->base64UrlEncode(hash_hmac('sha256', $header . $content, (string) $this->secret, true));
 
         return \implode('.', [$header, $content, $singing]);
     }
@@ -54,6 +60,9 @@ class FakeTokenGenerator
         return $this;
     }
 
+    /**
+     * @param array<int, string>|null $audience
+     */
     public function setAudience(?array $audience): FakeTokenGenerator
     {
         $this->audience = $audience;
@@ -96,7 +105,7 @@ class FakeTokenGenerator
         return $this;
     }
 
-    private function base64UrlEncode($text)
+    private function base64UrlEncode(string $text): string
     {
         return str_replace(
             ['+', '/', '='],

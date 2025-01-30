@@ -3,8 +3,8 @@ title: Allow empty fields in theme config
 issue: NEXT-40385
 ---
 # Storefront
-* Changed `dumpVariables()` and `formatVariables()` in `ThemeCompiler.php` to write empty theme config fields as a "null" value in SCSS
-* Changed the `validate()` method in `SCSSValidator.php` to allow empty values.
+* Changed `dumpVariables()` and `formatVariables()` in `\Shopware\Storefront\Theme\ThemeCompiler` to write empty theme config fields as a "null" value in SCSS
+* Changed the `validate()` method in `\Shopware\Storefront\Theme\Validator\SCSSValidator` to allow empty values.
 ___
 # Upgrade Information
 ## Empty theme config values

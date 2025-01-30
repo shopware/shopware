@@ -159,7 +159,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $event = new CheckoutOrderPlacedEvent($this->salesChannelContext, $order);
 
         $updater = static::getContainer()->get(PromotionIndividualCodeRedeemer::class);
-        $updater->onOrderPlaced($event);
+        $updater->onOrderProcess($event);
 
         $promotionIndividualCode = $connection->fetchAllAssociative(
             'SELECT `id`, `payload` FROM `promotion_individual_code` WHERE `promotion_id` = :id',

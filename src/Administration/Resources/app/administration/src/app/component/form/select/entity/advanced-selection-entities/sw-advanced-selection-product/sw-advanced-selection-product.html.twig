@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_advanced_selection_product %}
 {# TODO - NEXT-20791 : remove store-key property. Filters should not be stored somewhere #}
 <sw-entity-advanced-selection-modal
@@ -14,17 +13,14 @@
     @selection-submit="$emit('selection-submit', $event)"
     @modal-close="$emit('modal-close', $event)"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_product_list_grid_columns_name_preview %}
     <template #preview-name="{ item }">
         <sw-media-preview-v2 :source="item.cover ? item.cover.media : null" />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_product_list_grid_columns_name %}
     <template #column-name="{ item }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_product_list_grid_columns_name_content %}
         <sw-product-variant-info
             :variations="item.variation"
@@ -37,10 +33,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_product_list_grid_columns_active %}
     <template #column-active="{ item }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_product_list_grid_columns_active_content %}
         <sw-icon
             v-if="item.active"
@@ -58,7 +52,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_product_list_grid_columns_price %}
     <template
         v-for="currency in currencies"
@@ -68,10 +61,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_product_list_grid_columns_stock %}
     <template #column-stock="{ item, compact }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_product_list_grid_columns_stock_content %}
         {{ item.stock }}
         <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
@@ -79,10 +70,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_product_list_grid_columns_release_date %}
     <template #column-releaseDate="{ item }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_product_list_grid_columns_release_date_content %}
         <template v-if="item.releaseDate">
             {{ dateFilter(item.releaseDate) }}
@@ -94,7 +83,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_product_list_grid_columns_visibilities %}
     <template #column-visibilities="{ item }">
         <span class="sw-data-grid__cell-value">
@@ -104,7 +92,6 @@
                     :key="visibility.id"
                     size="medium"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_advanced_selection_product_list_grid_columns_visibilities_content %}
                     {{ visibility.salesChannel.translated.name || visibility.salesChannel.name }}
                     {% endblock %}
@@ -117,7 +104,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_product_list_grid_columns_categories %}
     <template #column-categories="{ item }">
         <span class="sw-data-grid__cell-value">
@@ -131,7 +117,6 @@
                     }"
                     size="medium"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_advanced_selection_product_list_grid_columns_categories_content %}
                     {{ category.translated.name || category.name }}
                     {% endblock %}
@@ -144,7 +129,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_advanced_selection_product_list_grid_columns_tags %}
     <template #column-tags="{ item }">
         <span class="sw-data-grid__cell-value">
@@ -154,7 +138,6 @@
                     :key="tag.id"
                     size="medium"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_advanced_selection_product_list_grid_columns_tags_content %}
                     {{ tag.name }}
                     {% endblock %}

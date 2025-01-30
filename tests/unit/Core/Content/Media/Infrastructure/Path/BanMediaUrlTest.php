@@ -17,7 +17,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(BanMediaUrl::class)]
 class BanMediaUrlTest extends TestCase
 {

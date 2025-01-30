@@ -1,7 +1,10 @@
+{# @deprecated tag:v6.7.0 - This template will be removed because the content became irrelevant. Everything is implemented in address-personal.html.twig #}
 {% sw_extends '@Storefront/storefront/component/address/address-personal.html.twig' %}
 
+{# This block name was never used correctly. #}
 {% block component_address_personal_customer_type %}{% endblock %}
 
+{# Block becomes obsolete because of new brithday field component used in address-personal.html.twig #}
 {% block component_address_personal_fields_birthday_selects %}
     {% block page_account_profile_personal_fields_birthday_selects %}
         <div class="row g-2">

@@ -37,6 +37,8 @@ class FrameworkTest extends TestCase
         $container->setParameter('kernel.cache_dir', '/tmp');
         $container->setParameter('shopware.cache.cache_compression', true);
         $container->setParameter('shopware.cache.cache_compression_method', 'gzip');
+        $container->setParameter('kernel.debug', true);
+        $container->setParameter('kernel.environment', 'test');
         $framework = new Framework();
         $framework->setContainer($container);
 

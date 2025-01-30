@@ -14,7 +14,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1663238480FixMailTemplateFallbackChainUsage extends MigrationStep
 {
     use UpdateMailTrait;

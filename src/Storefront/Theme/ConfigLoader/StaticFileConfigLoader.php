@@ -11,7 +11,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
-#[Package('storefront')]
+#[Package('framework')]
 class StaticFileConfigLoader extends AbstractConfigLoader
 {
     /**

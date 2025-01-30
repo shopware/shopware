@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlots extends MigrationStep
 {
     public function getCreationTimestamp(): int

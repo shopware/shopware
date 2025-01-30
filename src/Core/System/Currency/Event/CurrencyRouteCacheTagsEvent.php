@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Currency\Event;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@framework')]
 class CurrencyRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
 }

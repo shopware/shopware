@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import './page/sw-settings-units-list';
 import './page/sw-settings-units-detail';

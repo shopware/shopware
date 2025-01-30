@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
@@ -19,7 +20,7 @@ use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
@@ -47,6 +48,9 @@ class RegisterController extends StorefrontController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<SalesChannelDomainCollection> $domainRepository
      */
     public function __construct(
         private readonly AccountLoginPageLoader $loginPageLoader,
@@ -202,8 +206,8 @@ class RegisterController extends StorefrontController
             return $this->redirectToRoute('frontend.account.register.page');
         }
 
-        /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->getEntities()->first();
+        \assert($customer !== null);
 
         if ($customer->getGuest()) {
             $this->addFlash(self::SUCCESS, $this->trans('account.doubleOptInMailConfirmationSuccessfully'));
@@ -233,7 +237,7 @@ class RegisterController extends StorefrontController
             : 'core.loginRegistration.doubleOptInGuestOrder';
 
         $doubleOptInRequired = $this->systemConfigService
-            ->get($configKey, $context->getSalesChannel()->getId());
+            ->get($configKey, $context->getSalesChannelId());
 
         if (!$doubleOptInRequired) {
             return false;
@@ -254,7 +258,7 @@ class RegisterController extends StorefrontController
     {
         $definition = new DataValidationDefinition('storefront.confirmation');
 
-        if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannel()->getId())) {
+        if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannelId())) {
             $definition->add('emailConfirmation', new NotBlank(), new EqualTo([
                 'value' => $data->get('email'),
             ]));
@@ -264,7 +268,7 @@ class RegisterController extends StorefrontController
             return $definition;
         }
 
-        if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannel()->getId())) {
+        if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannelId())) {
             $definition->add('passwordConfirmation', new NotBlank(), new EqualTo([
                 'value' => $data->get('password'),
             ]));
@@ -293,7 +297,7 @@ class RegisterController extends StorefrontController
     {
         /** @var string $domainUrl */
         $domainUrl = $this->systemConfigService
-            ->get('core.loginRegistration.doubleOptInDomain', $context->getSalesChannel()->getId());
+            ->get('core.loginRegistration.doubleOptInDomain', $context->getSalesChannelId());
 
         if ($domainUrl) {
             return $domainUrl;
@@ -305,15 +309,11 @@ class RegisterController extends StorefrontController
             return $domainUrl;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
-        $criteria->setLimit(1);
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()))
+            ->setLimit(1);
 
-        /** @var SalesChannelDomainEntity|null $domain */
-        $domain = $this->domainRepository
-            ->search($criteria, $context->getContext())
-            ->first();
-
+        $domain = $this->domainRepository->search($criteria, $context->getContext())->getEntities()->first();
         if (!$domain) {
             throw new SalesChannelDomainNotFoundException($context->getSalesChannel());
         }

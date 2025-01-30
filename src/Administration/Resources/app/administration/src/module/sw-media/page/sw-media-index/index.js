@@ -4,7 +4,7 @@ import './sw-media-index.scss';
 const { Context, Filter } = Shopware;
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

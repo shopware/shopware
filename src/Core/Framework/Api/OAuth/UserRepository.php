@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Api\OAuth\User\User;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('framework')]
 class UserRepository implements UserRepositoryInterface
 {
     /**

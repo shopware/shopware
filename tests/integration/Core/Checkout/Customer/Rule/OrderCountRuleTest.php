@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class OrderCountRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

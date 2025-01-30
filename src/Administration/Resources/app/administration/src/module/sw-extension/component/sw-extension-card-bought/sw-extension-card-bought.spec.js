@@ -132,7 +132,7 @@ async function createWrapper(extension) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeAll(() => {
@@ -375,10 +375,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     it('should not try to cancel the extension subscription on remove attempt when it already has an expiry date', async () => {
-        httpClient.delete.mockImplementation(() => {
-            return Promise.resolve();
-        });
-
         const cancelLicenceSpy = jest.spyOn(extensionStoreActionService, 'cancelLicense');
         const removeExtensionSpy = jest.spyOn(extensionStoreActionService, 'removeExtension');
 
@@ -415,7 +411,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(0);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
-        expect(httpClient.delete).toHaveBeenCalledTimes(1);
     });
 
     it('should try to cancel the extension subscription on remove attempt when it has no expiry date', async () => {
@@ -460,7 +455,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(1);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
-        expect(httpClient.delete).toHaveBeenCalledTimes(2);
+        expect(httpClient.delete).toHaveBeenCalledTimes(1);
     });
 
     it('should display error on install and download attempt when app subscription is expired', async () => {

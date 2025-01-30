@@ -1,4 +1,5 @@
-{% if not header is defined and page is defined %}
+{# @deprecated tag:v6.7.0 - Fallback will be removed, add header directly #}
+{% if not feature('cache_rework') and not header is defined and page is defined %}
     {% set header = page.header %}
 {% endif %}
 
@@ -74,7 +75,7 @@
                             {% block layout_header_actions_currency_widget_form_redirect %}
                                 <input name="redirectTo"
                                        type="hidden"
-                                       value="{{ app.request.get('_route') }}">
+                                       value="{{ activeRoute }}">
 
                                 {% for key, value in app.request.attributes.get('_route_params') %}
                                     <input name="redirectParameters[{{ key }}]"

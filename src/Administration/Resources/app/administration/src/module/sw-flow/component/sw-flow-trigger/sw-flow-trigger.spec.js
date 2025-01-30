@@ -4,7 +4,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const { cloneDeep } = Shopware.Utils.object;

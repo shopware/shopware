@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';

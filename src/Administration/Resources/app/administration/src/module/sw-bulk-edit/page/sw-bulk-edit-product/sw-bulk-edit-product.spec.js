@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -419,7 +419,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
-        expect(wrapper.vm.$route.path).toBe('/index/null/save/confirm');
+        expect(wrapper.vm.$route.path).toBe('/index/null/0/save/confirm');
     });
 
     it('should close confirm modal', async () => {

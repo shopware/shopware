@@ -56,7 +56,7 @@ class PaymentMethodRepositoryTest extends TestCase
         static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
         static::assertSame(
             $paymentMethod[0]['availabilityRule']['id'],
-            $firstPaymentMethod->getAvailabilityRule()->getId()
+            $firstPaymentMethod->getAvailabilityRuleId()
         );
         static::assertSame(
             'handler_shopware_asynctestpaymenthandler',
@@ -106,7 +106,7 @@ class PaymentMethodRepositoryTest extends TestCase
         static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
         static::assertSame(
             $paymentMethod[0]['availabilityRule']['id'],
-            $firstPaymentMethod->getAvailabilityRule()->getId()
+            $firstPaymentMethod->getAvailabilityRuleId()
         );
         static::assertSame(
             'Object',

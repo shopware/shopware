@@ -1,7 +1,7 @@
 import type { App } from 'vue';
 
 /**
- * @package admin
+ * @sw-package framework
  */
 const VirtualCallStackPlugin = {
     install(app: App) {

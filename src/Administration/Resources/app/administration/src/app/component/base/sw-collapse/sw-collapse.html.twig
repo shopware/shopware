@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_collapse_panel %}
 <div class="sw-collapse">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_collapse_panel_header %}
     <div
         class="sw-collapse__header"
@@ -14,20 +12,17 @@
             name="header"
             v-bind="{ expanded }"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_collapse_panel_header_slot %}{% endblock %}
         </slot>
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_collapse_panel_content %}
     <div
         v-if="expanded"
         class="sw-collapse__content"
     >
         <slot name="content">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_collapse_panel_content_slot %}{% endblock %}
         </slot>
     </div>

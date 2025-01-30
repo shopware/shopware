@@ -1,8 +1,8 @@
 {% block buy_widget_configurator_group_select %}
     {% block buy_widget_configurator_group_select_title %}
-        <label class="product-detail-configurator-group-title" for="{{ group.id }}">
+        <label class="product-detail-configurator-group-title{% if feature('ACCESSIBILITY_TWEAKS') %} fs-5 fw-bold{% endif %}" for="{{ group.id }}">
             {% block buy_widget_configurator_group_title_text %}
-                {{ group.translated.name }}
+                {{ 'component.product.configurator.legend'|trans({ '%group_name%': group.translated.name, '%hidden_cls%': 'visually-hidden' })|sw_sanitize }}
             {% endblock %}
         </label>
 

@@ -3,7 +3,7 @@ import './sw-cms-block-center-text.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,

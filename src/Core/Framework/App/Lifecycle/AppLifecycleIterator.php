@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type RegisteredApps = array<string, array{id: string, version: string, roleId: string}>
  */
-#[Package('core')]
+#[Package('framework')]
 class AppLifecycleIterator
 {
     public function __construct(

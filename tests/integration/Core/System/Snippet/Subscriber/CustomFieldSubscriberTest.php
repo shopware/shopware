@@ -19,7 +19,7 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class CustomFieldSubscriberTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

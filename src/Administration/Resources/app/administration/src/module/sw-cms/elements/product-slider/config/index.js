@@ -6,7 +6,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
@@ -67,49 +67,11 @@ export default {
         },
 
         productAssignmentTypes() {
-            return [
-                {
-                    label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.manual'),
-                    value: 'static',
-                },
-                {
-                    label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.productStream'),
-                    value: 'product_stream',
-                },
-            ];
+            return this.getProductAssignmentTypes();
         },
 
         productStreamSortingOptions() {
-            return [
-                {
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameAsc'),
-                    value: 'name:ASC',
-                },
-                {
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameDesc'),
-                    value: 'name:DESC',
-                },
-                {
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateAsc'),
-                    value: 'createdAt:ASC',
-                },
-                {
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateDesc'),
-                    value: 'createdAt:DESC',
-                },
-                {
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.random'),
-                    value: 'random',
-                },
-                {
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
-                    value: 'cheapestPrice:ASC',
-                },
-                {
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
-                    value: 'cheapestPrice:DESC',
-                },
-            ];
+            return this.getProductStreamSortingOptions();
         },
     },
 
@@ -144,6 +106,60 @@ export default {
                         this.productCollection = result;
                     });
             }
+        },
+
+        getProductAssignmentTypes() {
+            return [
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.manual'),
+                    value: 'static',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.productStream'),
+                    value: 'product_stream',
+                },
+            ];
+        },
+
+        getProductStreamSortingOptions() {
+            return [
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameAsc'),
+                    value: 'name:ASC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameDesc'),
+                    value: 'name:DESC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateAsc'),
+                    value: 'createdAt:ASC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateDesc'),
+                    value: 'createdAt:DESC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
+                    value: 'cheapestPrice:ASC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
+                    value: 'cheapestPrice:DESC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.releaseDateAsc'),
+                    value: 'releaseDate:ASC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.releaseDateDesc'),
+                    value: 'releaseDate:DESC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.random'),
+                    value: 'random',
+                },
+            ];
         },
 
         onChangeAssignmentType(type) {

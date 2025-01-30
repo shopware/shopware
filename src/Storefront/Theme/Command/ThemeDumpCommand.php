@@ -18,6 +18,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -26,7 +27,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'theme:dump',
     description: 'Dump the theme configuration',
 )]
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeDumpCommand extends Command
 {
     private readonly Context $context;
@@ -54,6 +55,7 @@ class ThemeDumpCommand extends Command
     {
         $this->addArgument('theme-id', InputArgument::OPTIONAL, 'Theme ID');
         $this->addArgument('domain-url', InputArgument::OPTIONAL, 'Sales channel domain URL');
+        $this->addOption('theme-name', null, InputOption::VALUE_OPTIONAL, 'Technical theme name');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -66,7 +68,13 @@ class ThemeDumpCommand extends Command
 
         $themeId = $input->getArgument('theme-id');
 
-        if (!$themeId) {
+        $themeName = $input->getOption('theme-name');
+
+        if ($themeId !== null) {
+            $criteria->setIds([$themeId]);
+        } elseif ($themeName !== null) {
+            $criteria->addFilter(new EqualsFilter('technicalName', $themeName));
+        } else {
             $choices = $this->getThemeChoices();
 
             if ($input->isInteractive() && \count($choices) > 1) {
@@ -78,20 +86,14 @@ class ThemeDumpCommand extends Command
 
                 $criteria->addFilter(new EqualsFilter('name', $themeName));
             }
-        } else {
-            $criteria->setIds([$themeId]);
         }
 
-        $themes = $this->themeRepository->search($criteria, $this->context);
-
-        if ($themes->count() === 0) {
+        $themeEntity = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        if (!$themeEntity) {
             $this->io->error('No theme found which is connected to a storefront sales channel');
 
             return self::FAILURE;
         }
-
-        /** @var ThemeEntity $themeEntity */
-        $themeEntity = $themes->first();
 
         $technicalName = $this->getTechnicalName($themeEntity->getId());
         if ($technicalName === null) {
@@ -135,6 +137,8 @@ class ThemeDumpCommand extends Command
 
         $this->staticFileConfigDumper->dumpConfig($this->context);
 
+        $this->io->writeln(\sprintf('Theme `%s` config dumped to file: %s', $themeEntity->getTechnicalName(), 'theme-files.json'));
+
         return self::SUCCESS;
     }
 
@@ -144,7 +148,7 @@ class ThemeDumpCommand extends Command
     protected function getThemeChoices(): array
     {
         $choices = [];
-        /** @var ThemeCollection $themes */
+
         $themes = $this->themeRepository->search(new Criteria(), Context::createCLIContext())->getEntities();
 
         foreach ($themes as $theme) {
@@ -202,9 +206,8 @@ class ThemeDumpCommand extends Command
         $technicalName = null;
 
         do {
-            $theme = $this->themeRepository->search(new Criteria([$themeId]), $this->context)->first();
-
-            if (!$theme instanceof ThemeEntity) {
+            $theme = $this->themeRepository->search(new Criteria([$themeId]), $this->context)->getEntities()->first();
+            if (!$theme) {
                 break;
             }
 

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersio
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class ReferenceVersionField extends FkField
 {
     /**

@@ -81,11 +81,11 @@ class CustomerGroupRegistrationAccepted extends Event implements SalesChannelAwa
 
     public function getCustomerId(): string
     {
-        return $this->getCustomer()->getId();
+        return $this->customer->getId();
     }
 
     public function getCustomerGroupId(): string
     {
-        return $this->getCustomerGroup()->getId();
+        return $this->customerGroup->getId();
     }
 }

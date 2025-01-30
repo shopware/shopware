@@ -164,7 +164,7 @@ class AdapterException extends HttpException
      */
     public static function invalidArgument(string $message): self|\InvalidArgumentException
     {
-        if (Feature::isActive('v6.7.0.0')) {
+        if (!Feature::isActive('v6.7.0.0')) {
             return new \InvalidArgumentException($message);
         }
 

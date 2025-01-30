@@ -1,10 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_card_search_bar %}
 <div class="sw-card-filter">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_card_filter_bar_container %}
     <div :class="hasFilterClass">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_card_filter_bar_container_field %}
         <sw-simple-search-field
             v-model:value="term"
@@ -18,7 +15,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_card_filter_bar_container_field_filter %}
     <div class="sw-card-filter-filter">
         <slot name="filter"></slot>

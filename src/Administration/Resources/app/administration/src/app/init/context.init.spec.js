@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initContext from 'src/app/init/context.init';
 import {

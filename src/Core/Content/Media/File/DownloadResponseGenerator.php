@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class DownloadResponseGenerator
 {
     /**

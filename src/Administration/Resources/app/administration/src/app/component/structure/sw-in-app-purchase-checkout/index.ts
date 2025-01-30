@@ -4,7 +4,7 @@ import template from './sw-in-app-purchase-checkout.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  *
  * @private
  */

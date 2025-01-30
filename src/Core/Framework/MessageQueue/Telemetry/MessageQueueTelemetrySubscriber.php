@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class MessageQueueTelemetrySubscriber implements EventSubscriberInterface
 {
     public function __construct(

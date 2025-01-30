@@ -1,5 +1,3 @@
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type Repository from '../../../../../core/data/repository.data';
 import type CriteriaType from '../../../../../core/data/criteria.data';
 import template from './sw-flow-list-flow-templates.html.twig';
@@ -21,7 +19,7 @@ const {
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({

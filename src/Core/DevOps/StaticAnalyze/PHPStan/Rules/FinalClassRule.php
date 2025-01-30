@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FinalClassRule implements Rule
 {
     public function getNodeType(): string

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class EntitySerializer extends AbstractEntitySerializer
 {
     public function serialize(Config $config, EntityDefinition $definition, $entity): iterable

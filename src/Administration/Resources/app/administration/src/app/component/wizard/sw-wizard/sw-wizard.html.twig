@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_wizard %}
 <sw-modal
     class="sw-wizard"
@@ -9,17 +8,13 @@
     @page-remove="removePage"
 >
     <slot>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_wizard_slot_default %}{% endblock %}
     </slot>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_wizard_slot_footer %}
     <template #modal-footer>
         <slot name="footer-left-button">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_wizard_slot_footer_left_buttons %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_wizard_slot_footer_left_buttons_close %}
             <sw-button
                 v-if="currentlyActivePage === 0"
@@ -31,7 +26,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_wizard_slot_footer_left_buttons_back %}
             <sw-button
                 v-else
@@ -48,7 +42,6 @@
         </slot>
 
         <slot name="footer-dot-navigation">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_wizard_slot_footer_dot_navigation %}
             <sw-wizard-dot-navigation
                 v-if="showNavigationDots"
@@ -60,9 +53,7 @@
         </slot>
 
         <slot name="footer-right-button">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_wizard_slot_footer_right_button %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_wizard_slot_footer_right_button_finish %}
             <sw-button
                 v-if="currentlyActivePage >= pagesCount - 1"
@@ -75,7 +66,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_wizard_slot_footer_right_button_next %}
             <sw-button
                 v-else

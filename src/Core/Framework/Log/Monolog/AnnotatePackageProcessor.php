@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AnnotatePackageProcessor implements ProcessorInterface
 {
     /**

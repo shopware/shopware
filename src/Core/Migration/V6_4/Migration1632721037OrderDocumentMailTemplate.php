@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
@@ -16,7 +17,7 @@ use Shopware\Core\Migration\Traits\Translations;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -110,8 +111,8 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
                     'mail_template_id' => $values['templateId'],
                     'sender_name' => '{{ salesChannel.name }}',
                     'subject' => 'New document for your order',
-                    'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, true),
-                    'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, false),
+                    'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, true),
+                    'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, false),
                 ],
             );
 
@@ -186,7 +187,7 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
         ];
 
         if (!\is_string($templateContentMapping[$technicalName][$locale][$html ? 'html' : 'plain'])) {
-            throw new \RuntimeException(\sprintf('Could not MailTemplate data for %s with locale %s', $technicalName, $locale));
+            throw MigrationException::migrationError(\sprintf('Could not MailTemplate data for %s with locale %s', $technicalName, $locale));
         }
 
         return $templateContentMapping[$technicalName][$locale][$html ? 'html' : 'plain'];

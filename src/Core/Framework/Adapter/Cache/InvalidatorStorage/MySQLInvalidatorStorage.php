@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorageTest
  */
-#[Package('core')]
+#[Package('framework')]
 class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 {
     private const TABLE_NAME = 'invalidation_tags';
@@ -68,7 +68,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
      */
     private function executeLoadAndDelete(): array
     {
-        // fetch and lock records, ignoring locked records, se we don't handle tags
+        // fetch and lock records, ignoring locked records, so we don't handle tags
         // being processed by parallel worker
         $rows = $this->connection->fetchAllAssociative(
             \sprintf('SELECT id, tag FROM %s ORDER BY id FOR UPDATE SKIP LOCKED', self::TABLE_NAME)
@@ -85,9 +85,12 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
         $query = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare(\sprintf('DELETE FROM %s WHERE id BETWEEN ? AND ?', self::TABLE_NAME))
+            $this->connection->prepare(\sprintf('DELETE FROM %s WHERE id BETWEEN :firstTagId AND :lastTagId', self::TABLE_NAME))
         );
-        $query->execute([$firstTagId, $lastTagId]);
+        $query->execute([
+            'firstTagId' => $firstTagId,
+            'lastTagId' => $lastTagId,
+        ]);
 
         return array_column($rows, 'tag');
     }

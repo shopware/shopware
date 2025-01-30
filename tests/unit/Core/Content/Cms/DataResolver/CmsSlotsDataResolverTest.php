@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CmsSlotsDataResolver::class)]
 class CmsSlotsDataResolverTest extends TestCase
 {
@@ -105,7 +105,7 @@ class CmsSlotsDataResolverTest extends TestCase
         $this->textResolver->method('getType')->willReturn('text');
         $this->textResolver->expects(static::never())->method('enrich');
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $resolverContext = new ResolverContext($context, new Request());
 
         $resolver = $this->getCmsSlotsDataResolver();
@@ -133,7 +133,7 @@ class CmsSlotsDataResolverTest extends TestCase
 
         $this->formResolver->method('collect')->willReturn($criteriaCollection);
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $resolverContext = new ResolverContext($context, new Request());
 
         $this->dispatcher

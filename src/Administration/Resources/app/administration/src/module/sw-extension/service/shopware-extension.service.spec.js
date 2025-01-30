@@ -26,7 +26,7 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
 });
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/service/shopware-extension.service', () => {
     let shopwareExtensionService;
@@ -124,6 +124,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
                 [
                     'someExtension',
                     'app',
+                    true,
                 ],
             ],
         ])('delegates %s correctly', async (lifecycleMethod, parameters) => {

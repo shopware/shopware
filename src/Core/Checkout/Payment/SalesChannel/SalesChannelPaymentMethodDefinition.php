@@ -14,6 +14,6 @@ class SalesChannelPaymentMethodDefinition extends PaymentMethodDefinition implem
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('payment_method.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('payment_method.salesChannels.id', $context->getSalesChannelId()));
     }
 }

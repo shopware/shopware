@@ -3,7 +3,7 @@ import template from './sw-cms-sidebar-nav-element.html.twig';
 import './sw-cms-sidebar-nav-element.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -18,7 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         block: {
-            type: Object as PropType<EntitySchema.Entity<'cms_block'>>,
+            type: Object as PropType<Entity<'cms_block'>>,
             required: true,
         },
 

@@ -1,3 +1,4 @@
+{% block sw_cms_el_config_html %}
 <div class="sw-cms-el-config-html">
     <sw-code-editor
         :value="element.config.content.value"
@@ -10,3 +11,4 @@
         {{ $tc('sw-cms.elements.html.config.warning') }}
     </sw-alert>
 </div>
+{% endblock %}

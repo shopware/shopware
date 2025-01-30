@@ -31,7 +31,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  *
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(CachedCurrencyRoute::class)]
 class CachedCurrencyRouteTest extends TestCase
 {
@@ -55,7 +55,7 @@ class CachedCurrencyRouteTest extends TestCase
         $this->eventDispatcher = new EventDispatcher();
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
-        $this->context = Generator::createSalesChannelContext(
+        $this->context = Generator::generateSalesChannelContext(
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
             salesChannel: $salesChannel
         );

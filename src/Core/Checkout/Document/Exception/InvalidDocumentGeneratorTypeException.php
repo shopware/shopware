@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Document\Exception;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class InvalidDocumentGeneratorTypeException extends DocumentException
 {
 }

@@ -57,7 +57,7 @@ npx playwright test --ui
 Running a single test file
 
 ```
-npx playwright test product.spec.ts
+npx playwright test --project="Platform" product.spec.ts
 ```
 
 Running tests with a specific tag.  

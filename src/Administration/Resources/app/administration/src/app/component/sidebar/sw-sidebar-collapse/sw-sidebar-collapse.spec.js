@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -10,11 +10,11 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-sidebar-collapse', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': {
+                'mt-icon': {
                     props: [
                         'name',
                     ],
-                    template: '<span class="sw-icon">{{ name }}</span>',
+                    template: '<span class="mt-icon">{{ name }}</span>',
                 },
                 'sw-collapse': true,
             },

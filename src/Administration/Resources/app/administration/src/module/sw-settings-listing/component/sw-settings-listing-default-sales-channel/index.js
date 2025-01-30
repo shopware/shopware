@@ -2,7 +2,7 @@ import template from './sw-settings-listing-default-sales-channel.html.twig';
 import './sw-settings-listing-default-sales-channel.scss';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 const { EntityCollection } = Shopware.Data;

@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Telemetry\TelemetryException;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Meter::class)]
 class MeterTest extends TestCase
 {

@@ -3,7 +3,7 @@ import './sw-cms-preview-text-on-image.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,

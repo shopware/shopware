@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Seo;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoTemplateReplacementVariable
 {
     public function __construct(

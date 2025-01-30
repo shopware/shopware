@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<NestedEvent>
  */
-#[Package('core')]
+#[Package('framework')]
 class NestedEventCollection extends Collection
 {
     public function getFlatEventList(): self

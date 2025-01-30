@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_activity_log_info_modal %}
 <sw-modal
     v-if="logEntity"
@@ -8,52 +7,44 @@
     @modal-close="$emit('log-close')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_log_info_modal_description %}
     <dl class="sw-import-export-activity-log-info-modal__description-list">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_log_info_modal_description_name %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-file-name">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelFilename') }}</dt>
             <dd>{{ logEntity.file.originalName }}</dd>
         </div>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_log_info_modal_description_profile %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-profile">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelProfile') }}</dt>
             <dd>{{ logEntity.profile.label }}</dd>
         </div>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_log_info_modal_description_records %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-records">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelExportRecords') }}</dt>
             <dd>{{ logEntity.records }}</dd>
         </div>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_log_info_modal_description_size %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-size">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelSize') }}</dt>
             <dd>{{ calculateFileSize(logEntity.file.size) }}</dd>
         </div>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_log_info_modal_description_date %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-date">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelDate') }}</dt>
             <dd>{{ dateFilter(logEntity.createdAt, { hour: '2-digit', minute: '2-digit' }) }}</dd>
         </div>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_log_info_modal_description_user %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-user">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelUser') }}</dt>
             <dd>{{ logEntity.username }}</dd>
         </div>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_log_info_modal_description_state %}
         <div
             class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-state"
@@ -82,7 +73,6 @@
             </dd>
         </div>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_activity_log_info_modal_description_type %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-type">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelType') }}</dt>
@@ -92,7 +82,6 @@
     </dl>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_log_info_modal_download %}
     <sw-button
         class="sw-import-export-activity-log-info-modal__download-button"

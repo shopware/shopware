@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './sw-overlay.scss';
 import template from './sw-overlay.html.twig';
 

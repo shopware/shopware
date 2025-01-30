@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import EntityValidationService from 'src/app/service/entity-validation.service';

@@ -42,7 +42,7 @@ class OrderPageTest extends TestCase
         static::getContainer()->get('order.repository')->update([
             [
                 'id' => $order,
-                'salesChannelId' => $testContext->getSalesChannel()->getId(),
+                'salesChannelId' => $testContext->getSalesChannelId(),
             ],
         ], $context->getContext());
 

@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(path: '.well-known/', defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('framework')]
 class WellKnownController extends StorefrontController
 {
     #[Route(path: 'change-password', name: 'frontend.well-known.change-password', methods: ['GET'])]

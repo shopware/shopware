@@ -18,7 +18,7 @@ use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1572193798TaxRule extends MigrationStep
 {
     public function getCreationTimestamp(): int

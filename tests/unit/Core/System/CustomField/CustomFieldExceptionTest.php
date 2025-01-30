@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[CoversClass(CustomFieldException::class)]
 class CustomFieldExceptionTest extends TestCase
 {

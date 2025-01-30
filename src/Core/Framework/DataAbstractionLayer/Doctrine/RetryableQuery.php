@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 
-#[Package('core')]
+#[Package('framework')]
 class RetryableQuery
 {
     public function __construct(
@@ -19,7 +19,9 @@ class RetryableQuery
     }
 
     /**
-     * @param array<int|string, mixed> $params
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will be changed to int|string
+     *
+     * @param array<string, mixed> $params
      */
     public function execute(array $params = []): int
     {

@@ -32,7 +32,7 @@ use Symfony\Component\DependencyInjection\Container;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(TranslationsSerializer::class)]
 class TranslationSerializerTest extends TestCase
 {

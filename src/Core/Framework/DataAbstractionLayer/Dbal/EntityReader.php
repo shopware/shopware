@@ -42,7 +42,7 @@ use function Symfony\Component\String\u;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityReader implements EntityReaderInterface
 {
     final public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';

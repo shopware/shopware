@@ -146,6 +146,9 @@ class MigrationException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
     public static function invalidMigrationClass(string $class, string $path): self|InvalidMigrationClassException
     {
         if (!Feature::isActive('v6.7.0.0')) {
@@ -169,6 +172,9 @@ class MigrationException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
     public static function logicError(string $message): self|\LogicException
     {
         if (!Feature::isActive('v6.7.0.0')) {

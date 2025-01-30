@@ -48,14 +48,20 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
 
     /**
      * @deprecated tag:v6.7.0 - will be removed without replacement
-     *
-     * @param DocumentGenerateOperation[] $operations
      */
-    public function finalize(array $operations, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $result): void
+    public function finalize(DocumentGenerateOperation $operation, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $result): void
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed without replacement');
 
-        $this->embedXMLIntoPDF($operations, $context, $rendererConfig, $result);
+        $invoiceResult = new RendererResult();
+        $invoiceResult->addSuccess($operation->getOrderId(), $result->getOrderSuccess($operation->getOrderId()));
+
+        $embeddedResult = $this->embedXMLIntoPDF([$operation->getOrderId() => $operation], $context, $rendererConfig, $result);
+
+        $orderError = $embeddedResult->getOrderError($operation->getOrderId());
+        if ($orderError) {
+            throw $orderError;
+        }
     }
 
     /**
@@ -69,6 +75,12 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
         $renderResult = new RendererResult();
 
         foreach ($invoice->getSuccess() as $orderId => $invoiceDocument) {
+            if ($invoiceDocument->getContentType() !== 'application/pdf') {
+                $renderResult->addError($orderId, DocumentException::electronicInvoiceViolation(1, ['Application type must be "application/pdf"' => [$orderId]]));
+
+                continue;
+            }
+
             $electronicDoc = $electronicInvoice->getOrderSuccess($orderId);
             if ($electronicDoc === null) {
                 $renderResult->addError($orderId, DocumentException::electronicInvoiceViolation(1, ['Electronic invoice is null' => [$orderId]]));

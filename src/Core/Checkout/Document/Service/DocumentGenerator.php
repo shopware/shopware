@@ -114,7 +114,7 @@ class DocumentGenerator
         if (!Feature::isActive('v6.7.0.0')) {
             $document->setContent($this->fileRendererRegistry->render($document));
 
-            $this->rendererRegistry->finalize($documentType, [$operation->getOrderId() => $operation], $context, $config, $rendered);
+            $this->rendererRegistry->finalize($documentType, $operation, $context, $config, $rendered);
         }
 
         return $document;
@@ -335,14 +335,10 @@ class DocumentGenerator
         }
 
         if (!Feature::isActive('v6.7.0.0')) {
-            try {
-                $document->setContent($this->fileRendererRegistry->render($document));
+            $document->setContent($this->fileRendererRegistry->render($document));
 
-                if ($documentType && $result) {
-                    $this->rendererRegistry->finalize($documentType, [$operation->getOrderId() => $operation], $context, new DocumentRendererConfig(), $result);
-                }
-            } catch (\Throwable) {
-                return null;
+            if ($documentType && $result) {
+                $this->rendererRegistry->finalize($documentType, $operation, $context, new DocumentRendererConfig(), $result);
             }
         }
 

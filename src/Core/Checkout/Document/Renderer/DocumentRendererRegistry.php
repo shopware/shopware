@@ -37,11 +37,9 @@ final class DocumentRendererRegistry
     }
 
     /**
-     * @param DocumentGenerateOperation[] $operations
-     *
      * @deprecated tag:v6.7.0 - will be removed without replacement
      */
-    public function finalize(string $documentType, array $operations, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $result): void
+    public function finalize(string $documentType, DocumentGenerateOperation $operation, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $result): void
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed without replacement');
 
@@ -50,7 +48,7 @@ final class DocumentRendererRegistry
                 continue;
             }
 
-            $documentRenderer->finalize($operations, $context, $rendererConfig, $result);
+            $documentRenderer->finalize($operation, $context, $rendererConfig, $result);
 
             return;
         }

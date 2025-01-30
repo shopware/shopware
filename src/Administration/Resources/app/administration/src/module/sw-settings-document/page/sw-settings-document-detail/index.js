@@ -447,7 +447,7 @@ export default {
 
             criteria.addFilter(Criteria.not('AND', [Criteria.prefix('technicalName', 'zugferd_')]));
 
-            return criteria
+            return criteria;
         },
     },
 

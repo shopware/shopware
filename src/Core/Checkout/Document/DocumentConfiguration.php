@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Country\CountryEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[\AllowDynamicProperties]
 #[Package('after-sales')]
 class DocumentConfiguration extends Struct
@@ -482,7 +485,7 @@ class DocumentConfiguration extends Struct
             $this->getCompanyCountry()?->getTranslation('name'),
         ];
 
-        return array_filter($parts, static fn ($part) => !empty($part) && $part !== ' ');
+        return array_filter($parts, static fn ($part) => !empty(\trim($part)));
     }
 
     public function getId(): string

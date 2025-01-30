@@ -26,10 +26,8 @@ abstract class AbstractDocumentRenderer
 
     /**
      * @deprecated tag:v6.7.0 - will be removed without replacement
-     *
-     * @param DocumentGenerateOperation[] $operations
      */
-    public function finalize(array $operations, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $result): void
+    public function finalize(DocumentGenerateOperation $operation, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $result): void
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed without replacement');
     }

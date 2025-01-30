@@ -195,5 +195,9 @@ export default {
         onAddDocument(data) {
             this.selectedDocumentFile = data[0];
         },
+
+        htmlPreviewDisabled() {
+            return this.currentDocumentType.technicalName.startsWith('zugferd_');
+        },
     },
 };

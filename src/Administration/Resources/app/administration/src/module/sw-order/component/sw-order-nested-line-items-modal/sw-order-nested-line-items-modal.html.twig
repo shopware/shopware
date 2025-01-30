@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_nested_line_item_modal %}
 <sw-modal
     class="sw-order-nested-line-items-modal"
@@ -7,7 +6,6 @@
     @modal-close="onCloseModal"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_nested_line_item_modal_loader %}
     <sw-loader
         v-if="isLoading"
@@ -15,46 +13,39 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_nested_line_item_modal_container %}
     <div
         v-else
         class="sw-order-nested-line-items-modal__container"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_nested_line_item_modal_header_container %}
         <div class="sw-order-nested-line-items-modal__header-container">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_nested_line_item_modal_header_label %}
             <div class="sw-order-nested-line-items-modal__header-label sw-order-nested-line-items-modal__header-item">
                 {{ $tc('sw-order.nestedLineItemsModal.headerLabel') }}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_nested_line_item_modal_header_unit_price %}
             <div class="sw-order-nested-line-items-modal__header-unit-price sw-order-nested-line-items-modal__header-item">
                 {{ $tc('sw-order.nestedLineItemsModal.headerUnitPrice') }}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_nested_line_item_modal_header_quantity %}
             <div class="sw-order-nested-line-items-modal__header-quantity sw-order-nested-line-items-modal__header-item">
                 {{ $tc('sw-order.nestedLineItemsModal.headerQuantity') }}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_nested_line_item_modal_header_total_price %}
             <div class="sw-order-nested-line-items-modal__header-total-price sw-order-nested-line-items-modal__header-item">
                 {{ $tc('sw-order.nestedLineItemsModal.headerTotalPrice') }}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_nested_line_item_modal_header_tax %}
             <div class="sw-order-nested-line-items-modal__header-tax sw-order-nested-line-items-modal__header-item">
                 {{ $tc('sw-order.nestedLineItemsModal.headerTax') }}
@@ -64,7 +55,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_nested_line_item_modal_content %}
         <sw-order-nested-line-items-row
             class="sw-order-nested-line-items-modal__content"
@@ -76,11 +66,9 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_nested_line_item_modal_footer %}
     <template #modal-footer>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_nested_line_item_modal_footer_content %}
         <sw-button
             variant="primary"

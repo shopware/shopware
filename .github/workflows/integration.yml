@@ -2,6 +2,7 @@ name: Integration tests
 
 on:
   pull_request:
+  merge_group:
   workflow_dispatch:
     inputs:
       nightly:
@@ -15,6 +16,7 @@ on:
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
@@ -134,6 +136,7 @@ jobs:
 
   phpunit-matrix:
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps: 
@@ -149,6 +152,7 @@ jobs:
 
   phpunit:
     name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
+    if: ${{ github.event_name != 'pull_request' }}
     needs: 
       - phpunit-matrix
     runs-on: ubuntu-24.04
@@ -204,6 +208,7 @@ jobs:
 
   win-checkout:
     runs-on: windows-latest
+    if: ${{ github.event_name != 'pull_request' }}
     name: "Windows check"
 
     steps:
@@ -311,6 +316,7 @@ jobs:
   tested-update-versions:
     name: tested-versions
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
@@ -324,6 +330,7 @@ jobs:
   acceptance-update:
     needs: tested-update-versions
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
@@ -427,6 +434,7 @@ jobs:
   blue-green-66-67:
     name: "PHP blue green 6.6 -> 6.7 -> 6.6"
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     env:
       APP_ENV: test
       APP_URL: http://localhost:8000
@@ -497,5 +505,6 @@ jobs:
       uses: re-actors/alls-green@release/v1
       with:
         # allowed-failures: docs, linters
-        # allowed-skips: non-voting-flaky-job
+        # allow all jobs to be skipped in case of a PR run
+        allowed-skips: acceptance, phpunit, win-checkout, code-ql, acceptance-update, blue-green-66-67
         jobs: ${{ toJSON(needs) }}

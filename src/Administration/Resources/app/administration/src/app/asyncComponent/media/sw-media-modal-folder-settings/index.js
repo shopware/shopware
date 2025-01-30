@@ -7,7 +7,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
- * @sw-package content
+ * @sw-package discovery
  */
 export default {
     template,

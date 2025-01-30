@@ -1,5 +1,5 @@
 /**
- * @sw-package content
+ * @sw-package discovery
  */
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 

@@ -1,6 +1,5 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-popover component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_popover %}
 <mt-floating-ui
     v-if="useMeteorComponent"
@@ -24,7 +23,6 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_popover_deprecated %}
 <sw-popover-deprecated
     v-else

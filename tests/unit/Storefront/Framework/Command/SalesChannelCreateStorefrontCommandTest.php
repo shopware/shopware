@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,6 +34,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         array $idsSearchResult = [],
         ?string $exception = null
     ): void {
+        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
 
         $foundSnippetSetId = $snippetSetId;
@@ -126,6 +128,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         array $idsSearchResult,
         string $exception
     ): void {
+        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
 
         $mockSalesChannelCreator = $this->createStub(SalesChannelCreator::class);

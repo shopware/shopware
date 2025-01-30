@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Log\Package;
+use Twig\Node\EmptyNode;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\ConstantExpression;
@@ -54,7 +55,7 @@ final class ExtendsTokenParser extends AbstractTokenParser
 
         $stream->injectTokens($tokens);
 
-        return new Node();
+        return new EmptyNode($token->getLine());
     }
 
     public function getTag(): string

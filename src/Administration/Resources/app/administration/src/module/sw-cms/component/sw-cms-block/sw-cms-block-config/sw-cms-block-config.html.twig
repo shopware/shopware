@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_block_config %}
 <div class="sw-cms-block-config">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_config__quickactions %}
     <ul
         class="sw-cms-block-config__quickactions-list"
         :class="quickactionClasses"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_duplicate %}
         <li
             class="sw-cms-block-config__quickaction"
@@ -25,7 +22,6 @@
         </li>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_delete %}
         <li
             class="sw-cms-block-config__quickaction is--danger"
@@ -44,11 +40,9 @@
     </ul>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_config__settings %}
     <div class="sw-cms-section-config__settings">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_name_field %}
         <sw-text-field
             :value="block.name"
@@ -59,7 +53,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_color_field %}
         <sw-colorpicker
             v-model:value="block.backgroundColor"
@@ -68,7 +61,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_image_field %}
         <sw-media-compact-upload-v2
             :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
@@ -85,7 +77,6 @@
             @media-upload-finish="successfulUpload"
         />
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_image_position_field %}
         <sw-select-field
             v-model:value="block.backgroundMediaMode"

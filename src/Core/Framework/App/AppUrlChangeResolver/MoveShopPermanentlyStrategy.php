@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -30,12 +30,12 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
     final public const STRATEGY_NAME = 'move-shop-permanently';
 
     public function __construct(
-        AppLoader $appLoader,
+        SourceResolver $sourceResolver,
         EntityRepository $appRepository,
         AppRegistrationService $registrationService,
         private readonly ShopIdProvider $shopIdProvider
     ) {
-        parent::__construct($appLoader, $appRepository, $registrationService);
+        parent::__construct($sourceResolver, $appRepository, $registrationService);
     }
 
     public function getDecorated(): AbstractAppUrlChangeStrategy

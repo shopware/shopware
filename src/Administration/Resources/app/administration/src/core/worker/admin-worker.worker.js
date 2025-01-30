@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
 import AdminWorker from 'src/core/worker/admin-worker';

@@ -4,7 +4,7 @@ namespace Shopware\Administration\Controller;
 
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
@@ -28,6 +28,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class AdminExtensionApiController extends AbstractController
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly Executor $executor,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
@@ -45,13 +48,12 @@ class AdminExtensionApiController extends AbstractController
             new EqualsFilter('name', $appName)
         );
 
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
-        if ($app === null) {
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
+        if (!$app) {
             throw AppException::appNotFoundByName($appName);
         }
 
-        if ($app->getAppSecret() === null) {
+        if (!$app->getAppSecret()) {
             if (Feature::isActive('v6.7.0.0')) {
                 throw AppException::appSecretMissing($app->getName());
             }
@@ -92,9 +94,8 @@ class AdminExtensionApiController extends AbstractController
             new EqualsFilter('name', $appName)
         );
 
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
-        if ($app === null) {
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
+        if (!$app) {
             throw AppException::appNotFoundByName($appName);
         }
 

@@ -1,11 +1,21 @@
+{# @deprecated tag:v6.7.0 - Variable `active` will be removed, as it will be unused #}
+{% if feature('cache_rework') %}
+    {% set navigation = element.data.tree %}
+    {% set active = null %}
+{% else %}
+    {% set navigation = page.header.navigation.tree %}
+    {% set active = page.header.navigation.active %}
+{% endif %}
+
 {% block element_category_navigation %}
     <div class="cms-element-{{ element.type }}">
         {% block element_category_navigation_element %}
             <div class="category-navigation-box">
                 {% block element_category_navigation_box %}
+                    {# @deprecated tag:v6.7.0 - Parameter `activeResult` will be removed, as it is unused #}
                     {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {
-                        navigationTree: page.header.navigation.tree,
-                        activeResult: page.header.navigation.active
+                        navigationTree: navigation,
+                        activeResult: active
                     } only %}
                 {% endblock %}
             </div>

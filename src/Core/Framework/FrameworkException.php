@@ -71,8 +71,13 @@ class FrameworkException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed as it is unused
+     */
     public static function extensionResultNotSet(string $extension): self
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::EXTENSION_RESULT_NOT_SET,

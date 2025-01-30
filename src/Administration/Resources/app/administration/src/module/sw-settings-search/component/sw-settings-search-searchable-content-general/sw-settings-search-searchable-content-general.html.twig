@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_searchable_content_general %}
 <div class="sw-settings-search__searchable-content-general">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_general_empty_state %}
     <sw-empty-state
         v-if="isEmpty"
@@ -11,7 +9,6 @@
         :absolute="false"
     >
         <template #icon>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_general_state_image %}
             <img
                 :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
@@ -22,7 +19,6 @@
     </sw-empty-state>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_general_grid %}
     <sw-entity-listing
         v-if="!isEmpty"
@@ -41,11 +37,9 @@
         @inline-edit-save="onInlineEditSave"
         @inline-edit-cancel="onInlineEditCancel"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_general_field %}
         <template #column-field="{ item, isInlineEdit }">
             <template v-if="item._isNew && isInlineEdit">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_field_editor %}
                 <sw-single-select
                     v-model:value="item.field"
@@ -58,7 +52,6 @@
                 {% endblock %}
             </template>
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_field_label %}
                 {{ getMatchingFields(item.field) }}
                 {% endblock %}
@@ -66,11 +59,9 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_general_ranking %}
         <template #column-ranking="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_ranking_editor %}
                 <sw-number-field
                     v-model:value="item.ranking"
@@ -82,11 +73,9 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_general_searchable %}
         <template #column-searchable="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_searchable_editor %}
                 <sw-checkbox-field
                     v-model:value="item.searchable"
@@ -95,7 +84,6 @@
             </template>
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_searchable_label %}
                 <sw-data-grid-column-boolean v-model:value="item.searchable" />
                 {% endblock %}
@@ -103,11 +91,9 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_general_tokenize %}
         <template #column-tokenize="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_tokenize_editor %}
                 <sw-checkbox-field
                     v-model:value="item.tokenize"
@@ -116,7 +102,6 @@
             </template>
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_tokenize_label %}
                 <sw-data-grid-column-boolean v-model:value="item.tokenize" />
                 {% endblock %}
@@ -124,7 +109,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_general_columns_actions %}
         <template #actions="{ item }">
             <sw-context-menu-item
@@ -135,7 +119,6 @@
                 {{ $tc('global.default.edit') }}
             </sw-context-menu-item>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_general_columns_actions_edit %}
             <sw-context-menu-item
                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
@@ -148,7 +131,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_general_pagination %}
         <template #pagination>
             <sw-pagination

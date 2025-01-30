@@ -21,8 +21,4 @@ class Migration1696515133AddCheckoutGatewayUrl extends MigrationStep
     {
         $this->addColumn($connection, 'app', 'checkout_gateway_url', 'VARCHAR(255) NULL');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

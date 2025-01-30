@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @phpstan-import-type BundleConfig from BundleConfigGeneratorInterface
  */
-#[Package('core')]
+#[Package('framework')]
 class BundleConfigGenerator implements BundleConfigGeneratorInterface
 {
     private readonly string $projectDir;

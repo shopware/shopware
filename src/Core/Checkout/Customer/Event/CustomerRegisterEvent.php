@@ -74,6 +74,6 @@ class CustomerRegisterEvent extends Event implements SalesChannelAware, Shopware
 
     public function getCustomerId(): string
     {
-        return $this->getCustomer()->getId();
+        return $this->customer->getId();
     }
 }

@@ -6,7 +6,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class RequestSigner
 {
     final public const SHOPWARE_APP_SIGNATURE = 'shopware-app-signature';

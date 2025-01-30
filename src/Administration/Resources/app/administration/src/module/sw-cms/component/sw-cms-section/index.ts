@@ -24,7 +24,7 @@ type SlotConfigErrorObject = {
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -53,12 +53,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         page: {
-            type: Object as PropType<EntitySchema.Entity<'cms_page'>>,
+            type: Object as PropType<Entity<'cms_page'>>,
             required: true,
         },
 
         section: {
-            type: Object as PropType<EntitySchema.Entity<'cms_section'>>,
+            type: Object as PropType<Entity<'cms_section'>>,
             required: true,
         },
 
@@ -239,12 +239,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.openBlockBar();
         },
 
-        onBlockSelection(block: EntitySchema.Entity<'cms_block'>) {
+        onBlockSelection(block: Entity<'cms_block'>) {
             Shopware.Store.get('cmsPage').setBlock(block);
             this.$emit('page-config-open', 'itemConfig');
         },
 
-        onBlockDuplicate(block: EntitySchema.Entity<'cms_block'>, section: EntitySchema.Entity<'cms_section'>) {
+        onBlockDuplicate(block: Entity<'cms_block'>, section: Entity<'cms_section'>) {
             this.$emit('block-duplicate', block, section);
         },
 
@@ -272,14 +272,14 @@ export default Shopware.Component.wrapComponentConfig({
             return this.blockTypes.includes(type);
         },
 
-        hasBlockErrors(block: EntitySchema.Entity<'cms_block'>) {
+        hasBlockErrors(block: Entity<'cms_block'>) {
             return [
                 this.hasUniqueBlockErrors(block),
                 this.hasSlotConfigErrors(block),
             ].some((error) => error);
         },
 
-        hasUniqueBlockErrors(block: EntitySchema.Entity<'cms_block'>) {
+        hasUniqueBlockErrors(block: Entity<'cms_block'>) {
             const errorElements = (this.pageSlotsError as SlotsErrorObject)?.parameters?.elements;
 
             if (!errorElements) {
@@ -289,7 +289,7 @@ export default Shopware.Component.wrapComponentConfig({
             return errorElements.some((errorType) => errorType.blockIds.includes(block.id));
         },
 
-        hasSlotConfigErrors(block: EntitySchema.Entity<'cms_block'>) {
+        hasSlotConfigErrors(block: Entity<'cms_block'>) {
             const errorElements = (this.pageSlotconfigError as SlotConfigErrorObject)?.parameters?.elements;
 
             if (!errorElements) {

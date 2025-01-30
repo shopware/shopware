@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailActionController extends AbstractController
 {
     /**

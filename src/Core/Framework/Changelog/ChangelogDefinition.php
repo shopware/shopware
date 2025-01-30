@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ChangelogDefinition
 {
     private const VIOLATION_MESSAGE_SECTION_SEPARATOR = 'You should use "___" to separate %s and %s section';

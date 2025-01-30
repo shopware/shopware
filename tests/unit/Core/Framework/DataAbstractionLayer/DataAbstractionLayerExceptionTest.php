@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(DataAbstractionLayerException::class)]
 class DataAbstractionLayerExceptionTest extends TestCase
 {

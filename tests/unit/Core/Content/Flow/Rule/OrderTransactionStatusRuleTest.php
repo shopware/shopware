@@ -25,7 +25,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(OrderTransactionStatusRule::class)]
 #[Group('rules')]
 class OrderTransactionStatusRuleTest extends TestCase

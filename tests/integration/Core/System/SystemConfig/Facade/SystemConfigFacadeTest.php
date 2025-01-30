@@ -27,7 +27,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigFacadeTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -62,7 +62,7 @@ class SystemConfigFacadeTest extends TestCase
      */
     public static function getWithoutAppCases(): array
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setId(TestDefaults::SALES_CHANNEL);
 
         return [

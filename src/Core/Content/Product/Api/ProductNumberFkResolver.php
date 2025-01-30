@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ProductNumberFkResolver extends AbstractFkResolver
 {
     public function __construct(private readonly Connection $connection)

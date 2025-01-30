@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AppFlowEventDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app_flow_event';

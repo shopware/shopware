@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import positionIdentifiers from './position-identifiers.json';
@@ -115,7 +115,6 @@ const missingTests = [
     'src/app/decorator/index.js',
     'src/app/directive/index.ts',
     'src/app/directive/popover.directive.ts',
-    'src/app/directive/tooltip.directive.ts',
     'src/app/filter/index.ts',
     'src/app/init/directive.init.ts',
     'src/app/init/index.ts',
@@ -200,7 +199,6 @@ const missingTests = [
     'src/core/service/api/integration.api.service.js',
     'src/core/service/api/known-ips.api.service.js',
     'src/core/service/api/language-plugin.api.service.js',
-    'src/core/service/api/mail.api.service.js',
     'src/core/service/api/media-folder.api.service.js',
     'src/core/service/api/message-queue.api.service.ts',
     'src/core/service/api/number-range.api.service.js',
@@ -230,7 +228,6 @@ const missingTests = [
     'src/core/service/utils/object.utils.ts',
     'src/core/service/utils/sort.utils.ts',
     'src/core/service/validation.service.js',
-    'src/core/worker/admin-notification-worker.js',
     'src/core/worker/worker-notification-listener.js',
     'src/core/worker/admin-worker.worker.js',
     'src/core/worker/admin-worker.shared-worker.js',

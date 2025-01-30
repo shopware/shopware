@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'theme:refresh',
     description: 'Refresh the theme configuration',
 )]
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeRefreshCommand extends Command
 {
     private readonly Context $context;

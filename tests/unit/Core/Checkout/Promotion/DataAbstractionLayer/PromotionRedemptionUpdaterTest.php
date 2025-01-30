@@ -287,7 +287,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             $order->setOrderCustomer($orderCustomer);
         }
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         return new CheckoutOrderPlacedEvent($context, $order);
     }

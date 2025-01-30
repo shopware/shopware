@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -359,7 +359,7 @@ describe('asyncComponent/base/sw-chart', () => {
         expect(wrapper.vm.localeConfig).toEqual(nl);
     });
 
-    it('should load the fallback locale when default locale does not exists', async () => {
+    it('should load the fallback locale when default locale does not exist', async () => {
         Shopware.State.commit('setAdminLocale', {
             locale: 'foo-BAR',
             locales: [

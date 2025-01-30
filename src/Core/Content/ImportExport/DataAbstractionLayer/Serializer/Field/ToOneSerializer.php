@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class ToOneSerializer extends FieldSerializer
 {
     /**

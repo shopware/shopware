@@ -25,7 +25,7 @@ use function PHPUnit\Framework\assertInstanceOf;
  * Having this tests pass does not guarantee that ALL the metrics are working correctly.
  * Rather a sanity check that the telemetry system is working as intended.
  */
-#[Package('core')]
+#[Package('framework')]
 class EventTelemetryFlowTest extends TestCase
 {
     use KernelTestBehaviour;

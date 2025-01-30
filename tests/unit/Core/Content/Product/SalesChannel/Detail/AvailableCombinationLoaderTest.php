@@ -31,7 +31,7 @@ class AvailableCombinationLoaderTest extends TestCase
     public function testLoadCombinationsReturnsAvailableCombinationResult(): void
     {
         $context = Context::createDefaultContext();
-        $salesChanelContext = Generator::createSalesChannelContext($context);
+        $salesChanelContext = Generator::generateSalesChannelContext($context);
         $loader = $this->getAvailableCombinationLoader();
         $result = $loader->loadCombinations(
             Uuid::randomHex(),
@@ -53,7 +53,7 @@ class AvailableCombinationLoaderTest extends TestCase
     public function testLoadCombinationsReturnsAvailableCombinationResultWithAvailabilityFromStockStorage(): void
     {
         $context = Context::createDefaultContext();
-        $salesChanelContext = Generator::createSalesChannelContext($context);
+        $salesChanelContext = Generator::generateSalesChannelContext($context);
 
         $stockStorage = $this->createMock(AbstractStockStorage::class);
         $stockStorage->expects(static::once())

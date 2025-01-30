@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 

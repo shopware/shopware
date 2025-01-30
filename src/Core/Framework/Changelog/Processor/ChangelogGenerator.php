@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ChangelogGenerator extends ChangelogProcessor
 {
     public function generate(ChangelogDefinition $template, string $date, bool $dryRun = false): string

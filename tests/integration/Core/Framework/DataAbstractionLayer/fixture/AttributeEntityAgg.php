@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 
@@ -24,4 +25,10 @@ class AttributeEntityAgg extends EntityStruct
 
     #[Field(type: FieldType::STRING)]
     public string $number;
+
+    #[ManyToOne(entity: 'attribute_entity', column: 'attribute_entity_id')]
+    public ?AttributeEntity $ownColumn = null;
+
+    #[ManyToOne(entity: 'attribute_entity')]
+    public ?AttributeEntity $attributeEntity = null;
 }

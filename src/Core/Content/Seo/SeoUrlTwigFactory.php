@@ -18,7 +18,7 @@ use Twig\Runtime\EscaperRuntime;
 /**
  * @deprecated tag:v6.7.0 - this class will be internal - reason:becomes-internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoUrlTwigFactory
 {
     /**

@@ -1,4 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type Repository from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-settings-tax-provider-detail.html.twig';
@@ -8,7 +7,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package checkout
+ * @sw-package checkout
  *
  * @private
  */

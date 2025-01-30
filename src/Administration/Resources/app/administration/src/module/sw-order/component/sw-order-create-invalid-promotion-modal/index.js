@@ -2,7 +2,7 @@ import template from './sw-order-create-invalid-promotion-modal.html.twig';
 import './sw-order-create-invalid-promotion-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { State } = Shopware;

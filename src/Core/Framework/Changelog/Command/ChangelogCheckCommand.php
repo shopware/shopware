@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'changelog:check',
     description: 'Checks the changelog for errors',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ChangelogCheckCommand extends Command
 {
     /**

@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements Rule<Class_>
  */
-#[Package('core')]
+#[Package('framework')]
 class PropertyNativeTypeRule implements Rule
 {
     public function getNodeType(): string

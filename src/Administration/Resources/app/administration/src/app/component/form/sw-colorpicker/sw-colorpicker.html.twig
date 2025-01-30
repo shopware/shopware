@@ -1,5 +1,6 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-colorpicker component #}
+{% block sw_colorpicker %}
 <mt-colorpicker
     v-if="useMeteorComponent"
     v-bind="$attrs"
@@ -19,9 +20,11 @@
     </template>
     <slot></slot>
 </mt-colorpicker>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
+{% block sw_colorpicker_deprecated %}
 <sw-colorpicker-deprecated
     v-else
     v-bind="$attrs"
@@ -40,3 +43,4 @@
     </template>
     <slot></slot>
 </sw-colorpicker-deprecated>
+{% endblock %}

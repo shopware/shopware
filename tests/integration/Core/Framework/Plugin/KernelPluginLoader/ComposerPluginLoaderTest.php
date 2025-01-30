@@ -66,7 +66,7 @@ class ComposerPluginLoaderTest extends TestCase
         $modified = $packages[0];
         static::assertIsArray($modified);
         $modified['versions'] = [
-            // Points to path that does not exists
+            // Points to path that does not exist
             'swag/broken1' => [
                 'dev_requirement' => false,
                 'type' => PluginFinder::COMPOSER_TYPE,

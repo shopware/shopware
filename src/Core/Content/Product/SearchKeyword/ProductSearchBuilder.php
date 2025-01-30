@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
     /**
@@ -74,7 +74,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
         if ($pattern->getBooleanClause() !== SearchPattern::BOOLEAN_CLAUSE_AND) {
             $criteria->addFilter(new AndFilter([
                 new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())),
-                new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()),
+                new EqualsFilter('product.searchKeywords.languageId', $context->getLanguageId()),
             ]));
 
             return;
@@ -82,7 +82,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
         foreach ($pattern->getTokenTerms() as $terms) {
             $criteria->addFilter(new AndFilter([
-                new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()),
+                new EqualsFilter('product.searchKeywords.languageId', $context->getLanguageId()),
                 new EqualsAnyFilter('product.searchKeywords.keyword', $terms),
             ]));
         }

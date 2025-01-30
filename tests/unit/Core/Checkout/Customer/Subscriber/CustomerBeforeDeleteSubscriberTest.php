@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(CustomerBeforeDeleteSubscriber::class)]
 class CustomerBeforeDeleteSubscriberTest extends TestCase
 {
@@ -67,7 +67,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         ], $customerDefinition);
 
         $salesChannelContextService = static::createMock(SalesChannelContextService::class);
-        $salesChannelContextService->method('get')->willReturn(Generator::createSalesChannelContext());
+        $salesChannelContextService->method('get')->willReturn(Generator::generateSalesChannelContext());
 
         $eventDispatcher = new EventDispatcher();
 

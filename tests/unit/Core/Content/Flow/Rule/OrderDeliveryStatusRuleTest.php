@@ -23,7 +23,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(OrderDeliveryStatusRule::class)]
 #[Group('rules')]
 class OrderDeliveryStatusRuleTest extends TestCase

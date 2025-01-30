@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -75,6 +75,7 @@ const createWrapper = async () => {
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
                     'mt-checkbox': true,
+                    'sw-provide': true,
                 },
                 mocks: {
                     $route: { meta: { $module: { icon: 'default' } } },

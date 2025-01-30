@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_shopware_updates_wizard %}
 <sw-page class="sw-settings-shopware-updates-wizard">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shopware_updates_wizard_smart_bar_header %}
     <template #smart-bar-header>
         <h2 v-if="updateInfo.version">
@@ -13,7 +11,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shopware_updates_wizard_smart_bar_actions %}
     <template #smart-bar-actions>
         <div
@@ -35,7 +32,6 @@
     {% endblock %}
 
     <template #content>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shopware_updates_wizard_content %}
         <sw-card-view v-if="isLoading || updateInfo.version">
             <sw-settings-shopware-updates-info

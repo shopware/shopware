@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';

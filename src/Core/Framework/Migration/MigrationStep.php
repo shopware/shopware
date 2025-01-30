@@ -11,7 +11,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class MigrationStep
 {
     use AddColumnTrait;
@@ -86,7 +86,7 @@ abstract class MigrationStep
     }
 
     /**
-     * @param array<string> $indexerToRun
+     * @param list<string> $indexerToRun
      */
     protected function registerIndexer(Connection $connection, string $name, array $indexerToRun = []): void
     {
@@ -123,7 +123,7 @@ abstract class MigrationStep
                 return false;
             }
 
-            // column does not exists
+            // column does not exist
             if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
                 return false;
             }
@@ -150,7 +150,7 @@ abstract class MigrationStep
                 return false;
             }
 
-            // fk does not exists
+            // fk does not exist
             if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
                 return false;
             }
@@ -177,7 +177,7 @@ abstract class MigrationStep
                 return false;
             }
 
-            // index does not exists
+            // index does not exist
             if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
                 return false;
             }

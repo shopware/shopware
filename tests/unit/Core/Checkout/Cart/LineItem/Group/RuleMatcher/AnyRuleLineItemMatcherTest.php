@@ -32,7 +32,7 @@ class AnyRuleLineItemMatcherTest extends TestCase
     protected function setUp(): void
     {
         $this->matcher = new AnyRuleLineItemMatcher();
-        $this->context = Generator::createSalesChannelContext();
+        $this->context = Generator::generateSalesChannelContext();
     }
 
     #[DataProvider('lineItemProvider')]

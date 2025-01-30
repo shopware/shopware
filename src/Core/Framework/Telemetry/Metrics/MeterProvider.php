@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MeterProvider
 {
     private static ?\Closure $meterProviderClosure = null;

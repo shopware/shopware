@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ReverseProxyCacheClearer implements CacheClearerInterface
 {
     /**

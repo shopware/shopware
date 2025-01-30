@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  * @private
  * @description Apply for upselling service only, no public usage
  */

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -754,7 +754,7 @@ describe('core/factory/async-component.factory.ts', () => {
         });
     });
 
-    describe('should ignore overrides if block does not exists', () => {
+    describe('should ignore overrides if block does not exist', () => {
         createComponentMatrix({
             A: () => ({
                 template: '{% block name %}<div>This is a template override.</div>{% endblock %}',

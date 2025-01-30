@@ -1,3 +1,7 @@
+/**
+ * @sw-package checkout
+ */
+
 import { deepCopyObject } from 'src/core/service/utils/object.utils';
 import utils from 'src/core/service/util.service';
 import type { AxiosInstance } from 'axios';

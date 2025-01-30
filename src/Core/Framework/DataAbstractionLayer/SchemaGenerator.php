@@ -51,7 +51,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @deprecated tag:v6.7.0 - Will be removed, use MigrationQueryGenerator instead.
  */
-#[Package('core')]
+#[Package('framework')]
 class SchemaGenerator
 {
     private string $tableTemplate = <<<EOL

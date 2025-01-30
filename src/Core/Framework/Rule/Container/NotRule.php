@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * NotRule inverses the return value of the child rule. Only one child is possible
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class NotRule extends Container
 {
     final public const RULE_NAME = 'notContainer';

@@ -1,5 +1,5 @@
 /**
- * @package storefront
+ * @sw-package framework
  */
 module.exports = {
     plugins: {

@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -108,6 +108,7 @@ async function createWrapper(
                     'sw-checkbox-field': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
+                    'sw-provide': true,
                 },
                 mocks: {
                     $route: { query: '' },

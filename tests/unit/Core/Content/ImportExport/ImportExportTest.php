@@ -39,7 +39,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(ImportExport::class)]
 class ImportExportTest extends TestCase
 {

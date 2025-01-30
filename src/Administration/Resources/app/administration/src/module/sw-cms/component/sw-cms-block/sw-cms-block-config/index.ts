@@ -5,7 +5,7 @@ import type MediaUploadResult from '../../../shared/MediaUploadResult';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -28,7 +28,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         block: {
-            type: Object as PropType<EntitySchema.Entity<'cms_block'>>,
+            type: Object as PropType<Entity<'cms_block'>>,
             required: true,
         },
     },
@@ -66,7 +66,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        onSetBackgroundMedia([mediaItem]: EntitySchema.Entity<'media'>[]) {
+        onSetBackgroundMedia([mediaItem]: Entity<'media'>[]) {
             this.block.backgroundMediaId = mediaItem.id;
             this.block.backgroundMedia = mediaItem;
         },

@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -204,6 +204,12 @@ Component.register('sw-data-grid', {
             default() {
                 return false;
             },
+        },
+
+        contextButtonMenuWidth: {
+            type: Number,
+            required: false,
+            default: 220,
         },
     },
 

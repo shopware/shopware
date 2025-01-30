@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import WorkerNotificationFactory from 'src/core/factory/worker-notification.factory';

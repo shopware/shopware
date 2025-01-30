@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 
-#[Package('core')]
+#[Package('framework')]
 class AccessKeyHelper
 {
     private const USER_IDENTIFIER = 'SWUA';

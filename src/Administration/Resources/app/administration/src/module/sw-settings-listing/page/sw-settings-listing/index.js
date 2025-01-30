@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';

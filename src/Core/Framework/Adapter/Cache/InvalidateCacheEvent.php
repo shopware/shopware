@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
+#[Package('framework')]
 class InvalidateCacheEvent extends Event
 {
     /**

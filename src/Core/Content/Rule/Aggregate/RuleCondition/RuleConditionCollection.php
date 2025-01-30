@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<RuleConditionEntity>
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleConditionCollection extends EntityCollection
 {
     public function getApiAlias(): string

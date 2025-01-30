@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.7.0 - Class will be removed
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailTemplateActions
 {
     /**

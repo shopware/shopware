@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoUrlValidationFactory implements SeoUrlDataValidationFactoryInterface
 {
     public function buildValidation(Context $context, ?SeoUrlRouteConfig $config): DataValidationDefinition

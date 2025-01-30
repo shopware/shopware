@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type CustomEventArrayType array{name: string|null, aware?: array<int, string|null>, requirements?: array<int, string|null>}
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomEvent extends XmlElement
 {
     public const REQUIRED_FIELDS = [

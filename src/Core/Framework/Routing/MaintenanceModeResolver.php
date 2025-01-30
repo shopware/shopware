@@ -13,7 +13,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MaintenanceModeResolver
 {
     public function __construct(private readonly EventDispatcherInterface $eventDispatcher)

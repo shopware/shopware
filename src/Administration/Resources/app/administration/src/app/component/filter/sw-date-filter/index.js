@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-date-filter.html.twig';
 import './sw-date-filter.scss';
 

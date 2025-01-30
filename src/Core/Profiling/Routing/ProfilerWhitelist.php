@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RouteScopeWhitelistInterface;
 use Shopware\Core\Profiling\Controller\ProfilerController;
 
-#[Package('core')]
+#[Package('framework')]
 class ProfilerWhitelist implements RouteScopeWhitelistInterface
 {
     public function applies(string $controllerClass): bool

@@ -7,7 +7,7 @@ import objectPick from 'lodash/pick';
 import type from 'src/core/service/utils/types.utils';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/service/utils/object
  */

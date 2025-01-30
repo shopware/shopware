@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @deprecated tag:v6.7.0 - reason:becomes-internal - can be renamed to CartStorageCompilerPass
  */
-#[Package('core')]
+#[Package('checkout')]
 class CartRedisCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

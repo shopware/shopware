@@ -20,7 +20,7 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRan
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationDefinition;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeTypeDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'number_range_type';

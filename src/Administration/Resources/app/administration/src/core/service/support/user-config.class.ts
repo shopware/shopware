@@ -1,8 +1,6 @@
 /**
- * @package admin
+ * @sw-package framework
  */
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-
 const { Context, Data, Service, State } = Shopware;
 const { Criteria } = Data;
 

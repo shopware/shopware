@@ -13,7 +13,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookCleanup
 {
     private const BATCH_SIZE = 500;

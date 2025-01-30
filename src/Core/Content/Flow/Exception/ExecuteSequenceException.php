@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Flow\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class ExecuteSequenceException extends \Exception
 {
     public function __construct(

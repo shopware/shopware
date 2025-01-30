@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
@@ -814,6 +814,7 @@ const createWrapper = async (options = {}) => {
                 'sw-data-grid-inline-edit': true,
                 'router-link': true,
                 'sw-ai-copilot-badge': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
                 $tc: (key, pluralization) => {

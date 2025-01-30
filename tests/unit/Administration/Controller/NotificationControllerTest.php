@@ -8,10 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\NotificationController;
 use Shopware\Administration\Notification\Exception\NotificationThrottledException;
 use Shopware\Administration\Notification\NotificationService;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -21,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(NotificationController::class)]
 class NotificationControllerTest extends TestCase
 {
@@ -75,7 +77,12 @@ class NotificationControllerTest extends TestCase
     public function testSaveNotificationThrowsNotificationThrottledExceptionWhenLimitIsReachedAndUserIdExists(): void
     {
         $exception = new RateLimitExceededException(42);
-        $this->expectExceptionObject(new NotificationThrottledException($exception->getWaitTime(), $exception));
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->expectExceptionObject(new NotificationThrottledException($exception->getWaitTime(), $exception));
+        } else {
+            $this->expectException(ApiException::class);
+            $this->expectExceptionMessage('Notification throttled for ' . $exception->getWaitTime() . ' seconds.');
+        }
 
         $this->rateLimiter->expects(static::once())->method('ensureAccepted')
             ->with('notification', '123')
@@ -89,7 +96,12 @@ class NotificationControllerTest extends TestCase
     {
         $this->context = Context::createDefaultContext(new AdminApiSource(null, '345'));
         $exception = new RateLimitExceededException(12);
-        $this->expectExceptionObject(new NotificationThrottledException($exception->getWaitTime(), $exception));
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->expectExceptionObject(new NotificationThrottledException($exception->getWaitTime(), $exception));
+        } else {
+            $this->expectException(ApiException::class);
+            $this->expectExceptionMessage('Notification throttled for ' . $exception->getWaitTime() . ' seconds.');
+        }
 
         $this->rateLimiter->expects(static::once())->method('ensureAccepted')
             ->with('notification', '345-')

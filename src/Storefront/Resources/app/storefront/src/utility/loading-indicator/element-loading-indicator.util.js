@@ -4,7 +4,7 @@ const ELEMENT_LOADER_CLASS = 'element-loader-backdrop';
 const VISUALLY_HIDDEN_CLASS = 'visually-hidden';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class ElementLoadingIndicatorUtil extends LoadingIndicatorUtil {
 

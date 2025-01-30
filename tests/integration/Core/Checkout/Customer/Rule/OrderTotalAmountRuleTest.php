@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class OrderTotalAmountRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

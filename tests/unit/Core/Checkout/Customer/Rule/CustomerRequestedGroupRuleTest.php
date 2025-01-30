@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerRequestedGroupRule::class)]
 #[Group('rules')]
 class CustomerRequestedGroupRuleTest extends TestCase

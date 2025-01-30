@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import AclService from 'src/app/service/acl.service';
@@ -47,7 +47,7 @@ describe('src/app/service/acl.service.ts', () => {
         expect(aclService.can('system.clear_cache')).toBe(true);
     });
 
-    it('should disallow when privilege does not exists', async () => {
+    it('should disallow when privilege does not exist', async () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } }),
             getters: {

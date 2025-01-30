@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheInvalidatorFacadeHookFactory extends HookServiceFactory
 {
     public function __construct(private readonly CacheInvalidator $cacheInvalidator)

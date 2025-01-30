@@ -15,11 +15,12 @@
                     <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
                 {% endif %}
 
+                {# @todo NEXT-40267 - Re-implement autoplay, when tiny-slider solution has been replaced #}
                 {% set productSliderOptionsSlider  = {
                     controls: sliderConfig.navigationArrows.value in visibleValues,
                     nav: sliderConfig.navigationArrows.value in visibleValues,
                     mouseDrag: true,
-                    autoplay: sliderConfig.rotate.value ? true : false,
+                    autoplay: false,
                     autoplayButtonOutput: false,
                     autoplayTimeout: sliderConfig.autoplayTimeout.value,
                     speed: sliderConfig.speed.value,

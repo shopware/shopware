@@ -31,7 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(FlowDispatcher::class)]
 class FlowDispatcherTest extends TestCase
 {
@@ -285,7 +285,7 @@ class FlowDispatcherTest extends TestCase
 
     private function createCheckoutOrderPlacedEvent(OrderEntity $order): CheckoutOrderPlacedEvent
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         return new CheckoutOrderPlacedEvent($context, $order);
     }

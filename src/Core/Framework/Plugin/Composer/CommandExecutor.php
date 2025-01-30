@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-#[Package('core')]
+#[Package('framework')]
 class CommandExecutor
 {
     private readonly Application $application;

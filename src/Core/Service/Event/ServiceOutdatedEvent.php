@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class ServiceOutdatedEvent implements ShopwareEvent
 {
     public function __construct(public string $serviceName, private Context $context)

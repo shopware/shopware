@@ -1,5 +1,6 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-button component #}
+{% block sw_button %}
 <mt-button
     v-if="useMeteorComponent"
     v-bind="$attrs"
@@ -8,9 +9,11 @@
 >
     <slot></slot>
 </mt-button>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
+{% block sw_button_deprecated %}
 <sw-button-deprecated
     v-else
     v-bind="$attrs"
@@ -19,3 +22,4 @@
 >
     <slot></slot>
 </sw-button-deprecated>
+{% endblock %}

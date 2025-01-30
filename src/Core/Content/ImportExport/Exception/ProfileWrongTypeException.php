@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.7.0 - Will be removed. Use ImportExportException::profileWrongType instead
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ProfileWrongTypeException extends ShopwareHttpException
 {
     public function __construct(

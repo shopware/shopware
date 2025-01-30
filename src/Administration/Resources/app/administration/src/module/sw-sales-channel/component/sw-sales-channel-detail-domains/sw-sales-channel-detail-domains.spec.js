@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -46,6 +46,7 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-loader': true,
                     'sw-highlight-text': true,
                     'sw-select-result': true,
+                    'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                 },
                 provide: {
                     repositoryFactory: {

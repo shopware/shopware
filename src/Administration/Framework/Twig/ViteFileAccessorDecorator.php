@@ -7,7 +7,7 @@ use Pentatrion\ViteBundle\Service\FileAccessor;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\Packages;
 
-#[Package('administration')]
+#[Package('framework')]
 class ViteFileAccessorDecorator extends FileAccessor
 {
     private string $assetPath;

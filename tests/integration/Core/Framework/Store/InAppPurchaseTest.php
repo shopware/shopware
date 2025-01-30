@@ -77,7 +77,7 @@ class InAppPurchaseTest extends TestCase
         $this->staticSystemConfigService->set(InAppPurchaseProvider::CONFIG_STORE_IAP_KEY, $jwt);
 
         static::assertFalse($iap->isActive('Extension1', 'Purchase1'));
-        static::assertTrue($iap->isActive('Extension1', 'Purchase2'));
+        static::assertTrue($iap->isActive('Extension1', 'Purchase3'));
     }
 
     private function createIap(): InAppPurchase

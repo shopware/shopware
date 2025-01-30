@@ -81,15 +81,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $matcher = static::exactly(3);
         $statementMock->expects($matcher)
             ->method('bindValue')
-            ->with(static::callback(function ($key) use ($matcher, $params) {
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-
-                return true;
-            }), static::callback(function ($value) use ($matcher, $params) {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
-            }));
+            });
 
         $statementMock->expects(static::once())
             ->method('executeStatement')
@@ -114,15 +111,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $matcher = static::exactly(2);
         $statementMock->expects($matcher)
             ->method('bindValue')
-            ->with(static::callback(function ($key) use ($matcher, $params) {
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-
-                return true;
-            }), static::callback(function ($value) use ($matcher, $params) {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
-            }));
+            });
 
         $statementMock->expects(static::once())
             ->method('executeStatement')
@@ -171,15 +165,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $matcher = static::exactly(3);
         $statementMock->expects($matcher)
             ->method('bindValue')
-            ->with(static::callback(function ($key) use ($matcher, $params) {
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-
-                return true;
-            }), static::callback(function ($value) use ($matcher, $params) {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
-            }));
+            });
 
         $statementMock->expects(static::once())->method('executeStatement')->willReturn(1);
         $this->connectionMock->method('prepare')->willReturn($statementMock);
@@ -239,15 +230,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $matcher = static::exactly(3);
         $statementMock->expects($matcher)
             ->method('bindValue')
-            ->with(static::callback(function ($key) use ($matcher, $params) {
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-
-                return true;
-            }), static::callback(function ($value) use ($matcher, $params) {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
-            }));
+            });
 
         $statementMock->expects(static::once())
             ->method('executeStatement')

@@ -121,15 +121,12 @@ class RuleAreaUpdaterTest extends TestCase
         $matcher = static::exactly(2);
         $statement->expects($matcher)
             ->method('bindValue')
-            ->with(static::callback(function ($key) use ($matcher, $params) {
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-
-                return true;
-            }), static::callback(function ($value) use ($matcher, $params) {
                 self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
-            }));
+            });
         $statement->expects(static::once())->method('executeStatement')->willReturn(1);
         $this->connection->method('prepare')->willReturn($statement);
 

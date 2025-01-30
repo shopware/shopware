@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
@@ -186,7 +187,7 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
         ];
 
         if (!\is_string($templateContentMapping[$technicalName][$locale][$html ? 'html' : 'plain'])) {
-            throw new \RuntimeException(\sprintf('Could not MailTemplate data for %s with locale %s', $technicalName, $locale));
+            throw MigrationException::migrationError(\sprintf('Could not MailTemplate data for %s with locale %s', $technicalName, $locale));
         }
 
         return $templateContentMapping[$technicalName][$locale][$html ? 'html' : 'plain'];

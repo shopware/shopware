@@ -110,6 +110,7 @@ module.exports = {
         '<rootDir>/src/**/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
+        '<rootDir>/build/vite-plugins/**/*.spec.js',
         '!<rootDir>/src/**/*.spec.vue2.js',
     ],
 

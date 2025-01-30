@@ -7,7 +7,7 @@ use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorInterface;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class StorefrontMediaImageValidator implements StorefrontMediaValidatorInterface
 {
     use MimeTypeValidationTrait;

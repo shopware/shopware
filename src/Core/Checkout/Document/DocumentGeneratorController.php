@@ -48,7 +48,7 @@ class DocumentGeneratorController extends AbstractController
         $definition->addList(
             'documents',
             (new DataValidationDefinition())
-                ->add('orderId', new NotBlank())
+                ->add('orderId', new NotBlank(), new Type('string'))
                 ->add('fileType', new Choice([PdfRenderer::FILE_EXTENSION]))
                 ->add('config', new Type('array'))
                 ->add('static', new Type('bool'))
@@ -58,6 +58,8 @@ class DocumentGeneratorController extends AbstractController
         $this->dataValidator->validate($documents, $definition);
 
         foreach ($documents as $operation) {
+            \assert(\is_string($operation['orderId']));
+
             $operations[$operation['orderId']] = new DocumentGenerateOperation(
                 $operation['orderId'],
                 $operation['fileType'] ?? PdfRenderer::FILE_EXTENSION,

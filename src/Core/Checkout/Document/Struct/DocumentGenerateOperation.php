@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('after-sales')]
 final class DocumentGenerateOperation extends Struct
 {
-    protected ?string $documentId = null;
-
     protected string $orderVersionId = Defaults::LIVE_VERSION;
 
     /**
@@ -24,6 +22,7 @@ final class DocumentGenerateOperation extends Struct
         protected ?string $referencedDocumentId = null,
         protected bool $static = false,
         protected bool $preview = false,
+        protected ?string $documentId = null,
     ) {
     }
 

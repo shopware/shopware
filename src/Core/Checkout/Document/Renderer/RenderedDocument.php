@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('after-sales')]
 final class RenderedDocument extends Struct
 {
-    private string $content;
-
     private string $template = '';
 
     private ?OrderEntity $order = null;
@@ -29,6 +27,7 @@ final class RenderedDocument extends Struct
         private string $fileExtension = PdfRenderer::FILE_EXTENSION,
         private readonly array $config = [],
         private ?string $contentType = PdfRenderer::FILE_CONTENT_TYPE,
+        private string $content = '',
     ) {
     }
 

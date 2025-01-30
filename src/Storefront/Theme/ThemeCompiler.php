@@ -402,7 +402,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      * Creates the strings that will be written to the SCSS file.
      * If variables have no or nullish value they will be written as "null" in SCSS.
      *
-     * @param array<string, string|int> $variables
+     * @param array<string, string|int|null> $variables
      *
      * @return array<string>
      */
@@ -411,7 +411,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         return array_map(fn ($value, $key) => \sprintf(
             '$%s: %s;',
             $key,
-            isset($value) && ($value !== '' && $value !== false) ? $value : 'null'
+            isset($value) && $value !== '' ? $value : 'null'
         ), $variables, array_keys($variables));
     }
 

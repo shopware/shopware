@@ -194,6 +194,28 @@ class SCSSValidatorTest extends TestCase
             ],
             null,
         ];
+        // Zero values
+        yield 'color with "0" value is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => '0',
+            ],
+            '#ffffff00',
+        ];
+        yield 'color with 0 value is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => 0,
+            ],
+            '#ffffff00',
+        ];
+        yield 'text with "0" value is not sanitized' => [
+            [
+                'type' => 'text',
+                'value' => '0',
+            ],
+            '0',
+        ];
         // incorrect but valid (no error in compilation)
         yield 'color incorrect but valid hex 3' => [
             [
@@ -571,6 +593,30 @@ class SCSSValidatorTest extends TestCase
                 'value' => '',
             ],
             null,
+        ];
+        // Zero values
+        yield 'color with "0" value is not valid' => [
+            [
+                'type' => 'color',
+                'value' => '0',
+            ],
+            '',
+            true,
+        ];
+        yield 'color with 0 value is not valid' => [
+            [
+                'type' => 'color',
+                'value' => 0,
+            ],
+            '',
+            true,
+        ];
+        yield 'text with "0" value is valid' => [
+            [
+                'type' => 'text',
+                'value' => '0',
+            ],
+            '0',
         ];
         // Incorrect and sanitized
         yield 'color incorrect name' => [

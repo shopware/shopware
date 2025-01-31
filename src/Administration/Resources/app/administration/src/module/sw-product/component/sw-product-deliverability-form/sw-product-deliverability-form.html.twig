@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_deliverability_form %}
 <div class="product-deliverability-form">
     <sw-container
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_stock_field %}
         <sw-number-field
             v-model:value="product.stock"
@@ -18,7 +16,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_available_stock_field %}
         <sw-number-field
             v-model:value="product.availableStock"
@@ -29,7 +26,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_is_closeout_field %}
         <sw-inherit-wrapper
             v-model:value="product.isCloseout"
@@ -58,7 +54,6 @@
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_delivery_time_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -85,7 +80,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_restock_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -114,7 +108,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_shipping_free_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -143,7 +136,6 @@
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_min_purchase_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -170,7 +162,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_purchase_steps_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -196,7 +187,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_max_purchase_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type RedisConnection \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay
  */
-#[Package('core')]
+#[Package('framework')]
 class RedisConnectionProvider
 {
     /**

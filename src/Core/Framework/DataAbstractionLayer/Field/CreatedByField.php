@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedByFieldS
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('core')]
+#[Package('framework')]
 class CreatedByField extends FkField
 {
     public function __construct(private readonly array $allowedWriteScopes = [Context::SYSTEM_SCOPE])

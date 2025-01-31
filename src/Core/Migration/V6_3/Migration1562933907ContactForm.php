@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1562933907ContactForm extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -108,7 +108,6 @@ INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
 WHERE `locale`.`code` = :code
 SQL;
 
-        /** @var string|false $languageId */
         $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
         if (!$languageId && $locale !== 'en-GB') {
             return null;

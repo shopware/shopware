@@ -16,7 +16,7 @@ use Symfony\Component\Cache\Adapter\RedisAdapter;
  *
  * @phpstan-type RedisTypeHint \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay
  */
-#[Package('core')]
+#[Package('framework')]
 class RedisConnectionFactory
 {
     /**

@@ -13,7 +13,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MemoizedSystemConfigLoaderTest extends TestCase
 {
     use KernelTestBehaviour;

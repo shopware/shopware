@@ -54,7 +54,12 @@ class SqlQueryParserTest extends TestCase
 
     public function testFindProductsWithoutCategory(): void
     {
-        $criteria = new Criteria();
+        $criteria = new Criteria([
+            $this->ids->get('product1-with-category'),
+            $this->ids->get('product2-with-category'),
+            $this->ids->get('product1-without-category'),
+            $this->ids->get('product2-without-category'),
+        ]);
         $criteria->addFilter(new EqualsFilter('categoryIds', null));
 
         $result = $this->repository->searchIds($criteria, $this->context);

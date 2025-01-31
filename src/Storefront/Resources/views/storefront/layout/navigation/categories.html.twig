@@ -7,7 +7,7 @@
     {% endif %}
     {% set activeId = shopware.navigation.id %}
 
-    {% set activePath = shopware.navigation.path %}
+    {% set activePath = '|' ~ shopware.navigation.pathIdList|join('|') ~ '|' %}
 
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
         {% for treeItem in navigationTree %}

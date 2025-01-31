@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
  *     appAclRoleId: string|null
  * }
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookLoader
 {
     public function __construct(private readonly Connection $connection)

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationSource;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MigrationCollectionFactory
 {
     public function __construct(private readonly string $projectDir)
@@ -21,10 +21,13 @@ class MigrationCollectionFactory
 
     public function getMigrationCollectionLoader(Connection $connection): MigrationCollectionLoader
     {
+        $nullLogger = new NullLogger();
+
         return new MigrationCollectionLoader(
             $connection,
-            new MigrationRuntime($connection, new NullLogger()),
-            $this->collect()
+            new MigrationRuntime($connection, $nullLogger),
+            $nullLogger,
+            $this->collect(),
         );
     }
 

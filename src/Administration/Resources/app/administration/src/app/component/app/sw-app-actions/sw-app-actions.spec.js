@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { config, mount } from '@vue/test-utils';
@@ -133,6 +133,10 @@ describe('sw-app-actions', () => {
     it('creates an sw-app-action-button per action', async () => {
         wrapper = await createWrapper(router);
 
+        Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Utils.createId(),
+        ]);
+
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
 
@@ -145,6 +149,32 @@ describe('sw-app-actions', () => {
         expect(actionButtons).toHaveLength(2);
         expect(actionButtons.at(0).props('action')).toEqual(actionButtonData[0]);
         expect(actionButtons.at(1).props('action')).toEqual(actionButtonData[1]);
+    });
+
+    it('should reset the selectedIds on creation when entity exists', async () => {
+        expect(Shopware.State.get('shopwareApps').selectedIds).toEqual([
+            expect.any(String),
+        ]);
+
+        router.push({ name: 'sw.product.detail' });
+        await flushPromises();
+
+        wrapper = await createWrapper(router);
+
+        expect(Shopware.State.get('shopwareApps').selectedIds).toEqual([]);
+    });
+
+    it('should not reset the selectedIds on creation when entity exists', async () => {
+        expect(Shopware.State.get('shopwareApps').selectedIds).toEqual([
+            expect.any(String),
+        ]);
+
+        wrapper = await createWrapper(router);
+        await flushPromises();
+
+        expect(Shopware.State.get('shopwareApps').selectedIds).toEqual([
+            expect.any(String),
+        ]);
     });
 
     it('is not rendered if action buttons is empty', async () => {
@@ -191,6 +221,10 @@ describe('sw-app-actions', () => {
     it('calls appActionButtonService.runAction if triggered by context menu button', async () => {
         wrapper = await createWrapper(router);
 
+        Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Utils.createId(),
+        ]);
+
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
 
@@ -228,6 +262,10 @@ describe('sw-app-actions', () => {
         wrapper = await createWrapper(router);
         wrapper.vm.createNotification = jest.fn();
 
+        Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Utils.createId(),
+        ]);
+
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
 
@@ -258,6 +296,10 @@ describe('sw-app-actions', () => {
             },
         };
         wrapper = await createWrapper(router, openModalResponseData);
+
+        Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Utils.createId(),
+        ]);
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();

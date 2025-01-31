@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<AppScriptConditionTranslationEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class AppScriptConditionTranslationCollection extends EntityCollection
 {
     public function getApiAlias(): string

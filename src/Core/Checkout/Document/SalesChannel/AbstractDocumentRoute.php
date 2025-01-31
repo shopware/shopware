@@ -10,10 +10,19 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * This route is used to get the generated document from a documentId
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 abstract class AbstractDocumentRoute
 {
     abstract public function getDecorated(): AbstractDocumentRoute;
 
-    abstract public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = ''): Response;
+    /**
+     * @deprecated tag:v6.7.0 - Parameter $fileType will be added - reason:new-optional-parameter
+     */
+    abstract public function download(
+        string $documentId,
+        Request $request,
+        SalesChannelContext $context,
+        string $deepLinkCode = '',
+        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
+    ): Response;
 }

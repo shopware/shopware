@@ -11,7 +11,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 /**
  * @internal only rely on the concrete hook implementations
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AppLifecycleHook extends Hook
 {
     public static function getServiceIds(): array

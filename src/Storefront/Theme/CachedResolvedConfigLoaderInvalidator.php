@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 {
     /**

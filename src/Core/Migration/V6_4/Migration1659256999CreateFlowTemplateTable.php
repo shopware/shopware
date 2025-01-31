@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class Migration1659256999CreateFlowTemplateTable extends MigrationStep
 {
     public function getCreationTimestamp(): int

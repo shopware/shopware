@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(RedisNumberRangeIncrementerCompilerPass::class)]
 class RedisNumberRangeIncrementerCompilerPassTest extends TestCase
 {

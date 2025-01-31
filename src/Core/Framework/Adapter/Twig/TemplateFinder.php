@@ -11,7 +11,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class TemplateFinder implements TemplateFinderInterface, ResetInterface
 {
     /**

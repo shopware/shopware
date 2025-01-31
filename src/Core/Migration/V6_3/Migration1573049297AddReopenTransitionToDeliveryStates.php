@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1573049297AddReopenTransitionToDeliveryStates extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -24,7 +24,7 @@ import '@shopware-ag/meteor-icon-kit/icons/regular/chevron-circle-left.svg';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Renders an icon from the icon library.

@@ -38,7 +38,7 @@ use Shopware\Core\System\Tax\TaxCollection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class BaseContextFactory extends AbstractBaseContextFactory
 {
     /**

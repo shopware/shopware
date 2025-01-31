@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_display_options %}
 <div class="sw-media-display-options">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_display_options_presentation %}
     <sw-select-field
         v-if="!hidePresentation"
@@ -13,7 +11,6 @@
         @update:value="onPresentationChanged"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_display_options_presentations_options %}
         <option
             v-for="previewType in previewOptions"
@@ -28,7 +25,6 @@
     </sw-select-field>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_display_options_sorting %}
     <sw-select-field
         name="sortType"
@@ -39,7 +35,6 @@
         @update:value="onSortingChanged"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_display_options_sorting_options %}
         <option
             v-for="sortOption in sortOptions"

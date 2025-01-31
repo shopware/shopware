@@ -1,4 +1,8 @@
-/* mixin for multiline */
+/*
+Mixin for multiline text truncate
+==================================================
+@sw-package framework
+*/
 @mixin truncate-multiline($line-height: 1.2em, $line-count: 2, $bg-color: white) {
     overflow: hidden;
     line-height: $line-height;

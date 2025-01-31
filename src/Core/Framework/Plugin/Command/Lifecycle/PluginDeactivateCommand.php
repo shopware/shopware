@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'plugin:deactivate',
     description: 'Deactivates a plugin',
 )]
-#[Package('core')]
+#[Package('framework')]
 class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'deactivate';

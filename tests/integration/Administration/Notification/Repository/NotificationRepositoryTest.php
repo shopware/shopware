@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Administration\Notification\Repository;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Notification\NotificationCollection;
 use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,6 +20,9 @@ class NotificationRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<NotificationCollection>
+     */
     private EntityRepository $notificationRepository;
 
     private Context $context;

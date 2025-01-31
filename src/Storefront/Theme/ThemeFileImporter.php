@@ -13,7 +13,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @deprecated tag:v6.7.0 Will be removed.
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeFileImporter implements ThemeFileImporterInterface
 {
     /**

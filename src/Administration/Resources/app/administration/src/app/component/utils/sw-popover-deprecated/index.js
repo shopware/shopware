@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-popover.html.twig';
 import './sw-popover.scss';
 

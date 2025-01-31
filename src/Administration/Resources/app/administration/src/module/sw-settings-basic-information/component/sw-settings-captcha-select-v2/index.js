@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import template from './sw-settings-captcha-select-v2.html.twig';
 import './sw-settings-captcha-select-v2.scss';

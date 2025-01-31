@@ -92,7 +92,7 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
         }
 
         // The context customer is not the same as logged-in. We don't modify the user session
-        if ($context->getCustomer()?->getId() !== $customerId) {
+        if ($context->getCustomerId() !== $customerId) {
             return null;
         }
 

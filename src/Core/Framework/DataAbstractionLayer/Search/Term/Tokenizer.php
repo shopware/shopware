@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class Tokenizer implements TokenizerInterface
 {
     /**

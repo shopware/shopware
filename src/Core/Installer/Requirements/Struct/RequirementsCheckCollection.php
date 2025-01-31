@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<RequirementCheck>
  */
-#[Package('core')]
+#[Package('framework')]
 class RequirementsCheckCollection extends Collection
 {
     public function getPathChecks(): self

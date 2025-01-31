@@ -13,7 +13,7 @@ use Twig\TwigFilter;
 /**
  * This class contains the needed functions in order to do the query highlighting
  */
-#[Package('core')]
+#[Package('framework')]
 class DoctrineExtension extends AbstractExtension
 {
     private SqlFormatter $sqlFormatter;

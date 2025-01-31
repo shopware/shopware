@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
  * @method \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade response()
  * @method \Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacade cache()
  */
-#[Package('core')]
+#[Package('framework')]
 final class ServiceStubs
 {
     private string $hook;

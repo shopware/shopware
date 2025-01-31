@@ -19,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'changelog:release',
     description: 'Creates a new changelog release',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ChangelogReleaseCommand extends Command
 {
     /**

@@ -18,7 +18,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(RemoveOrderTagAction::class)]
 class RemoveOrderTagActionTest extends TestCase
 {

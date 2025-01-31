@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Framework;
 use OpenSearch\Client;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchOutdatedIndexDetector
 {
     /**

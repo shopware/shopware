@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  *
  * @phpstan-import-type OpenApiSpec from DefinitionService
  */
-#[Package('core')]
+#[Package('framework')]
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 {
     final public const FORMAT = 'openapi-3';

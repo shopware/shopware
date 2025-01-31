@@ -5,7 +5,7 @@ import type { SetupContext, PublicProps } from '@vue/runtime-core';
 
 /**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
- * @package admin
+ * @sw-package framework
  *
  * Extendable Setup Utility for Vue Components
  *

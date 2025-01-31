@@ -1,14 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_delivery_time_list %}
 <sw-page class="sw-settings-delivery-time-list">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_delivery_time_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_delivery_time_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -22,7 +18,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -34,17 +29,14 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_delivery_time_list_smart_bar_actions_create %}
         <sw-button
             v-tooltip.bottom="{
@@ -63,20 +55,16 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_list_content %}
     <template #content>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_delivery_time_list_content_inner %}
         <sw-card-view>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_delivery_time_list_grid_wrapper %}
             <sw-card position-identifier="sw-settings-delivery-time-list-grid-wrapper">
                 <template #grid>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_delivery_time_list_grid %}
                     <sw-entity-listing
                         class="sw-settings-delivery-time-list-grid"
@@ -99,7 +87,6 @@
                         @page-change="onPageChange"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_list_grid_column_unit %}
                         <template #column-unit="{ item }">
                             {{ $tc(`sw-settings-delivery-time.list.columnUnit_${item.unit}`) }}

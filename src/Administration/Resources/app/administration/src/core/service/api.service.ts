@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import parseJsonApi from 'src/core/service/jsonapi-parser.service';

@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Framework;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchRegistry
 {
     /**

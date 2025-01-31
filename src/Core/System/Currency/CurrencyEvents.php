@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@framework')]
 class CurrencyEvents
 {
     final public const CURRENCY_WRITTEN_EVENT = 'currency.written';

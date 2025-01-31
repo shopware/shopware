@@ -18,7 +18,7 @@ use Shopware\Core\Migration\Traits\Translations;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1607581276AddProductSearchConfigurationDefaults extends MigrationStep
 {
     use ImportTranslationsTrait;

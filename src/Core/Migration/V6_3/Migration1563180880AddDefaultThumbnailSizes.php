@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1563180880AddDefaultThumbnailSizes extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -65,7 +65,6 @@ class Migration1563180880AddDefaultThumbnailSizes extends MigrationStep
 
         $sizes = [];
         foreach ($thumbnailSizes as $i => $thumbnailSize) {
-            /** @var string|false $id */
             $id = $connection->fetchOne(
                 'SELECT id FROM media_thumbnail_size WHERE width = :width AND height = :height',
                 ['width' => $thumbnailSize['width'], 'height' => $thumbnailSize['height']]

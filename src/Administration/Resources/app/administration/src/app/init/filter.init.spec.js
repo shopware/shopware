@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import createAppFilter from 'src/app/init/filter.init';
 

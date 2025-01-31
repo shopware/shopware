@@ -12,7 +12,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class AppTranslationEntity extends Entity
 {
     use EntityCustomFieldsTrait;

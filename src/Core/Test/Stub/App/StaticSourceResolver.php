@@ -12,7 +12,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class StaticSourceResolver extends SourceResolver
 {
     /**

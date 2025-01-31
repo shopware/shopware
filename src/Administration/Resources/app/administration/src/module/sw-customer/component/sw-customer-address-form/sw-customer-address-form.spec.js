@@ -5,7 +5,7 @@ import ShopwareError from 'src/core/data/ShopwareError';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 async function createWrapper() {

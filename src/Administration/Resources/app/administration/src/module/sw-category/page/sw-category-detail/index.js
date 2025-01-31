@@ -8,7 +8,7 @@ const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

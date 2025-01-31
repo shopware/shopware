@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_adding_failed %}
 <div class="sw-extension-adding-failed">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_adding_failed_icon %}
     <sw-circle-icon
         :size="72"
@@ -10,12 +8,10 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_adding_failed_headline %}
     <h3>{{ title || headline }}</h3>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_adding_failed_notification %}
     <p>{{ detail || text }}</p>
     <p v-if="documentationLink">
@@ -25,7 +21,6 @@
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_adding_failed_licence_cancellation %}
     <template v-if="isRent">
         <p class="sw-extension-adding-failed__text-licence-cancellation">
@@ -51,7 +46,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_adding_failed_button_close %}
     <sw-button
         variant="primary"

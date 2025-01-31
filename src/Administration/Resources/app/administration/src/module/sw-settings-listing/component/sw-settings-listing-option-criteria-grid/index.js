@@ -2,7 +2,7 @@ import template from './sw-settings-listing-option-criteria-grid.html.twig';
 import './sw-settings-listing-option-criteria-grid.scss';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 const { Mixin } = Shopware;

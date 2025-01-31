@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\App;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
@@ -31,14 +33,23 @@ class AppStateServiceThemeTest extends TestCase
 
     private ThemeService $themeService;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepo;
 
+    /**
+     * @var EntityRepository<ThemeCollection>
+     */
     private EntityRepository $themeRepo;
 
     private AppStateService $appStateService;
 
     private TraceableEventDispatcher $eventDispatcher;
 
+    /**
+     * @var EntityRepository<ThemeCollection>
+     */
     private EntityRepository $templateRepo;
 
     protected function setUp(): void

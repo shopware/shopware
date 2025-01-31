@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { shallowMount, config } from '@vue/test-utils';
@@ -122,7 +122,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should not set the user when user does not exists', async () => {
+    it('setLocaleFromUser should not set the user when user does not exist', async () => {
         vueAdapter.setLocaleFromUser({
             state: { session: { currentUser: null } },
         });
@@ -130,7 +130,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(Shopware.Service('localeHelper').setLocaleWithId).not.toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should set the user when user does not exists', async () => {
+    it('setLocaleFromUser should set the user when user does not exist', async () => {
         vueAdapter.setLocaleFromUser({
             state: { session: { currentUser: { localeId: '12345' } } },
         });
@@ -651,6 +651,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent.config.globalProperties.$router).toBeDefined();
             expect(rootComponent.config.globalProperties.$tc).toBeDefined();
             expect(rootComponent.config.globalProperties.$store).toBeDefined();
+            expect(rootComponent.config.globalProperties.$dataScope).toBeDefined();
         });
 
         it('should initialize the directives correctly', async () => {

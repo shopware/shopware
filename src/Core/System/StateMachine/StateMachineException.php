@@ -47,7 +47,7 @@ class StateMachineException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::STATE_MACHINE_INVALID_STATE_FIELD,
-            'Field "{{ fieldName }}" does not exists or isn\'t of type StateMachineStateField.',
+            'Field "{{ fieldName }}" does not exist or isn\'t of type StateMachineStateField.',
             [
                 'fieldName' => $fieldName,
             ]

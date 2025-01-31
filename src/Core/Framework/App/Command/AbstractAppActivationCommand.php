@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractAppActivationCommand extends Command
 {
     protected EntityRepository $appRepo;

@@ -18,7 +18,7 @@ let enabled = false;
 let enabledNotification = false;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * Starts the worker
  */

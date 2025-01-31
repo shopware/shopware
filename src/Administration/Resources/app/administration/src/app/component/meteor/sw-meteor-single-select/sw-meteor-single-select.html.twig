@@ -1,4 +1,6 @@
+{% block sw_meteor_single_select %}
 <div class="sw-meteor-single-select">
+    {% block sw_meteor_single_select_preview %}
     <div
         class="sw-meteor-single-select__preview"
         role="button"
@@ -16,7 +18,9 @@
 
         <sw-icon name="regular-chevron-down-xxs" />
     </div>
+    {% endblock %}
 
+    {% block sw_meteor_single_select_result_list %}
     <div class="sw-meteor-single-select__result-list">
         <sw-select-result-list
             v-if="isExpanded"
@@ -80,4 +84,6 @@
             </template>
         </sw-select-result-list>
     </div>
+    {% endblock %}
 </div>
+{% endblock %}

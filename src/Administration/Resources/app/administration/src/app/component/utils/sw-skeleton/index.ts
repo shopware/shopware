@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-skeleton.html.twig';
 import './sw-skeleton.scss';
 

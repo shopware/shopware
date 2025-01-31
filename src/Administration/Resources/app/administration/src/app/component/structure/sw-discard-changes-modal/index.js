@@ -3,7 +3,7 @@ import template from './sw-discard-changes-modal.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description

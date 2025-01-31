@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /**
  * This file is the entry point for the Vite build process for plugins.
  * Depending on the environment variable VITE_MODE, it will either start a dev server
@@ -9,7 +10,7 @@
  * @package framework
  */
 
-import { createServer, build } from 'vite';
+import { createServer, build, defineConfig, Plugin } from 'vite';
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
@@ -23,105 +24,107 @@ import AssetPlugin from './vite-plugins/asset-plugin';
 import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import { loadPlugins, findAvailablePorts } from './vite-plugins/utils';
-import type { PluginDefinition } from './vite-plugins/utils';
+import { loadExtensions, findAvailablePorts } from './vite-plugins/utils';
+import type { ExtensionDefinition } from './vite-plugins/utils';
+import injectHtml from './vite-plugins/inject-html';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
 
-const pluginEntries = loadPlugins();
+const extensionEntries = loadExtensions();
 
 // Common configuration shared between dev and build
-const getBaseConfig = (plugin: PluginDefinition) => ({
-    root: plugin.path,
+const getBaseConfig = (plugin: ExtensionDefinition) =>
+    defineConfig({
+        root: plugin.path,
 
-    plugins: [
-        TwigPlugin(),
-        AssetPlugin(!isDev, __dirname),
-        AssetPathPlugin(),
-        svgLoader(),
-        OverrideComponentRegisterPlugin({
-            root: plugin.path,
-            pluginEntryFile: plugin.filePath,
-        }),
-        vue({
-            template: {
-                compilerOptions: {
-                    compatConfig: {
-                        MODE: 2,
+        plugins: [
+            TwigPlugin(),
+            AssetPlugin(!isDev, __dirname),
+            AssetPathPlugin(),
+            svgLoader(),
+            OverrideComponentRegisterPlugin({
+                root: plugin.path,
+                pluginEntryFile: plugin.filePath,
+            }),
+            vue({
+                template: {
+                    compilerOptions: {
+                        compatConfig: {
+                            MODE: 2,
+                        },
                     },
                 },
-            },
-        }),
-        ExternalsPlugin(),
+            }),
+            ExternalsPlugin(),
 
-        // Prod plugins
-        ...(isDev
-            ? []
-            : [
-                  symfonyPlugin(),
-              ]),
-    ],
-
-    resolve: {
-        alias: [
-            {
-                find: /^src\//,
-                replacement: '/src/',
-            },
-            {
-                find: /^~scss\/(.*)/,
-                replacement: `${process.env.PROJECT_ROOT}/src/Administration/Resources/app/administration/src/app/assets/scss/$1.scss`,
-            },
-            {
-                find: /^~(.*)$/,
-                replacement: '$1',
-            },
+            // Prod plugins
+            ...(isDev
+                ? []
+                : [
+                      symfonyPlugin(),
+                  ]),
         ],
-    },
 
-    ...(isDev
-        ? {}
-        : {
-              base: `/bundles/${plugin.technicalFolderName}/administration/`,
-              optimizeDeps: {
-                  include: [
-                      'vue-router',
-                      'vuex',
-                      'vue-i18n',
-                      'flatpickr',
-                      'flatpickr/**/*',
-                      'date-fns-tz',
-                  ],
-                  holdUntilCrawlEnd: true,
-                  esbuildOptions: {
-                      define: {
-                          global: 'globalThis',
+        resolve: {
+            alias: [
+                {
+                    find: /^src\//,
+                    replacement: '/src/',
+                },
+                {
+                    find: /^~scss\/(.*)/,
+                    replacement: `${process.env.PROJECT_ROOT}/src/Administration/Resources/app/administration/src/app/assets/scss/$1.scss`,
+                },
+                {
+                    find: /^~(.*)$/,
+                    replacement: '$1',
+                },
+            ],
+        },
+
+        ...(isDev
+            ? {}
+            : {
+                  base: `/bundles/${plugin.technicalFolderName}/administration/`,
+                  optimizeDeps: {
+                      include: [
+                          'vue-router',
+                          'vuex',
+                          'vue-i18n',
+                          'flatpickr',
+                          'flatpickr/**/*',
+                          'date-fns-tz',
+                      ],
+                      holdUntilCrawlEnd: true,
+                      esbuildOptions: {
+                          define: {
+                              global: 'globalThis',
+                          },
                       },
                   },
-              },
-          }),
+              }),
 
-    build: {
-        outDir: path.resolve(plugin.basePath, 'Resources/public/administration'),
-        emptyOutDir: true,
-        manifest: true,
-        sourcemap: true,
-        rollupOptions: {
-            input: {
-                [plugin.technicalName]: plugin.filePath,
-            },
-            output: {
-                entryFileNames: 'assets/[name]-[hash].js',
+        build: {
+            outDir: path.resolve(plugin.basePath, 'Resources/public/administration'),
+            emptyOutDir: true,
+            manifest: true,
+            sourcemap: true,
+            rollupOptions: {
+                input: {
+                    [plugin.technicalName]: plugin.filePath,
+                },
+                output: {
+                    entryFileNames: 'assets/[name]-[hash].js',
+                },
             },
         },
-    },
-});
+    });
 
 // Main function to handle both dev and build modes
 const main = async () => {
     if (isDev) {
-        const availablePorts = await findAvailablePorts(5333, pluginEntries.length);
+        const availablePorts = await findAvailablePorts(5333, extensionEntries.length);
 
         // Create sw-plugin-dev.json for development mode
         const swPluginDevJsonData = {
@@ -131,17 +134,28 @@ const main = async () => {
         } & Record<
             string,
             {
-                js: string;
-                hmrSrc: string;
+                js?: string;
+                hmrSrc?: string;
+                html?: string;
             }
         >;
 
-        pluginEntries.forEach((plugin, index) => {
-            const fileName = plugin.filePath.split('/').pop();
-            swPluginDevJsonData[plugin.technicalName] = {
-                js: `http://localhost:${availablePorts[index]}/${fileName}`,
-                hmrSrc: `http://localhost:${availablePorts[index]}/@vite/client`,
-            };
+        extensionEntries.forEach((extension, index) => {
+            const fileName = extension.filePath.split('/').pop();
+
+            if (!swPluginDevJsonData[extension.technicalName]) {
+                swPluginDevJsonData[extension.technicalName] = {};
+            }
+
+            if (extension.isApp) {
+                swPluginDevJsonData[extension.technicalName].html = `http://localhost:${availablePorts[index]}/index.html`;
+            }
+
+            if (extension.isPlugin) {
+                swPluginDevJsonData[extension.technicalName].js = `http://localhost:${availablePorts[index]}/${fileName}`;
+                swPluginDevJsonData[extension.technicalName].hmrSrc =
+                    `http://localhost:${availablePorts[index]}/@vite/client`;
+            }
         });
 
         fs.writeFileSync(
@@ -150,23 +164,62 @@ const main = async () => {
         );
 
         // Start dev servers
-        for (let i = 0; i < pluginEntries.length; i++) {
-            const plugin = pluginEntries[i];
+        for (let i = 0; i < extensionEntries.length; i++) {
+            const extension = extensionEntries[i];
             const port = availablePorts[i];
 
-            const server = await createServer({
-                ...getBaseConfig(plugin),
-                server: { port },
-            });
+            let server;
 
-            console.log(chalk.green(`# Plugin "${plugin.name}": Injected successfully`));
+            if (extension.isApp) {
+                // For apps
+                server = await createServer({
+                    root: extension.path,
+                    server: { port },
+                });
+
+                console.log(chalk.green(`# App "${extension.name}": Injected successfully`));
+            } else {
+                // For plugins
+                server = await createServer({
+                    ...getBaseConfig(extension),
+                    server: { port },
+                });
+
+                console.log(chalk.green(`# Plugin "${extension.name}": Injected successfully`));
+            }
+
             await server.listen();
             server.printUrls();
         }
     } else {
         // Build mode
-        for (const plugin of pluginEntries) {
-            await build(getBaseConfig(plugin));
+        for (const extension of extensionEntries) {
+            if (extension.isApp) {
+                console.log(chalk.green(`# Building app "${extension.name}"`));
+                // For apps
+                await build({
+                    root: extension.path,
+                    base: '',
+                    build: {
+                        outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
+                    },
+                    plugins: [
+                        injectHtml([
+                            {
+                                tag: 'base',
+                                attrs: {
+                                    href: '__$ASSET_BASE_PATH$__',
+                                },
+                                injectTo: 'head-prepend',
+                            },
+                        ]),
+                    ],
+                });
+            } else {
+                console.log(chalk.green(`# Building plugin "${extension.name}"`));
+                // For plugins
+                await build(getBaseConfig(extension));
+            }
         }
     }
 };

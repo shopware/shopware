@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 final class AdminSearchController
 {
     public function __construct(

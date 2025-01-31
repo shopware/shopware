@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_collapse_panel_header %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_collapse_panel_header_slot %}
 <div
     class="sw-sidebar-collapse__header"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_collapse_title %}
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
     <h4
@@ -20,14 +17,12 @@
             :expanded="expanded"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sidebar_collapse_panel_header_slot %}{% endblock %}
 
         </slot>
     </h4>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_collapse_buttons %}
     <div class="sw-sidebar-collapse__actions">
         <slot name="actions"></slot>
@@ -60,13 +55,11 @@
 
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sidebar_collapse_panel_content_template %}
 <!-- eslint-disable-next-line vue/valid-v-slot -->
 <template #content>
     <slot name="content">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_collapse_panel_content_slot %}{% endblock %}
 
     </slot>

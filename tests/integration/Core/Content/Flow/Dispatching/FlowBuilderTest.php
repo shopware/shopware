@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;

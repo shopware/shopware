@@ -17,7 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class StoreApiSeoResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

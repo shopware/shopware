@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1669298267AddIconCacheDefaultValue extends MigrationStep
 {
     final public const CONFIG_KEY = 'core.storefrontSettings.iconCache';

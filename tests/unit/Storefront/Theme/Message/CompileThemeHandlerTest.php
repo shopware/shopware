@@ -8,6 +8,7 @@ use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
@@ -37,7 +38,7 @@ class CompileThemeHandlerTest extends TestCase
         $scEntity->setUniqueIdentifier(Uuid::randomHex());
         $scEntity->setName('Test SalesChannel');
 
-        /** @var StaticEntityRepository<EntityCollection<SalesChannelEntity>> $salesChannelRep */
+        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
         $salesChannelRep = new StaticEntityRepository([new EntityCollection([$scEntity])]);
 
         $handler = new CompileThemeHandler(

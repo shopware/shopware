@@ -23,7 +23,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
  *
  * @see https://symfony.com/doc/current/mailer.html
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SendMailTemplate
 {
     /**

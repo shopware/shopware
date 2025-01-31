@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class Local implements Source
 {
     public function __construct(private string $projectRoot)

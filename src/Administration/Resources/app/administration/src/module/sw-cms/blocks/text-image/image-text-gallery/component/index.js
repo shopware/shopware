@@ -3,7 +3,7 @@ import './sw-cms-block-image-text-gallery.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,

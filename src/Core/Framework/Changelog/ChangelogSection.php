@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Changelog;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 enum ChangelogSection: string
 {
     case core = 'Core';

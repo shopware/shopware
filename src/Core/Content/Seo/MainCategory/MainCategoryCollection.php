@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MainCategoryEntity>
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class MainCategoryCollection extends EntityCollection
 {
     public function filterBySalesChannelId(string $id): MainCategoryCollection

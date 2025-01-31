@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGene
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ScaffoldingCollector
 {
     private string $servicesXmlIntro = <<<'EOL'

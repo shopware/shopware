@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@framework
  */
 import template from './sw-settings-currency-country-modal.html.twig';
 

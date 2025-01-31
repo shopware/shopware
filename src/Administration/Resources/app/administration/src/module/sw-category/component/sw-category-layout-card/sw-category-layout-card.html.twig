@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_layout_card %}
 <sw-card
     class="sw-category-layout-card"
@@ -8,7 +7,6 @@
 >
     <div class="sw-category-layout-card__base-layout">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_preview %}
         <div
             class="sw-category-layout-card__preview"
@@ -25,7 +23,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_modal %}
         <sw-cms-layout-modal
             v-if="showLayoutSelectionModal"
@@ -37,15 +34,12 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_desc %}
         <div class="sw-category-layout-card__desc">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_layout_desc_info %}
             <div class="sw-category-layout-card__desc-info">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_info_headline %}
                 <div
                     class="sw-category-layout-card__desc-headline"
@@ -55,7 +49,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_info_subheadline %}
                 <div
                     class="sw-category-layout-card__desc-subheadline"
@@ -68,11 +61,9 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_layout_desc_actions %}
             <div class="sw-category-layout-card__desc-actions">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_actions_layout %}
                 <sw-button
                     class="sw-category-detail-layout__change-layout-action"
@@ -84,7 +75,6 @@
                 </sw-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_actions_designer %}
                 <sw-button
                     class="sw-category-detail-layout__open-in-pagebuilder"
@@ -96,7 +86,6 @@
                 </sw-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_actions_remove %}
                 <sw-button
                     v-if="cmsPage"

@@ -10,7 +10,7 @@ use Shopware\Core\Test\PHPUnit\Extension\Common\TimeKeeper;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestPreparedSubscriber implements PreparedSubscriber
 {
     public function __construct(private readonly TimeKeeper $timeKeeper)

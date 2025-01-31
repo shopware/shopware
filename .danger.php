@@ -374,6 +374,10 @@ return (new Config())
             );
 
             foreach ($requirements as $package => $constraint) {
+                if (str_contains($package, 'polyfill')) {
+                    continue;
+                }
+
                 foreach (COMPOSER_PACKAGE_EXCEPTIONS['~'] as $exceptionPackage => $exceptionMessage) {
                     if (preg_match('/' . $exceptionPackage . '/', $package)) {
                         if (!str_contains($constraint, '~')) {

@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 const { Mixin } = Shopware;
@@ -53,6 +53,7 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     'sw-bulk-edit-modal': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
+                    'sw-provide': true,
                 },
                 mocks: {
                     $route: {

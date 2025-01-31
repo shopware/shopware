@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 // Turn off known errors
@@ -92,6 +92,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                         'router-link': true,
                         'sw-field-copyable': true,
                         'sw-contextual-field': true,
+                        'sw-provide': true,
                     },
                     data() {
                         return {

@@ -17,7 +17,7 @@ use Shopware\Elasticsearch\ElasticsearchException;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AsyncAwsSigner
 {
     public function __construct(

@@ -381,7 +381,7 @@ $sw-asset-theme-url: \'http://localhost\';
             [
                 'fields' => [
                     'sw-zero-margin' => [
-                        'name' => 'sw-null-margin',
+                        'name' => 'sw-zero-margin',
                         'type' => 'text',
                         'value' => 0,
                     ],
@@ -395,7 +395,7 @@ $sw-asset-theme-url: \'http://localhost\';
                         'type' => 'text',
                     ],
                     'sw-empty-margin' => [
-                        'name' => 'sw-unset-margin',
+                        'name' => 'sw-empty-margin',
                         'type' => 'text',
                         'value' => '',
                     ],
@@ -406,9 +406,9 @@ $sw-asset-theme-url: \'http://localhost\';
 
 \$theme-id: themeId;
 \$sw-zero-margin: 0;
-\$sw-null-margin: 0;
-\$sw-unset-margin: 0;
-\$sw-empty-margin: 0;
+\$sw-null-margin: null;
+\$sw-unset-margin: null;
+\$sw-empty-margin: null;
 \$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL,

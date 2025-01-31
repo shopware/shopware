@@ -721,9 +721,9 @@
     "newsletterInput": "Email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
     "includeVatText": "%star%All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
-    "includeVatTextPage": "%star%All prices incl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "includeVatTextPage": "All prices incl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "excludeVatText": "%star%All prices excl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
-    "excludeVatTextPage": "%star%All prices excl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "excludeVatTextPage": "All prices excl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "copyrightInfo": "Realised with Shopware"
   },
   "captcha": {

@@ -44,7 +44,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RulePayloadIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -477,10 +477,13 @@ class RulePayloadIndexerTest extends TestCase
         $context = Context::createDefaultContext();
         $rulePlugin = new RulePlugin(false, '');
 
+        $nullConnection = new NullConnection();
+        $nullLogger = new NullLogger();
         $collection = new MigrationCollection(
             new MigrationSource('asd', []),
-            new MigrationRuntime(new NullConnection(), new NullLogger()),
-            new NullConnection()
+            new MigrationRuntime($nullConnection, $nullLogger),
+            $nullConnection,
+            $nullLogger,
         );
 
         return [
@@ -496,7 +499,7 @@ class RulePayloadIndexerTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RulePlugin extends Plugin
 {
 }

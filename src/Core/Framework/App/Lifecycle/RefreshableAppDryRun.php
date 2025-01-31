@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class RefreshableAppDryRun extends AbstractAppLifecycle
 {
     /**

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @experimental feature:TELEMETRY_METRICS stableVersion:v6.7.0
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class ConfiguredMetric
 {
     public function __construct(

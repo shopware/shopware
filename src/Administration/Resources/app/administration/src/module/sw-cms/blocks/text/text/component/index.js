@@ -2,7 +2,7 @@ import template from './sw-cms-block-text.html.twig';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,

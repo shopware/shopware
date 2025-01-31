@@ -1,9 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_details %}
 <div class="sw-order-create-details">
     <sw-loader v-if="isLoading" />
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_promotion_modal %}
     <sw-order-create-promotion-modal
         v-if="showPromotionModal"
@@ -15,7 +13,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_payment %}
     <sw-card
         class="sw-order-create-details__payment"
@@ -61,7 +58,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_shipping %}
     <sw-card
         class="sw-order-create-details__shipping"
@@ -115,7 +111,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_order %}
     <sw-card
         class="sw-order-create-details__order"
@@ -127,7 +122,6 @@
             gap="0px 30px"
             columns="1fr 1fr"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_email %}
             <sw-text-field
                 v-model:value="email"
@@ -139,7 +133,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_phone_number %}
             <sw-text-field
                 v-model:value="phoneNumber"
@@ -151,7 +144,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details__order_sales_channel %}
             <sw-entity-single-select
                 v-model:value="salesChannelId"
@@ -163,7 +155,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_order_language %}
             <sw-entity-single-select
                 v-model:value="context.languageId"
@@ -178,7 +169,6 @@
         {% endblock %}
         </sw-container>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_voucher_field %}
         <sw-order-promotion-tag-field
             v-model:value="promotionCodeTags"
@@ -191,7 +181,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_switch_disable_auto_promotion %}
         <sw-switch-field
             class="sw-order-create-details__disable-auto-promotion"

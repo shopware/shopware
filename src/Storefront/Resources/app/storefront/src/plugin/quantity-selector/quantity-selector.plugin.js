@@ -47,9 +47,15 @@ export default class QuantitySelectorPlugin extends Plugin {
         this.ariaLiveProductName = this.ariaLiveContainer.dataset.ariaLiveProductName;
 
         if (this.options.ariaLiveUpdateMode === 'onload') {
-            // Delay the aria live update so the screen reader has time to read out other updates first.
-            // Sometimes the update isn't read out because of other information.
-            window.setTimeout(this._updateAriaLive.bind(this), 1000);
+            const lastQuantityChange = window.localStorage.getItem('lastQuantityChange');
+
+            if (lastQuantityChange && lastQuantityChange === this.ariaLiveProductName) {
+                window.localStorage.removeItem('lastQuantityChange');
+
+                // Delay the aria live update so the screen reader has time to read out other updates first.
+                // Sometimes the update isn't read out because of other information.
+                window.setTimeout(this._updateAriaLive.bind(this), 1000);
+            }
         }
     }
 
@@ -83,6 +89,8 @@ export default class QuantitySelectorPlugin extends Plugin {
 
         if (this.options.ariaLiveUpdateMode === 'live') {
             this._updateAriaLive();
+        } else if (this.options.ariaLiveUpdateMode === 'onload') {
+            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
         }
 
         if (btn === 'up') {

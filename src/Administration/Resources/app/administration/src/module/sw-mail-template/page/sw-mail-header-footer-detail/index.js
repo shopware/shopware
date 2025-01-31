@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 
 import template from './sw-mail-header-footer-detail.html.twig';

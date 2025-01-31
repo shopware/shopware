@@ -7,7 +7,7 @@ import type { extensions } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import { setExtensions } from '@shopware-ag/meteor-admin-sdk/es/channel';
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia implementation
  */
@@ -22,7 +22,7 @@ export interface Extension {
 }
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia implementation
  */
@@ -115,7 +115,7 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
 };
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */

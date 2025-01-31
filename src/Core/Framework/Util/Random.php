@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @see      https://github.com/zendframework/zf2/blob/master/library/Zend/Math/Rand.php
  * @see      https://github.com/ircmaxell/RandomLib
  */
-#[Package('core')]
+#[Package('framework')]
 class Random
 {
     public static function getBytes(int $length): string

@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 /**
  * @deprecated tag:v6.7.0 - Will be removed without replacement and is not needed anymore - reason:remove-subscriber
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheIdLoader
 {
     private const CONFIG_KEY = 'cache-id';

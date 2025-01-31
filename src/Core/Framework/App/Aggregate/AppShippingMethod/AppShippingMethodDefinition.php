@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class AppShippingMethodDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'app_shipping_method';

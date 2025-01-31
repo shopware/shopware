@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 
-#[Package('core')]
+#[Package('framework')]
 class RetryableTransaction
 {
     /**

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ProcessingException extends ShopwareHttpException
 {
     public function getErrorCode(): string

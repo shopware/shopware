@@ -9,7 +9,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityXmlSchema
 {
     final public const FILENAME = 'entities.xml';

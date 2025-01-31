@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
  *
  * @method array{url: string, shopId: string, appVersion: string} jsonSerialize()
  */
-#[Package('core')]
+#[Package('framework')]
 class Source implements \JsonSerializable
 {
     use CloneTrait;

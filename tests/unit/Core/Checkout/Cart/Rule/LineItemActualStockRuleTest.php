@@ -22,7 +22,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemActualStockRule::class)]
 #[Group('rules')]
 class LineItemActualStockRuleTest extends TestCase

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class NestedEventDispatcher implements EventDispatcherInterface
 {
     /**

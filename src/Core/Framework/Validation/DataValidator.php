@@ -8,7 +8,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class DataValidator
 {
     /**

@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
     name: 'import:entity',
     description: 'Import entities from a csv file',
 )]
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportEntityCommand extends Command
 {
     private const DEFAULT_CHUNK_SIZE = 300;

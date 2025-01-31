@@ -16,7 +16,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1657173907DownloadMailTemplate extends MigrationStep
 {
     use UpdateMailTrait;

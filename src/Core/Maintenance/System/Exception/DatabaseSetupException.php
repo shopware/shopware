@@ -10,7 +10,7 @@ if (!Feature::isActive('v6.7.0.0')) {
     /**
      * @deprecated tag:v6.7.0 - reason:becomes-internal
      */
-    #[Package('core')]
+    #[Package('framework')]
     class DatabaseSetupException extends \RuntimeException
     {
     }
@@ -18,7 +18,7 @@ if (!Feature::isActive('v6.7.0.0')) {
     /**
      * @internal
      */
-    #[Package('core')]
+    #[Package('framework')]
     class DatabaseSetupException extends MaintenanceException
     {
     }

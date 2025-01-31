@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('checkout')]
 class Checkout extends Bundle
 {
     /**

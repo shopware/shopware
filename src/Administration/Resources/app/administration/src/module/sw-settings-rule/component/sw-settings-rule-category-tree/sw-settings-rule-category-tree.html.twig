@@ -1,17 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_rule_category_tree %}
 <sw-card
     class="sw-settings-rule-category-tree"
     position-identifier="sw-settings-rule-category-tree"
 >
     <template #toolbar>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_category_tree_toolbar %}
         <sw-card-filter @sw-card-filter-term-change="searchTreeItems" />
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_category_tree_component %}
     <sw-settings-rule-tree
         ref="swTree"
@@ -24,7 +21,6 @@
         @search-tree-items="searchTreeItems"
         @check-item="onCheckItem"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_category_tree_items %}
         <template
             #items="{
@@ -38,7 +34,6 @@
                 disableContextMenu,
             }"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_category_tree_item %}
             <sw-settings-rule-tree-item
                 v-for="item in treeItems"

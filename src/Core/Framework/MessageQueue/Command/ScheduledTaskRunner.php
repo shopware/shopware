@@ -17,7 +17,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
     name: 'scheduled-task:run',
     description: 'Runs scheduled tasks',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ScheduledTaskRunner extends Command
 {
     private bool $shouldStop = false;

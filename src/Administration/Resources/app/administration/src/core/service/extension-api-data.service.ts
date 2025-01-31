@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
@@ -222,6 +222,7 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
         }
 
         function setObject(transferObject: transferObject, prePath: string | null = null): void {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             if (typeof transferObject?.getIsDirty === 'function' && !transferObject.getIsDirty()) {
                 return;
             }

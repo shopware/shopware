@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\LandingPage;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageEvents
 {
     final public const LANDING_PAGE_WRITTEN_EVENT = 'landing_page.written';

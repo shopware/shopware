@@ -190,6 +190,13 @@
             <tag name="flow.storer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\A11yRenderedDocumentStorer">
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>

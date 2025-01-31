@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import initCms from 'src/app/init/cms.init';
 import 'src/module/sw-cms/service/cms.service';

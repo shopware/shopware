@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
@@ -116,6 +116,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-media-preview-v2': true,
                 'sw-context-menu-divider': true,
                 'sw-media-modal-v2': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
         },
     });

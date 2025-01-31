@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1648709176CartCompression extends MigrationStep
 {
     private const UPDATE_LIMIT = 1000;

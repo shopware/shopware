@@ -27,7 +27,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
     /**

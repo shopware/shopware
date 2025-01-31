@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import CalculatePriceService from 'src/core/service/api/calculate-price.api.service';
 import createLoginService from 'src/core/service/login.service';

@@ -53,8 +53,7 @@ class JWTConfigurationFactory
 
         // add basic constraint for token signature validation
         $constraint = new SignedWith($signer, $publicKey);
-        $configuration->setValidationConstraints($constraint);
 
-        return $configuration;
+        return $configuration->withValidationConstraints($constraint);
     }
 }

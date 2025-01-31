@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(UserChangePasswordCommand::class)]
 class UserChangePasswordCommandTest extends TestCase
 {

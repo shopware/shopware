@@ -18,7 +18,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCase
 {
     private EntityRepository $logRepository;

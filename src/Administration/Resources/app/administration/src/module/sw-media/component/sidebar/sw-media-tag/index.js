@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import template from './sw-media-tag.html.twig';
 import './sw-media-tag.scss';
 

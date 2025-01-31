@@ -1,5 +1,5 @@
 /**
- * @package data-services
+ * @sw-package data-services
  *
  * @private
  */

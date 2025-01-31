@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
@@ -119,6 +119,12 @@ export default {
         },
 
         onChangeDisplayMode() {
+            this.$emit('element-update', this.element);
+        },
+
+        onChangeIsDecorative(value) {
+            this.element.config.isDecorative.value = value;
+
             this.$emit('element-update', this.element);
         },
     },

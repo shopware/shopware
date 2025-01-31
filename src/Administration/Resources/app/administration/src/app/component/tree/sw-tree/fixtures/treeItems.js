@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 export default function getTreeItems() {
     return [
         {

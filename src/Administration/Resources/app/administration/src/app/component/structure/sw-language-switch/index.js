@@ -6,7 +6,7 @@ const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description

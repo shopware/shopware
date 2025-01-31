@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 class Administration extends Bundle
 {
     public function getTemplatePriority(): int

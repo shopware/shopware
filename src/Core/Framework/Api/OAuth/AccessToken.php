@@ -14,7 +14,7 @@ use League\OAuth2\Server\Entities\Traits\RefreshTokenTrait;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AccessToken implements AccessTokenEntityInterface
 {
     use AccessTokenTrait;

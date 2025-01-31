@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class LicenseCheck
 {
     /**

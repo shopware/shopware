@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @internal only for use by the app-system
  */
 #[AsCommand(name: 'app:refresh', description: 'Refreshes an app', aliases: ['app:update'])]
-#[Package('core')]
+#[Package('framework')]
 class RefreshAppCommand extends Command
 {
     public function __construct(

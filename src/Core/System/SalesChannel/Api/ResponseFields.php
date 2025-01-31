@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Api;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 
-#[Package('core')]
+#[Package('framework')]
 class ResponseFields
 {
     /**

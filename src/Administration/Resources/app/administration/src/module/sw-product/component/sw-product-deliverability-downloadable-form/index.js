@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 const { mapState, mapPropertyErrors, mapGetters } = Shopware.Component.getComponentHelper();
 
 /*
- * @package inventory
+ * @sw-package inventory
  * @private
  */
 export default {

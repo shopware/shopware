@@ -48,8 +48,8 @@
                                     <div class="image-slider-item{% if loop.first != true %} is-not-first{% endif %} is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value|trim|replace({' ':''}) }}"{% endif %}>
                                         {% set attributes = {
                                             'class': 'img-fluid image-slider-image',
-                                            'alt': (image.media.translated.alt ?: ''),
-                                            'title': (image.media.translated.title ?: ''),
+                                            'alt': element.config.isDecorative.value ? ' ' : (image.media.translated.alt ?: ''),
+                                            'title': element.config.isDecorative.value ? '' : (image.media.translated.title ?: ''),
                                             'tabindex': (image.url ? '-1' : '0')
                                         } %}
 

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class JsonFactoryBase implements ResponseFactoryInterface
 {
     public function createRedirectResponse(EntityDefinition $definition, string $id, Request $request, Context $context): Response

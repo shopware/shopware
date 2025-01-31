@@ -11,7 +11,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class TemplateLoader extends AbstractTemplateLoader
 {
     private const TEMPLATE_DIR = '/Resources/views';

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 
-#[Package('core')]
+#[Package('framework')]
 class PluginEntity extends Entity
 {
     use EntityCustomFieldsTrait;

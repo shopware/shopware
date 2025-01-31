@@ -1,16 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_inherit_wrapper %}
 <div
     class="sw-inherit-wrapper"
     :class="{ 'is--inherited': isInherited, 'is--required': required, 'has--parent' : hasParent }"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_inherit_wrapper_toggle %}
     <template v-if="label">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_inherit_wrapper_toggle_wrapper %}
         <div class="sw-inherit-wrapper__toggle-wrapper">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_inherit_wrapper_toggle_wrapper_field %}
             <sw-inheritance-switch
                 v-if="isInheritField"
@@ -22,7 +18,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_inherit_wrapper_toggle_wrapper_label %}
             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
             <label
@@ -33,7 +28,6 @@
             </label>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_inherit_wrapper_toggle_wrapper_help_text %}
             <sw-help-text
                 v-if="helpText"
@@ -46,7 +40,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_inherit_wrapper_content %}
     <slot
         name="content"

@@ -4,7 +4,7 @@ import './sw-internal-link.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Link to another route inside the administration

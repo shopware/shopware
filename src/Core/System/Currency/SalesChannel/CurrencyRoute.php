@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('fundamentals@framework')]
 class CurrencyRoute extends AbstractCurrencyRoute
 {
     final public const ALL_TAG = 'currency-route';

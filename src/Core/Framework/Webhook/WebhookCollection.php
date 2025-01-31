@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @extends EntityCollection<WebhookEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookCollection extends EntityCollection
 {
     /**

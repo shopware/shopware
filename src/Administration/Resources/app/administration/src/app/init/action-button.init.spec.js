@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initActionButtons from 'src/app/init/action-button.init';
 import { add } from '@shopware-ag/meteor-admin-sdk/es/ui/action-button';

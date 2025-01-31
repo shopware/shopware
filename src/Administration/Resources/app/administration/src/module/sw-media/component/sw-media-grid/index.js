@@ -3,7 +3,7 @@ import './sw-media-grid.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,

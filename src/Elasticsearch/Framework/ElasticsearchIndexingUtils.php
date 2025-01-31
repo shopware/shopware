@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class ElasticsearchIndexingUtils
 {
     public const TEXT_MAX_LENGTH = 32766;

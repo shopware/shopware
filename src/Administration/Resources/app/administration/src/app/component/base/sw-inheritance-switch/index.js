@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import template from './sw-inheritance-switch.html.twig';
 import './sw-inheritance-switch.scss';

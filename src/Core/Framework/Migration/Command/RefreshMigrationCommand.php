@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,8 +19,7 @@ class RefreshMigrationCommand extends Command
 {
     protected function configure(): void
     {
-        $this
-            ->addArgument('path', InputArgument::REQUIRED, 'Path to migration file');
+        $this->addArgument('path', InputArgument::REQUIRED, 'Path to migration file');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -31,7 +31,7 @@ class RefreshMigrationCommand extends Command
         $output->writeln('Updating timestamp of migration: ' . $filename);
 
         if (!file_exists($path)) {
-            throw new \RuntimeException('The provided migration file does not exist.');
+            throw MigrationException::migrationFileDoesNotExist($path);
         }
 
         $timestamp = $this->getCurrentTimestamp($filename);
@@ -58,13 +58,17 @@ class RefreshMigrationCommand extends Command
 
     private function getCurrentTimestamp(string $filename): string
     {
-        if (!preg_match('#Migration([\d]+).*?\.php#i', $filename, $matches)) {
-            throw new \RuntimeException('Could not determine current timestamp.');
+        if (!preg_match('/#Migration(\d+).*?\.php#i/', $filename, $matches)) {
+            throw MigrationException::couldNotDetermineTimestamp();
         }
 
         return $matches[1];
     }
 
+    /**
+     * @param list<string> $search
+     * @param list<string> $replace
+     */
     private function updateMigrationFile(string $path, array $search, array $replace): void
     {
         $content = file_get_contents($path);

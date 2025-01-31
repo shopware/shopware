@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<LandingPageEntity>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

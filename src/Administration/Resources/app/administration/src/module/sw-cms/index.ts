@@ -26,12 +26,12 @@ initCmsPageTypes();
 Shopware.Component.register('sw-cms-list', () => import('./page/sw-cms-list'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-detail', () => import('./page/sw-cms-detail'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.extend('sw-cms-create', 'sw-cms-detail', () => import('./page/sw-cms-create'));
 

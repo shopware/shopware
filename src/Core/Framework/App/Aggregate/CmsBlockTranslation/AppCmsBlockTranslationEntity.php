@@ -11,7 +11,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class AppCmsBlockTranslationEntity extends Entity
 {
     use EntityIdTrait;

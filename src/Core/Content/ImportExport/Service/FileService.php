@@ -49,7 +49,9 @@ class FileService extends AbstractFileService
             }
             $this->filesystem->writeStream($path, $sourceStream);
 
-            fclose($sourceStream);
+            if (\is_resource($sourceStream)) {
+                fclose($sourceStream);
+            }
         } else {
             $this->filesystem->write($path, '');
         }

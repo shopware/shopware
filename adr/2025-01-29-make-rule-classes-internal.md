@@ -13,13 +13,15 @@ See RFC: https://github.com/shopware/shopware/discussions/5785
 ## Decision
 We will mark existing rule classes as internal, limiting direct usage by third parties. Developers should create new rule classes instead of modifying existing ones. 
 
-Nearly all rule classes will be marked as internal, with 4 exceptions: 
+Nearly all rule classes will be marked as internal, with a few exceptions: 
 
 ```
 LineItemOfTypeRule
 LineItemProductStatesRule
 PromotionCodeOfTypeRule
 ZipCodeRule
+BillingZipCodeRule
+ShippingZipCodeRule
 ```
 
 These classes will remain public for now, because they rely on configuration which is reasonably expected to be extended by third-party developers.

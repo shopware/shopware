@@ -3,7 +3,7 @@ import './sw-cms-stage-add-section.scss';
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

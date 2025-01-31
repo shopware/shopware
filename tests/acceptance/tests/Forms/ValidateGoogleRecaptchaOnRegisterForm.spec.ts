@@ -8,7 +8,9 @@ const reCAPTCHA_TEST_SITEKEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 test(
     'As a customer, I expect to see and use the google recaptcha V2 on the account login page',
     { tag: '@form @Registration' },
-    async ({ ShopCustomer, StorefrontAccountLogin, TestDataService }) => {
+    async ({ ShopCustomer, StorefrontAccountLogin, TestDataService, InstanceMeta }) => {
+
+        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
         await TestDataService.setSystemConfig({
             'core.basicInformation.activeCaptchasV2': {
@@ -40,7 +42,9 @@ test(
 test(
     'As a customer, I expect not to see it but use the google recaptcha V2 on the account login page.',
     { tag: '@form @Registration' },
-    async ({ ShopCustomer, StorefrontAccountLogin, TestDataService }) => {
+    async ({ ShopCustomer, StorefrontAccountLogin, TestDataService, InstanceMeta }) => {
+
+        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
         await TestDataService.setSystemConfig({
             'core.basicInformation.activeCaptchasV2': {
@@ -78,7 +82,9 @@ test(
 test(
     'As a customer, I expect to use the google recaptcha V3 on the account login page.',
     { tag: '@form @Registration' },
-    async ({ ShopCustomer, StorefrontAccountLogin, TestDataService }) => {
+    async ({ ShopCustomer, StorefrontAccountLogin, TestDataService, InstanceMeta }) => {
+
+        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
         await TestDataService.setSystemConfig({
             'core.basicInformation.activeCaptchasV2': {
@@ -118,7 +124,9 @@ test(
 test(
     'As a customer, I expect not to see it but use the google recaptcha V2 and V3 on the account login page.',
     { tag: '@form @Registration' },
-    async ({ ShopCustomer, StorefrontAccountLogin, TestDataService }) => {
+    async ({ ShopCustomer, StorefrontAccountLogin, TestDataService, InstanceMeta }) => {
+
+        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
         await TestDataService.setSystemConfig({
             'core.basicInformation.activeCaptchasV2': {

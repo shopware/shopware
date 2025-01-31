@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';

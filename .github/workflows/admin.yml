@@ -18,7 +18,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
-          installAdmin: true
+          install-admin: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
@@ -55,7 +55,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
-          installAdmin: true
+          install-admin: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
       # idea: Only run tests that have changed or the tests for files that have changed

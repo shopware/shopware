@@ -132,8 +132,13 @@ export default {
         },
 
         async reserveDocumentNumber(isPreview) {
+            let technicalName = this.currentDocumentType.technicalName;
+            if (technicalName.startsWith('zugferd_')) {
+                technicalName = 'invoice';
+            }
+
             const { number } = await this.numberRangeService.reserve(
-                `document_${this.currentDocumentType.technicalName}`,
+                `document_${technicalName}`,
                 this.order.salesChannelId,
                 isPreview,
             );

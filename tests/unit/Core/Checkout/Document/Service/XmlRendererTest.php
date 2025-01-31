@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\XmlRenderer;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(XmlRenderer::class)]
 class XmlRendererTest extends TestCase
 {
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testGetContentType(): void
     {
         $htmlRenderer = new XmlRenderer();
@@ -22,6 +24,7 @@ class XmlRendererTest extends TestCase
         static::assertEquals('application/xml', $htmlRenderer->getContentType());
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testRender(): void
     {
         $htmlRenderer = new XmlRenderer();

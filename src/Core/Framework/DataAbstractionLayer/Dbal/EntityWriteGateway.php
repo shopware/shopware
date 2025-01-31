@@ -215,7 +215,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
                     $innerException = $this->exceptionHandlerRegistry->matchException($e);
 
-                    if ($innerException instanceof \Exception) {
+                    if ($innerException !== null) {
                         $e = $innerException;
                     }
                     $context->getExceptions()->add($e);

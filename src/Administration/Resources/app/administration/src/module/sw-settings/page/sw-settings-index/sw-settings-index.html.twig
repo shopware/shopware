@@ -107,10 +107,10 @@
                 </template>
 
                 <template #content="{ active }">
-                    {# @deprecated tag:v6.7.0 - block will be moved #}
+                    {# @deprecated tag:v6.7.0 - block will be removed #}
                     {% block sw_settings_content_card %}
 
-                    {# @deprecated tag:v6.7.0 - block will be moved #}
+                    {# @deprecated tag:v6.7.0 - block will be removed #}
                     {% block sw_settings_content_header %}
                     <h1 class="sw-settings__content-header">
                         {{ $tc('sw-settings.index.title') }}
@@ -121,7 +121,7 @@
                         class="sw-settings__card"
                         position-identifier="sw-settings-index-content"
                     >
-                        {# @deprecated tag:v6.7.0 - block will be moved #}
+                        {# @deprecated tag:v6.7.0 - block will be removed #}
                         {% block sw_settings_content_card_content %}
                         <slot
                             v-for="(settingsItems, settingsGroup) in settingsGroups"

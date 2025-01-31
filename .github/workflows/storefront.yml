@@ -18,6 +18,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          install: true
           install-storefront: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
@@ -51,6 +52,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          install: true
           install-storefront: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}

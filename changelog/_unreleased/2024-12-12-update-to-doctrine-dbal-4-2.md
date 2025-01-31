@@ -15,7 +15,7 @@ issue: NEXT-39353
 * Added `Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper` to simplify binding multiple parameters to a statement
 
 ___
-# Next Major Version Changes
+# Upgrade Information
 
 ## ExceptionHandlerInterface signature changes
 
@@ -33,7 +33,7 @@ to
 ```php
 class MyExceptionHandler implements ExceptionHandlerInterface
 {
-    public function matchException(\Throwable $exception): ?\Exception
+    public function matchException(\Throwable $exception): ?\Throwable
     {
         // ...
     }
@@ -86,6 +86,8 @@ StatementHelper::bindParameters($statement, [
 // for select queries use executeQuery, for insert, update, delete queries use executeStatement
 $result = $statement->executeQuery();
 ```
+Also it's possible to bind parameters and execute the statement/query in one call using `StatementHelper::executeStatement` or `StatementHelper::executeQuery`.
+If statement is not reused, you may use `Connection::executeQuery` or `Connection::executeStatement` directly.
 
 ## Transaction savepoints enabled by default
 As [support for nested transactions](https://github.com/doctrine/dbal/blob/4.2.x/UPGRADE.md#bc-break-remove-support-for-transaction-nesting-without-savepoints) without savepoints has been removed, savepoints are now enabled by default.

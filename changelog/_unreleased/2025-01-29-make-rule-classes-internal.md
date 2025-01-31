@@ -6,7 +6,7 @@ author_email: j.damokos@shopware.com
 author_github: @jozsefdamokos
 ---
 # Core
-* Deprecated nearly all rule classes, with the exception of 4, with the intention of making them internal.
+* Deprecated nearly all rule classes, with the exception of 6, with the intention of making them internal. Exceptions are: `LineItemOfTypeRule, LineItemProductStatesRule, PromotionCodeOfTypeRule, ZipCodeRule, BillingZipCodeRule, ShippingZipCodeRule`.
 ___
 # Upgrade Information
 ## Rule classes becoming internal
@@ -16,7 +16,7 @@ ___
 ___
 # Next Major Version Changes
 ## Rule classes becoming internal
-* Rule classes will become internal, and direct extensions will not be supported.
-* The preferred approach is to define new rule classes to encapsulate custom logic.
+* Rule classes are marked internal, and direct extensions are not supported.
+* The preferred approach is to define **new** rule classes to encapsulate custom logic.
 * Ensure any dependencies on existing rule classes are replaced with standalone implementations to maintain compatibility.
 

@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_rule_detail %}
 <sw-page class="sw-settings-rule-detail">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="rule">
@@ -13,11 +11,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_actions %}
     <template #smart-bar-actions>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_detail_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -38,7 +34,6 @@
             class="sw-settings-rule-detail__save-button-group"
             :split-button="true"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_actions_save %}
             <sw-button-process
                 v-model:process-success="isSaveSuccessful"
@@ -53,7 +48,6 @@
             </sw-button-process>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_actions_save_context_menu %}
             <sw-context-button>
                 <template #button>
@@ -70,9 +64,7 @@
                     </sw-button>
                 </template>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_actions_save_context_menu_actions %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_actions_duplicate %}
                 <sw-context-menu-item
                     class="sw-settings-rule-detail__save-duplicate-action"
@@ -98,10 +90,8 @@
         />
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_content %}
     <template #content>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_detail_tabs_discard_changes_modal %}
         <sw-discard-changes-modal
             v-if="isDisplayingSaveChangesWarning"
@@ -110,14 +100,12 @@
         />
         {% endblock %}
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_tabs %}
             <sw-tabs
                 v-if="rule && !rule.isNew()"
                 class="sw-settings-rule-detail__tabs"
                 position-identifier="sw-settings-rule-detail"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_tab_items %}
                 <sw-tabs-item
                     v-for="tab in tabItems"
@@ -133,7 +121,6 @@
             </sw-tabs>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_content_view %}
             <template v-if="isLoading">
                 <sw-skeleton variant="detail-bold" />

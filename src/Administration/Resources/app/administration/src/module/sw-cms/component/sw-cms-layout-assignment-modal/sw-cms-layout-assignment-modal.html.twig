@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_layout_assignment_modal %}
 <sw-modal
     :title="$tc('sw-cms.detail.sidebar.titleLayoutAssignment')"
@@ -6,7 +5,6 @@
     @modal-close="onAbort"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_assignment_modal_loader %}
     <sw-loader
         v-if="isLoading"
@@ -14,7 +12,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_assignment_modal_info_text_general %}
     <p
         v-if="page.type !== 'page' && page.type !== 'product_detail'"
@@ -24,7 +21,6 @@
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_assignment_modal_info_text_shop_pages %}
     <p
         v-if="page.type === 'page'"
@@ -34,7 +30,6 @@
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_assignment_modal_info_text_product_detail_pages %}
     <p
         v-if="page.type === 'product_detail'"
@@ -44,7 +39,6 @@
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_assignment_modal_tabs %}
     <sw-tabs
         position-identifier="sw-cms-layout-assignment-modal"
@@ -53,7 +47,6 @@
     >
 
         <template #default="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_assignment_modal_tab_categories %}
             <sw-tabs-item
                 v-if="page.type === 'page' || page.type === 'landingpage'"
@@ -66,7 +59,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_assignment_modal_tab_shop_pages %}
             <sw-tabs-item
                 v-if="page.type === 'page'"
@@ -85,7 +77,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_assignment_modal_tab_landing_pages %}
             <sw-tabs-item
                 v-if="page.type === 'landingpage'"
@@ -106,11 +97,9 @@
         </template>
 
         <template #content="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_assignment_modal_landing_page_select %}
             <template v-if="active === 'landing_pages'">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_landing_page_select_field %}
                 <sw-entity-multi-select
                     v-model:entity-collection="page.landingPages"
@@ -123,11 +112,9 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_assignment_modal_category_select %}
             <template v-if="!isProductDetailPage && active === 'categories'">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_category_select_field %}
                 <sw-category-tree-field
                     key="categorySelect"
@@ -143,11 +130,9 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_assignment_modal_shop_pages_select %}
             <template v-if="!isProductDetailPage && active === 'shop_pages'">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field %}
                 <sw-entity-single-select
                     v-model:value="shopPageSalesChannelId"
@@ -162,7 +147,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_shop_pages_select_field %}
                 <sw-inherit-wrapper
                     v-model:value="selectedShopPages[shopPageSalesChannelId]"
@@ -185,10 +169,8 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_assignment_modal_product_detail_pages_select %}
             <template v-if="page.type === 'product_detail'">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_many_to_many_assignment_card_select %}
                 <sw-cms-product-assignment
                     class="sw-cms-layout-assignment-modal__product-select"
@@ -199,7 +181,6 @@
                     :select-label="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel')"
                     :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentPlaceholder')"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_column_name %}
                     <template #column-name="{ item, column }">
                         <router-link
@@ -215,7 +196,6 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_column_manufacturer %}
                     <template #column-manufacturer.name="{ item, column }">
                         <router-link
@@ -236,7 +216,6 @@
 
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_empty_state %}
                     <template #empty-state>
                         <img
@@ -256,7 +235,6 @@
     </sw-tabs>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_assignment_modal_confirm_changes %}
     <sw-modal
         v-if="showConfirmChangesModal"
@@ -266,7 +244,6 @@
         @modal-close="closeConfirmChangesModal"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_modal_confirm_changes_text_categories %}
         <p
             v-if="hasDeletedCategories"
@@ -276,7 +253,6 @@
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_modal_confirm_changes_text_assigned_layouts %}
         <p
             v-if="hasCategoriesWithAssignedLayouts"
@@ -286,7 +262,6 @@
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_modal_confirm_changes_text_landing_pages %}
         <p
             v-if="hasDeletedLandingPages"
@@ -296,7 +271,6 @@
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_modal_confirm_changes_text_assigned_layouts_landing_pages %}
         <p
             v-if="hasLandingPagesWithAssignedLayouts"
@@ -306,7 +280,6 @@
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_modal_confirm_changes_text_shop_pages %}
         <p
             v-if="hasDeletedShopPages"
@@ -316,7 +289,6 @@
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_modal_confirm_changes_text_products %}
         <p
             v-if="hasDeletedProducts"
@@ -326,7 +298,6 @@
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_modal_confirm_changes_text_products_assigned_layouts %}
         <p
             v-if="hasProductsWithAssignedLayouts"
@@ -336,13 +307,11 @@
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_modal_confirm_changes_text %}
         <p><strong>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesText') }}</strong></p>
         {% endblock %}
 
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_assignment_modal_confirm_changes_keep_editing %}
             <sw-button
                 class="sw-cms-layout-assignment-modal__action-keep-editing"
@@ -354,7 +323,6 @@
             {% endblock %}
 
             <div class="sw-cms-layout-assignment-modal__confirm-changes-modal-main-actions">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_confirm_changes_discard %}
                 <sw-button
                     class="sw-cms-layout-assignment-modal__action-changes-discard"
@@ -366,7 +334,6 @@
                 </sw-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_confirm_changes_confirm %}
                 <sw-button
                     class="sw-cms-layout-assignment-modal__action-changes-confirm"
@@ -382,10 +349,8 @@
     </sw-modal>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_assignment_modal_actions %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_action_abort %}
         <sw-button
             :disabled="isLoading"
@@ -397,7 +362,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_assignment_action_confirm %}
         <sw-button
             :disabled="isLoading"

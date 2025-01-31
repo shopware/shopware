@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_profile_index_general %}
 <div class="sw-profile-index-general">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_profile_index_general_information %}
     <sw-card
         position-identifier="sw-profile-index-general"
@@ -9,7 +7,6 @@
         :is-loading="isUserLoading || !languageId"
     >
         <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_firstname %}
             <sw-text-field
                 v-model:value="user.firstName"
@@ -19,7 +16,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_lastname %}
             <sw-text-field
                 v-model:value="user.lastName"
@@ -31,7 +27,6 @@
         </sw-container>
 
         <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_username %}
             <sw-text-field
                 v-model:value="user.username"
@@ -41,7 +36,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_language %}
             <sw-select-field
                 v-model:value="user.localeId"
@@ -75,7 +69,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_timezone %}
             <sw-single-select
                 v-model:value="user.timeZone"
@@ -92,7 +85,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_profile_index_general_image %}
     <sw-card
         v-if="acl.can('media.creator')"
@@ -100,7 +92,6 @@
         :title="$tc('sw-profile.index.titleImageCard')"
         :is-loading="isUserLoading || !languageId"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_general_image_content %}
         <sw-upload-listener
             auto-upload
@@ -123,14 +114,12 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_profile_index_general_password %}
     <sw-card
         position-identifier="sw-profile-index-general-password"
         :title="$tc('sw-profile.index.titlePasswordCard')"
         :is-loading="isUserLoading || !languageId"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_general_password_new_password %}
         <sw-password-field
             v-model:value="computedNewPassword"
@@ -143,7 +132,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_general_password_new_password_confirm %}
         <sw-password-field
             v-model:value="computedNewPasswordConfirm"

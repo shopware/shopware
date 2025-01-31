@@ -12,6 +12,7 @@ use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -58,7 +59,10 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
 
         $this->repository->expects(static::once())->method($method)->willReturn($writeResult);
 
-        $this->eventDispatcher->expects(static::exactly(2))->method('dispatch');
+        // @deprecated tag:v6.7.0 - remove this expectation with no replacement
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->eventDispatcher->expects(static::exactly(2))->method('dispatch');
+        }
 
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
 
@@ -99,12 +103,15 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
             }
         );
 
-        $this->eventDispatcher->expects(static::exactly(2))
-            ->method('dispatch')
-            ->with(static::logicalOr(
-                static::isInstanceOf(ImportExportAfterImportRecordEvent::class),
-                static::isInstanceOf(ImportExportExceptionImportRecordEvent::class)
-            ));
+        // @deprecated tag:v6.7.0 - remove this expectation with no replacement
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->eventDispatcher->expects(static::exactly(2))
+                ->method('dispatch')
+                ->with(static::logicalOr(
+                    static::isInstanceOf(ImportExportAfterImportRecordEvent::class),
+                    static::isInstanceOf(ImportExportExceptionImportRecordEvent::class)
+                ));
+        }
 
         $result = $this->strategy->commit($config, $progress, $context);
 

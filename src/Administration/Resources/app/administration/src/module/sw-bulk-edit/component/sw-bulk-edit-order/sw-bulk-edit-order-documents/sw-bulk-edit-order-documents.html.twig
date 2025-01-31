@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_order_documents %}
 <div class="sw-bulk-edit-order-documents">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_documents_container %}
     <sw-container
         columns="1fr"
         rows="50px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_order_documents_type %}
         <sw-checkbox-field
             v-for="document in documentTypes"
@@ -18,7 +15,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_order_documents_skip_sent_documents %}
         <sw-switch-field
             v-model:value="value.skipSentDocuments"

@@ -1,17 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_default_addresses %}
 <sw-container
     class="sw-customer-default-addresses"
     columns="repeat(auto-fit, minmax(250px, 1fr))"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_default_addresses_shipping %}
     <sw-card-section
         v-if="customer.defaultShippingAddress.id"
         divider="right"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_default_addresses_shipping_postal %}
         <sw-address
             :address="customer.defaultShippingAddress"
@@ -24,10 +21,8 @@
     </sw-card-section>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_default_addresses_billing %}
     <sw-card-section v-if="customer.defaultBillingAddress.id">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_default_addresses_billing_postal %}
         <sw-address
             :address="customer.defaultBillingAddress"

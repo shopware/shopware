@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_tag_modal %}
 <sw-modal
     class="sw-flow-tag-modal"
@@ -6,10 +5,8 @@
     :closable="false"
     @modal-close="onClose"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_tag_modal_content %}
     <div class="sw-flow-tag-modal__content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_to_field %}
         <sw-single-select
             v-model:value="entity"
@@ -24,7 +21,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_tags_field %}
         <sw-entity-tag-select
             v-model:entity-collection="tagCollection"
@@ -39,14 +35,12 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_content_custom %}
         {% endblock %}
     </div>
     {% endblock %}
 
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-tag-modal__cancel-button"
@@ -57,7 +51,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_footer_save_button %}
         <sw-button
             class="sw-flow-tag-modal__save-button"

@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_restriction_selection %}
 <div class="sw-product-restriction-selection">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_restriction_selection_container %}
     <sw-container
         columns="minmax(270px, 350px) 1fr"
@@ -9,10 +7,8 @@
         class="sw-product-restriction-selection__container"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_restriction_selection_select_group_wrapper %}
         <div class="sw-product-restriction-selection__select-group-wrapper">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_restriction_selection_select_group %}
             <sw-select-field
                 v-model:value="selectedGroup"
@@ -28,7 +24,6 @@
             </sw-select-field>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_restriction_selection_is_from %}
             <div class="sw-product-restriction-selection__isFrom">
                 <span>{{ $tc('sw-product.variations.configuratorModal.isOneFrom') }}</span>
@@ -37,7 +32,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_restriction_selection_select_option_wrapper %}
         <sw-container
             columns="1fr minmax(40px, 40px)"
@@ -45,7 +39,6 @@
             class="sw-product-restriction-selection__select-option-wrapper"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_restriction_selection_multi_select %}
             <sw-multi-select
                 v-if="!optionLoading"
@@ -67,10 +60,8 @@
             </sw-multi-select>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_restriction_selection_context_button %}
             <sw-context-button>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_restriction_selection_context_button_items %}
                 <sw-context-menu-item
                     variant="danger"
@@ -86,7 +77,6 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_restriction_selection_content_after %}
     <slot name="contentAfter"></slot>
     {% endblock %}

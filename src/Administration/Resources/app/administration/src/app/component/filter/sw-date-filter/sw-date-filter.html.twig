@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_date_filter %}
 <sw-range-filter
     :class="'sw-date-filter' + ((filter.showTimeframe) ? ' --has-timeframe' : '')"
@@ -11,7 +10,6 @@
     @filter-update="updateFilter"
     @filter-reset="resetFilter"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_date_filter_timeframe %}
     <sw-single-select
         v-if="filter.showTimeframe"
@@ -23,7 +21,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_date_filter_from_field %}
     <template #from-field>
         <sw-datepicker
@@ -38,7 +35,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_date_filter_to_field %}
     <template #to-field>
         <sw-datepicker

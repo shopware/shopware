@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_tag %}
 <div class="sw-media-tag">
     <sw-media-collapse
         :title="$tc('global.sw-tag-field.title')"
         :expand-on-loading="true"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_tag_input %}
         <template #content>
             <sw-entity-tag-select

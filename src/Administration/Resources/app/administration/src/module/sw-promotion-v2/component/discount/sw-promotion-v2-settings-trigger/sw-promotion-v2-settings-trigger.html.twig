@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_settings_trigger %}
 <div class="sw-promotion-v2-settings-trigger-settings">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_settings_trigger_description %}
     <sw-promotion-v2-wizard-description
         class="sw-promotion-v2-settings-trigger-settings__description"
@@ -11,7 +9,6 @@
     </sw-promotion-v2-wizard-description>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_settings_trigger_radio_switch %}
     <sw-switch-field
         v-model:value="useTrigger"
@@ -20,11 +17,9 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_settings_trigger_container %}
     <sw-container v-if="useTrigger">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_trigger_select_trigger_type %}
         <sw-select-field
             v-model:value="triggerType"
@@ -33,7 +28,6 @@
             :disabled="!acl.can('promotion.editor')"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_settings_trigger_select_trigger_amount_options %}
             <option
                 v-for="selection in getTriggerSelection()"
@@ -48,7 +42,6 @@
         </sw-select-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_trigger_rule_selection_selection %}
         <sw-promotion-v2-rule-select
             v-model:collection="discount.discountRules"

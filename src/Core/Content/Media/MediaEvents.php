@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaEvents
 {
     final public const MEDIA_WRITTEN_EVENT = 'media.written';

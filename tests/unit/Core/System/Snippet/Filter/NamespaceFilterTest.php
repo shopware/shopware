@@ -10,7 +10,7 @@ use Shopware\Core\System\Snippet\Filter\NamespaceFilter;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 #[CoversClass(NamespaceFilter::class)]
 class NamespaceFilterTest extends TestCase
 {

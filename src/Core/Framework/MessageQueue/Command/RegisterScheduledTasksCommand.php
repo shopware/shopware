@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'scheduled-task:register',
     description: 'Registers all scheduled tasks',
 )]
-#[Package('services-settings')]
+#[Package('framework')]
 class RegisterScheduledTasksCommand extends Command
 {
     /**

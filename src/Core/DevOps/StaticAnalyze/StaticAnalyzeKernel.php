@@ -8,15 +8,15 @@ use Shopware\Core\Kernel;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class StaticAnalyzeKernel extends Kernel
 {
     public function getCacheDir(): string
     {
         return \sprintf(
-            '%s/var/cache/%s',
+            '%s/var/cache/static_%s',
             $this->getProjectDir(),
-            $this->getEnvironment()
+            $this->getEnvironment(),
         );
     }
 }

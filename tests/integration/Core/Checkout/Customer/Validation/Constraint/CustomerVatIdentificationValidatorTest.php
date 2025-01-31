@@ -140,7 +140,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'valid vat with Bulgaria' => ['BG', ['BG1234567890', 'BG123456789']];
 
-        yield 'valid vat with Cyprus' => ['CY', ['CY12345678L']];
+        yield 'valid vat with Cyprus' => ['CY', ['CY12345678L', 'CY12345678D']];
 
         yield 'valid vat with Czech Republic' => ['CZ', ['CZ12345678', 'CZ123456789', 'CZ1234567890']];
 
@@ -215,7 +215,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         yield 'invalid vat with Cyprus' => [
             'CY',
             4,
-            ['CY12345678Y', 'CY123456789', 'CY12345678', 'CY12345678X'],
+            ['CY123456789', 'CY12345678', 'AY12345678D', 'CY1234567D'],
         ];
 
         yield 'invalid vat with Czech Republic' => [

@@ -4,6 +4,7 @@ namespace Shopware\Core\Installer\Configuration;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -19,9 +20,14 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
  *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
-#[Package('core')]
+#[Package('framework')]
 class ShopConfigurationService
 {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
+    }
+
     /**
      * @param Shop $shop
      */
@@ -39,7 +45,7 @@ class ShopConfigurationService
             throw new \RuntimeException('Please fill in all required fields. (shop configuration)');
         }
 
-        $shopConfigurator = new ShopConfigurator($connection);
+        $shopConfigurator = new ShopConfigurator($connection, $this->eventDispatcher);
         $shopConfigurator->updateBasicInformation($shop['name'], $shop['email']);
         $shopConfigurator->setDefaultLanguage($shop['locale']);
         $shopConfigurator->setDefaultCurrency($shop['currency']);

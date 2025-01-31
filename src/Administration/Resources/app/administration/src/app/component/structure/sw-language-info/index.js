@@ -6,7 +6,7 @@ const { mapState } = Shopware.Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description

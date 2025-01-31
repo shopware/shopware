@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class StoreApiInfoController
 {
     private const API_SCOPE_STORE = 'store-api';

@@ -27,6 +27,9 @@ Thumbs.db
 /vendor/*
 /composer.lock
 
+# Generated database schema files
+/schema
+
 # Symfony-CLI
 php.ini
 .php-version
@@ -152,3 +155,6 @@ http-client.private.env.json
 # Devenv
 .devenv*
 devenv.local.nix
+
+# danger.php
+danger.phar

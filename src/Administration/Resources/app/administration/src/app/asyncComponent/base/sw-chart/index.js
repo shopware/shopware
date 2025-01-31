@@ -7,7 +7,7 @@ const { object } = Shopware.Utils;
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

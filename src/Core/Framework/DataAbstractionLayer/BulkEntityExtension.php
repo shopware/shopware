@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class BulkEntityExtension
 {
     /**

@@ -1,13 +1,4 @@
-<?php
-/*
- * Copyright (c) Pickware GmbH. All rights reserved.
- * This file is part of software that is released under a proprietary license.
- * You must not copy, modify, distribute, make publicly available, or execute
- * its contents or parts thereof without express permission by the copyright
- * holder, unless otherwise permitted by law.
- */
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
@@ -20,7 +11,6 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -291,8 +281,6 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertCount(2, $products);
 
         [$product1, $product2] = $products;
-        static::assertInstanceOf(ProductEntity::class, $product1);
-        static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertNotNull($product1->getCover());
         static::assertNull($product2->getCover());
 
@@ -305,8 +293,6 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertCount(2, $products);
 
         [$product1, $product2] = $products;
-        static::assertInstanceOf(ProductEntity::class, $product1);
-        static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertNotNull($product1->getCover());
         static::assertNotNull($product2->getCover());
     }

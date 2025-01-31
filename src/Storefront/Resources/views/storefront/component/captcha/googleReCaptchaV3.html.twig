@@ -10,8 +10,9 @@
             type="text"
             class="d-none grecaptcha_v3-input"
             name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER') }}"
-            data-skip-report-validity="true"
-            required>
+            {% if feature('ACCESSIBILITY_TWEAKS') %}data-validation="required" data-validate-hidden="true"{% endif %}
+            {% if not feature('ACCESSIBILITY_TWEAKS') %}data-skip-report-validity="true"{% endif %}
+            {% if not feature('ACCESSIBILITY_TWEAKS') %}required{% endif %}>
 
         <div class="data-protection-information grecaptcha-protection-information">
             {{ 'captcha.googleReCaptcha.dataProtectionInformation'|trans|sw_sanitize }}

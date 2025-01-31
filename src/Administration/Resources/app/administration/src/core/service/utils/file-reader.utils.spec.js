@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import fileReaderUtils from 'src/core/service/utils/file-reader.utils';

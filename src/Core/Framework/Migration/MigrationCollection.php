@@ -6,9 +6,8 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
-#[Package('core')]
+#[Package('framework')]
 class MigrationCollection
 {
     /**
@@ -23,7 +22,7 @@ class MigrationCollection
         private readonly MigrationSource $migrationSource,
         private readonly MigrationRuntime $migrationRuntime,
         private readonly Connection $connection,
-        private readonly ?LoggerInterface $logger = null
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -108,7 +107,7 @@ class MigrationCollection
         $activeMigrations = [];
 
         foreach ($this->getMigrationSteps() as $migration) {
-            $activeMigrations[] = $migration->getCreationTimestamp();
+            $activeMigrations[] = $migration->getPlausibleCreationTimestamp();
         }
 
         return $activeMigrations;
@@ -123,7 +122,7 @@ class MigrationCollection
     {
         return [
             'class' => $className,
-            'creation_timestamp' => $migrationStep->getCreationTimestamp(),
+            'creation_timestamp' => $migrationStep->getPlausibleCreationTimestamp(),
         ];
     }
 
@@ -140,8 +139,6 @@ class MigrationCollection
     }
 
     /**
-     * @throws InvalidMigrationClassException
-     *
      * @return array<class-string<MigrationStep>, MigrationStep>
      */
     private function loadMigrationSteps(): array
@@ -150,15 +147,13 @@ class MigrationCollection
 
         foreach ($this->migrationSource->getSourceDirectories() as $directory => $namespace) {
             if (!is_readable($directory)) {
-                if ($this->logger !== null) {
-                    $this->logger->warning(
-                        'Migration directory "{directory}" for namespace "{namespace}" does not exist or is not readable.',
-                        [
-                            'directory' => $directory,
-                            'namespace' => $namespace,
-                        ]
-                    );
-                }
+                $this->logger->warning(
+                    'Migration directory "{directory}" for namespace "{namespace}" does not exist or is not readable.',
+                    [
+                        'directory' => $directory,
+                        'namespace' => $namespace,
+                    ]
+                );
 
                 continue;
             }
@@ -177,10 +172,10 @@ class MigrationCollection
                 }
 
                 if (!class_exists($className) && !trait_exists($className) && !interface_exists($className)) {
-                    throw new InvalidMigrationClassException($className, $path);
+                    throw MigrationException::invalidMigrationClass($className, $path);
                 }
 
-                if (!is_subclass_of($className, MigrationStep::class, true)) {
+                if (!is_subclass_of($className, MigrationStep::class)) {
                     continue;
                 }
 

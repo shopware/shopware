@@ -1,10 +1,10 @@
-/* eslint-disable */
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
+import Feature from 'src/helper/feature.helper.js';
 
 describe('ListingPlugin tests', () => {
     let listingPlugin = undefined;
-    let spyInit = jest.fn();
-    let spyInitializePlugins = jest.fn();
+    const spyInit = jest.fn();
+    const spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
         document.body.innerHTML = `
@@ -30,6 +30,10 @@ describe('ListingPlugin tests', () => {
                 </div>
             </div>
         `;
+
+        /** @deprecated tag:v6.7.0 - Remove the Feature init. ACCESSIBILITY_TWEAKS will become the default. */
+        window.Feature = Feature;
+        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': true });
 
         // mock listing plugins
         listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
@@ -108,14 +112,14 @@ describe('ListingPlugin tests', () => {
 
         const elementsInDocument = [
             {
-                el: inDomFirst
+                el: inDomFirst,
             },
             {
-                el: inDomSecond
+                el: inDomSecond,
             },
             {
-                el: inDomThird
-            }
+                el: inDomThird,
+            },
         ];
 
         // mock _registry elements which are not visible in the dom
@@ -128,14 +132,14 @@ describe('ListingPlugin tests', () => {
 
         const elementsOutsideDocument = [
             {
-                el: outDomFirst
+                el: outDomFirst,
             },
             {
-                el: outDomSecond
+                el: outDomSecond,
             },
             {
-                el: outDomThird
-            }
+                el: outDomThird,
+            },
         ];
 
         // add elements to listing plugin
@@ -191,8 +195,8 @@ describe('ListingPlugin tests', () => {
         window.scrollY = 500;
 
         listingPlugin._cmsProductListingWrapper.getBoundingClientRect = () => ({
-            top: -500
-        })
+            top: -500,
+        });
 
         expect(listingPlugin._scrollTopOfListing).not.toHaveBeenCalled();
 
@@ -201,8 +205,8 @@ describe('ListingPlugin tests', () => {
         expect(listingPlugin._scrollTopOfListing).toHaveBeenCalled();
 
         expect(window.scrollTo).toHaveBeenCalledWith({
-            "behavior": "smooth",
-            "top": listingPlugin.options.scrollOffset * -1
+            behavior: 'smooth',
+            top: listingPlugin.options.scrollOffset * -1,
         });
     });
 
@@ -222,8 +226,8 @@ describe('ListingPlugin tests', () => {
         window.scrollY = 500;
 
         listingPlugin._cmsProductListingWrapper.getBoundingClientRect = () => ({
-            top: -1 * distanceToTop
-        })
+            top: -1 * distanceToTop,
+        });
 
         expect(listingPlugin._scrollTopOfListing).not.toHaveBeenCalled();
 
@@ -232,8 +236,8 @@ describe('ListingPlugin tests', () => {
         expect(listingPlugin._scrollTopOfListing).toHaveBeenCalled();
 
         expect(window.scrollTo).toHaveBeenCalledWith({
-            "behavior": "smooth",
-            "top": distanceToTop - listingPlugin.options.scrollOffset
+            behavior: 'smooth',
+            top: distanceToTop - listingPlugin.options.scrollOffset,
         });
     });
 
@@ -295,8 +299,8 @@ describe('ListingPlugin tests', () => {
                     </div>
                 </div>
                 `);
-            })
-        }
+            }),
+        };
 
         listingPlugin.changeListing(true);
 
@@ -320,17 +324,65 @@ describe('ListingPlugin tests', () => {
                     </div>
                 </div>
                 `);
-            })
-        }
+            }),
+        };
 
         const MockBooleanFilter = {
             getLabels: () => [{ label: 'Free shipping', id: 'shipping-free' }],
-            getValues: () => { return { 'shipping-free': '1' } }
+            getValues: () => { return { 'shipping-free': '1' }; },
         };
 
         const MockMultiSelectFilter = {
             getLabels: () => [{ label: 'Balistreri-Johns', id: '0190da2684cb710aac3d3291a340b3e3' }, { label: 'Pommes Spezial', id: '0190da2684cb710aac3d32919db761bb' }],
-            getValues: () => { return { 'manufacturer': ['0190da2684cb710aac3d3291a340b3e3', '0190da2684cb710aac3d32919db761bb'] } }
+            getValues: () => { return { 'manufacturer': ['0190da2684cb710aac3d3291a340b3e3', '0190da2684cb710aac3d32919db761bb'] }; },
+        };
+
+        // Register filters so that the labels can be built later
+        listingPlugin.registerFilter(MockBooleanFilter);
+        listingPlugin.registerFilter(MockMultiSelectFilter);
+
+        listingPlugin.changeListing(true);
+
+        const activeFilterElements = document.querySelectorAll('.filter-panel-active-container .filter-active');
+
+        // Verify active filters are generated inside the DOM with correct aria-labels
+        expect(activeFilterElements[0].textContent).toMatch('Free shipping');
+        expect(activeFilterElements[0].getAttribute('aria-label')).toBe('Remove filter: Free shipping');
+
+        expect(activeFilterElements[1].textContent).toMatch('Balistreri-Johns');
+        expect(activeFilterElements[1].getAttribute('aria-label')).toBe('Remove filter: Balistreri-Johns');
+
+        expect(activeFilterElements[2].textContent).toMatch('Pommes Spezial');
+        expect(activeFilterElements[2].getAttribute('aria-label')).toBe('Remove filter: Pommes Spezial');
+    });
+
+    /** @deprecated tag:v6.7.0 - Remove this test case. */
+    test('builds the labels for the active filters and renders them inside the filter panel (old implementation without ACCESSIBILITY_TWEAKS)', () => {
+        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': false });
+
+        listingPlugin.httpClient = {
+            get: jest.fn((url, callback) => {
+                callback(`
+                <div class="cms-element-product-listing-wrapper" data-listing="true">
+                    <div class="cms-element-product-listing">
+                        <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 2 products.">
+                            <div class="card product-box box-standard"></div>
+                            <div class="card product-box box-standard"></div>
+                        </div>
+                    </div>
+                </div>
+                `);
+            }),
+        };
+
+        const MockBooleanFilter = {
+            getLabels: () => [{ label: 'Free shipping', id: 'shipping-free' }],
+            getValues: () => { return { 'shipping-free': '1' }; },
+        };
+
+        const MockMultiSelectFilter = {
+            getLabels: () => [{ label: 'Balistreri-Johns', id: '0190da2684cb710aac3d3291a340b3e3' }, { label: 'Pommes Spezial', id: '0190da2684cb710aac3d32919db761bb' }],
+            getValues: () => { return { 'manufacturer': ['0190da2684cb710aac3d3291a340b3e3', '0190da2684cb710aac3d32919db761bb'] }; },
         };
 
         // Register filters so that the labels can be built later

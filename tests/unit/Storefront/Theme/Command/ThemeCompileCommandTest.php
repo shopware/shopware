@@ -16,7 +16,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 #[CoversClass(ThemeCompileCommand::class)]
 class ThemeCompileCommandTest extends TestCase
 {

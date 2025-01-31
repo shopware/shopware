@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class MissingRequirementException extends RequirementException
 {
     public function __construct(

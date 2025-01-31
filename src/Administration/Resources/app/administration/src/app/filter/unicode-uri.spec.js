@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 describe('src/app/filter/unicode-uri.ts', () => {
     const unicodeUriFilter = Shopware.Filter.getByName('unicodeUri');

@@ -19,7 +19,7 @@ class SalesChannelContextAssembledEventTest extends TestCase
     public function testConstruct(): void
     {
         $order = new OrderEntity();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $event = new SalesChannelContextAssembledEvent($order, $context);
 

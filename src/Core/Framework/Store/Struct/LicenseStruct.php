@@ -86,6 +86,10 @@ class LicenseStruct extends Struct
             $license->setNextBookingDate(new \DateTimeImmutable($data['nextBookingDate']));
         }
 
+        if (isset($data['expirationDate']) && \is_string($data['expirationDate'])) {
+            $license->setExpirationDate(new \DateTimeImmutable($data['expirationDate']));
+        }
+
         return $license;
     }
 

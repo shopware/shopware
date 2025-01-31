@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ProductCategoryPathsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

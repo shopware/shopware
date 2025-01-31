@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapGeneratedEvent extends Event implements ShopwareEvent
 {
     public function __construct(private readonly SalesChannelContext $context)

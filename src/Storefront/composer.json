@@ -28,7 +28,7 @@
         }
     },
     "require": {
-        "php": "~8.2.0 || ~8.3.0",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
         "cocur/slugify": "^4.3.0",
         "doctrine/dbal": "^3.9",
         "meyfa/php-svg": "^0.14.0",
@@ -52,7 +52,7 @@
         "symfony/mime": "~7.2.0",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.14.0"
+        "twig/twig": "^3.19.0"
     },
     "require-dev": {
         "symfony/css-selector": "~7.2.0",

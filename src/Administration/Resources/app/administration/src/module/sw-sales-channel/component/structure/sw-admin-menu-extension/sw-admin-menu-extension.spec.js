@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -55,7 +55,7 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
         Shopware.State.get('session').currentUser = {};
     });
 
-    it('should not show the sw-sales-channel-menu when privilege does not exists', async () => {
+    it('should not show the sw-sales-channel-menu when privilege does not exist', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

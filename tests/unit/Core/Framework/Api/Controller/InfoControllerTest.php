@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -29,7 +30,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(InfoController::class)]
 class InfoControllerTest extends TestCase
 {
@@ -40,6 +41,8 @@ class InfoControllerTest extends TestCase
     private Kernel&MockObject $kernelMock;
 
     private RouterInterface&MockObject $routerMock;
+
+    private FilesystemOperator&MockObject $fileSystemOperator;
 
     private InAppPurchase $inAppPurchase;
 
@@ -73,6 +76,9 @@ class InfoControllerTest extends TestCase
                 ]
             )
             ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
+
+        $this->fileSystemOperator->method('fileExists')
+            ->willReturn(true);
 
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
@@ -143,6 +149,7 @@ class InfoControllerTest extends TestCase
         $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
         $this->kernelMock = $this->createMock(Kernel::class);
         $this->routerMock = $this->createMock(RouterInterface::class);
+        $this->fileSystemOperator = $this->createMock(FilesystemOperator::class);
         $this->inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]);
 
         $this->infoController = new InfoController(
@@ -159,6 +166,7 @@ class InfoControllerTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(ApiRouteInfoResolver::class),
             $this->inAppPurchase,
+            $this->fileSystemOperator,
         );
     }
 }

@@ -4,7 +4,7 @@ import './sw-data-grid-column-boolean.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

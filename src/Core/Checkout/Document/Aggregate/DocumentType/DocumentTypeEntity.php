@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentTypeEntity extends Entity
 {
     use EntityCustomFieldsTrait;

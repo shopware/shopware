@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TranslatedFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class FileService extends AbstractFileService
 {
     private readonly CsvFileWriter $writer;

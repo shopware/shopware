@@ -109,10 +109,10 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Sales
 
     public function getCustomerId(): string
     {
-        $customerId = $this->getOrder()->getOrderCustomer()?->getCustomerId();
+        $customerId = $this->order->getOrderCustomer()?->getCustomerId();
 
         if (!$customerId) {
-            throw CartException::orderCustomerDeleted($this->getOrderId());
+            throw CartException::orderCustomerDeleted($this->order->getId());
         }
 
         return $customerId;
@@ -124,10 +124,10 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Sales
          * @deprecated tag:v6.7.0 - Will be removed
          */
         if ($this->context instanceof Context) {
-            $customerGroupId = $this->getOrder()->getOrderCustomer()?->getCustomer()?->getGroupId();
+            $customerGroupId = $this->order->getOrderCustomer()?->getCustomer()?->getGroupId();
 
             if (!$customerGroupId) {
-                throw CartException::orderCustomerDeleted($this->getOrderId());
+                throw CartException::orderCustomerDeleted($this->order->getId());
             }
 
             return $customerGroupId;

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import CmsElementFavorites from 'src/module/sw-cms/service/cms-element-favorites.service';
 

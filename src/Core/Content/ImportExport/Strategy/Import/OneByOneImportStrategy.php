@@ -9,13 +9,14 @@ use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class OneByOneImportStrategy implements ImportStrategyService
 {
     public function __construct(
@@ -49,8 +50,11 @@ class OneByOneImportStrategy implements ImportStrategyService
                 $result = $this->repository->upsert([$record], $context);
             }
 
-            $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);
-            $this->eventDispatcher->dispatch($afterRecord);
+            // @deprecated tag:v6.7.0 - remove this event with no replacement
+            if (!Feature::isActive('v6.7.0.0')) {
+                $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);
+                $this->eventDispatcher->dispatch($afterRecord);
+            }
 
             $progress->addProcessedRecords(1);
 

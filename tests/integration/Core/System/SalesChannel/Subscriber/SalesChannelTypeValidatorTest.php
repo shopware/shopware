@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\Exception\DefaultSalesChannelTypeCannotBeD
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelTypeValidatorTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-#[Package('checkout')]
+#[Package('discovery')]
 class CustomerGroupEntity extends Entity
 {
     use EntityCustomFieldsTrait;

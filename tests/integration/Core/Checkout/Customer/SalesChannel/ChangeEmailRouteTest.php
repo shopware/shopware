@@ -145,7 +145,7 @@ class ChangeEmailRouteTest extends TestCase
             ],
         ]);
 
-        $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannel()->getId(), $newEmail);
+        $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), $newEmail);
 
         $this->browser
             ->request(

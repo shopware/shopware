@@ -4,7 +4,7 @@ namespace Shopware\Core;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 final class PlatformRequest
 {
     /**
@@ -27,6 +27,7 @@ final class PlatformRequest
 
     public const HEADER_INDEXING_BEHAVIOR = 'indexing-behavior';
     public const HEADER_INDEXING_SKIP = 'indexing-skip';
+    public const HEADER_FORCE_CACHE_INVALIDATE = 'sw-force-cache-invalidate';
 
     /**
      * API Expectation headers to check requirements are fulfilled

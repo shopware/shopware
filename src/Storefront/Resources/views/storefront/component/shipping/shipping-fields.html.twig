@@ -1,15 +1,20 @@
+{# @deprecated tag:v6.7.0 - template will be removed, the list is now rendered in `component/payment/payment-form.html.twig` #}
 {% set collapseTriggerLabels = {
     collapseTriggerMoreLabel: 'checkout.collapseTriggerMore'|trans|sw_sanitize,
     collapseTriggerLessLabel: 'checkout.collapseTriggerLess'|trans|sw_sanitize
 } %}
 
+{# @deprecated tag:v6.7.0 - shipping method list is moved to `component/shipping/shipping-form.html.twig` #}
 {% block component_shipping_methods %}
     <div class="shipping-methods">
+
+        {# @deprecated tag:v6.7.0 - shipping method list is moved to `component/shipping/shipping-form.html.twig` #}
         {% block component_shipping_method %}
             {% for shipping in page.shippingMethods[:visibleShippingMethodsLimit] %}
                 {% sw_include '@Storefront/storefront/component/shipping/shipping-method.html.twig' %}
             {% endfor %}
 
+            {# @deprecated tag:v6.7.0 - block will be removed, all shipping methods will be shown for accessibility #}
             {% block component_shipping_method_collapse %}
                 {% if page.shippingMethods|length > visibleShippingMethodsLimit and visibleShippingMethodsLimit is not same as(null) %}
                     <div class="collapse">
@@ -18,17 +23,20 @@
                         {% endfor %}
                     </div>
 
+                    {# @deprecated tag:v6.7.0 - block will be removed, all shipping methods will be shown for accessibility #}
                     {% block component_shipping_method_collapse_trigger %}
                         <button class="btn btn-link confirm-checkout-collapse-trigger"
                                 type="button"
                                 data-collapse-checkout-confirm-methods="true"
                                 data-collapse-checkout-confirm-methods-options="{{ collapseTriggerLabels|json_encode }}">
                             <span class="confirm-checkout-collapse-trigger-label">
+                                {# @deprecated tag:v6.7.0 - block will be removed, all shipping methods will be shown for accessibility #}
                                 {% block component_shipping_method_collapse_trigger_label %}
                                     {{ collapseTriggerLabels.collapseTriggerMoreLabel }}
                                 {% endblock %}
                             </span>
 
+                            {# @deprecated tag:v6.7.0 - block will be removed, all shipping methods will be shown for accessibility #}
                             {% block component_shipping_method_collapse_trigger_icon %}
                                 {% sw_icon 'arrow-down' style {
                                     class: 'confirm-checkout-chevron',

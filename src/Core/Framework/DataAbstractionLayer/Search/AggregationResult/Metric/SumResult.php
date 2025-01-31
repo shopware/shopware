@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class SumResult extends AggregationResult
 {
     public function __construct(

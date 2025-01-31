@@ -18,7 +18,7 @@ class XmlValidator implements ValidatorInterface
 
         $backup_errors = libxml_use_internal_errors(true);
 
-        if (!simplexml_load_string($productExportContent)) {
+        if (simplexml_load_string($productExportContent) === false) {
             $errors->add(new XmlValidationError($productExportEntity->getId(), libxml_get_errors()));
         }
 

@@ -5,8 +5,11 @@ namespace Shopware\Core\Checkout\Order\Event;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -19,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware, FlowEventAware
+class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware, A11yRenderedDocumentAware, FlowEventAware
 {
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
@@ -44,12 +47,13 @@ class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAwa
     public function getMailStruct(): MailRecipientStruct
     {
         if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
-            if ($this->order->getOrderCustomer() === null) {
+            $orderCustomer = $this->order->getOrderCustomer();
+            if (!$orderCustomer) {
                 throw new MailEventConfigurationException('Data for mailRecipientStruct not available.', self::class);
             }
 
             $this->mailRecipientStruct = new MailRecipientStruct([
-                $this->order->getOrderCustomer()->getEmail() => $this->order->getOrderCustomer()->getFirstName() . ' ' . $this->order->getOrderCustomer()->getLastName(),
+                $orderCustomer->getEmail() => $orderCustomer->getFirstName() . ' ' . $orderCustomer->getLastName(),
             ]);
         }
 
@@ -73,17 +77,30 @@ class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAwa
 
     public function getOrderId(): string
     {
-        return $this->getOrder()->getId();
+        return $this->order->getId();
     }
 
     public function getCustomerId(): string
     {
-        $customer = $this->getOrder()->getOrderCustomer();
+        $orderCustomer = $this->order->getOrderCustomer();
 
-        if ($customer === null || $customer->getCustomerId() === null) {
-            throw OrderException::orderCustomerDeleted($this->getOrderId());
+        if (!$orderCustomer?->getCustomerId()) {
+            throw OrderException::orderCustomerDeleted($this->order->getId());
         }
 
-        return $customer->getCustomerId();
+        return $orderCustomer->getCustomerId();
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getA11yDocumentIds(): array
+    {
+        $extension = $this->context->getExtension(SendMailAction::MAIL_CONFIG_EXTENSION);
+        if (!$extension instanceof MailSendSubscriberConfig) {
+            return [];
+        }
+
+        return array_filter($extension->getDocumentIds());
     }
 }

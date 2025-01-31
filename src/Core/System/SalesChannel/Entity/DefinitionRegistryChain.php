@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundEx
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class DefinitionRegistryChain
 {
     public function __construct(

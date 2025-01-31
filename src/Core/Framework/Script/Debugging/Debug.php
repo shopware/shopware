@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Script\Debugging;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class Debug
 {
     protected array $dumps = [];

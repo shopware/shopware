@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;
@@ -102,8 +102,14 @@ class TestBootstrapper
         if ($this->classLoader !== null) {
             return $this->classLoader;
         }
-
         $classLoader = require $this->getProjectDir() . '/vendor/autoload.php';
+
+        // TODO: NEXT-39363 - Remove on league/oauth2-server update
+        // Workaround for league/event deprecation in php 8.4
+        $prev = error_reporting(0);
+        class_exists(\League\OAuth2\Server\AuthorizationServer::class);
+        error_clear_last();
+        error_reporting($prev);
 
         $this->addPluginAutoloadDev($classLoader);
 

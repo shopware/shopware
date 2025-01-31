@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('core')]
+#[Package('framework')]
 class WriteConstraintViolationException extends DataAbstractionLayerException implements WriteFieldException, ConstraintViolationExceptionInterface
 {
     public function __construct(

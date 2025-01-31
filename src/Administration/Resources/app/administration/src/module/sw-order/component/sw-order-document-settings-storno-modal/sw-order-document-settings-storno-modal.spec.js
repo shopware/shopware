@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const orderFixture = {
@@ -156,7 +156,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         expect(createButton.attributes().disabled).toBeDefined();
 
-        const createContextMenu = wrapper.find('.sw-context-button');
+        const createContextMenu = wrapper.findAll('.sw-context-button').at(1);
         expect(createContextMenu.attributes().disabled).toBeDefined();
     });
 

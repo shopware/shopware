@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 #[Group('cache')]
 #[Group('store-api')]
 class CachedSitemapRouteTest extends TestCase

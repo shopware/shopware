@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,10 +22,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('inventory')]
+#[Package('after-sales')]
 class ProductReviewLoader extends AbstractProductReviewLoader
 {
-    private const PARAMETER_NAME_LIMIT = 'limit';
     private const PARAMETER_NAME_PAGE = 'p';
     private const PARAMETER_NAME_SORT = 'sort';
     private const PARAMETER_NAME_LANGUAGE = 'language';
@@ -59,7 +59,9 @@ class ProductReviewLoader extends AbstractProductReviewLoader
         $reviewResult = ProductReviewResult::createFrom($reviews);
         $reviewResult->setMatrix($this->getReviewRatingMatrix($reviews));
         $reviewResult->setCustomerReview($this->getCustomerReview($productId, $context));
-        $reviewResult->setTotalReviews($reviews->getTotal());
+        if (!Feature::isActive('v6.7.0.0')) {
+            $reviewResult->setTotalReviews($reviews->getTotal());
+        }
         $reviewResult->setTotalReviewsInCurrentLanguage($this->getTotalReviewsInCurrentLanguage($reviews));
         $reviewResult->setProductId($productId);
         $reviewResult->setParentId($productParentId ?? $productId);
@@ -101,7 +103,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
 
     private function createReviewCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        $limit = (int) $request->get(self::PARAMETER_NAME_LIMIT, $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId()));
+        $limit = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId());
         $page = (int) $request->get(self::PARAMETER_NAME_PAGE, 1);
         $offset = max(0, $limit * ($page - 1));
 
@@ -119,7 +121,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
 
         if ($request->get(self::PARAMETER_NAME_LANGUAGE) === 'filter-language') {
             $criteria->addPostFilter(
-                new EqualsFilter('languageId', $context->getContext()->getLanguageId())
+                new EqualsFilter('languageId', $context->getLanguageId())
             );
         } else {
             $criteria->addAssociation('language.translationCode.code');
@@ -169,8 +171,8 @@ class ProductReviewLoader extends AbstractProductReviewLoader
         }
 
         $reviewFilters[] = new EqualsFilter('status', true);
-        if ($context->getCustomer() !== null) {
-            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomer()->getId());
+        if ($context->getCustomer()) {
+            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomerId());
         }
 
         $criteria->addAggregation(
@@ -185,7 +187,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
                 'language-filter',
                 new TermsAggregation('languageMatrix', 'languageId'),
                 [
-                    new EqualsFilter('languageId', $context->getContext()->getLanguageId()),
+                    new EqualsFilter('languageId', $context->getLanguageId()),
                     new MultiFilter(MultiFilter::CONNECTION_OR, $reviewFilters),
                 ]
             )

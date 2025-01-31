@@ -9,11 +9,11 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@framework')]
 class SalesChannelCurrencyDefinition extends CurrencyDefinition implements SalesChannelDefinitionInterface
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $context->getSalesChannelId()));
     }
 }

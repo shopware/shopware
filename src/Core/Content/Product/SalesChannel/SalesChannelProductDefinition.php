@@ -44,7 +44,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
     {
         if (!$this->hasAvailableFilter($criteria)) {
             $criteria->addFilter(
-                new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK)
+                new ProductAvailableFilter($context->getSalesChannelId(), ProductVisibilityDefinition::VISIBILITY_LINK)
             );
         }
 

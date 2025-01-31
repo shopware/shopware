@@ -8,7 +8,7 @@ use Shopware\Core\Profiling\Integration\ProfilerInterface;
 /**
  * @internal experimental atm
  */
-#[Package('core')]
+#[Package('framework')]
 class Profiler
 {
     /**

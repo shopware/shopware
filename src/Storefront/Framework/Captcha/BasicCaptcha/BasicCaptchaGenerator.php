@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Filesystem\Filesystem;
 
-#[Package('storefront')]
+#[Package('framework')]
 class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
 {
     private const FALLBACK_WIDTH_IMAGE = 390;

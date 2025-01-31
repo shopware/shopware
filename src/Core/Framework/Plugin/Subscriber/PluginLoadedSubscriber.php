@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PluginLoadedSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,7 +22,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ErrorController extends StorefrontController
 {
     /**
@@ -50,7 +51,7 @@ class ErrorController extends StorefrontController
 
             $request->attributes->set('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 
-            $salesChannelId = $context->getSalesChannel()->getId();
+            $salesChannelId = $context->getSalesChannelId();
             $cmsErrorLayoutId = $this->systemConfigService->getString('core.basicInformation.http404Page', $salesChannelId);
             if ($cmsErrorLayoutId !== '' && $is404StatusCode) {
                 $errorPage = $this->errorPageLoader->load($cmsErrorLayoutId, $request, $context);
@@ -62,7 +63,8 @@ class ErrorController extends StorefrontController
             } else {
                 $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
 
-                if (!$request->isXmlHttpRequest()) {
+                /* @deprecated tag:v6.7.0 - Remove the whole if branch as it is not needed anymore */
+                if (!$request->isXmlHttpRequest() && !Feature::isActive('cache_rework')) {
                     $header = $this->headerPageletLoader->load($request, $context);
                     $footer = $this->footerPageletLoader->load($request, $context);
                     $errorTemplate->setHeader($header);
@@ -104,18 +106,33 @@ class ErrorController extends StorefrontController
         }
 
         $response = [];
-        $response[] = [
-            'type' => 'danger',
-            'error' => 'invalid_captcha',
-            'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+
+        if (Feature::isActive('ACCESSIBILITY_TWEAKS')) {
+            $response[] = [
                 'type' => 'danger',
-                'list' => [$this->trans('error.' . $formViolations->getViolations()->get(0)->getCode())],
-            ]),
-            'input' => $this->renderView('@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig', [
-                'formId' => $request->get('formId'),
-                'formViolations' => $formViolations,
-            ]),
-        ];
+                'error' => 'invalid_captcha',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'danger',
+                    'list' => [$this->trans('error.' . $formViolations->getViolations()->get(0)->getCode())],
+                ]),
+            ];
+        } else {
+            $response[] = [
+                'type' => 'danger',
+                'error' => 'invalid_captcha',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'danger',
+                    'list' => [$this->trans('error.' . $formViolations->getViolations()->get(0)->getCode())],
+                ]),
+                /**
+                 * @deprecated tag:v6.7.0 - Storefront implementation changed. The response no longer needs the rendered input.
+                 */
+                'input' => $this->renderView('@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig', [
+                    'formId' => $request->get('formId'),
+                    'formViolations' => $formViolations,
+                ]),
+            ];
+        }
 
         return new JsonResponse($response);
     }

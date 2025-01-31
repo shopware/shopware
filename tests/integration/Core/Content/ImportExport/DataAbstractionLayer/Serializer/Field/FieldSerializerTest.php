@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class FieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

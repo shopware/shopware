@@ -27,6 +27,9 @@ class AdminSearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private AdminSearcher $searcher;

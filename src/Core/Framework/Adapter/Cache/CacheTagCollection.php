@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class CacheTagCollection
 {
     /**

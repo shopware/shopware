@@ -397,143 +397,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         ));
     }
 
-    public function testFetchesAndEncodesAndSendsPuidEntities(): void
-    {
-        $entityIds = [
-            ['id' => '0189e3c51ce6732e9339ac7664f5d966'],
-            ['id' => '0189e3c51ce6732e9339ac766535f1ab'],
-            ['id' => '0189e3c51ce6732e9339ac7665587c0e'],
-        ];
-
-        $definition = new PersonalEntityDefinition();
-        new StaticDefinitionInstanceRegistry(
-            [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
-        );
-
-        $doctrineResult = $this->createMock(Result::class);
-        $doctrineResult->expects(static::once())
-            ->method('iterateAssociative')
-            ->willReturn(new \ArrayIterator([
-                [
-                    'id' => Uuid::fromHexToBytes($entityIds[0]['id']),
-                    'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                    'first_name' => 'Test 1',
-                    'last_name' => 'last name',
-                    'email' => 'email',
-                    'puid' => 'c81b62fc-2d42-4c2a-b0cd-6a3278856058',
-                    'created_at' => '2021-08-01 12:00:00',
-                    'updated_at' => '2021-08-02 12:00:00',
-                ],
-                [
-                    'id' => Uuid::fromHexToBytes($entityIds[1]['id']),
-                    'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                    'first_name' => 'Test 2',
-                    'last_name' => 'last name',
-                    'email' => 'email',
-                    'puid' => 'bf64cf51-1216-4c5e-9b17-2e9a1d3b548a',
-                    'created_at' => '2021-08-01 12:00:00',
-                    'updated_at' => '2021-08-02 12:00:00',
-                ],
-                [
-                    'id' => Uuid::fromHexToBytes($entityIds[2]['id']),
-                    'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                    'first_name' => 'Test 3',
-                    'last_name' => 'last name',
-                    'email' => 'email',
-                    'puid' => '413256a2-c485-4ac2-8b54-6e77321a538d',
-                    'created_at' => '2021-08-01 12:00:00',
-                    'updated_at' => '2021-08-02 12:00:00',
-                ],
-            ]));
-
-        $connectionMock = $this->createConnectionMock();
-        $connectionMock->expects(static::once())
-            ->method('executeQuery')
-            ->willReturn($doctrineResult);
-
-        $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::once())
-            ->method('dispatch')
-            ->with(
-                PersonalEntityDefinition::ENTITY_NAME,
-                [
-                    [
-                        'id' => $entityIds[0]['id'],
-                        'firstName' => 'Test 1',
-                        'lastName' => 'last name',
-                        'email' => 'email',
-                        'puid' => 'c81b62fc-2d42-4c2a-b0cd-6a3278856058',
-                        'createdAt' => new \DateTimeImmutable('2021-08-01 12:00:00'),
-                        'updatedAt' => new \DateTimeImmutable('2021-08-02 12:00:00'),
-                    ],
-                    [
-                        'id' => $entityIds[1]['id'],
-                        'firstName' => 'Test 2',
-                        'lastName' => 'last name',
-                        'email' => 'email',
-                        'puid' => 'bf64cf51-1216-4c5e-9b17-2e9a1d3b548a',
-                        'createdAt' => new \DateTimeImmutable('2021-08-01 12:00:00'),
-                        'updatedAt' => new \DateTimeImmutable('2021-08-02 12:00:00'),
-                    ],
-                    [
-                        'id' => $entityIds[2]['id'],
-                        'firstName' => 'Test 3',
-                        'lastName' => 'last name',
-                        'email' => 'email',
-                        'puid' => '413256a2-c485-4ac2-8b54-6e77321a538d',
-                        'createdAt' => new \DateTimeImmutable('2021-08-01 12:00:00'),
-                        'updatedAt' => new \DateTimeImmutable('2021-08-02 12:00:00'),
-                    ],
-                ]
-            );
-
-        $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
-
-        $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
-        $usageDataAllowListService->method('isEntityAllowed')
-            ->willReturn(true);
-        $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
-                $fields = $definition->getFields()->getElements();
-
-                // filter out all VersionFields
-                $fields = array_filter($fields, function (Field $field) {
-                    return !($field instanceof VersionField);
-                });
-
-                return new FieldCollection($fields);
-            });
-
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->method('getShopId')->willReturn('current-shop-id');
-
-        $handler = new DispatchEntityMessageHandler(
-            new EntityDefinitionService(
-                [$definition],
-                $usageDataAllowListService,
-            ),
-            new ManyToManyAssociationService($connectionMock),
-            $usageDataAllowListService,
-            $connectionMock,
-            $entityDispatcher,
-            $consentService,
-            $shopIdProvider
-        );
-
-        $handler(new DispatchEntityMessage(
-            PersonalEntityDefinition::ENTITY_NAME,
-            Operation::CREATE,
-            new \DateTimeImmutable(),
-            $entityIds,
-            'current-shop-id'
-        ));
-    }
-
     public function testItAddsGivenAssociationFieldsToFieldsToSelect(): void
     {
         $definition = new EntityWithManyToManyAssociationField();
@@ -808,29 +671,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         static::assertArrayNotHasKey('one_to_one', $serialized);
     }
 
-    public function testSerializeAdmitsPuidField(): void
-    {
-        $definition = new EntityEncoderEntity();
-        new StaticDefinitionInstanceRegistry(
-            [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
-        );
-
-        $puid = '73df9248667e865f6e1dfbb8e1fc1dca642a990ea575954b74bf2ee18ebd11c48bc8301256b51a9921b36c7493bb3dea62171966c5de830d64403cd747786dad';
-        $serialized = DispatchEntityMessageHandler::serialize($definition->getFields(), [
-            'string' => 'foo',
-            'int' => '1337',
-            'blob' => 'blob',
-            'created_at' => (new \DateTimeImmutable('2023-07-31'))->format(Defaults::STORAGE_DATE_FORMAT),
-            'updated_at' => null,
-            'puid' => $puid,
-        ]);
-
-        static::assertArrayHasKey('puid', $serialized);
-        static::assertSame($puid, $serialized['puid']);
-    }
-
     public function testDoesNotDispatchIfNoEntitiesAreGiven(): void
     {
         $definition = new SyncEntityDefinition();
@@ -942,30 +782,6 @@ class SyncEntityDefinition extends EntityDefinition
     protected function defaultFields(): array
     {
         return [];
-    }
-}
-
-/**
- * @internal
- */
-class PersonalEntityDefinition extends SyncEntityDefinition
-{
-    public const ENTITY_NAME = 'personal_entity';
-
-    public function getEntityName(): string
-    {
-        return self::ENTITY_NAME;
-    }
-
-    protected function defineFields(): FieldCollection
-    {
-        $collection = parent::defineFields();
-
-        $collection->add(new StringField('first_name', 'firstName'));
-        $collection->add(new StringField('last_name', 'lastName'));
-        $collection->add(new StringField('email', 'email'));
-
-        return $collection;
     }
 }
 

@@ -12,7 +12,7 @@ use Symfony\Component\Process\Process;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class StreamedCommandResponseGenerator
 {
     public const DEFAULT_TIMEOUT = 900.0; // 15 minutes

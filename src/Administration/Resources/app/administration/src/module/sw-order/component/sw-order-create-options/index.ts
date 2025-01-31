@@ -1,4 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type { PropType } from 'vue';
 import type CriteriaType from 'src/core/data/criteria.data';
 
@@ -8,7 +7,7 @@ import './sw-order-create-options.scss';
 import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component, State } = Shopware;

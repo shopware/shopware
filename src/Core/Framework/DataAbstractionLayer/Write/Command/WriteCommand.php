@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class WriteCommand
 {
     protected string $entityName;

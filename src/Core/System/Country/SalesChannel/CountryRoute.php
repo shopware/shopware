@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class CountryRoute extends AbstractCountryRoute
 {
     final public const ALL_TAG = 'country-route';

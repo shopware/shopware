@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelContextService::class)]
 class SalesChannelContextServiceTest extends TestCase
 {

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 
 import { mount } from '@vue/test-utils';

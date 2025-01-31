@@ -13,7 +13,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface, ResetInterface
 {
     use CacheTrait;

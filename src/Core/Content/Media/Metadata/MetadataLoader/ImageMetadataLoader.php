@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ImageMetadataLoader implements MetadataLoaderInterface
 {
     /**

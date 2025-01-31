@@ -67,7 +67,7 @@
                     navPosition: 'bottom',
                     speed: 500,
                     gutter: gutter ? gutter : 0,
-                    controls: navigationArrows ? true : false,
+                    controls: navigationArrows != "none",
                     autoHeight: false,
                     startIndex: startIndexThumbnails ? startIndexThumbnails : null
                 },
@@ -134,6 +134,13 @@
             {% endif %}
 
             {% block element_image_gallery_inner %}
+                {% block element_image_gallery_inner_skip_gallery %}
+                    {% sw_include '@Storefront/storefront/component/skip-target.html.twig' with {
+                        targetId: block.id,
+                        snippet: 'component.cms.imageGallery.skipImageGallery',
+                    } %}
+                {% endblock %}
+
                 <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% else %} is-loading{% endif %} js-gallery-zoom-modal-container"
                     {% if zoom %}
                         data-magnifier="true"
@@ -172,7 +179,7 @@
                                                                             title: (image.translated.title ?: fallbackImageTitle)
                                                                         } %}
 
-                                                                        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                                                                         {% block element_image_gallery_inner_item_spatial %}
                                                                             {% if image.isSpatialObject() %}
                                                                                 <span class="badge bg-secondary m-3 position-absolute top-0 end-0 d-md-none">3D</span>
@@ -186,7 +193,7 @@
                                                                                         modelUrl: image.url,
                                                                                         lightIntensity: config('core.media.defaultLightIntensity'),
                                                                                         sliderPosition: loop.index0,
-                                                                                        dracoDecodersPath: asset('bundles/storefront/static/js/draco/', 'asset'),
+                                                                                        dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
                                                                                     } %}
                                                                                     <canvas
                                                                                         data-spatial-gallery-slider-viewer
@@ -216,7 +223,7 @@
                                                                                     {% endif %}
                                                                                 </div>
 
-                                                                                {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                                {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                                                                                 {% block element_image_gallery_qr_code_modal %}
                                                                                     {% sw_include '@Storefront/storefront/utilities/qr-code-modal.html.twig'
                                                                                         with {
@@ -274,9 +281,9 @@
                                             {% endblock %}
 
                                             {% block element_image_gallery_inner_controls %}
-                                                {% if navigationArrows %}
+                                                {% if navigationArrows != "none" %}
                                                     <div class="gallery-slider-controls"
-                                                         data-gallery-slider-controls="{% if navigationArrows %}true{% else %}false{% endif %}">
+                                                         data-gallery-slider-controls="true">
                                                         {% block element_image_gallery_inner_control_items %}
                                                             {% block element_image_gallery_inner_control_prev %}
                                                                 <button class="base-slider-controls-prev gallery-slider-controls-prev{% if navigationArrows == "outside" %} is-nav-prev-outside{% elseif navigationArrows == "inside" %} is-nav-prev-inside{% endif %}"
@@ -309,7 +316,7 @@
                                                         title: (mediaItems|first.translated.title ?: fallbackImageTitle)
                                                     } %}
 
-                                                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                    {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                                                     {% block element_image_gallery_inner_single_spatial %}
                                                         {% for image in mediaItems %}
                                                             {% if image.isSpatialObject() %}
@@ -324,7 +331,7 @@
                                                                         modelUrl: image.url,
                                                                         lightIntensity: config('core.media.defaultLightIntensity'),
                                                                         sliderPosition: loop.index0,
-                                                                        dracoDecodersPath: asset('bundles/storefront/static/js/draco/', 'asset'),
+                                                                        dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
                                                                     } %}
                                                                     <canvas
                                                                             data-spatial-gallery-slider-viewer
@@ -353,7 +360,7 @@
                                                                         {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                     {% endif %}
                                                                 </div>
-                                                                {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                                                                 {% block element_image_gallery_qr_code_modal_single %}
                                                                     {% sw_include '@Storefront/storefront/utilities/qr-code-modal.html.twig'
                                                                         with {
@@ -410,7 +417,7 @@
                                 {% endblock %}
 
                                 {% block element_image_gallery_slider_dots %}
-                                    {% if imageCount > 1 and navigationDots %}
+                                    {% if imageCount > 1 and navigationDots != "none" %}
                                         <div class="base-slider-dots {% if imageCount > maxItemsToShowNav %} hide-dots{% elseif imageCount > maxItemsToShowMobileNav %} hide-dots-mobile{% endif %}">
                                             {% block element_image_gallery_slider_dots_buttons %}
                                                 {% for image in mediaItems %}
@@ -449,7 +456,7 @@
                                                                         title: (image.translated.title ?: fallbackImageTitle)
                                                                     } %}
 
-                                                                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                    {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                                                                     {% block element_image_gallery_inner_thumbnails_item_inner_spatial %}
                                                                         {% if image.isSpatialObject() %}
                                                                             {% sw_icon '3d-placeholder' style {
@@ -612,7 +619,7 @@
                                                                                                 } %}
 
                                                                                                 {% block element_image_gallery_inner_zoom_modal_slider_item_image %}
-                                                                                                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                                                    {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                                                                                                     {% block element_image_gallery_inner_zoom_modal_slider_item_image_spatial %}
                                                                                                         {% if image.isSpatialObject() %}
                                                                                                             {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
@@ -651,7 +658,7 @@
                                                                                                     {% endblock %}
                                                                                                 {% endblock %}
                                                                                             </div>
-                                                                                            {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                                            {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                                                                                             {% block element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial %}
                                                                                                 {% if image.isSpatialObject() %}
                                                                                                     <div class="spatial-canvas-spinner position-absolute top-50 start-50 translate-middle bg-white flex justify-content-center align-items-center" style="--bs-bg-opacity: .8;">
@@ -664,7 +671,7 @@
                                                                                                             modelUrl: image.url,
                                                                                                             lightIntensity: config('core.media.defaultLightIntensity'),
                                                                                                             sliderPosition: loop.index0,
-                                                                                                            dracoDecodersPath: asset('bundles/storefront/static/js/draco/', 'asset'),
+                                                                                                            dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
                                                                                                         } %}
                                                                                                         <canvas
                                                                                                                 data-spatial-zoom-gallery-slider-viewer
@@ -766,7 +773,7 @@
                                                                                                         title: (image.translated.title ?: fallbackImageTitle)
                                                                                                     } %}
 
-                                                                                                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                                                    {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                                                                                                     {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner_spatial %}
                                                                                                         {% if image.isSpatialObject() %}
                                                                                                             {% sw_icon '3d-placeholder' style {
@@ -824,4 +831,8 @@
             {% endif %}
         {% endblock %}
     </div>
+
+    {% block element_image_gallery_target_after_gallery %}
+        <div id="content-after-target-{{ block.id }}"></div>
+    {% endblock %}
 {% endblock %}

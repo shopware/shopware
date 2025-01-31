@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(AddOrderAffiliateAndCampaignCodeAction::class)]
 class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 {

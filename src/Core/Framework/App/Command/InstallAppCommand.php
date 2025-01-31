@@ -27,7 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'app:install',
     description: 'Installs an app',
 )]
-#[Package('core')]
+#[Package('framework')]
 class InstallAppCommand extends Command
 {
     public function __construct(

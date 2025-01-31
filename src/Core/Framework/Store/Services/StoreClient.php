@@ -34,6 +34,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('checkout')]
 class StoreClient
 {
+    public const EXTENSION_LICENSE_IS_ALREADY_CANCELLED = 'ShopwarePlatformException-61';
     private const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
 
     public function __construct(
@@ -351,7 +352,7 @@ class StoreClient
                 $error = \json_decode((string) $e->getResponse()->getBody(), true, flags: \JSON_THROW_ON_ERROR);
 
                 // It's okay when its already canceled
-                if (isset($error['type']) && $error['type'] === 'EXTENSION_LICENSE_IS_ALREADY_CANCELLED') {
+                if (isset($error['code']) && $error['code'] === self::EXTENSION_LICENSE_IS_ALREADY_CANCELLED) {
                     return;
                 }
             }

@@ -133,7 +133,7 @@ $sw-media-base-item-preview-background: $color-white;
         animation-iteration-count: infinite;
     }
 
-    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    // @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
     .sw-media-base-item__labels {
         display: flex;
         position: absolute;
@@ -149,7 +149,7 @@ $sw-media-base-item-preview-background: $color-white;
         }
     }
 
-    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    // @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
     @container previewcontainer (max-width: 60px) {
         .sw-media-base-item__labels {
             display: none;

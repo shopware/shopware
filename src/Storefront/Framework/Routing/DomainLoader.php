@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 /**
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
-#[Package('storefront')]
+#[Package('framework')]
 class DomainLoader extends AbstractDomainLoader
 {
     /**

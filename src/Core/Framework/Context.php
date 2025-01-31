@@ -11,10 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
-use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
-#[Package('core')]
+#[Package('framework')]
 class Context extends Struct
 {
     use StateAwareTrait;
@@ -24,11 +23,6 @@ class Context extends Struct
     final public const CRUD_API_SCOPE = 'crud';
 
     final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
-
-    /**
-     * @var non-empty-array<string>
-     */
-    protected array $languageIdChain;
 
     protected string $scope = self::USER_SCOPE;
 
@@ -41,14 +35,14 @@ class Context extends Struct
     protected $extensions = [];
 
     /**
-     * @param array<string> $languageIdChain
+     * @param non-empty-list<string> $languageIdChain
      * @param array<string> $ruleIds
      */
     public function __construct(
         protected ContextSource $source,
         protected array $ruleIds = [],
         protected string $currencyId = Defaults::CURRENCY,
-        array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
+        protected array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         protected string $versionId = Defaults::LIVE_VERSION,
         protected float $currencyFactor = 1.0,
         protected bool $considerInheritance = false,
@@ -62,13 +56,13 @@ class Context extends Struct
             $this->scope = self::SYSTEM_SCOPE;
         }
 
+        // Should be already a valid language chain, but we will ensure it anyway
+        $languageIdChain = array_values(array_filter($languageIdChain));
         if (empty($languageIdChain)) {
-            throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
+            throw FrameworkException::invalidArgumentException('Argument "languageIdChain" must not be empty');
         }
 
-        /** @var non-empty-array<string> $chain */
-        $chain = array_keys(array_flip(array_filter($languageIdChain)));
-        $this->languageIdChain = $chain;
+        $this->languageIdChain = $languageIdChain;
     }
 
     /**
@@ -120,7 +114,7 @@ class Context extends Struct
     }
 
     /**
-     * @return non-empty-array<string>
+     * @return non-empty-list<string>
      */
     public function getLanguageIdChain(): array
     {
@@ -150,6 +144,8 @@ class Context extends Struct
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
+     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $callback
@@ -210,13 +206,15 @@ class Context extends Struct
     public function setRuleIds(array $ruleIds): void
     {
         if ($this->rulesLocked) {
-            throw new ContextRulesLockedException();
+            throw FrameworkException::contextRulesLocked();
         }
 
         $this->ruleIds = array_filter(array_values($ruleIds));
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
+     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $function
@@ -234,6 +232,8 @@ class Context extends Struct
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
+     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $function

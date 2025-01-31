@@ -1,9 +1,14 @@
+{# @deprecated tag:v6.7.0 - Fallback will be removed, add header directly #}
+{% if not feature('cache_rework') and not header is defined and page is defined %}
+    {% set header = page.header %}
+{% endif %}
+
 {% block layout_header_actions_language_widget %}
     {% if position is empty %}
         {% set position = 'top-bar' %}
     {% endif %}
 
-    {% if page.header.languages.count > 1 %}
+    {% if header.languages.count > 1 %}
         <div class="top-bar-nav-item top-bar-language">
             {% block layout_header_actions_language_widget_form %}
                 <form method="post"
@@ -11,7 +16,7 @@
                       class="language-form"
                       data-form-auto-submit="true">
                     {% block layout_header_actions_language_widget_content %}
-                        {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('-') %}
+                        {% set isoCode = context.languageInfo.localeCode|lower|split('-') %}
                         {% set language = isoCode[0] %}
                         {% set country = isoCode[1] %}
 
@@ -22,17 +27,17 @@
                                     data-bs-toggle="dropdown"
                                     aria-haspopup="true"
                                     aria-expanded="false"
-                                    aria-label="{{ 'header.languageTrigger'|trans({ '%lang%': page.header.activeLanguage.name })|striptags }}">
+                                    aria-label="{{ 'header.languageTrigger'|trans({ '%lang%': context.languageInfo.name })|striptags }}">
                                 <span aria-hidden="true" class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></span>
                                 {# @deprecated tag:v6.7.0 - Toggling the text display will use Bootstrap helper classes instead of custom CSS. #}
-                                <span class="top-bar-nav-text{% if feature('ACCESSIBILITY_TWEAKS') %} d-none d-md-inline{% endif %}">{{ page.header.activeLanguage.name }}</span>
+                                <span class="top-bar-nav-text{% if feature('ACCESSIBILITY_TWEAKS') %} d-none d-md-inline{% endif %}">{{ context.languageInfo.name }}</span>
                             </button>
 
                             {% block layout_header_actions_languages_widget_form_items %}
                                 <ul class="top-bar-list dropdown-menu dropdown-menu-end"
                                     aria-label="{{ 'header.languageList'|trans|striptags }}">
-                                    {% for language in page.header.languages %}
-                                        {% set isActiveLanguage = language.id is same as(page.header.activeLanguage.id) %}
+                                    {% for language in header.languages %}
+                                        {% set isActiveLanguage = language.id is same as(context.context.languageId) %}
 
                                         {# @deprecated tag:v6.7.0 - `dropdown-item` class will be on the button as docuented by Bootstrap: https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items #}
                                         {# @deprecated tag:v6.7.0 - `item-checked` class will be removed. Bootstrap class `active` will be used instead. #}
@@ -72,7 +77,7 @@
                             {% endblock %}
                         </div>
 
-                        <input name="redirectTo" type="hidden" value="{{ app.request.get('_route') }}">
+                        <input name="redirectTo" type="hidden" value="{{ activeRoute }}">
 
                         {% for key, value in app.request.attributes.get('_route_params') %}
                             <input name="redirectParameters[{{ key }}]" type="hidden" value="{{ value }}">

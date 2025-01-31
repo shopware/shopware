@@ -6,7 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaException extends HttpException
 {
     public const MEDIA_INVALID_CONTENT_LENGTH = 'CONTENT__MEDIA_INVALID_CONTENT_LENGTH';

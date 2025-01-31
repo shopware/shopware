@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportBeforeImportRowEvent extends Event
 {
     public function __construct(

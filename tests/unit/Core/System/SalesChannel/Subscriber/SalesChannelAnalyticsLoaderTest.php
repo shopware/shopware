@@ -22,7 +22,7 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
 {
     public function testSalesChannelDoesNotHaveAnalytics(): void
     {
-        $event = $this->getEvent(Generator::createSalesChannelContext());
+        $event = $this->getEvent(Generator::generateSalesChannelContext());
         $repository = new StaticEntityRepository([]);
 
         $loader = new SalesChannelAnalyticsLoader($repository);
@@ -34,7 +34,7 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
     public function testSalesChannelHasAnalytics(): void
     {
         $analyticsId = Uuid::randomHex();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
         $event = $this->getEvent($salesChannelContext);
         $analytics = new SalesChannelAnalyticsEntity();
@@ -51,7 +51,7 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
     public function testSalesChannelAnalyticsNotFound(): void
     {
         $analyticsId = Uuid::randomHex();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
         $event = $this->getEvent($salesChannelContext);
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);

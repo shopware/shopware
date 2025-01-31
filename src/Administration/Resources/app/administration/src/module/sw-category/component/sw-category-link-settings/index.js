@@ -4,7 +4,7 @@ import './sw-category-link-settings.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package inventory
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

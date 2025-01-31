@@ -1,26 +1,21 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_upload_v2 %}
 <div
     class="sw-media-upload-v2 sw-product-variants-media-upload"
     :class="{ 'is--disabled': disabled }"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_media_upload_content %}
     <div class="sw-media-upload-v2__content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_media_upload_drop_zone %}
         <div
             ref="dropzone"
             class="sw-media-upload-v2__dropzone"
         >
             <div class="sw-product-variants-media-upload__preview-images">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_media_upload_cover_preview %}
                 <div
                     v-if="product.cover || cover"
                     class="sw-product-variants-media-upload__preview-cover"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_variants_media_upload_cover_image %}
                     <sw-media-preview-v2
                         class="sw-product-variants-media-upload__cover-image"
@@ -32,7 +27,6 @@
                     v-else-if="source.media.length > 0"
                     class="sw-product-variants-media-upload__preview-cover"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_variants_media_upload_cover_image_empty %}
                     <sw-media-preview-v2
                         class="sw-product-variants-media-upload__cover-image"
@@ -42,7 +36,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_media_upload_preview %}
                 <div
                     class="sw-product-variants-media-upload__images"
@@ -53,7 +46,6 @@
                         :key="index"
                         class="sw-product-variants-media-upload__image"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block ssw_product_variants_media_upload_content_preview_file %}
                         <sw-media-preview-v2
                             :key="item.id"
@@ -63,15 +55,12 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_media_upload_action_buttons %}
                         <sw-context-button
                             class="sw-product-variants-media-upload__context-button"
                             :disabled="disabled"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variants_media_upload_context %}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variants_media_upload_context_cover_action %}
                             <sw-context-menu-item
                                 v-if="!isCover(item)"
@@ -81,14 +70,12 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variants_media_upload_context_preview_action %}
                             <sw-context-menu-item @click="previewMedia(item)">
                                 {{ $tc('global.sw-product-image.context.buttonPreviewImage') }}
                             </sw-context-menu-item>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variants_media_upload_context_delete_action %}
                             <sw-context-menu-item
                                 variant="danger"
@@ -104,16 +91,13 @@
                 </div>
                 {% endblock %}
             </div>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_media_upload_actions %}
             <div class="sw-media-upload-v2__actions">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_media_upload_actions_regular %}
                 <div
                     v-if="mediaSource.length <= 2"
                     class="sw-product-variants-media-upload__regular-button"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_variants_media_upload_actions_regular_upload_button %}
                     <sw-button
                         class="sw-media-upload-v2__button upload"
@@ -126,7 +110,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_variants_media_upload_actions_regular_open_button %}
                     <sw-button
                         variant="primary"
@@ -143,7 +126,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_media_upload_actions_compact %}
                 <div
                     v-else
@@ -163,16 +145,13 @@
                         class="sw-product-variants-media-upload__context-button"
                         :disabled="disabled"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_media_upload_actions_compact_button_context %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_media_upload_actions_compact_button_context_upload_action %}
                         <sw-context-menu-item @click="onClickUpload">
                             {{ $tc('global.sw-media-upload-v2.buttonFilesUpload') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_media_upload_actions_compact_button_context_open_action %}
                         <sw-context-menu-item @click="showMediaModal = true">
                             {{ $tc('global.sw-media-upload-v2.buttonOpenMedia') }}
@@ -189,7 +168,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_media_upload_file_input %}
     <form
         ref="fileForm"
@@ -208,7 +186,6 @@
     </form>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_media_upload_actions_media_modal %}
     <sw-media-modal-v2
         v-if="showMediaModal"
@@ -219,7 +196,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_media_upload_listener %}
     <sw-upload-listener
         auto-upload
@@ -229,7 +205,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_media_upload_preview_modal %}
     <sw-image-preview-modal
         v-if="showPreviewModal"

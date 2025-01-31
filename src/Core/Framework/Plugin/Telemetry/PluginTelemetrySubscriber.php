@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PluginTelemetrySubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly Meter $meter)

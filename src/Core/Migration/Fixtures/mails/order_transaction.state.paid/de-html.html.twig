@@ -144,6 +144,26 @@ Bestellnummer: {{ order.orderNumber }}<br>
     Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
     </br>
     Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
+    <br><br>
+    {% if a11yDocuments %}
+        Folgend stellen wir barrierefreie Dokumente als HTML-Version zur Verfügung:<br><br>
+        {% for a11y in a11yDocuments %}
+            {% set documentLink = rawUrl(
+                'frontend.account.order.single.document.a11y',
+                {
+                    documentId: a11y.documentId,
+                    deepLinkCode: a11y.deepLinkCode,
+                    fileType: a11y.fileExtension,
+                },
+                salesChannel.domains|first.url
+            )%}
+
+            - <a href="{{ documentLink }}" target="_blank">{{ documentLink }}</a> <br>
+        {% endfor %}<br>
+
+        Aus Datenschutzgründen ist für die HTML-Version ein Login erforderlich.<br><br>
+        Im Falle einer Gastbestellung können Sie Ihre Postanschrift und die Postleitzahl der Rechnungsanschrift verwenden.<br>
+    {% endif %}
 </p>
 <br>
 </div>

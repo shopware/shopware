@@ -16,5 +16,6 @@ module.exports = {
         "no-unused-vars": "warn",
         "@typescript-eslint/no-unused-vars": "warn",
         "playwright/expect-expect": "off",
+        "playwright/no-skipped-test": ["error", { allowConditional: true }],
     },
 };

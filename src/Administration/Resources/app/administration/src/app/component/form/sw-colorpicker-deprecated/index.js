@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 const debounce = Shopware.Utils.debounce;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description

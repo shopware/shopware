@@ -1,7 +1,7 @@
 const { Application } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/service/shopware-updates-listener
  */

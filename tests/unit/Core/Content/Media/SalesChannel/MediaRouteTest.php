@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(MediaRoute::class)]
 class MediaRouteTest extends TestCase
 {

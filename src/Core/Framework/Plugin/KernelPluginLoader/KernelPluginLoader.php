@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 /**
  * @phpstan-type PluginInfo array{ baseClass: string, name: string, active: bool, path: string, version: string|null, autoload: array<string, string[]>, managedByComposer: bool, composerName: string }
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class KernelPluginLoader extends Bundle
 {
     /**
@@ -276,8 +276,7 @@ abstract class KernelPluginLoader extends Bundle
         foreach ($this->pluginInfos as $pluginData) {
             $className = $pluginData['baseClass'];
 
-            $pluginClassFilePath = $this->classLoader->findFile($className);
-            if (!class_exists($className) || !$pluginClassFilePath || !file_exists($pluginClassFilePath)) {
+            if (!class_exists($className)) {
                 continue;
             }
 

@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_section %}
 <div
     class="sw-cms-section"
     :class="[sectionClasses, customSectionClass, sectionTypeClass]"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_section_actions %}
     <sw-cms-section-actions
         :section="section"
@@ -24,7 +22,6 @@
             :class="expandedClass"
             @toggle="toggleVisibility"
         />
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_sidebar %}
         <div
             v-if="isSideBarType && (!isCollapsed || !isVisible)"
@@ -33,7 +30,6 @@
         >
 
             <template v-if="sideBarEmpty">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_sidebar_block_empty %}
                 <div
                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'sidebar') }"
@@ -55,7 +51,6 @@
 
             <template v-else>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_sidebar_add_first_block %}
                 <sw-cms-stage-add-block
                     v-if="isSystemDefaultLanguage && !disabled"
@@ -69,7 +64,6 @@
                     v-for="(block, index) in sideBarBlocks"
                     :key="block.id"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_section_sidebar_block %}
                     <sw-cms-block
                         class="sw-cms-stage-block"
@@ -80,10 +74,8 @@
                         @block-overlay-click="onBlockSelection(block)"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_section_sidebar_block_component %}
                         <component :is="`sw-cms-block-${block.type}`">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_section_content_block_slot %}
                             <template
                                 v-for="el in block.slots"
@@ -102,7 +94,6 @@
                     </sw-cms-block>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_section_add_sidebar_block %}
                     <sw-cms-stage-add-block
                         v-if="isSystemDefaultLanguage && !disabled"
@@ -116,7 +107,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_content %}
         <div
             v-if="!isCollapsed || !isVisible"
@@ -124,7 +114,6 @@
             :class="sectionContentClasses"
         >
             <template v-if="mainContentEmpty">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_content_block_empty %}
                 <div
                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'main') }"
@@ -146,7 +135,6 @@
 
             <template v-else>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_content_add_first_block %}
                 <sw-cms-stage-add-block
                     v-if="isSystemDefaultLanguage && !disabled"
@@ -160,7 +148,6 @@
                     v-for="(block, index) in mainContentBlocks"
                     :key="block.id"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_section_content_block %}
                     <sw-cms-block
                         class="sw-cms-stage-block"
@@ -171,13 +158,11 @@
                         @block-overlay-click="onBlockSelection(block)"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_section_content_block_component %}
                         <component
                             :is="`sw-cms-block-${block.type}`"
                             :block="block"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_section_content_block_component_slot %}
                             <template
                                 v-for="el in block.slots"
@@ -196,7 +181,6 @@
                     </sw-cms-block>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_section_add_content_block %}
                     <sw-cms-stage-add-block
                         v-if="isSystemDefaultLanguage && !disabled"

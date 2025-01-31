@@ -13,7 +13,7 @@ use Shopware\Core\System\Salutation\SalutationSorter;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(SalutationSorter::class)]
 class SalutationSorterTest extends TestCase
 {

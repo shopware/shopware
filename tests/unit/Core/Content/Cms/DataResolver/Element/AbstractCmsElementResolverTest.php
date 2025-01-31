@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(AbstractCmsElementResolver::class)]
 class AbstractCmsElementResolverTest extends TestCase
 {
@@ -261,7 +261,7 @@ class AbstractCmsElementResolverTest extends TestCase
         }
 
         return new EntityResolverContext(
-            Generator::createSalesChannelContext(),
+            Generator::generateSalesChannelContext(),
             new Request(),
             $definition ?? $this->definition,
             $product

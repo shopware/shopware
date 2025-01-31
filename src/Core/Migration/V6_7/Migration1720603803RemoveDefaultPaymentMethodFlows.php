@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1720603803RemoveDefaultPaymentMethodFlows extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -31,7 +31,6 @@ class Migration1720603803RemoveDefaultPaymentMethodFlows extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
         $connection->delete('flow', ['event_name' => 'checkout.customer.changed-payment-method']);
     }
 }

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Filesystem;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 interface Source
 {
     public static function name(): string;

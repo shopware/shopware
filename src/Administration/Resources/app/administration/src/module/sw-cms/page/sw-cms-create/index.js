@@ -5,7 +5,7 @@ const utils = Shopware.Utils;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,

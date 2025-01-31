@@ -59,7 +59,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->requestStack = $this->createMock(RequestStack::class);
         $this->rateLimiter = $this->createMock(RateLimiter::class);
-        $this->context = Generator::createSalesChannelContext();
+        $this->context = Generator::generateSalesChannelContext();
     }
 
     public function testSendRecoveryMail(): void

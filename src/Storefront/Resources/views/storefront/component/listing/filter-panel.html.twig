@@ -100,7 +100,8 @@
             {% endblock %}
 
             {% block component_filter_panel_active_container %}
-                <div class="filter-panel-active-container">
+                {# @deprecated tag:v6.7.0 - Active filters container will be a simple flex layout with gap instead of putting margins on the individual buttons. #}
+                <div class="filter-panel-active-container{% if feature('ACCESSIBILITY_TWEAKS') %} d-flex flex-wrap gap-2{% endif %}">
                     {% block component_filter_panel_active_container_inner %}{% endblock %}
                 </div>
             {% endblock %}

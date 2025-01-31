@@ -165,7 +165,7 @@ class ProductListingLoaderTest extends TestCase
         $this->systemConfigService->set(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             true,
-            $this->salesChannelContext->getSalesChannel()->getId()
+            $this->salesChannelContext->getSalesChannelId()
         );
 
         // update main variant to be out of stock
@@ -257,7 +257,7 @@ class ProductListingLoaderTest extends TestCase
         $this->systemConfigService->set(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             true,
-            $this->salesChannelContext->getSalesChannel()->getId()
+            $this->salesChannelContext->getSalesChannelId()
         );
 
         $this->productRepository->update([[
@@ -556,7 +556,7 @@ class ProductListingLoaderTest extends TestCase
                 ],
                 'visibilities' => [
                     [
-                        'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                        'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                         'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                     ],
                 ],

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-entity-multi-id-select.html.twig';
 
 const { Component, Context, Mixin } = Shopware;

@@ -5,7 +5,10 @@ namespace Shopware\Core\Framework\Migration\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('core')]
+/**
+ * @deprecated tag:v6.7.0 - reason:remove-exception - Will be removed. Use \Shopware\Core\Framework\Migration\MigrationException::invalidMigrationClass instead
+ */
+#[Package('framework')]
 class InvalidMigrationClassException extends ShopwareHttpException
 {
     public function __construct(

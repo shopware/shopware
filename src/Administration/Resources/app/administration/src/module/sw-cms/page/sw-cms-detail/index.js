@@ -13,7 +13,7 @@ const debounceTimeout = 800;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,

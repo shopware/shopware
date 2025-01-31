@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-detail-base.html.twig';
 

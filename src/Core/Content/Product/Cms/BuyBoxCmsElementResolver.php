@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     /**
@@ -79,8 +79,8 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
         $criteria = new Criteria();
 
         $reviewFilters[] = new EqualsFilter('status', true);
-        if ($context->getCustomer() !== null) {
-            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomer()->getId());
+        if ($context->getCustomer()) {
+            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomerId());
         }
 
         $criteria->addFilter(

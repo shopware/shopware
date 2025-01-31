@@ -4,7 +4,7 @@ import './sw-tree-item.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

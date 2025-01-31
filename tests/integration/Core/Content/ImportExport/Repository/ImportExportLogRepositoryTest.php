@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportLogRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

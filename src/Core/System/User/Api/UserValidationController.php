@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class UserValidationController extends AbstractController
 {
     /**

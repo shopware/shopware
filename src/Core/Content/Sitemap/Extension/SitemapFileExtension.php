@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @extends Extension<Response>
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 final class SitemapFileExtension extends Extension
 {
     public const NAME = 'sitemap.get-file';

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,9 @@ class HeaderPageletLoaderTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
+    /**
+     * @var EntityRepository<LanguageCollection>
+     */
     private EntityRepository $languageRepository;
 
     protected function setUp(): void

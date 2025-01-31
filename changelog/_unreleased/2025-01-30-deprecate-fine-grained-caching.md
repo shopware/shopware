@@ -1,6 +1,6 @@
 ---
 title: Deprecate fine-grained caching
-issue: NEXT-4o494
+issue: NEXT-40494
 ---
 # Core
 * Changed `\Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber` and `\Shopware\Core\System\SystemConfig\SystemConfigService` to tag system configs per sales channel.

@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-import-type ApiType from DefinitionService
  * @phpstan-import-type OpenApiSpec from DefinitionService
  * @phpstan-import-type ApiSchema from DefinitionService
+ * @phpstan-import-type ApiSchemaOptions from DefinitionService
  */
 #[Package('framework')]
 interface ApiDefinitionGeneratorInterface
@@ -23,10 +24,11 @@ interface ApiDefinitionGeneratorInterface
      * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
      * @param Api $api
      * @param ApiType $apiType
+     * @param ApiSchemaOptions $schemaOptions
      *
      * @return OpenApiSpec
      */
-    public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array;
+    public function generate(array $definitions, string $api, string $apiType, array $schemaOptions): array;
 
     /**
      * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions

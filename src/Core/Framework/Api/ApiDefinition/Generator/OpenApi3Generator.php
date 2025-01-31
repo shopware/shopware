@@ -8,18 +8,19 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiUnusedSchemaRemover;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiUnusedSchemaRemover;
 
 /**
  * @internal
  *
  * @phpstan-import-type OpenApiSpec from DefinitionService
+ * @phpstan-import-type ApiSchemaOptions from DefinitionService
  */
 #[Package('framework')]
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
@@ -48,15 +49,16 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     /**
      * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param ApiSchemaOptions $schemaOptions
      *
      * @return OpenApiSpec
      */
-    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TYPE_JSON_API, ?string $bundleName = null): array
+    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TYPE_JSON_API, array $schemaOptions = []): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
         $openApi = new OpenApi([]);
-        $this->openApiBuilder->enrich($openApi, $api);
+        $this->openApiBuilder->enrich($openApi, $api, $apiType);
 
         ksort($definitions);
 
@@ -95,6 +97,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         $schemaPaths = [$this->schemaPath];
 
+        $bundleName = $schemaOptions['bundleName'] ?? null;
         if (!empty($bundleName)) {
             $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
             $data['paths'] = [];
@@ -106,10 +109,14 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
-        $unusedSchemaRemover = new OpenApiUnusedSchemaRemover();
-        $finalSpecsWithoutUnusedComponents = $unusedSchemaRemover->removeNotUsedComponentSchemas($finalSpecs);
 
-        return $finalSpecsWithoutUnusedComponents;
+        $removeUnusedSchema = $schemaOptions['unusedComponents'] ?? true;
+        if (!$removeUnusedSchema) {
+            $unusedSchemaRemover = new OpenApiUnusedSchemaRemover($finalSpecs);
+            $finalSpecs = $unusedSchemaRemover->removeUnusedComponentSchemas();
+        }
+
+        return $finalSpecs;
     }
 
     /**

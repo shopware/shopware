@@ -2,116 +2,151 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
-use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @phpstan-import-type OpenApiSpec from DefinitionService
+ * @phpstan-type OpenApiSpec array{paths: array<string,array<mixed>>, components: array<mixed>}
  */
 #[Package('framework')]
 class OpenApiUnusedSchemaRemover
 {
+    public const COMPONENTS_SCHEMAS_PREFIX = '#/components/schemas/';
+    /**
+     * @var OpenApiSpec
+     */
+    private array $specs;
+
+    /**
+     * @var array<int|string>
+     */
+    private array $usedComponents = [];
+
     /**
      * @param OpenApiSpec $specs
      */
-    public function removeNotUsedComponentSchemas(array $specs): array
+    public function __construct(array $specs)
     {
-        $usedComponents = [];
+        $this->specs = $specs;
+    }
 
-        // Collect all $refs in paths
-        foreach ($specs['paths'] as $path) {
+    /**
+     * @return array{paths: array<string,array<mixed>>, components: array<mixed>}
+     */
+    public function removeUnusedComponentSchemas(): array
+    {
+        $this->collectAllRefs();
+        $this->removeUnusedComponents();
+
+        return $this->specs;
+    }
+
+    private function collectAllRefs(): void
+    {
+        foreach ($this->specs['paths'] as $path) {
             foreach ($path as $method) {
-                if (isset($method['responses'])) {
-                    $this->collectRefs($method['responses'], $usedComponents);
-                }
-                if (isset($method['requestBody'])) {
-                    $this->collectRefs($method['requestBody'], $usedComponents);
+                foreach (['parameters', 'responses', 'requestBody'] as $key) {
+                    if (isset($method[$key])) {
+                        $this->collectRefs($method[$key]);
+                    }
                 }
             }
         }
 
-        // Collect all $refs in components
-        foreach ($specs['components']['schemas'] as $component) {
-            $this->collectRefs($component, $usedComponents);
+        foreach ($this->specs['components']['schemas'] as $component) {
+            $this->collectRefs($component);
         }
 
-        // Ensure all referenced components are also checked for their references
-        $allUsedComponents = $usedComponents;
-        $this->collectNestedRefs($specs, $allUsedComponents);
-
-        $finalSpecs = $specs;
-        $this->removeUnusedComponents($finalSpecs, $allUsedComponents);
-
-        return $finalSpecs;
+        $this->collectNestedRefs();
     }
 
-    private function collectRefs(array $data, array &$usedComponents): void
+    /**
+     * @param array<mixed> $data
+     */
+    private function collectRefs(array $data): void
     {
         foreach ($data as $key => $value) {
-            if ($key === '$ref' && \in_array($value, $usedComponents, true) === false) {
-                $usedComponents[] = $value;
+            if ($key === '$ref' && !\in_array($value, $this->usedComponents, true)) {
+                $this->usedComponents[] = $value;
             } elseif (\is_array($value)) {
-                $this->collectRefs($value, $usedComponents);
+                $this->collectRefs($value);
             }
         }
     }
 
-    private function collectNestedRefs(array &$finalSpecs, array &$allUsedComponents): void
+    private function collectNestedRefs(): void
     {
         $checkedComponents = [];
-        while ($allUsedComponents !== $checkedComponents) {
-            $newRefs = array_diff($allUsedComponents, $checkedComponents);
+        while ($this->usedComponents !== $checkedComponents) {
+            $newRefs = array_diff($this->usedComponents, $checkedComponents);
             foreach ($newRefs as $ref) {
-                $componentName = str_replace('#/components/schemas/', '', $ref);
-                if (isset($finalSpecs['components']['schemas'][$componentName])) {
-                    $this->collectRefs($finalSpecs['components']['schemas'][$componentName], $allUsedComponents);
+                $componentName = $this->getComponentNameFromRef((string) $ref);
+                if (isset($this->specs['components']['schemas'][$componentName])) {
+                    $this->collectRefs($this->specs['components']['schemas'][$componentName]);
                 }
             }
-            $checkedComponents = $allUsedComponents;
+            $checkedComponents = $this->usedComponents;
         }
     }
 
-    private function removeUnusedComponents(array &$finalSpecs, array &$allUsedComponents): void
+    private function getComponentNameFromRef(string $ref): string
+    {
+        return str_replace(self::COMPONENTS_SCHEMAS_PREFIX, '', $ref);
+    }
+
+    private function getRefWithComponentName(string $componentName): string
+    {
+        return self::COMPONENTS_SCHEMAS_PREFIX . $componentName;
+    }
+
+    private function removeUnusedComponents(): void
     {
         $componentsToRemove = [];
 
-        foreach ($finalSpecs['components']['schemas'] as $componentName => $component) {
+        foreach ($this->specs['components']['schemas'] as $componentName => $component) {
             if ($componentName === 'failure') {
                 continue;
             }
-            if (!\in_array('#/components/schemas/' . $componentName, $allUsedComponents, true)) {
+            if (!\in_array($this->getRefWithComponentName($componentName), $this->usedComponents, true)) {
                 $componentsToRemove[] = $componentName;
             }
         }
 
         foreach ($componentsToRemove as $componentName) {
-            $this->removeNestedRefs($finalSpecs, $componentName, $allUsedComponents);
-            unset($finalSpecs['components']['schemas'][$componentName]);
+            if (!isset($this->specs['components']['schemas'][$componentName])) {
+                continue;
+            }
+
+            $this->removeRefsRecursively($componentName);
+            unset($this->specs['components']['schemas'][$componentName]);
         }
     }
 
-    private function removeNestedRefs(array &$finalSpecs, string $componentName, array &$allUsedComponents): void
+    /**
+     * @param array<mixed>|null $data
+     */
+    private function removeRefsRecursively(string $componentName, ?array $data = null): void
     {
-        if (!isset($finalSpecs['components']['schemas'][$componentName])) {
+        if (!isset($this->specs['components']['schemas'][$componentName])) {
             return;
         }
-
-        $component = $finalSpecs['components']['schemas'][$componentName];
-
-        if (isset($component['properties'])) {
-            foreach ($component['properties'] as $propertyName => $property) {
-                if (isset($property['$ref']) && !$this->isRefUsedElsewhere($finalSpecs, $property['$ref'], $componentName)) {
-                    unset($finalSpecs['components']['schemas'][$propertyName]);
-                }
+        if ($data === null) {
+            $data = $this->specs['components']['schemas'][$componentName];
+        }
+        foreach ($data as $key => $value) {
+            if ($key === '$ref' && !$this->isRefUsedElsewhere($value, $componentName)) {
+                $childComponentName = $this->getComponentNameFromRef($value);
+                unset($this->specs['components']['schemas'][$childComponentName]);
+            } elseif (\is_array($value)) {
+                $this->removeRefsRecursively($componentName, $value);
             }
         }
     }
 
-    private function isRefUsedElsewhere(array $finalSpecs, string $ref, string $currentComponentName): bool
+    private function isRefUsedElsewhere(string $ref, string $currentComponentName): bool
     {
-        foreach ($finalSpecs['paths'] as $path) {
+        foreach ($this->specs['paths'] as $path) {
             foreach ($path as $method) {
                 if ($this->isRefInArray($method, $ref)) {
                     return true;
@@ -119,7 +154,7 @@ class OpenApiUnusedSchemaRemover
             }
         }
 
-        foreach ($finalSpecs['components']['schemas'] as $componentName => $component) {
+        foreach ($this->specs['components']['schemas'] as $componentName => $component) {
             if ($componentName !== $currentComponentName && $this->isRefInArray($component, $ref)) {
                 return true;
             }
@@ -128,6 +163,9 @@ class OpenApiUnusedSchemaRemover
         return false;
     }
 
+    /**
+     * @param array<mixed> $array
+     */
     private function isRefInArray(array $array, string $ref): bool
     {
         foreach ($array as $key => $value) {

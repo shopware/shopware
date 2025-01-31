@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-type ApiType DefinitionService::TYPE_JSON_API|DefinitionService::TYPE_JSON
  * @phpstan-type OpenApiSpec  array{paths: array<string,array<mixed>>, components: array<mixed>}
  * @phpstan-type ApiSchema array<string, array{name: string, translatable: list<string>, properties: array<string, mixed>}|array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}>
+ * @phpstan-type ApiSchemaOptions array{bundleName?: string, unusedComponents?: bool, }
  */
 #[Package('framework')]
 class DefinitionService
@@ -43,12 +44,13 @@ class DefinitionService
     /**
      * @param Api $type
      * @param ApiType $apiType
+     * @param ApiSchemaOptions $schemaOptions
      *
      * @return OpenApiSpec
      */
-    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TYPE_JSON_API, ?string $bundleName = null): array
+    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TYPE_JSON_API, array $schemaOptions = []): array
     {
-        return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type, $apiType, $bundleName);
+        return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type, $apiType, $schemaOptions);
     }
 
     /**

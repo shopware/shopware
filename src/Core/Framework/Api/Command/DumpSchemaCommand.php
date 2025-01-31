@@ -49,7 +49,8 @@ class DumpSchemaCommand extends Command
                 'If set, the store api definition will be dumped. Only applies to the openapi3 format.'
             )
             ->addOption('pretty', 'p', InputOption::VALUE_NONE, 'Dumps the output in a human-readable form.')
-            ->addOption('bundle-name', 'b', InputOption::VALUE_OPTIONAL, 'Only uses definitions from a specific bundle.', null);
+            ->addOption('bundle-name', 'b', InputOption::VALUE_OPTIONAL, 'Only uses definitions from a specific bundle.')
+            ->addOption('unused-components', 'u', InputOption::VALUE_OPTIONAL, 'Set to \'false\' to remove unused components from Schema.', true);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -61,6 +62,7 @@ class DumpSchemaCommand extends Command
         }
         $formatType = $input->getOption('schema-format');
         $bundleName = (empty($input->getOption('bundle-name'))) ? '' : $input->getOption('bundle-name');
+        $unusedComponents = $input->getOption('unused-components') !== 'false';
 
         switch ($formatType) {
             case 'simple':
@@ -69,7 +71,12 @@ class DumpSchemaCommand extends Command
                 break;
             case 'openapi3':
                 $api = $input->getOption('store-api') ? DefinitionService::STORE_API : DefinitionService::API;
-                $definitionContents = $this->definitionService->generate('openapi-3', $api, DefinitionService::TYPE_JSON_API, $bundleName);
+                $definitionContents = $this->definitionService->generate(
+                    'openapi-3',
+                    $api,
+                    DefinitionService::TYPE_JSON_API,
+                    ['bundleName' => $bundleName, 'unusedComponents' => $unusedComponents]
+                );
 
                 break;
             case 'entity-schema':

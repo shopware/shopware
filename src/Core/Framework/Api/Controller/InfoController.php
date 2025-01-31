@@ -73,13 +73,19 @@ class InfoController extends AbstractController
     public function info(Request $request): JsonResponse
     {
         $type = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
+        $unusedComponents = $request->query->getBoolean('unusedComponents', true);
 
         $apiType = $this->definitionService->toApiType($type);
         if ($apiType === null) {
             throw ApiException::invalidApiType($type);
         }
 
-        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
+        $data = $this->definitionService->generate(
+            OpenApi3Generator::FORMAT,
+            DefinitionService::API,
+            $apiType,
+            ['unusedComponents' => $unusedComponents]
+        );
 
         return new JsonResponse($data);
     }

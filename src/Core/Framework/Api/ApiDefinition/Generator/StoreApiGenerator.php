@@ -56,10 +56,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT && $api === DefinitionService::STORE_API;
     }
 
-    public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
+    public function generate(array $definitions, string $api, string $apiType, array $schemaOptions = []): array
     {
         $openApi = new OpenApi([]);
-        $this->openApiBuilder->enrich($openApi, $api);
+        $this->openApiBuilder->enrich($openApi, $api, $apiType);
 
         $forSalesChannel = $api === DefinitionService::STORE_API;
 
@@ -82,13 +82,14 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         }
 
         $this->addGeneralInformation($openApi);
-        $this->addContentTypeParameter($openApi);
+        $this->addContentTypeParameter($openApi, $api);
 
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
 
         $schemaPaths = [$this->schemaPath];
 
+        $bundleName = $schemaOptions['bundleName'] ?? null;
         if (!empty($bundleName)) {
             $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
         } else {
@@ -101,10 +102,13 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
-        $unusedSchemaRemover = new OpenApiUnusedSchemaRemover();
-        $finalSpecsWithoutUnusedComponents = $unusedSchemaRemover->removeNotUsedComponentSchemas($finalSpecs);
+        $removeUnusedSchema = $schemaOptions['unusedComponents'] ?? true;
+        if (!$removeUnusedSchema) {
+            $unusedSchemaRemover = new OpenApiUnusedSchemaRemover($finalSpecs);
+            $finalSpecs = $unusedSchemaRemover->removeUnusedComponentSchemas();
+        }
 
-        return $finalSpecsWithoutUnusedComponents;
+        return $finalSpecs;
     }
 
     /**
@@ -160,32 +164,34 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         ]);
     }
 
-    private function addContentTypeParameter(OpenApi $openApi): void
+    private function addContentTypeParameter(OpenApi $openApi, string $api): void
     {
-        $openApi->components->parameters = [
-            new Parameter([
-                'parameter' => 'contentType',
-                'name' => 'Content-Type',
-                'in' => 'header',
-                'required' => true,
-                'schema' => [
-                    'type' => 'string',
-                    'default' => 'application/json',
-                ],
-                'description' => 'Content type of the request',
-            ]),
-            new Parameter([
-                'parameter' => 'accept',
-                'name' => 'Accept',
-                'in' => 'header',
-                'required' => true,
-                'schema' => [
-                    'type' => 'string',
-                    'default' => 'application/json',
-                ],
-                'description' => 'Accepted response content types',
-            ]),
-        ];
+        $parameterContentType = new Parameter([
+            'parameter' => 'contentType',
+            'name' => 'Content-Type',
+            'in' => 'header',
+            'required' => true,
+            'schema' => [
+                'type' => 'string',
+                'default' => 'application/json',
+            ],
+            'description' => 'Content type of the request',
+        ]);
+        $parameterAccept = new Parameter([
+            'parameter' => 'accept',
+            'name' => 'Accept',
+            'in' => 'header',
+            'required' => true,
+            'schema' => [
+                'type' => 'string',
+                'default' => 'application/json',
+            ],
+            'description' => 'Accepted response content types',
+        ]);
+
+        if ($api === DefinitionService::API) {
+            $openApi->components->parameters = [$parameterContentType, $parameterAccept];
+        }
 
         if (!is_iterable($openApi->paths)) {
             return;

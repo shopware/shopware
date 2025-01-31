@@ -37,14 +37,20 @@ class StoreApiInfoController
     #[Route(path: '/store-api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.openapi3', methods: ['GET'])]
     public function info(Request $request): JsonResponse
     {
-        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
+        $type = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
+        $unusedComponents = $request->query->getBoolean('unusedComponents', true);
 
-        $apiType = $this->definitionService->toApiType($apiType);
+        $apiType = $this->definitionService->toApiType($type);
         if ($apiType === null) {
             throw RoutingException::invalidRequestParameter('type');
         }
 
-        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::STORE_API, $apiType);
+        $data = $this->definitionService->generate(
+            OpenApi3Generator::FORMAT,
+            DefinitionService::STORE_API,
+            $apiType,
+            ['unusedComponents' => $unusedComponents]
+        );
 
         return new JsonResponse($data);
     }

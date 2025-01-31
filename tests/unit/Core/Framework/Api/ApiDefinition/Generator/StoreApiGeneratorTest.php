@@ -67,7 +67,7 @@ class StoreApiGeneratorTest extends TestCase
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::STORE_API,
             DefinitionService::TYPE_JSON_API,
-            null
+            []
         );
         $paths = $schema['paths'];
 
@@ -80,7 +80,7 @@ class StoreApiGeneratorTest extends TestCase
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::STORE_API,
             DefinitionService::TYPE_JSON_API,
-            null
+            []
         );
         $entities = $schema['components']['schemas'];
         static::assertArrayHasKey('Simple', $entities);
@@ -93,7 +93,7 @@ class StoreApiGeneratorTest extends TestCase
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::STORE_API,
             DefinitionService::TYPE_JSON_API,
-            $this->customBundleSchemas->getName()
+            ['bundleName' => $this->customBundleSchemas->getName()]
         );
 
         $entities = $schema['components']['schemas'];
@@ -108,7 +108,7 @@ class StoreApiGeneratorTest extends TestCase
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::STORE_API,
             DefinitionService::TYPE_JSON_API,
-            $this->customBundleSchemas->getName()
+            ['bundleName' => $this->customBundleSchemas->getName()]
         );
 
         $paths = $schema['paths'];
@@ -123,7 +123,7 @@ class StoreApiGeneratorTest extends TestCase
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::STORE_API,
             DefinitionService::TYPE_JSON_API,
-            $this->customBundleSchemas->getName()
+            ['bundleName' => $this->customBundleSchemas->getName()]
         );
 
         $entities = $schema['components']['schemas'];

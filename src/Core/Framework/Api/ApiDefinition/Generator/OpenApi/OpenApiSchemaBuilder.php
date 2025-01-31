@@ -40,7 +40,7 @@ class OpenApiSchemaBuilder
     {
     }
 
-    public function enrich(OpenApi $openApi, string $api): void
+    public function enrich(OpenApi $openApi, string $api, string $apiType): void
     {
         $openApi->merge($this->createServers($api));
         $openApi->info = $this->createInfo($api, $this->version);
@@ -53,7 +53,7 @@ class OpenApiSchemaBuilder
             $openApi->components = new Components([]);
         }
 
-        $this->enrichComponents($openApi->components, $api);
+        $this->enrichComponents($openApi->components, $api, $apiType);
     }
 
     /**
@@ -98,17 +98,17 @@ EOF,
         return ['oAuth' => ['write']];
     }
 
-    private function enrichComponents(Components $components, string $api): void
+    private function enrichComponents(Components $components, string $api, string $apiType): void
     {
-        $components->merge($this->getDefaultSchemas());
+        $components->merge($this->getDefaultSchemas($api, $apiType));
         $components->merge($this->createSecurityScheme($api));
-        $components->merge($this->createDefaultResponses());
+        $components->merge($this->createDefaultResponses($api, $apiType));
     }
 
     /**
      * @return Schema[]
      */
-    private function getDefaultSchemas(): array
+    private function getDefaultSchemas(string $api, string $apiType): array
     {
         $defaults = [
             'success' => new Schema([
@@ -373,6 +373,10 @@ EOF,
             ]),
         ];
 
+        if ($api === DefinitionService::API && $apiType === DefinitionService::TYPE_JSON) {
+            unset($defaults['attributes'], $defaults['relationships']);
+        }
+
         return $defaults;
     }
 
@@ -428,8 +432,22 @@ EOF,
     /**
      * @return OpenApiResponse[]
      */
-    private function createDefaultResponses(): array
+    private function createDefaultResponses(string $api, string $apiType): array
     {
+        if ($api === DefinitionService::STORE_API) {
+            return [
+                Response::HTTP_NOT_FOUND => $this->createErrorResponse(Response::HTTP_NOT_FOUND, 'Not Found', 'Resource with given parameter was not found.'),
+                Response::HTTP_FORBIDDEN => $this->createErrorResponse(Response::HTTP_FORBIDDEN, 'Forbidden', 'This operation is restricted to logged in users.'),
+                Response::HTTP_BAD_REQUEST => $this->createErrorResponse(Response::HTTP_BAD_REQUEST, 'Bad Request', 'Bad parameters for this endpoint. See documentation for the correct ones.'),
+            ];
+        }
+
+        if ($apiType === DefinitionService::TYPE_JSON) {
+            return [
+                Response::HTTP_BAD_REQUEST => $this->createErrorResponse(Response::HTTP_BAD_REQUEST, 'Bad Request', 'Bad parameters for this endpoint. See documentation for the correct ones.'),
+            ];
+        }
+
         return [
             Response::HTTP_NOT_FOUND => $this->createErrorResponse(Response::HTTP_NOT_FOUND, 'Not Found', 'Resource with given parameter was not found.'),
             Response::HTTP_UNAUTHORIZED => $this->createErrorResponse(Response::HTTP_UNAUTHORIZED, 'Unauthorized', 'Authorization information is missing or invalid.'),

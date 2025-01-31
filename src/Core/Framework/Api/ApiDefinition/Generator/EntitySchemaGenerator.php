@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
@@ -51,6 +52,8 @@ use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type ApiSchemaOptions from DefinitionService
  */
 #[Package('framework')]
 class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
@@ -62,7 +65,10 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, string $api, string $apiType = 'jsonapi', ?string $bundleName = null): never
+    /**
+     * @param ApiSchemaOptions $schemaOptions
+     */
+    public function generate(array $definitions, string $api, string $apiType = 'jsonapi', array $schemaOptions = []): never
     {
         throw new \RuntimeException();
     }

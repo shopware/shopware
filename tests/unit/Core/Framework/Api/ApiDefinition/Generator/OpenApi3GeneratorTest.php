@@ -87,7 +87,7 @@ class OpenApi3GeneratorTest extends TestCase
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::API,
             'json',
-            null
+            []
         );
         $entities = $schema['components']['schemas'];
         static::assertArrayHasKey('Simple', $entities);
@@ -109,7 +109,7 @@ class OpenApi3GeneratorTest extends TestCase
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::API,
             DefinitionService::TYPE_JSON_API,
-            $this->customBundleSchemas->getName()
+            ['bundleName' => $this->customBundleSchemas->getName()]
         );
 
         $paths = $schema['paths'];
@@ -124,7 +124,7 @@ class OpenApi3GeneratorTest extends TestCase
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::API,
             DefinitionService::TYPE_JSON_API,
-            $this->customBundleSchemas->getName()
+            ['bundleName' => $this->customBundleSchemas->getName()]
         );
 
         $entities = $schema['components']['schemas'];

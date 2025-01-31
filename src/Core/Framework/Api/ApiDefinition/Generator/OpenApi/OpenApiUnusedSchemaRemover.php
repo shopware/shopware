@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class OpenApiUnusedSchemaRemover
 {
     public const COMPONENTS_SCHEMAS_PREFIX = '#/components/schemas/';
+
     /**
      * @var OpenApiSpec
      */

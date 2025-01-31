@@ -52,7 +52,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
             ->willThrowException(new \RuntimeException());
 
         static::expectException(\RuntimeException::class);
-        $this->cachedEntitySchemaGenerator->generate([], 'api', 'json', null);
+        $this->cachedEntitySchemaGenerator->generate([], 'api', 'json', []);
     }
 
     public function testGetSchemaUtilizesCacheIfPresent(): void

@@ -9,6 +9,7 @@ use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -75,9 +76,12 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
                 $result = $this->repository->upsert($records, $context);
             }
 
-            foreach ($this->toImport as $data) {
-                $afterRecord = new ImportExportAfterImportRecordEvent($result, $data['record'], $data['original'], $config, $context);
-                $this->eventDispatcher->dispatch($afterRecord);
+            // @deprecated tag:v6.7.0 - remove the whole loop with no replacement
+            if (!Feature::isActive('v6.7.0.0')) {
+                foreach ($this->toImport as $data) {
+                    $afterRecord = new ImportExportAfterImportRecordEvent($result, $data['record'], $data['original'], $config, $context);
+                    $this->eventDispatcher->dispatch($afterRecord);
+                }
             }
 
             $progress->addProcessedRecords(\count($this->toImport));

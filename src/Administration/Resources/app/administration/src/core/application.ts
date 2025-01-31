@@ -743,8 +743,10 @@ class ApplicationBootstrapper {
                 bundleName,
                 bundle,
             ]) => {
-                if (!bundle.baseUrl) {
-                    return;
+                if (!window._features_.ADMIN_VITE) {
+                    if (!bundle.baseUrl) {
+                        return;
+                    }
                 }
 
                 if (isDevelopmentMode) {
@@ -769,38 +771,46 @@ class ApplicationBootstrapper {
                     );
                 }
 
+                if (window._features_.ADMIN_VITE) {
+                    if (!bundle.baseUrl) {
+                        return;
+                    }
+                }
+
                 this.injectIframe({
                     active: bundle.active,
                     integrationId: bundle.integrationId,
                     bundleName,
                     bundleVersion: bundle.version,
-                    iframeSrc: bundle.baseUrl,
+                    iframeSrc: bundle.baseUrl!,
                     bundleType: bundle.type,
                 });
             },
         );
 
-        if (isDevelopmentMode) {
-            // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
-            Object.entries(plugins).forEach(
-                ([
-                    pluginName,
-                    entryFiles,
-                ]) => {
-                    const stringUtils = Shopware.Utils.string;
-                    const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
+        if (!window._features_.ADMIN_VITE) {
+            if (isDevelopmentMode) {
+                // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
+                Object.entries(plugins).forEach(
+                    ([
+                        pluginName,
+                        entryFiles,
+                    ]) => {
+                        const stringUtils = Shopware.Utils.string;
+                        const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
 
-                    if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
-                        return;
-                    }
+                        if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
+                            return;
+                        }
 
-                    this.injectIframe({
-                        bundleVersion: undefined,
-                        bundleName: camelCasePluginName,
-                        iframeSrc: entryFiles.html,
-                    });
-                },
-            );
+                        this.injectIframe({
+                            bundleVersion: undefined,
+                            bundleName: camelCasePluginName,
+                            iframeSrc: entryFiles.html,
+                        });
+                    },
+                );
+            }
         }
 
         return Promise.all(injectAllPlugins);

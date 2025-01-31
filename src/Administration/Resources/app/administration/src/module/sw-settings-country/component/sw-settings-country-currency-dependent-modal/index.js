@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-country-currency-dependent-modal.html.twig';
 import './sw-settings-country-currency-dependent-modal.scss';

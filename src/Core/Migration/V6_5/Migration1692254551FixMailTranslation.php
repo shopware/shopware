@@ -12,7 +12,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class Migration1692254551FixMailTranslation extends MigrationStep
 {
     use UpdateMailTrait;

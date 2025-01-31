@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class ElasticsearchFieldMapper
 {
     /**

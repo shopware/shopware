@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';

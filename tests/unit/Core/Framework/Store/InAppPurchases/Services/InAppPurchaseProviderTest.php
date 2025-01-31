@@ -4,6 +4,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\InAppPurchases\Services;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
+use Lcobucci\JWT\ClaimsFormatter;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Token\Builder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -53,15 +58,15 @@ class InAppPurchaseProviderTest extends TestCase
             )
         );
 
-        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature1'));
-        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature2'));
-        static::assertTrue($iap->isActive('Extension2', 'ActiveFeature3'));
-        static::assertFalse($iap->isActive('Extension2', 'this-one-is-not'));
-
         static::assertSame(['Extension1-ActiveFeature1', 'Extension1-ActiveFeature2', 'Extension2-ActiveFeature3'], $iap->formatPurchases());
         static::assertSame(['ActiveFeature1', 'ActiveFeature2'], $iap->getByExtension('Extension1'));
         static::assertSame(['ActiveFeature3'], $iap->getByExtension('Extension2'));
         static::assertSame([], $iap->getByExtension('Extension3'));
+
+        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature1'));
+        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature2'));
+        static::assertTrue($iap->isActive('Extension2', 'ActiveFeature3'));
+        static::assertFalse($iap->isActive('Extension2', 'this-one-is-not'));
     }
 
     public function testExpiredPurchase(): void
@@ -90,9 +95,9 @@ class InAppPurchaseProviderTest extends TestCase
             )
         );
 
-        static::assertFalse($iap->isActive('Extension7', 'ExpiredFeature'));
         static::assertSame([], $iap->formatPurchases());
         static::assertSame([], $iap->getByExtension('extension'));
+        static::assertFalse($iap->isActive('Extension7', 'ExpiredFeature'));
     }
 
     public function testEmptySystemConfig(): void
@@ -167,15 +172,15 @@ class InAppPurchaseProviderTest extends TestCase
             )
         );
 
-        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature1'));
-        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature2'));
-        static::assertTrue($iap->isActive('Extension2', 'ActiveFeature3'));
-        static::assertFalse($iap->isActive('Extension2', 'this-one-is-not'));
-
         static::assertSame(['Extension1-ActiveFeature1', 'Extension1-ActiveFeature2', 'Extension2-ActiveFeature3'], $iap->formatPurchases());
         static::assertSame(['ActiveFeature1', 'ActiveFeature2'], $iap->getByExtension('Extension1'));
         static::assertSame(['ActiveFeature3'], $iap->getByExtension('Extension2'));
         static::assertSame([], $iap->getByExtension('Extension3'));
+
+        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature1'));
+        static::assertTrue($iap->isActive('Extension1', 'ActiveFeature2'));
+        static::assertTrue($iap->isActive('Extension2', 'ActiveFeature3'));
+        static::assertFalse($iap->isActive('Extension2', 'this-one-is-not'));
     }
 
     public function testGetPurchasesWithInvalidKeyRetriesMultiple(): void
@@ -240,11 +245,21 @@ class InAppPurchaseProviderTest extends TestCase
      */
     private function generateJwt(array $payload): string
     {
-        $base64UrlHeader = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode('{"alg":"RS256","typ":"JWT","kid":"ce86f11b0bebb0b711394663c17f0013"}'));
-        $base64UrlPayload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(json_encode($payload, \JSON_THROW_ON_ERROR)));
-        $signature = hash_hmac('sha256', $base64UrlHeader . '.' . $base64UrlPayload, 'secret', true);
-        $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+        $builder = Builder::new(new JoseEncoder(), new class implements ClaimsFormatter {
+            public function formatClaims(array $claims): array
+            {
+                /** @phpstan-ignore-next-line */
+                return \array_values($claims);
+            }
+        });
 
-        return $base64UrlHeader . '.' . $base64UrlPayload . '.' . $base64UrlSignature;
+        foreach ($payload as $i => $iap) {
+            $builder = $builder->withClaim((string) $i, $iap);
+        }
+
+        return $builder
+            ->withHeader('kid', 'ibvOgtMeMhihwgJvEw9yxXOs1YX07H34')
+            ->getToken(new Sha256(), InMemory::file(__DIR__ . '/../../../JWT/_fixtures/private.pem'))
+            ->toString();
     }
 }

@@ -19,7 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ContactFormValidationFactory::class)]
 class ContactFormValidationFactoryTest extends TestCase
 {

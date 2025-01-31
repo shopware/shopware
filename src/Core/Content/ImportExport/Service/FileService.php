@@ -48,6 +48,8 @@ class FileService extends AbstractFileService
                 throw ImportExportException::fileNotReadable($sourcePath);
             }
             $this->filesystem->writeStream($path, $sourceStream);
+
+            fclose($sourceStream);
         } else {
             $this->filesystem->write($path, '');
         }

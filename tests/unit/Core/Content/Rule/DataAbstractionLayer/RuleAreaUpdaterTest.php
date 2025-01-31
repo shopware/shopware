@@ -118,12 +118,12 @@ class RuleAreaUpdaterTest extends TestCase
             ['areas', json_encode([RuleAreas::PRODUCT_AREA, RuleAreas::PROMOTION_AREA, RuleAreas::PAYMENT_AREA, RuleAreas::SHIPPING_AREA])],
             ['id', Uuid::fromHexToBytes($id)],
         ];
-        $matcher = static::exactly(2);
+        $matcher = static::exactly(\count($params));
         $statement->expects($matcher)
             ->method('bindValue')
             ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
             });

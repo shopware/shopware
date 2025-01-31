@@ -197,12 +197,12 @@ class ProductStreamIndexerTest extends TestCase
             ['invalid', 0],
             ['id', Uuid::fromHexToBytes($productStreamId)],
         ];
-        $matcher = static::exactly(3);
+        $matcher = static::exactly(\count($params));
         $statement->expects($matcher)
             ->method('bindValue')
             ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
             });

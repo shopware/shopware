@@ -78,12 +78,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ['count', 1],
             ['customerCount', json_encode([$customerId => 1], \JSON_THROW_ON_ERROR)],
         ];
-        $matcher = static::exactly(3);
+        $matcher = static::exactly(\count($params));
         $statementMock->expects($matcher)
             ->method('bindValue')
             ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
             });
@@ -108,12 +108,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ['id', Uuid::fromHexToBytes($promotionId)],
             ['customerCount', json_encode([$customerId => 1], \JSON_THROW_ON_ERROR)],
         ];
-        $matcher = static::exactly(2);
+        $matcher = static::exactly(\count($params));
         $statementMock->expects($matcher)
             ->method('bindValue')
             ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
             });
@@ -162,12 +162,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ['count', 1],
             ['customerCount', json_encode([$customerId => 1], \JSON_THROW_ON_ERROR)],
         ];
-        $matcher = static::exactly(3);
+        $matcher = static::exactly(\count($params));
         $statementMock->expects($matcher)
             ->method('bindValue')
             ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
             });
@@ -227,12 +227,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ['customerCount', json_encode([], \JSON_THROW_ON_ERROR)],
             ['orderCount', 1],
         ];
-        $matcher = static::exactly(3);
+        $matcher = static::exactly(\count($params));
         $statementMock->expects($matcher)
             ->method('bindValue')
             ->willReturnCallback(function (string $key, $value) use ($matcher, $params): bool {
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][0], $key);
-                self::assertEquals($params[$matcher->numberOfInvocations() - 1][1], $value);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
 
                 return true;
             });

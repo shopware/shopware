@@ -36,6 +36,8 @@ jobs:
         if: ${{ matrix.name == 'Install' }}
         run: |
           mkdir -p config/jwt
+          chmod 700 config/jwt
+          ls -las config/jwt
           composer run build:js:admin
           composer npm:storefront run production # we cannot use build:js because it requires a db
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
@@ -273,6 +275,7 @@ jobs:
           install-admin: true
           env: dev
           path: new-shopware
+          php-version: 8.2
 
       - name: Build new shopware
         working-directory: new-shopware

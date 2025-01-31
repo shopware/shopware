@@ -33,11 +33,9 @@ jobs:
         with:
           node-version: 20
       - name: Build js
-        if: ${{ matrix.name == 'Install' }}
+        if: ${{ matrix.project == 'Install' }}
         run: |
           mkdir -p config/jwt
-          chmod 700 config/jwt
-          ls -las config/jwt
           composer run build:js:admin
           composer npm:storefront run production # we cannot use build:js because it requires a db
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)

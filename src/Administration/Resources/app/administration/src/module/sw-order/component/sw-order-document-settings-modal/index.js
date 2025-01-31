@@ -197,7 +197,7 @@ export default {
         },
 
         htmlPreviewDisabled() {
-            return this.currentDocumentType.technicalName.startsWith('zugferd_');
+            return this.currentDocumentType?.technicalName?.startsWith('zugferd_') ?? false;
         },
     },
 };

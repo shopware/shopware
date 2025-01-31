@@ -54,7 +54,12 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed without replacement');
 
         $invoiceResult = new RendererResult();
-        $invoiceResult->addSuccess($operation->getOrderId(), $result->getOrderSuccess($operation->getOrderId()));
+        $successDocument = $result->getOrderSuccess($operation->getOrderId());
+        if (!$successDocument) {
+            throw DocumentException::generationError('Success document not found');
+        }
+
+        $invoiceResult->addSuccess($operation->getOrderId(), $successDocument);
 
         $embeddedResult = $this->embedXMLIntoPDF([$operation->getOrderId() => $operation], $context, $rendererConfig, $result);
 

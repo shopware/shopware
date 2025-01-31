@@ -100,6 +100,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
         try {
             $content = $this->documentBuilder->buildDocument($order, $config, $context);
+            // @deprecated tag:v6.7.0 - html argument will be removed
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(

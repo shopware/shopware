@@ -117,6 +117,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
 
                     if ($operation->isStatic()) {
+                        // @deprecated tag:v6.7.0 - html argument will be removed
                         $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
 
@@ -149,6 +150,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                         );
                     }
 
+                    // @deprecated tag:v6.7.0 - html argument will be removed
                     $doc = new RenderedDocument(
                         $html,
                         $number,

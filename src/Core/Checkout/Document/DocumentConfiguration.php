@@ -149,14 +149,14 @@ class DocumentConfiguration extends Struct
     /**
      * @var string|null
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.7.0 - Will be replaced by single fields: companyStreet, companyZipcode, companyCity, companyCountry
      */
     protected $companyAddress;
 
     /**
      * @var string|null
      *
-     * @deprecated tag:v6.7.0 - Will be replaced by single fields: companyStreet, companyZipcode, companyCity, companyCountry
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $companyName;
 
@@ -479,10 +479,10 @@ class DocumentConfiguration extends Struct
     public function getAddressParts(): array
     {
         $parts = [
-            $this->getCompanyName(),
+            $this->getCompanyName() ?? '',
             $this->getCompanyStreet(),
             $this->getCompanyZipcode() . ' ' . $this->getCompanyCity(),
-            $this->getCompanyCountry()?->getTranslation('name'),
+            $this->getCompanyCountry()?->getTranslation('name') ?? '',
         ];
 
         return array_filter($parts, static fn ($part) => !empty(\trim($part)));

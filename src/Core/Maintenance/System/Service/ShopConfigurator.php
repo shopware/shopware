@@ -131,18 +131,16 @@ class ShopConfigurator
             $stmt = $conn->prepare('UPDATE currency SET id = :newId WHERE id = :oldId');
 
             // assign new uuid to old DEFAULT
-            StatementHelper::bindParameters($stmt, [
+            StatementHelper::executeStatement($stmt, [
                 'newId' => Uuid::randomBytes(),
                 'oldId' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             ]);
-            $stmt->executeStatement();
 
             // change id to DEFAULT
-            StatementHelper::bindParameters($stmt, [
+            StatementHelper::executeStatement($stmt, [
                 'newId' => Uuid::fromHexToBytes(Defaults::CURRENCY),
                 'oldId' => $newDefaultCurrencyId,
             ]);
-            $stmt->executeStatement();
 
             $conn->executeStatement(
                 'SET @fixFactor = (SELECT 1/factor FROM currency WHERE iso_code = :newDefault);
@@ -239,12 +237,9 @@ class ShopConfigurator
             $stmt = $connection->prepare(
                 'UPDATE locale SET code = :code WHERE id = :locale_id'
             );
-            StatementHelper::bindParameters($stmt, ['code' => 'x-' . $locale . '_tmp', 'locale_id' => $currentLocaleId]);
-            $stmt->executeStatement();
-            StatementHelper::bindParameters($stmt, ['code' => $currentLocaleData['code'], 'locale_id' => $newDefaultLocaleId]);
-            $stmt->executeStatement();
-            StatementHelper::bindParameters($stmt, ['code' => $locale, 'locale_id' => $currentLocaleId]);
-            $stmt->executeStatement();
+            StatementHelper::executeStatement($stmt, ['code' => 'x-' . $locale . '_tmp', 'locale_id' => $currentLocaleId]);
+            StatementHelper::executeStatement($stmt, ['code' => $currentLocaleData['code'], 'locale_id' => $newDefaultLocaleId]);
+            StatementHelper::executeStatement($stmt, ['code' => $locale, 'locale_id' => $currentLocaleId]);
 
             // swap locale_translation.{name,territory}
             $setTrans = $connection->prepare(
@@ -258,38 +253,31 @@ class ShopConfigurator
 
             foreach ($currentTrans as $trans) {
                 $trans['locale_id'] = $newDefaultLocaleId;
-                StatementHelper::bindParameters($setTrans, $trans);
-                $setTrans->executeStatement();
+                StatementHelper::executeStatement($setTrans, $trans);
             }
             foreach ($newDefTrans as $trans) {
                 $trans['locale_id'] = $currentLocaleId;
-                StatementHelper::bindParameters($setTrans, $trans);
-                $setTrans->executeStatement();
+                StatementHelper::executeStatement($setTrans, $trans);
             }
 
             $updLang = $connection->prepare('UPDATE language SET name = :name WHERE id = :languageId');
 
             // new default language does not exist -> just set to name
             if (!$newDefaultLanguageId) {
-                StatementHelper::bindParameters($updLang, ['name' => $name, 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
-                $updLang->executeStatement();
+                StatementHelper::executeStatement($updLang, ['name' => $name, 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
 
                 return;
             }
 
             $langName = $connection->prepare('SELECT name FROM language WHERE id = :languageId');
 
-            StatementHelper::bindParameters($langName, ['languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
-            $current = $langName->executeQuery()->fetchOne();
+            $current = StatementHelper::executeQuery($langName, ['languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)])->fetchOne();
 
-            StatementHelper::bindParameters($langName, ['languageId' => $newDefaultLanguageId]);
-            $new = $langName->executeQuery()->fetchOne();
+            $new = StatementHelper::executeQuery($langName, ['languageId' => $newDefaultLanguageId])->fetchOne();
 
             // swap name
-            StatementHelper::bindParameters($updLang, ['name' => $new, 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
-            $updLang->executeStatement();
-            StatementHelper::bindParameters($updLang, ['name' => $current, 'languageId' => $newDefaultLanguageId]);
-            $updLang->executeStatement();
+            StatementHelper::executeStatement($updLang, ['name' => $new, 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+            StatementHelper::executeStatement($updLang, ['name' => $current, 'languageId' => $newDefaultLanguageId]);
         });
     }
 
@@ -386,18 +374,16 @@ class ShopConfigurator
             );
 
             // assign new uuid to old DEFAULT
-            StatementHelper::bindParameters($stmt, [
+            StatementHelper::executeStatement($stmt, [
                 'newId' => Uuid::randomBytes(),
                 'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]);
-            $stmt->executeStatement();
 
             // change id to DEFAULT
-            StatementHelper::bindParameters($stmt, [
+            StatementHelper::executeStatement($stmt, [
                 'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'oldId' => $newLanguageId,
             ]);
-            $stmt->executeStatement();
         });
     }
 

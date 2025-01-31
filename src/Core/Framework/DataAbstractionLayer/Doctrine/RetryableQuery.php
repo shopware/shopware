@@ -26,11 +26,7 @@ class RetryableQuery
      */
     public function execute(array $params = []): int|string
     {
-        return self::retry($this->connection, function () use ($params) {
-            StatementHelper::bindParameters($this->query, $params);
-
-            return $this->query->executeStatement();
-        }, 0);
+        return self::retry($this->connection, fn () => StatementHelper::executeStatement($this->query, $params), 0);
     }
 
     /**

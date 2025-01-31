@@ -80,8 +80,7 @@ class ProductCategoryDenormalizer
             $query = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
 
             foreach ($updates as $update) {
-                StatementHelper::bindParameters($query, $update);
-                $query->executeStatement();
+                StatementHelper::executeStatement($query, $update);
             }
         });
 

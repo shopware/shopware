@@ -27,11 +27,10 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
     public function update(Connection $connection): void
     {
         $stmt = $connection->prepare('SELECT count(`id`) FROM seo_url_template WHERE `entity_name` = :entity_name AND `route_name` = :route_name');
-        StatementHelper::bindParameters($stmt, [
+        $result = StatementHelper::executeQuery($stmt, [
             'entity_name' => 'product',
             'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
         ]);
-        $result = $stmt->executeQuery();
 
         if ((int) $result->fetchOne() === 0) {
             $connection->insert('seo_url_template', [
@@ -44,11 +43,10 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
             ]);
         }
 
-        StatementHelper::bindParameters($stmt, [
+        $result = StatementHelper::executeQuery($stmt, [
             'entity_name' => 'category',
             'route_name' => NavigationPageSeoUrlRoute::ROUTE_NAME,
         ]);
-        $result = $stmt->executeQuery();
 
         if ((int) $result->fetchOne() === 0) {
             $connection->insert('seo_url_template', [

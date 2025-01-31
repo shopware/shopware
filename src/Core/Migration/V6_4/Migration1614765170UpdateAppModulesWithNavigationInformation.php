@@ -76,11 +76,10 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
 
         try {
             foreach ($preparedModules as $prepared) {
-                StatementHelper::bindParameters($statement, [
+                StatementHelper::executeStatement($statement, [
                     'id' => $prepared['id'],
                     'modules' => $prepared['modules'],
                 ]);
-                $statement->executeStatement();
             }
 
             $connection->commit();

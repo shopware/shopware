@@ -41,13 +41,12 @@ trait EnsureThumbnailSizesTrait
             }
 
             $id = Uuid::randomBytes();
-            StatementHelper::bindParameters($insertStatement, [
+            StatementHelper::executeStatement($insertStatement, [
                 'id' => $id,
                 'width' => $thumbnailSize['width'],
                 'height' => $thumbnailSize['height'],
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
-            $insertStatement->executeStatement();
 
             $sizes[] = $id;
         }

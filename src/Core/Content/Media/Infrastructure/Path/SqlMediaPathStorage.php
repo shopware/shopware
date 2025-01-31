@@ -29,8 +29,7 @@ class SqlMediaPathStorage implements MediaPathStorage
         $update = $this->connection->prepare('UPDATE media SET path = :path WHERE id = :id');
 
         foreach ($paths as $id => $path) {
-            StatementHelper::bindParameters($update, ['path' => $path, 'id' => Uuid::fromHexToBytes($id)]);
-            $update->executeStatement();
+            StatementHelper::executeStatement($update, ['path' => $path, 'id' => Uuid::fromHexToBytes($id)]);
         }
     }
 
@@ -42,8 +41,7 @@ class SqlMediaPathStorage implements MediaPathStorage
         $update = $this->connection->prepare('UPDATE media_thumbnail SET path = :path WHERE id = :id');
 
         foreach ($paths as $id => $path) {
-            StatementHelper::bindParameters($update, [':path' => $path, ':id' => Uuid::fromHexToBytes($id)]);
-            $update->executeStatement();
+            StatementHelper::executeStatement($update, [':path' => $path, ':id' => Uuid::fromHexToBytes($id)]);
         }
     }
 }

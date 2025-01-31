@@ -434,17 +434,15 @@ class TranslatorTest extends TestCase
         );
 
         // assign new uuid to old DEFAULT
-        StatementHelper::bindParameters($stmt, [
+        StatementHelper::executeStatement($stmt, [
             'newId' => Uuid::randomBytes(),
             'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
         ]);
-        $stmt->executeStatement();
 
         // change id to DEFAULT
-        StatementHelper::bindParameters($stmt, [
+        StatementHelper::executeStatement($stmt, [
             'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'oldId' => $currentDeId,
         ]);
-        $stmt->executeStatement();
     }
 }

@@ -166,7 +166,7 @@ SQL;
 
         $insertSalesChannel = $connection->prepare($insertSql);
 
-        StatementHelper::bindParameters($insertSalesChannel, [
+        StatementHelper::executeStatement($insertSalesChannel, [
             'id' => Uuid::randomBytes(),
             'salesChannelId' => $newId,
             'languageId' => $languageId,
@@ -175,9 +175,8 @@ SQL;
             'snippetSetId' => $snippetSetId,
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
-        $insertSalesChannel->executeStatement();
 
-        StatementHelper::bindParameters($insertSalesChannel, [
+        StatementHelper::executeStatement($insertSalesChannel, [
             'id' => Uuid::randomBytes(),
             'salesChannelId' => $newId,
             'languageId' => $languageId,
@@ -186,7 +185,6 @@ SQL;
             'snippetSetId' => $snippetSetId,
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
-        $insertSalesChannel->executeStatement();
     }
 
     private function getFirstActiveShippingMethodId(Connection $connection): string

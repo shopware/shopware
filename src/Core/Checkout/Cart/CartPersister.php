@@ -139,8 +139,7 @@ class CartPersister extends AbstractCartPersister
         $timestamp = $time->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         do {
-            StatementHelper::bindParameters($stmt, ['timestamp' => $timestamp]);
-            $result = $stmt->executeStatement();
+            $result = StatementHelper::executeStatement($stmt, ['timestamp' => $timestamp]);
         } while ($result > 0);
     }
 

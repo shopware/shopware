@@ -409,8 +409,7 @@ class TreeUpdater
         RetryableQuery::retryable(
             connection: $this->connection,
             closure: function () use ($statement, $update): void {
-                StatementHelper::bindParameters($statement, $update);
-                $statement->executeStatement();
+                StatementHelper::executeStatement($statement, $update);
             }
         );
 

@@ -67,13 +67,12 @@ SQL;
                 continue;
             }
 
-            StatementHelper::bindParameters($stmt, [
+            StatementHelper::executeStatement($stmt, [
                 'import_export_profile_id' => $data['import_export_profile_id'],
                 'language_id' => $germanLanguageId,
                 'label' => $germanTranslations[$data['label']],
                 'created_at' => $data['created_at'],
             ]);
-            $stmt->executeStatement();
         }
     }
 

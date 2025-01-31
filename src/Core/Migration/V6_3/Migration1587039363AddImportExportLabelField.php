@@ -83,24 +83,21 @@ class Migration1587039363AddImportExportLabelField extends MigrationStep
         ');
 
         if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
-            StatementHelper::bindParameters($insertNamesAsLabelsStatement, [
+            StatementHelper::executeStatement($insertNamesAsLabelsStatement, [
                 'languageId' => $defaultLanguageId,
             ]);
-            $insertNamesAsLabelsStatement->executeStatement();
         }
 
         if ($englishLanguageId) {
-            StatementHelper::bindParameters($insertNamesAsLabelsStatement, [
+            StatementHelper::executeStatement($insertNamesAsLabelsStatement, [
                 'languageId' => $englishLanguageId,
             ]);
-            $insertNamesAsLabelsStatement->executeStatement();
         }
 
         if ($germanLanguageId) {
-            StatementHelper::bindParameters($insertGermanLabelsStatement, [
+            StatementHelper::executeStatement($insertGermanLabelsStatement, [
                 'languageId' => $germanLanguageId,
             ]);
-            $insertGermanLabelsStatement->executeStatement();
         }
     }
 

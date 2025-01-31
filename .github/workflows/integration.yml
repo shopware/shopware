@@ -235,12 +235,12 @@ jobs:
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
-      lts-first-version: ${{ steps.versions.outputs.lts-first-version }}
-      lts-latest-version: ${{ steps.versions.outputs.lts-latest-version }}
     steps:
       - name: Generate versions
         id: versions
         uses: shopware/github-actions/versions@main
+        with:
+          major: 'v6.5.'
         
   acceptance-update:
     needs: tested-update-versions
@@ -250,7 +250,6 @@ jobs:
       fail-fast: false
       matrix:
         update:
-          - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
           - version: ${{ needs.tested-update-versions.outputs.first-version }}
           - version: ${{ needs.tested-update-versions.outputs.latest-version }}
     env:

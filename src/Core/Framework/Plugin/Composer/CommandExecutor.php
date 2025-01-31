@@ -10,6 +10,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * @codeCoverageIgnore
+ * Covered by PluginLifecycleService integration test. Due to the usage of composer, it is hard to properly unit test this class.
+ */
 #[Package('framework')]
 class CommandExecutor
 {

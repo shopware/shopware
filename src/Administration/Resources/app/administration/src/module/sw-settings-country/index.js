@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import './component/sw-settings-country-address-handling';
 import './component/sw-settings-country-new-snippet-modal';

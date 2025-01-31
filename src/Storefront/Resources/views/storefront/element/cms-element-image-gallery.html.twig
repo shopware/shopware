@@ -134,6 +134,13 @@
             {% endif %}
 
             {% block element_image_gallery_inner %}
+                {% block element_image_gallery_inner_skip_gallery %}
+                    {% sw_include '@Storefront/storefront/component/skip-target.html.twig' with {
+                        targetId: block.id,
+                        snippet: 'component.cms.imageGallery.skipImageGallery',
+                    } %}
+                {% endblock %}
+
                 <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% else %} is-loading{% endif %} js-gallery-zoom-modal-container"
                     {% if zoom %}
                         data-magnifier="true"
@@ -824,4 +831,8 @@
             {% endif %}
         {% endblock %}
     </div>
+
+    {% block element_image_gallery_target_after_gallery %}
+        <div id="content-after-target-{{ block.id }}"></div>
+    {% endblock %}
 {% endblock %}

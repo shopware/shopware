@@ -9,28 +9,37 @@ The header contains the shop logo, the search form and various actions like the 
     padding: $spacer-sm 0;
 }
 
-.header-logo-col {
-    margin: $spacer 0;
-}
+@if not feature('v6.7.0.0') {
+    .header-logo-col {
+        margin: $spacer 0;
+    }
 
-.header-logo-main {
-    text-align: center;
-    display: block;
-}
+    .header-logo-main {
+        text-align: center;
+        display: block;
+    }
 
-.header-logo-main-link {
-    width: 100%;
+    .header-logo-main-link {
+        width: 100%;
+    }
+
+    .header-search {
+        margin: $spacer-sm 0;
+    }
+
+    .header-cart-total {
+        display: none;
+    }
+
+    .header-logo-picture {
+        display: block;
+        margin: auto;
+    }
 }
 
 .header-logo-picture {
-    display: block;
     max-width: 300px;
     min-width: 200px;
-    margin: auto;
-}
-
-.header-search {
-    margin: $spacer-sm 0;
 }
 
 .header-search-form {
@@ -56,10 +65,6 @@ The header contains the shop logo, the search form and various actions like the 
     }
 }
 
-.header-cart-total {
-    display: none;
-}
-
 .header-cart .header-cart-badge,
 .header-wishlist .header-wishlist-badge {
     position: absolute;
@@ -75,10 +80,6 @@ The header contains the shop logo, the search form and various actions like the 
         padding-bottom: $spacer;
     }
 
-    .header-logo-col {
-        padding-bottom: $spacer-sm;
-    }
-
     .header-search-col {
         .collapse:not(.show) {
             display: block;
@@ -87,18 +88,30 @@ The header contains the shop logo, the search form and various actions like the 
 
     .header-search {
         max-width: 400px;
-        margin: auto;
     }
 
-    .header-cart-total {
-        display: inline-block;
-        margin-left: $spacer-sm;
+    @if not feature('v6.7.0.0') {
+        .header-search {
+            margin: auto;
+        }
+
+
+        .header-logo-col {
+            padding-bottom: $spacer-sm;
+        }
+
+        .header-cart-total {
+            display: inline-block;
+            margin-left: $spacer-sm;
+        }
     }
 }
 
-@include media-breakpoint-up(lg) {
-    .header-logo-col {
-        margin: 0;
+@if not feature('v6.7.0.0') {
+    @include media-breakpoint-up(lg) {
+        .header-logo-col {
+            margin: 0;
+        }
     }
 }
 

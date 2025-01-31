@@ -92,12 +92,6 @@ class CustomEntitySchemaUpdater
     private function cleanup(Schema $schema): void
     {
         foreach ($schema->getTables() as $table) {
-            //            $fks = $table->getForeignKeys();
-            //
-            //            foreach ($fks as $foreignKey) {
-            //                $refTable = $foreignKey->getForeignTableName();
-            //            }
-            //
             if ($table->getComment() === self::COMMENT) {
                 $schema->dropTable($table->getName());
 

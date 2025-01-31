@@ -7,7 +7,7 @@ use Doctrine\DBAL\Statement;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class StatementHelper
+final class StatementHelper
 {
     /**
      * @param array<string, mixed> $parameters

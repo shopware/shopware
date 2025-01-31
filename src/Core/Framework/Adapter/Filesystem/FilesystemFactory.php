@@ -26,8 +26,8 @@ class FilesystemFactory
      * @param AdapterFactoryInterface[]|iterable $adapterFactories
      *
      * @throws DuplicateFilesystemFactoryException
-     * @internal
      *
+     * @internal
      */
     public function __construct(iterable $adapterFactories)
     {
@@ -138,7 +138,7 @@ class FilesystemFactory
     private function getFallbackUrl(): string
     {
         // Change from use Request::createFromGlobals because files in $_FILES could be deleted
-        $request = new Request($_GET, [], [], [], [], $_SERVER);
+        $request = new Request(query: $_GET, server: $_SERVER);
 
         $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
         $requestUrl = rtrim($basePath, '/') . '/';

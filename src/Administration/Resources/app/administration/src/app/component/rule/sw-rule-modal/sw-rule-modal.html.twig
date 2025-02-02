@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_rule_modal %}
 <sw-modal
     class="sw-rule-modal"
@@ -7,14 +6,12 @@
     :is-loading="isLoading"
     @modal-close="$emit('modal-close')"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_rule_modal_basic_info %}
     <sw-container
         v-if="rule"
         columns="2fr 1fr"
         gap="0px 32px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_rule_modal_basic_info_name %}
         <sw-text-field
             v-model:value="rule.name"
@@ -25,7 +22,6 @@
             required
         />
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_rule_modal_basic_info_priority %}
         <sw-number-field
             v-model:value="rule.priority"
@@ -38,7 +34,6 @@
         {% endblock %}
     </sw-container>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_rule_modal_basic_info_description %}
     <sw-textarea-field
         v-if="rule"
@@ -50,7 +45,6 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_rule_modal_condition_tree %}
     <sw-condition-tree
         v-if="rule"
@@ -67,9 +61,7 @@
     {% endblock %}
 
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_rule_modal_footer %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_rule_modal_footer_button_abort %}
         <sw-button
             size="small"
@@ -79,7 +71,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_rule_modal_footer_button_save %}
         <sw-button
             :disabled="isLoading"

@@ -1,20 +1,16 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_listing_default_sales_channel %}
 <div class="sw-settings-listing-default-sales-channel">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_default_sales_channel_loader %}
     <sw-loader v-if="isLoading || isDefaultSalesChannelLoading" />
     {% endblock %}
 
     <template v-else>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_default_sales_channel_description %}
         <p class="sw-settings-listing-default-sales-channel__description">
             {{ $tc('sw-settings-listing.index.defaultSalesChannel.description') }}
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_default_sales_channel_select %}
         <sw-entity-multi-id-select
             v-model:value="configData[null]['core.defaultSalesChannel.salesChannel']"
@@ -25,10 +21,8 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_default_sales_channeld_setting %}
         <div class="sw-settings-listing-default-sales-channel__options-container">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_default_sales_channel_setting_active %}
             <sw-switch-field
                 v-model:value="configData[null]['core.defaultSalesChannel.active']"
@@ -37,7 +31,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_default_sales_channel_setting_visibility %}
             <a
                 v-if="salesChannel.length > 0"
@@ -58,7 +51,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_default_sales_channel_select_visibiliy_modal %}
         <sw-modal
             v-if="displayVisibilityDetail"

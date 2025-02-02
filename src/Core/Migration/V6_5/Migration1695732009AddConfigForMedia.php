@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class Migration1695732009AddConfigForMedia extends MigrationStep
 {
     public function getCreationTimestamp(): int

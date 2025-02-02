@@ -1,17 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_rule_add_assignment_listing %}
 <sw-card
     class="sw-settings-rule-add-assignment-listing__card"
     position-identifier="sw-settings-rule-add-assignment-listing"
 >
     <template #toolbar>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_add_assignment_listing_toolbar %}
         <sw-card-filter @sw-card-filter-term-change="doSearch" />
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_add_assignment_listing_grid %}
     <sw-data-grid
         class="sw-settings-rule-add-assignment-listing__grid"
@@ -31,7 +28,6 @@
                 itemIdentifierProperty,
             }"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_add_assignment_listing_checkbox %}
             <div class="sw-data-grid__cell-content">
                 <sw-checkbox-field
@@ -44,7 +40,6 @@
         </template>
 
         <template #column-name="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_add_assignment_listing_name %}
             <sw-product-variant-info
                 v-if="item.variation"
@@ -59,7 +54,6 @@
         </template>
 
         <template #column-active="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_add_assignment_listing_active_flag %}
             <sw-icon
                 v-if="item.active"
@@ -77,14 +71,12 @@
         </template>
 
         <template #column-taxType="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_add_assignment_listing_tax_type %}
             {{ shippingTaxTypeLabel(item.taxType) }}
             {% endblock %}
         </template>
 
         <template #pagination>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_add_assignment_listing_pagination %}
             <sw-pagination
                 :limit="limit"

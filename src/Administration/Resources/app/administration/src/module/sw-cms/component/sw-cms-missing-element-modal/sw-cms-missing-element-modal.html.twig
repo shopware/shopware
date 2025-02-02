@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_missing_element_modal %}
 <sw-modal
     class="sw-cms-missing-element-modal"
@@ -7,7 +6,6 @@
     @modal-close="onClose"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_missing_element_modal_title %}
     <p
         class="sw-cms-missing-element-modal__title"
@@ -15,14 +13,12 @@
     ></p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_missing_element_modal_subtitle %}
     <p class="sw-cms-missing-element-modal__subtitle">
         {{ $tc('sw-cms.components.cmsMissingElementModal.subtitle') }}
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_missing_element_modal_paragraph %}
     <p class="sw-cms-missing-element-modal__paragraph">
         {{ $tc('sw-cms.components.cmsMissingElementModal.paragraph') }}
@@ -39,7 +35,6 @@
     </sw-checkbox-field>
 
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_missing_element_modal_button_cancel %}
         <sw-button
             class="sw-cms-missing-element-modal__button-cancel"
@@ -50,7 +45,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_missing_element_modal_button_save %}
         <sw-button
             class="sw-cms-missing-element-modal__button-save"

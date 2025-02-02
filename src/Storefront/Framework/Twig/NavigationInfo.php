@@ -8,13 +8,18 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @internal
  */
 #[Package('framework')]
 final readonly class NavigationInfo
 {
+    /**
+     * @param list<string> $pathIdList
+     */
     public function __construct(
         public string $id,
-        public string $path,
+        public array $pathIdList,
     ) {
     }
 }

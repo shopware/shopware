@@ -46,7 +46,7 @@ describe('dom-access.helper', () => {
             expect(DomAccess.hasAttribute(node, 'style')).toBe(true);
         });
 
-        test('has attribute returns false if attribute does not exists', () => {
+        test('has attribute returns false if attribute does not exist', () => {
             const node = document.querySelector('div.headline');
 
             expect(DomAccess.hasAttribute(node, 'noExistent')).toBe(false);

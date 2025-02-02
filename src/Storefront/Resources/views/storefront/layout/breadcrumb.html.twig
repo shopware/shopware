@@ -21,6 +21,7 @@
                     {% for breadcrumbCategory in breadcrumbCategories %}
                         {% set key = breadcrumbCategory.id %}
                         {% set name = breadcrumbCategory.translated.name %}
+                        {% set categoryUrl = category_url(breadcrumbCategory) %}
 
                         {% block layout_breadcrumb_list_item %}
                             <li class="breadcrumb-item"
@@ -33,13 +34,13 @@
                                         <div itemprop="name">{{ name }}</div>
                                     </div>
                                 {% else %}
-                                    <a href="{{ category_url(breadcrumbCategory) }}"
+                                    <a href="{{ categoryUrl }}"
                                        class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
                                        title="{{ name }}"
                                        {% if category_linknewtab(breadcrumbCategory) %}target="_blank"{% endif %}
                                        itemprop="item">
                                         <link itemprop="url"
-                                              href="{{ category_url(breadcrumbCategory) }}">
+                                              href="{{ categoryUrl }}">
                                         <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
                                     </a>
                                 {% endif %}

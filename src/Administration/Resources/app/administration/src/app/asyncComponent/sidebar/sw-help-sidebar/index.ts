@@ -4,7 +4,7 @@ import './sw-help-sidebar.scss';
 /**
  * @description Displays the help sidebar
  *
- * @sw-package buyers-experience
+ * @sw-package framework
  *
  * @private
  */

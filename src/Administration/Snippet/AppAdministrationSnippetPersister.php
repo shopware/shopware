@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleException;
 
 /**
@@ -19,6 +20,10 @@ use Shopware\Core\System\Locale\LocaleException;
 #[Package('discovery')]
 class AppAdministrationSnippetPersister
 {
+    /**
+     * @param EntityRepository<AppAdministrationSnippetCollection> $appAdministrationSnippetRepository
+     * @param EntityRepository<LocaleCollection> $localeRepository
+     */
     public function __construct(
         private readonly EntityRepository $appAdministrationSnippetRepository,
         private readonly EntityRepository $localeRepository,
@@ -95,10 +100,7 @@ class AppAdministrationSnippetPersister
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
 
-        /** @var AppAdministrationSnippetCollection $collection */
-        $collection = $this->appAdministrationSnippetRepository->search($criteria, $context)->getEntities();
-
-        return $collection;
+        return $this->appAdministrationSnippetRepository->search($criteria, $context)->getEntities();
     }
 
     /**

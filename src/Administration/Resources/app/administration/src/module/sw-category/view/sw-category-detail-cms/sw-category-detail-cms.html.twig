@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_detail_cms %}
 <div class="sw-category-detail__cms">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_cms_layout %}
     <sw-category-layout-card
         v-if="category.type === 'page'"
@@ -10,7 +8,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_cms_form %}
     <sw-cms-page-form
         v-if="cmsPage && acl.can('category.editor')"

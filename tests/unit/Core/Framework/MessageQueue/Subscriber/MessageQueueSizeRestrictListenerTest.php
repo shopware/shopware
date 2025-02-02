@@ -42,7 +42,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
         $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
 
         $message = new \stdClass();
-        $message->a = str_repeat('a', 1024 * 256);
+        $message->a = str_repeat('a', MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT);
         $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, ['test' => $this->createMock(SyncTransport::class)]);
@@ -72,7 +72,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
         $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
 
         $message = new \stdClass();
-        $message->a = str_repeat('a', 1024 * 256);
+        $message->a = str_repeat('a', MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT);
         $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, []);
@@ -107,7 +107,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
         $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), false);
 
         $message = new \stdClass();
-        $message->a = str_repeat('a', 1024 * 256);
+        $message->a = str_repeat('a', MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT);
         $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, []);

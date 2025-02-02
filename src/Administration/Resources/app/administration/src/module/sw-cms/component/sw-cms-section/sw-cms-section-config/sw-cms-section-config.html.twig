@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_section_config %}
 <div class="sw-cms-section-config">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_section_config__quickactions %}
     <ul
         class="sw-cms-section-config__quickactions-list"
         :class="quickactionClasses"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config__quickaction_duplicate %}
         <li
             class="sw-cms-section-config__quickaction"
@@ -25,7 +22,6 @@
         </li>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config__quickaction_delete %}
         <li
             class="sw-cms-section-config__quickaction is--danger"
@@ -44,11 +40,9 @@
     </ul>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_section_config__settings %}
     <div class="sw-cms-section-config__settings">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config_name_field %}
         <sw-text-field
             v-model:value="section.name"
@@ -57,7 +51,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_section_config_css_classes_field %}
         <sw-text-field
             v-model:value="section.cssClass"
@@ -66,7 +59,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_section_config_sizing_field %}
         <sw-select-field
             v-model:value="section.sizingMode"
@@ -81,7 +73,6 @@
         </sw-select-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_section_config_sidebar_mobile %}
         <sw-select-field
             v-if="section.type === 'sidebar'"
@@ -97,7 +88,6 @@
         </sw-select-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config_background_color_field %}
         <sw-colorpicker
             v-model:value="section.backgroundColor"
@@ -106,7 +96,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config_background_image_field %}
         <sw-media-compact-upload-v2
             :source="section && section.backgroundMedia && section.backgroundMedia.id ? section.backgroundMedia : null"
@@ -123,7 +112,6 @@
             @media-upload-finish="successfulUpload"
         />
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config_background_image_position_field %}
         <sw-select-field
             v-model:value="section.backgroundMediaMode"

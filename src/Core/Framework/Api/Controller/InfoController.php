@@ -391,7 +391,13 @@ class InfoController extends AbstractController
         $defaultEntryFile = 'administration/index.html';
         $bundlePath = $bundle->getPath();
 
-        if (!file_exists($bundlePath . '/Resources/public/' . $defaultEntryFile)) {
+        if (!Feature::isActive('ADMIN_VITE') && !file_exists($bundlePath . '/Resources/public/' . $defaultEntryFile)) {
+            return null;
+        }
+
+        if (Feature::isActive('ADMIN_VITE')
+            && !$this->filesystem->fileExists(\sprintf('bundles/%s/meteor-app/index.html', mb_strtolower($bundle->getName())))
+        ) {
             return null;
         }
 

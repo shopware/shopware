@@ -1,21 +1,17 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_chart_card %}
 <sw-card
     :subtitle="cardSubtitle"
     :position-identifier="positionIdentifier"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_chart_card_title %}
     <template #title>
         <div class="sw-card__title">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_chart_card_title_slot %}
             <slot name="header-title">
                 {{ cardTitle }}
             </slot>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_chart_card_title_help_text %}
             <sw-icon
                 v-if="helpText"
@@ -29,21 +25,17 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_chart_card_header %}
     <template #header-right>
         <div class="sw-chart-card__header-right">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_chart_card_header_slot_link %}
             <slot name="header-link"></slot>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_chart_card_header_link_arrow %}
             <span v-if="hasHeaderLink">&rarr;</span>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_chart_card_header_range_select %}
             <sw-select-field
                 v-model:value="selectedRange"
@@ -51,7 +43,6 @@
                 size="small"
                 @update:value="dispatchRangeUpdate"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_chart_card_header_range_select_options %}
                 <option
                     v-for="(range, index) in availableRanges"
@@ -70,7 +61,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_chart_card_inner_chart %}
     <sw-chart v-bind="$attrs" />
     {% endblock %}

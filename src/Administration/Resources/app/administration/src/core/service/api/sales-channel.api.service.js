@@ -4,7 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "application"
  * @class
  * @extends ApiService
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 class SalesChannelApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'sales-channel') {

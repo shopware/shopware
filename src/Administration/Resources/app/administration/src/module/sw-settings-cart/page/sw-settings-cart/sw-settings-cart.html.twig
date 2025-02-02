@@ -1,21 +1,16 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_cart_index %}
 <sw-page class="sw-settings-cart">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_cart_search_bar %}
     <template #search-bar>
         <sw-search-bar />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_cart_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_cart_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_cart_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -25,7 +20,6 @@
             {{ $tc('sw-settings-cart.general.textHeadline') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_cart_smart_bar_header_amount %}
             <span
                 v-if="false"
@@ -39,10 +33,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_cart_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_cart_actions_save %}
         <sw-button-process
             class="sw-settings-cart__save-action"
@@ -59,7 +51,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_cart_content %}
     <template #content>
         <sw-card-view>

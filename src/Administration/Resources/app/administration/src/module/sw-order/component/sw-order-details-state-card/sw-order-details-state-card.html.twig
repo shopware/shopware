@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_state_card %}
 <sw-card
     class="sw-order-detail-state-card"
@@ -7,7 +6,6 @@
     :is-loading="isLoading"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_state_card_state %}
     <div class="sw-order-detail-state-card__state">
         <sw-container
@@ -16,7 +14,6 @@
             columns="33% auto auto"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_state_card_state_select %}
             <sw-order-state-select-v2
                 v-tooltip="{
@@ -36,7 +33,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_state_card_state_history_text %}
             <div
                 v-if="lastStateChange"
@@ -56,7 +52,6 @@
             <div v-else></div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_state_card_state_history_button %}
             <sw-external-link
                 class="sw-order-detail-state-card__state-history-button"
@@ -69,7 +64,6 @@
 
         </sw-container>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_change_card_state_modal %}
         <sw-order-state-change-modal
             v-if="showStateChangeModal"
@@ -83,12 +77,10 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_change_card_divider %}
     <hr class="sw-order-detail-state-card__divider">
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_change_card_content %}
     <sw-container
         class="sw-order-detail-state-card__content"

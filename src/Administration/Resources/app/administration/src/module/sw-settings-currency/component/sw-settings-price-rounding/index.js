@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@framework
  */
 import template from './sw-settings-price-rounding.html.twig';
 import './sw-settings-price-rounding.scss';

@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_multi_tag_select_validation_valid_message %}
 {{ $tc('global.sw-multi-tag-ip-select.addIpAddress') }}
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_multi_tag_select_validation_invalid_message %}
 {{ $tc('global.sw-multi-tag-ip-select.enterValidIp') }}
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_multi_tag_select_validation_invalid %}
 {% parent %}
 
@@ -25,7 +22,6 @@
 </div>
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_multi_tag_select_base_selection_list_label_inner %}
 <template v-if="getKnownIp(item)">
     <slot

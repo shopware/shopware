@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageIndexer extends EntityIndexer
 {
     /**

@@ -438,7 +438,7 @@ jobs:
           retention-days: 3
 
   blue-green-66-67:
-    name: "PHP blue green 6.6 -> 6.7 -> 6.6"
+    name: "PHP blue green 6.7 -> 6.8 -> 6.7"
     runs-on: ubuntu-24.04
     if: ${{ github.event_name != 'pull_request' }}
     env:
@@ -475,7 +475,7 @@ jobs:
 
       - name: Run next major migrations on test DB
         if: ${{ contains(github.workflow_ref, 'nightly') }}
-        run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console database:migrate --all core.V6_7
+        run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console database:migrate --all core.V6_8
 
       - name: Run integration tests
         if: ${{ contains(github.workflow_ref, 'nightly') }}
@@ -487,7 +487,7 @@ jobs:
 
       - name: Run next major migrations
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
-        run: bin/console database:migrate --all core.V6_7
+        run: bin/console database:migrate --all core.V6_8
 
       - name: Run blue-green check
         if: ${{ !contains(github.workflow_ref, 'nightly') }}

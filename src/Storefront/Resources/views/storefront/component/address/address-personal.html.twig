@@ -287,7 +287,7 @@
         <div class="row g-2">
             {% block component_address_personal_fields_first_name %}
                 {# @deprecated tag:v6.7.0 - firstName will have additional validation #}
-                {% if feature('v6.7.0.0') %}
+                {% if feature('ADDRESS_SELECTION_REWORK') %}
                     {# New implementation, setting of "violationPath" #}
                     {% if formViolations.getViolations("/#{prefix}/firstName") is not empty %}
                         {% set violationPath = "/#{prefix}/firstName" %}
@@ -333,10 +333,10 @@
                                autocomplete="section-personal given-name"
                                id="{{ idPrefix ~ prefix }}personalFirstName"
                             {# @deprecated tag:v6.7.0 - firstName will have prefix #}
-                            {% if feature('v6.7.0.0') %}
+                            {% if feature('ADDRESS_SELECTION_REWORK') %}
                                 {# New implementation, name and value with prefix #}
                                 name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
-                                value="{% if prefix and feature('v6.7.0.0') and data.has(prefix) %}{{ data.get(prefix).get('firstName') }}{% else %}{{data.get('firstName')}}{% endif %}"
+                                value="{% if prefix and data.has(prefix) %}{{ data.get(prefix).get('firstName') }}{% else %}{{data.get('firstName')}}{% endif %}"
                             {% else %}
                                 name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
                                 value="{{ data.get('firstName') }}"
@@ -359,7 +359,7 @@
 
             {% block component_address_personal_fields_last_name %}
                 {# @deprecated tag:v6.7.0 - lastName will have additional validation #}
-                {% if feature('v6.7.0.0') %}
+                {% if feature('ADDRESS_SELECTION_REWORK') %}
                     {% if formViolations.getViolations("/#{prefix}/lastName") is not empty %}
                         {% set violationPath = "/#{prefix}/lastName" %}
                     {% elseif formViolations.getViolations("/lastName") is not empty and not prefix %}
@@ -640,8 +640,7 @@
                     {% endblock %}
                 </div>
             {% endblock %}
-
-            {% endif %}
+        {% endif %}
         {% endif %}
     {% endblock %}
 {% endblock %}

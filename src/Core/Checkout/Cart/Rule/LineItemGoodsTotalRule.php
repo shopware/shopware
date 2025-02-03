@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 #[Package('fundamentals@after-sales')]
 class LineItemGoodsTotalRule extends FilterRule
 {

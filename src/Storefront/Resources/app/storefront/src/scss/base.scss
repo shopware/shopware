@@ -58,7 +58,9 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/cms-element';
 @import 'component/cms-form-confirmation';
 @import 'component/forms';
+// @deprecated tag:v6.7.0 - address-editor will be replaced with address-manager
 @import 'component/address-editor';
+@import 'component/address-manager';
 @import 'component/sorting';
 @import 'component/delivery-status';
 @import 'component/quickview-modal';

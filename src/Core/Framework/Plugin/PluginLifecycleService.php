@@ -715,18 +715,18 @@ class PluginLifecycleService
             // only remove the plugin composer dependency directly when running in CLI
             // otherwise do it async in kernel.response
             $this->removePluginComposerDependency($plugin, $shopwareContext);
-        // @codeCoverageIgnoreStart -> code path can not be executed in unit tests as SAPI will always be CLI
+        /* @codeCoverageIgnoreStart -> code path can not be executed in unit tests as SAPI will always be CLI */
         } else {
             self::$pluginToBeDeleted = [
                 'plugin' => $plugin,
                 'context' => $shopwareContext,
             ];
-            // @codeCoverageIgnoreEnd
 
             if (!self::$registeredListener) {
                 $this->eventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
                 self::$registeredListener = true;
             }
         }
+        /* @codeCoverageIgnoreEnd */
     }
 }

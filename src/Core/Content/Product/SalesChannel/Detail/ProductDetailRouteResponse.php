@@ -8,16 +8,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<ArrayStruct>
+ */
 #[Package('inventory')]
 class ProductDetailRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var ArrayStruct<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
     public function __construct(
         SalesChannelProductEntity $product,
         ?PropertyGroupCollection $configurator

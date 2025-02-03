@@ -12,7 +12,7 @@ use Shopware\Core\Maintenance\MaintenanceException;
 use Symfony\Component\Intl\Currencies;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
 #[Package('framework')]
 class ShopConfigurator

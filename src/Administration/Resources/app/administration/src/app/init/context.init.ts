@@ -6,6 +6,7 @@ import { watch } from 'vue';
 import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import '../store/context.store';
 import useSession from '../composables/use-session';
+import compareVersions from '../../core/helper/compare-versions.helper';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
@@ -38,6 +39,13 @@ export default function initializeContext(): void {
     Shopware.ExtensionAPI.handle('contextShopwareVersion', () => {
         return Shopware.Context.app.config.version ?? '';
     });
+
+    Shopware.ExtensionAPI.handle(
+        'contextCompareShopwareVersion',
+        ({ version, comparator = '=' }: { version: string; comparator?: '=' | '>' | '<' | '<=' | '>=' }) => {
+            return compareVersions(Shopware.Context.app.config.version ?? '', version, comparator);
+        },
+    );
 
     Shopware.ExtensionAPI.handle('contextUserTimezone', () => {
         return Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';

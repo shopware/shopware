@@ -260,6 +260,8 @@ jobs:
     - phpunit
     - license-check
     - composer-audit
+    # add after first RC
+    # bc-checker
 
     runs-on: Ubuntu-latest
     steps:

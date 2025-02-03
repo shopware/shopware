@@ -15,10 +15,11 @@ echo \json_encode(['matrix' => [
         ['path' => 'Core/Checkout'],
         ['path' => 'Core/Content'],
         ['path' => 'Core/Framework'],
-        ['path' => 'Storefront,devops'],
+        ['path' => 'Storefront'],
         ['path' => '{Administration,Elasticsearch}'],
         ['path' => '{Core/Installer,Core/Maintenance,Core/System}'],
-        ['testsuite' => 'migration']
+        ['testsuite' => 'migration'],
+        ['testsuite' => 'devops']
     ],
     'php' => $php,
     'db' => $db,

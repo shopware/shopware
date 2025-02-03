@@ -3,7 +3,7 @@ import './acl';
 
 import flowState from './state/flow.state';
 
-const { Module, State } = Shopware;
+const { Module, State, Feature } = Shopware;
 State.registerModule('swFlowState', flowState);
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
@@ -177,7 +177,14 @@ Module.register('sw-flow', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'automation';
+        },
         to: 'sw.flow.index',
         icon: 'regular-flow',
         privilege: 'flow.viewer',

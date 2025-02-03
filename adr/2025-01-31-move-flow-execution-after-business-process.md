@@ -23,7 +23,7 @@ from a decorator of Symfony's `EventDispatcher`, leading to cumbersome debugging
 be improved if flows are executed by a dedicated event listener. Additionally moving flows to their own execution
 environment would not only simplify debugging, but also potentially make expanding their capabilities easier.
 
-> *The following is all experimental and only takes effect if the associated feature flag is enabled*
+> *The following is all experimental and only takes effect if the associated feature flag `FLOW_EXECUTION_AFTER_BUSINESS_PROCESS` is enabled*
 
 ## Decision
 

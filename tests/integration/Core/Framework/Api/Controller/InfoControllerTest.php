@@ -63,7 +63,7 @@ class InfoControllerTest extends TestCase
     public function testGetConfig(): void
     {
         $expected = [
-            'version' => '6.6.9999999.9999999-dev',
+            'version' => '6.7.9999999.9999999-dev',
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => true,
@@ -232,7 +232,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersion(): void
     {
         $expected = [
-            'version' => '6.6.9999999.9999999-dev',
+            'version' => '6.7.9999999.9999999-dev',
         ];
 
         $url = '/api/_info/version';
@@ -252,7 +252,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersionOldVersion(): void
     {
         $expected = [
-            'version' => '6.6.9999999.9999999-dev',
+            'version' => '6.7.9999999.9999999-dev',
         ];
 
         $url = '/api/v1/_info/version';

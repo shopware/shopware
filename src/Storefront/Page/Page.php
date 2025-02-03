@@ -91,10 +91,11 @@ class Page extends Struct
      */
     public function setFooter(?FooterPagelet $footer): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        );
+        // fix with #6556
+        // Feature::triggerDeprecationOrThrow(
+        //     'v6.7.0.0',
+        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        // );
         $this->footer = $footer;
     }
 
@@ -103,10 +104,11 @@ class Page extends Struct
      */
     public function getSalesChannelShippingMethods(): ?ShippingMethodCollection
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        );
+        // fix with #6556
+        // Feature::triggerDeprecationOrThrow(
+        //     'v6.7.0.0',
+        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        // );
 
         return $this->salesChannelShippingMethods;
     }
@@ -116,10 +118,11 @@ class Page extends Struct
      */
     public function setSalesChannelShippingMethods(ShippingMethodCollection $salesChannelShippingMethods): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        );
+        // fix with #6556
+        // Feature::triggerDeprecationOrThrow(
+        //     'v6.7.0.0',
+        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        // );
         $this->salesChannelShippingMethods = $salesChannelShippingMethods;
     }
 
@@ -128,10 +131,11 @@ class Page extends Struct
      */
     public function getSalesChannelPaymentMethods(): ?PaymentMethodCollection
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        );
+        // fix with #6556
+        // Feature::triggerDeprecationOrThrow(
+        //     'v6.7.0.0',
+        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        // );
 
         return $this->salesChannelPaymentMethods;
     }
@@ -141,10 +145,11 @@ class Page extends Struct
      */
     public function setSalesChannelPaymentMethods(PaymentMethodCollection $salesChannelPaymentMethods): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        );
+        // fix with #6556
+        // Feature::triggerDeprecationOrThrow(
+        //     'v6.7.0.0',
+        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        // );
         $this->salesChannelPaymentMethods = $salesChannelPaymentMethods;
     }
 

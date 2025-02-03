@@ -37,6 +37,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ZugferdDocument::class)]
 class ZugferdBuilderTest extends TestCase
 {
+    private const ALLOWANCE_TOTAL = 20.00;
+
+    private const SHIPPING_COST_NET = 20.00;
+
     private int $position = 0;
 
     private float $totalAmount = 0.0;
@@ -77,14 +81,20 @@ class ZugferdBuilderTest extends TestCase
 
         $totalAmount = number_format($this->totalAmount, 2, '.', '');
 
+        $shippingCost = number_format(self::SHIPPING_COST_NET, 2, '.', '');
+        $allowance = number_format(self::ALLOWANCE_TOTAL, 2, '.', '');
+        $grandTotal = number_format($order->getAmountTotal(), 2, '.', '');
+        $taxBasis = number_format($order->getAmountNet(), 2, '.', '');
+        $taxTotal = number_format($order->getAmountTotal() - $order->getAmountNet(), 2, '.', '');
+
         static::assertStringStartsWith('<?xml', $xmlContent);
         static::assertStringContainsString("LineTotalAmount>$totalAmount<", $xmlContent);
-        static::assertStringContainsString('ChargeTotalAmount>20.00<', $xmlContent);
-        static::assertStringContainsString('AllowanceTotalAmount>20.00<', $xmlContent);
-        static::assertStringContainsString('TaxBasisTotalAmount>1020.00<', $xmlContent);
-        static::assertStringContainsString('TaxTotalAmount currencyID="EUR">193.80<', $xmlContent);
-        static::assertStringContainsString('GrandTotalAmount>1213.80<', $xmlContent);
-        static::assertStringContainsString('DuePayableAmount>1213.80<', $xmlContent);
+        static::assertStringContainsString("ChargeTotalAmount>$shippingCost<", $xmlContent);
+        static::assertStringContainsString("AllowanceTotalAmount>$allowance<", $xmlContent);
+        static::assertStringContainsString("TaxBasisTotalAmount>$taxBasis<", $xmlContent);
+        static::assertStringContainsString("TaxTotalAmount currencyID=\"EUR\">$taxTotal<", $xmlContent);
+        static::assertStringContainsString("GrandTotalAmount>$grandTotal<", $xmlContent);
+        static::assertStringContainsString("DuePayableAmount>$grandTotal<", $xmlContent);
 
         foreach ($config as $key => $value) {
             match (true) {
@@ -130,14 +140,14 @@ class ZugferdBuilderTest extends TestCase
         $bundleSecond = $this->buildOrderLineItemEntity($bundleSecondId, LineItem::PRODUCT_LINE_ITEM_TYPE, $bundle);
 
         $this->setPrice($normal, $bundleFirst, $bundleSecond);
-        $promotion1->setUnitPrice(-20 * 1.19);
+        $promotion1->setUnitPrice(-self::ALLOWANCE_TOTAL * 1.19);
         $promotion1->setTotalPrice($promotion1->getUnitPrice());
 
         $promotion1->setPrice(new CalculatedPrice(
             $promotion1->getUnitPrice(),
             $promotion1->getTotalPrice(),
             new CalculatedTaxCollection([
-                new CalculatedTax($promotion1->getUnitPrice() + 20, 19, $promotion1->getTotalPrice()),
+                new CalculatedTax($promotion1->getUnitPrice() + self::ALLOWANCE_TOTAL, 19, $promotion1->getTotalPrice()),
             ]),
             new TaxRuleCollection()
         ));
@@ -165,14 +175,15 @@ class ZugferdBuilderTest extends TestCase
             'gross'
         ));
 
+        $shippingCost = self::SHIPPING_COST_NET * 1.19;
         $delivery = new OrderDeliveryEntity();
         $delivery->setId(Uuid::randomHex());
         $delivery->setShippingDateLatest(new \DateTimeImmutable());
         $delivery->setShippingCosts(new CalculatedPrice(
-            23.8,
-            23.8,
+            $shippingCost,
+            $shippingCost,
             new CalculatedTaxCollection([
-                new CalculatedTax(3.8, 19, 23.8),
+                new CalculatedTax($shippingCost - self::SHIPPING_COST_NET, 19, $shippingCost),
             ]),
             new TaxRuleCollection()
         ));

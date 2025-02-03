@@ -134,7 +134,7 @@ export default {
         async reserveDocumentNumber(isPreview) {
             // ZUGFeRD document types have no own number range. We will use the invoice number range instead (NEXT-40492)
             let technicalName = this.currentDocumentType.technicalName;
-            if (technicalName.startsWith('zugferd_')) {
+            if (technicalName?.startsWith('zugferd_')) {
                 technicalName = 'invoice';
             }
 

@@ -373,9 +373,6 @@ describe('sw-order-document-settings-credit-note-modal', () => {
             documentConfig: {
                 documentNumber: 'PREVIEW_NUM_002',
             },
-            currentDocumentType: {
-                technicalName: 'credit_note',
-            }
         });
 
         await wrapper.vm.onCreateDocument();

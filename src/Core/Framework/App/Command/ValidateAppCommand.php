@@ -10,7 +10,6 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -88,7 +87,7 @@ class ValidateAppCommand extends Command
                     $invalids[] = $e->getMessage();
                 }
             }
-        } catch (XmlParsingException|AppXmlParsingException $e) {
+        } catch (AppXmlParsingException $e) {
             $invalids[] = $e->getMessage();
         }
 

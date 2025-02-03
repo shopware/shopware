@@ -64,7 +64,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        Profiler::trace('cart::product::collect', closure: function () use ($data, $original, $context, $behavior): void {
+        Profiler::trace('cart::product::collect', function () use ($data, $original, $context, $behavior): void {
             $lineItems = $this->getProducts($original->getLineItems());
 
             $items = array_column($lineItems, 'item');

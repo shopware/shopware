@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
@@ -482,8 +483,8 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->container->set('kernel', $kernelMock);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Container parameter "kernel.plugin_dir" needs to be a string');
+        $this->expectException(PluginException::class);
+        $this->expectExceptionMessage('Container parameter "kernel.plugin_dir" needs to be of type "string"');
 
         $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
     }
@@ -710,8 +711,8 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Shopware\Core\Framework\Plugin in the container should be an instance of Shopware\Core\Framework\Plugin');
+        $this->expectException(PluginException::class);
+        $this->expectExceptionMessage('"Shopware\Core\Framework\Plugin" in the container should be an instance of Shopware\Core\Framework\Plugin');
 
         $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
     }

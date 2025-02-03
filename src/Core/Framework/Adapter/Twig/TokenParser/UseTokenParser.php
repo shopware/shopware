@@ -5,15 +5,17 @@ namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Log\Package;
+use Twig\Node\EmptyNode;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Node;
+use Twig\Node\Nodes;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
 /**
  * @see \Twig\TokenParser\UseTokenParser
  */
-#[Package('core')]
+#[Package('framework')]
 final class UseTokenParser extends AbstractTokenParser
 {
     public function __construct(private readonly TemplateFinderInterface $templateFinder)
@@ -56,9 +58,9 @@ final class UseTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        $this->parser->addTrait(new Node(['template' => $template, 'targets' => new Node($targets)]));
+        $this->parser->addTrait(new Nodes(['template' => $template, 'targets' => new Nodes($targets)]));
 
-        return new Node([], [], $token->getLine());
+        return new EmptyNode($token->getLine());
     }
 
     public function getTag(): string

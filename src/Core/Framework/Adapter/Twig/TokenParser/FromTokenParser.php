@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Log\Package;
-use Twig\Node\Expression\AssignNameExpression;
 use Twig\Node\Expression\ConstantExpression;
+use Twig\Node\Expression\Variable\AssignContextVariable;
+use Twig\Node\Expression\Variable\AssignTemplateVariable;
+use Twig\Node\Expression\Variable\TemplateVariable;
 use Twig\Node\ImportNode;
 use Twig\Node\Node;
 use Twig\Token;
@@ -14,7 +16,7 @@ use Twig\TokenParser\AbstractTokenParser;
 /**
  * @see \Twig\TokenParser\FromTokenParser
  */
-#[Package('core')]
+#[Package('framework')]
 final class FromTokenParser extends AbstractTokenParser
 {
     public function __construct(private readonly TemplateFinderInterface $templateFinder)
@@ -38,9 +40,10 @@ final class FromTokenParser extends AbstractTokenParser
         while (true) {
             $name = $stream->expect(Token::NAME_TYPE)->getValue();
 
-            $alias = $name;
             if ($stream->nextIf('as')) {
-                $alias = $stream->expect(Token::NAME_TYPE)->getValue();
+                $alias = new AssignContextVariable($stream->expect(Token::NAME_TYPE)->getValue(), $token->getLine());
+            } else {
+                $alias = new AssignContextVariable($name, $token->getLine());
             }
 
             $targets[$name] = $alias;
@@ -52,11 +55,11 @@ final class FromTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        $var = new AssignNameExpression($this->parser->getVarName(), $token->getLine());
-        $node = new ImportNode($macro, $var, $token->getLine(), $this->parser->isMainScope());
+        $internalRef = new AssignTemplateVariable(new TemplateVariable(null, $token->getLine()), $this->parser->isMainScope());
+        $node = new ImportNode($macro, $internalRef, $token->getLine());
 
         foreach ($targets as $name => $alias) {
-            $this->parser->addImportedSymbol('function', $alias, 'macro_' . $name, $var);
+            $this->parser->addImportedSymbol('function', $alias->getAttribute('name'), 'macro_' . $name, $internalRef);
         }
 
         return $node;

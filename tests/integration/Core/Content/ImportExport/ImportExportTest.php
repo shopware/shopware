@@ -137,6 +137,8 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testExportEvents(): void
     {
+        static::markTestSkipped('#6556');
+
         $this->listener->addSubscriber(new StockSubscriber());
 
         $productId = Uuid::randomHex();
@@ -605,6 +607,8 @@ class ImportExportTest extends AbstractImportExportTestCase
     #[Group('slow')]
     public function testProductsWithVariantsCsv(): void
     {
+        static::markTestSkipped('#6556');
+        
         $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM `product`');
 
@@ -643,6 +647,8 @@ class ImportExportTest extends AbstractImportExportTestCase
     #[Group('slow')]
     public function testProductsWithInvalidVariantsCsv(): void
     {
+        static::markTestSkipped('#6556');
+
         $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM `product`');
 

@@ -174,7 +174,10 @@ class DocumentGenerator
 
     public function upload(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
     {
-        $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->getEntities()->first();
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociation('documentMediaFile');
+
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
         if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }

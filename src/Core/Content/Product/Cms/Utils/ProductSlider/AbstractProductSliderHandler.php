@@ -16,14 +16,6 @@ abstract class AbstractProductSliderHandler
 {
     protected const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
 
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, as the associations will not be loaded in the collect method anymore
-     */
-    protected const PRODUCT_ASSOCIATIONS = [
-        'options.group',
-        'manufacturer',
-    ];
-
     abstract public function getSource();
 
     abstract public function collect(CmsSlotEntity $slot, FieldConfigCollection $config, ResolverContext $resolverContext): ?CriteriaCollection;

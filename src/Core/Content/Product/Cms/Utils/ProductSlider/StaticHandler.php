@@ -11,7 +11,6 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -37,11 +36,7 @@ class StaticHandler extends AbstractProductSliderHandler
     public function collect(CmsSlotEntity $slot, FieldConfigCollection $config, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $products = $config->get('products');
-
         $criteria = new Criteria($products->getArrayValue());
-        if (!Feature::isActive('v6.7.0.0')) {
-            $criteria->addAssociations(self::PRODUCT_ASSOCIATIONS);
-        }
 
         $collection = new CriteriaCollection();
         $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);

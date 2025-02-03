@@ -14,7 +14,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -93,10 +92,6 @@ class ProductStreamHandler extends AbstractProductSliderHandler
         $criteria = new Criteria();
         $criteria->addFilter(...$filters);
         $criteria->setLimit($limit);
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $criteria->addAssociations(self::PRODUCT_ASSOCIATIONS);
-        }
 
         ProductSliderCriteriaHelper::addGrouping($criteria);
         $sorting = $elementConfig->get('productStreamSorting')?->getStringValue() ?? 'name:' . FieldSorting::ASCENDING;

@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -153,12 +152,7 @@ class MappedHandler extends AbstractProductSliderHandler
             return null;
         }
 
-        $criteria = $this->resolveCriteriaForLazyLoadedRelations($resolverContext, $config);
-        if (!Feature::isActive('v6.7.0.0')) {
-            $criteria?->addAssociations(self::PRODUCT_ASSOCIATIONS);
-        }
-
-        return $criteria;
+        return $this->resolveCriteriaForLazyLoadedRelations($resolverContext, $config);
     }
 
     private function resolveCriteriaForLazyLoadedRelations(

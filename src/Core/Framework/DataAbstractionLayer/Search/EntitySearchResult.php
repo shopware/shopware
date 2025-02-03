@@ -6,22 +6,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
  * @final
  *
  * @template TEntityCollection of EntityCollection
- *
- * @phpstan-type TElement template-type<TEntityCollection, EntityCollection, 'TElement'>
- *
- * @extends EntityCollection<TElement>
  */
 #[Package('framework')]
-class EntitySearchResult extends EntityCollection
+class EntitySearchResult
 {
-    use StateAwareTrait;
-
     protected AggregationResultCollection $aggregations;
 
     protected int $page;
@@ -42,8 +35,11 @@ class EntitySearchResult extends EntityCollection
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
+    }
 
-        parent::__construct($entities);
+    public function getEntity(): string
+    {
+        return $this->entity;
     }
 
     public function getTotal(): int
@@ -74,6 +70,16 @@ class EntitySearchResult extends EntityCollection
         return $this->context;
     }
 
+    public function getLimit(): ?int
+    {
+        return $this->limit;
+    }
+
+    public function getPage(): int
+    {
+        return $this->page;
+    }
+
     public function jsonSerialize(): array
     {
         $vars = get_object_vars($this);
@@ -82,7 +88,11 @@ class EntitySearchResult extends EntityCollection
         unset($vars['context']);
         unset($vars['entities']);
 
-        $this->convertDateTimePropertiesToJsonStringRepresentation($vars);
+        foreach ($vars as &$value) {
+            if ($value instanceof \DateTimeInterface) {
+                $value = $value->format(\DateTime::RFC3339_EXTENDED);
+            }
+        }
 
         return $vars;
     }
@@ -90,54 +100,5 @@ class EntitySearchResult extends EntityCollection
     public function getApiAlias(): string
     {
         return 'dal_entity_search_result';
-    }
-
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    public function setPage(int $page): void
-    {
-        $this->page = $page;
-    }
-
-    public function getLimit(): ?int
-    {
-        return $this->limit;
-    }
-
-    public function setLimit(int $limit): void
-    {
-        $this->limit = $limit;
-    }
-
-    public function getEntity(): string
-    {
-        return $this->entity;
-    }
-
-    public function setEntity(string $entity): void
-    {
-        $this->entity = $entity;
-    }
-
-    /**
-     * @param iterable<TElement> $elements
-     */
-    protected function createNew(iterable $elements = []): static
-    {
-        if (!($elements instanceof EntityCollection)) {
-            $elements = new EntityCollection($elements);
-        }
-
-        return new static(
-            $this->entity,
-            $elements->count(),
-            $elements,
-            $this->aggregations,
-            $this->criteria,
-            $this->context
-        );
     }
 }

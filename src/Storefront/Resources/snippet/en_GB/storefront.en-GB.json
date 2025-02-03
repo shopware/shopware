@@ -282,7 +282,6 @@
     "addressesTitleShippingAddress": "Shipping address",
     "addressesTitleBillingAddress": "Billing address",
     "addressesChangeAddress": "Change Address",
-    "addressModalCancel" : "Cancel",
     "addressesContentItemActionEdit": "Edit address",
     "addressesContentItemActionDelete": "Delete address",
     "addressNotFound": "No address was found",

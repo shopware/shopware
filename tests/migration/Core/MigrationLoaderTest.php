@@ -5,9 +5,11 @@ namespace Shopware\Tests\Migration\Core;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -102,7 +104,13 @@ class MigrationLoaderTest extends TestCase
     {
         $collection = $this->loader->collect('_test_migrations_invalid_namespace');
 
-        $this->expectException(InvalidMigrationClassException::class);
+        if (Feature::isActive('v6.7.0.0')) {
+            $this->expectException(MigrationException::class);
+        } else {
+            $this->expectException(InvalidMigrationClassException::class);
+        }
+        $this->expectExceptionMessageMatches('/Unable to load migration Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\_test_migrations_invalid_namespace\\\\Migration1WithoutANamespace at path/');
+
         $collection->getMigrationSteps();
     }
 

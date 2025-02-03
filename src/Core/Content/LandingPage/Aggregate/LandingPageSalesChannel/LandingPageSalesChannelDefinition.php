@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageSalesChannelDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'landing_page_sales_channel';

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_listing_delete_modal %}
 <sw-modal
     :title="title"
@@ -7,16 +6,13 @@
     @modal-close="emitCancel"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_delete_modal_body_description %}
     <p>{{ description }}</p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_delete_modal_footer %}
     <template #modal-footer>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_delete_modal_footer_cancel_button %}
         <sw-button
             size="small"
@@ -26,7 +22,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_delete_modal_footer_delete_button %}
         <sw-button
             variant="danger"

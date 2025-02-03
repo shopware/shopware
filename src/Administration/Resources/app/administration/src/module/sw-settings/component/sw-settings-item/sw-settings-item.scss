@@ -3,57 +3,111 @@
 $sw-settings-item-text-color: $color-darkgray-200;
 $sw-settings-item-hover-text-color: $color-shopware-brand-500;
 
-.sw-settings-item {
-    color: $sw-settings-item-text-color;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-
-    &.is--disabled {
-        opacity: 0.4;
-        cursor: default;
-        pointer-events: none;
-        filter: grayscale(50%);
-    }
-
-    .sw-settings-item__icon {
+/** @deprecated tag:v6.7.0 - Whole block can be removed when sw-settings__tabs will be removed */
+.sw-settings__tabs {
+    .sw-settings-item {
+        color: $sw-settings-item-text-color;
+        text-decoration: none;
         display: flex;
-        flex-shrink: 0;
         align-items: center;
-        justify-content: center;
-        height: 48px;
-        width: 48px;
-        border-radius: 50%;
-        margin-right: 20px;
 
-        &.background--enabled {
-            background-color: darken($color-gray-100, 2%);
+        &.is--disabled {
+            opacity: 0.4;
+            cursor: default;
+            pointer-events: none;
+            filter: grayscale(50%);
         }
-
-        .sw-icon {
-            color: lighten($color-darkgray-200, 15%);
-            margin: auto;
-            width: 20px;
-            height: 20px;
-        }
-    }
-
-    .sw-settings-item__label {
-        font-size: $font-size-xs;
-        word-break: break-all;
-    }
-
-    &:hover {
-        color: $sw-settings-item-hover-text-color;
 
         .sw-settings-item__icon {
+            display: flex;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+            width: 48px;
+            border-radius: 50%;
+            margin-right: 20px;
+
             &.background--enabled {
-                background-color: darken($color-gray-100, 4%);
+                background-color: darken($color-gray-100, 2%);
             }
 
             .sw-icon {
-                color: $sw-settings-item-hover-text-color;
+                color: lighten($color-darkgray-200, 15%);
+                margin: auto;
+                width: 20px;
+                height: 20px;
             }
+        }
+
+        .sw-settings-item__label {
+            font-size: $font-size-xs;
+            word-break: break-all;
+        }
+
+        &:hover {
+            color: $sw-settings-item-hover-text-color;
+
+            .sw-settings-item__icon {
+                &.background--enabled {
+                    background-color: darken($color-gray-100, 4%);
+                }
+
+                .sw-icon {
+                    color: $sw-settings-item-hover-text-color;
+                }
+            }
+        }
+    }
+}
+
+.sw-settings__card--hero {
+    .sw-settings-item {
+        color: var(--color-text-primary-default, #2d2e32);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        margin-left: -8px;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 140%;
+
+        &.is--disabled {
+            opacity: 0.4;
+            cursor: default;
+            pointer-events: none;
+            filter: grayscale(50%);
+        }
+
+        .sw-settings-item__icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            margin-left: 8px;
+
+            .swag-migration-settings_icon__img {
+                margin: auto;
+                width: 30px;
+                height: 30px;
+            }
+        }
+
+        .sw-settings-item__label {
+            font-size: $font-size-xs;
+            word-break: break-all;
+            padding: 8px 0;
+        }
+
+        &:hover,
+        &:focus-visible {
+            border-radius: var(--border-radius-s, 6px);
+            background: var(--color-interaction-secondary-hover, #f2f3f8);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-border-brand-selected, #0870ff);
+            outline-offset: 0;
         }
     }
 }

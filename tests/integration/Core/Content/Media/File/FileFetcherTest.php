@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FileFetcherTest extends TestCase
 {
     final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';

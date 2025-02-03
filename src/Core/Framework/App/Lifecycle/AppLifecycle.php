@@ -507,10 +507,10 @@ class AppLifecycle extends AbstractAppLifecycle
     private function getDefaultLocale(Context $context): string
     {
         $criteria = new Criteria([Defaults::LANGUAGE_SYSTEM]);
-        $criteria->addAssociation('locale');
+        $criteria->addAssociation('translationCode');
 
         $language = $this->languageRepository->search($criteria, $context)->getEntities()->first();
-        $locale = $language?->getLocale();
+        $locale = $language?->getTranslationCode();
         \assert($locale !== null);
 
         return $locale->getCode();

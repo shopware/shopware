@@ -1,11 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_detail_base %}
 <div class="sw-customer-detail-base">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_base_info_holder %}
     <div class="sw-customer-detail-base__info-holder">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_detail_base_info_card %}
         <sw-customer-card
             :title="$tc('sw-customer.detailBase.labelAccountCard')"
@@ -13,7 +10,6 @@
             :edit-mode="customerEditMode"
             :is-loading="isLoading"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_base_info_metadata %}
             <sw-customer-base-info
                 :customer="customer"
@@ -24,7 +20,6 @@
         </sw-customer-card>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_detail_base_default_addresses_card %}
         <sw-card
             v-if="customer.defaultShippingAddress || customer.defaultBillingAddress"
@@ -33,7 +28,6 @@
             class="sw-customer-detail-base__default-addresses"
             :is-loading="customer.isLoading"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_base_default_addresses %}
             <template #grid>
                 <sw-customer-default-addresses
@@ -45,7 +39,6 @@
         </sw-card>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_detail_custom_field_sets %}
         <sw-card
             v-if="!!customerCustomFieldSets && customerCustomFieldSets.length > 0"

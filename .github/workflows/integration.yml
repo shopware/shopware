@@ -2,6 +2,7 @@ name: Integration tests
 
 on:
   pull_request:
+  merge_group:
   workflow_dispatch:
     inputs:
       nightly:
@@ -15,6 +16,7 @@ on:
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
@@ -25,9 +27,14 @@ jobs:
           - ''
         php-version:
           - '8.2'
+          - '8.4'
         include:
           - name: 'Platform'
             major: 'major'
+            php-version: 8.2
+          - name: 'Platform'
+            major: 'major'
+            php-version: 8.4
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"
@@ -77,6 +84,7 @@ jobs:
           install-storefront: ${{ matrix.name != 'Install' }}
           env: prod
           composer-root-version: ${{ matrix.major == 'major' && '6.7.9999999-dev' || '.auto' }}
+          php-version: ${{ matrix.php-version }}
 
       - name: Build js
         if: ${{ matrix.name == 'Install' }}
@@ -128,12 +136,13 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.name }}${{ matrix.major == 'major' && '-major' || '' }}
+          name: playwright-report-${{ matrix.name }}-php${{ matrix.php-version }}-${{ matrix.major == 'major' && '-major' || '' }}
           path: tests/acceptance/test-results/
           retention-days: 3
 
   phpunit-matrix:
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps: 
@@ -149,6 +158,7 @@ jobs:
 
   phpunit:
     name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
+    if: ${{ github.event_name != 'pull_request' }}
     needs: 
       - phpunit-matrix
     runs-on: ubuntu-24.04
@@ -204,6 +214,7 @@ jobs:
 
   win-checkout:
     runs-on: windows-latest
+    if: ${{ github.event_name != 'pull_request' }}
     name: "Windows check"
 
     steps:
@@ -262,55 +273,10 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-  docker:
-    runs-on: ubuntu-24.04
-    if: ${{ github.repository == 'shopware/shopware' && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
-    permissions:
-      packages: write
-    env:
-      SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
-      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
-    steps:
-      - name: Setup Shopware
-        uses: shopware/setup-shopware@main
-        with:
-          shopware-version: ${{ github.ref }}
-          shopware-repository: ${{ github.repository }}
-          install: true
-          install-admin: true
-          install-storefront: true
-          env: prod
-
-      - name: Build
-        run: |
-          composer run build:js
-      - name: Ignore node_modules folders
-        run: |
-          echo '**/node_modules' >> .dockerignore
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login into Github Docker Registery
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        if: ${{ !github.ref_protected }}
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }}
-          file: .gitlab/docker/dev/Dockerfile
-      - name: Build and push trunk
-        uses: docker/build-push-action@v5
-        if: ${{ github.ref_protected }}
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }},ghcr.io/${{ github.repository }}/ci-e2e:${{ github.ref_name }}
-          file: .gitlab/docker/dev/Dockerfile
-
   tested-update-versions:
     name: tested-versions
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
@@ -324,6 +290,7 @@ jobs:
   acceptance-update:
     needs: tested-update-versions
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
@@ -427,6 +394,7 @@ jobs:
   blue-green-66-67:
     name: "PHP blue green 6.6 -> 6.7 -> 6.6"
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     env:
       APP_ENV: test
       APP_URL: http://localhost:8000
@@ -497,5 +465,6 @@ jobs:
       uses: re-actors/alls-green@release/v1
       with:
         # allowed-failures: docs, linters
-        # allowed-skips: non-voting-flaky-job
+        # allow all jobs to be skipped in case of a PR run
+        allowed-skips: acceptance, phpunit, win-checkout, code-ql, acceptance-update, blue-green-66-67
         jobs: ${{ toJSON(needs) }}

@@ -86,8 +86,7 @@ export default {
                 return priceRuleGroups;
             }
 
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            const sortedPrices = this.product.prices.sort((a, b) => {
+            const sortedPrices = this.product.prices.toSorted((a, b) => {
                 const aRule = this.findRuleById(a.ruleId);
                 const bRule = this.findRuleById(b.ruleId);
 

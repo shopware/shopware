@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_image %}
 <div
     class="sw-product-image"
     :class="productImageClasses"
 >
     <template v-if="!isPlaceholder">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_image_preview %}
         <sw-media-preview-v2
             class="sw-product-image__image"
@@ -24,7 +22,6 @@
         </sw-label>
 
         {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_image_preview_spatial_labels %}
         <sw-label
             v-if="isSpatial"
@@ -52,9 +49,7 @@
 
         {% endblock %}
         <sw-context-button class="sw-product-image__context-button">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_image_context %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_image_context_cover_action %}
             <sw-context-menu-item
                 v-if="showCoverLabel && !isCover && !isSpatial"
@@ -65,7 +60,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_image_context_delete_action %}
             <sw-context-menu-item
                 variant="danger"
@@ -82,7 +76,6 @@
         v-else
         class="is--invalid-drag"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_image_placeholder %}
         <sw-icon
             class="sw-product-image__placeholder-icon"

@@ -165,12 +165,8 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
     private function loadConfigByName(string $themeId, Context $context): ?StorefrontPluginConfiguration
     {
-        /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository
-            ->search(new Criteria([$themeId]), $context)
-            ->get($themeId);
-
-        if ($theme === null) {
+        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->first();
+        if (!$theme) {
             return $this->extensionRegistry
                 ->getConfigurations()
                 ->getByTechnicalName($this->baseTheme);

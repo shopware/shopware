@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_product_visibility %}
 <div class="sw-bulk-edit-product-visibility">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_product_visibility_select %}
     <sw-inherit-wrapper
         ref="productVisibilitiesInheritance"
@@ -25,7 +23,6 @@
     </sw-inherit-wrapper>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_product_visibility_advanced %}
     <sw-container
         v-if="product.visibilities.length > 0"
@@ -48,7 +45,6 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_product_visibility_advanced_modal %}
     <sw-modal
         v-if="displayVisibilityDetail"

@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'landing_page';

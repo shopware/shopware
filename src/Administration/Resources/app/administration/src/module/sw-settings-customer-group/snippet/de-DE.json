@@ -41,10 +41,10 @@
     },
     "modal": {
       "seoUrl": {
-        "title": "URL Einstellungen",
+        "title": "URL-Einstellungen",
         "salesChannel": "Verkaufskanal",
-        "urlSuffix": "URL Suffix",
-        "exampleUrl": "Beispiel URL",
+        "urlSuffix": "URL-Suffix",
+        "exampleUrl": "Beispiel-URL",
         "generate": "Generieren"
       }
     },

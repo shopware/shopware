@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_leave_page_modal %}
 <sw-modal
     :title="$tc('sw-flow.leavePageModal.headline')"
@@ -6,15 +5,12 @@
     variant="small"
     @modal-close="onCancel"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_leave_page_modal_content %}
     {{ $tc('sw-flow.leavePageModal.description') }}
     {% endblock %}
 
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_leave_page_modal_actions %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_leave_page_modal_action_cancel %}
         <sw-button
             size="small"
@@ -25,7 +21,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_leave_page_modal_action_confirm %}
         <sw-button
             variant="primary"

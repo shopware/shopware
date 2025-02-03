@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_sidebar %}
 <div
     class="sw-media-sidebar"
     :class="mediaSidebarClasses"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_headline %}
     <h3
         v-if="headLine"
@@ -14,7 +12,6 @@
     </h3>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_item_quickinfo_content %}
     <div class="sw-media-sidebar__quickinfo-scroll-container">
         <sw-media-quickinfo

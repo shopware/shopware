@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_rule_modal %}
 <sw-modal
     class="sw-flow-rule-modal"
@@ -8,16 +7,13 @@
     :closable="false"
     @modal-close="onClose"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_rule_modal_tabs %}
     <sw-tabs
         default-item="detail"
         position-identifier="sw-flow-rule-modal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_rule_headers %}
         <template #default="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_rule_modal_tab_detail %}
             <sw-tabs-item
                 class="sw-flow-rule-modal__tab-detail"
@@ -29,7 +25,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_rule_modal_tab_rule %}
             <sw-tabs-item
                 class="sw-flow-rule-modal__tab-rule"
@@ -43,18 +38,15 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_rule_modal_content %}
         <template #content="{ active }">
             <div class="sw-flow-rule-modal__content">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_rule_modal_tab_detail_content %}
                 <template v-if="active === 'detail' && rule">
                     <sw-container
                         columns="2fr 1fr"
                         gap="0px 32px"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_rule_modal_detail_name %}
                         <sw-text-field
                             v-model:value="rule.name"
@@ -67,7 +59,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_rule_modal_detail_priority %}
                         <sw-number-field
                             v-model:value="rule.priority"
@@ -81,7 +72,6 @@
                     {% endblock %}
                     </sw-container>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_rule_modal_detail_description %}
                     <sw-textarea-field
                         v-model:value="rule.description"
@@ -92,7 +82,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_rule_modal_detail_type %}
                     <sw-multi-select
                         v-model:value="moduleTypes"
@@ -116,10 +105,8 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_rule_modal_tab_rule_content %}
                 <div v-show="active === 'rule'">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_rule_modal_conditions_card %}
                     <sw-condition-tree
                         v-if="conditionRepository"
@@ -143,7 +130,6 @@
     {% endblock %}
 
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_rule_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-rule-modal__cancel-button"
@@ -154,7 +140,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_rule_modal_footer_save_button %}
         <sw-button-process
             class="sw-flow-rule-modal__save-button"

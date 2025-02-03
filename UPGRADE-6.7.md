@@ -431,14 +431,15 @@ In the following event, the CustomerEntity has no association loaded anymore:
 
 ## Payment: Reworked payment handlers
 * The payment handlers have been reworked to provide a more flexible and consistent way to handle payments.
-* The new `AbstractPaymentHandler` class should be used to implement payment handlers.
-* The following interfaces have been deprecated:
+* The new `AbstractPaymentHandler` class should be used to implement payment handlers. A `supports` method now defines, if the `recurring` and `refund` methods can be used for a specific payment method. All other methods will be called during every payment handling, though your payment handler may not need to implement all methods.
+* The following interfaces have been deprecated to be combined into the new `AbstractPaymentHandler`:
   * `AsyncPaymentHandlerInterface`
   * `PreparedPaymentHandlerInterface`
   * `SyncPaymentHandlerInterface`
   * `RefundPaymentHandlerInterface`
   * `RecurringPaymentHandlerInterface`
-* Synchronous and asynchronous payments have been merged to return an optional redirect response.
+* Synchronous and asynchronous payments have been merged to return an optional redirect response, defining whether the customer gets forwarded to a payment provider or immediately returns to the finish page.
+* Payment handlers from plugins now only receive the `orderTransactionId`, the request information (if applicable, e.g. not for recurring payments) and a Context. All data, that the payment handler needs to process the payment, has to be fetched by the payment handler to reduce load on the database. This also reduces overreliance on the SalesChannelContext, which may contain information that is not representative of the order (e.g. addresses of the customer may not be the same as addresses of the order). For apps, the same information is still sent to the app server as before.
 
 ## Payment: Capture step of prepared payments removed
 * The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.

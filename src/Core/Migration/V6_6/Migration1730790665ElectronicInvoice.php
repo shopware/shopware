@@ -40,12 +40,12 @@ class Migration1730790665ElectronicInvoice extends MigrationStep
         $connection->insert('document_type', ['id' => $embeddedInvoiceId, 'technical_name' => ZugferdEmbeddedRenderer::TYPE, 'created_at' => $createdAt]);
 
         $zugferdTranslation = new Translations(
-            ['document_type_id' => $electronicInvoiceId, 'name' => 'ZUGFeRD E-Rechnung'],
-            ['document_type_id' => $electronicInvoiceId, 'name' => 'ZUGFeRD e-invoice']
+            ['document_type_id' => $electronicInvoiceId, 'name' => 'Rechnung: ZUGFeRD E-Rechnung'],
+            ['document_type_id' => $electronicInvoiceId, 'name' => 'Invoice: ZUGFeRD E-invoice']
         );
         $embeddedTranslation = new Translations(
-            ['document_type_id' => $embeddedInvoiceId, 'name' => 'Eingebettete ZUGFeRD E-Rechnung'],
-            ['document_type_id' => $embeddedInvoiceId, 'name' => 'Embedded ZUGFeRD e-invoice']
+            ['document_type_id' => $embeddedInvoiceId, 'name' => 'Rechnung: PDF mit eingebetteter ZUGFeRD E-Rechnung'],
+            ['document_type_id' => $embeddedInvoiceId, 'name' => 'Invoice: PDF with embedded ZUGFeRD E-invoice']
         );
         $this->importTranslation('document_type_translation', $zugferdTranslation, $connection);
         $this->importTranslation('document_type_translation', $embeddedTranslation, $connection);

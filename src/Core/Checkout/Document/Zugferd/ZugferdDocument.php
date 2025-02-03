@@ -100,7 +100,7 @@ class ZugferdDocument
         ];
 
         $this->zugferdBuilder
-            ->addDocumentPaymentTerm(null, (new \DateTime())->modify($documentConfig->getPaymentDueDate()))
+            ->addDocumentPaymentTerm(null, (new \DateTime())->modify($documentConfig->getPaymentDueDate() ?: '+30 days'))
             ->setDocumentSeller($documentConfig->getCompanyName() ?? '')
             ->addDocumentSellerTaxRegistration('FC', $documentConfig->getTaxNumber())
             ->addDocumentSellerTaxRegistration('VA', $documentConfig->getVatId())

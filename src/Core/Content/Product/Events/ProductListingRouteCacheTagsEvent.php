@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductListingRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
     /**
+     * @param array<string|null> $tags
      * @param ProductListingRouteResponse $response
      */
     public function __construct(

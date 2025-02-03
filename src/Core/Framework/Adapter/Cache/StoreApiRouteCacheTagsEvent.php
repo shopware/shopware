@@ -14,6 +14,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class StoreApiRouteCacheTagsEvent extends Event
 {
     /**
+     * @param array<string|null> $tags
      * @param StoreApiResponse<covariant Struct> $response
      */
     public function __construct(
@@ -25,6 +26,9 @@ class StoreApiRouteCacheTagsEvent extends Event
     ) {
     }
 
+    /**
+     * @return array<string|null>
+     */
     public function getTags(): array
     {
         return $this->tags;
@@ -45,11 +49,17 @@ class StoreApiRouteCacheTagsEvent extends Event
         return $this->criteria;
     }
 
+    /**
+     * @param array<string|null> $tags
+     */
     public function setTags(array $tags): void
     {
         $this->tags = $tags;
     }
 
+    /**
+     * @param array<string|null> $tags
+     */
     public function addTags(array $tags): void
     {
         $this->tags = array_merge($this->tags, $tags);

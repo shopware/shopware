@@ -162,12 +162,6 @@ class SystemSetupCommandTest extends TestCase
 
         $application = new Application();
         $application->setAutoExit(false);
-        $application->add(
-            new SystemSetupCommand(
-                __DIR__,
-                $dumpCommand
-            )
-        );
         $application->add(new SystemSetupCommand(__DIR__, $dumpCommand));
 
         $application->add($dumpCommand);

@@ -445,7 +445,6 @@
         ],
         "setup": [
             "@composer install -o",
-            "mkdir -p config/jwt || true",
             "mkdir -p custom/plugins || true",
             "@init:db",
             "@init:js",

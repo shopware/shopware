@@ -28,7 +28,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     ) {
         $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
         if (!\is_string($projectDir)) {
-            throw PluginException::projectDirNotInContainer();
+            throw PluginException::invalidContainerParameter('kernel.project_dir', 'string');
         }
         $this->projectDir = $projectDir;
     }

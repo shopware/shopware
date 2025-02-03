@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,6 +28,8 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<SnippetSetCollection> $snippetSetRepository
      */
     public function __construct(
         private readonly EntityRepository $snippetSetRepository,

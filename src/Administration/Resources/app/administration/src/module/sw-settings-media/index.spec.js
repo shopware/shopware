@@ -26,7 +26,7 @@ describe('src/module/sw-settings-media/index.js', () => {
             settingsItem: [
                 {
                     id: 'sw-settings-media',
-                    group: 'shop',
+                    group: expect.any(Function),
                     to: 'sw.settings.media.index',
                     icon: 'regular-image',
                     privilege: 'system.system_config',
@@ -36,6 +36,10 @@ describe('src/module/sw-settings-media/index.js', () => {
             ],
             display: true,
         });
+
+        const settingsItem = module.manifest.settingsItem[0];
+        expect(typeof settingsItem.group).toBe('function');
+        expect(settingsItem.group()).toBe('shop');
     });
 
     it('should register module routes', () => {

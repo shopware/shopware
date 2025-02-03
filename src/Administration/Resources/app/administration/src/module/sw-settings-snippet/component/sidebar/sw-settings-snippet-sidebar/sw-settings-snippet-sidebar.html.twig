@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_snippet_grid_sidebar %}
 <sw-sidebar class="sw-snippet-settings__sidebar">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_grid_sidebar_refresh %}
     <sw-sidebar-item
         icon="regular-undo"
@@ -10,7 +8,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_grid_sidebar_filter %}
     <sw-sidebar-item
         ref="filterSideBar"
@@ -33,7 +30,6 @@
             </a>
         </template>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_grid_sidebar_filter_only_empty %}
         <sw-settings-snippet-filter-switch
             name="emptySnippets"
@@ -45,7 +41,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_grid_sidebar_filter_custom %}
         <sw-settings-snippet-filter-switch
             name="editedSnippets"
@@ -57,7 +52,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_grid_sidebar_filter_added %}
         <sw-settings-snippet-filter-switch
             name="addedSnippets"
@@ -69,7 +63,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_grid_sidebar_filter_author %}
         <sw-sidebar-collapse :expand-on-loading="isExpandedAuthorFilters">
             <template #header>
@@ -92,7 +85,6 @@
         </sw-sidebar-collapse>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_grid_sidebar_filter_more %}
         <sw-sidebar-collapse :expand-on-loading="isExpandedMoreFilters">
             <template #header>

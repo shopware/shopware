@@ -1,15 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_field %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_select_rating %}
 <sw-base-field
     class="sw-field--rating-select"
     v-bind="$attrs"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_rating_input %}
     <template #sw-field-input>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_select_rating_input_stars %}
         <sw-extension-rating-stars
             v-model:rating="currentValue"

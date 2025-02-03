@@ -1,3 +1,6 @@
+{% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+{% set privacyNoticeSnippet = feature('ACCESSIBILITY_TWEAKS') ? 'general.privacyNoticeTextPage' : 'general.privacyNoticeText' %}
+
 {% block component_privacy_notice %}
     <fieldset class="form-text privacy-notice">
         {% block component_privacy_title %}
@@ -10,9 +13,9 @@
         {% block component_privacy_dpi %}
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
                 {% if feature('ACCESSIBILITY_TWEAKS') %}
-                    {% set dataProtectionLabel = 'general.privacyNoticeText'|trans({
-                        '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
-                        '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+                    {% set dataProtectionLabel = privacyNoticeSnippet|trans({
+                        '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
+                        '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
                     })|raw %}
 
                     {% sw_include '@Storefront/storefront/component/form/form-checkbox.html.twig' with {
@@ -39,9 +42,10 @@
                     {% block component_privacy_dpi_label %}
                         <label class="custom-control-label no-validation"
                                for="acceptedDataProtection">
-                            {{ 'general.privacyNoticeText'|trans({
-                                '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
-                                '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+
+                            {{ privacyNoticeSnippet|trans({
+                                '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
+                                '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
                             })|raw }}
 
                             {{ 'general.required'|trans|sw_sanitize }}
@@ -52,10 +56,11 @@
             {% else %}
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
+
                         <div>
-                            {{ 'general.privacyNoticeText'|trans({
-                                '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
-                                '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+                            {{ privacyNoticeSnippet|trans({
+                                '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
+                                '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
                             })|raw }}
                         </div>
                     {% endblock %}

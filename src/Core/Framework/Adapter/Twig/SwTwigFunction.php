@@ -3,17 +3,21 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
+use Twig\Error\RuntimeError;
 use Twig\Extension\CoreExtension;
-use Twig\Extension\SandboxExtension;
 use Twig\Markup;
 use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 use Twig\Template;
 
 #[Package('framework')]
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal
+ */
 class SwTwigFunction
 {
     public static mixed $macroResult = null;
@@ -23,24 +27,25 @@ class SwTwigFunction
      *
      * @param mixed $object The object or array from where to get the item
      * @param mixed $item The item to get from the array or object
-     * @param array<mixed> $arguments An array of arguments to pass if the item is an object method
+     * @param array<int|mixed> $arguments An array of arguments to pass if the item is an object method
      * @param string $type The type of attribute (@see \Twig\Template constants)
      * @param bool $isDefinedTest Whether this is only a defined check
      * @param bool $ignoreStrictCheck Whether to ignore the strict attribute check or not
      * @param int $lineno The template line where the attribute was called
-     * @param bool $sandboxed When true the extension use SandboxExtension
+     *
+     * @throws RuntimeError if the attribute does not exist and Twig is running in strict mode and $isDefinedTest is false
      *
      * @return mixed The attribute value, or a Boolean when $isDefinedTest is true, or null when the attribute is not set and $ignoreStrictCheck is true
      *
      * @internal
      */
-    public static function getAttribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, $sandboxed = false, int $lineno = -1)
+    public static function getAttribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, bool $sandboxed = false, int $lineno = -1)
     {
         try {
+            FieldVisibility::$isInTwigRenderingContext = true;
             if ($object instanceof Struct) {
-                FieldVisibility::$isInTwigRenderingContext = true;
-
-                if ($type === Template::METHOD_CALL) { // @phpstan-ignore-next-line
+                if ($type === Template::METHOD_CALL) {
+                    // @phpstan-ignore-next-line
                     return $object->$item(...$arguments);
                 }
 
@@ -49,9 +54,13 @@ class SwTwigFunction
 
                 if (method_exists($object, $getter)) { // @phpstan-ignore-next-line
                     return $object->$getter();
-                } elseif (method_exists($object, $isGetter)) { // @phpstan-ignore-next-line
+                }
+
+                if (method_exists($object, $isGetter)) { // @phpstan-ignore-next-line
                     return $object->$isGetter();
-                } elseif (method_exists($object, $item)) { // @phpstan-ignore-next-line
+                }
+
+                if (method_exists($object, $item)) { // @phpstan-ignore-next-line
                     return $object->$item();    // property()
                 }
             }
@@ -107,9 +116,12 @@ class SwTwigFunction
      * @param array<array-key, mixed> $context
      *
      * @return mixed
+     *
+     * @deprecated tag:v6.7.0 - Will be removed
      */
     public static function callMacro(Template $template, string $method, array $args, int $lineno, array $context, Source $source)
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
         $result = CoreExtension::callMacro($template, $method, $args, $lineno, $context, $source);
 
         if (self::$macroResult !== null) {

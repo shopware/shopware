@@ -5,7 +5,7 @@ const { Application, Mixin, Context } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @sw-package content
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_prices %}
 <div v-if="isLoading">
     <sw-skeleton />
@@ -12,7 +11,6 @@
     class="sw-product-detail-context-prices"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_prices_price_card %}
     <sw-container
         v-if="priceRuleGroupsExists"
@@ -28,7 +26,6 @@
             :large="true"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_card_toolbar %}
             <div class="sw-product-detail-context-prices__toolbar">
                 <sw-container
@@ -36,7 +33,6 @@
                     gap="0 10px"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_toolbar_rule_selection %}
                     <sw-select-rule-create
                         v-if="rules.entity"
@@ -53,7 +49,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_toolbar_rule_delete %}
                     <sw-button
                         v-tooltip="{
@@ -69,7 +64,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_toolbar_add_price_rule %}
                     <sw-button
                         v-if="canAddPriceRule"
@@ -91,7 +85,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_card_price_group_grid %}
             <sw-data-grid
                 v-if="priceGroup.ruleId"
@@ -101,10 +94,8 @@
                 :show-selection="false"
                 :compact-mode="true"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_settings %}
                 <template #additionalSettings>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_settings_list_prices %}
                     <sw-switch-field
                         size="medium"
@@ -117,7 +108,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_type %}
                 <template
                     #column-type="{ item, itemIndex, compact }"
@@ -137,12 +127,10 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start %}
                 <template
                     #column-quantityStart="{ item, itemIndex, compact }"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
                     <sw-number-field
                         v-model:value="item.quantityStart"
@@ -158,12 +146,10 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end %}
                 <template
                     #column-quantityEnd="{ item, itemIndex, compact }"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end_field %}
                     <sw-number-field
                         v-model:value="item.quantityEnd"
@@ -180,7 +166,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
                 <template
                     v-for="currency in currencies"
@@ -191,7 +176,6 @@
                         <div
                             class="product-detail-context-prices__price-field-wrapper"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field %}
                             <sw-inheritance-switch
                                 v-if="!currency.isSystemDefault"
@@ -203,7 +187,6 @@
                             />
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_price_field %}
                             <sw-price-field
                                 :value="item.price"
@@ -248,13 +231,11 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_actions %}
                 <template
                     #actions="{ item }"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_actions_delete %}
                     <sw-context-menu-item
                         variant="danger"
@@ -272,14 +253,12 @@
             </sw-data-grid>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_card_price_group_empty_state %}
             <div
                 v-else
                 class="sw-product-detail-context-prices__empty-state"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_empty_state_warning %}
                 <p>{{ $tc('sw-product.advancedPrices.newRuleWarning') }}</p>
                 {% endblock %}
@@ -289,13 +268,11 @@
 
         </sw-card>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_prices_price_card_price_group_add_price_rule %}
         <sw-container
             justify="center"
             columns="250x"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_card_price_group_add_price_rule_button %}
             <sw-button
                 v-if="canAddPriceRule"
@@ -323,11 +300,9 @@
         class="sw-product-detail-context-prices__empty-state-card"
         position-identifier="sw-product-detail-context-prices-empty-state-card"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_prices_price_empty_state %}
         <div class="sw-product-detail-context-prices__empty-state">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_empty_state_image %}
             <img
                 :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
@@ -335,16 +310,12 @@
             >
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_empty_state_text %}
             <template v-if="isChild">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_empty_state_text_child %}
                 <template v-if="isInherited">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_empty_state_text_inherited %}
                     <p>{{ $tc('sw-product.advancedPrices.advancedPricesInherited') }}</p>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_empty_state_text_link %}
                     <router-link
                         v-if="isInherited"
@@ -362,7 +333,6 @@
                 </template>
 
                 <template v-else>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_empty_state_text_not_inherited %}
                     <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotInherited') }}</p>
                     {% endblock %}
@@ -371,14 +341,12 @@
             </template>
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_empty_state_text_empty %}
                 <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotExisting') }}</p>
                 {% endblock %}
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_empty_state__inherit_switch %}
             <template v-if="isChild">
                 <div
@@ -405,7 +373,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_empty_state_select_rule %}
             <sw-select-rule-create
                 v-if="rules.entity"

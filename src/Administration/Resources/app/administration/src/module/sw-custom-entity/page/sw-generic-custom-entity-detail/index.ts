@@ -20,7 +20,7 @@ type GenericCustomEntityDetailData = {
 
 /**
  * @private
- * @sw-package content
+ * @sw-package framework
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

@@ -31,7 +31,7 @@ export default class OffCanvasCartPlugin extends Plugin {
          * When true, the OffCanvas will try to re-focus the previously focused element after content reload.
          * @type {boolean}
          */
-        autoFocus: true,
+        autoFocus: false,
 
         /**
          * The key under which the focus state is saved in `window.focusHandler`.

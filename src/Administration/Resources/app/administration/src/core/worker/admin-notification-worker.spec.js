@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';

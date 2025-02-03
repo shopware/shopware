@@ -13,6 +13,11 @@ shopware:
         default: false
         major: true
         toggleable: false
+      - name: ADDRESS_SELECTION_REWORK
+        default: false
+        major: true
+        toggleable: false
+        description: "Improved and redesigned management of customer addresses in the Storefront"
       - name: DISABLE_VUE_COMPAT
         default: false
         major: true

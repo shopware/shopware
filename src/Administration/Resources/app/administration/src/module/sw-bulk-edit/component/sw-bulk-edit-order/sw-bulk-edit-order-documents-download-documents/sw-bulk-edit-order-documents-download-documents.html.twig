@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_order_documents_download_documents %}
 <div
     v-if="documentTypes && documentTypes.total > 0"
     class="sw-bulk-edit-order-documents-download-documents"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_documents_download_documents_content %}
     <sw-checkbox-field
         v-for="documentType in documentTypes"

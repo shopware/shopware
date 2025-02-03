@@ -43,7 +43,7 @@ shopware:
         toggleable: true
         description: "Breaking performance tweaks, which will be activated next major"
       - name: cache_rework
-        default: true
+        default: false
         major: true
         toggleable: false
         description: "Rework of http cache and store api cache"

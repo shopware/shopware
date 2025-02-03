@@ -87,3 +87,8 @@ parameters:
             message: '#^.*$#'
             count: 30
             path: tests/integration/Core/Checkout/Document/Service/PdfRendererTest.php
+
+        - # issue 6556
+            message: '#^.*$#'
+            count: 37
+            path: tests/integration/Core/Content/Product/SalesChannel/Detail/ProductDetailRouteTest.php

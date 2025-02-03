@@ -608,7 +608,7 @@ class ImportExportTest extends AbstractImportExportTestCase
     public function testProductsWithVariantsCsv(): void
     {
         static::markTestSkipped('#6556');
-        
+
         $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM `product`');
 

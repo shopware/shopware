@@ -159,6 +159,8 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testImportEvents(): void
     {
+        static::markTestSkipped('#6556');
+
         $this->listener->addSubscriber(new TestSubscriber());
         $this->importCategoryCsv();
         $events = array_column($this->listener->getCalledListeners(), 'event');

@@ -80,7 +80,7 @@
         "composer-runtime-api": "^2.1",
         "async-aws/core": "^1.22",
         "cocur/slugify": "^4.3.0",
-        "composer/composer": "^2.8.0",
+        "composer/composer": "^2.8.5",
         "composer/semver": "^3.4.0",
         "doctrine/dbal": "^3.9",
         "doctrine/inflector": "^2.0",

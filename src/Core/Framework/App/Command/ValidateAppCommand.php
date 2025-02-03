@@ -35,31 +35,6 @@ class ValidateAppCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:visibility-change - will be private in v6.7.0
-     *
-     * @return array<int, string>
-     */
-    public function validate(string $appDir): array
-    {
-        $context = Context::createCLIContext();
-        $invalids = [];
-
-        try {
-            foreach ($this->getManifestsFromDir($appDir) as $manifest) {
-                try {
-                    $this->manifestValidator->validate($manifest, $context);
-                } catch (AppValidationException $e) {
-                    $invalids[] = $e->getMessage();
-                }
-            }
-        } catch (XmlParsingException|AppXmlParsingException $e) {
-            $invalids[] = $e->getMessage();
-        }
-
-        return $invalids;
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
@@ -95,6 +70,29 @@ class ValidateAppCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the app, has also to be the name of the folder under which the app can be found under custom/apps.');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function validate(string $appDir): array
+    {
+        $context = Context::createCLIContext();
+        $invalids = [];
+
+        try {
+            foreach ($this->getManifestsFromDir($appDir) as $manifest) {
+                try {
+                    $this->manifestValidator->validate($manifest, $context);
+                } catch (AppValidationException $e) {
+                    $invalids[] = $e->getMessage();
+                }
+            }
+        } catch (XmlParsingException|AppXmlParsingException $e) {
+            $invalids[] = $e->getMessage();
+        }
+
+        return $invalids;
     }
 
     /**

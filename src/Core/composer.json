@@ -67,7 +67,7 @@
         "ext-zlib": "*",
         "composer-runtime-api": "^2.1",
         "cocur/slugify": "^4.3.0",
-        "composer/composer": "^2.7",
+        "composer/composer": "^2.8.5",
         "composer/semver": "^3.2",
         "doctrine/dbal": "^3.9",
         "doctrine/inflector": "^2.0",

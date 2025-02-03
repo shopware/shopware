@@ -33,7 +33,7 @@ shopware:
         toggleable: false
         description: "Experimental! Uses Vite instead of webpack to built and serve the administration. Plugins are not yet supported!"
       - name: TELEMETRY_METRICS
-        default: true
+        default: false
         major: false
         toggleable: true
         description: "Experimental! Enable OpenTelemetry metrics"

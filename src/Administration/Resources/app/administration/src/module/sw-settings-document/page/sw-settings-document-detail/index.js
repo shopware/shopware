@@ -442,6 +442,7 @@ export default {
             return this.documentConfig.config.fileTypes;
         },
 
+        // We don't want to select ZUGFeRD as a type. "invoice" configuration is used instead (NEXT-40492)
         documentCriteria() {
             const criteria = new Criteria(1, 25);
 

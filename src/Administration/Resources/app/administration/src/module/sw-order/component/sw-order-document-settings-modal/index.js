@@ -132,6 +132,7 @@ export default {
         },
 
         async reserveDocumentNumber(isPreview) {
+            // ZUGFeRD document types have no own number range. We will use the invoice number range instead (NEXT-40492)
             let technicalName = this.currentDocumentType.technicalName;
             if (technicalName.startsWith('zugferd_')) {
                 technicalName = 'invoice';
@@ -201,6 +202,7 @@ export default {
             this.selectedDocumentFile = data[0];
         },
 
+        // XML content has no HTML preview (NEXT-40492)
         htmlPreviewDisabled() {
             return this.currentDocumentType?.technicalName?.startsWith('zugferd_') ?? false;
         },

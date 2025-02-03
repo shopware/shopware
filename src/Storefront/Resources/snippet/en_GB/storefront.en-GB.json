@@ -279,8 +279,14 @@
     "addressesSetAsDefaultBillingAction": "Use as default billing address",
     "addressesTitleCurrentShippingAddress": "Current shipping address",
     "addressesTitleCurrentBillingAddress": "Current billing address",
+    "addressesTitleShippingAddress": "Shipping address",
+    "addressesTitleBillingAddress": "Billing address",
+    "addressesChangeAddress": "Change Address",
+    "addressModalCancel" : "Cancel",
     "addressesContentItemActionEdit": "Edit address",
     "addressesContentItemActionDelete": "Delete address",
+    "addressNotFound": "No address was found",
+    "noAvailableAddresses": "No available addresses",
     "availableAddresses": "Available addresses",
     "selectAddress": "Select address",
     "addressCreateBtn": "Add new address",
@@ -375,7 +381,15 @@
     "orderDocumentsAriaLabel": "Documents of this order",
     "orderSummaryAriaLabel": "Summary of this order",
     "orderInfoAriaLabel": "Information about this order",
-    "orderTrackingNotAvailable": "Not available"
+    "orderTrackingNotAvailable": "Not available",
+    "addressDefault": "Default",
+    "addressModalTitle": "Addresses",
+    "addressModalFooterClose": "Close",
+    "addressNewShipping": "Add new shipping address",
+    "addressNewBilling": "Add new billing address",
+    "addressSaveAndUse": "Save and use",
+    "addressSuccessfulChange": "Address successful changed",
+    "addressSearchPlaceholder": "Search addresses..."
   },
   "address": {
     "streetLabel": "Street address",
@@ -721,9 +735,9 @@
     "newsletterInput": "Email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
     "includeVatText": "%star%All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
-    "includeVatTextPage": "%star%All prices incl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "includeVatTextPage": "All prices incl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "excludeVatText": "%star%All prices excl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
-    "excludeVatTextPage": "%star%All prices excl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "excludeVatTextPage": "All prices excl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "copyrightInfo": "Realised with Shopware"
   },
   "captcha": {

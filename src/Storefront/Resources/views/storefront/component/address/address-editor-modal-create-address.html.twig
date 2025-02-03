@@ -1,3 +1,6 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+{# Extend `src/Storefront/Resources/views/storefront/component/address/address-manager-modal-create-address.html.twig` instead #}
+
 {% block component_address_address_editor_modal_create_address %}
     {% if not feature('v6.7.0.0') %}
         <div
@@ -7,12 +10,7 @@
         >
     {% endif %}
     {% block component_address_address_editor_modal_create_address_wrapper %}
-        {% set mode = address ? "-edit" : "-new" %}
-        {% set formAjaxSubmitOptions = {
-            replaceSelectors: "##{typePrefix}address-create#{mode}" ,
-        } %}
-
-        <div class="card address-editor-create-address-wrapper address-editor-wrapper-{{ mode }}">
+        <div class="card address-editor-create-address-wrapper address-editor-create-address-{{ address ? "edit" : "new" }}-wrapper">
             {% block component_address_address_editor_modal_create_address_title %}
                 <div class="card-title create-address-title{% if feature('v6.7.0.0') %} border-0{% endif %}">
                     {% block component_address_address_editor_modal_create_address_title_text %}
@@ -67,7 +65,7 @@
                                     'showFormCompany': true,
                                     'showNoShippingPostfix': true,
                                     'showVatIdField': changeBilling and context.customer and context.customer.guest ? true : false,
-                                    scopeElementSelector: '.address-editor-wrapper-'~ mode,
+                                    scopeElementSelector: '.address-editor-create-address-' ~ (address ? "edit" : "new") ~ '-wrapper',
                                 } %}
                             {% endblock %}
 

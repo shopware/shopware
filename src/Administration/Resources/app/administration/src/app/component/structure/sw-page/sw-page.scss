@@ -25,6 +25,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         position: relative;
         display: grid;
         grid-column-gap: 8px;
+        /* stylelint-disable-next-line max-line-length */
         grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-width) [header-content-end] 1fr [smart-bar-end];
         align-items: center;
         background: $sw-page-smart-bar-background-color;

@@ -64,7 +64,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        Profiler::trace('cart::product::collect', function () use ($data, $original, $context, $behavior): void {
+        Profiler::trace('cart::product::collect', closure: function () use ($data, $original, $context, $behavior): void {
             $lineItems = $this->getProducts($original->getLineItems());
 
             $items = array_column($lineItems, 'item');
@@ -82,17 +82,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 foreach ($products as $product) {
                     $data->set($this->getDataKey($product->getId()), $product);
                 }
-
-                if (!Feature::isActive('v6.7.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
-                    // refresh data timestamp to prevent unnecessary gateway calls
-                    foreach ($items as $lineItem) {
-                        $product = $products->get((string) $lineItem->getReferencedId());
-
-                        if ($product) {
-                            $lineItem->setDataTimestamp(new \DateTimeImmutable());
-                        }
-                    }
-                }
             }
 
             // refresh data timestamp to prevent unnecessary gateway calls
@@ -101,12 +90,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
                 // product was fetched, update timestamp to not fetch it again
                 if ($product instanceof ProductEntity) {
-                    if (Feature::isActive('v6.7.0.0') || Feature::isActive('PERFORMANCE_TWEAKS')) {
-                        $lineItem->setDataTimestamp($product->getUpdatedAt() ?? $product->getCreatedAt());
-                    }
-                // we have asked for this product, but we didn't get it back, so we need to remove it
-                } elseif (\in_array($lineItem->getReferencedId(), $ids, true)) {
-                    $lineItem->setDataTimestamp(null);
+                    $lineItem->setDataTimestamp($product->getUpdatedAt() ?? $product->getCreatedAt());
                 }
 
                 // no matter if we fetched data or not, we need to set the hash to all products in case it changed

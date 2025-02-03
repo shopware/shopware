@@ -11,26 +11,11 @@ use Shopware\Core\System\Country\CountryEntity;
 #[Package('checkout')]
 class ShippingLocation extends Struct
 {
-    /**
-     * @var CountryEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $country;
+    protected CountryEntity $country;
 
-    /**
-     * @var CountryStateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $state;
+    protected ?CountryStateEntity $state;
 
-    /**
-     * @var CustomerAddressEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $address;
+    protected ?CustomerAddressEntity $address;
 
     public function __construct(
         CountryEntity $country,

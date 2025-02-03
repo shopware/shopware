@@ -63,15 +63,4 @@ class CopyBatchTest extends TestCase
         // @phpstan-ignore-next-line - sourceFile is supposed to be a resource or a string only from doctag param
         new CopyBatchInput(null, []);
     }
-
-    /**
-     * @deprecated tag:v6.7.0 - reason: see AdapterException::invalidArgument - to be removed
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testConstructor(): void
-    {
-        static::expectException(\InvalidArgumentException::class);
-        // @phpstan-ignore-next-line
-        new CopyBatchInput(null, []);
-    }
 }

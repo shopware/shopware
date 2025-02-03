@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -49,15 +48,6 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
 
             if ($id) {
                 $deserialized['group']['id'] = $id;
-            }
-        }
-
-        if (!Feature::isActive('v6.7.0.0') && !isset($deserialized['defaultPaymentMethodId']) && isset($entity['defaultPaymentMethod'])) {
-            $name = $entity['defaultPaymentMethod']['translations']['DEFAULT']['name'] ?? null;
-            $id = $entity['defaultPaymentMethod']['id'] ?? $this->getDefaultPaymentMethodId($name, $context);
-
-            if ($id) {
-                $deserialized['defaultPaymentMethod']['id'] = $id;
             }
         }
 
@@ -112,30 +102,6 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
         )->firstId();
 
         return $this->cacheCustomerGroups[$name];
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
-     */
-    private function getDefaultPaymentMethodId(?string $name, Context $context): ?string
-    {
-        if (!$name) {
-            return null;
-        }
-
-        if (\array_key_exists($name, $this->cachePaymentMethods)) {
-            return $this->cachePaymentMethods[$name];
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $name));
-
-        $this->cachePaymentMethods[$name] = $this->paymentMethodRepository->searchIds(
-            $criteria,
-            $context
-        )->firstId();
-
-        return $this->cachePaymentMethods[$name];
     }
 
     private function getSalesChannelId(?string $name, Context $context): ?string

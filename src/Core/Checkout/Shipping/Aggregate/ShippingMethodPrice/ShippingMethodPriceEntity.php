@@ -17,75 +17,25 @@ class ShippingMethodPriceEntity extends Entity implements IdAware
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethodId;
+    protected string $shippingMethodId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $ruleId;
+    protected ?string $ruleId;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculation;
+    protected ?int $calculation;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $quantityStart;
+    protected ?float $quantityStart;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $quantityEnd;
+    protected ?float $quantityEnd;
 
-    /**
-     * @var ShippingMethodEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethod;
+    protected ?ShippingMethodEntity $shippingMethod;
 
-    /**
-     * @var RuleEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $rule;
+    protected ?RuleEntity $rule;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculationRuleId;
+    protected ?string $calculationRuleId;
 
-    /**
-     * @var RuleEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculationRule;
+    protected ?RuleEntity $calculationRule;
 
-    /**
-     * @var PriceCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyPrice;
+    protected ?PriceCollection $currencyPrice;
 
     public function getShippingMethodId(): string
     {

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class CartShippingCostRule extends Rule
@@ -22,9 +22,6 @@ class CartShippingCostRule extends Rule
 
     protected string $operator;
 
-    /**
-     * @internal
-     */
     public function __construct(
         string $operator = self::OPERATOR_EQ,
         ?float $cartShippingCost = null

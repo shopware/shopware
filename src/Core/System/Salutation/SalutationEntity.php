@@ -19,68 +19,23 @@ class SalutationEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutationKey;
+    protected ?string $salutationKey;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayName;
+    protected ?string $displayName;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $letterName;
+    protected ?string $letterName;
 
-    /**
-     * @var SalutationTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?SalutationTranslationCollection $translations;
 
-    /**
-     * @var CustomerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customers;
+    protected ?CustomerCollection $customers;
 
-    /**
-     * @var CustomerAddressCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerAddresses;
+    protected ?CustomerAddressCollection $customerAddresses;
 
-    /**
-     * @var OrderCustomerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderCustomers;
+    protected ?OrderCustomerCollection $orderCustomers;
 
-    /**
-     * @var OrderAddressCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderAddresses;
+    protected ?OrderAddressCollection $orderAddresses;
 
-    /**
-     * @var NewsletterRecipientCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $newsletterRecipients;
+    protected ?NewsletterRecipientCollection $newsletterRecipients;
 
     public function getSalutationKey(): ?string
     {

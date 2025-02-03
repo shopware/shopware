@@ -16,8 +16,8 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
@@ -59,7 +59,7 @@ class PromotionItemBuilderTest extends TestCase
      * the constructor is correctly used in the LineItem.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testLineItemType(): void
@@ -87,7 +87,7 @@ class PromotionItemBuilderTest extends TestCase
      * errors like "line item not stackable".
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testLineItemKey(): void
@@ -114,7 +114,7 @@ class PromotionItemBuilderTest extends TestCase
      * of its thousand individual codes...thus its provided as separate argument
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testLineItemReferenceId(): void
@@ -138,7 +138,7 @@ class PromotionItemBuilderTest extends TestCase
      * Also, we must not have a filter rule for this, if our eligible item ID list is empty.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testPriceTypePercentage(): void
@@ -166,7 +166,7 @@ class PromotionItemBuilderTest extends TestCase
      * Also, we must not have a filter rule for this, if our eligible item ID list is empty.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testPriceTypeAbsolute(): void
@@ -390,7 +390,7 @@ class PromotionItemBuilderTest extends TestCase
      * be available on "amount" discounts...so no percentage...
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[DataProvider('getDefaultCurrencyDataProvider')]
     #[Group('promotions')]

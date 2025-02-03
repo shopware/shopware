@@ -8,61 +8,21 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DeliveryInformation extends Struct
 {
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stock;
+    protected int $stock;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $weight;
+    protected ?float $weight;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $freeDelivery;
+    protected bool $freeDelivery;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $restockTime;
+    protected ?int $restockTime;
 
-    /**
-     * @var DeliveryTime|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deliveryTime;
+    protected ?DeliveryTime $deliveryTime;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $height;
+    protected ?float $height;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $width;
+    protected ?float $width;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $length;
+    protected ?float $length;
 
     public function __construct(
         int $stock,

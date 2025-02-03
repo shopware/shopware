@@ -11,61 +11,21 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('checkout')]
 class CalculatedPrice extends Struct
 {
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $unitPrice;
+    protected float $unitPrice;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $quantity;
+    protected int $quantity;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalPrice;
+    protected float $totalPrice;
 
-    /**
-     * @var CalculatedTaxCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculatedTaxes;
+    protected CalculatedTaxCollection $calculatedTaxes;
 
-    /**
-     * @var TaxRuleCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
+    protected TaxRuleCollection $taxRules;
 
-    /**
-     * @var ReferencePrice|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencePrice;
+    protected ?ReferencePrice $referencePrice;
 
-    /**
-     * @var ListPrice|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $listPrice;
+    protected ?ListPrice $listPrice;
 
-    /**
-     * @var RegulationPrice|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $regulationPrice;
+    protected ?RegulationPrice $regulationPrice;
 
     public function __construct(
         float $unitPrice,

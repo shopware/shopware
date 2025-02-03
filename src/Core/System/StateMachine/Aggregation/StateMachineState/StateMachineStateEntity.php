@@ -21,93 +21,33 @@ class StateMachineStateEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @deprecated tag:v6.7.0 - Type will be nullable. Also, it will be natively typed to enforce strict data type checking.
-     *
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $technicalName;
+    protected string $technicalName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachineId;
+    protected string $stateMachineId;
 
-    /**
-     * @var StateMachineEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachine;
+    protected ?StateMachineEntity $stateMachine;
 
-    /**
-     * @var StateMachineTransitionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fromStateMachineTransitions;
+    protected ?StateMachineTransitionCollection $fromStateMachineTransitions;
 
-    /**
-     * @var StateMachineTransitionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $toStateMachineTransitions;
+    protected ?StateMachineTransitionCollection $toStateMachineTransitions;
 
-    /**
-     * @var StateMachineStateTranslationCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected StateMachineStateTranslationCollection $translations;
 
-    /**
-     * @var OrderCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orders;
+    protected ?OrderCollection $orders;
 
     protected ?OrderTransactionCaptureCollection $orderTransactionCaptures = null;
 
     protected ?OrderTransactionCaptureRefundCollection $orderTransactionCaptureRefunds = null;
 
-    /**
-     * @var OrderTransactionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderTransactions;
+    protected ?OrderTransactionCollection $orderTransactions;
 
-    /**
-     * @var OrderDeliveryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderDeliveries;
+    protected ?OrderDeliveryCollection $orderDeliveries;
 
-    /**
-     * @var StateMachineHistoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fromStateMachineHistoryEntries;
+    protected ?StateMachineHistoryCollection $fromStateMachineHistoryEntries;
 
-    /**
-     * @var StateMachineHistoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $toStateMachineHistoryEntries;
+    protected ?StateMachineHistoryCollection $toStateMachineHistoryEntries;
 
     public function getToStateMachineHistoryEntries(): ?StateMachineHistoryCollection
     {
@@ -129,18 +69,9 @@ class StateMachineStateEntity extends Entity
         $this->fromStateMachineHistoryEntries = $fromStateMachineHistoryEntries;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will also return null
-     * return type will be ?string in v6.7.0.0
-     */
-    public function getName(): string
+    public function getName(): ?string
     {
-        /**
-         * @deprecated tag:v6.7.0
-         * remove the null-check
-         * return $this->name;
-         */
-        return $this->name ?? '';
+        return $this->name;
     }
 
     public function setName(string $name): void

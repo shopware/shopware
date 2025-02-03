@@ -8,61 +8,21 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class TokenStruct extends Struct
 {
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected ?string $id;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $token;
+    protected ?string $token;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethodId;
+    protected ?string $paymentMethodId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $transactionId;
+    protected ?string $transactionId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $finishUrl;
+    protected ?string $finishUrl;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $errorUrl;
+    protected ?string $errorUrl;
 
-    /**
-     * @deprecated tag:v6.7.0 - will be of type Throwable|null and strictly typed
-     *
-     * @var \Exception|null
-     */
-    protected $exception;
+    protected ?\Throwable $exception;
 
-    /**
-     * @var int Unix Timestamp
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $expires;
+    protected int $expires;
 
     public function __construct(
         ?string $id = null,
@@ -127,22 +87,12 @@ class TokenStruct extends Struct
         return $this->expires < time();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - return type will be Throwable
-     *
-     * @phpstan-ignore-next-line nothing to throw for extended types
-     */
-    public function getException(): ?\Exception
+    public function getException(): ?\Throwable
     {
         return $this->exception;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - param `exception` will be of type Throwable
-     *
-     * @phpstan-ignore-next-line nothing to throw for extended types
-     */
-    public function setException(?\Exception $exception): void
+    public function setException(?\Throwable $exception): void
     {
         $this->exception = $exception;
     }

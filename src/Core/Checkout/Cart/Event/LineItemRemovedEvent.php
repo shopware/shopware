@@ -13,26 +13,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('checkout')]
 class LineItemRemovedEvent extends Event implements ShopwareSalesChannelEvent, CartEvent
 {
-    /**
-     * @var LineItem
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lineItem;
+    protected LineItem $lineItem;
 
-    /**
-     * @var Cart
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cart;
+    protected Cart $cart;
 
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected SalesChannelContext $context;
 
     public function __construct(
         LineItem $lineItem,

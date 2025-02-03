@@ -8,7 +8,6 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
@@ -17,130 +16,47 @@ class DocumentEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderId;
+    protected string $orderId;
+
+    protected string $orderVersionId;
+
+    protected string $documentTypeId;
+
+    protected ?string $documentMediaFileId;
 
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderVersionId;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentTypeId;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentMediaFileId;
-
-    /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be removed
      */
-    protected $fileType;
+    protected string $fileType;
 
-    /**
-     * @var OrderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
+    protected ?OrderEntity $order = null;
 
     /**
      * @var array<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $config;
+    protected array $config;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sent;
+    protected bool $sent;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $static;
+    protected bool $static;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deepLinkCode;
+    protected string $deepLinkCode;
 
-    /**
-     * @var DocumentTypeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentType;
+    protected ?DocumentTypeEntity $documentType;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencedDocumentId;
+    protected ?string $referencedDocumentId;
 
-    /**
-     * @var DocumentEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencedDocument;
+    protected ?DocumentEntity $referencedDocument;
 
-    /**
-     * @var DocumentCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $dependentDocuments;
+    protected ?DocumentCollection $dependentDocuments;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentMediaFile;
+    protected ?MediaEntity $documentMediaFile;
 
     protected ?string $documentNumber;
 
     protected ?string $documentA11yMediaFileId = null;
 
     protected ?MediaEntity $documentA11yMediaFile = null;
-
-    public function getFileType(): string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use getDocumentMediaFile()->getFileExtension() instead.');
-
-        return $this->fileType;
-    }
-
-    public function setFileType(string $fileType): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use getDocumentMediaFile()->getFileExtension() instead.');
-
-        $this->fileType = $fileType;
-    }
 
     public function getOrder(): ?OrderEntity
     {

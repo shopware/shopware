@@ -14,54 +14,19 @@ class CustomerGroupTranslationEntity extends TranslationEntity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerGroupId;
+    protected string $customerGroupId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name;
 
-    /**
-     * @var CustomerGroupEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerGroup;
+    protected ?CustomerGroupEntity $customerGroup;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationTitle;
+    protected string $registrationTitle;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationIntroduction;
+    protected string $registrationIntroduction;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationOnlyCompanyRegistration;
+    protected bool $registrationOnlyCompanyRegistration;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationSeoMetaDescription;
+    protected string $registrationSeoMetaDescription;
 
     public function getCustomerGroupId(): string
     {

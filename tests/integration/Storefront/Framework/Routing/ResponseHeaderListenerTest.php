@@ -22,7 +22,6 @@ class ResponseHeaderListenerTest extends TestCase
         'frontend.account.order.page' => [],
         'frontend.account.order.single.page' => ['deepLinkCode' => 'abc'],
         'frontend.account.edit-order.page' => ['orderId' => 'abc'],
-        'frontend.account.payment.page' => [],
         'frontend.account.home.page' => [],
         'frontend.account.profile.page' => [],
         'frontend.account.address.page' => [],

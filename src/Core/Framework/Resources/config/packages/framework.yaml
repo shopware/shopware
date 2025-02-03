@@ -133,8 +133,6 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException:
             log_level: notice
-        Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException:
-            log_level: notice
         Shopware\Core\Checkout\Order\Exception\EmptyCartException:
             log_level: notice
         Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException:
@@ -216,12 +214,6 @@ framework:
         Shopware\Core\Content\Seo\Exception\InvalidTemplateException:
             log_level: notice
         Shopware\Core\Checkout\Document\Exception\InvalidDocumentException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\DocumentGenerationException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException:
             log_level: notice
         Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException:
             log_level: notice

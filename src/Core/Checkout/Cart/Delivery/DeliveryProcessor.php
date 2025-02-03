@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -24,26 +25,14 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
     final public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
 
-    /**
-     * @var DeliveryBuilder
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $builder;
+    protected DeliveryBuilder $builder;
+
+    protected DeliveryCalculator $deliveryCalculator;
 
     /**
-     * @var DeliveryCalculator
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var EntityRepository<ShippingMethodCollection>
      */
-    protected $deliveryCalculator;
-
-    /**
-     * @var EntityRepository
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethodRepository;
+    protected EntityRepository $shippingMethodRepository;
 
     /**
      * @internal

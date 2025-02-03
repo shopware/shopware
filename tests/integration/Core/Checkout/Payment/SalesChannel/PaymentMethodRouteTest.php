@@ -5,21 +5,14 @@ namespace Shopware\Tests\Integration\Core\Checkout\Payment\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
-use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -33,8 +26,6 @@ class PaymentMethodRouteTest extends TestCase
     private KernelBrowser $browser;
 
     private IdsCollection $ids;
-
-    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
@@ -51,10 +42,6 @@ class PaymentMethodRouteTest extends TestCase
                 ['id' => $this->ids->get('payment3')],
             ],
         ]);
-
-        $this->salesChannelContext = static::getContainer()
-            ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testLoading(): void
@@ -70,31 +57,6 @@ class PaymentMethodRouteTest extends TestCase
         static::assertContains($this->ids->get('payment'), $ids);
         static::assertContains($this->ids->get('payment2'), $ids);
         static::assertContains($this->ids->get('payment3'), $ids);
-
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(PaymentMethodRouteHook::HOOK_NAME, $traces);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed due to behavior change
-     */
-    public function testSorting(): void
-    {
-        Feature::skipTestIfActive('ACCESSIBILITY_TWEAKS', $this);
-
-        $paymentMethodRoute = static::getContainer()->get(PaymentMethodRoute::class);
-
-        $request = new Request();
-
-        $unselectedPaymentResult = $paymentMethodRoute->load($request, $this->salesChannelContext, new Criteria());
-        static::assertNotNull($unselectedPaymentResult->getPaymentMethods()->last());
-        $lastPaymentMethodId = $unselectedPaymentResult->getPaymentMethods()->last()->getId();
-
-        $this->salesChannelContext->getPaymentMethod()->setId($lastPaymentMethodId);
-        $selectedPaymentMethodResult = $paymentMethodRoute->load($request, $this->salesChannelContext, new Criteria());
-
-        static::assertNotNull($selectedPaymentMethodResult->getPaymentMethods()->first());
-        static::assertSame($lastPaymentMethodId, $selectedPaymentMethodResult->getPaymentMethods()->first()->getId());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(PaymentMethodRouteHook::HOOK_NAME, $traces);
@@ -169,7 +131,7 @@ class PaymentMethodRouteTest extends TestCase
                 'name' => 'Payment 1',
                 'technicalName' => 'payment_test',
                 'active' => true,
-                'handlerIdentifier' => AsyncTestPaymentHandler::class,
+                'handlerIdentifier' => TestPaymentHandler::class,
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),
                     'name' => 'asd',
@@ -191,7 +153,7 @@ class PaymentMethodRouteTest extends TestCase
                 'name' => 'Payment 2',
                 'technicalName' => 'payment_test2',
                 'active' => true,
-                'handlerIdentifier' => AsyncTestPaymentHandler::class,
+                'handlerIdentifier' => TestPaymentHandler::class,
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),
                     'name' => 'asd',
@@ -213,7 +175,7 @@ class PaymentMethodRouteTest extends TestCase
                 'name' => 'Payment 3',
                 'technicalName' => 'payment_test3',
                 'active' => true,
-                'handlerIdentifier' => AsyncTestPaymentHandler::class,
+                'handlerIdentifier' => TestPaymentHandler::class,
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),
                     'name' => 'asd',

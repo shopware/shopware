@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class LineItemInProductStreamRule extends Rule
@@ -22,8 +22,6 @@ class LineItemInProductStreamRule extends Rule
     final public const RULE_NAME = 'cartLineItemInProductStream';
 
     /**
-     * @internal
-     *
      * @param list<string> $streamIds
      */
     public function __construct(

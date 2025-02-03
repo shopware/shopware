@@ -166,6 +166,11 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('updatedBy', 'updated_by_id', UserDefinition::class, 'id', false),
         ]);
 
+        if (!Feature::isActive('v6.7.0.0')) {
+            $fields->add((new FkField('default_payment_method_id', 'defaultPaymentMethodId', PaymentMethodDefinition::class))->addFlags(new ApiAware(), new Required()));
+            $fields->add((new ManyToOneAssociationField('defaultPaymentMethod', 'default_payment_method_id', PaymentMethodDefinition::class, 'id', false))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)));
+        }
+
         return $fields;
     }
 }

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 final class ContactFormEvent extends Event implements SalesChannelAware, MailAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'contact_form.send';

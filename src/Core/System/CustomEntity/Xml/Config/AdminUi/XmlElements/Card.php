@@ -13,7 +13,7 @@ use Symfony\Component\Config\Util\XmlUtils;
  *
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('framework')]
 final class Card extends ConfigXmlElement
 {
     /**

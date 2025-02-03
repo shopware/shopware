@@ -1,13 +1,9 @@
 /**
- * @sw-package unknown
- */
-
-/**
- * @package admin
+ * @sw-package framework
  */
 
 export const unknownOptionError = {
-    msg: /Given value "\w*|\d*" does not exists in given options/,
+    msg: /Given value "\w*|\d*" does not exist in given options/,
     method: 'warn',
 };
 

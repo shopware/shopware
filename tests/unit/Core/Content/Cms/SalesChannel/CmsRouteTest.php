@@ -172,8 +172,7 @@ class CmsRouteTest extends TestCase
             ->willReturn((bool) $cmsPage);
 
         $searchResult
-            ->method('get')
-            ->with($this->ids->get('cms-page'))
+            ->method('first')
             ->willReturn($cmsPage);
 
         return $searchResult;

@@ -9,15 +9,30 @@ export default {
     namespaced: true,
     state: {
         settingsGroups: {
-            shop: [],
+            general: [],
+            customer: [],
+            automation: [],
+            localization: [],
+            content: [],
+            commerce: [],
             system: [],
+            account: [],
             plugins: [],
+            shop: [],
         },
     },
 
     mutations: {
         addItem(state, settingsItem) {
-            const group = settingsItem.group;
+            let group = settingsItem.group;
+
+            if (typeof group === 'function') {
+                group = group();
+            }
+
+            if (!group || typeof group !== 'string') {
+                throw new Error('Group is undefined or invalid');
+            }
 
             if (!hasOwnProperty(state.settingsGroups, group)) {
                 state.settingsGroups[group] = [];

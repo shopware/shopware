@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item sw-condition__condition-value">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
@@ -10,7 +8,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_field_identifier %}
     <sw-entity-multi-select
         entity="product"
@@ -27,7 +24,6 @@
                 name="selection-label-property"
                 v-bind="{ item }"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_condition_line_item_results_variant_info %}
                 <sw-product-variant-info
                     :variations="item.variation"
@@ -47,7 +43,6 @@
                     :selected="isSelected(item)"
                     v-bind="{ item, index, searchTerm, highlightSearchTerm }"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_condition_line_item_results_list_result_label %}
                     <span class="sw-select-result__result-item-text">
                         <sw-product-variant-info

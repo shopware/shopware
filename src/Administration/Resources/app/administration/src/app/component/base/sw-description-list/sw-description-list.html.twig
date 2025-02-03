@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_description_list %}
 <dl
     class="sw-description-list"
     :style="descriptionListStyles"
 >
     <slot>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_description_list_slot_default %}{% endblock %}
     </slot>
 </dl>

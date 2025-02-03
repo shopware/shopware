@@ -1,25 +1,20 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_listing_option_base %}
 <sw-page class="sw-settings-listing-base">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_option_base_smart_bar_heading %}
     <template #smart-bar-header>
         <h2>{{ smartBarHeading }}</h2>
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_option_base_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_option_base_smart_bar_actions %}
     <template #smart-bar-actions>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_base_smart_bar_actions_save %}
         <sw-button
             variant="primary"
@@ -32,11 +27,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_option_base_smart_content %}
     <template #content>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_base_smart_content_general_info %}
         <sw-settings-listing-option-general-info
             v-if="productSortingEntity"
@@ -47,7 +40,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_base_smart_bar_actions_grid %}
         <sw-settings-listing-option-criteria-grid
             v-if="productSortingEntity"
@@ -59,7 +51,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal %}
         <sw-settings-listing-delete-modal
             v-if="toBeDeletedCriteria"

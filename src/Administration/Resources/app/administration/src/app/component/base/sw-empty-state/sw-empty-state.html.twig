@@ -1,18 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_empty_state %}
 <div
     class="sw-empty-state"
     :class="classes"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_empty_state_element %}
     <div class="sw-empty-state__element">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_empty_state_icon %}
         <div class="sw-empty-state__icon">
             <slot name="icon">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_empty_state_slot_icon %}
                 <sw-icon
                     :name="moduleIcon"
@@ -24,7 +20,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_empty_state_title %}
         <div
             v-if="title"
@@ -35,14 +30,12 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_empty_state_description %}
         <div
             v-if="showDescription"
             class="sw-empty-state__description"
         >
             <slot>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_empty_state_slot_default %}
                 <div
                     class="sw-empty-state__description-content"
@@ -53,14 +46,12 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_empty_state_actions %}
         <div
             v-if="hasActionSlot"
             class="sw-empty-state__actions"
         >
             <slot name="actions">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_empty_state_slot_actions %}{% endblock %}
             </slot>
         </div>

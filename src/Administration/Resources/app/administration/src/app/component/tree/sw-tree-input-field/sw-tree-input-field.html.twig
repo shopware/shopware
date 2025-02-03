@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tree_input_field %}
 <div
     class="sw-tree-item sw-tree-input-field is--no-children"
     :class="classes"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tree_input_fieldelement %}
     <div class="sw-tree-item__element">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_input_fieldelement_grip %}
         <div class="sw-tree-item__icon">
             <sw-icon
@@ -20,11 +17,9 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_input_fieldelement_content %}
         <div class="sw-tree-item__content">
             <slot name="content">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tree_input_fieldslot_content %}
                 <sw-confirm-field
                     :value="currentValue"

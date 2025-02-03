@@ -827,96 +827,6 @@
       }
     },
     "sw-condition-generic": {
-      "customerDaysSinceLastLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceFirstLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceLastOrder": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerEmail": {
-        "email": {
-          "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
-        }
-      },
-      "cartLineItemDimensionWidth": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderWidth"
-        }
-      },
-      "cartLineItemDimensionHeight": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderHeight"
-        }
-      },
-      "cartLineItemDimensionLength": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderLength"
-        }
-      },
-      "cartTaxDisplay": {
-        "taxDisplay": {
-          "options": {
-            "gross": "@:global.sw-condition.condition.cartTaxDisplay.gross",
-            "net": "@:global.sw-condition.condition.cartTaxDisplay.net"
-          }
-        }
-      },
-      "dayOfWeek": {
-        "dayOfWeek": {
-          "options": {
-            "1": "@:global.day-of-week.monday",
-            "2": "@:global.day-of-week.tuesday",
-            "3": "@:global.day-of-week.wednesday",
-            "4": "@:global.day-of-week.thursday",
-            "5": "@:global.day-of-week.friday",
-            "6": "@:global.day-of-week.saturday",
-            "7": "@:global.day-of-week.sunday"
-          }
-        }
-      },
-      "cartLineItemOfType": {
-        "lineItemType": {
-          "options": {
-            "product": "@:global.sw-condition.condition.lineItemOfTypeRule.product",
-            "promotion": "@:global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge"
-          }
-        }
-      },
-      "promotionCodeOfType": {
-        "promotionCodeType": {
-          "options": {
-            "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
-            "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
-            "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
-          }
-        }
-      },
-      "cartLineItemProductStates": {
-        "productState": {
-          "options": {
-            "is-physical": "Physisch",
-            "is-download": "Digital"
-          }
-        }
-      },
-      "cartTotalPurchasePrice": {
-        "type": {
-          "options": {
-            "gross": "Brutto",
-            "net": "Netto"
-          },
-          "placeholder": "Operator auswählen ..."
-        }
-      },
       "units": {
         "dimension": "mm",
         "weight": "kg",
@@ -969,32 +879,6 @@
           "mm3": "mm³",
           "in3": "in³",
           "ft3": "ft³"
-        }
-      },
-      "orderCreatedByAdmin": {
-        "shouldOrderBeCreatedByAdmin": {
-          "placeholder": "Condition auswählen ..."
-        }
-      },
-      "adminSalesChannelSource": {
-        "hasAdminSalesChannelSource": {
-          "placeholder": "Bedingung auswählen ..."
-        }
-      },
-      "orderTransactionStatus": {
-        "stateIds": {
-          "placeholder": "State auswählen ..."
-        },
-        "operator": {
-          "placeholder": "Operator auswählen ..."
-        }
-      },
-      "orderStatus": {
-        "stateIds": {
-          "placeholder": "State auswählen ..."
-        },
-        "operator": {
-          "placeholder": "Operator auswählen ..."
         }
       }
     },

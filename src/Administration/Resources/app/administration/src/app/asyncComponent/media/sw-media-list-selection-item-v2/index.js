@@ -5,7 +5,7 @@ import './sw-media-list-selection-item-v2.scss';
  * @private
  * @description Component which renders an image.
  * @status ready
- * @sw-package content
+ * @sw-package discovery
  */
 export default {
     template,

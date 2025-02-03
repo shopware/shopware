@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_logging_entry_info_tab_items %}
 
 <sw-tabs-item
@@ -20,31 +19,25 @@
 {% parent() %}
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_logging_entry_info_content %}
 
 {% parent() %}
 
 <template v-if="activeTab === 'html' || activeTab === 'plain'">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_mail_sent_content_recipients %}
     <div class="sw-settings-logging-mail-sent-info__recipients">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_logging_mail_sent_content_recipients_title %}
         <span>{{ $tc('sw-settings-logging.mailInfo.recipientsTitle') }}: {{ recipientString }}</span>
         {% endblock %}
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_mail_sent_content_mailbody %}
     <div>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_logging_mail_sent_content_mailbody_title %}
         <span>{{ $tc('sw-settings-logging.mailInfo.contentsTitle') }}:</span>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_logging_mail_sent_content_mailbody_html %}
         <div
             v-if="activeTab === 'html'"
@@ -53,7 +46,6 @@
         ></div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_logging_mail_sent_content_mailbody_plain %}
         <div
             v-if="activeTab === 'plain'"

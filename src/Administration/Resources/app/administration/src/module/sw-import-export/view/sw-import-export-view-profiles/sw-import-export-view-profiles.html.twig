@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_view_profile %}
 <div class="sw-import-export-view-profiles">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_view_profile_profiles %}
     <sw-card
         :title="$tc('sw-import-export.page.profileTab')"
@@ -9,10 +7,8 @@
         position-identifier="sw-import-export-view-profiles"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_view_profile_profiles_toolbar %}
         <div class="sw-import-export-view-profiles__toolbar">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_view_profile_profiles_toolbar_search_field %}
             <sw-simple-search-field
                 v-model:value="searchTerm"
@@ -23,7 +19,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_view_profile_profiles_toolbar_add_new_profile %}
             <sw-button
                 v-tooltip="createTooltip"
@@ -39,7 +34,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_view_profile_profiles_listing %}
         <template #grid>
             <sw-entity-listing
@@ -56,7 +50,6 @@
                 :allow-column-edit="false"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_view_profile_profiles_listing_column_label %}
                 <template #column-label="{ item }">
                     <a
@@ -68,7 +61,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_view_profile_profiles_listing_column_system_default %}
                 <template #column-systemDefault="{ item }">
                     {{ getTypeLabel(item.systemDefault) }}
@@ -76,7 +68,6 @@
                 {% endblock %}
 
                 <template #actions="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_view_profile_profiles_listing_edit %}
                     <sw-context-menu-item
                         class="sw-import-export-view-profiles__listing-open-action"
@@ -86,7 +77,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_view_profile_profiles_listing_duplicate %}
                     <sw-context-menu-item
                         class="sw-import-export-view-profiles__listing-duplicate-action"
@@ -96,7 +86,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_view_profile_profiles_listing_download_template %}
                     <sw-context-menu-item
                         class="sw-import-export-view-profiles__listing-download-template-action"
@@ -106,7 +95,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_view_profile_profiles_listing_delete %}
                     <sw-context-menu-item
                         class="sw-import-export-view-profiles__listing-delete-action"
@@ -125,7 +113,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_view_profile_modal %}
     <sw-import-export-edit-profile-modal
         :show="showProfileEditModal"
@@ -135,7 +122,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_view_new_profile_wizard %}
     <sw-import-export-new-profile-wizard
         v-if="showNewProfileWizard"

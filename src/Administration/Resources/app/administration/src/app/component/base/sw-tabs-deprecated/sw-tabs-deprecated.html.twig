@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tabs %}
 <div
     class="sw-tabs"
     :class="tabClasses"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_content %}
     <div
         ref="swTabContent"
@@ -13,7 +11,6 @@
         :style="tabContentStyle"
         role="tablist"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tabs_content_slot %}
         <slot :active="active"></slot>
         {% endblock %}
@@ -30,7 +27,6 @@
             {{ $tc(tabExtension.label ?? '') }}
         </sw-tabs-item>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tabs_slider %}
         <span
             class="sw-tabs__slider"
@@ -41,7 +37,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_arrow_left %}
     <button
         v-if="isScrollable"
@@ -53,7 +48,6 @@
     </button>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_arrow_right %}
     <button
         v-if="isScrollable"
@@ -66,7 +60,6 @@
     {% endblock %}
 
     <div class="sw-tabs__custom-content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tabs_custom_content %}
         <slot
             name="content"

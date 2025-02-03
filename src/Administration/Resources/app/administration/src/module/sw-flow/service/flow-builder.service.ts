@@ -54,7 +54,7 @@ type ActionData = {
 };
 
 type ActionTranslator = {
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     $tc: I18n<{}, {}, {}, string, true>['global']['tc'];
     currentLocale: string;
     getInlineSnippet(value: { [key: string]: string }): string;

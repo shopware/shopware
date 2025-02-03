@@ -96,6 +96,8 @@ PluginManager.register('SpeculationRules', SpeculationRulesPlugin, '[data-specul
 PluginManager.register('VariantSwitch', () => import('src/plugin/variant-switch/variant-switch.plugin'), '[data-variant-switch]');
 PluginManager.register('RemoteClick', () => import('src/plugin/remote-click/remote-click.plugin'), '[data-remote-click]');
 PluginManager.register('AddressEditor', () => import('src/plugin/address-editor/address-editor.plugin'), '[data-address-editor]');
+PluginManager.register('AddressManager', () => import('src/plugin/address-manager/address-manager.plugin'), '[data-address-manager]');
+PluginManager.register('AddressSearch', () => import('src/plugin/address-search/address-search.plugin'), '[data-address-search]');
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 PluginManager.register('RatingSystem', () => import('src/plugin/rating-system/rating-system.plugin'), '[data-rating-system]');
 PluginManager.register('Listing', () => import('src/plugin/listing/listing.plugin'), '[data-listing]');

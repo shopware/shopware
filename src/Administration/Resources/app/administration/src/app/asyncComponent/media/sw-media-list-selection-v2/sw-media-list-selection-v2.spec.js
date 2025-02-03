@@ -1,5 +1,5 @@
 /**
- * @sw-package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { reactive } from 'vue';

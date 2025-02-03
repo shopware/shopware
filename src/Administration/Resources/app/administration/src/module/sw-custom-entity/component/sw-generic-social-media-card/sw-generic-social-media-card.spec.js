@@ -10,7 +10,7 @@ const TEST_OG_IMAGE = {
 };
 
 /**
- * @sw-package content
+ * @sw-package discovery
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-generic-social-media-card', { sync: true }), {
@@ -93,7 +93,7 @@ async function createWrapper() {
 }
 
 /**
- * @sw-package content
+ * @sw-package discovery
  */
 describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', () => {
     it('should display the ogTitle and allow changing it', async () => {

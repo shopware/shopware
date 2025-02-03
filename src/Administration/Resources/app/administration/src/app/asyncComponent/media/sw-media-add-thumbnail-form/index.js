@@ -3,7 +3,7 @@ import './sw-media-add-thumbnail-form.scss';
 
 /**
  * @private
- * @sw-package content
+ * @sw-package discovery
  */
 export default {
     template,

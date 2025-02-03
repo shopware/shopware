@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_address_modal %}
 <sw-modal
     :title="$tc('sw-order.addressSelection.modalTitleEditAddress')"
     :is-loading="isLoading"
     @modal-close="onClose"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_address_modal_content %}
     <sw-tabs
         class="sw-order-address-modal"
@@ -14,9 +12,7 @@
         @new-item-active="onNewActiveItem"
     >
         <template #default="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_address_modal_tabs %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_address_modal_tab_edit_address %}
             <sw-tabs-item
                 name="edit"
@@ -25,7 +21,6 @@
                 {{ $tc('sw-order.addressSelection.headlineTabEditAddress') }}
             </sw-tabs-item>
             {%  endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_address_modal_tab_select_address %}
             <sw-tabs-item
                 name="addresses"
@@ -38,10 +33,8 @@
         </template>
 
         <template #content="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_address_modal_tabs_content %}
             <div v-if="active==='edit'">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_address_modal_tabs_content_edit_address %}
                 <sw-customer-address-form
                     :address="address"
@@ -56,7 +49,6 @@
                 {% endblock %}
             </div>
             <div v-if="active==='addresses'">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_address_modal_tabs_content_select_address %}
                 <sw-button
                     v-for="address in availableAddresses"
@@ -78,10 +70,8 @@
     </sw-tabs>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_address_modal_actions %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_address_modal_action_close %}
         <sw-button
             size="small"
@@ -91,7 +81,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_address_modal_actions_apply %}
         <sw-button
             variant="primary"

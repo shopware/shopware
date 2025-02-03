@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @deprecated tag:v6.7.0 - Will be removed, use StorefrontFrameworkException::fileTypeNotAllowed instead
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FileTypeNotAllowedException extends ShopwareHttpException
 {
     public function __construct(

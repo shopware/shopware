@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageEntity extends Entity
 {
     use EntityCustomFieldsTrait;

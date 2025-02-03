@@ -53,10 +53,11 @@ class Page extends Struct
      */
     public function getHeader(): ?HeaderPagelet
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        );
+        // fix with #6556
+        // Feature::triggerDeprecationOrThrow(
+        //     'v6.7.0.0',
+        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        // );
 
         return $this->header;
     }
@@ -66,10 +67,11 @@ class Page extends Struct
      */
     public function setHeader(?HeaderPagelet $header): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        );
+        // fix with #6556
+        // Feature::triggerDeprecationOrThrow(
+        //     'v6.7.0.0',
+        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        // );
         $this->header = $header;
     }
 
@@ -78,10 +80,11 @@ class Page extends Struct
      */
     public function getFooter(): ?FooterPagelet
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        );
+        // fix with #6556
+        // Feature::triggerDeprecationOrThrow(
+        //     'v6.7.0.0',
+        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        // );
 
         return $this->footer;
     }

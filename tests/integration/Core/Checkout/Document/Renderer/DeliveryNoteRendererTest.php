@@ -41,7 +41,7 @@ class DeliveryNoteRendererTest extends TestCase
     protected function setUp(): void
     {
         static::markTestSkipped('#6556');
-        
+
         parent::setUp();
 
         $this->context = Context::createDefaultContext();

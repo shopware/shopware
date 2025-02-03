@@ -80,7 +80,7 @@ class CheckoutControllerTest extends TestCase
 
     private ?string $customerId = null;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         static::markTestSkipped('#6556');
     }

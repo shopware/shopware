@@ -62,7 +62,7 @@ class InvoiceRendererTest extends TestCase
     private static string $deLanguageId;
 
     private static ?\Closure $callback = null;
-    
+
     protected function setUp(): void
     {
         static::markTestSkipped('#6556');

@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Event\RouteRequest;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('storefront')]
+#[Package('framework')]
 class SalutationRouteRequestEvent extends RouteRequestEvent
 {
 }

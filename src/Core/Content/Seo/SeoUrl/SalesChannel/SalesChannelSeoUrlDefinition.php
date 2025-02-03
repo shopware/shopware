@@ -10,14 +10,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SalesChannelSeoUrlDefinition extends SeoUrlDefinition implements SalesChannelDefinitionInterface
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('languageId', $context->getContext()->getLanguageId()));
+        $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+            new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
             new EqualsFilter('salesChannelId', null),
         ]));
         $criteria->addFilter(new EqualsFilter('isCanonical', true));

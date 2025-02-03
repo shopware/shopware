@@ -1,3 +1,4 @@
+import { inject } from 'vue';
 import template from './sw-checkbox-field-deprecated.html.twig';
 import './sw-checkbox-field.scss';
 
@@ -5,7 +6,7 @@ const { Component, Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Boolean input field based on checkbox.
@@ -101,7 +102,9 @@ Component.register('sw-checkbox-field-deprecated', {
         ariaLabel: {
             type: String,
             required: false,
-            default: null,
+            default() {
+                return inject('ariaLabel', null)?.value;
+            },
         },
     },
 

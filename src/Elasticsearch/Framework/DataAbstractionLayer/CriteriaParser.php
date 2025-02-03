@@ -71,7 +71,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchDateHistogramAggregation;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Sort\CountSort;
 
-#[Package('core')]
+#[Package('framework')]
 class CriteriaParser
 {
     /**
@@ -368,17 +368,29 @@ class CriteriaParser
     protected function parseStatsAggregation(StatsAggregation $aggregation, string $fieldName, Context $context): Metric\StatsAggregation
     {
         if ($this->isCheapestPriceField($aggregation->getField())) {
-            return new Metric\StatsAggregation($aggregation->getName(), null, [
-                'id' => 'cheapest_price',
-                'params' => $this->getCheapestPriceParameters($context),
-            ]);
+            $scriptContent = $this->getScript('cheapest_price');
+
+            return new Metric\StatsAggregation(
+                $aggregation->getName(),
+                null,
+                /** @phpstan-ignore-next-line because of the script parameter is not shaped correctly in the opensearch php sdk */
+                array_merge($scriptContent, [
+                    'params' => $this->getCheapestPriceParameters($context),
+                ]),
+            );
         }
 
         if ($this->isCheapestPriceField($aggregation->getField(), true)) {
-            return new Metric\StatsAggregation($aggregation->getName(), null, [
-                'id' => 'cheapest_price_percentage',
-                'params' => ['accessors' => $this->getCheapestPriceAccessors($context, true)],
-            ]);
+            $scriptContent = $this->getScript('cheapest_price_percentage');
+
+            return new Metric\StatsAggregation(
+                $aggregation->getName(),
+                null,
+                /** @phpstan-ignore-next-line because of the script parameter is not shaped correctly in the opensearch php sdk */
+                array_merge($scriptContent, [
+                    'params' => ['accessors' => $this->getCheapestPriceAccessors($context, true)],
+                ]),
+            );
         }
 
         return new Metric\StatsAggregation($aggregation->getName(), $fieldName);

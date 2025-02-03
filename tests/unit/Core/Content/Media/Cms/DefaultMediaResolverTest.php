@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(DefaultMediaResolver::class)]
 class DefaultMediaResolverTest extends TestCase
 {

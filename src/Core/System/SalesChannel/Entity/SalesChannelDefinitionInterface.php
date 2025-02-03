@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 interface SalesChannelDefinitionInterface
 {
     /**
@@ -17,7 +17,7 @@ interface SalesChannelDefinitionInterface
      *
      * @example
      *      $criteria->addFilter(new EqualsFilter('product.active', true));
-     *      $criteria->addFilter(new EqualsFilter('currency.salesChannel.id', $context->getSalesChannel()->getId())
+     *      $criteria->addFilter(new EqualsFilter('currency.salesChannel.id', $context->getSalesChannelId())
      */
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void;
 }

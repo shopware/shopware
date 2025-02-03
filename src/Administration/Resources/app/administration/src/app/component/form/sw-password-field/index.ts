@@ -1,7 +1,7 @@
 import template from './sw-password-field.html.twig';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

@@ -38,6 +38,7 @@ test('As a customer, I must be able to register under a customer group in the St
     Register,
     CustomerGroupActivation,
 }) => {
+
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
     const customerGroup = await TestDataService.createCustomerGroup();
 
@@ -68,13 +69,14 @@ test('As a commercial customer, I must be able to register under a customer grou
     Register,
     CustomerGroupActivation,
 }) => {
+
     const uuid = IdProvider.getIdPair().uuid;
-    const customer = { email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
+    const customer = { isCommercial: true, email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
     const commercialCustomerGroup = await TestDataService.createCustomerGroup({ registrationOnlyCompanyRegistration: true });
 
     await test.step('Register the commercial customer and activate it for the customer group', async () => {
         await ShopCustomer.goesTo(StorefrontCustomRegister.url(commercialCustomerGroup.name));
-        await ShopCustomer.attemptsTo(Register(customer, true));
+        await ShopCustomer.attemptsTo(Register(customer));
         await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         const customerGroupAlert = await StorefrontAccount.getCustomerGroupAlert(commercialCustomerGroup.name);
         await ShopCustomer.expects(customerGroupAlert).toContainText(commercialCustomerGroup.name);

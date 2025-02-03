@@ -132,6 +132,7 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--info:not(&--appearance-badged) {
+        /* stylelint-disable-next-line max-line-length */
         @include sw-label-variant($color-shopware-brand-50, $color-shopware-brand-500, $color-shopware-brand-500, $color-shopware-brand-100);
     }
 
@@ -144,6 +145,7 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--warning:not(&--appearance-badged) {
+        /* stylelint-disable-next-line max-line-length */
         @include sw-label-variant($color-pumpkin-spice-50, $color-pumpkin-spice-500, $color-pumpkin-spice-500, $color-pumpkin-spice-100);
     }
 
@@ -156,6 +158,7 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--primary:not(&--appearance-badged) {
+        /* stylelint-disable-next-line max-line-length */
         @include sw-label-variant($color-shopware-brand-500, $color-shopware-brand-50, $color-shopware-brand-700, $color-shopware-brand-500);
     }
 }

@@ -12,7 +12,7 @@ type ComponentData = {
 };
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({

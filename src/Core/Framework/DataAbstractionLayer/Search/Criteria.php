@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Util\Json;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class Criteria extends Struct implements \Stringable
 {
     use StateAwareTrait;

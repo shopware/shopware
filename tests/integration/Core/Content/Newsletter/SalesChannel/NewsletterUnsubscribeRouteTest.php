@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterUnsubscribeRoute::class)]
 #[Group('store-api')]
 class NewsletterUnsubscribeRouteTest extends TestCase

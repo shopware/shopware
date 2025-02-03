@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('core')]
+#[Package('framework')]
 class PluginHasActiveDependantsException extends ShopwareHttpException
 {
     /**

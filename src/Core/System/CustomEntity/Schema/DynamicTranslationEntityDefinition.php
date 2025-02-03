@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @phpstan-import-type CustomEntityField from CustomEntitySchemaUpdater
  */
-#[Package('core')]
+#[Package('framework')]
 class DynamicTranslationEntityDefinition extends EntityTranslationDefinition
 {
     protected string $root;

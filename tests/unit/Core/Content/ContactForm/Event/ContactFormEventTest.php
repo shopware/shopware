@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ContactFormEvent::class)]
 class ContactFormEventTest extends TestCase
 {

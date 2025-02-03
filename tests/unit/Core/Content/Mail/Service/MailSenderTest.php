@@ -10,9 +10,11 @@ use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Content\Mail\Service\MailSender;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\TextPart;
 
 /**
  * @internal
@@ -22,12 +24,49 @@ class MailSenderTest extends TestCase
 {
     public function testSendMail(): void
     {
+        $mailer = $this->createMock(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($messageBus, $fileSystem, $configService, 0);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
         $mail = new Email();
+
+        $mailer
+            ->expects(static::once())
+            ->method('send')
+            ->with($mail);
+
+        $mailSender->send($mail);
+    }
+
+    public function testSendMailWithoutMessageBus(): void
+    {
+        $mailer = $this->createMock(MailerInterface::class);
+        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, null);
+        $mail = new Email();
+
+        $mailer
+            ->expects(static::once())
+            ->method('send')
+            ->with($mail);
+
+        $mailSender->send($mail);
+    }
+
+    public function testSendLargeMail(): void
+    {
+        $mailer = $this->createMock(MailerInterface::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
+        $text = str_repeat('a', MailSender::MAIL_MESSAGE_SIZE_LIMIT);
+        $mail = new Email(null, new TextPart($text));
 
         $testStruct = new ArrayStruct();
 
@@ -55,11 +94,12 @@ class MailSenderTest extends TestCase
 
     public function testSendMailWithDisabledDelivery(): void
     {
+        $mailer = $this->createMock(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
-        $mailSender = new MailSender($messageBus, $fileSystem, $configService, 0);
+        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
         $mail = new Email();
 
         $fileSystem
@@ -75,11 +115,12 @@ class MailSenderTest extends TestCase
 
     public function testSendMailWithToMuchContent(): void
     {
+        $mailer = $this->createMock(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($messageBus, $fileSystem, $configService, 5);
+        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 5, $messageBus);
 
         $mail = new Email();
         $mail->text('foobar');

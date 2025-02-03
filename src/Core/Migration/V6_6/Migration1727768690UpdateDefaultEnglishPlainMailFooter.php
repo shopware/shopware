@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1727768690UpdateDefaultEnglishPlainMailFooter extends MigrationStep
 {
     public function getCreationTimestamp(): int

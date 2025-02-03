@@ -12,7 +12,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FilesystemTest extends TestCase
 {
     private Io $io;

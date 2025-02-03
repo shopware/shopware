@@ -1,6 +1,6 @@
 import './acl';
 
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-mail-template-list', () => import('./component/sw-mail-template-list'));
@@ -21,7 +21,7 @@ Shopware.Component.extend(
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-mail-template', {
@@ -82,7 +82,14 @@ Module.register('sw-mail-template', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'content';
+        },
         to: 'sw.mail.template.index',
         icon: 'regular-envelope',
         privilege: 'mail_templates.viewer',

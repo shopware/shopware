@@ -1190,6 +1190,8 @@
     "document.documentMediaFile",
     "document.createdAt",
     "document.updatedAt",
+    "document.documentA11yMediaFileId",
+    "document.documentA11yMediaFile",
     "document_type.id",
     "document_type.name",
     "document_type.technicalName",
@@ -1539,5 +1541,7 @@
     "attribute_entity_translation.attributeEntityId",
     "attribute_entity_translation.languageId",
     "attribute_entity_agg.createdAt",
-    "attribute_entity_agg.updatedAt"
+    "attribute_entity_agg.updatedAt",
+    "attribute_entity_with_hydrator.createdAt",
+    "attribute_entity_with_hydrator.updatedAt"
 ]

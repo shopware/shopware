@@ -11,7 +11,7 @@ use Shopware\Core\Maintenance\MaintenanceException;
  *
  * @phpstan-ignore shopware.internalClass
  */
-#[Package('core')]
+#[Package('framework')]
 class JwtCertificateGenerator
 {
     /**

@@ -317,7 +317,7 @@ SQL;
     {
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
-        $salesChannelId = $this->salesChannel->getSalesChannel()->getId();
+        $salesChannelId = $this->salesChannel->getSalesChannelId();
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $title = 'foo';
 
@@ -359,7 +359,7 @@ SQL;
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'with id'],
                     'visibilities' => [
-                        ['salesChannelId' => $this->salesChannel->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                        ['salesChannelId' => $this->salesChannel->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                     ],
                     'categories' => [
                         ['id' => Uuid::randomHex(), 'name' => 'Clothing'],

@@ -19,7 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class DifferentAddressesRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

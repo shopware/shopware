@@ -13,7 +13,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1636014089UpdateOrderConfirmationMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;

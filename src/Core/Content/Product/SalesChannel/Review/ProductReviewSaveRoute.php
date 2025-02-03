@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('after-sales')]
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
     /**
@@ -61,8 +61,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $customer = $context->getCustomer();
         \assert($customer instanceof CustomerEntity);
 
-        $languageId = $context->getContext()->getLanguageId();
-        $salesChannelId = $context->getSalesChannel()->getId();
+        $languageId = $context->getLanguageId();
+        $salesChannelId = $context->getSalesChannelId();
 
         $customerId = $customer->getId();
 
@@ -105,7 +105,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $mail = \is_string($mail) ? $mail : '';
         $event = new ReviewFormEvent(
             $context->getContext(),
-            $context->getSalesChannel()->getId(),
+            $context->getSalesChannelId(),
             new MailRecipientStruct([$mail => $review['externalUser'] . ' ' . $data->get('lastName')]),
             $data,
             $productId,
@@ -148,6 +148,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
                 'entity' => 'product_review',
                 'context' => $context,
                 'criteria' => $criteria,
+                'primaryProperty' => 'customerId',
             ]));
         }
 
@@ -167,7 +168,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
      */
     private function checkReviewsActive(SalesChannelContext $context): void
     {
-        $showReview = $this->config->get('core.listing.showReview', $context->getSalesChannel()->getId());
+        $showReview = $this->config->get('core.listing.showReview', $context->getSalesChannelId());
 
         if (!$showReview) {
             throw ProductException::reviewNotActive();

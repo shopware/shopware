@@ -14,7 +14,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 readonly class ThemeScripts
 {
     /**

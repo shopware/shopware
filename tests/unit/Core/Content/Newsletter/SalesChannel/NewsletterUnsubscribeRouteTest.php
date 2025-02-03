@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterUnsubscribeRoute::class)]
 class NewsletterUnsubscribeRouteTest extends TestCase
 {
@@ -31,7 +31,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = Generator::createSalesChannelContext();
+        $this->salesChannelContext = Generator::generateSalesChannelContext();
     }
 
     public function testUnsubscribe(): void

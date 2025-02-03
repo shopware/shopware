@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 
 import template from './sw-mail-header-footer-detail.html.twig';
@@ -10,6 +10,9 @@ const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
+/**
+ * @sw-package after-sales
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

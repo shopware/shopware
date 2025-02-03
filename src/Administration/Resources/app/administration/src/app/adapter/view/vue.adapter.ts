@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';
@@ -17,6 +17,7 @@ import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { compatUtils } from '@vue/compat';
 
 import * as MeteorImport from '@shopware-ag/meteor-component-library';
+import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 
 const { Component, State, Mixin } = Shopware;
 
@@ -60,7 +61,7 @@ export default class VueAdapter extends ViewAdapter {
         this.initDirectives();
 
         const vuexRoot = State._store;
-        // eslint-disable-next-line @typescript-eslint/ban-types
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
         const i18n = this.initLocales(vuexRoot) as I18n<{}, {}, {}, string, true>;
 
         // add router to View
@@ -96,6 +97,11 @@ export default class VueAdapter extends ViewAdapter {
                 throw new Error(msg);
             }
         };
+        // This is a hack for providing the data scope to the components.
+        Object.defineProperty(this.app.config.globalProperties, '$dataScope', {
+            get: getBlockDataScope,
+            enumerable: true,
+        });
 
         /**
          * This is a hack for providing the services to the components.

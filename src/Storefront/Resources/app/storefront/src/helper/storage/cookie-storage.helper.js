@@ -1,5 +1,5 @@
 /**
- * @package storefront
+ * @sw-package framework
  */
 export default class CookieStorageHelper {
 

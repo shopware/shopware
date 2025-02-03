@@ -12,7 +12,10 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 use Symfony\Component\Validator\Constraint;
 
-#[Package('services-settings')]
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
+#[Package('fundamentals@after-sales')]
 class LineItemTagRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemTag';

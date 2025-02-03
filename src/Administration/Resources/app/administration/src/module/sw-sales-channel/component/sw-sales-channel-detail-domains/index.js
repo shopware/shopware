@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-detail-domains.html.twig';
@@ -262,6 +262,8 @@ export default {
             if (this.salesChannel.languages.length === 1) {
                 this.setInitialLanguage(domain);
             }
+
+            domain.hreflangUseOnlyLocale = false;
 
             this.currentDomain = domain;
             this.isEditingDomain = false;

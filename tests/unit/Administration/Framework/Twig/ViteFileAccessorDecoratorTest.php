@@ -14,7 +14,7 @@ use Symfony\Component\Asset\Packages;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(ViteFileAccessorDecorator::class)]
 class ViteFileAccessorDecoratorTest extends TestCase
 {

@@ -3,7 +3,7 @@ import template from './sw-external-link.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready

@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class AppLoadedSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

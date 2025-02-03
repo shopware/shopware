@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailTemplateRendererException extends ShopwareHttpException
 {
     public function __construct(string $twigMessage)

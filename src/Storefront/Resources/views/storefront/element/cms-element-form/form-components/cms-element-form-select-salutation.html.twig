@@ -1,16 +1,48 @@
 {% block cms_form_select_salutation_content %}
+    {% if feature('ACCESSIBILITY_TWEAKS') %}
+
+        {% set salutationOptions %}
+            {% if not data.get('salutationId') %}
+                <option disabled="disabled" selected="selected" value="">
+                    {{ 'account.personalSalutationPlaceholder'|trans }}
+                </option>
+            {% endif %}
+
+            {% for salutation in element.data %}
+                <option value="{{ salutation.id }}">
+                    {{ salutation.translated.displayName }}
+                </option>
+            {% endfor %}
+        {% endset %}
+
+        {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+            label: 'account.personalSalutationLabel'|trans|sw_sanitize,
+            id: formPrefix ~ '-form-Salutation',
+            name: 'salutationId',
+            options: salutationOptions,
+            violationPath: '/salutationId',
+            validationRules: required ? 'required',
+            additionalClass: additionalClass,
+            additionalSelectClass: 'contact-select',
+        } %}
+    {% else %}
+
     <div class="form-group {{ additionalClass }}">
+
+        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
         {% block cms_form_select_salutation_content_label %}
             <label class="form-label" for="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}form-Salutation">
                 {{- 'account.personalSalutationLabel'|trans -}}{% if required %} {{- 'general.required'|trans -}}{% endif %}
             </label>
         {% endblock %}
 
+        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
         {% block cms_form_select_salutation_content_select %}
             <select name="salutationId"
-                    id="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}form-Salutation"
+                    id="form-Salutation"
                     {% if required %}required="required"{% endif %}
                     class="form-select contact-select{% if formViolations.getViolations('/salutationId') %} is-invalid{% endif %}">
+
                 {% if not data.get('salutationId') %}
                     <option disabled="disabled" selected="selected" value="">
                         {{ 'account.personalSalutationPlaceholder'|trans }}
@@ -31,4 +63,5 @@
             {% endif %}
         {% endblock %}
     </div>
+    {% endif %}
 {% endblock %}

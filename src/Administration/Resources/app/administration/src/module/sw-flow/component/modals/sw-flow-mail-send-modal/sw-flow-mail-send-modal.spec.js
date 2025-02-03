@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const recipientEmailInputClass = '.sw-flow-mail-send-modal__recipient-email #sw-field--item-email';
@@ -141,6 +141,7 @@ async function createWrapper(sequence = {}) {
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-skeleton': true,
                 'sw-field-copyable': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 repositoryFactory: {

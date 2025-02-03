@@ -12,7 +12,10 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('services-settings')]
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
+#[Package('fundamentals@after-sales')]
 class LineItemWithQuantityRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemWithQuantity';

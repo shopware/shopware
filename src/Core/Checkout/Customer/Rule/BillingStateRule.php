@@ -14,7 +14,10 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('services-settings')]
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
+#[Package('fundamentals@after-sales')]
 class BillingStateRule extends Rule
 {
     final public const RULE_NAME = 'customerBillingState';

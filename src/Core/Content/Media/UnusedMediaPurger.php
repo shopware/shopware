@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class UnusedMediaPurger
 {
     private const VALID_ASSOCIATIONS = [

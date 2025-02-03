@@ -1,5 +1,6 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-url-field component #}
+{% block sw_url_field %}
 <mt-url-field
     v-if="useMeteorComponent"
     v-bind="$attrs"
@@ -16,9 +17,11 @@
         </slot>
     </template>
 </mt-url-field>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
+{% block sw_url_field_deprecated %}
 <sw-url-field-deprecated
     v-else
     v-bind="$attrs"
@@ -36,3 +39,4 @@
         </slot>
     </template>
 </sw-url-field-deprecated>
+{% endblock %}

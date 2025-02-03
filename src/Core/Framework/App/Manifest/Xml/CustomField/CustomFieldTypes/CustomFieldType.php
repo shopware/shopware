@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Util\XmlReader;
  *
  * @phpstan-type CustomFieldTypeArray array{name: string, config: array{label: array<string, string>, helpText: array<string, string>, customFieldPosition: int, validation?: 'required'}, allowCustomerWrite?: true, allowCartExpose?: true}
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class CustomFieldType extends XmlElement
 {
     protected const TRANSLATABLE_FIELDS = [

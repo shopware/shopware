@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Cleanup;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 class CleanupProductKeywordDictionaryTask extends ScheduledTask
 {
     public static function getTaskName(): string

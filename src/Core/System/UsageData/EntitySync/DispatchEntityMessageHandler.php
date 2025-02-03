@@ -97,10 +97,6 @@ final class DispatchEntityMessageHandler
             $encoded[$field->getPropertyName()] = $field->getSerializer()->decode($field, $entity[$field->getStorageName()]);
         }
 
-        if (\array_key_exists(DispatchEntitiesQueryBuilder::PUID_FIELD_NAME, $entity)) {
-            $encoded[DispatchEntitiesQueryBuilder::PUID_FIELD_NAME] = $entity[DispatchEntitiesQueryBuilder::PUID_FIELD_NAME];
-        }
-
         return $encoded;
     }
 
@@ -193,10 +189,6 @@ final class DispatchEntityMessageHandler
             ->withFields($fields)
             ->withLastApprovalDateConstraint($message, $lastApprovalDate)
             ->withPrimaryKeys($primaryKeys);
-
-        if ($this->entityDefinitionService->isPuidEntity($definition)) {
-            $queryBuilder->withPersonalUniqueIdentifier();
-        }
 
         $queryBuilder->checkLiveVersion($definition);
 

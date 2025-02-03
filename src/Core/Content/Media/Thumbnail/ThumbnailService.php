@@ -32,7 +32,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @phpstan-type ImageSize array{width: int<1, max>, height: int<1, max>}
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ThumbnailService
 {
     /**

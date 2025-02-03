@@ -31,7 +31,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SendMailAction extends FlowAction implements DelayableAction
 {
     final public const ACTION_NAME = 'action.mail.send';
@@ -225,10 +225,12 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $this->mailTemplateTypeRepository->update([[
-            'id' => $mailTemplate->getMailTemplateTypeId(),
-            'templateData' => $templateData,
-        ]], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mailTemplate, $templateData): void {
+            $this->mailTemplateTypeRepository->update([[
+                'id' => $mailTemplate->getMailTemplateTypeId(),
+                'templateData' => $templateData,
+            ]], $context);
+        });
     }
 
     private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity

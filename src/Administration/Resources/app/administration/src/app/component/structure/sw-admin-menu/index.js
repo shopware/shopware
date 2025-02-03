@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 const { dom, types } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

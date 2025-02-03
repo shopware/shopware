@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_alert %}
 <div
     class="sw-alert"
     :class="alertClasses"
     role="alert"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_alert_inner %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_alert_icon %}
     <slot name="customIcon">
         <sw-icon
@@ -20,13 +17,11 @@
     </slot>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_alert_body %}
     <div
         class="sw-alert__body"
         :class="alertBodyClasses"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_alert_title %}
         <div
             v-if="title"
@@ -36,11 +31,9 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_alert_message %}
         <div class="sw-alert__message">
             <slot>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_alert_slot_default %}{% endblock %}
             </slot>
         </div>
@@ -48,7 +41,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_alert_actions %}
     <div
         v-if="hasActionSlot"
@@ -58,7 +50,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_alert_close %}
     <button
         v-if="closable"

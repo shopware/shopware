@@ -30,7 +30,7 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
 
-#[Package('core')]
+#[Package('framework')]
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
@@ -341,6 +341,8 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
+        asort($plugins);
+
         return Hasher::hash([
             $this->cacheId,
             (string) $this->shopwareVersionRevision,
@@ -350,6 +352,9 @@ class Kernel extends HttpKernel
 
     protected function initializeDatabaseConnectionVariables(): void
     {
+        /**
+         * @deprecated tag:v6.7.0 - remove if-clause, we have already SQL_SET_DEFAULT_SESSION_VARIABLES which is documented does the same
+         */
         $shopwareSkipConnectionVariables = EnvironmentHelper::getVariable('SHOPWARE_SKIP_CONNECTION_VARIABLES', false);
 
         if ($shopwareSkipConnectionVariables) {
@@ -366,7 +371,7 @@ class Kernel extends HttpKernel
              * @deprecated tag:v6.7.0 - remove if clause and enforce timezone setting
              */
             $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', Feature::isActive('v6.7.0.0'));
-            if ($timeZoneSupportEnabled) {
+            if ($timeZoneSupportEnabled && $setSessionVariables) {
                 $connectionVariables[] = 'SET @@session.time_zone = "+00:00"';
             }
 
@@ -389,7 +394,7 @@ class Kernel extends HttpKernel
     protected function dumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
-        $cacheDir = $this->getCacheDir();
+        $cacheDir = $container->getParameter('kernel.cache_dir');
         $cacheName = basename($cacheDir);
         $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
 

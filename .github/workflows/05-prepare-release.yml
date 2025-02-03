@@ -2,6 +2,7 @@ name: Prepare release
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
@@ -11,6 +12,7 @@ jobs:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+      APP_URL: http://localhost:8000
     services:
       database:
         image: mysql:8.0
@@ -54,7 +56,7 @@ jobs:
 
   check-recipe:
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' && github.ref_type == 'tag'
     env:
       GH_TOKEN: ${{ github.token }}
       CHECK_REPOSITORY: 'shopware/recipes'
@@ -72,7 +74,7 @@ jobs:
   split:
     needs: build
     runs-on: ubuntu-24.04
-    environment: release
+    environment: ${{ format('manyrepos ({0})', github.ref_type) }}
     # we use this image to get an older git version, which does not suffer from a performance regression
     container: alpine:3.19
     if: github.repository == 'shopware/shopware'
@@ -126,10 +128,18 @@ jobs:
           cat repos/${{ matrix.package }}/composer.json
           git -C repos/${{ matrix.package }} log -n 2
           git -C repos/${{ matrix.package }} diff @^.. | head -n 100
+      - name: Create temporary branch
+        if: github.ref_type != 'tag' && !github.ref_protected
+        run: |
+          bash .github/bin/split.bash branch "${{ matrix.package }}" "tmp-${{ github.sha }}"
       - name: Push
-        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag' || github.ref_protected
         run: |
           bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "${{ github.ref_name }}"
+      - name: Push temporary branch
+        if: github.ref_type != 'tag' && !github.ref_protected
+        run: |
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "tmp-${{ github.sha }}"
 
   draft-release-notes:
     needs: split
@@ -170,4 +180,4 @@ jobs:
       - name: Create sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"
-          bash .github/bin/sbp_release.bash create "${{ github.ref_name }}"
+          bash .github/bin/sbp_release.bash create "${{ github.ref_type == 'tag' && github.ref_name || 'v6.6.9999999.9999999-dev' }}"

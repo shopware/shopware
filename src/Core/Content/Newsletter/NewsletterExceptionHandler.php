@@ -6,7 +6,7 @@ use Shopware\Core\Content\Newsletter\Exception\LanguageOfNewsletterDeleteExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int
@@ -14,6 +14,9 @@ class NewsletterExceptionHandler implements ExceptionHandlerInterface
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
+    /**
+     * @param \Exception $e - @deprecated tag:v6.7.0 - in v6.7.0 parameter type will be changed to \Throwable
+     */
     public function matchException(\Exception $e): ?\Exception
     {
         if (preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*newsletter_recipient.*CONSTRAINT `fk.newsletter_recipient.language_id`/', $e->getMessage())) {

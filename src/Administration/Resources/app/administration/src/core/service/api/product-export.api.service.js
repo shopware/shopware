@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import ApiService from '../api.service';
 
 /**

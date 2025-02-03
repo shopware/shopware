@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SpatialObjectTypeDetector::class)]
 class SpatialObjectTypeDetectorTest extends TestCase
 {

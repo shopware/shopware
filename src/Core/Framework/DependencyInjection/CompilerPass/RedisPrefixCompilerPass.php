@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RedisPrefixCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

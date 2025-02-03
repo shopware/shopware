@@ -2,12 +2,21 @@ name: Integration tests
 
 on:
   pull_request:
+  merge_group:
   workflow_dispatch:
+    inputs:
+      nightly:
+        default: ""
   workflow_call:
+    inputs:
+      nightly:
+        type: string
+        default: ""
 
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
@@ -16,20 +25,42 @@ jobs:
           - 'Install'
         major:
           - ''
+        php-version:
+          - '8.2'
+          - '8.4'
         include:
           - name: 'Platform'
-            major: ${{ contains(github.workflow_ref, 'nightly') && 'major' || '' }}
-    continue-on-error: ${{ matrix.major == 'true' }}
+            major: 'major'
+            php-version: 8.2
+          - name: 'Platform'
+            major: 'major'
+            php-version: 8.4
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"
       BLUE_GREEN_DEPLOYMENT: 1
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+      MAILER_DSN: "smtp://localhost:1025"
+      MAILPIT_BASE_URL: "http://localhost:8025"
     services:
+      database:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: shopware
+        ports:
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping"
       redis: # Redis is required since cache rework
         image: ${{ matrix.major == 'major' && 'redis:alpine' || '' }}
         ports:
           - "6379:6379"
+      mailpit:
+        image: axllent/mailpit
+        ports:
+          - "1025:1025"
+          - "8025:8025"
+
     steps:
       - name: Define environment for major testing
         shell: bash
@@ -40,16 +71,20 @@ jobs:
           echo "FEATURE_ALL=major" >> $GITHUB_ENV
           echo "DISABLE_VUE_COMPAT=0" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+          echo "ADMIN_VITE=1" >> $GITHUB_ENV
 
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          mysql-version: 'skip'
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install: ${{ matrix.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
           install-admin: ${{ matrix.name != 'Install' }}
           install-storefront: ${{ matrix.name != 'Install' }}
           env: prod
+          composer-root-version: ${{ matrix.major == 'major' && '6.7.9999999-dev' || '.auto' }}
+          php-version: ${{ matrix.php-version }}
 
       - name: Build js
         if: ${{ matrix.name == 'Install' }}
@@ -86,7 +121,12 @@ jobs:
       - name: Run your tests with reporting
         if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
-        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project ${{ matrix.name }} --trace=on
+        run: |-
+          npx pwc \
+            --ci-build-id "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major }}" \
+            --project-id ${{ secrets.CURRENTS_PROJECT_ID }} \
+            --key ${{ secrets.CURRENTS_RECORD_KEY }} \
+            -- --project ${{ matrix.name }} --trace=on
 
       - name: Run your tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
@@ -96,37 +136,33 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.name }}${{ matrix.major == 'major' && '-major' || '' }}
+          name: playwright-report-${{ matrix.name }}-php${{ matrix.php-version }}-${{ matrix.major == 'major' && '-major' || '' }}
           path: tests/acceptance/test-results/
           retention-days: 3
 
-  phpunit:
-    name: "${{ matrix.suite.name }} ${{matrix.suite.path }}"
-    continue-on-error: ${{ !matrix.stable }}
+  phpunit-matrix:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        suite:
-          - name: integration
-            path: tests/integration/Administration
-          - name: integration
-            path: tests/integration/Core/Checkout
-          - name: integration
-            path: tests/integration/Core/Content
-          - name: integration
-            path: tests/integration/Core/Framework
-          - name: integration
-            path: tests/integration/Core/Installer
-          - name: integration
-            path: tests/integration/Core/Maintenance
-          - name: integration
-            path: tests/integration/Core/System
-          - name: integration
-            path: tests/integration/Elasticsearch
-          - name: integration
-            path: tests/integration/Storefront
-          - name: migration,devops
+    if: ${{ github.event_name != 'pull_request' }}
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v4
+      - id: generate-matrix
+        run: |
+          MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
+          echo $MATRIX
+          echo "matrix<<EOF" >> $GITHUB_OUTPUT
+          echo "$MATRIX" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+  phpunit:
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: 
+      - phpunit-matrix
+    runs-on: ubuntu-24.04
+    strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
@@ -139,17 +175,26 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.suite.name == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        image: ${{ matrix.test.path != '' && 'opensearchproject/opensearch:1' || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
         ports:
           - "9200:9200"
-
+      database:
+        image: ${{ matrix.db }}
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: shopware
+        ports:
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping || mariadb-admin ping"
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          php-version: ${{ matrix.php }}
+          mysql-version: 'skip'
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
@@ -159,11 +204,17 @@ jobs:
       - name: Install Shopware
         run: php src/Core/TestBootstrap.php
 
-      - name: Run PHPUnit
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite.name }}" -- ${{ matrix.suite.path || '' }}
+      - name: Run PHPUnit testsuite
+        if: ${{ matrix.test.testsuite != '' }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.test.testsuite }}"
+
+      - name: Run PHPUnit path
+        if: ${{ matrix.test.path != '' }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit -- tests/integration/${{ matrix.test.path }}
 
   win-checkout:
     runs-on: windows-latest
+    if: ${{ github.event_name != 'pull_request' }}
     name: "Windows check"
 
     steps:
@@ -222,55 +273,10 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-  docker:
-    runs-on: ubuntu-24.04
-    if: ${{ github.repository == 'shopware/shopware' && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
-    permissions:
-      packages: write
-    env:
-      SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
-      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
-    steps:
-      - name: Setup Shopware
-        uses: shopware/setup-shopware@main
-        with:
-          shopware-version: ${{ github.ref }}
-          shopware-repository: ${{ github.repository }}
-          install: true
-          install-admin: true
-          install-storefront: true
-          env: prod
-
-      - name: Build
-        run: |
-          composer run build:js
-      - name: Ignore node_modules folders
-        run: |
-          echo '**/node_modules' >> .dockerignore
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login into Github Docker Registery
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        if: ${{ !github.ref_protected }}
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }}
-          file: .gitlab/docker/dev/Dockerfile
-      - name: Build and push trunk
-        uses: docker/build-push-action@v5
-        if: ${{ github.ref_protected }}
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }},ghcr.io/${{ github.repository }}/ci-e2e:${{ github.ref_name }}
-          file: .gitlab/docker/dev/Dockerfile
-
   tested-update-versions:
     name: tested-versions
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
@@ -284,6 +290,7 @@ jobs:
   acceptance-update:
     needs: tested-update-versions
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
@@ -387,6 +394,7 @@ jobs:
   blue-green-66-67:
     name: "PHP blue green 6.6 -> 6.7 -> 6.6"
     runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
     env:
       APP_ENV: test
       APP_URL: http://localhost:8000
@@ -438,3 +446,25 @@ jobs:
       - name: Run blue-green check
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         run: php .gitlab/bin/blue-green-check.php # TODO: Move script to .github after migration
+
+  # this allows us to specifiy just one required job/check
+  # this is not practical with matrix jobs directly, because you've to specify all permutations
+  check:
+    if: always()
+    needs:
+    - acceptance
+    - phpunit
+    - win-checkout
+    - code-ql
+    - acceptance-update
+    - blue-green-66-67
+
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        # allowed-failures: docs, linters
+        # allow all jobs to be skipped in case of a PR run
+        allowed-skips: acceptance, phpunit, win-checkout, code-ql, acceptance-update, blue-green-66-67
+        jobs: ${{ toJSON(needs) }}

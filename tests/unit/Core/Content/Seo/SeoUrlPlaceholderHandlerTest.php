@@ -11,12 +11,10 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SystemSource;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -24,13 +22,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[CoversClass(SeoUrlPlaceholderHandler::class)]
 class SeoUrlPlaceholderHandlerTest extends TestCase
 {
     private MockObject&Connection $connection;
 
-    private MockObject&SalesChannelContext $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 
@@ -39,16 +37,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
 
-        $context = new Context(
-            new SystemSource(),
-            [],
-            Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM]
-        );
-
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $this->salesChannelContext->expects(static::once())->method('getContext')->willReturn($context);
-        $this->salesChannelContext->expects(static::once())->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $this->salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->seoUrlPlaceholderHandler = new SeoUrlPlaceholderHandler(
             $this->createMock(RequestStack::class),

@@ -2,18 +2,18 @@ import CMS from '../../../constant/sw-cms.constant';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-preview-image-three-column', () => import('./preview'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-block-image-three-column', () => import('./component'));
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-three-column',

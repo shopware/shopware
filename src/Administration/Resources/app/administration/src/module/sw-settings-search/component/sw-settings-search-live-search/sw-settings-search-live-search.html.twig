@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_view_live_search_card %}
 <sw-card
     class="sw-settings-search-live-search"
@@ -6,18 +5,15 @@
     :title="$tc('sw-settings-search.liveSearchTab.titleCard')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_view_live_search_rebuild_index_row %}
     <div class="sw-settings-search-live-search__rebuild-index-row">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_view_live_search_description %}
         <div class="sw-settings-search-live-search__description">
             {{ $tc('sw-settings-search.liveSearchTab.textDescription') }}
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_view_live_search_show_example_link %}
         <sw-container
             columns="1fr"
@@ -39,7 +35,6 @@
         </sw-container>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_show_example_modal %}
         <sw-settings-search-example-modal
             v-if="showExampleModal"
@@ -49,7 +44,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_view_live_search_sales_channel %}
     <sw-single-select
         class="sw-settings-search-live-search__sales-channel-select"
@@ -64,7 +58,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_view_live_search_input %}
     <sw-simple-search-field
         v-model:value="liveSearchTerm"
@@ -75,10 +68,8 @@
         @search-term-change="searchOnStorefront"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_view_live_search_search_icon_wrapper %}
         <template #sw-simple-search-field-icon>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_view_live_search_search_icon %}
             <sw-icon
                 class="sw-settings-search-live-search__search-icon"
@@ -93,16 +84,13 @@
     </sw-simple-search-field>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_view_live_search_results %}
     <div class="sw-settings-search-live-search__search-results">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_results_empty_state %}
         <sw-loader v-if="searchInProgress" />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_view_live_search_results_no_result %}
         <div
             v-if="products && products.length === 0"
@@ -112,7 +100,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_view_live_search_results_search_grid %}
         <sw-data-grid
             v-if="products && products.length > 0"
@@ -125,9 +112,7 @@
             :columns="searchColumns"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_view_live_search_results_search_grid_columns %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_view_live_search_results_search_grid_name %}
             <template #column-name="{ item }">
                 <sw-product-variant-info
@@ -142,7 +127,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_view_live_search_results_search_grid_score %}
             <template #column-score="{ item }">
                 <span class="sw-settings-search-live-search__grid-result__score">

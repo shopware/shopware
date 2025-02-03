@@ -27,7 +27,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
     name: 'media:generate-thumbnails',
     description: 'Generates thumbnails for all media files',
 )]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class GenerateThumbnailsCommand extends Command
 {
     private ShopwareStyle $io;
@@ -246,7 +246,7 @@ class GenerateThumbnailsCommand extends Command
         $this->io->comment('Generating batch jobs...');
         while (($result = $mediaIterator->fetch()) !== null) {
             $msg = new UpdateThumbnailsMessage();
-            $msg->setIsStrict($this->isStrict);
+            $msg->setStrict($this->isStrict);
             $msg->setMediaIds($result->getEntities()->getIds());
             $msg->setContext($context);
 

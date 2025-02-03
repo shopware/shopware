@@ -600,7 +600,6 @@ const mtTabsInvalidTests = [
                     class="sw-product-detail-page__tabs"
                     position-identifier="sw-product-detail"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     <sw-tabs-item
                         class="sw-product-detail__tab-general"
                         route="sw.product.detail.base"
@@ -610,7 +609,6 @@ const mtTabsInvalidTests = [
                         {{ $tc('sw-product.detail.tabGeneral') }}
                     </sw-tabs-item>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     <sw-tabs-item
                         class="sw-product-detail__tab-specifications"
                         :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
@@ -636,7 +634,6 @@ const mtTabsInvalidTests = [
                     class="sw-product-detail-page__tabs"
                     position-identifier="sw-product-detail"
                 ><!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     <sw-tabs-item
                         class="sw-product-detail__tab-general"
                         route="sw.product.detail.base"
@@ -646,7 +643,6 @@ const mtTabsInvalidTests = [
                         {{ $tc('sw-product.detail.tabGeneral') }}
                     </sw-tabs-item>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     <sw-tabs-item
                         class="sw-product-detail__tab-specifications"
                         :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"

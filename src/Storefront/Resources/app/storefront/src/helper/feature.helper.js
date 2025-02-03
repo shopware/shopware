@@ -1,5 +1,5 @@
 /**
- * @package storefront
+ * @sw-package fundamentals@framework
  */
 class FeatureSingleton {
 

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 import template from './sw-settings-mailer.html.twig';
 import './sw-settings-mailer.scss';
@@ -58,7 +58,10 @@ export default {
         },
 
         isSmtpMode() {
-            return this.mailerSettings['core.mailerSettings.emailAgent'] === 'smtp';
+            return [
+                'smtp',
+                'smtp+oauth',
+            ].includes(this.mailerSettings['core.mailerSettings.emailAgent']);
         },
     },
 

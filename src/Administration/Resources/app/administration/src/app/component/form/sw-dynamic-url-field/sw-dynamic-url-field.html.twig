@@ -1,10 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_dynamic_url_field %}
 <div class="sw-dynamic-url-field">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_dynamic_url_field_content %}
     <div class="sw-dynamic-url-field_link-category">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_dynamic_url_field_content_type %}
         <sw-select-field
             :value="linkCategory"
@@ -12,7 +9,6 @@
             require
             @update:value="onSelectFieldChange"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dynamic_url_field_content_type_options %}
             <option value="link">
                 {{ $tc('sw-text-editor-toolbar.link.labelUrl') }}
@@ -36,9 +32,7 @@
         </sw-select-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_dynamic_url_field_content_type_inputs %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_dynamic_url_field_content_type_inputs_link %}
         <sw-text-field
             v-if="linkCategory === 'link'"
@@ -48,7 +42,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_dynamic_url_field_content_type_inputs_phone %}
         <sw-text-field
             v-else-if="linkCategory === 'phone'"
@@ -58,7 +51,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_dynamic_url_field_content_type_inputs_email %}
         <sw-email-field
             v-else-if="linkCategory === 'email'"
@@ -68,7 +60,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_dynamic_url_field_content_type_inputs_detail %}
         <sw-entity-single-select
             v-else-if="linkCategory === 'detail'"
@@ -84,7 +75,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_dynamic_url_field_content_type_inputs_category %}
         <sw-category-tree-field
             v-else-if="linkCategory === 'navigation'"
@@ -98,7 +88,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_dynamic_url_field_content_type_inputs_media %}
         <sw-media-field
             v-else-if="linkCategory === 'media'"
@@ -112,7 +101,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_dynamic_url_field_button_remove %}
     <sw-button
         class="sw-dynamic-url-field__link-menu-buttons-button-remove"

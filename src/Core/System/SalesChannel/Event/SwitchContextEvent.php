@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('core')]
+#[Package('framework')]
 class SwitchContextEvent implements ShopwareSalesChannelEvent
 {
     public const CONSISTENT_CHECK = self::class . '.consistent_check';

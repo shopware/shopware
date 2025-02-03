@@ -15,7 +15,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AppLoader
 {
     final public const COMPOSER_TYPE = 'shopware-app';

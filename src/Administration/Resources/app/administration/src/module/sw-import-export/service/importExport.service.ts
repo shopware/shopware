@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import ApiService from 'src/core/service/api.service';
 import type { AxiosInstance } from 'axios';
@@ -150,7 +150,7 @@ export default class ImportExportService extends ApiService {
         );
 
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', formData, {
-            headers: this.getBasicHeaders(),
+            headers: this.getBasicHeaders({'Content-Type': 'multipart/form-data'}),
         });
 
         return this.trackProgress(createdLog, callback);

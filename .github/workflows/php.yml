@@ -2,14 +2,7 @@ name: PHP checks
 
 on:
   pull_request:
-    paths:
-      - "**/composer.json"
-      - changelog/**/*.md
-      - src/**/*.php
-      - src/Core/**/*
-      - src/Elasticsearch/**/*
-      - src/Storefront/DependencyInjection/*
-      - src/**/snippet/**/*.json
+  merge_group:
   workflow_dispatch:
   workflow_call:
 
@@ -77,8 +70,23 @@ jobs:
       - name: Generate Schema
         run: composer run framework:schema:dump
 
+      - name: "Restore result cache"
+        uses: actions/cache/restore@v4
+        with:
+          path: var/cache/phpstan
+          key: "phpstan-result-cache-${{ github.run_id }}"
+          restore-keys: |
+            phpstan-result-cache-
+
       - name: PHPStan
-        run: composer run phpstan -- --error-format=github --no-progress
+        run: composer run phpstan -- --error-format=table --no-progress
+
+      - name: "Save result cache"
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: var/cache/phpstan
+          key: "phpstan-result-cache-${{ github.run_id }}"
 
   bc-checker:
     runs-on: ubuntu-24.04
@@ -149,7 +157,6 @@ jobs:
 
   phpunit:
     name: "PHPUnit for ${{ matrix.suite }}"
-    continue-on-error: ${{ !matrix.stable }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -179,11 +186,18 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          php-version: 8.4
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
       - name: Start Webserver
         run: symfony server:start -d
+
+      - name: Migration test suite setup
+        if: ${{ matrix.suite == 'migration' }}
+        run: |
+          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Core/Migration</directory>|' phpunit.xml.dist
+          echo "FEATURE_ALL=major" >> $GITHUB_ENV
 
       - name: Install Shopware
         run: php src/Core/TestBootstrap.php
@@ -192,9 +206,12 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: coverage.xml
+          flags: phpunit-${{ matrix.suite }}
 
   license-check:
     runs-on: ubuntu-24.04
@@ -233,3 +250,22 @@ jobs:
       - name: Composer audit
         run: |
           composer audit
+
+  php-check:
+    if: always()
+    needs:
+    - lint
+    - phpstan
+    - openapi-lint
+    - phpunit
+    - license-check
+    - composer-audit
+
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        # allowed-failures: docs, linters
+        # allowed-skips: non-voting-flaky-job
+        jobs: ${{ toJSON(needs) }}

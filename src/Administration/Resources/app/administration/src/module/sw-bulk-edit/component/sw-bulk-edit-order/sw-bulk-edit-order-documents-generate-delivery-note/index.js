@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 import template from './sw-bulk-edit-order-documents-generate-delivery-note.html.twig';
 

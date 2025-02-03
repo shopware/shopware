@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtecti
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class EntityExtension
 {
     /**
@@ -40,6 +40,8 @@ abstract class EntityExtension
 
     /**
      * @deprecated tag:v6.7.0 - reason:visibility-change - Becomes abstract
+     *
+     * @abstract
      */
     public function getEntityName(): string
     {

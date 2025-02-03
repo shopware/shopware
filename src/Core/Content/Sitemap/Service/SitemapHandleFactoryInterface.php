@@ -6,7 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 interface SitemapHandleFactoryInterface
 {
     /**

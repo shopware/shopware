@@ -28,7 +28,7 @@
         }
     },
     "require": {
-        "php": "~8.2.0 || ~8.3.0",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
         "doctrine/dbal": "^3.9",
         "pentatrion/vite-bundle": "^7.0",
         "shopware/core": "*",

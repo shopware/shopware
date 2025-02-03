@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 /**
  * @phpstan-type ErrorData array{status: string, code: string, title: string, detail: string, meta: array{parameters: array<string, mixed>}, trace?: array<int, mixed>}
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class ShopwareHttpException extends HttpException implements ShopwareException
 {
     /**

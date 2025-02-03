@@ -1,7 +1,7 @@
 import template from './sw-order-document-settings-delivery-note-modal.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -56,10 +56,10 @@ export default {
             }
         },
 
-        onPreview() {
+        onPreview(fileType = 'pdf') {
             this.$emit('loading-preview');
             this.documentConfig.custom.deliveryNoteNumber = this.documentConfig.documentNumber;
-            this.$super('onPreview');
+            this.$super('onPreview', fileType);
         },
     },
 };

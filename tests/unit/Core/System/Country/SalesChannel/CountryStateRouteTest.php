@@ -24,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(CountryStateRoute::class)]
 class CountryStateRouteTest extends TestCase
 {
@@ -35,7 +35,7 @@ class CountryStateRouteTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
 
-        $this->salesChannelContext = Generator::createSalesChannelContext(
+        $this->salesChannelContext = Generator::generateSalesChannelContext(
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
             salesChannel: $salesChannel
         );

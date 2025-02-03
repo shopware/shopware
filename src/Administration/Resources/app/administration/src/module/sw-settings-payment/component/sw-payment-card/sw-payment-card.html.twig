@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_payment_card %}
 <sw-card
     position-identifier="sw-payment-card"
@@ -7,7 +6,6 @@
 >
     <div class="sw-payment-card_content">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_payment_card_preview %}
         <img
             v-if="previewUrl"
@@ -17,14 +15,12 @@
         >
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_payment_card_description %}
         <div class="sw-payment-card__description">
             <span v-html="paymentMethod.translated.description"></span>
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_payment_card_link %}
         <sw-internal-link
             :router-link="{ name: 'sw.settings.payment.detail', params: { id: paymentMethod.id }}"
@@ -35,7 +31,6 @@
         </sw-internal-link>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_payment_card_toggle %}
         <sw-switch-field
             v-tooltip="{ message: $tc('sw-settings-payment.overview.missingEditorPermission'), disabled: acl.can('payment.editor') }"

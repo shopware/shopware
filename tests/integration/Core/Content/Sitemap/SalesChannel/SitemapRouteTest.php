@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 #[Group('store-api')]
 class SitemapRouteTest extends TestCase
 {
@@ -52,7 +52,7 @@ class SitemapRouteTest extends TestCase
         $context = static::getContainer()->get(SalesChannelContextFactory::class)->create('', $this->ids->get('sales-channel'));
 
         $fs = static::getContainer()->get('shopware.filesystem.sitemap');
-        $fs->write('sitemap/salesChannel-' . $context->getSalesChannel()->getId() . '-' . $context->getLanguageId() . '/test.xml', 'some content');
+        $fs->write('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/test.xml', 'some content');
 
         $this->browser->request('POST', '/store-api/sitemap');
 

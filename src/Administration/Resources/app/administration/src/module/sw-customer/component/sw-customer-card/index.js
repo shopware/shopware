@@ -5,7 +5,7 @@ import CUSTOMER from '../../constant/sw-customer.constant';
 import ApiService from '../../../../core/service/api.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin, Defaults } = Shopware;

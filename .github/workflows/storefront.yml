@@ -2,8 +2,7 @@ name: Storefront checks and tests
 
 on:
   pull_request:
-    paths:
-      - src/Storefront/Resources/app/storefront/**/*
+  merge_group:
   workflow_dispatch:
   workflow_call:
 
@@ -70,6 +69,14 @@ jobs:
           npm ci
           npm run unit -- --silent
 
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: build/artifacts/jest/cobertura-coverage.xml
+          flags: jest-storefront
+
   license-check:
     runs-on: ubuntu-24.04
     name: "License check"
@@ -100,3 +107,19 @@ jobs:
             --onlyAllow "$(tr \\n \; < ${{ github.workspace }}/.allowed-licenses)" \
             --excludePackages "${WHITELISTED_JS_PACKAGES}" \
             --excludePrivatePackages
+
+  storefront-check:
+      if: always()
+      needs:
+      - lint
+      - jest
+      - license-check
+
+      runs-on: Ubuntu-latest
+      steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          # allowed-failures: docs, linters
+          # allowed-skips: non-voting-flaky-job
+          jobs: ${{ toJSON(needs) }}

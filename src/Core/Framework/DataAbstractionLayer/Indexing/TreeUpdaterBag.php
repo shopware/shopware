@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class TreeUpdaterBag
 {
     private array $entities = [];

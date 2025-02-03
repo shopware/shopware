@@ -21,7 +21,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEnt
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
     final public const EXPLAIN_MODE = 'explain-mode';

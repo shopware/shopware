@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TokenParser\TokenParserInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class NodeExtension extends AbstractExtension
 {
     /**

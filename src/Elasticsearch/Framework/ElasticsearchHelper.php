@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchHelper
 {
     // max for default configuration

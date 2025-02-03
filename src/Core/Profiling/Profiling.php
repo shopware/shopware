@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Profiling extends Bundle
 {
     public function getTemplatePriority(): int

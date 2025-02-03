@@ -1,24 +1,24 @@
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 import CMS from '../../../constant/sw-cms.constant';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-preview-text-on-image', () => import('./preview'));
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-block-text-on-image', () => import('./component'));
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-on-image',

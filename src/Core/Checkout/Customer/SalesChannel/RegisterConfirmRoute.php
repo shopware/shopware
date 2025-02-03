@@ -95,13 +95,13 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ],
-            $context->getSalesChannel()->getId(),
+            $context->getSalesChannelId(),
             $customer->getId()
         );
 
         $new = $this->contextService->get(
             new SalesChannelContextServiceParameters(
-                $context->getSalesChannel()->getId(),
+                $context->getSalesChannelId(),
                 $newToken,
                 $context->getLanguageId(),
                 $context->getCurrencyId(),

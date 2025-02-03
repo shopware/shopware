@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemInCategoryRule::class)]
 #[Group('rules')]
 class LineItemInCategoryRuleTest extends TestCase

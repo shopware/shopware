@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'system:restore',
     description: 'Restores the database from a file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemRestoreDatabaseCommand extends Command
 {
     public function __construct(

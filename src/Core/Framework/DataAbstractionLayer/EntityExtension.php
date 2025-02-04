@@ -38,17 +38,5 @@ abstract class EntityExtension
      */
     abstract public function getDefinitionClass(): string;
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:visibility-change - Becomes abstract
-     *
-     * @abstract
-     */
-    public function getEntityName(): string
-    {
-        if (EnvironmentHelper::getVariable('APP_ENV') === 'dev') {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0', 'Method will be abstract'));
-        }
-
-        return '';
-    }
+    abstract public function getEntityName(): string;
 }

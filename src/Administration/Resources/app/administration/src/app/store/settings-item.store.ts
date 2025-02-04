@@ -1,12 +1,15 @@
 const { hasOwnProperty } = Shopware.Utils.object;
 
-interface SettingsItem {
+/**
+ * @private
+ */
+export interface SettingsItem {
     name?: string;
-    group: 'shop' | 'system' | 'plugins' | (() => 'shop' | 'system' | 'plugins');
+    group: string | (() => string);
     icon?: string;
     id?: string;
     label?: string;
-    to:
+    to?:
         | {
               name: string;
               params?: {
@@ -25,19 +28,7 @@ const settingsItems = Shopware.Store.register({
     id: 'settingsItems',
 
     state: (): {
-        settingsGroups: {
-            general: SettingsItem[];
-            customer: SettingsItem[];
-            automation: SettingsItem[];
-            localization: SettingsItem[];
-            content: SettingsItem[];
-            commerce: SettingsItem[];
-            system: SettingsItem[];
-            account: SettingsItem[];
-            plugins: SettingsItem[];
-            shop: SettingsItem[];
-
-        };
+        settingsGroups: Record<string, SettingsItem[]>;
     } => {
         return {
             settingsGroups: {

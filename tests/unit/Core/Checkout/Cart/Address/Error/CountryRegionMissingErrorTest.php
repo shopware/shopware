@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(CountryRegionMissingError::class)]
 class CountryRegionMissingErrorTest extends TestCase
 {
-    public function testAPI(): void
+    public function testGetMessageKeyIsIdenticalToGetId(): void
     {
         $error = new class extends CountryRegionMissingError {
             public function getId(): string
@@ -23,7 +23,6 @@ class CountryRegionMissingErrorTest extends TestCase
             }
         };
 
-        static::assertSame('country-region-missing', $error->getId());
         static::assertSame('country-region-missing', $error->getMessageKey());
         static::assertSame(10, $error->getLevel());
         static::assertTrue($error->blockOrder());

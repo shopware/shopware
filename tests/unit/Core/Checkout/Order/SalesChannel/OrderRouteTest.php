@@ -91,6 +91,6 @@ class OrderRouteTest extends TestCase
         /** @var OrderEntity $responseOrder */
         $responseOrder = $route->load(new Request(), $context, new Criteria())->getOrders()->first();
 
-        static::assertEquals($order->getId(), $responseOrder->getId());
+        static::assertSame($order->getId(), $responseOrder->getId());
     }
 }

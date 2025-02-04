@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -19,6 +20,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(OrderConverterController::class)]
 class OrderConverterControllerTest extends TestCase
 {
@@ -64,6 +66,6 @@ class OrderConverterControllerTest extends TestCase
         $response = $controller->convertToCart($orderId, Context::createDefaultContext());
         $data = json_decode((string) $response->getContent(), true);
 
-        static::assertEquals($cart->getToken(), $data['token']);
+        static::assertSame($cart->getToken(), $data['token']);
     }
 }

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureStateHandler;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -16,6 +17,7 @@ use Shopware\Core\System\StateMachine\Transition;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(OrderTransactionCaptureStateHandler::class)]
 class OrderTransactionCaptureStateHandlerTest extends TestCase
 {

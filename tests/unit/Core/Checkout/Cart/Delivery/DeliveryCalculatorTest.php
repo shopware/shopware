@@ -27,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Tax\TaxEntity;
 
 /**
  * @internal
@@ -66,7 +65,6 @@ class DeliveryCalculatorTest extends TestCase
         $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
         $newCosts = null;
         $delivery->expects(static::once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
-            /** @var CalculatedPrice $newCosts */
             $newCosts = $costsParameter;
         });
 
@@ -115,7 +113,8 @@ class DeliveryCalculatorTest extends TestCase
         );
 
         $deliveryCalculator->calculate($data, $cart, new DeliveryCollection([$delivery]), $context);
-        static::assertNotNull($newCosts);
+
+        static::assertInstanceOf(CalculatedPrice::class, $newCosts);
         static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
         static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());
     }
@@ -138,7 +137,6 @@ class DeliveryCalculatorTest extends TestCase
             ->expects(static::once())
             ->method('setShippingCosts')
             ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
-                /** @var CalculatedPrice $newCosts */
                 $newCosts = $costsParameter;
             });
 
@@ -185,7 +183,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
 
-        static::assertNotNull($newCosts);
+        static::assertInstanceOf(CalculatedPrice::class, $newCosts);
         static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
         static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());
     }
@@ -222,7 +220,6 @@ class DeliveryCalculatorTest extends TestCase
             ->expects(static::once())
             ->method('setShippingCosts')
             ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
-                /** @var CalculatedPrice $newCosts */
                 $newCosts = $costsParameter;
             });
 
@@ -239,7 +236,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
 
-        static::assertNotNull($newCosts);
+        static::assertInstanceOf(CalculatedPrice::class, $newCosts);
         static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
         static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());
     }

@@ -37,7 +37,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         $result = $service->countUnusedCustomers(Context::createDefaultContext());
 
-        static::assertEquals(0, $result);
+        static::assertSame(0, $result);
     }
 
     public function testCountConfig(): void
@@ -55,7 +55,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         $result = $service->countUnusedCustomers(Context::createDefaultContext());
 
-        static::assertEquals(2, $result);
+        static::assertSame(2, $result);
     }
 
     public function testDeleteCustomer(): void
@@ -87,7 +87,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         $result = $service->deleteUnusedCustomers(Context::createDefaultContext());
 
-        static::assertEquals($deleteIds, $result);
+        static::assertSame($deleteIds, $result);
     }
 
     protected function createCustomer(): CustomerEntity

@@ -336,14 +336,14 @@ class AccountServiceTest extends TestCase
             ->method('dispatch')
             ->with(static::callback(function ($event) use ($context, $customer): bool {
                 if ($event instanceof CustomerBeforeLoginEvent) {
-                    static::assertEquals($context, $event->getSalesChannelContext());
-                    static::assertEquals($customer->getEmail(), $event->getEmail());
+                    static::assertSame($context, $event->getSalesChannelContext());
+                    static::assertSame($customer->getEmail(), $event->getEmail());
 
                     return true;
                 }
 
                 if ($event instanceof CustomerLoginEvent) {
-                    static::assertEquals($customer, $event->getCustomer());
+                    static::assertSame($customer, $event->getCustomer());
 
                     return true;
                 }

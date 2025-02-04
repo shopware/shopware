@@ -55,7 +55,8 @@
             "composer/package-versions-deprecated": true,
             "phpstan/extension-installer": true,
             "cweagans/composer-patches": true,
-            "symfony/runtime": true
+            "symfony/runtime": true,
+            "php-http/discovery": false
         }
     },
     "require": {

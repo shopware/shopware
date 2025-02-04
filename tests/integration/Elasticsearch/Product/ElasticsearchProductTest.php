@@ -4063,6 +4063,8 @@ class ElasticsearchProductTest extends TestCase
 
 /**
  * @internal
+ *
+ * @phpstan-ignore class.extendsFinalByPhpDoc
  */
 class EsAwareCriteria extends Criteria
 {

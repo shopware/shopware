@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -286,37 +285,6 @@ class TranslatorTest extends TestCase
             'locale' => 'de-DE',
             'requestSnippetSetId' => $expectedSnippetSetId,
         ];
-    }
-
-    /**
-     * @param array<string> $tags
-     */
-    #[DataProvider('provideTracingExamples')]
-    public function testTracing(bool $enabled, array $tags): void
-    {
-        Feature::skipTestIfActive('cache_rework', $this);
-
-        $translator = new Translator(
-            $this->createMock(SymfonyTranslator::class),
-            new RequestStack(),
-            $this->createMock(CacheInterface::class),
-            $this->createMock(MessageFormatterInterface::class),
-            'prod',
-            $this->createMock(Connection::class),
-            $this->createMock(LanguageLocaleCodeProvider::class),
-            $this->createMock(SnippetService::class),
-            $enabled,
-            new EventDispatcher()
-        );
-
-        $translator->trace('foo', function () use ($translator) {
-            return $translator->trans('foo');
-        });
-
-        static::assertSame(
-            $tags,
-            $translator->getTrace('foo')
-        );
     }
 
     public static function provideTracingExamples(): \Generator

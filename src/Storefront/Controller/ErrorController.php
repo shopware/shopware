@@ -30,10 +30,8 @@ class ErrorController extends StorefrontController
      */
     public function __construct(
         private readonly ErrorTemplateResolver $errorTemplateResolver,
-        private readonly HeaderPageletLoaderInterface $headerPageletLoader,
         private readonly SystemConfigService $systemConfigService,
         private readonly ErrorPageLoaderInterface $errorPageLoader,
-        private readonly FooterPageletLoaderInterface $footerPageletLoader
     ) {
     }
 
@@ -62,14 +60,6 @@ class ErrorController extends StorefrontController
                 );
             } else {
                 $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
-
-                /* @deprecated tag:v6.7.0 - Remove the whole if branch as it is not needed anymore */
-                if (!$request->isXmlHttpRequest() && !Feature::isActive('cache_rework')) {
-                    $header = $this->headerPageletLoader->load($request, $context);
-                    $footer = $this->footerPageletLoader->load($request, $context);
-                    $errorTemplate->setHeader($header);
-                    $errorTemplate->setFooter($footer);
-                }
 
                 $response = $this->renderStorefront($errorTemplate->getTemplateName(), ['page' => $errorTemplate]);
             }

@@ -101,7 +101,7 @@
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
             <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
-            <argument>%shopware.cache.tagging.each_theme_config%</argument>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">
@@ -259,11 +259,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\GenericPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

@@ -128,9 +128,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         ) ?: '';
 
         $navigationPathIdList = array_filter(explode('|', $path));
-        if (Feature::isActive('cache_rework')) {
-            $navigationPathIdList = array_diff($navigationPathIdList, [$context->getSalesChannel()->getNavigationCategoryId()]);
-        }
 
         return array_values($navigationPathIdList);
     }

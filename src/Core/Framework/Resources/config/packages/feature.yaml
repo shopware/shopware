@@ -36,11 +36,6 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Enable OpenTelemetry metrics"
-      - name: cache_rework
-        default: false
-        major: true
-        toggleable: false
-        description: "Rework of http cache and store api cache"
       - name: DYNAMIC_ENTITY_EXTENSIONS
         default: false
         major: true

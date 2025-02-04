@@ -84,13 +84,11 @@
         <service id="Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\BaseContextFactory">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory.inner"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" decoration-priority="-1000">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory.inner"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService">

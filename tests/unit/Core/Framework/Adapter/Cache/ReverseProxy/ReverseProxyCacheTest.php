@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
-use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -113,11 +112,7 @@ class ReverseProxyCacheTest extends TestCase
         $tracer = $this->createMock(CacheTracer::class);
 
         $collector = $this->createMock(CacheTagCollector::class);
-        if (Feature::isActive('cache_rework')) {
-            $collector->expects(static::once())->method('get')->willReturn(['product-1', 'category-1']);
-        } else {
-            $tracer->expects(static::once())->method('get')->willReturn(['product-1', 'category-1']);
-        }
+        $collector->expects(static::once())->method('get')->willReturn(['product-1', 'category-1']);
 
         $store = new ReverseProxyCache($gateway, $tracer, [], $collector);
 

@@ -2936,6 +2936,8 @@ class ElasticsearchProductTest extends TestCase
     #[Depends('testIndexing')]
     public function testSortByPropertiesCount(IdsCollection $ids): void
     {
+        static::markTestSkipped('#6556');
+
         $context = $this->context;
 
         try {

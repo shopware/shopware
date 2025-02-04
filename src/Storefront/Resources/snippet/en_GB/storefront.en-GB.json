@@ -488,7 +488,7 @@
     "confirmRevocationNoticePage": "Please note our <a href=\"%url%\">cancellation policy</a>.",
     "confirmTermsText": "I have read and accepted the <button type=\"button\" class=\"btn btn-link-inline\" data-ajax-modal=\"true\" data-url=\"%url%\">general terms and conditions</button>.",
     "confirmTermsTextPage": "I have read and accepted the <a href=\"%url%\">general terms and conditions</a>.",
-    "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\">general terms and conditions</a>.",
+    "confirmTermsReminderText": "You have already accepted the <button type=\"button\" class=\"btn btn-link-inline\" data-ajax-modal=\"true\" data-url=\"%url%\">general terms and conditions</a>.",
     "confirmRevocationTerms": "I want immediate access to the digital content and I acknowledge that thereby I waive my right to cancel.",
     "confirmRevocationReminder": "You have already declared that you waive the right of withdrawal.",
     "finishInfoPayment": "Payment method:",

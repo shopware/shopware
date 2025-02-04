@@ -3,11 +3,8 @@
 namespace Shopware\Administration\Login\UserService;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\TokenService\ParsedIdToken;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
-use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -16,11 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('after-sales')]
 final class UserService
 {
-    private const RATE_LIMIT_CACHE_PREFIX = 'shopware-grant-RL-';
-
     public function __construct(
         private readonly Connection $connection,
-        private readonly RateLimiter $rateLimiter,
     ) {
     }
 
@@ -30,16 +24,11 @@ final class UserService
     public function getUser(string $idToken, string $refreshToken): ?ExternalAuthUser
     {
         $parsedIdToken = ParsedIdToken::createFromIdToken($idToken);
-        $cacheKey = self::RATE_LIMIT_CACHE_PREFIX . $parsedIdToken->email;
-
-        $this->ensureRateLimit($cacheKey);
 
         $userSearchResult = $this->searchUser($parsedIdToken, $refreshToken);
         if (!$userSearchResult instanceof ExternalAuthUser) {
             return null;
         }
-
-        $this->resetRateLimit($cacheKey);
 
         if ($userSearchResult->email !== $parsedIdToken->email) {
             $this->updateUser($userSearchResult);
@@ -148,19 +137,5 @@ final class UserService
             ],
             ['id' => Uuid::fromHexToBytes($userSearchResult->id)]
         );
-    }
-
-    private function ensureRateLimit(string $cacheKey): void
-    {
-        try {
-            $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
-        } catch (RateLimitExceededException $exception) {
-            throw LoginException::rateLimitExceeded($exception);
-        }
-    }
-
-    private function resetRateLimit(string $cacheKey): void
-    {
-        $this->rateLimiter->reset(RateLimiter::OAUTH, $cacheKey);
     }
 }

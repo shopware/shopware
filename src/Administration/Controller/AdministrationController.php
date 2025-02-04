@@ -8,6 +8,8 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Login\Config\LoginConfig;
+use Shopware\Administration\Login\Config\LoginConfigService;
+use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\StateValidator;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -72,7 +74,7 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
-        private readonly LoginConfig $loginConfig,
+        private readonly LoginConfigService $loginConfigService,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -118,7 +120,12 @@ class AdministrationController extends AbstractController
     {
         $random = $request->getSession()->get(StateValidator::SESSION_KEY);
 
-        $url = $this->loginConfig->createRedirectUrl($random);
+        $loginConfig = $this->loginConfigService->getConfig();
+        if (!$loginConfig instanceof LoginConfig) {
+            throw LoginException::configurationNotFound();
+        }
+
+        $url = $this->loginConfigService->createRedirectUrl($random, $loginConfig);
 
         return new RedirectResponse($url);
     }

@@ -15,12 +15,21 @@ class LoginException extends HttpException
 {
     final public const LOGIN_CONFIG_INCOMPLETE_OR_MISCONFIGURED = 'LOGIN_CONFIG__INCOMPLETE_OR_MISCONFIGURED';
     final public const LOGIN_USER_NOT_FOUND = 'LOGIN__USER_NOT_FOUND';
+    final public const LOGIN_CONFIG_NOT_FOUND = 'LOGIN__CONFIG_NOT_FOUND';
     final public const LOGIN_RATE_LIMIT_EXCEEDED = 'LOGIN__RATE_LIMIT_EXCEEDED';
     final public const LOGIN_USER_INVALID = 'LOGIN__USER_INVALID';
     final public const LOGIN_INVALID_LOGIN_STATE = 'LOGIN__INVALID_LOGIN_STATE';
     final public const LOGIN_INVALID_TOKEN_RESPONSE = 'LOGIN__INVALID_TOKEN_RESPONSE';
     final public const LOGIN_INVALID_ID_TOKEN_RESPONSE = 'LOGIN__INVALID_ID_TOKEN_RESPONSE';
-    final public const LOGIN_EXPECT_UNENCRYPTED_TOKEN = 'LOGIN__EXPECT_UNENCRYPTED_TOKEN';
+
+    public static function configurationNotFound(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOGIN_CONFIG_NOT_FOUND,
+            'Config not found'
+        );
+    }
 
     /**
      * @param array<string> $fieldErrors

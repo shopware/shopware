@@ -93,41 +93,11 @@ class UserServiceTest extends TestCase
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
     }
 
-    public function testGetUserRateLimiterThrowException(): void
-    {
-        $refreshToken = Uuid::randomHex();
-        $idToken = (new FakeTokenGenerator())->setEmail('not@set.na')->generate();
-
-        $rateLimiter = $this->createRateLimiter();
-
-        $counter = 0;
-        try {
-            while ($counter <= 10) {
-                $this->createUserService($rateLimiter)->getUser($idToken, $refreshToken);
-                ++$counter;
-            }
-        } catch (LoginException $exception) {
-            static::assertSame('Wait for 10 seconds', $exception->getMessage());
-            static::assertSame(LoginException::LOGIN_RATE_LIMIT_EXCEEDED, $exception->getErrorCode());
-            static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
-
-            return;
-        }
-
-        static::fail('LoginException was not thrown');
-    }
-
-    private function createUserService(?RateLimiter $rateLimiter = null): UserService
+    private function createUserService(): UserService
     {
         $connection = $this->getContainer()->get(Connection::class);
-        if ($rateLimiter instanceof RateLimiter) {
-            return new UserService($connection, $rateLimiter);
-        }
 
-        return new UserService(
-            $connection,
-            $this->createMock(RateLimiter::class)
-        );
+        return new UserService($connection);
     }
 
     /**
@@ -156,30 +126,5 @@ class UserServiceTest extends TestCase
         static::assertArrayHasKey('expiry', $result);
 
         return $result;
-    }
-
-    private function createRateLimiter(): RateLimiter
-    {
-        $rateLimiterFactory = new RateLimiterFactory(
-            ['enabled' => true,
-                'policy' => 'time_backoff',
-                'reset' => '24 hours',
-                'limits' => [
-                    ['limit' => 10, 'interval' => '10 seconds'],
-                    ['limit' => 15, 'interval' => '30 seconds'],
-                    ['limit' => 20, 'interval' => '60 seconds'],
-                ],
-                'lock_factory' => 'lock.factory',
-                'cache_pool' => 'cache.rate_limiter',
-                'id' => 'oauth',
-            ],
-            new CacheStorage(new ArrayAdapter()),
-            $this->getContainer()->get(SystemConfigService::class),
-            new LockFactory(new NullStore())
-        );
-        $rateLimiter = new RateLimiter();
-        $rateLimiter->registerLimiterFactory(RateLimiter::OAUTH, $rateLimiterFactory);
-
-        return $rateLimiter;
     }
 }

@@ -78,7 +78,7 @@ class ExternalAuthUserTest extends TestCase
                     'email' => null,
                     'is_new' => false,
                 ],
-                'expected' => 'Login user invalid: [user_id]: is required, [user_sub]: is required, [email]: is required',
+                'expected' => 'Login user invalid: [id]: is required, [user_id]: is required, [user_sub]: is required, [email]: is required',
             ],
 
             'all is blank' => [
@@ -91,7 +91,7 @@ class ExternalAuthUserTest extends TestCase
                     'email' => '',
                     'is_new' => false,
                 ],
-                'expected' => 'Login user invalid: [user_id]: is required, [user_sub]: is required, [expiry]: Needs to be a DateTimeInterface, [email]: is required',
+                'expected' => 'Login user invalid: [id]: is required, [user_id]: is required, [user_sub]: is required, [expiry]: Needs to be a DateTimeInterface, [email]: is required',
             ],
 
             'id is invalid' => [

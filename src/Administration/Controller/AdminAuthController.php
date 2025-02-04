@@ -3,7 +3,7 @@
 namespace Shopware\Administration\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
-use Shopware\Administration\Login\Config\LoginConfig;
+use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\LoginResponseService;
 use Shopware\Administration\Login\StateValidator;
 use Shopware\Core\Framework\Log\Package;
@@ -24,7 +24,7 @@ class AdminAuthController extends AbstractController
     public function __construct(
         private readonly AuthorizationServer $authorizationServer,
         private readonly PsrHttpFactory $psrHttpFactory,
-        private readonly LoginConfig $loginConfig,
+        private readonly LoginConfigService $loginConfigService,
         private readonly LoginResponseService $loginResponseService,
         private readonly StateValidator $stateValidator,
     ) {
@@ -33,8 +33,9 @@ class AdminAuthController extends AbstractController
     #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.config', defaults: ['auth_required' => false], methods: ['GET'])]
     public function loginButtonConfig(Request $request): JsonResponse
     {
-        $templateData = $this->loginConfig->createTemplateData();
-        $request->getSession()->set(StateValidator::SESSION_KEY, $templateData->random);
+        $loginConfig = $this->loginConfigService->getConfig();
+        $random = $this->stateValidator->createRandom($request);
+        $templateData = $this->loginConfigService->createTemplateData($random, $loginConfig);
 
         return new JsonResponse($templateData);
     }
@@ -42,6 +43,8 @@ class AdminAuthController extends AbstractController
     #[Route(path: '/api/oauth/sso/code', name: 'api.oauth.sso.code', defaults: ['auth_required' => false], methods: ['GET'])]
     public function code(Request $request): Response
     {
+        // TODO: NEXT-40530 Ensure request comes only from Alfred!?
+        // TODO: NEXT-40530 Ensure Alfred accepts only requests from Ory
         $this->stateValidator->validateRequest($request);
 
         $psr7Request = $this->psrHttpFactory->createRequest($request);

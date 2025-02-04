@@ -24,7 +24,6 @@ class StateValidatorTest extends TestCase
     #[DataProvider('validateTestDataProvider')]
     public function testValidate(?string $state, ?string $storedState, bool $expectException): void
     {
-        $loginConfig = $this->createLoginConfig();
         $validator = new StateValidator();
 
         $session = $this->createMock(SessionInterface::class);
@@ -58,7 +57,7 @@ class StateValidatorTest extends TestCase
      */
     public static function validateTestDataProvider(): array
     {
-        $validRandom = self::createRandom(LoginConfig::RANDOM_LENGTH);
+        $validRandom = self::createRandom(StateValidator::RANDOM_LENGTH);
 
         return [
             'state and storedState is null' => [
@@ -81,18 +80,18 @@ class StateValidatorTest extends TestCase
 
             'state has invalid length and storedState is set' => [
                 'state' => self::createRandom(99),
-                'storedState' => self::createRandom(LoginConfig::RANDOM_LENGTH),
+                'storedState' => self::createRandom(StateValidator::RANDOM_LENGTH),
                 'expectException' => true,
             ],
 
             'state has valid length and storedState is different' => [
-                'state' => self::createRandom(LoginConfig::RANDOM_LENGTH),
-                'storedState' => self::createRandom(LoginConfig::RANDOM_LENGTH),
+                'state' => self::createRandom(StateValidator::RANDOM_LENGTH),
+                'storedState' => self::createRandom(StateValidator::RANDOM_LENGTH),
                 'expectException' => true,
             ],
 
             'state is valid and storedState is null' => [
-                'state' => self::createRandom(LoginConfig::RANDOM_LENGTH),
+                'state' => self::createRandom(StateValidator::RANDOM_LENGTH),
                 'storedState' => null,
                 'expectException' => true,
             ],
@@ -103,22 +102,6 @@ class StateValidatorTest extends TestCase
                 'expectException' => false,
             ],
         ];
-    }
-
-    private function createLoginConfig(): LoginConfig
-    {
-        return new LoginConfig(
-            [
-                'use_default' => true,
-                'client_id' => 'client-id',
-                'client_secret' => 'client-secret',
-                'redirect_uri' => 'https://redirect.uri',
-                'base_url' => 'https://base.url',
-                'session_key' => 'session-key',
-            ],
-            'http://app.url',
-            '/admin',
-        );
     }
 
     private static function createRandom(int $length): string

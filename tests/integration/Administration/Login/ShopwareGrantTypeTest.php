@@ -8,7 +8,7 @@ use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
 use Nyholm\Psr7\Response as Psr7Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\Config\LoginConfig;
+use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\ShopwareGrantType;
 use Shopware\Administration\Login\TokenService\ExternalTokenService;
 use Shopware\Administration\Login\UserService\UserService;
@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\ScopeRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -113,7 +112,7 @@ class ShopwareGrantTypeTest extends TestCase
         $client = $this->createMock(HttpClientInterface::class);
         $client->expects(static::once())->method('request')->willReturn($responseInterface);
 
-        $loginConfig = new LoginConfig(
+        $loginConfig = new LoginConfigService(
             [
                 'use_default' => false,
                 'client_id' => 'client_id',
@@ -133,7 +132,6 @@ class ShopwareGrantTypeTest extends TestCase
     {
         return new UserService(
             $this->getContainer()->get(Connection::class),
-            $this->createMock(RateLimiter::class),
         );
     }
 }

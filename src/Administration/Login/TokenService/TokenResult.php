@@ -35,8 +35,7 @@ final class TokenResult
 
         self::validateResponse($response);
 
-        // TODO: Validate id_token
-
+        // TODO: NEXT-40528 Validate id_token
         return new self(
             $response['id_token'],
             $response['access_token'],

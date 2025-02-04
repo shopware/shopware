@@ -70,7 +70,6 @@ class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
 
         if (!$user instanceof ExternalAuthUser) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
-            // TODO: Ensure correct exception is thrown
             throw LoginException::userNotFound();
         }
 

@@ -24,9 +24,6 @@ interface TokenResponse {
 
 interface LoginConfig {
     useDefault: boolean;
-    snippetKey: string;
-    icon: string;
-    class: string;
     url: string;
 }
 

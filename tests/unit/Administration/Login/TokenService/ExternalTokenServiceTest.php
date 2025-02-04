@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Login\TokenService;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\Config\LoginConfig;
+use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\TokenService\ExternalTokenService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
@@ -48,7 +48,7 @@ class ExternalTokenServiceTest extends TestCase
         $client = $this->createMock(HttpClientInterface::class);
         $client->expects(static::once())->method('request')->willReturn($responseInterface);
 
-        $loginConfig = new LoginConfig(
+        $loginConfigService = new LoginConfigService(
             [
                 'use_default' => false,
                 'client_id' => 'client_id',
@@ -61,6 +61,6 @@ class ExternalTokenServiceTest extends TestCase
             ''
         );
 
-        return new ExternalTokenService($client, $loginConfig);
+        return new ExternalTokenService($client, $loginConfigService);
     }
 }

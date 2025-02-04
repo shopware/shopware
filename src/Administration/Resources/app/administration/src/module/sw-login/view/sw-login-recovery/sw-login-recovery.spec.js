@@ -65,7 +65,6 @@ async function createWrapper() {
                 'sw-contextual-field': true,
                 'router-link': true,
                 'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-alert': await Shopware.Component.build('sw-alert'),
                 'sw-icon': true,
                 'sw-button-deprecated': true,
             },

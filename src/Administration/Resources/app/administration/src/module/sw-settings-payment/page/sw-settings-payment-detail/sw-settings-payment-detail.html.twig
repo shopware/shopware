@@ -234,12 +234,12 @@
                     :title="$tc('sw-settings-payment.detail.delete.textHeadline')"
                     :is-loading="isLoading"
                 >
-                    <sw-alert
+                    <mt-banner
                         v-if="forbidDelete"
                         variant="info"
                     >
                         {{ $tc('sw-settings-payment.detail.delete.textAlert') }}
-                    </sw-alert>
+                    </mt-banner>
 
                     <div class="sw-settings-payment-detail-delete__container">
                         <sw-button

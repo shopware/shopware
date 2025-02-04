@@ -162,7 +162,7 @@ async function createWrapper(
                     'sw-button': true,
                     'sw-verify-user-modal': true,
                     'sw-media-modal-v2': true,
-                    'sw-alert': true,
+
                     'sw-text-field-deprecated': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,

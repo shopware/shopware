@@ -79,7 +79,7 @@
         <sw-card-view>
             {% block sw_customer_detail_content_customer_group_registration %}
             <div class="sw-customer-detail__customer-registration-alert">
-                <sw-alert
+                <mt-banner
                     v-if="customer && customer.requestedGroup"
                     variant="info"
                 >
@@ -109,7 +109,7 @@
                         {% endblock %}
                     </div>
                     {% endblock %}
-                </sw-alert>
+                </mt-banner>
             </div>
             {% endblock %}
 

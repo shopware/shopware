@@ -9,13 +9,13 @@
     <div class="sw-promotion-v2-generate-codes-modal__content">
 
         {% block sw_promotion_v2_generate_codes_modal_warning %}
-        <sw-alert
+        <mt-banner
             v-if="promotion.individualCodes && promotion.individualCodes.length > 0"
             class="sw-promotion-v2-generate-codes-modal__warning"
-            variant="warning"
+            variant="attention"
         >
             {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.warning') }}
-        </sw-alert>
+        </mt-banner>
         {% endblock %}
 
         {% block sw_promotion_v2_generate_codes_modal_description %}

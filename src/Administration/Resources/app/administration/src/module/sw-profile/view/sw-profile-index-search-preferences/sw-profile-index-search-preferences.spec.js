@@ -28,7 +28,7 @@ async function createWrapper() {
                     'sw-checkbox-field': true,
                     'sw-loader': true,
                     'sw-extension-component-section': true,
-                    'sw-alert': true,
+
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
                     'router-link': true,

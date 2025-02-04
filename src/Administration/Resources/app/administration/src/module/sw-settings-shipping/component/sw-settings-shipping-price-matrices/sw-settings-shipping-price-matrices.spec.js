@@ -19,7 +19,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             sync: true,
                         }),
                         'sw-card': true,
-                        'sw-alert': true,
+
                         'sw-container': true,
                         'sw-select-rule-create': true,
                         'sw-single-select': true,

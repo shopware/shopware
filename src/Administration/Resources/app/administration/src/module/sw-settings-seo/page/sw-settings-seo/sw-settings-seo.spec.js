@@ -41,7 +41,7 @@ async function createWrapper() {
                     'sw-help-center-v2': true,
                     'router-link': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-ai-copilot-badge': true,

@@ -70,7 +70,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                         </div>
                     `,
                     },
-                    'sw-alert': true,
+
                     'sw-container': true,
                     'sw-switch-field': true,
                     'sw-number-field': true,

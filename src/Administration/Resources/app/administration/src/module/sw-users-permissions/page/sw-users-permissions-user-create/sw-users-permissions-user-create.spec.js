@@ -105,7 +105,6 @@ async function createWrapper(privileges = []) {
                     'sw-button-process': true,
                     'sw-verify-user-modal': true,
                     'sw-media-modal-v2': true,
-                    'sw-alert': true,
                 },
             },
         },

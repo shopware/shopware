@@ -25,12 +25,13 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
 
         /*
         TODO: needs to be implemented in Advanced Search by the Golden Stars team
+        test the pipeline
          */
-        // await test.step('Customer searches term and sees a single matching product', async () => {
-        //     await ShopCustomer.attemptsTo(SearchForTerm('Bowl' + productNameSuffix));
-        //     const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
-        //     await ShopCustomer.expects(totalCount1).toBe(1);
-        // });
+        await test.step('Customer searches term and sees a single matching product', async () => {
+            await ShopCustomer.attemptsTo(SearchForTerm('Bowl' + productNameSuffix));
+            const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
+            await ShopCustomer.expects(totalCount1).toBe(1);
+        });
 
         await test.step('Customer searches for a partial term and sees multiple matching products', async () => {
             await ShopCustomer.attemptsTo(SearchForTerm('Bo'));

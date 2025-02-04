@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_slot %}
 <div
     :id="slotElementId"
@@ -6,10 +5,8 @@
     :class="componentClasses"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_component %}
     <component
         :is="elementConfig.component"
@@ -55,7 +52,6 @@
         <sw-skeleton-bar style="width: 100%; min-height: 250px;" />
     </div>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_preview_overlay %}
     <div
         v-if="!active"
@@ -63,16 +59,13 @@
     ></div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_overlay %}
     <div
         v-if="active"
         class="sw-cms-slot__overlay"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_overlay_content %}
         <div class="sw-cms-slot__actions">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_overlay_action_settings %}
             <div
                 v-tooltip.bottom="tooltipDisabled"
@@ -90,7 +83,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_overlay_action_swap %}
             <div
                 v-if="elementConfig?.removable !== false"
@@ -111,7 +103,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_settings_modal %}
     <sw-modal
         v-if="showElementSettings"
@@ -120,7 +111,6 @@
         :title="$tc('sw-cms.detail.title.elementSettingsModal')"
         @modal-close="onCloseSettingsModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_settings_modal_component %}
         <component
             :is="elementConfig.configComponent"
@@ -130,10 +120,8 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_settings_modal_footer %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_settings_modal_action_confirm %}
             <sw-button
                 variant="primary"
@@ -147,17 +135,14 @@
     </sw-modal>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_element_modal %}
     <sw-modal
         v-if="showElementSelection"
         :title="$tc('sw-cms.detail.title.elementChangeModal')"
         @modal-close="onCloseElementModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_element_modal_selection %}
         <div class="sw-cms-slot__modal-container">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_element_modal_selection_groups %}
             <sw-sidebar-collapse
                 v-for="cmsElementGroup in groupedCmsElements"
@@ -171,7 +156,6 @@
 
                 <template #content>
                     <div class="sw-cms-slot__element-selection">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_slot_content_element_modal_selection_element %}
                         <template
                             v-for="element in cmsElementGroup.items"
@@ -182,7 +166,6 @@
                                 class="element-selection__element-wrapper"
                             >
                                 <div class="element-selection__element">
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_slot_content_element_modal_selection_element_component %}
                                     <component
                                         :is="element.previewComponent"
@@ -191,7 +174,6 @@
                                     />
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
                                     <div
                                         class="element-selection__overlay element-selection__overlay-action-select"
@@ -207,7 +189,6 @@
                                     </div>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_slot_content_element_modal_selection_element_overlay_favorite %}
                                     <div
                                         class="element-selection__overlay element-selection__overlay-action-favorite"
@@ -230,7 +211,6 @@
                                 {% endblock %}
                                 </div>
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_slot_content_element_modal_selection_element_label %}
                                 <span class="element-selection__label">{{ $tc(element.label) }}</span>
                             {% endblock %}
@@ -244,11 +224,9 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_element_modal_footer %}
         <template #modal-footer>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_element_modal_action_abort %}
             <sw-button @click="onCloseElementModal">
                 {{ $tc('global.default.cancel') }}

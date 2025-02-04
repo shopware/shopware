@@ -67,16 +67,9 @@ Component.register('sw-data-grid-inline-edit', {
     methods: {
         createdComponent() {
             this.currentValue = this.value;
-
-            if (this.isCompatEnabled('INSTANCE_CHILDREN') && this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$parent.$parent.$on('inline-edit-assign', this.emitInput);
-            }
         },
 
         beforeDestroyComponent() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN') && this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$parent.$parent.$off('inline-edit-assign', this.emitInput);
-            }
         },
 
         emitInput() {

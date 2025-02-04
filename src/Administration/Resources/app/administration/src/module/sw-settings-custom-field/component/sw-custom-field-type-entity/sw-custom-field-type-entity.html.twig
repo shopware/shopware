@@ -1,18 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_base_content %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_options %}{% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_add_option %}{% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_multi %}{% endblock %}
 
 {% parent() %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_entity_type %}
 <sw-single-select
     v-model:value="currentCustomField.config.entity"
@@ -25,7 +20,6 @@
 />
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_entity_multi %}{% endblock %}
 
 {% endblock %}

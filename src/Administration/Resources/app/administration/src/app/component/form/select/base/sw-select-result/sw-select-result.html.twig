@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_select_result %}
 <!--  eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <li
@@ -10,27 +9,22 @@
     @mouseenter="onMouseEnter"
     @click.stop="onClickResult"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_result_item_preview %}
     <span class="sw-select-result__result-item-preview">
         <slot name="preview"></slot>
     </span>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_result_item_text_holder %}
     <span class="sw-select-result__result-item-text">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_select_result_item_text %}
         <slot></slot>
         {% endblock %}
     </span>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_result_item_icon_transition %}
     <transition name="sw-select-result-appear">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_select_result_item_icon %}
         <sw-icon
             v-if="selected"
@@ -41,13 +35,11 @@
     </transition>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_result_item_description_holder %}
     <span
         v-if="hasDescriptionSlot"
         class="sw-select-result__result-item-description"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_select_result_item_description %}
         <slot name="description"></slot>
         {% endblock %}

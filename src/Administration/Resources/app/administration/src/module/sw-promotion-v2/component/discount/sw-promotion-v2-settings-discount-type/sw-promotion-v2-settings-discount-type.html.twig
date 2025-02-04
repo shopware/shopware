@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_settings_discount_type %}
 <div class="sw-promotion-v2-settings-discount-type">
     <sw-container
@@ -6,7 +5,6 @@
         gap="20px"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_type %}
         <sw-select-field
             v-model:value="discount.type"
@@ -15,7 +13,6 @@
             :disabled="!acl.can('promotion.editor')"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_settings_discount_type_type_options %}
             <option
                 v-for="selection in getDiscountTypeSelection()"
@@ -30,7 +27,6 @@
         </sw-select-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_price %}
         <sw-number-field
             v-model:value="discount.value"
@@ -42,7 +38,6 @@
             :disabled="discount.type === 'free' || !acl.can('promotion.editor')"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_settings_discount_type_price_suffix %}
             <template #suffix>
                 <span v-if="isPercentageType">%</span>
@@ -60,7 +55,6 @@
         gap="20px"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_apply_discount_to %}
         <sw-select-field
             v-model:value="discount.applierKey"
@@ -69,7 +63,6 @@
             :disabled="discount.type === 'free' || !acl.can('promotion.editor')"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_settings_discount_type_apply_discount_to_options %}
             <option
                 v-for="selection in getApplyDiscountToSelection()"
@@ -84,7 +77,6 @@
         </sw-select-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_max_discount_value %}
         <sw-number-field
             v-model:value="discount.maxValue"
@@ -96,7 +88,6 @@
             @update:value="onMaxValueChanged"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_settings_discount_type_max_discount_value_suffix %}
             <template #suffix>
                 <span>{{ currencySymbol }}</span>
@@ -108,7 +99,6 @@
 
     </sw-container>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_settings_discount_type_advanced_prices_link %}
     <a
         v-if="showAdvancedPricesLink"
@@ -126,7 +116,6 @@
     </a>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal %}
     <sw-modal
         v-if="displayAdvancedPricesModal"
@@ -135,7 +124,6 @@
         @modal-close="onCloseAdvancedPricesModal"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid %}
         <sw-one-to-many-grid
             :collection="discount.promotionDiscountPrices"
@@ -145,7 +133,6 @@
             :show-actions="!acl.can('promotion.editor')"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_name %}
             <template #column-currency.translated.name="{ item }">
                 <p class="sw-promotion-v2-settings-discounts-type__advances-prices-column-name">
@@ -154,7 +141,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_price %}
             <template #column-price="{ item }">
                 <sw-number-field
@@ -165,7 +151,6 @@
                     :disabled="!acl.can('promotion.editor')"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_price_suffix %}
                     <template #suffix>
                         {{ item.currency.symbol }}
@@ -179,11 +164,9 @@
         </sw-one-to-many-grid>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_footer %}
         <template #modal-footer>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_footer_button_close %}
             <sw-button
                 variant="primary"

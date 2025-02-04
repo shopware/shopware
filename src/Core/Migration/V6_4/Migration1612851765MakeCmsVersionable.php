@@ -23,7 +23,7 @@ class Migration1612851765MakeCmsVersionable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $playbookGenerator = new MakeVersionableMigrationHelper($connection);
+        $versionableMigrationHelper = new MakeVersionableMigrationHelper($connection);
 
         $tables = [
             'cms_page',
@@ -32,17 +32,12 @@ class Migration1612851765MakeCmsVersionable extends MigrationStep
         ];
 
         foreach ($tables as $table) {
-            $hydratedData = $playbookGenerator->getRelationData($table, 'id');
-            $playbook = $playbookGenerator->createSql($hydratedData, $table, 'version_id', Defaults::LIVE_VERSION);
+            $hydratedData = $versionableMigrationHelper->getRelationData($table, 'id');
+            $playbook = $versionableMigrationHelper->createSql($hydratedData, $table, 'version_id', Defaults::LIVE_VERSION);
 
             foreach ($playbook as $query) {
                 $connection->executeStatement($query);
             }
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // Nothing to do here
     }
 }

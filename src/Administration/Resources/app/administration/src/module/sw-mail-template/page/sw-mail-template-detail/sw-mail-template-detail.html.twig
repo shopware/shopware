@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_mail_template_detail %}
 <sw-page class="sw-mail-template-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="mailTemplate">
@@ -17,10 +15,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_mail_template_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="{
@@ -34,7 +30,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_mail_template_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -52,7 +47,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -63,7 +57,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_detail_content %}
     <template #content>
         <sw-card-view sidebar>
@@ -73,20 +66,17 @@
             </template>
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_detail_content_language_info %}
                 <sw-language-info
                     :entity-description="placeholder(mailTemplate.mailTemplateType, 'name', $tc('sw-mail-template.detail.textHeadline'))"
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_detail_basic_info %}
                 <sw-card
                     :title="$tc('sw-mail-template.detail.basic.titleCard')"
                     position-identifier="sw-mail-template-detail-basic-info"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_basic_form_mail_type_field %}
                     <sw-entity-single-select
                         id="mailTemplateTypes"
@@ -103,7 +93,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_basic_form_description_field %}
                     <sw-textarea-field
                         v-model:value="mailTemplate.description"
@@ -116,7 +105,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_detail_options_info %}
                 <sw-card
                     position-identifier="sw-mail-template-detail-options-info"
@@ -129,7 +117,6 @@
                     >
                         <div class="sw-mail-template-detail__options-info-wrapper">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_mail_template_options_form_subject_field %}
                             <sw-text-field
                                 v-model:value="mailTemplate.subject"
@@ -143,7 +130,6 @@
                             {% endblock %}
                         </div>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_mail_template_options_form_sender_name_field %}
                         <sw-text-field
                             v-model:value="mailTemplate.senderName"
@@ -157,13 +143,11 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_detail_attachments_info %}
                 <sw-card
                     :title="$tc('sw-mail-template.detail.media.titleCard')"
                     position-identifier="sw-mail-template-detail-atttachments-info"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_detail_attachments_info_upload %}
                     <sw-upload-listener
                         v-if="mailTemplate.id"
@@ -184,7 +168,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_detail_attachments_info_grid %}
                     <sw-data-grid
                         v-if="mailTemplateMedia && mailTemplateMedia.length > 0"
@@ -200,14 +183,12 @@
                         @selection-change="onSelectionChanged"
                     >
                         <template #preview-fileName="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_mail_template_detail_attachments_info_grid_preview %}
                             <sw-media-preview :source="item.id" />
                             {% endblock %}
                         </template>
 
                         <template #actions="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_mail_template_detail_attachments_info_grid_actions %}
                             <sw-context-menu-item
                                 v-tooltip.bottom="{
@@ -225,7 +206,6 @@
                         </template>
 
                         <template #bulk>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_mail_template_detail_attachments_info_grid_bulk %}
                             <a
                                 class="link link-danger"
@@ -243,13 +223,11 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_detail_mail_text_info %}
                 <sw-card
                     :title="$tc('sw-mail-template.detail.mailText.titleCard')"
                     position-identifier="sw-mail-template-detail-text-info"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_content_plain_field %}
                     <sw-code-editor
                         ref="plainEditor"
@@ -267,7 +245,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_content_html_field %}
                     <sw-code-editor
                         ref="htmlEditor"
@@ -285,7 +262,6 @@
                     />
                     {% endblock %}
                 </sw-card>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_detail_preview_modal %}
                 <sw-modal
                     v-if="mailPreview"
@@ -298,10 +274,8 @@
                         <span v-html="mailPreview"></span>
                     </template>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_detail_preview_modal_footer %}
                     <template #modal-footer>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_mail_template_detail_preview_modal_footer_cancel %}
                         <sw-button
                             size="small"
@@ -320,14 +294,11 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_detail_sidebar %}
     <template #sidebar>
         <sw-sidebar :propagate-width="true">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_mail_template_detail_sidebar_inner %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_mail_template_detail_sidebar_inner_test_mail %}
             <sw-sidebar-item
                 icon="regular-paper-plane"
@@ -342,7 +313,6 @@
                         {{ $tc('sw-mail-template.detail.sidebar.languageNotAssignedToSalesChannel') }}
                     </sw-alert>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_test_mail_field %}
                     <sw-text-field
                         v-model:value="testerMail"
@@ -353,7 +323,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_test_sales_channel_field %}
                     <sw-entity-single-select
                         v-model:value="testMailSalesChannelId"
@@ -365,7 +334,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_test_mail_button %}
                     <sw-button
                         :disabled="isSendButtonDisabled"
@@ -379,7 +347,6 @@
             </sw-sidebar-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_mail_template_detail_sidebar_inner_variables %}
             <sw-sidebar-item
                 icon="regular-code"
@@ -388,7 +355,6 @@
                 class="sw-mail-template-detail__show-available-variables"
             >
                 <div class="sw-mail-template-detail__available-variables-sidebar-container">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_available_variables_tree %}
                     <sw-tree
                         class="sw-mail-template-detail__available-variables-sidebar-container__tree"
@@ -399,19 +365,16 @@
                         :sortable="false"
                         @get-tree-items="onGetTreeItems"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_mail_template_available_variables_tree_headline %}
                         <template #headline>
                             <span></span>
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_mail_template_available_variables_tree_items %}
                         <template
                             #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_mail_template_available_variables_tree_items_item %}
                             <sw-tree-item
                                 v-for="(item, index) in treeItems"
@@ -422,14 +385,12 @@
                                 :sortable="false"
                                 :display-checkbox="false"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_mail_template_available_variables_tree_items_item_grip %}
                                 <template #grip>
                                     <span></span>
                                 </template>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_mail_template_available_variables_tree_items_item_actions %}
                                 <template #actions="{ item }">
                                     <sw-icon
@@ -454,7 +415,6 @@
             </sw-sidebar-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_mail_template_detail_sidebar_inner_preview %}
             <sw-sidebar-item
                 icon="regular-eye"
@@ -465,13 +425,11 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_mail_template_detail_sidebar_inner_media %}
             <sw-sidebar-media-item ref="mediaSidebarItem">
                 <template
                     #context-menu-items="media"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_detail_sidebar_add_attachment %}
                     <sw-context-menu-item
                         :disabled="!acl.can('mail_templates.editor') || undefined"

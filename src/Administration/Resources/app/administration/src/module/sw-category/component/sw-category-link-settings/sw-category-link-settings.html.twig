@@ -5,7 +5,6 @@
     :title="$tc('sw-category.base.link.title')"
     :is-loading="isLoading"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_type_select_main %}
     <sw-single-select
         v-model:value="mainType"
@@ -18,7 +17,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_type_select_entity %}
     <sw-single-select
         v-if="isInternal"
@@ -33,7 +31,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_type_select_entity_category %}
     <template v-if="category.linkType === 'category'">
         <sw-category-tree-field
@@ -49,7 +46,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_type_select_entity_product %}
     <sw-entity-single-select
         v-if="category.linkType === 'product'"
@@ -65,7 +61,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_type_select_entity_landing_page %}
     <sw-entity-single-select
         v-if="category.linkType === 'landing_page'"
@@ -79,7 +74,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_field %}
     <sw-text-field
         v-if="isExternal"
@@ -91,7 +85,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_new_tab %}
     <sw-switch-field
         v-model:value="category.linkNewTab"

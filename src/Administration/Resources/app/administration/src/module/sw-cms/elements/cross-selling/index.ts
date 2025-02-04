@@ -1,22 +1,22 @@
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-preview-cross-selling', () => import('./preview'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-config-cross-selling', () => import('./config'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-cross-selling', () => import('./component'));
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'cross-selling',

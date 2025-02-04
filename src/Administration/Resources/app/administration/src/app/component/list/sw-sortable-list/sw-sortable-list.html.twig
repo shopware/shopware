@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sortable_list_container %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sortable_list %}
 <ul
     v-if="hasItems"
     class="sw-sortable-list"
 >
     <slot v-bind="{ sortedItems, sortable }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sortable_list_item %}
         <li
             v-for="item in sortedItems"
@@ -25,7 +22,6 @@
     </slot>
 </ul>
 {% endblock %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sortable_list_empty_state %}
 <sw-empty-state
     v-else

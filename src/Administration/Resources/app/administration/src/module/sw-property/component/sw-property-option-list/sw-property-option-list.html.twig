@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_option_list %}
 <sw-card
     :is-loading="isLoading"
@@ -7,18 +6,15 @@
     :title="$tc('sw-property.detail.cardTitle')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_list_toolbar %}
     <div class="sw-property-option-list__toolbar">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_option_list_toolbar_container %}
         <sw-container
             columns="1fr 32px minmax(100px, 200px)"
             gap="0 10px"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_option_list_toolbar_search %}
             <sw-simple-search-field
                 v-model:value="term"
@@ -28,7 +24,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_option_list_toolbar_delete %}
             <sw-button
                 v-tooltip="{
@@ -49,7 +44,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_option_list_toolbar_add %}
             <sw-container v-tooltip="tooltipAdd">
                 <sw-button
@@ -72,7 +66,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_list_grid %}
     <template #grid>
         <sw-one-to-many-grid
@@ -109,10 +102,8 @@
                 </a>
             </template>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_property_list_grid_columns_actions %}
             <template #more-actions="{ item }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_property_list_grid_columns_actions_edit %}
                 <sw-context-menu-item
                     class="sw-property-option-list__edit-action"
@@ -125,7 +116,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_grid_columns_actions_delete %}
             <template #delete-action="{ item }">
                 <sw-context-menu-item
@@ -140,7 +130,6 @@
         </sw-one-to-many-grid>
         {% endblock %}
     </template>
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_list_detail %}
     <sw-property-option-detail
         v-if="currentOption"
@@ -151,7 +140,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_list_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}

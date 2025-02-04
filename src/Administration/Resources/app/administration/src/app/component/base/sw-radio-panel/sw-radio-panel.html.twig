@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_radio_panel %}
 <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
 <label class="sw-radio-panel">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_radio_panel_input %}
     <input
         :id="id"
@@ -16,18 +14,14 @@
     >
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_radio_panel_body %}
     <span class="sw-radio-panel__body">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_radio_panel_body_radio %}
         <span class="sw-radio-panel__radio"></span>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_radio_panel_body_slot %}
         <slot>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_radio_panel_body_image %}
             <span class="sw-radio-panel__image">
                 <sw-icon
@@ -36,7 +30,6 @@
                 />
             </span>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_radio_panel_body_title %}
             <!-- eslint-disable-next-line vuejs-accessibility/role-has-required-aria-props -->
             <span
@@ -47,7 +40,6 @@
                 {{ title }}
             </span>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_radio_panel_body_description %}
             <span
                 class="sw-radio-panel__description"

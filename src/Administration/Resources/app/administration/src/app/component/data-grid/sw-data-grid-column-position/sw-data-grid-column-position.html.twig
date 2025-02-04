@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_column_position %}
 <div class="sw-data-grid-column-position">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_column_position_value %}
     <template v-if="showValue">
         <span class="sw-data-grid-column-position__value">
@@ -10,10 +8,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_column_position_button_group %}
     <sw-button-group class="sw-data-grid-column-position__group">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_column_position_button_up %}
         <sw-button
             class="sw-data-grid-column-position__arrow arrow_up"
@@ -22,7 +18,6 @@
             square
             @click="onLowerPositionValue(item)"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_column_position_button_up_content %}
             <sw-icon
                 name="regular-chevron-up-xs"
@@ -32,7 +27,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_column_position_button_down %}
         <sw-button
             class="sw-data-grid-column-position__arrow arrow_down"
@@ -41,7 +35,6 @@
             square
             @click="onRaisePositionValue(item)"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_column_position_button_down_content %}
             <sw-icon
                 name="regular-chevron-down-xs"

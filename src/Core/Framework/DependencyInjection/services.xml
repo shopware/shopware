@@ -142,8 +142,8 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
-            <argument type="tagged_iterator" tag="shopware.migration_source"/>
             <argument type="service" id="logger"/>
+            <argument type="tagged_iterator" tag="shopware.migration_source"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">

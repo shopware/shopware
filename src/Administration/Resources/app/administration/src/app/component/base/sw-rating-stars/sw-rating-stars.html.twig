@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_rating_stars %}
 <div
     v-tooltip="ratingTooltip"
@@ -6,11 +5,9 @@
     :style="dynamicWidthStyle"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_rating_stars_placeholder %}
     <div class="sw-rating-stars__placeholder">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_rating_stars_placeholder_stars %}
         <sw-icon
             v-for="currentStar in maxStars"
@@ -23,13 +20,10 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_rating_stars_value %}
     <div class="sw-rating-stars__value">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_rating_stars_value_stars %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_rating_stars_value_stars_full %}
         <sw-icon
             v-for="currentStar in Math.floor(cappedValue)"
@@ -40,7 +34,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_rating_stars_value_stars_partial %}
         <sw-icon
             v-if="(cappedValue % 1) > 0"

@@ -12,26 +12,11 @@ class FieldSorting extends Struct implements CriteriaPartInterface
     public const ASCENDING = 'ASC';
     public const DESCENDING = 'DESC';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $field;
+    protected string $field;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $direction;
+    protected string $direction;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $naturalSorting;
+    protected bool $naturalSorting;
 
     public function __construct(
         string $field,

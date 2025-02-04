@@ -8,12 +8,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 #[Package('framework')]
 class IterateEntityIndexerMessage implements AsyncMessageInterface
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $indexer;
+    protected string $indexer;
 
     /**
      * @internal

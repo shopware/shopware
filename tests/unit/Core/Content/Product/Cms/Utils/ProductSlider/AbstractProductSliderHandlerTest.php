@@ -22,6 +22,12 @@ class AbstractProductSliderHandlerTest extends TestCase
 {
     use ProductSliderUnitTrait;
 
+    public function testGetSource(): void
+    {
+        $handler = new TestAbstractProductSliderHandler();
+        static::assertSame('test', $handler->getSource());
+    }
+
     public function testFilterOutOutOfStockHiddenCloseoutProducts(): void
     {
         $products = $this->getProducts();

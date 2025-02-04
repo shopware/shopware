@@ -40,6 +40,7 @@ class ProductStreamHandler extends AbstractProductSliderHandler
     public function collect(CmsSlotEntity $slot, FieldConfigCollection $config, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $products = $config->get('products');
+        \assert($products instanceof FieldConfig);
         $criteria = $this->collectByProductStream($resolverContext, $products, $config);
 
         $collection = new CriteriaCollection();
@@ -63,9 +64,6 @@ class ProductStreamHandler extends AbstractProductSliderHandler
         $slider = new ProductSliderStruct();
         $slot->setData($slider);
 
-        $config = $slot->getFieldConfig();
-        $productConfig = $config->get('products');
-
         $slider->setProducts(
             $this->handleProductStream(
                 $streamResult,
@@ -73,6 +71,11 @@ class ProductStreamHandler extends AbstractProductSliderHandler
                 $entitySearchResult->getCriteria()
             )
         );
+
+        $config = $slot->getFieldConfig();
+
+        $productConfig = $config->get('products');
+        \assert($productConfig instanceof FieldConfig);
 
         $slider->setStreamId($productConfig->getStringValue());
     }
@@ -120,7 +123,9 @@ class ProductStreamHandler extends AbstractProductSliderHandler
         }
 
         $criteria = $originCriteria->cloneForRead($finalProductIds);
+
         $products = $this->productRepository->search($criteria, $context)->getEntities();
+        \assert($products instanceof ProductCollection);
         $products->sortByIdArray($finalProductIds);
 
         return $products;

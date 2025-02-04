@@ -16,7 +16,7 @@ abstract class AbstractProductSliderHandler
 {
     protected const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
 
-    abstract public function getSource();
+    abstract public function getSource(): string;
 
     abstract public function collect(CmsSlotEntity $slot, FieldConfigCollection $config, ResolverContext $resolverContext): ?CriteriaCollection;
 

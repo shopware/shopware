@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\Cms\Utils\ProductSlider;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
@@ -36,6 +37,7 @@ class StaticHandler extends AbstractProductSliderHandler
     public function collect(CmsSlotEntity $slot, FieldConfigCollection $config, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $products = $config->get('products');
+        \assert($products instanceof FieldConfig);
         $criteria = new Criteria($products->getArrayValue());
 
         $collection = new CriteriaCollection();

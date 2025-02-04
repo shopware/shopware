@@ -11,15 +11,20 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Cms\Utils\ProductSlider\ProductStreamHandler;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
@@ -83,6 +88,31 @@ class ProductStreamHandlerTest extends TestCase
         static::assertEquals($groupingFilter, $filter);
     }
 
+    public function testCollectAddsRandomSortingIfRequired(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+
+        $productsConfig = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
+        $sortingConfig = new FieldConfig('productStreamSorting', FieldConfig::SOURCE_PRODUCT_STREAM, 'random');
+
+        $this->config->add($productsConfig);
+        $this->config->add($sortingConfig);
+
+        $collection = $this->getHandler()->collect($slot, $this->config, $resolverContext);
+        static::assertInstanceOf(CriteriaCollection::class, $collection);
+
+        $list = $collection->all();
+        static::assertCount(1, $list);
+
+        $criteria = $list[ProductDefinition::class]['product-slider-entity-fallback_id'] ?? null;
+        static::assertInstanceOf(Criteria::class, $criteria);
+
+        $sorting = $criteria->getSorting();
+        static::assertCount(2, $sorting);
+        static::assertContainsOnlyInstancesOf(FieldSorting::class, $sorting);
+    }
+
     public function testEnrich(): void
     {
         $slot = $this->getSlot();
@@ -106,6 +136,66 @@ class ProductStreamHandlerTest extends TestCase
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
         static::assertSame('product-stream-1', $slider->getStreamId());
         static::assertEquals($products, $slider->getProducts());
+    }
+
+    public function testEnrichDoesNothingWithoutEntitySearchResult(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+        $data = new ElementDataCollection();
+
+        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        static::assertNull($slot->getData());
+    }
+
+    public function testEnrichDoesNothingWithoutProducts(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+        $data = new ElementDataCollection();
+
+        $result = new EntitySearchResult(
+            'tax',
+            2,
+            new TaxCollection(),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $data->add('product-slider-entity-fallback_id', $result);
+        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        static::assertNull($slot->getData());
+    }
+
+    public function testEnrichUsesEmptyProductCollectionIfNoProductIdsDetermined(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+        $data = new ElementDataCollection();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
+        $this->config->add($config);
+
+        $result = new EntitySearchResult(
+            'product',
+            0,
+            new ProductCollection(),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $data->add('product-slider-entity-fallback_id', $result);
+
+        $this->productRepository->expects(static::never())
+            ->method('search');
+
+        $this->getHandler()->enrich($slot, $data, $resolverContext);
+
+        $slider = $slot->getData();
+        static::assertInstanceOf(ProductSliderStruct::class, $slider);
+        static::assertEmpty($slider->getProducts());
     }
 
     private function getHandler(): ProductStreamHandler

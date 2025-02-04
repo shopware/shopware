@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Cms\Utils\ProductSlider;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
@@ -25,6 +26,12 @@ trait ProductSliderUnitTrait
             'id' => 'product-1',
             '_uniqueIdentifier' => 'product-1',
             'isCloseout' => false,
+            'displayParent' => false,
+            'variantListingConfig' => new VariantListingConfig(
+                false,
+                'product-1',
+                null
+            ),
             'stock' => 12,
         ]);
 

@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @deprecated tag:v6.7.0 - Will be removed, cache tags are collected via AddCacheTagEvent
+ *
  * @extends AbstractCacheTracer<mixed|null>
  */
 #[Package('framework')]

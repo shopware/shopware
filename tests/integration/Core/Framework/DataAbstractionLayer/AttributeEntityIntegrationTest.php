@@ -83,6 +83,8 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertTrue(static::getContainer()->has('attribute_entity_translation.repository'));
         static::assertTrue(static::getContainer()->has('attribute_entity_translation.definition'));
 
+        static::assertTrue(static::getContainer()->has('my_own_mapping_table_name.definition'));
+
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity.definition'));
         static::assertSame(AttributeEntityCollection::class, static::getContainer()->get('attribute_entity.definition')->getCollectionClass());
 
@@ -100,6 +102,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('attribute_entity_currency.repository'));
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('attribute_entity_agg.repository'));
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('attribute_entity_translation.repository'));
+
     }
 
     public function testAssociationDefinitions(): void

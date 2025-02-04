@@ -11,12 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EntityWrittenContainerEvent extends NestedEvent
 {
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected Context $context;
 
     protected bool $cloned = false;
 

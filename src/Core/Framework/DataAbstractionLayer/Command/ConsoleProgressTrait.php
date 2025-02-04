@@ -12,19 +12,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 trait ConsoleProgressTrait
 {
-    /**
-     * @var SymfonyStyle|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $io;
+    protected ?SymfonyStyle $io;
 
-    /**
-     * @var ProgressBar|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $progress;
+    protected ?ProgressBar $progress;
 
     /**
      * @return array<string, string>

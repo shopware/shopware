@@ -18,24 +18,12 @@ class EntitySearchResultLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**
      * @var EntitySearchResult<TEntityCollection>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $result;
+    protected EntitySearchResult $result;
 
-    /**
-     * @var EntityDefinition
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $definition;
+    protected EntityDefinition $definition;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
     /**
      * @param EntitySearchResult<TEntityCollection> $result

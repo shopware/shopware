@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,7 +28,7 @@ class StaticProductProcessorTest extends TestCase
 {
     use ProductSliderUnitTrait;
 
-    private FieldConfigCollection $config;
+    protected FieldConfigCollection $config;
 
     private SystemConfigService&MockObject $configService;
 
@@ -85,6 +86,7 @@ class StaticProductProcessorTest extends TestCase
         static::assertInstanceOf(ProductSliderStruct::class, $data);
 
         $products = $data->getProducts();
+        static::assertInstanceOf(ProductCollection::class, $products);
         static::assertCount(2, $products);
         static::assertTrue($products->has('product-1'));
         static::assertTrue($products->has('product-2'));
@@ -109,6 +111,7 @@ class StaticProductProcessorTest extends TestCase
         static::assertInstanceOf(ProductSliderStruct::class, $data);
 
         $products = $data->getProducts();
+        static::assertInstanceOf(ProductCollection::class, $products);
         static::assertCount(1, $products);
         static::assertTrue($products->has('product-1'));
         static::assertFalse($products->has('product-2'));

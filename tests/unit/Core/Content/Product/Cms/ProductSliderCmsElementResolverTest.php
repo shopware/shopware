@@ -25,7 +25,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
 {
     use ProductSliderUnitTrait;
 
-    private FieldConfigCollection $config;
+    protected FieldConfigCollection $config;
 
     private AbstractProductSliderProcessor&MockObject $handler;
 

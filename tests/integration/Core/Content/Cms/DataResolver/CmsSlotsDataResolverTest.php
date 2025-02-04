@@ -13,8 +13,10 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\Extension\CmsSlotsDataCollectExtension;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -66,11 +68,11 @@ class CmsSlotsDataResolverTest extends TestCase
         $resolver = $this->getContainer()->get(CmsSlotsDataResolver::class);
         $result = $resolver->resolve($slots, $resolverContext);
 
-        /** @var ProductSliderStruct $productSliderData */
-        $productSliderData = $result->first()->getData();
-        $product = $productSliderData->getProducts()
-            ->get($this->ids->get('product-1'));
+        $productSliderData = $result->first()?->getData() ?? null;
+        static::assertInstanceOf(ProductSliderStruct::class, $productSliderData);
 
+        $product = $productSliderData->getProducts()?->get($this->ids->get('product-1'));
+        static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotNull($product->getTags());
     }
 
@@ -114,6 +116,9 @@ class CmsSlotsDataResolverTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class CmsSlotsDataTestSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -125,12 +130,14 @@ class CmsSlotsDataTestSubscriber implements EventSubscriberInterface
 
     public function addAssociations(CmsSlotsDataCollectExtension $extension): void
     {
-        /** @var CriteriaCollection $collection */
         $collection = current($extension->result);
+        \assert($collection instanceof CriteriaCollection);
 
-        $list = $collection->all();
-        $criterias = $list[ProductDefinition::class];
-        $criteria = current($criterias);
+        $list = $collection->all()[ProductDefinition::class] ?? null;
+        \assert(\is_array($list));
+
+        $criteria = current($list);
+        \assert($criteria instanceof Criteria);
 
         $criteria->addAssociation('tags');
     }

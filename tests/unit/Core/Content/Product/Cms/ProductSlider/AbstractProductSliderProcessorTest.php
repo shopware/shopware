@@ -40,6 +40,9 @@ class AbstractProductSliderProcessorTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestAbstractProductSliderProcessor extends AbstractProductSliderProcessor
 {
     public function getSource(): string

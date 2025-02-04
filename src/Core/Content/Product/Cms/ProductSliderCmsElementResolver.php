@@ -17,19 +17,17 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     /**
      * @var array<int|string, AbstractProductSliderProcessor>
      */
-    private array $handlers = [];
+    private array $processors = [];
 
     /**
-     * @param iterable<AbstractProductSliderProcessor> $handlers
+     * @param iterable<AbstractProductSliderProcessor> $processors
      *
      * @internal
-     *
      */
-    public function __construct(
-        iterable $handlers,
-    ) {
-        foreach ($handlers as $handler) {
-            $this->handlers[$handler->getSource()] = $handler;
+    public function __construct(iterable $processors)
+    {
+        foreach ($processors as $handler) {
+            $this->processors[$handler->getSource()] = $handler;
         }
     }
 
@@ -48,9 +46,9 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         }
 
         $source = $productConfig->getSource();
-        $handler = $this->handlers[$source] ?? null;
+        $processor = $this->processors[$source] ?? null;
 
-        return $handler?->collect($slot, $config, $resolverContext);
+        return $processor?->collect($slot, $config, $resolverContext);
     }
 
     public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
@@ -66,12 +64,12 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         }
 
         $source = $productConfig->getSource();
-        $handler = $this->handlers[$source] ?? null;
+        $processor = $this->processors[$source] ?? null;
 
-        if (!$handler) {
+        if (!$processor) {
             return;
         }
 
-        $handler->enrich($slot, $result, $resolverContext);
+        $processor->enrich($slot, $result, $resolverContext);
     }
 }

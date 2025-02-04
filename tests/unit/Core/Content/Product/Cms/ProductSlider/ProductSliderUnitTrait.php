@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -20,6 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 trait ProductSliderUnitTrait
 {
+    protected FieldConfigCollection $config;
+
     private function getProducts(): ProductCollection
     {
         $product = (new ProductEntity())->assign([
@@ -45,6 +48,9 @@ trait ProductSliderUnitTrait
         return new ProductCollection([$product, $product2]);
     }
 
+    /**
+     * @return EntitySearchResult<ProductCollection>
+     */
     private function getEntitySearchResult(ProductCollection $products): EntitySearchResult
     {
         return new EntitySearchResult(

@@ -35,11 +35,11 @@ class ProductStreamProcessorTest extends TestCase
 {
     use ProductSliderUnitTrait;
 
+    protected FieldConfigCollection $config;
+
     private ProductStreamBuilderInterface&MockObject $productStreamBuilder;
 
     private SalesChannelRepository&MockObject $productRepository;
-
-    private FieldConfigCollection $config;
 
     protected function setUp(): void
     {

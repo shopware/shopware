@@ -52,7 +52,7 @@ class PriceActionController extends AbstractController
         $preCalculated = $request->request->getBoolean('calculated', true);
 
         $taxRate = null;
-        if (Feature::isActive('v6.7.0.0')) {
+        if (Feature::isActive('v6.8.0.0')) {
             $criteria = (new Criteria([$taxId]))
                 ->addFields(['taxRate']);
 
@@ -89,7 +89,7 @@ class PriceActionController extends AbstractController
         }
 
         $taxRate = null;
-        if (Feature::isActive('v6.7.0.0')) {
+        if (Feature::isActive('v6.8.0.0')) {
             $criteria = (new Criteria([$taxId]))
                 ->addFields(['taxRate']);
 

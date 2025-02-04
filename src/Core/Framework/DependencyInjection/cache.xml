@@ -117,6 +117,7 @@
             <argument>%shopware.product_stream.indexing%</argument>
 
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateCategoryRouteByCategoryIds" priority="2000" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateListingRouteByCategoryIds" priority="2001" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent" method="invalidateIndexedLandingPages" priority="2000" />
             <!--     @deprecated tag:v6.7.0 - Remove listener  -->
@@ -153,9 +154,11 @@
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateLanguageRoute" priority="2003" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateNavigationRoute" priority="2004" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidatePaymentMethodRoute" priority="2005" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateProductAssignment" priority="2006" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateManufacturerFilters" priority="2007" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidatePropertyFilters" priority="2008" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCrossSellingRoute" priority="2009" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateContext" priority="2010" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateShippingMethodRoute" priority="2011" />
@@ -177,6 +180,7 @@
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent" method="invalidateConfig" priority="2001" />
             <tag name="kernel.event_listener" event="Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook" method="invalidateConfigKey" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent" method="invalidateSitemap" priority="2000" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="product_search_config.written" method="invalidateSearch" priority="2002" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaIndexerEvent" method="invalidateMedia" priority="2000" />
         </service>

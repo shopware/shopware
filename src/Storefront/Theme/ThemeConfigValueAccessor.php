@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -15,6 +14,11 @@ class ThemeConfigValueAccessor
      * @var array<string, mixed>
      */
     private array $themeConfig = [];
+
+    /**
+     * @var array<string, bool>
+     */
+    private array $keys = ['all' => true];
 
     /**
      * @deprecated tag:v6.7.0 - Will be removed, cache tags are collected via events
@@ -40,6 +44,27 @@ class ThemeConfigValueAccessor
         $config = $this->getThemeConfig($context, $themeId);
 
         return $config[$key] ?? null;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed, cache tags are collected via events
+     *
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $param
+     *
+     * @return TReturn All kind of data could be cached
+     */
+    public function trace(string $key, \Closure $param)
+    {
+        $this->traces[$key] = [];
+        $this->keys[$key] = true;
+
+        $result = $param();
+
+        unset($this->keys[$key]);
+
+        return $result;
     }
 
     /**

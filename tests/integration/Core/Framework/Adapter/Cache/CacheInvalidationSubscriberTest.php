@@ -7,13 +7,10 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -23,8 +20,6 @@ class CacheInvalidationSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private Connection $connection;
-
     private IdsCollection $ids;
 
     private CacheInvalidator&MockObject $cacheInvalidatorMock;
@@ -33,15 +28,12 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = KernelLifecycleManager::getConnection();
         $this->ids = new IdsCollection();
 
         $this->cacheInvalidatorMock = $this->createMock(CacheInvalidator::class);
         $this->cacheInvalidationSubscriber = new CacheInvalidationSubscriber(
             $this->cacheInvalidatorMock,
             static::getContainer()->get(Connection::class),
-            false,
-            false,
             true
         );
     }

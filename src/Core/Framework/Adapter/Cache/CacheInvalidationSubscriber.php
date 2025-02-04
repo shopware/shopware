@@ -22,9 +22,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
-use Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
@@ -349,7 +347,7 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map(CachedProductListingRoute::buildName(...), $ids)
+            array_map(ProductListingRoute::buildName(...), $ids)
         );
     }
 
@@ -397,8 +395,8 @@ class CacheInvalidationSubscriber
         $productIds = array_column($ids, 'productId');
 
         return array_merge(
-            array_map(CachedProductDetailRoute::buildName(...), array_unique($productIds)),
-            array_map(CachedProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds))
+            array_map(ProductDetailRoute::buildName(...), array_unique($productIds)),
+            array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds))
         );
     }
 
@@ -463,8 +461,8 @@ class CacheInvalidationSubscriber
         );
 
         return [
-            ...array_map(CachedProductDetailRoute::buildName(...), array_filter($parentIds)),
-            ...array_map(CachedProductListingRoute::buildName(...), array_filter($categoryIds)),
+            ...array_map(ProductDetailRoute::buildName(...), array_filter($parentIds)),
+            ...array_map(ProductListingRoute::buildName(...), array_filter($categoryIds)),
         ];
     }
 

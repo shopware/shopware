@@ -34,7 +34,6 @@ class CacheInvalidatorTest extends TestCase
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            0,
             [
                 $tagAwareAdapter,
             ],
@@ -62,7 +61,6 @@ class CacheInvalidatorTest extends TestCase
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            0,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
@@ -88,7 +86,6 @@ class CacheInvalidatorTest extends TestCase
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            0,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
@@ -117,7 +114,6 @@ class CacheInvalidatorTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE, '1');
 
         $invalidator = new CacheInvalidator(
-            0,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
@@ -142,7 +138,6 @@ class CacheInvalidatorTest extends TestCase
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            1,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
@@ -168,7 +163,6 @@ class CacheInvalidatorTest extends TestCase
             ->willReturn([]);
 
         $invalidator = new CacheInvalidator(
-            0,
             [
                 $tagAwareAdapter,
             ],
@@ -197,7 +191,6 @@ class CacheInvalidatorTest extends TestCase
             ->willReturn(['foo']);
 
         $invalidator = new CacheInvalidator(
-            0,
             [
                 $tagAwareAdapter,
             ],

@@ -42,8 +42,8 @@ class TranslatorTest extends TestCase
             ],
         ]);
 
-        $decorated->expects(static::any())->method('getCatalogue')->with('en-GB')->willReturn($originCatalogue);
-        $decorated->expects(static::any())->method('getLocale')->willReturn('en-GB');
+        $decorated->method('getCatalogue')->with('en-GB')->willReturn($originCatalogue);
+        $decorated->method('getLocale')->willReturn('en-GB');
 
         $requestStack = new RequestStack();
 
@@ -65,7 +65,7 @@ class TranslatorTest extends TestCase
         }
 
         $localeCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
-        $localeCodeProvider->expects(static::any())->method('getLocaleForLanguageId')->with(Defaults::LANGUAGE_SYSTEM)->willReturn('en-GB');
+        $localeCodeProvider->method('getLocaleForLanguageId')->with(Defaults::LANGUAGE_SYSTEM)->willReturn('en-GB');
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn([$snippetSetId]);
@@ -79,7 +79,6 @@ class TranslatorTest extends TestCase
             $connection,
             $localeCodeProvider,
             $snippetServiceMock,
-            false,
             new EventDispatcher()
         );
 
@@ -126,7 +125,7 @@ class TranslatorTest extends TestCase
     public function testGetSnippetId(array $dbSnippetSetIds, ?string $expectedSnippetSetId, ?string $locale, ?string $requestSnippetSetId): void
     {
         $requestStack = new RequestStack();
-        $requestStack->push($this->createRequest(null, $requestSnippetSetId));
+        $requestStack->push(self::createRequest(null, $requestSnippetSetId));
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($locale ? static::once() : static::never())->method('fetchFirstColumn')->willReturn($dbSnippetSetIds);
@@ -140,7 +139,6 @@ class TranslatorTest extends TestCase
             $connection,
             $this->createMock(LanguageLocaleCodeProvider::class),
             $this->createMock(SnippetService::class),
-            false,
             new EventDispatcher()
         );
 
@@ -180,7 +178,6 @@ class TranslatorTest extends TestCase
             $connection,
             $this->createMock(LanguageLocaleCodeProvider::class),
             $snippetService,
-            false,
             new EventDispatcher()
         );
 
@@ -189,7 +186,7 @@ class TranslatorTest extends TestCase
         static::assertSame($injectSnippetSetId, $translator->getSnippetSetId('en-GB'));
 
         // prioritize snippet from sales channel domain if set
-        $requestStack->push($this->createRequest(TestDefaults::SALES_CHANNEL, $domainSnippetSetId));
+        $requestStack->push(self::createRequest(TestDefaults::SALES_CHANNEL, $domainSnippetSetId));
         $translator->reset();
         static::assertSame($domainSnippetSetId, $translator->getSnippetSetId('en-GB'));
     }

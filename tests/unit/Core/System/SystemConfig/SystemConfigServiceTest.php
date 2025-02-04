@@ -47,7 +47,6 @@ class SystemConfigServiceTest extends TestCase
             $this->configLoader,
             $this->eventDispatcher,
             new SymfonySystemConfigService([]),
-            true,
         );
     }
 
@@ -88,13 +87,12 @@ class SystemConfigServiceTest extends TestCase
             $this->configLoader,
             $this->eventDispatcher,
             new SymfonySystemConfigService(['default' => ['core.test' => true]]),
-            true,
         );
 
         // Setting the same value is okay
         $configService->set('core.test', true);
 
-        static::expectExceptionObject(SystemConfigException::systemConfigKeyIsManagedBySystems('core.test'));
+        $this->expectExceptionObject(SystemConfigException::systemConfigKeyIsManagedBySystems('core.test'));
 
         $configService->set('core.test', false);
     }

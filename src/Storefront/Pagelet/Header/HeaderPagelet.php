@@ -2,9 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -27,7 +25,6 @@ class HeaderPagelet extends NavigationPagelet
         protected LanguageEntity $activeLanguage,
         protected CurrencyEntity $activeCurrency,
     ) {
-
         parent::__construct($navigation);
     }
 

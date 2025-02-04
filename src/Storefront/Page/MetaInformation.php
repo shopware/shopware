@@ -11,7 +11,9 @@ class MetaInformation extends Struct
     protected string $metaTitle = '';
 
     protected string $metaDescription = '';
+
     protected string $metaKeywords = '';
+
     protected string $author = '';
 
     protected string $xmlLang = '';

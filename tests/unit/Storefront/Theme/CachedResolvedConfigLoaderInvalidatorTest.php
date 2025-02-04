@@ -25,7 +25,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->cacheInvalidator = new MockedCacheInvalidator();
-        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->cacheInvalidator, true);
+        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->cacheInvalidator);
     }
 
     public function testGetSubscribedEvents(): void
@@ -78,7 +78,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 
     public function testInvalidateDisabledFineGrained(): void
     {
-        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->cacheInvalidator, false);
+        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->cacheInvalidator);
 
         $themeId = Uuid::randomHex();
         $event = new ThemeConfigChangedEvent($themeId, ['test' => 'test']);

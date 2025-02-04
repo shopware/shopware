@@ -61,8 +61,6 @@ class CacheInvalidationSubscriberTest extends TestCase
         $subscriber = new CacheInvalidationSubscriber(
             $cacheInvalidator,
             $this->createMock(Connection::class),
-            false,
-            false,
             true
         );
 
@@ -94,8 +92,6 @@ class CacheInvalidationSubscriberTest extends TestCase
         $subscriber = new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
             $this->connection,
-            false,
-            false,
             true
         );
         $this->connection->method('fetchAllAssociative')
@@ -122,8 +118,6 @@ class CacheInvalidationSubscriberTest extends TestCase
         $subscriber = new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
             $this->connection,
-            false,
-            false,
             true
         );
         $this->connection->method('fetchAllAssociative')

@@ -2,9 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
-use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -65,25 +63,11 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             $currencies,
             $contextLanguage,
             $context->getCurrency(),
-            $this->getServiceMenu($context)
         );
 
         $this->eventDispatcher->dispatch(new HeaderPageletLoadedEvent($page, $context, $request));
 
         return $page;
-    }
-
-    private function getServiceMenu(SalesChannelContext $context): CategoryCollection
-    {
-        $serviceId = $context->getSalesChannel()->getServiceCategoryId();
-
-        if ($serviceId === null) {
-            return new CategoryCollection();
-        }
-
-        $navigation = $this->navigationLoader->load($serviceId, $context, $serviceId, 1);
-
-        return new CategoryCollection(array_map(static fn (TreeItem $treeItem) => $treeItem->getCategory(), $navigation->getTree()));
     }
 
     private function getLanguages(SalesChannelContext $context, Request $request): LanguageCollection

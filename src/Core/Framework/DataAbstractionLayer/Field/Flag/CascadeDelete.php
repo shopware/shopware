@@ -10,12 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class CascadeDelete extends Flag
 {
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cloneRelevant;
+    protected bool $cloneRelevant;
 
     public function __construct(bool $cloneRelevant = true)
     {

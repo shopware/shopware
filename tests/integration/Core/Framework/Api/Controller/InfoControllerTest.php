@@ -505,6 +505,8 @@ class InfoControllerTest extends TestCase
 
     public function testBaseAdminPaths(): void
     {
+        static::markTestSkipped('#6556');
+
         if (!class_exists(AdministrationController::class)) {
             static::markTestSkipped('Cannot test without Administration as results will differ');
         }

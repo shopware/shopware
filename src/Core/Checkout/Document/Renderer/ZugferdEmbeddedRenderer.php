@@ -70,9 +70,9 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
     }
 
     /**
-     * @param DocumentGenerateOperation[] $operations
+     * @param array<string, DocumentGenerateOperation> $operations
      */
-    protected function embedXMLIntoPDF(array $operations, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $invoice): RendererResult
+    private function embedXMLIntoPDF(array $operations, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $invoice): RendererResult
     {
         // So ElectronicRenderer don't need to create a new number
         $this->setSuccessDocumentNumbers($invoice->getSuccess(), $operations);
@@ -115,9 +115,9 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
 
     /**
      * @param array<string, RenderedDocument> $successes
-     * @param DocumentGenerateOperation[] $operations
+     * @param array<string, DocumentGenerateOperation> $operations
      */
-    protected function setSuccessDocumentNumbers(array $successes, array $operations): void
+    private function setSuccessDocumentNumbers(array $successes, array $operations): void
     {
         foreach ($successes as $orderId => $document) {
             $operation = $operations[$orderId] ?? null;

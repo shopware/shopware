@@ -121,7 +121,7 @@ class DocumentGenerator
     }
 
     /**
-     * @param DocumentGenerateOperation[] $operations
+     * @param array<string, DocumentGenerateOperation> $operations
      */
     public function generate(string $documentType, array $operations, Context $context): DocumentGenerationResult
     {

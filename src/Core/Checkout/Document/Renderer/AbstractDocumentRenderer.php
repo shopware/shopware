@@ -18,7 +18,7 @@ abstract class AbstractDocumentRenderer
     abstract public function supports(): string;
 
     /**
-     * @param DocumentGenerateOperation[] $operations
+     * @param array<string, DocumentGenerateOperation> $operations
      */
     abstract public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult;
 

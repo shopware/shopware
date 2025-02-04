@@ -21,7 +21,7 @@ final class DocumentRendererRegistry
     }
 
     /**
-     * @param DocumentGenerateOperation[] $operations
+     * @param array<string, DocumentGenerateOperation> $operations
      */
     public function render(string $documentType, array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
     {

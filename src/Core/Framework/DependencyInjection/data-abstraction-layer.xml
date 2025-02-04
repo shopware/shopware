@@ -13,7 +13,6 @@
     </parameters>
 
     <services>
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator"/>
         <service id="Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator"/>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateEntitiesCommand">

@@ -8,54 +8,19 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class Price extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $net;
+    protected float $net;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $gross;
+    protected float $gross;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $linked;
+    protected bool $linked;
 
-    /**
-     * @var Price|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $listPrice;
+    protected ?Price $listPrice;
 
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $percentage;
+    protected ?array $percentage;
 
-    /**
-     * @var Price|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $regulationPrice;
+    protected ?Price $regulationPrice;
 
     public function __construct(
         string $currencyId,

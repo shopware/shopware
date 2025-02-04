@@ -8,26 +8,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class CashRoundingConfig extends Struct
 {
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $decimals;
+    protected int $decimals;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $interval;
+    protected float $interval;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $roundForNet;
+    protected bool $roundForNet;
 
     public function __construct(
         int $decimals,

@@ -47,3 +47,8 @@ shopware:
         major: true
         toggleable: false
         description: "Rework of http cache and store api cache"
+      - name: DYNAMIC_ENTITY_EXTENSIONS
+        default: false
+        major: true
+        toggleable: false
+        description: "TEMPORARY! disable dynamic entity extensions, as it makes problems during the lifecycle"

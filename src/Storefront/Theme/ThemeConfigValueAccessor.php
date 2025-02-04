@@ -17,6 +17,8 @@ class ThemeConfigValueAccessor
     private array $themeConfig = [];
 
     /**
+     * @deprecated tag:v6.7.0 - Will be removed, cache tags are collected via events
+     *
      * @var array<string, bool>
      */
     private array $keys = ['all' => true];
@@ -100,6 +102,8 @@ class ThemeConfigValueAccessor
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed, cache tags are collected via events
+     *
      * @return array<int, string>
      */
     public function getTrace(string $key): array

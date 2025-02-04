@@ -747,7 +747,7 @@
     "basicCaptchaLabel": "To continue, enter the characters shown above*"
   },
   "cookie": {
-    "messageText": "This website uses cookies to ensure the best experience possible. <button class=\"btn btn-link-inline\" data-ajax-modal=\"true\" data-url=\"%url%\">More information...</button>",
+    "messageText": "This website uses cookies to ensure the best experience possible. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
     "messageTextPage": "This website uses cookies to ensure the best experience possible. <a href=\"%url%\" title=\"More information\">More information...</a>",
     "deny": "Only technically required",
     "configure": "Configure",

@@ -42,6 +42,7 @@ https://getbootstrap.com/docs/5.2/components/buttons
     --#{$prefix}btn-color: #{$btn-link-color};
     --#{$prefix}btn-hover-color: #{$btn-link-hover-color};
     --#{$prefix}btn-font-weight: #{$font-weight-normal};
+    --#{$prefix}btn-font-size: inherit;
     --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
     --#{$prefix}btn-line-height: #{$line-height-base};
     --#{$prefix}btn-padding-y: 0;

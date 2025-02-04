@@ -16,7 +16,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 const fs = require('fs');
-const chalk = require('chalk');
+const colors = require('picocolors');
 const WebpackBar = require('webpackbar');
 const { default: InjectPlugin, ENTRY_ORDER } = require('webpack-inject-plugin');
 const { VueLoaderPlugin } = require('vue-loader')
@@ -38,11 +38,11 @@ const nodeMajor = process.versions.node.split('.')[0];
 const supportedNodeVersions = ['20', '21', '22', '23'];
 if (!supportedNodeVersions.includes(nodeMajor)) {
     console.log();
-    console.log(chalk.red(`@Deprecated: You are using an incompatible Node.js version. Supported versions are ` + supportedNodeVersions.join(', ')));
+    console.log(colors.red(`@Deprecated: You are using an incompatible Node.js version. Supported versions are ` + supportedNodeVersions.join(', ')));
     console.log();
 }
 
-console.log(chalk.yellow('# Compiling with Webpack configuration'));
+console.log(colors.yellow('# Compiling with Webpack configuration'));
 
 const isDev = process.env.mode === 'development';
 const isProd = process.env.mode !== 'development';
@@ -52,21 +52,21 @@ const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATI
 const disableAdminImportsFromPlugins = process.env.DISABLE_ADMIN_IMPORTS_FROM_PLUGINS === '1' || process.env.DISABLE_ADMIN_IMPORTS_FROM_PLUGINS === 'true';
 
 if (buildOnlyExtensions && isDev) {
-    console.log(chalk.yellow('# Build only extensions is deactivated in development mode'));
+    console.log(colors.yellow('# Build only extensions is deactivated in development mode'));
 }
 
 if (isDev) {
-    console.log(chalk.yellow('# Development mode is activated \u{1F6E0}'));
-    console.log(chalk.yellow(`BaseUrl for proxy is set to "${process.env.APP_URL}"`));
+    console.log(colors.yellow('# Development mode is activated \u{1F6E0}'));
+    console.log(colors.yellow(`BaseUrl for proxy is set to "${process.env.APP_URL}"`));
     process.env.NODE_ENV = 'development';
 } else {
-    console.log(chalk.yellow('# Production mode is activated \u{1F680}'));
+    console.log(colors.yellow('# Production mode is activated \u{1F680}'));
     process.env.NODE_ENV = 'production';
 }
 
 // Error Handling when something is not defined
 if (isDev && !process.env.APP_URL) {
-    console.error(chalk.red('\n \u{26A0}️  You need to add the "APP_URL" as an environment variable for compiling the code. \u{26A0}️\n'));
+    console.error(colors.red('\n \u{26A0}️  You need to add the "APP_URL" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }
 
@@ -81,7 +81,7 @@ if (isDev && !process.env.PORT) {
 }
 
 if (!process.env.PROJECT_ROOT) {
-    console.error(chalk.red('\n \u{26A0}️  You need to add the "PROJECT_ROOT" as an environment variable for compiling the code. \u{26A0}️\n'));
+    console.error(colors.red('\n \u{26A0}️  You need to add the "PROJECT_ROOT" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }
 
@@ -154,7 +154,7 @@ const pluginEntries = (() => {
     return Object.entries(pluginDefinition)
         .filter(([name, definition]) => !!definition.administration && !!definition.administration.entryFilePath && !process.env.hasOwnProperty('SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
         .map(([name, definition]) => {
-            console.log(chalk.green(`# Plugin "${name}": Injected successfully`));
+            console.log(colors.green(`# Plugin "${name}": Injected successfully`));
 
             const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
             const htmlFilePath = path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.administration.path, '..', 'index.html');
@@ -792,7 +792,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
     let customPluginConfig = {};
 
     if (plugin.webpackConfig) {
-        console.log(chalk.green(`# Plugin "${plugin.name}": Extends the webpack config successfully`));
+        console.log(colors.green(`# Plugin "${plugin.name}": Extends the webpack config successfully`));
 
         const pluginWebpackConfigFn = require(path.resolve(plugin.webpackConfig));
         customPluginConfig = pluginWebpackConfigFn({

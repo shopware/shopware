@@ -215,7 +215,9 @@ export function loadExtensions(): ExtensionDefinition[] {
     return [
         ...plugins,
         ...apps,
-    ];
+    ].filter((extension) => {
+        return !process.env.hasOwnProperty('SKIP_' + extension.technicalName.toUpperCase().replace(/-/g, '_'));
+    });
 }
 
 /**

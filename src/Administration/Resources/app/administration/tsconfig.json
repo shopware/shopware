@@ -24,6 +24,7 @@
     "noErrorTruncation": false,
   },
   "include": [
+    "build.ts",
     "./src/**/*",
     "./scripts/**/*",
     "./vite.config.mts",

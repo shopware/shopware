@@ -8,12 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class IdField extends Field implements StorageAware
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $storageName;
+    protected string $storageName;
 
     public function __construct(
         string $storageName,

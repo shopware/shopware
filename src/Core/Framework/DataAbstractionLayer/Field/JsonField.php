@@ -9,26 +9,17 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class JsonField extends Field implements StorageAware
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $storageName;
+    protected string $storageName;
 
     /**
      * @var list<Field>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $propertyMapping;
+    protected array $propertyMapping;
 
     /**
      * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $default;
+    protected ?array $default;
 
     /**
      * @param list<Field> $propertyMapping

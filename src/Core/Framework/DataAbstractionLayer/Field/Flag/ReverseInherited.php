@@ -7,12 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ReverseInherited extends Flag
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $propertyName;
+    protected string $propertyName;
 
     public function __construct(string $propertyName)
     {

@@ -12,33 +12,13 @@ class FkField extends Field implements StorageAware
 {
     final public const PRIORITY = 70;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var string
-     */
-    protected $storageName;
+    protected string $storageName;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var string
-     */
-    protected $referenceClass;
+    protected string $referenceClass;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var EntityDefinition
-     */
-    protected $referenceDefinition;
+    protected ?EntityDefinition $referenceDefinition;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var string
-     */
-    protected $referenceField;
+    protected string $referenceField;
 
     protected ?DefinitionInstanceRegistry $registry = null;
 
@@ -76,6 +56,7 @@ class FkField extends Field implements StorageAware
     {
         if ($this->referenceDefinition === null) {
             $this->compileLazy();
+            \assert($this->referenceDefinition !== null);
         }
 
         return $this->referenceDefinition;

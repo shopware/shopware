@@ -10,12 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AllowHtml extends Flag
 {
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sanitized;
+    protected bool $sanitized;
 
     public function __construct(bool $sanitized = true)
     {

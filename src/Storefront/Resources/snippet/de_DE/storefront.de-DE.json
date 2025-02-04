@@ -608,7 +608,7 @@
     "subjectPlaceholder": "Betreff eingeben ...",
     "commentLabel": "Kommentar",
     "commentPlaceholder": "Kommentar eingeben ...",
-    "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
+    "privacyNoticeText": "Ich habe die <button class=\"btn btn-link-inline\" type=\"button\" data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\">Datenschutzbestimmungen</button> zur Kenntnis genommen und erkenne diese an.",
     "privacyNoticeTextPage": "Ich habe die <a href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."

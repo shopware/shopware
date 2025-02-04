@@ -23,6 +23,9 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
             await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestNoResult).toBeVisible();
         });
 
+        /*
+        TODO: needs to be implemented in Advanced Search by the Golden Stars team
+         */
         // await test.step('Customer searches term and sees a single matching product', async () => {
         //     await ShopCustomer.attemptsTo(SearchForTerm('Bowl' + productNameSuffix));
         //     const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();

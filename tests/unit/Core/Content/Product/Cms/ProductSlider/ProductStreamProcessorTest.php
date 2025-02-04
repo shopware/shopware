@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Product\Cms\Utils\ProductSlider;
+namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
-use Shopware\Core\Content\Product\Cms\Utils\ProductSlider\ProductStreamHandler;
+use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -30,8 +30,8 @@ use Shopware\Core\System\Tax\TaxCollection;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(ProductStreamHandler::class)]
-class ProductStreamHandlerTest extends TestCase
+#[CoversClass(ProductStreamProcessor::class)]
+class ProductStreamProcessorTest extends TestCase
 {
     use ProductSliderUnitTrait;
 
@@ -198,9 +198,9 @@ class ProductStreamHandlerTest extends TestCase
         static::assertEmpty($slider->getProducts());
     }
 
-    private function getHandler(): ProductStreamHandler
+    private function getHandler(): ProductStreamProcessor
     {
-        return new ProductStreamHandler($this->productStreamBuilder, $this->productRepository);
+        return new ProductStreamProcessor($this->productStreamBuilder, $this->productRepository);
     }
 
     private function getFilter(): MultiFilter

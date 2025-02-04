@@ -9,12 +9,12 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
+use Shopware\Core\Content\Product\Cms\ProductSlider\AbstractProductSliderProcessor;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
-use Shopware\Core\Content\Product\Cms\Utils\ProductSlider\AbstractProductSliderHandler;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Unit\Core\Content\Product\Cms\Utils\ProductSlider\ProductSliderUnitTrait;
+use Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider\ProductSliderUnitTrait;
 
 /**
  * @internal
@@ -27,17 +27,17 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
     private FieldConfigCollection $config;
 
-    private AbstractProductSliderHandler&MockObject $handler;
+    private AbstractProductSliderProcessor&MockObject $handler;
 
     /**
-     * @var AbstractProductSliderHandler[]
+     * @var AbstractProductSliderProcessor[]
      */
     private array $handlers = [];
 
     protected function setUp(): void
     {
         $this->config = new FieldConfigCollection();
-        $this->handler = $this->createMock(AbstractProductSliderHandler::class);
+        $this->handler = $this->createMock(AbstractProductSliderProcessor::class);
     }
 
     public function testGetType(): void
@@ -92,7 +92,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $slot = $this->getSlot();
         $data = new ElementDataCollection();
 
-        $handler = $this->createMock(AbstractProductSliderHandler::class);
+        $handler = $this->createMock(AbstractProductSliderProcessor::class);
         $handler->expects(static::never())->method('enrich');
 
         $this->getResolver()->enrich($slot, $this->getResolverContext(), $data);
@@ -120,7 +120,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $data = new ElementDataCollection();
         $resolverContext = $this->getResolverContext();
 
-        $handler = $this->createMock(AbstractProductSliderHandler::class);
+        $handler = $this->createMock(AbstractProductSliderProcessor::class);
         $handler->method('getSource')->willReturn(FieldConfig::SOURCE_STATIC);
         $handler->expects(static::once())->method('enrich')->with($slot, $data, $resolverContext);
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Product\Cms\Utils\ProductSlider;
+namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;

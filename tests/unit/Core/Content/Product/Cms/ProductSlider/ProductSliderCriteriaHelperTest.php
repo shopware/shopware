@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Product\Cms\Utils\ProductSlider;
+namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Cms\Utils\ProductSlider\ProductSliderCriteriaHelper;
+use Shopware\Core\Content\Product\Cms\ProductSlider\ProductSliderCriteriaHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;

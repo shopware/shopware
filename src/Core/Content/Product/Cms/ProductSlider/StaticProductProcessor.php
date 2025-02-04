@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Cms\Utils\ProductSlider;
+namespace Shopware\Core\Content\Product\Cms\ProductSlider;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
@@ -17,7 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 #[Package('discovery')]
-class StaticHandler extends AbstractProductSliderHandler
+class StaticProductProcessor extends AbstractProductSliderProcessor
 {
     private const STATIC_SEARCH_KEY = 'product-slider';
 

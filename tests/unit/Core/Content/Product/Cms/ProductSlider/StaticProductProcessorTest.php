@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Product\Cms\Utils\ProductSlider;
+namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
-use Shopware\Core\Content\Product\Cms\Utils\ProductSlider\StaticHandler;
+use Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,8 +22,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(StaticHandler::class)]
-class StaticHandlerTest extends TestCase
+#[CoversClass(StaticProductProcessor::class)]
+class StaticProductProcessorTest extends TestCase
 {
     use ProductSliderUnitTrait;
 
@@ -149,9 +149,9 @@ class StaticHandlerTest extends TestCase
         static::assertNull($data);
     }
 
-    private function getHandler(): StaticHandler
+    private function getHandler(): StaticProductProcessor
     {
-        return new StaticHandler($this->configService);
+        return new StaticProductProcessor($this->configService);
     }
 
     private function hideUnavailableProducts(bool $value): void

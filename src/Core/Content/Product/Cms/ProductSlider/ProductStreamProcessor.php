@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Cms\Utils\ProductSlider;
+namespace Shopware\Core\Content\Product\Cms\ProductSlider;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
@@ -19,7 +19,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('discovery')]
-class ProductStreamHandler extends AbstractProductSliderHandler
+class ProductStreamProcessor extends AbstractProductSliderProcessor
 {
     private const FALLBACK_LIMIT = 50;
 

@@ -8,21 +8,21 @@ use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
-use Shopware\Core\Content\Product\Cms\Utils\ProductSlider\AbstractProductSliderHandler;
+use Shopware\Core\Content\Product\Cms\ProductSlider\AbstractProductSliderProcessor;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     /**
-     * @var array<int|string, AbstractProductSliderHandler>
+     * @var array<int|string, AbstractProductSliderProcessor>
      */
     private array $handlers = [];
 
     /**
+     * @param iterable<AbstractProductSliderProcessor> $handlers
      * @internal
      *
-     * @param iterable<AbstractProductSliderHandler> $handlers
      */
     public function __construct(
         iterable $handlers,

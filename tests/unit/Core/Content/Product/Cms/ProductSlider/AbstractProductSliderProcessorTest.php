@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Product\Cms\Utils\ProductSlider;
+namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -9,7 +9,7 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Product\Cms\Utils\ProductSlider\AbstractProductSliderHandler;
+use Shopware\Core\Content\Product\Cms\ProductSlider\AbstractProductSliderProcessor;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -17,14 +17,14 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(AbstractProductSliderHandler::class)]
-class AbstractProductSliderHandlerTest extends TestCase
+#[CoversClass(AbstractProductSliderProcessor::class)]
+class AbstractProductSliderProcessorTest extends TestCase
 {
     use ProductSliderUnitTrait;
 
     public function testGetSource(): void
     {
-        $handler = new TestAbstractProductSliderHandler();
+        $handler = new TestAbstractProductSliderProcessor();
         static::assertSame('test', $handler->getSource());
     }
 
@@ -33,14 +33,14 @@ class AbstractProductSliderHandlerTest extends TestCase
         $products = $this->getProducts();
         static::assertCount(2, $products);
 
-        $handler = new TestAbstractProductSliderHandler();
+        $handler = new TestAbstractProductSliderProcessor();
 
         $filteredProducts = $handler->publicFilterOutOutOfStockHiddenCloseoutProducts($products);
         static::assertCount(1, $filteredProducts);
     }
 }
 
-class TestAbstractProductSliderHandler extends AbstractProductSliderHandler
+class TestAbstractProductSliderProcessor extends AbstractProductSliderProcessor
 {
     public function getSource(): string
     {

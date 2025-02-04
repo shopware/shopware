@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Cms\Utils\ProductSlider;
+namespace Shopware\Core\Content\Product\Cms\ProductSlider;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
@@ -12,7 +12,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
-abstract class AbstractProductSliderHandler
+abstract class AbstractProductSliderProcessor
 {
     protected const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
 

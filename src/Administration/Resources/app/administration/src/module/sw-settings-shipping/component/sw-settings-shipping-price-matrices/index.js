@@ -21,7 +21,6 @@ export default {
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
-        'feature',
     ],
 
     mixins: [

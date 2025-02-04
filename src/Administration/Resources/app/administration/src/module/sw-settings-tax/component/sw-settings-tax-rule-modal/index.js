@@ -16,7 +16,6 @@ export default {
 
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     emits: ['modal-close'],

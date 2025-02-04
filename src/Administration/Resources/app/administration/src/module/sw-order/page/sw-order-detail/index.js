@@ -27,7 +27,6 @@ export default {
 
     provide() {
         return {
-            swOrderDetailOnIdentifierChange: this.updateIdentifier,
             swOrderDetailOnCreatedByIdChange: this.updateCreatedById,
             swOrderDetailOnLoadingChange: this.onUpdateLoading,
             swOrderDetailOnEditingChange: this.onUpdateEditing,
@@ -54,10 +53,6 @@ export default {
 
     data() {
         return {
-            /*
-             * @deprecated tag:v6.7.0 - identifier will be removed
-             */
-            identifier: '',
             isEditing: false,
             isLoading: true,
             isSaveSuccessful: false,
@@ -233,10 +228,6 @@ export default {
                 // clean up recently created version
                 await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext);
             }
-        },
-
-        updateIdentifier(identifier) {
-            this.identifier = identifier;
         },
 
         updateCreatedById(createdById) {

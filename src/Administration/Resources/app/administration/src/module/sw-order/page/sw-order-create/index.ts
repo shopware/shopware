@@ -19,7 +19,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     mixins: [

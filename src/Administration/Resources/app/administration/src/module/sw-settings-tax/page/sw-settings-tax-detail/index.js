@@ -19,7 +19,6 @@ export default {
         'acl',
         'customFieldDataProviderService',
         'systemConfigApiService',
-        'feature',
     ],
 
     mixins: [

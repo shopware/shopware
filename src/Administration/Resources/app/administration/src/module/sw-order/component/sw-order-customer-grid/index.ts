@@ -28,7 +28,6 @@ export default Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     mixins: [
@@ -102,10 +101,6 @@ export default Component.wrapComponentConfig({
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags')
                 .addAssociation('boundSalesChannel');
-
-            if (!this.feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('defaultPaymentMethod');
-            }
 
             return criteria;
         },

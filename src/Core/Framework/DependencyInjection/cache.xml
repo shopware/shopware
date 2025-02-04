@@ -10,12 +10,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheTracer" lazy="true">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
-        </service>
-
         <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis" public="true">
             <argument>%shopware.cache.invalidation.delay_options.connection%</argument>
         </service>
@@ -201,22 +195,6 @@
 
         <service id="shopware.reverse_proxy.http_client" class="GuzzleHttp\Client"/>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway" class="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway">
-            <argument>%shopware.http_cache.reverse_proxy.hosts%</argument>
-            <argument type="collection">
-                <argument key="method">%shopware.http_cache.reverse_proxy.ban_method%</argument>
-                <argument key="headers">%shopware.http_cache.reverse_proxy.ban_headers%</argument>
-            </argument>
-            <argument type="collection">
-                <argument key="method">%shopware.http_cache.reverse_proxy.purge_all.ban_method%</argument>
-                <argument key="headers">%shopware.http_cache.reverse_proxy.purge_all.ban_headers%</argument>
-                <argument key="urls">%shopware.http_cache.reverse_proxy.purge_all.urls%</argument>
-            </argument>
-            <argument>%shopware.http_cache.reverse_proxy.max_parallel_invalidations%</argument>
-            <argument type="service" id="shopware.cache.reverse_proxy.redis"/>
-            <argument type="service" id="shopware.reverse_proxy.http_client"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway">
             <argument>%shopware.http_cache.reverse_proxy.hosts%</argument>
             <argument>%shopware.http_cache.reverse_proxy.max_parallel_invalidations%</argument>
@@ -234,12 +212,6 @@
             <argument>%shopware.http_cache.reverse_proxy.fastly.instance_tag%</argument>
             <argument>%env(APP_URL)%</argument>
             <argument type="service" id="logger"/>
-        </service>
-
-        <!-- @deprecated tag:v6.7.0 - Remove-->
-        <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
-            <tag name="kernel.cache_clearer"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Telemetry\CacheTelemetrySubscriber">

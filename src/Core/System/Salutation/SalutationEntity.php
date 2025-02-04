@@ -19,23 +19,23 @@ class SalutationEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected ?string $salutationKey;
+    protected ?string $salutationKey = null;
 
-    protected ?string $displayName;
+    protected ?string $displayName = null;
 
-    protected ?string $letterName;
+    protected ?string $letterName = null;
 
-    protected ?SalutationTranslationCollection $translations;
+    protected ?SalutationTranslationCollection $translations = null;
 
-    protected ?CustomerCollection $customers;
+    protected ?CustomerCollection $customers = null;
 
-    protected ?CustomerAddressCollection $customerAddresses;
+    protected ?CustomerAddressCollection $customerAddresses = null;
 
-    protected ?OrderCustomerCollection $orderCustomers;
+    protected ?OrderCustomerCollection $orderCustomers = null;
 
-    protected ?OrderAddressCollection $orderAddresses;
+    protected ?OrderAddressCollection $orderAddresses = null;
 
-    protected ?NewsletterRecipientCollection $newsletterRecipients;
+    protected ?NewsletterRecipientCollection $newsletterRecipients = null;
 
     public function getSalutationKey(): ?string
     {

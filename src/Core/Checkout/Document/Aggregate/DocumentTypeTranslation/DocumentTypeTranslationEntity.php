@@ -14,9 +14,9 @@ class DocumentTypeTranslationEntity extends TranslationEntity
 
     protected string $documentTypeId;
 
-    protected ?DocumentTypeEntity $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     public function getDocumentTypeId(): string
     {

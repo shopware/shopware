@@ -14,11 +14,11 @@ class SalutationTranslationEntity extends TranslationEntity
 
     protected string $salutationId;
 
-    protected ?string $displayName;
+    protected ?string $displayName = null;
 
-    protected ?string $letterName;
+    protected ?string $letterName = null;
 
-    protected ?SalutationEntity $salutation;
+    protected ?SalutationEntity $salutation = null;
 
     public function getSalutationId(): string
     {

@@ -22,11 +22,11 @@ class TaxEntity extends Entity
 
     protected int $position;
 
-    protected ?ProductCollection $products;
+    protected ?ProductCollection $products = null;
 
-    protected ?TaxRuleCollection $rules;
+    protected ?TaxRuleCollection $rules = null;
 
-    protected ?ShippingMethodCollection $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods = null;
 
     public function getTaxRate(): float
     {

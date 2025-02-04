@@ -21,13 +21,13 @@ class DocumentTypeEntity extends Entity
 
     protected string $technicalName;
 
-    protected ?ProductTranslationCollection $translations;
+    protected ?ProductTranslationCollection $translations = null;
 
-    protected ?DocumentCollection $documents;
+    protected ?DocumentCollection $documents = null;
 
-    protected ?DocumentBaseConfigCollection $documentBaseConfigs;
+    protected ?DocumentBaseConfigCollection $documentBaseConfigs = null;
 
-    protected ?DocumentBaseConfigSalesChannelCollection $documentBaseConfigSalesChannels;
+    protected ?DocumentBaseConfigSalesChannelCollection $documentBaseConfigSalesChannels = null;
 
     public function getName(): string
     {

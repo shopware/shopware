@@ -72,15 +72,15 @@ class PromotionDiscountEntity extends Entity
 
     protected float $value;
 
-    protected ?PromotionEntity $promotion;
+    protected ?PromotionEntity $promotion = null;
 
-    protected ?RuleCollection $discountRules;
+    protected ?RuleCollection $discountRules = null;
 
     protected bool $considerAdvancedRules;
 
-    protected ?float $maxValue;
+    protected ?float $maxValue = null;
 
-    protected PromotionDiscountPriceCollection $promotionDiscountPrices;
+    protected ?PromotionDiscountPriceCollection $promotionDiscountPrices = null;
 
     protected string $sorterKey;
 
@@ -88,7 +88,7 @@ class PromotionDiscountEntity extends Entity
 
     protected string $usageKey;
 
-    protected ?string $pickerKey;
+    protected ?string $pickerKey = null;
 
     public function getPromotionId(): string
     {

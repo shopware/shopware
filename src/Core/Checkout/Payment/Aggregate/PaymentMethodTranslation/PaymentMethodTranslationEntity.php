@@ -16,13 +16,13 @@ class PaymentMethodTranslationEntity extends TranslationEntity
 
     protected string $paymentMethodId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $distinguishableName;
+    protected ?string $distinguishableName = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?PaymentMethodEntity $paymentMethod;
+    protected ?PaymentMethodEntity $paymentMethod = null;
 
     public function getPaymentMethodId(): string
     {

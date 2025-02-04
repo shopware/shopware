@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal

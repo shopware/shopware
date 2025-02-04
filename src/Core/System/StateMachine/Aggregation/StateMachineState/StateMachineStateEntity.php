@@ -21,33 +21,33 @@ class StateMachineStateEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected string $technicalName;
 
     protected string $stateMachineId;
 
-    protected ?StateMachineEntity $stateMachine;
+    protected ?StateMachineEntity $stateMachine = null;
 
-    protected ?StateMachineTransitionCollection $fromStateMachineTransitions;
+    protected ?StateMachineTransitionCollection $fromStateMachineTransitions = null;
 
-    protected ?StateMachineTransitionCollection $toStateMachineTransitions;
+    protected ?StateMachineTransitionCollection $toStateMachineTransitions = null;
 
-    protected StateMachineStateTranslationCollection $translations;
+    protected ?StateMachineStateTranslationCollection $translations = null;
 
-    protected ?OrderCollection $orders;
+    protected ?OrderCollection $orders = null;
 
     protected ?OrderTransactionCaptureCollection $orderTransactionCaptures = null;
 
     protected ?OrderTransactionCaptureRefundCollection $orderTransactionCaptureRefunds = null;
 
-    protected ?OrderTransactionCollection $orderTransactions;
+    protected ?OrderTransactionCollection $orderTransactions = null;
 
-    protected ?OrderDeliveryCollection $orderDeliveries;
+    protected ?OrderDeliveryCollection $orderDeliveries = null;
 
-    protected ?StateMachineHistoryCollection $fromStateMachineHistoryEntries;
+    protected ?StateMachineHistoryCollection $fromStateMachineHistoryEntries = null;
 
-    protected ?StateMachineHistoryCollection $toStateMachineHistoryEntries;
+    protected ?StateMachineHistoryCollection $toStateMachineHistoryEntries = null;
 
     public function getToStateMachineHistoryEntries(): ?StateMachineHistoryCollection
     {
@@ -119,7 +119,7 @@ class StateMachineStateEntity extends Entity
         $this->toStateMachineTransitions = $toStateMachineTransitions;
     }
 
-    public function getTranslations(): StateMachineStateTranslationCollection
+    public function getTranslations(): ?StateMachineStateTranslationCollection
     {
         return $this->translations;
     }

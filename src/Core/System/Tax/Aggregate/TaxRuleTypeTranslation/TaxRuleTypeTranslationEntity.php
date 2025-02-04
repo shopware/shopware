@@ -11,9 +11,9 @@ class TaxRuleTypeTranslationEntity extends TranslationEntity
 {
     protected string $taxRuleTypeId;
 
-    protected ?string $typeName;
+    protected ?string $typeName = null;
 
-    protected ?TaxRuleTypeEntity $taxRuleType;
+    protected ?TaxRuleTypeEntity $taxRuleType = null;
 
     public function getTaxRuleTypeId(): string
     {

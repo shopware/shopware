@@ -16,7 +16,7 @@ class StateMachineHistoryEntity extends Entity
 
     protected string $stateMachineId;
 
-    protected ?StateMachineEntity $stateMachine;
+    protected ?StateMachineEntity $stateMachine = null;
 
     protected string $entityName;
 
@@ -26,15 +26,15 @@ class StateMachineHistoryEntity extends Entity
 
     protected string $fromStateId;
 
-    protected ?StateMachineStateEntity $fromStateMachineState;
+    protected ?StateMachineStateEntity $fromStateMachineState = null;
 
     protected string $toStateId;
 
-    protected ?StateMachineStateEntity $toStateMachineState;
+    protected ?StateMachineStateEntity $toStateMachineState = null;
 
     protected string $userId;
 
-    protected ?UserEntity $user;
+    protected ?UserEntity $user = null;
 
     protected string $transitionActionName;
 

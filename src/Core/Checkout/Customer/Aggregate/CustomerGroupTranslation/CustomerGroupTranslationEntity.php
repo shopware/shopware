@@ -16,17 +16,17 @@ class CustomerGroupTranslationEntity extends TranslationEntity
 
     protected string $customerGroupId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?CustomerGroupEntity $customerGroup;
+    protected ?CustomerGroupEntity $customerGroup = null;
 
-    protected string $registrationTitle;
+    protected ?string $registrationTitle = null;
 
-    protected string $registrationIntroduction;
+    protected ?string $registrationIntroduction = null;
 
-    protected bool $registrationOnlyCompanyRegistration;
+    protected ?bool $registrationOnlyCompanyRegistration = null;
 
-    protected string $registrationSeoMetaDescription;
+    protected ?string $registrationSeoMetaDescription = null;
 
     public function getCustomerGroupId(): string
     {

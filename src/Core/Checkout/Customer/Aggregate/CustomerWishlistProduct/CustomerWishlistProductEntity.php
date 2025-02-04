@@ -19,9 +19,9 @@ class CustomerWishlistProductEntity extends Entity
 
     protected string $productVersionId;
 
-    protected ?CustomerWishlistEntity $wishlist;
+    protected ?CustomerWishlistEntity $wishlist = null;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
     public function getWishlist(): ?CustomerWishlistEntity
     {

@@ -26,9 +26,9 @@ class OrderLineItemEntity extends Entity
 
     protected string $identifier;
 
-    protected ?string $referencedId;
+    protected ?string $referencedId = null;
 
-    protected ?string $productId;
+    protected ?string $productId = null;
 
     /**
      * @internal
@@ -43,45 +43,45 @@ class OrderLineItemEntity extends Entity
 
     protected string $label;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
     protected bool $good;
 
     protected bool $removable;
 
-    protected ?string $coverId;
+    protected ?string $coverId = null;
 
     protected bool $stackable;
 
     protected int $position;
 
-    protected ?CalculatedPrice $price;
+    protected ?CalculatedPrice $price = null;
 
-    protected ?PriceDefinitionInterface $priceDefinition;
+    protected ?PriceDefinitionInterface $priceDefinition = null;
 
     /**
      * @var array<string>|null
      */
-    protected ?array $payload;
+    protected ?array $payload = null;
 
-    protected ?string $parentId;
+    protected ?string $parentId = null;
 
-    protected ?OrderLineItemEntity $parent;
+    protected ?OrderLineItemEntity $parent = null;
 
-    protected ?string $type;
+    protected ?string $type = null;
 
-    protected ?OrderEntity $order;
+    protected ?OrderEntity $order = null;
 
-    protected ?OrderDeliveryPositionCollection $orderDeliveryPositions;
+    protected ?OrderDeliveryPositionCollection $orderDeliveryPositions = null;
 
-    protected ?MediaEntity $cover;
+    protected ?MediaEntity $cover = null;
 
     /**
      * @internal
      */
-    protected ?OrderLineItemCollection $children;
+    protected ?OrderLineItemCollection $children = null;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
     protected ?OrderTransactionCaptureRefundPositionCollection $orderTransactionCaptureRefundPositions = null;
 

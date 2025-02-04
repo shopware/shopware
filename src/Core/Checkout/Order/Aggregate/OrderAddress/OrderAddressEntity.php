@@ -20,9 +20,9 @@ class OrderAddressEntity extends Entity
 
     protected string $countryId;
 
-    protected ?string $countryStateId;
+    protected ?string $countryStateId = null;
 
-    protected ?string $salutationId;
+    protected ?string $salutationId = null;
 
     protected string $firstName;
 
@@ -30,33 +30,33 @@ class OrderAddressEntity extends Entity
 
     protected string $street;
 
-    protected ?string $zipcode;
+    protected ?string $zipcode = null;
 
     protected string $city;
 
-    protected ?string $company;
+    protected ?string $company = null;
 
-    protected ?string $department;
+    protected ?string $department = null;
 
-    protected ?string $title;
+    protected ?string $title = null;
 
-    protected ?string $vatId;
+    protected ?string $vatId = null;
 
-    protected ?string $phoneNumber;
+    protected ?string $phoneNumber = null;
 
-    protected ?string $additionalAddressLine1;
+    protected ?string $additionalAddressLine1 = null;
 
-    protected ?string $additionalAddressLine2;
+    protected ?string $additionalAddressLine2 = null;
 
-    protected ?CountryEntity $country;
+    protected ?CountryEntity $country = null;
 
-    protected ?CountryStateEntity $countryState;
+    protected ?CountryStateEntity $countryState = null;
 
-    protected ?OrderEntity $order;
+    protected ?OrderEntity $order = null;
 
-    protected ?SalutationEntity $salutation;
+    protected ?SalutationEntity $salutation = null;
 
-    protected ?OrderDeliveryCollection $orderDeliveries;
+    protected ?OrderDeliveryCollection $orderDeliveries = null;
 
     protected string $orderId;
 

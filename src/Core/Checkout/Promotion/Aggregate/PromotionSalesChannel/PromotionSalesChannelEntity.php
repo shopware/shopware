@@ -20,9 +20,9 @@ class PromotionSalesChannelEntity extends Entity
 
     protected int $priority;
 
-    protected ?PromotionEntity $promotion;
+    protected ?PromotionEntity $promotion = null;
 
-    protected ?SalesChannelEntity $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getPromotionId(): string
     {

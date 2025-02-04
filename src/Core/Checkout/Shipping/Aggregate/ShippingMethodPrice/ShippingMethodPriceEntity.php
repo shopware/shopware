@@ -19,23 +19,23 @@ class ShippingMethodPriceEntity extends Entity implements IdAware
 
     protected string $shippingMethodId;
 
-    protected ?string $ruleId;
+    protected ?string $ruleId = null;
 
-    protected ?int $calculation;
+    protected ?int $calculation = null;
 
-    protected ?float $quantityStart;
+    protected ?float $quantityStart = null;
 
-    protected ?float $quantityEnd;
+    protected ?float $quantityEnd = null;
 
-    protected ?ShippingMethodEntity $shippingMethod;
+    protected ?ShippingMethodEntity $shippingMethod = null;
 
-    protected ?RuleEntity $rule;
+    protected ?RuleEntity $rule = null;
 
-    protected ?string $calculationRuleId;
+    protected ?string $calculationRuleId = null;
 
-    protected ?RuleEntity $calculationRule;
+    protected ?RuleEntity $calculationRule = null;
 
-    protected ?PriceCollection $currencyPrice;
+    protected ?PriceCollection $currencyPrice = null;
 
     public function getShippingMethodId(): string
     {

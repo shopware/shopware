@@ -19,15 +19,15 @@ class StateMachineTransitionEntity extends Entity
 
     protected string $stateMachineId;
 
-    protected ?StateMachineEntity $stateMachine;
+    protected ?StateMachineEntity $stateMachine = null;
 
     protected string $fromStateId;
 
-    protected ?StateMachineStateEntity $fromStateMachineState;
+    protected ?StateMachineStateEntity $fromStateMachineState = null;
 
     protected string $toStateId;
 
-    protected ?StateMachineStateEntity $toStateMachineState;
+    protected ?StateMachineStateEntity $toStateMachineState = null;
 
     public function getStateMachineId(): string
     {

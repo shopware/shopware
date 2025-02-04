@@ -40,17 +40,17 @@ class OrderDeliveryEntity extends Entity
 
     protected CalculatedPrice $shippingCosts;
 
-    protected ?OrderAddressEntity $shippingOrderAddress;
+    protected ?OrderAddressEntity $shippingOrderAddress = null;
 
     protected string $stateId;
 
-    protected ?StateMachineStateEntity $stateMachineState;
+    protected ?StateMachineStateEntity $stateMachineState = null;
 
-    protected ?ShippingMethodEntity $shippingMethod;
+    protected ?ShippingMethodEntity $shippingMethod = null;
 
-    protected ?OrderEntity $order;
+    protected ?OrderEntity $order = null;
 
-    protected ?OrderDeliveryPositionCollection $positions;
+    protected ?OrderDeliveryPositionCollection $positions = null;
 
     public function getOrderId(): string
     {

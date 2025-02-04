@@ -29,7 +29,7 @@ class OrderEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected string $orderNumber;
+    protected ?string $orderNumber = null;
 
     protected string $currencyId;
 
@@ -53,66 +53,66 @@ class OrderEntity extends Entity
 
     protected float $positionPrice;
 
-    protected ?string $taxStatus;
+    protected ?string $taxStatus = null;
 
     protected CalculatedPrice $shippingCosts;
 
     protected float $shippingTotal;
 
-    protected ?OrderCustomerEntity $orderCustomer;
+    protected ?OrderCustomerEntity $orderCustomer = null;
 
-    protected ?CurrencyEntity $currency;
+    protected ?CurrencyEntity $currency = null;
 
     protected string $languageId;
 
-    protected ?LanguageEntity $language;
+    protected ?LanguageEntity $language = null;
 
-    protected ?SalesChannelEntity $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    protected ?OrderAddressCollection $addresses;
+    protected ?OrderAddressCollection $addresses = null;
 
-    protected ?OrderAddressEntity $billingAddress;
+    protected ?OrderAddressEntity $billingAddress = null;
 
-    protected ?OrderDeliveryCollection $deliveries;
+    protected ?OrderDeliveryCollection $deliveries = null;
 
-    protected ?OrderLineItemCollection $lineItems;
+    protected ?OrderLineItemCollection $lineItems = null;
 
-    protected ?OrderTransactionCollection $transactions;
+    protected ?OrderTransactionCollection $transactions = null;
 
-    protected ?string $deepLinkCode;
+    protected ?string $deepLinkCode = null;
 
     protected int $autoIncrement;
 
-    protected ?StateMachineStateEntity $stateMachineState;
+    protected ?StateMachineStateEntity $stateMachineState = null;
 
     protected string $stateId;
 
-    protected ?DocumentCollection $documents;
+    protected ?DocumentCollection $documents = null;
 
-    protected ?TagCollection $tags;
+    protected ?TagCollection $tags = null;
 
-    protected ?string $affiliateCode;
+    protected ?string $affiliateCode = null;
 
-    protected ?string $campaignCode;
+    protected ?string $campaignCode = null;
 
-    protected ?string $customerComment;
+    protected ?string $customerComment = null;
 
     /**
      * @var array<string>|null
      */
     protected ?array $ruleIds = [];
 
-    protected ?string $createdById;
+    protected ?string $createdById = null;
 
-    protected ?UserEntity $createdBy;
+    protected ?UserEntity $createdBy = null;
 
-    protected ?string $updatedById;
+    protected ?string $updatedById = null;
 
-    protected ?UserEntity $updatedBy;
+    protected ?UserEntity $updatedBy = null;
 
-    protected ?CashRoundingConfig $itemRounding;
+    protected ?CashRoundingConfig $itemRounding = null;
 
-    protected ?CashRoundingConfig $totalRounding;
+    protected ?CashRoundingConfig $totalRounding = null;
 
     protected ?string $source = null;
 

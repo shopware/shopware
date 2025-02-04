@@ -20,7 +20,7 @@ class OrderDeliveryPositionEntity extends Entity
 
     protected string $orderLineItemId;
 
-    protected ?CalculatedPrice $price;
+    protected ?CalculatedPrice $price = null;
 
     protected float $unitPrice;
 
@@ -28,9 +28,9 @@ class OrderDeliveryPositionEntity extends Entity
 
     protected int $quantity;
 
-    protected ?OrderLineItemEntity $orderLineItem;
+    protected ?OrderLineItemEntity $orderLineItem = null;
 
-    protected ?OrderDeliveryEntity $orderDelivery;
+    protected ?OrderDeliveryEntity $orderDelivery = null;
 
     protected string $orderDeliveryVersionId;
 

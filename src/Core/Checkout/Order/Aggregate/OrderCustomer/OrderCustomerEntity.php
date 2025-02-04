@@ -20,29 +20,29 @@ class OrderCustomerEntity extends Entity
 
     protected string $orderId;
 
-    protected ?string $salutationId;
+    protected ?string $salutationId = null;
 
     protected string $firstName;
 
     protected string $lastName;
 
-    protected ?string $title;
+    protected ?string $title = null;
 
-    protected ?array $vatIds;
+    protected ?array $vatIds = null;
 
-    protected ?string $company;
+    protected ?string $company = null;
 
-    protected ?string $customerNumber;
+    protected ?string $customerNumber = null;
 
-    protected ?string $customerId;
+    protected ?string $customerId = null;
 
-    protected ?CustomerEntity $customer;
+    protected ?CustomerEntity $customer = null;
 
-    protected ?SalutationEntity $salutation;
+    protected ?SalutationEntity $salutation = null;
 
-    protected ?OrderEntity $order;
+    protected ?OrderEntity $order = null;
 
-    protected ?string $remoteAddress;
+    protected ?string $remoteAddress = null;
 
     protected string $orderVersionId;
 

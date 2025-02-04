@@ -31,47 +31,47 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
     final public const POSITION_DEFAULT = 1;
     final public const ACTIVE_DEFAULT = false;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected ?bool $active = null;
 
     protected ?int $position = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $trackingUrl;
+    protected ?string $trackingUrl = null;
 
     protected string $deliveryTimeId;
 
-    protected ?DeliveryTimeEntity $deliveryTime;
+    protected ?DeliveryTimeEntity $deliveryTime = null;
 
-    protected ?ShippingMethodTranslationCollection $translations;
+    protected ?ShippingMethodTranslationCollection $translations = null;
 
-    protected ?OrderDeliveryCollection $orderDeliveries;
+    protected ?OrderDeliveryCollection $orderDeliveries = null;
 
-    protected ?SalesChannelCollection $salesChannelDefaultAssignments;
+    protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
-    protected ?SalesChannelCollection $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    protected ?RuleEntity $availabilityRule;
+    protected ?RuleEntity $availabilityRule = null;
 
     protected ?string $availabilityRuleId = null;
 
     protected ShippingMethodPriceCollection $prices;
 
-    protected ?string $mediaId;
+    protected ?string $mediaId = null;
 
-    protected ?string $taxId;
+    protected ?string $taxId = null;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
-    protected ?TagCollection $tags;
+    protected ?TagCollection $tags = null;
 
     protected string $taxType;
 
     protected string $technicalName;
 
-    protected ?TaxEntity $tax;
+    protected ?TaxEntity $tax = null;
 
     protected ?AppShippingMethodEntity $appShippingMethod = null;
 

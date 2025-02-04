@@ -14,72 +14,72 @@ class DocumentConfiguration extends Struct
     /**
      * @var array<string>
      */
-    protected array $deliveryCountries;
+    protected array $deliveryCountries = [];
 
-    protected ?bool $displayPrices;
+    protected ?bool $displayPrices = null;
 
     /**
      * @var array<string, mixed>|null
      */
-    protected ?array $logo;
+    protected ?array $logo = null;
 
-    protected ?string $filenamePrefix;
+    protected ?string $filenamePrefix = null;
 
-    protected ?string $filenameSuffix;
+    protected ?string $filenameSuffix = null;
 
-    protected ?string $documentNumber;
+    protected ?string $documentNumber = null;
 
-    protected ?string $documentDate;
+    protected ?string $documentDate = null;
 
-    protected ?string $documentComment;
+    protected ?string $documentComment = null;
 
-    protected ?string $pageOrientation;
+    protected ?string $pageOrientation = null;
 
-    protected ?string $pageSize;
+    protected ?string $pageSize = null;
 
-    protected ?bool $displayFooter;
+    protected ?bool $displayFooter = null;
 
-    protected ?bool $displayHeader;
+    protected ?bool $displayHeader = null;
 
-    protected ?bool $displayLineItems;
+    protected ?bool $displayLineItems = null;
 
-    protected ?bool $displayLineItemPosition;
+    protected ?bool $displayLineItemPosition = null;
 
-    protected ?int $itemsPerPage;
+    protected ?int $itemsPerPage = null;
 
-    protected ?bool $displayPageCount;
+    protected ?bool $displayPageCount = null;
 
-    protected ?bool $displayCompanyAddress;
+    protected ?bool $displayCompanyAddress = null;
 
-    protected ?string $title;
+    protected ?string $title = null;
 
-    protected ?string $companyAddress;
+    protected ?string $companyAddress = null;
 
-    protected ?string $companyName;
+    protected ?string $companyName = null;
 
-    protected ?string $companyEmail;
+    protected ?string $companyEmail = null;
 
-    protected ?string $companyPhone;
+    protected ?string $companyPhone = null;
 
-    protected ?string $companyUrl;
+    protected ?string $companyUrl = null;
 
-    protected ?string $taxNumber;
+    protected ?string $taxNumber = null;
 
-    protected ?string $taxOffice;
+    protected ?string $taxOffice = null;
 
-    protected ?string $vatId;
+    protected ?string $vatId = null;
 
-    protected ?string $bankName;
+    protected ?string $bankName = null;
 
-    protected ?string $bankIban;
+    protected ?string $bankIban = null;
 
-    protected ?string $bankBic;
+    protected ?string $bankBic = null;
 
-    protected ?string $placeOfJurisdiction;
+    protected ?string $placeOfJurisdiction = null;
 
-    protected ?string $placeOfFulfillment;
+    protected ?string $placeOfFulfillment = null;
 
-    protected ?string $executiveDirector;
+    protected ?string $executiveDirector = null;
 
     /**
      * @var array<string, mixed>

@@ -16,11 +16,11 @@ class TaxRuleEntity extends Entity
 
     protected string $taxId;
 
-    protected ?TaxEntity $tax;
+    protected ?TaxEntity $tax = null;
 
     protected string $countryId;
 
-    protected ?CountryEntity $country;
+    protected ?CountryEntity $country = null;
 
     protected string $taxRuleTypeId;
 
@@ -28,9 +28,9 @@ class TaxRuleEntity extends Entity
 
     protected float $taxRate;
 
-    protected ?array $data;
+    protected ?array $data = null;
 
-    protected ?\DateTimeInterface $activeFrom;
+    protected ?\DateTimeInterface $activeFrom = null;
 
     public function getTaxId(): string
     {

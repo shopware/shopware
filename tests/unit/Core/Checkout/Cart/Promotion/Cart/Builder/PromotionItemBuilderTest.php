@@ -73,6 +73,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
@@ -101,6 +102,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
@@ -126,6 +128,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $item = (new PromotionItemBuilder())->buildDiscountLineItem('individual-123', $this->promotion, $discount, 'C1', $currencyFactor);
 
@@ -152,6 +155,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(10);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
@@ -180,6 +184,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
@@ -205,6 +210,9 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setValue(50);
         $discount->setConsiderAdvancedRules(true);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setSorterKey('PRICE_ASC');
+        $discount->setApplierKey('ALL');
+        $discount->setUsageKey('UNLIMITED');
 
         $amount = 100;
         $operator = '=';
@@ -282,6 +290,9 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setValue(50);
         $discount->setConsiderAdvancedRules(true);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setSorterKey('PRICE_ASC');
+        $discount->setApplierKey('ALL');
+        $discount->setUsageKey('UNLIMITED');
 
         $ruleCollection = new RuleCollection();
         $discount->setDiscountRules($ruleCollection);
@@ -310,6 +321,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
         $discount->setValue($standardDiscountValue);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $currency = new CurrencyEntity();
         $currency->setId('C1');
@@ -354,6 +366,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
         $discount->setValue($standardDiscountValue);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $currency = new CurrencyEntity();
         $currency->setId('C1');
@@ -401,6 +414,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType($type);
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $builder = new PromotionItemBuilder();
 

@@ -20,11 +20,11 @@ class CustomerWishlistEntity extends Entity
 
     protected string $salesChannelId;
 
-    protected ?CustomerEntity $customer;
+    protected ?CustomerEntity $customer = null;
 
-    protected ?SalesChannelEntity $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    protected ?CustomerWishlistProductCollection $products;
+    protected ?CustomerWishlistProductCollection $products = null;
 
     public function getCustomerId(): string
     {

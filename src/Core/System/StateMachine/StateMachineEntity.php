@@ -19,17 +19,17 @@ class StateMachineEntity extends Entity
 
     protected string $technicalName;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?StateMachineTransitionCollection $transitions;
+    protected ?StateMachineTransitionCollection $transitions = null;
 
-    protected ?StateMachineStateCollection $states;
+    protected ?StateMachineStateCollection $states = null;
 
-    protected ?string $initialStateId;
+    protected ?string $initialStateId = null;
 
-    protected StateMachineTranslationCollection $translations;
+    protected ?StateMachineTranslationCollection $translations = null;
 
-    protected ?StateMachineHistoryCollection $historyEntries;
+    protected ?StateMachineHistoryCollection $historyEntries = null;
 
     public function getHistoryEntries(): ?StateMachineHistoryCollection
     {
@@ -102,7 +102,7 @@ class StateMachineEntity extends Entity
         $this->initialStateId = $initialStateId;
     }
 
-    public function getTranslations(): StateMachineTranslationCollection
+    public function getTranslations(): ?StateMachineTranslationCollection
     {
         return $this->translations;
     }

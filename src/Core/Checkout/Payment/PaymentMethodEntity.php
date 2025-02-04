@@ -23,15 +23,15 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected ?string $pluginId;
+    protected ?string $pluginId = null;
 
     protected string $handlerIdentifier;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $distinguishableName;
+    protected ?string $distinguishableName = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
     protected int $position;
 
@@ -39,33 +39,33 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
 
     protected bool $afterOrderEnabled;
 
-    protected ?PluginEntity $plugin;
+    protected ?PluginEntity $plugin = null;
 
-    protected ?PaymentMethodTranslationCollection $translations;
+    protected ?PaymentMethodTranslationCollection $translations = null;
 
-    protected ?OrderTransactionCollection $orderTransactions;
+    protected ?OrderTransactionCollection $orderTransactions = null;
 
-    protected ?CustomerCollection $customers;
+    protected ?CustomerCollection $customers = null;
 
-    protected ?SalesChannelCollection $salesChannelDefaultAssignments;
+    protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
-    protected ?SalesChannelCollection $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    protected ?RuleEntity $availabilityRule;
+    protected ?RuleEntity $availabilityRule = null;
 
-    protected ?string $availabilityRuleId;
+    protected ?string $availabilityRuleId = null;
 
-    protected ?string $mediaId;
+    protected ?string $mediaId = null;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
     protected string $formattedHandlerIdentifier;
 
-    protected ?string $shortName;
+    protected ?string $shortName = null;
 
     protected string $technicalName;
 
-    protected ?AppPaymentMethodEntity $appPaymentMethod;
+    protected ?AppPaymentMethodEntity $appPaymentMethod = null;
 
     public function getPluginId(): ?string
     {

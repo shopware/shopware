@@ -15,9 +15,9 @@ class PromotionTranslationEntity extends TranslationEntity
 
     protected string $promotionId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?PromotionEntity $promotion;
+    protected ?PromotionEntity $promotion = null;
 
     public function getPromotionId(): string
     {

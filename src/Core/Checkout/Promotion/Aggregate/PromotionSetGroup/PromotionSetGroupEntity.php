@@ -21,9 +21,9 @@ class PromotionSetGroupEntity extends Entity
 
     protected string $promotionId;
 
-    protected ?PromotionEntity $promotion;
+    protected ?PromotionEntity $promotion = null;
 
-    protected ?RuleCollection $setGroupRules;
+    protected ?RuleCollection $setGroupRules = null;
 
     public function getPackagerKey(): string
     {

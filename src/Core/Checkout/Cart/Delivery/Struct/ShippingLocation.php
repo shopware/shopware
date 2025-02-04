@@ -11,20 +11,11 @@ use Shopware\Core\System\Country\CountryEntity;
 #[Package('checkout')]
 class ShippingLocation extends Struct
 {
-    protected CountryEntity $country;
-
-    protected ?CountryStateEntity $state;
-
-    protected ?CustomerAddressEntity $address;
-
     public function __construct(
-        CountryEntity $country,
-        ?CountryStateEntity $state,
-        ?CustomerAddressEntity $address
+        protected CountryEntity $country,
+        protected ?CountryStateEntity $state,
+        protected ?CustomerAddressEntity $address
     ) {
-        $this->country = $country;
-        $this->state = $state;
-        $this->address = $address;
     }
 
     public static function createFromAddress(CustomerAddressEntity $address): self

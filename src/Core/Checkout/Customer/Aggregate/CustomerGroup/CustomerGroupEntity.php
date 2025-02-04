@@ -16,15 +16,15 @@ class CustomerGroupEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected bool $displayGross;
 
-    protected ?CustomerGroupTranslationCollection $translations;
+    protected ?CustomerGroupTranslationCollection $translations = null;
 
-    protected ?CustomerCollection $customers;
+    protected ?CustomerCollection $customers = null;
 
-    protected ?SalesChannelCollection $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
     protected bool $registrationActive;
 
@@ -36,7 +36,7 @@ class CustomerGroupEntity extends Entity
 
     protected string $registrationSeoMetaDescription;
 
-    protected ?SalesChannelCollection $registrationSalesChannels;
+    protected ?SalesChannelCollection $registrationSalesChannels = null;
 
     public function getName(): ?string
     {

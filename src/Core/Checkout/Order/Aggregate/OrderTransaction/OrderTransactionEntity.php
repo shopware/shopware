@@ -26,11 +26,11 @@ class OrderTransactionEntity extends Entity
 
     protected CalculatedPrice $amount;
 
-    protected ?PaymentMethodEntity $paymentMethod;
+    protected ?PaymentMethodEntity $paymentMethod = null;
 
-    protected ?OrderEntity $order;
+    protected ?OrderEntity $order = null;
 
-    protected ?StateMachineStateEntity $stateMachineState;
+    protected ?StateMachineStateEntity $stateMachineState = null;
 
     protected string $stateId;
 

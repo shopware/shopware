@@ -8,38 +8,20 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class TokenStruct extends Struct
 {
-    protected ?string $id;
-
-    protected ?string $token;
-
-    protected ?string $paymentMethodId;
-
-    protected ?string $transactionId;
-
-    protected ?string $finishUrl;
-
-    protected ?string $errorUrl;
-
-    protected ?\Throwable $exception;
+    protected ?\Throwable $exception = null;
 
     protected int $expires;
 
     public function __construct(
-        ?string $id = null,
-        ?string $token = null,
-        ?string $paymentMethodId = null,
-        ?string $transactionId = null,
-        ?string $finishUrl = null,
+        protected ?string $id = null,
+        protected ?string $token = null,
+        protected ?string $paymentMethodId = null,
+        protected ?string $transactionId = null,
+        protected ?string $finishUrl = null,
         ?int $expires = null,
-        ?string $errorUrl = null
+        protected ?string $errorUrl = null
     ) {
-        $this->id = $id;
-        $this->token = $token;
-        $this->paymentMethodId = $paymentMethodId;
-        $this->transactionId = $transactionId;
-        $this->finishUrl = $finishUrl;
         $this->expires = $expires ?? 1800;
-        $this->errorUrl = $errorUrl;
     }
 
     public function getId(): ?string

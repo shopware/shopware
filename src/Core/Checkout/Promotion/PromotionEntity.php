@@ -28,17 +28,17 @@ class PromotionEntity extends Entity
 
     final public const CODE_TYPE_NO_CODE = 'no_code';
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected bool $active;
 
-    protected ?\DateTimeInterface $validFrom;
+    protected ?\DateTimeInterface $validFrom = null;
 
-    protected ?\DateTimeInterface $validUntil;
+    protected ?\DateTimeInterface $validUntil = null;
 
-    protected ?int $maxRedemptionsGlobal;
+    protected ?int $maxRedemptionsGlobal = null;
 
-    protected ?int $maxRedemptionsPerCustomer;
+    protected ?int $maxRedemptionsPerCustomer = null;
 
     protected int $priority;
 
@@ -58,41 +58,41 @@ class PromotionEntity extends Entity
 
     protected bool $useIndividualCodes;
 
-    protected ?string $individualCodePattern;
+    protected ?string $individualCodePattern = null;
 
-    protected ?PromotionSalesChannelCollection $salesChannels;
+    protected ?PromotionSalesChannelCollection $salesChannels = null;
 
-    protected ?string $code;
+    protected ?string $code = null;
 
-    protected ?PromotionDiscountCollection $discounts;
+    protected ?PromotionDiscountCollection $discounts = null;
 
-    protected ?PromotionIndividualCodeCollection $individualCodes;
+    protected ?PromotionIndividualCodeCollection $individualCodes = null;
 
-    protected ?PromotionSetGroupCollection $setgroups;
+    protected ?PromotionSetGroupCollection $setgroups = null;
 
-    protected ?RuleCollection $orderRules;
+    protected ?RuleCollection $orderRules = null;
 
-    protected ?RuleCollection $personaRules;
+    protected ?RuleCollection $personaRules = null;
 
-    protected ?CustomerCollection $personaCustomers;
+    protected ?CustomerCollection $personaCustomers = null;
 
-    protected ?RuleCollection $cartRules;
+    protected ?RuleCollection $cartRules = null;
 
     protected ?OrderLineItemCollection $orderLineItems = null;
 
-    protected ?PromotionTranslationCollection $translations;
+    protected ?PromotionTranslationCollection $translations = null;
 
     protected int $orderCount;
 
     /**
      * @var array<string, int>|null
      */
-    protected ?array $ordersPerCustomerCount;
+    protected ?array $ordersPerCustomerCount = null;
 
     /**
      * @var string[]
      */
-    protected array $exclusionIds;
+    protected array $exclusionIds = [];
 
     public function getName(): ?string
     {

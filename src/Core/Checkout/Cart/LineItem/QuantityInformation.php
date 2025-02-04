@@ -11,7 +11,7 @@ class QuantityInformation extends Struct
 {
     protected int $minPurchase = 1;
 
-    protected ?int $maxPurchase;
+    protected ?int $maxPurchase = null;
 
     protected ?int $purchaseSteps = 1;
 

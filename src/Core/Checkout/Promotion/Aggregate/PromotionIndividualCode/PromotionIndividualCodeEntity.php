@@ -17,12 +17,12 @@ class PromotionIndividualCodeEntity extends Entity
 
     protected string $code;
 
-    protected ?PromotionEntity $promotion;
+    protected ?PromotionEntity $promotion = null;
 
     /**
      * @var array<string>|null
      */
-    protected ?array $payload;
+    protected ?array $payload = null;
 
     /**
      * Gets if the code has been redeemed

@@ -19,9 +19,9 @@ class TaxRuleTypeEntity extends Entity
 
     protected int $position;
 
-    protected ?TaxRuleCollection $rules;
+    protected ?TaxRuleCollection $rules = null;
 
-    protected ?TaxRuleTypeTranslationCollection $translations;
+    protected ?TaxRuleTypeTranslationCollection $translations = null;
 
     public function getTypeName(): string
     {

@@ -11,7 +11,7 @@ use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPagelet;
 #[Package('checkout')]
 class AccountOverviewPage extends Page
 {
-    protected ?OrderEntity $newestOrder;
+    protected ?OrderEntity $newestOrder = null;
 
     protected CustomerEntity $customer;
 

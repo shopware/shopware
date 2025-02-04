@@ -14,13 +14,13 @@ class ShippingMethodTranslationEntity extends TranslationEntity
 
     protected string $shippingMethodId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $trackingUrl;
+    protected ?string $trackingUrl = null;
 
-    protected ?ShippingMethodEntity $shippingMethod;
+    protected ?ShippingMethodEntity $shippingMethod = null;
 
     public function getShippingMethodId(): string
     {

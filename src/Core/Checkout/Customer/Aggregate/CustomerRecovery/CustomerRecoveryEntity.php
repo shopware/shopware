@@ -16,7 +16,7 @@ class CustomerRecoveryEntity extends Entity
 
     protected string $hash;
 
-    protected ?CustomerEntity $customer;
+    protected ?CustomerEntity $customer = null;
 
     public function setId(string $id): void
     {

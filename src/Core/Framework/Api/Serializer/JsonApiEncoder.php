@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\Serializer;
 
 use Shopware\Core\Framework\Api\ApiException;
-use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -35,7 +34,7 @@ class JsonApiEncoder
      * @param EntityCollection<covariant Entity>|Entity|null $data
      * @param array<string, mixed> $metaData
      *
-     * @throws UnsupportedEncoderInputException|ApiException
+     * @throws ApiException
      * @throws \JsonException
      */
     public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl, array $metaData = []): string

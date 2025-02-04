@@ -7,12 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\ApiException;
-use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
@@ -53,18 +51,11 @@ class JsonSalesChannelApiEncoderTest extends TestCase
 
     /**
      * @param bool|\DateTime|float|int|string|null $input
-     *
-     * @throws UnsupportedEncoderInputException
      */
     #[DataProvider('emptyInputProvider')]
     public function testEncodeWithEmptyInput(mixed $input): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(ApiException::class);
-        } else {
-            $this->expectException(UnsupportedEncoderInputException::class);
-        }
-        $this->expectExceptionMessage('Unsupported encoder data provided. Only entities and entity collections are supported');
+        $this->expectExceptionObject(ApiException::unsupportedEncoderInput());
 
         $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $encoder->encode(

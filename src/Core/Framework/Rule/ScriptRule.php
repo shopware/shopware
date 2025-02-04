@@ -25,6 +25,9 @@ use Twig\Extension\DebugExtension;
 /**
  * @internal
  */
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 #[Package('fundamentals@after-sales')]
 class ScriptRule extends Rule
 {

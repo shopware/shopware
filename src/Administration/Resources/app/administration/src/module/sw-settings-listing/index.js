@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-listing', () => import('./page/sw-settings-listing'));
@@ -76,7 +76,14 @@ Module.register('sw-settings-listing', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'commerce';
+        },
         to: 'sw.settings.listing.index',
         icon: 'regular-products',
         privilege: 'system.system_config',

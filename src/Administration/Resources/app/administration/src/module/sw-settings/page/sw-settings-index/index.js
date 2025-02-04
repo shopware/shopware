@@ -12,7 +12,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     metaInfo() {
         return {
@@ -104,6 +107,11 @@ export default {
             }
 
             return this.$tc(settingsItem.label.label);
+        },
+
+        getGroupLabel(settingsGroup) {
+            const upper = settingsGroup.charAt(0).toUpperCase() + settingsGroup.slice(1);
+            return this.$tc(`sw-settings.index.tab${upper}`);
         },
     },
 };

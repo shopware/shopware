@@ -279,8 +279,14 @@
     "addressesSetAsDefaultBillingAction": "Als Standard-Rechnungsadresse verwenden",
     "addressesTitleCurrentShippingAddress": "Aktuelle Lieferadresse",
     "addressesTitleCurrentBillingAddress": "Aktuelle Rechnungsadresse",
+    "addressesTitleShippingAddress": "Lieferadresse",
+    "addressesTitleBillingAddress": "Rechnungsadresse",
+    "addressesChangeAddress": "Adresse ändern",
+    "addressModalCancel" : "Abbrechen",
     "addressesContentItemActionEdit": "Adresse bearbeiten",
     "addressesContentItemActionDelete": "Adresse löschen",
+    "addressNotFound": "Keine Adresse gefunden",
+    "noAvailableAddresses": "Keine Adressen verfügbar",
     "availableAddresses": "Verfügbare Adressen",
     "selectAddress": "Adresse wählen",
     "addressCreateBtn": "Neue Adresse hinzufügen",
@@ -375,7 +381,15 @@
     "orderDocumentsAriaLabel": "Dokumente von dieser Bestellung",
     "orderSummaryAriaLabel": "Zusammenfassung der Bestellung",
     "orderInfoAriaLabel": "Informationen zur Bestellung",
-    "orderTrackingNotAvailable": "Nicht verfügbar"
+    "orderTrackingNotAvailable": "Nicht verfügbar",
+    "addressDefault": "Standard",
+    "addressModalTitle": "Adressen",
+    "addressModalFooterClose": "Schließen",
+    "addressNewShipping": "Füge eine neue Versandadresse hinzu",
+    "addressNewBilling": "Füge eine neue Rechnungsadresse hinzu",
+    "addressSuccessfulChange": "Adresse erfolgreich geändert.",
+    "addressSaveAndUse": "Speichern und verwenden",
+    "addressSearchPlaceholder": "Suche Adressen..."
   },
   "address": {
     "streetLabel": "Straße und Hausnummer",
@@ -721,9 +735,9 @@
     "newsletterInput": "E-Mail-Adresse",
     "newsletter": "Abonnieren Sie jetzt unseren regelmäßig erscheinenden Newsletter, um rechtzeitig über neue Produkte und Angebote informiert zu werden.",
     "includeVatText": "%star%Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
-    "includeVatTextPage": "%star%Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
+    "includeVatTextPage": "Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "excludeVatText": "%star%Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
-    "excludeVatTextPage": "%star%Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a href=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
+    "excludeVatTextPage": "Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a href=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "copyrightInfo": "Realisiert mit Shopware"
   },
   "captcha": {

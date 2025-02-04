@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * @deprecated tag:v6.7.0 - will be removed
  */
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 #[Package('fundamentals@after-sales')]
 class CustomerDefaultPaymentMethodRule extends Rule
 {

@@ -3,7 +3,16 @@
 {% block page_account_main_content %}
     <div class="account-address account-address-form">
         {% block page_account_address_form_welcome %}
-            <div class="account-welcome">
+            <div class="account-welcome {% if feature('ADDRESS_SELECTION_REWORK') %} d-flex align-items-center {% endif %}">
+                {% if feature('ADDRESS_SELECTION_REWORK') %}
+                    <a
+                        href="{{ path('frontend.account.address.page') }}"
+                        class="account-address-back btn btn-outline-dark"
+                    >
+                        {% sw_icon 'arrow-left' style {size: 's'} %}
+                    </a>
+                {% endif %}
+
                 {% block page_account_address_form_welcome_headline %}
                     <h1>
                         {{ 'account.addressCreateWelcome'|trans|sw_sanitize }}
@@ -16,12 +25,16 @@
             <div class="card">
                 <div class="card-body">
                     {% block page_account_address_form_create %}
-                        <form method="post"
+                        <form
+                              method="post"
                               action="{{ path('frontend.account.address.create') }}"
                               {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
                               {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
                               {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}>
 
+                              data-form-validation="true"
+                              data-form-submit-loader="true"
+                        >
                             {% block page_account_address_form_create_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     data: data.get('address'),

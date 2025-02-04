@@ -13,33 +13,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 #[Package('framework')]
 class DefinitionInstanceRegistry
 {
-    /**
-     * @var ContainerInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $container;
+    protected ContainerInterface $container;
 
     /**
      * @var array<string, string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $repositoryMap;
+    protected array $repositoryMap;
 
     /**
      * @var array<string, string|class-string<EntityDefinition>>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $definitions;
+    protected array $definitions;
 
     /**
      * @var array<class-string<Entity>, EntityDefinition>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $entityClassMapping;
+    protected ?array $entityClassMapping;
 
     /**
      * @internal

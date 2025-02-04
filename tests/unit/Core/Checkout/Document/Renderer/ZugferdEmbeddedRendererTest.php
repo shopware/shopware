@@ -30,7 +30,7 @@ class ZugferdEmbeddedRendererTest extends TestCase
             'random-version'
         );
 
-        static::assertEquals('zugferd_embedded_invoice', $renderer->supports());
+        static::assertSame('zugferd_embedded_invoice', $renderer->supports());
     }
 
     public function testRender(): void

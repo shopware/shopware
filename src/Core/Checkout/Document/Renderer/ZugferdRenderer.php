@@ -25,6 +25,8 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         protected EntityRepository $orderRepository,
@@ -66,7 +68,6 @@ class ZugferdRenderer extends AbstractDocumentRenderer
                 'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$languageIdChain]))),
             ]);
 
-            /** @var OrderCollection $orders */
             $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
             $this->eventDispatcher->dispatch(new ZugferdInvoiceOrdersEvent($orders, $context, $operations));

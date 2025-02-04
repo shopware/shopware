@@ -7,8 +7,7 @@ use horstoeko\zugferd\ZugferdProfiles;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -30,10 +29,15 @@ class ZugferdBuilder
 
     public function buildDocument(OrderEntity $order, DocumentConfiguration $config, Context $context): string
     {
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
-        /** @var OrderCustomerEntity $customer */
+        if (!$billingAddress) {
+            throw DocumentException::generationError('Billing address not found');
+        }
+
         $customer = $order->getOrderCustomer();
+        if (!$customer) {
+            throw DocumentException::generationError('Customer not found');
+        }
 
         $deliveryDate = $order->getDeliveries()?->first()?->getShippingDateLatest();
         if ($deliveryDate instanceof \DateTimeImmutable) {

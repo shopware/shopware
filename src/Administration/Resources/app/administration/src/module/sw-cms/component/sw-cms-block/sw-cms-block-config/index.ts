@@ -56,7 +56,21 @@ export default Shopware.Component.wrapComponentConfig({
             return !this.isSystemDefaultLanguage || this.blockConfig?.removable === false;
         },
 
-        quickactionClasses() {
+        duplicateDisabled() {
+            return !this.block.id || this.block.isNew();
+        },
+
+        combinedDuplicateDisabled() {
+            return this.quickactionsDisabled || this.duplicateDisabled;
+        },
+
+        combinedDuplicateClasses() {
+            return {
+                'is--disabled': this.combinedDuplicateDisabled
+            };
+        },
+
+        deleteClasses() {
             return {
                 'is--disabled': this.quickactionsDisabled,
             };
@@ -109,7 +123,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onBlockDuplicate() {
-            if (this.quickactionsDisabled) {
+            if (this.combinedDuplicateDisabled) {
                 return;
             }
 

@@ -54,7 +54,7 @@
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
             "cweagans/composer-patches": true,
-            "php-http/discovery": true,
+            "php-http/discovery": false,
             "phpstan/extension-installer": true,
             "symfony/runtime": true
         }

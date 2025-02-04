@@ -18,31 +18,14 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent, \IteratorAg
 {
     /**
      * @var Entity[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $entities;
+    protected array $entities;
 
-    /**
-     * @var EntityDefinition
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $definition;
+    protected EntityDefinition $definition;
 
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected Context $context;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
     /**
      * @param Entity[] $entities

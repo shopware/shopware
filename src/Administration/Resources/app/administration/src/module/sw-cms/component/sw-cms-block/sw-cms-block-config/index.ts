@@ -57,7 +57,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         duplicateDisabled() {
-            return !this.block.id || this.block.isNew();
+            return !this.block.id;
         },
 
         combinedDuplicateDisabled() {

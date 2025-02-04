@@ -89,6 +89,11 @@ export default {
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
+
+        // XML content has no HTML preview (NEXT-40492)
+        htmlPreviewDisabled() {
+            return this.currentDocumentType?.technicalName?.startsWith('zugferd_') ?? false;
+        },
     },
 
     created() {
@@ -200,11 +205,6 @@ export default {
 
         onAddDocument(data) {
             this.selectedDocumentFile = data[0];
-        },
-
-        // XML content has no HTML preview (NEXT-40492)
-        htmlPreviewDisabled() {
-            return this.currentDocumentType?.technicalName?.startsWith('zugferd_') ?? false;
         },
     },
 };

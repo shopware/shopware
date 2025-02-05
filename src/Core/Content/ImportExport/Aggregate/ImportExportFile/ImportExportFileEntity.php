@@ -13,34 +13,16 @@ class ImportExportFileEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $originalName;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $path;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected \DateTimeInterface $expireDate;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected int $size;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?ImportExportLogEntity $log;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $accessToken;
 
     public function getOriginalName(): string

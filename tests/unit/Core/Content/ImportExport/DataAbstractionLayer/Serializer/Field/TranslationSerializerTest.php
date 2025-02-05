@@ -59,17 +59,6 @@ class TranslationSerializerTest extends TestCase
 
         $field = new BlobField('foo', 'bar');
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::expectException(\InvalidArgumentException::class);
-            static::expectExceptionMessage('Expected "associationField" to be an instance of "' . \InvalidArgumentException::class . '".');
-
-            $translations = \iterator_to_array($translationsSerializer->serialize($this->getConfig(), $field, []));
-
-            static::assertEmpty($translations);
-
-            return;
-        }
-
         static::expectException(ImportExportException::class);
         static::expectExceptionMessage('Expected "associationField" to be an instance of "Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField".');
 
@@ -147,17 +136,6 @@ class TranslationSerializerTest extends TestCase
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
 
         $field = new BlobField('foo', 'bar');
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::expectException(\InvalidArgumentException::class);
-            static::expectExceptionMessage('Expected "associationField" to be an instance of "*ToOneField".');
-
-            $translations = \iterator_to_array($translationsSerializer->serialize($this->getConfig(), $field, []));
-
-            static::assertEmpty($translations);
-
-            return;
-        }
 
         static::expectException(ImportExportException::class);
         static::expectExceptionMessage('Expected "associationField" to be an instance of "*ToOneField".');

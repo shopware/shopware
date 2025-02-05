@@ -141,14 +141,6 @@ Shopware.Module.register('sw-import-export', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'automation';
-        },
         to: 'sw.import.export.index',
         icon: 'regular-database',
         privilege: 'system.import_export',

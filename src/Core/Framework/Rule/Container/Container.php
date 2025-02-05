@@ -14,8 +14,6 @@ abstract class Container extends Rule implements ContainerInterface
 {
     /**
      * @var list<Rule>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected array $rules = [];
 

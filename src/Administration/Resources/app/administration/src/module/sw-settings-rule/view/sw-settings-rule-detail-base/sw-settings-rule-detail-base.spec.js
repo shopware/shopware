@@ -32,7 +32,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
         global: {
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -42,9 +41,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-condition-tree': swConditionTree,
                 'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
-                },
                 'sw-text-field': true,
                 'sw-number-field': true,
                 'sw-textarea-field': true,

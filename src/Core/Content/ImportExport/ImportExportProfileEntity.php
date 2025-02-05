@@ -18,123 +18,49 @@ class ImportExportProfileEntity extends Entity
     final public const TYPE_EXPORT = 'export';
     final public const TYPE_IMPORT_EXPORT = 'import-export';
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be replaced by technical name
-     */
-    protected ?string $name;
+    protected string $technicalName;
 
-    /**
-     * @deprecated tag:v6.7.0 - will not be nullable
-     */
-    protected ?string $technicalName = null;
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $label;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected bool $systemDefault;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $sourceEntity;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $fileType;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $delimiter;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $enclosure;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $type;
 
     /**
      * @var list<array{key: string, mappedKey: string}>|array<Mapping>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected ?array $mapping;
 
     /**
      * @var array<string, mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected ?array $updateBy;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?ImportExportLogCollection $importExportLogs;
 
     /**
      * @var array<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected array $config;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?ImportExportProfileTranslationCollection $translations;
 
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed
-     */
-    public function getName(): ?string
+
+    public function getTechnicalName(): string
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use technicalName instead.');
-
-        return $this->name;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed
-     */
-    public function setName(string $name): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use technicalName instead.');
-
-        $this->name = $name;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
-     */
-    public function getTechnicalName(): ?string
-    {
-        if (!$this->technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
-        }
-
         return $this->technicalName;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
-     */
-    public function setTechnicalName(?string $technicalName): void
+    public function setTechnicalName(string $technicalName): void
     {
-        if (!$technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
-        }
-
         $this->technicalName = $technicalName;
     }
 

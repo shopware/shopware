@@ -9,31 +9,19 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class DateRangeRule extends Rule
 {
     final public const RULE_NAME = 'dateRange';
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected \DateTimeInterface|string|null $fromDate;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected \DateTimeInterface|string|null $toDate;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected bool $useTime;
 
-    /**
-     * @internal
-     */
     public function __construct(
         ?\DateTimeInterface $fromDate = null,
         ?\DateTimeInterface $toDate = null,

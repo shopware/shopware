@@ -63,7 +63,6 @@ async function createWrapper() {
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-alert': await wrapTestComponent('sw-alert'),
                 'sw-modal': {
                     template: `
@@ -92,9 +91,6 @@ async function createWrapper() {
                 'sw-import-export-progress': true,
                 'sw-inheritance-switch': true,
                 'sw-field-error': true,
-                'sw-alert-deprecated': {
-                    template: '<div><slot></slot></div>',
-                },
             },
             provide: {
                 importExport: {

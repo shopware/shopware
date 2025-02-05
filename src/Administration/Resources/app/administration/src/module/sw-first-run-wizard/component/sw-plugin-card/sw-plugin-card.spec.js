@@ -31,10 +31,8 @@ async function createWrapper(plugin, showDescription) {
                 'sw-icon': true,
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'router-link': true,
-                'sw-loader-deprecated': true,
             },
         },
     });

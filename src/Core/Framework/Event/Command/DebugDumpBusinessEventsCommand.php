@@ -18,9 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('fundamentals@after-sales')]
 class DebugDumpBusinessEventsCommand extends Command
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected BusinessEventCollector $collector;
 
     /**

@@ -42,11 +42,6 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
 
         $this->repository->expects(static::once())->method($method)->willReturn($writeResult);
 
-        // @deprecated tag:v6.7.0 - remove this expectation with no replacement
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->eventDispatcher->expects(static::once())->method('dispatch');
-        }
-
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
 
         $result = $this->strategy->import($record, [], $config, $progress, Context::createDefaultContext());
@@ -72,13 +67,6 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
                 return $writeResult;
             }
         );
-
-        // @deprecated tag:v6.7.0 - remove this expectation with no replacement
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->eventDispatcher->expects(static::once())
-                ->method('dispatch')
-                ->with(static::isInstanceOf(ImportExportExceptionImportRecordEvent::class));
-        }
 
         $config = new Config(
             mapping: [],

@@ -21,84 +21,36 @@ class ImportExportLogEntity extends Entity
 
     final public const ACTIVITY_TEMPLATE = 'template';
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $activity;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $state;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected int $records = 0;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $username;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $profileName;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?UserEntity $user;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $userId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?ImportExportProfileEntity $profile;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $profileId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?ImportExportFileEntity $file;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $fileId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected array $config = [];
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected array $result = [];
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $invalidRecordsLogId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?self $invalidRecordsLog;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?self $failedImportLog;
 
     public function getActivity(): string

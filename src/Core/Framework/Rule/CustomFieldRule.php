@@ -87,35 +87,6 @@ class CustomFieldRule
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Method will be removed, use FloatComparator::compare instead
-     */
-    public static function floatMatch(string $operator, float $actual, float $expected): bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'FloatComparator::compare')
-        );
-
-        return FloatComparator::compare($actual, $expected, $operator);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed, use ArrayComparator::compare instead
-     *
-     * @param array<string|int|bool|float> $actual
-     * @param array<string|int|bool|float> $expected
-     */
-    public static function arrayMatch(string $operator, array $actual, array $expected): bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'ArrayComparator::compare')
-        );
-
-        return ArrayComparator::compare($actual, $expected, $operator);
-    }
-
-    /**
      * @param array<string, mixed> $customFields
      * @param array<string, string|array<string, string>> $renderedField
      *

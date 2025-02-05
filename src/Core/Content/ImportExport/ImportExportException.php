@@ -130,15 +130,8 @@ class ImportExportException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function fileEmpty(string $filename): self|ShopwareHttpException
+    public static function fileEmpty(string $filename): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new FileEmptyException($filename);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::FILE_EMPTY,
@@ -147,15 +140,8 @@ class ImportExportException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function fileNotReadable(string $path): self|ShopwareHttpException
+    public static function fileNotReadable(string $path): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new FileNotReadableException($path);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::FILE_NOT_READABLE,
@@ -173,15 +159,8 @@ class ImportExportException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function invalidFileContent(string $filename): ShopwareHttpException
+    public static function invalidFileContent(string $filename): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new InvalidFileContentException($filename);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_FILE_CONTENT,
@@ -210,16 +189,9 @@ class ImportExportException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function profileWrongType(string $profileId, string $profileType): self|ShopwareHttpException
+    public static function profileWrongType(string $profileId, string $profileType): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ProfileWrongTypeException($profileId, $profileType);
-        }
-
-        return new self(
+       return new self(
             Response::HTTP_NOT_FOUND,
             self::PROFILE_WRONG_TYPE,
             'The import/export profile with id {{ profileId }} can only be used for {{ profileType }}',
@@ -227,15 +199,8 @@ class ImportExportException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function unexpectedFileType(string $givenType, string $expectedType): self|ShopwareHttpException
+    public static function unexpectedFileType(string $givenType, string $expectedType): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new UnexpectedFileTypeException($givenType, $expectedType);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::UNEXPECTED_FILE_TYPE,
@@ -315,15 +280,8 @@ class ImportExportException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function invalidInstanceType(string $argument, string $expected): self|\InvalidArgumentException
+    public static function invalidInstanceType(string $argument, string $expected): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \InvalidArgumentException('Expected "' . $argument . '" to be an instance of "' . $expected . '".');
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_INSTANCE_TYPE,

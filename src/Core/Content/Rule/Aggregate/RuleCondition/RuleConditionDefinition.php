@@ -62,7 +62,7 @@ class RuleConditionDefinition extends EntityDefinition
             new JsonField('value', 'value'),
             new IntField('position', 'position'),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id'),
-            new ManyToOneAssociationField('appScriptCondition', 'script_id', AppScriptConditionDefinition::class, 'id', !Feature::isActive('v6.7.0.0')),
+            new ManyToOneAssociationField('appScriptCondition', 'script_id', AppScriptConditionDefinition::class, 'id'),
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),
             new CustomFields(),

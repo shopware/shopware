@@ -16,56 +16,27 @@ class RuleConditionEntity extends Entity implements IdAware
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $type;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $ruleId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $scriptId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $parentId;
 
     /**
      * @var array<string, mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected ?array $value;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?RuleEntity $rule;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?AppScriptConditionEntity $appScriptCondition;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?RuleConditionCollection $children;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?RuleConditionEntity $parent;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected int $position;
 
     public function getType(): string

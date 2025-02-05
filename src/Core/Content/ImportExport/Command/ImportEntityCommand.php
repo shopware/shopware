@@ -59,12 +59,6 @@ class ImportEntityCommand extends Command
         $this
             ->addArgument('file', InputArgument::REQUIRED, 'Path to import file')
             ->addArgument('expireDate', InputArgument::REQUIRED, 'PHP DateTime compatible string')
-            /** @deprecated tag:v6.7.0 - Remove argument */
-            ->addArgument(
-                'profile',
-                InputArgument::OPTIONAL,
-                'Wrap profile names with whitespaces into quotation marks, like \'Default Category\''
-            )
             ->addOption(
                 'profile-technical-name',
                 null,
@@ -181,15 +175,6 @@ class ImportEntityCommand extends Command
 
     private function getProfile(InputInterface $input, OutputInterface $output, Context $context): ImportExportProfileEntity
     {
-        /** @deprecated tag:v6.7.0 - Remove argument and condition */
-        $profileName = $input->getArgument('profile');
-
-        if (!empty($profileName)) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Argument `profile` will no longer be supported. Use option `--profile-technical-name` instead.');
-
-            return $this->profileByName($profileName, $context);
-        }
-
         $technicalName = $input->getOption('profile-technical-name');
 
         if (!empty($technicalName)) {
@@ -216,23 +201,6 @@ class ImportEntityCommand extends Command
         $answer = $io->choice('Please choose a profile', array_keys($byName));
 
         return $byName[$answer];
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Remove method
-     */
-    private function profileByName(string $profileName, Context $context): ImportExportProfileEntity
-    {
-        $result = $this->profileRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('name', $profileName)),
-            $context
-        )->getEntities();
-
-        if ($result->first() === null) {
-            throw ImportExportException::profileSearchEmpty();
-        }
-
-        return $result->first();
     }
 
     private function profileByTechnicalName(string $technicalName, Context $context): ImportExportProfileEntity

@@ -175,14 +175,6 @@ Module.register('sw-flow', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'automation';
-        },
         to: 'sw.flow.index',
         icon: 'regular-flow',
         privilege: 'flow.viewer',

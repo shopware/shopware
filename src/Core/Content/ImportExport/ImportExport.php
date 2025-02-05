@@ -39,7 +39,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @phpstan-type ImportData array{record: array<string, mixed>, original: array<string, mixed>}
  *
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class ImportExport
@@ -53,9 +53,6 @@ class ImportExport
      */
     private array $failedWriteCommands = [];
 
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly ImportExportService $importExportService,
         private ImportExportLogEntity $logEntity,

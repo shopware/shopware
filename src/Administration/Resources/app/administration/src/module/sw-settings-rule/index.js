@@ -115,14 +115,6 @@ Module.register('sw-settings-rule', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'automation';
-        },
         to: 'sw.settings.rule.index',
         icon: 'regular-rule',
         privilege: 'rule.viewer',

@@ -19,7 +19,6 @@ class TestSubscriber implements EventSubscriberInterface
     {
         return [
             ImportExportBeforeImportRecordEvent::class => 'onImportRecordEvent',
-            ImportExportAfterImportRecordEvent::class => 'onImportRecordEvent',
             ImportExportExceptionImportRecordEvent::class => 'onImportRecordEvent',
         ];
     }

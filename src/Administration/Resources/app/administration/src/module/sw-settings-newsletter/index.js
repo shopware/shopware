@@ -32,14 +32,6 @@ Module.register('sw-settings-newsletter', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'content';
-        },
         to: 'sw.settings.newsletter.index',
         icon: 'regular-inbox',
         privilege: 'system.system_config',

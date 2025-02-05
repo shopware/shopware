@@ -11,8 +11,6 @@ async function createWrapper(profile) {
         global: {
             stubs: {
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': true,
                 'sw-inheritance-switch': true,

@@ -7,6 +7,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @public
  * @sw-package fundamentals@after-sales
+ * @sw-package fundamentals@after-sales
  * @description Condition for the ScriptRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only

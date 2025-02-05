@@ -25,58 +25,30 @@ class RuleEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $name;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $description;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected int $priority;
 
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected string|Rule|null $payload;
 
     /**
      * @var string[]|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected ?array $moduleTypes;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?ProductPriceCollection $productPrices;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?ShippingMethodCollection $shippingMethods;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?PaymentMethodCollection $paymentMethods;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?RuleConditionCollection $conditions;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected bool $invalid;
 
     /**
@@ -84,49 +56,22 @@ class RuleEntity extends Entity
      */
     protected ?array $areas = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?ShippingMethodPriceCollection $shippingMethodPrices;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?PromotionDiscountCollection $promotionDiscounts;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?PromotionSetGroupCollection $promotionSetGroups;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?ShippingMethodPriceCollection $shippingMethodPriceCalculations;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?PromotionCollection $personaPromotions;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?FlowSequenceCollection $flowSequences;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?TagCollection $tags;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?PromotionCollection $orderPromotions;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?PromotionCollection $cartPromotions;
 
     protected ?TaxProviderCollection $taxProviders = null;

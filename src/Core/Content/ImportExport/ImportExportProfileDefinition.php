@@ -42,6 +42,7 @@ class ImportExportProfileDefinition extends EntityDefinition
     {
         $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new Required())
             (new TranslatedField('label'))->addFlags(new Required()),
             new StringField('type', 'type'),
             new BoolField('system_default', 'systemDefault'),
@@ -55,13 +56,6 @@ class ImportExportProfileDefinition extends EntityDefinition
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
             (new TranslationsAssociationField(ImportExportProfileTranslationDefinition::class, 'import_export_profile_id'))->addFlags(new Required()),
         ]);
-
-        if (Feature::isActive('v6.7.0.0')) {
-            $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new Required()));
-        } else {
-            $fields->add(new StringField('technical_name', 'technicalName'));
-            $fields->add(new StringField('name', 'name'));
-        }
 
         return $fields;
     }

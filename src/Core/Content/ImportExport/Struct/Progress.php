@@ -14,34 +14,16 @@ class Progress extends Struct
     final public const STATE_FAILED = 'failed';
     final public const STATE_ABORTED = 'aborted';
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $logId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $invalidRecordsLogId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected int $offset = 0;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?int $total;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected int $processedRecords = 0;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $state;
 
     public function __construct(

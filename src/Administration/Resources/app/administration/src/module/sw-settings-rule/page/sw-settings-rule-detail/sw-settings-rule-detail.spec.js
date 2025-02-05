@@ -204,10 +204,8 @@ async function createWrapper(props = defaultProps, provide = {}) {
             plugins: [router],
             stubs: {
                 'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
-                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-language-switch': await wrapTestComponent('sw-language-switch'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
@@ -217,7 +215,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
                 'sw-page': {
                     template: `
@@ -246,7 +243,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-error-summary': true,
                 'sw-condition-tree': true,
                 'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
                 'sw-entity-tag-select': true,
                 'sw-multi-select': true,
                 'sw-textarea-field': true,

@@ -9,14 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('fundamentals@after-sales')]
 class UnsupportedOperatorException extends ShopwareHttpException
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $operator;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $class;
 
     public function __construct(

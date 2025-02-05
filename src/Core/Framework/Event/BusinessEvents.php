@@ -41,11 +41,6 @@ final class BusinessEvents
 
     public const USER_RECOVERY_REQUEST = UserRecoveryRequestEvent::EVENT_NAME;
 
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
-     */
-    public const CHECKOUT_CUSTOMER_CHANGED_PAYMENT_METHOD = CustomerChangedPaymentMethodEvent::EVENT_NAME;
-
     public const CHECKOUT_ORDER_PLACED = CheckoutOrderPlacedEvent::EVENT_NAME;
 
     public const CHECKOUT_ORDER_PAYMENT_METHOD_CHANGED = OrderPaymentMethodChangedEvent::EVENT_NAME;

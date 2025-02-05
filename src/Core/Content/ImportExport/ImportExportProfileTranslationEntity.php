@@ -8,19 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@after-sales')]
 class ImportExportProfileTranslationEntity extends TranslationEntity
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $importExportProfileId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ?string $label;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected ImportExportProfileEntity $importExportProfile;
 
     public function getImportExportProfileId(): string

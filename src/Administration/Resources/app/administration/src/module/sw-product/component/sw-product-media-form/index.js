@@ -5,8 +5,7 @@
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
-const { Component, Mixin } = Shopware;
-const { mapGetters } = Component.getComponentHelper();
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -58,7 +57,7 @@ export default {
 
     computed: {
         product() {
-            const state = Shopware.State.get('swProductDetail');
+            const state = Shopware.Store.get('swProductDetail');
 
             if (this.isInherited) {
                 return state.parentProduct;
@@ -89,9 +88,9 @@ export default {
             return this.product.media.find((media) => media.id === coverId);
         },
 
-        ...mapGetters('swProductDetail', {
-            isStoreLoading: 'isLoading',
-        }),
+        isStoreLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         isLoading() {
             return this.isMediaLoading || this.isStoreLoading;

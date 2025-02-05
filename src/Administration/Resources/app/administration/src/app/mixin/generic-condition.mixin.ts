@@ -48,7 +48,7 @@ export default Mixin.register(
         computed: {
             config(): Config {
                 // @ts-expect-error - condition is available in base component
-                const config = Shopware.State.getters['ruleConditionsConfig/getConfigForType'](this.condition.type) as
+                const config = Shopware.Store.get('ruleConditionsConfig').getConfigForType(this.condition.type as string) as
                     | Config
                     | undefined;
 
@@ -137,8 +137,9 @@ export default Mixin.register(
                         return;
                     }
 
-                    const errorProperty = Shopware.State.getters['error/getApiError'](
+                    const errorProperty = Shopware.Store.get('error').getApiError(
                         // @ts-expect-error
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         this.condition,
                         `value.${config.name}`,
                     ) as unknown;

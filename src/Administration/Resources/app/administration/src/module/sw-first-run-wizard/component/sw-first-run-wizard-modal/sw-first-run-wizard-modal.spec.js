@@ -92,13 +92,13 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
             },
         });
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -114,7 +114,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 
@@ -132,13 +132,13 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
         expect(Object.keys(wrapper.vm.stepper)).toHaveLength(13);
 
-        Shopware.State.get('context').app.config.settings.disableExtensionManagement = true;
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;
 
         await wrapper.vm.$nextTick();
 
         expect(Object.keys(wrapper.vm.stepper)).toHaveLength(8);
 
-        Shopware.State.get('context').app.config.settings.disableExtensionManagement = false;
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
     });
 
     it('the default button config should be the config of the sw-first-run-wizard-welcome component', async () => {

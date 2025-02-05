@@ -2,7 +2,6 @@
  * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
-import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
 async function createWrapper() {
     return mount(
@@ -42,8 +41,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-        Shopware.State.commit('shopwareApps/setSelectedIds', ['orderId']);
+        Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
     });
 
     beforeEach(async () => {
@@ -64,7 +62,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     it('should not be able to get latest documents', async () => {
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'download',
             isChanged: false,
         });
@@ -106,11 +104,11 @@ describe('sw-bulk-edit-save-modal-success', () => {
                 },
             ]);
         });
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'download',
             isChanged: true,
         });
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'download',
             value: [
                 {
@@ -219,17 +217,17 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     it('should compute selectedDocumentTypes correctly', async () => {
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'download',
             isChanged: true,
         });
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'invoice',
             isChanged: true,
         });
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'invoice',
             value: {
                 documentDate: 'documentDate',
@@ -237,14 +235,14 @@ describe('sw-bulk-edit-save-modal-success', () => {
             },
         });
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'download',
             value: [],
         });
 
         expect(wrapper.vm.selectedDocumentTypes).toStrictEqual([]);
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'download',
             value: [
                 {

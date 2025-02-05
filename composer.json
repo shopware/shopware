@@ -84,7 +84,7 @@
         "composer/semver": "^3.4.0",
         "doctrine/dbal": "^3.9",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "2.0.4",
+        "dompdf/dompdf": "3.1.0",
         "dragonmantank/cron-expression": "^3.3",
         "erusev/parsedown-extra": "^0.8.1",
         "ezyang/htmlpurifier": "^4.16",

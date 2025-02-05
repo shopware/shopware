@@ -1,13 +1,11 @@
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
-import { createStore } from 'vuex';
-import productStore from 'src/module/sw-product/page/sw-product-detail/state';
+import { nextTick } from 'vue';
 
 /**
  * @sw-package inventory
  */
 
-const { Utils } = Shopware;
 describe('module/sw-product/component/sw-product-deliverability-downloadable-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
         const productEntity = {
@@ -22,6 +20,28 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
             ...parentProductOverride,
         };
 
+        const store = Shopware.Store.get('swProductDetail');
+        store.$reset();
+        store.product = productEntity;
+        store.parentProduct = parentProduct;
+        store.advancedModeSetting = {
+            value: {
+                settings: [
+                    {
+                        key: 'deliverability',
+                        label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
+                        enabled: true,
+                        name: 'general',
+                    },
+                ],
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
+        };
+        store.creationStates = 'is-physical';
+
         return mount(await wrapTestComponent('sw-product-deliverability-downloadable-form', { sync: true }), {
             global: {
                 mocks: {
@@ -31,43 +51,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                             id: 1,
                         },
                     },
-                    $store: createStore({
-                        modules: {
-                            swProductDetail: {
-                                ...productStore,
-                                state: {
-                                    ...productStore.state,
-                                    product: productEntity,
-                                    parentProduct,
-                                    loading: {
-                                        product: false,
-                                        media: false,
-                                    },
-                                    advancedModeSetting: {
-                                        value: {
-                                            settings: [
-                                                {
-                                                    key: 'deliverability',
-                                                    label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
-                                                    enabled: true,
-                                                    name: 'general',
-                                                },
-                                            ],
-                                            advancedMode: {
-                                                enabled: true,
-                                                label: 'sw-product.general.textAdvancedMode',
-                                            },
-                                        },
-                                    },
-                                    creationStates: 'is-physical',
-                                },
-                                getters: {
-                                    ...productStore.getters,
-                                    isLoading: () => false,
-                                },
-                            },
-                        },
-                    }),
                 },
                 provide: {
                     validationService: {},
@@ -118,9 +101,9 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         wrapper = await createWrapper();
         await flushPromises();
 
-        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
+        const advancedModeSetting = Shopware.Store.get('swProductDetail').advancedModeSetting;
 
-        await wrapper.vm.$store.commit('swProductDetail/setAdvancedModeSetting', {
+        Shopware.Store.get('swProductDetail').advancedModeSetting = {
             value: {
                 ...advancedModeSetting.value,
                 advancedMode: {
@@ -128,11 +111,13 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                     label: 'sw-product.general.textAdvancedMode',
                 },
             },
-        });
+        };
 
         const deliveryFieldsClassName = [
             '.product-deliverability-downloadable-form__delivery-time',
         ];
+
+        await nextTick();
 
         deliveryFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeFalsy();

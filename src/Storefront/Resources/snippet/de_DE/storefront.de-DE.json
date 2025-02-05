@@ -282,7 +282,6 @@
     "addressesTitleShippingAddress": "Lieferadresse",
     "addressesTitleBillingAddress": "Rechnungsadresse",
     "addressesChangeAddress": "Adresse ändern",
-    "addressModalCancel" : "Abbrechen",
     "addressesContentItemActionEdit": "Adresse bearbeiten",
     "addressesContentItemActionDelete": "Adresse löschen",
     "addressNotFound": "Keine Adresse gefunden",
@@ -387,9 +386,9 @@
     "addressModalFooterClose": "Schließen",
     "addressNewShipping": "Füge eine neue Versandadresse hinzu",
     "addressNewBilling": "Füge eine neue Rechnungsadresse hinzu",
-    "addressSuccessfulChange": "Adresse erfolgreich geändert.",
     "addressSaveAndUse": "Speichern und verwenden",
-    "addressSearchPlaceholder": "Suche Adressen..."
+    "addressSuccessfulChange": "Adresse erfolgreich geändert.",
+    "addressSearchPlaceholder": "Suche Adressen ..."
   },
   "address": {
     "streetLabel": "Straße und Hausnummer",

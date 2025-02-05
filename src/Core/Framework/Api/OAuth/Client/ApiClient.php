@@ -11,6 +11,9 @@ class ApiClient implements ClientEntityInterface
 {
     use ClientTrait;
 
+    /**
+     * @param non-empty-string $identifier
+     */
     public function __construct(
         private readonly string $identifier,
         private readonly bool $writeAccess,
@@ -24,6 +27,9 @@ class ApiClient implements ClientEntityInterface
         return $this->writeAccess;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function getIdentifier(): string
     {
         return $this->identifier;

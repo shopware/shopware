@@ -135,12 +135,9 @@ async function createWrapper() {
 
 describe('src/module/sw-order/component/sw-order-details-state-card', () => {
     beforeEach(async () => {
-        if (Shopware.State.get('swOrderDetail')) {
-            Shopware.State.unregisterModule('swOrderDetail');
-        }
-
-        Shopware.State.registerModule('swOrderDetail', {
-            namespaced: true,
+        Shopware.Store.unregister('swOrderDetail');
+        Shopware.Store.register({
+            id: 'swOrderDetail',
             state: {
                 isLoading: false,
                 isSavedSuccessful: false,

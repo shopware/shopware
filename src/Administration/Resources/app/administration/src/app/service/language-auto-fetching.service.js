@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { watch } from 'vue';
 
 let isInitialized = false;
 
@@ -22,16 +23,8 @@ export default function LanguageAutoFetchingService() {
             inheritance: true,
         });
 
-        Shopware.State.commit('context/setApiLanguage', newLanguage);
+        Shopware.Store.get('context').api.language = newLanguage;
     }
 
-    // watch for changes of the languageId
-    Shopware.State.watch(
-        (state) => state.context.api.languageId,
-        (newValue, oldValue) => {
-            if (newValue === oldValue) return;
-
-            loadLanguage(newValue);
-        },
-    );
+    watch(Shopware.Store.get('context').api.languageId, loadLanguage);
 }

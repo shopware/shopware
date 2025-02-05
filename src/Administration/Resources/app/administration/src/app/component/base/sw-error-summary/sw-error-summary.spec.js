@@ -5,18 +5,7 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(errors = {}, options = {}) {
-    if (typeof Shopware.State.get('error') !== 'undefined') {
-        Shopware.State.unregisterModule('error');
-    }
-
-    Shopware.State.registerModule('error', {
-        namespaced: true,
-
-        state: {
-            api: errors,
-        },
-    });
-    Shopware.State.getters['error/getAllApiErrors'] = () => [errors];
+    Shopware.Store.get('error').api = errors;
 
     return mount(await wrapTestComponent('sw-error-summary', { sync: true }), {
         attachTo: document.body,

@@ -17,7 +17,7 @@ import { get } from '../../../../core/service/utils/object.utils';
  * @sw-package checkout
  */
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -63,19 +63,19 @@ export default Component.wrapComponentConfig({
         },
 
         customer(): Entity<'customer'> | null {
-            return State.get('swOrder').customer;
+            return Store.get('swOrder').customer;
         },
 
         cart(): Cart {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
         currency(): Entity<'currency'> {
-            return State.get('swOrder').context.currency;
+            return Store.get('swOrder').context.currency;
         },
 
         salesChannelContext(): SalesChannelContext {
-            return State.get('swOrder').context;
+            return Store.get('swOrder').context;
         },
 
         email(): string {
@@ -139,7 +139,7 @@ export default Component.wrapComponentConfig({
 
         isCartTokenAvailable(): boolean {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            return State.getters['swOrder/isCartTokenAvailable'] as boolean;
+            return Store.get('swOrder').isCartTokenAvailable;
         },
 
         hasLineItem(): boolean {
@@ -153,16 +153,16 @@ export default Component.wrapComponentConfig({
         },
 
         disabledAutoPromotion(): boolean {
-            return State.get('swOrder').disabledAutoPromotion;
+            return Store.get('swOrder').disabledAutoPromotion;
         },
 
         promotionCodeTags: {
             get(): PromotionCodeTag[] {
-                return State.get('swOrder').promotionCodes;
+                return Store.get('swOrder').promotionCodes;
             },
 
             set(promotionCodeTags: PromotionCodeTag[]) {
-                State.commit('swOrder/setPromotionCodes', promotionCodeTags);
+                Store.get('swOrder').setPromotionCodes(promotionCodeTags);
             },
         },
     },
@@ -197,7 +197,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            State.commit('context/setLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
         },
     },
 
@@ -228,20 +228,24 @@ export default Component.wrapComponentConfig({
             };
         },
 
-        updateContext(): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/updateOrderContext', {
-                context: this.context,
-                salesChannelId: this.customer?.salesChannelId,
-                contextToken: this.cart.token,
-            }).then(() => {
-                return this.loadCart();
-            });
+        async updateContext(): Promise<void> {
+            if (!this.customer) return;
+            await Store.get('swOrder')
+                .updateOrderContext({
+                    context: this.context,
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                })
+                .then(() => {
+                    return this.loadCart();
+                });
         },
 
-        loadCart() {
-            return State.dispatch('swOrder/getCart', {
-                salesChannelId: this.customer?.salesChannelId,
+        async loadCart() {
+            if (!this.customer) return;
+
+            await Store.get('swOrder').getCart({
+                salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
             });
         },
@@ -256,14 +260,16 @@ export default Component.wrapComponentConfig({
             return this.onRemoveItems([item.discountId]);
         },
 
-        onRemoveItems(lineItemKeys: string[]): Promise<void> {
+        async onRemoveItems(lineItemKeys: string[]): Promise<void> {
             this.isLoading = true;
+            if (!this.customer) return;
 
-            return State.dispatch('swOrder/removeLineItems', {
-                salesChannelId: this.customer?.salesChannelId,
-                contextToken: this.cart.token,
-                lineItemKeys: lineItemKeys,
-            })
+            await Store.get('swOrder')
+                .removeLineItems({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                    lineItemKeys: lineItemKeys,
+                })
                 .then(() => {
                     // Remove promotion code tag if corresponding line item removed
                     lineItemKeys.forEach((key) => {
@@ -319,7 +325,7 @@ export default Component.wrapComponentConfig({
         toggleAutomaticPromotions(visibility: boolean): void {
             this.showPromotionModal = visibility;
             if (visibility) {
-                State.commit('swOrder/setDisabledAutoPromotion', true);
+                Store.get('swOrder').setDisabledAutoPromotion(true);
                 return;
             }
 
@@ -329,7 +335,7 @@ export default Component.wrapComponentConfig({
                     salesChannelId: this.salesChannelId,
                 })
                 .then(() => {
-                    State.commit('swOrder/setDisabledAutoPromotion', false);
+                    Store.get('swOrder').setDisabledAutoPromotion(false);
 
                     return this.loadCart();
                 })
@@ -340,12 +346,12 @@ export default Component.wrapComponentConfig({
 
         onClosePromotionModal() {
             this.showPromotionModal = false;
-            State.commit('swOrder/setDisabledAutoPromotion', false);
+            Store.get('swOrder').setDisabledAutoPromotion(false);
         },
 
         onSavePromotionModal() {
             this.showPromotionModal = false;
-            State.commit('swOrder/setDisabledAutoPromotion', true);
+            Store.get('swOrder').setDisabledAutoPromotion(true);
 
             return this.loadCart().finally(() => {
                 this.isLoading = false;
@@ -361,11 +367,12 @@ export default Component.wrapComponentConfig({
             this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
             this.isLoading = true;
 
-            State.dispatch('swOrder/modifyShippingCosts', {
-                salesChannelId: this.salesChannelId,
-                contextToken: this.cart.token,
-                shippingCosts: this.cartDelivery.shippingCosts,
-            })
+            Store.get('swOrder')
+                .modifyShippingCosts({
+                    salesChannelId: this.salesChannelId,
+                    contextToken: this.cart.token,
+                    shippingCosts: this.cartDelivery.shippingCosts,
+                })
                 .catch((error) => {
                     this.$emit('error', error);
                 })
@@ -395,17 +402,19 @@ export default Component.wrapComponentConfig({
             }
         },
 
-        onSubmitCode(code: string): Promise<void> {
+        async onSubmitCode(code: string): Promise<void> {
             this.isLoading = true;
+            if (!this.customer) return;
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/addPromotionCode', {
-                salesChannelId: this.customer?.salesChannelId,
-                contextToken: this.cart.token,
-                code,
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            await Store.get('swOrder')
+                .addPromotionCode({
+                    salesChannelId: this.customer?.salesChannelId,
+                    contextToken: this.cart.token,
+                    code,
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
     },
 });

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -59,9 +58,6 @@ class ProductReviewLoader extends AbstractProductReviewLoader
         $reviewResult = ProductReviewResult::createFrom($reviews);
         $reviewResult->setMatrix($this->getReviewRatingMatrix($reviews));
         $reviewResult->setCustomerReview($this->getCustomerReview($productId, $context));
-        if (!Feature::isActive('v6.7.0.0')) {
-            $reviewResult->setTotalReviews($reviews->getTotal());
-        }
         $reviewResult->setTotalReviewsInCurrentLanguage($this->getTotalReviewsInCurrentLanguage($reviews));
         $reviewResult->setProductId($productId);
         $reviewResult->setParentId($productParentId ?? $productId);

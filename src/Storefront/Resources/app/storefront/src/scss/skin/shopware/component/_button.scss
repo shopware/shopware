@@ -37,6 +37,25 @@ https://getbootstrap.com/docs/5.2/components/buttons
     --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
 }
 
+// Button styling with the appearance of a regular text link
+.btn-link-inline {
+    --#{$prefix}btn-color: #{$btn-link-color};
+    --#{$prefix}btn-hover-color: #{$btn-link-hover-color};
+    --#{$prefix}btn-font-weight: #{$font-weight-normal};
+    --#{$prefix}btn-font-size: inherit;
+    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+    --#{$prefix}btn-line-height: #{$line-height-base};
+    --#{$prefix}btn-padding-y: 0;
+    --#{$prefix}btn-padding-x: 0;
+    --#{$prefix}btn-border-width: 0;
+    text-decoration: underline;
+    vertical-align: baseline;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
 // @deprecated tag:v6.7.0 - The focus outline of all button variants will be unified to have the same appearance.
 @if feature('ACCESSIBILITY_TWEAKS') {
     @each $variant, $value in $theme-colors {

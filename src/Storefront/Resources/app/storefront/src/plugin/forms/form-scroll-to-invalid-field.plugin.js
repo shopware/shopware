@@ -4,7 +4,7 @@ import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 
 /**
- * @deprecated tag:v6.8.0 - Use the `form-handler.plugin.js` instead.
+ * @deprecated tag:v6.7.0 - Use the `form-handler.plugin.js` instead.
  *
  * This plugin scrolls to invalid form fields when the form is submitted.
  *

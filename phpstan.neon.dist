@@ -93,7 +93,6 @@ parameters:
             paths:
                 - src/Core/Content/Test/ImportExport/MockRepository.php
                 - src/Core/Test/Stub/DataAbstractionLayer/StaticEntityRepository.php
-        - '#Class Shopware\\Tests\\Integration\\Elasticsearch\\Product\\EsAwareCriteria extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\Criteria\.#'
 
         # Route scopes for controllers
         -
@@ -119,11 +118,6 @@ parameters:
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
 
-        - # PhpStan cannot follow the referenced cursor
-            message: "#^Variable \\$extensions in empty\\(\\) always exists and is always falsy\\.$#"
-            count: 1
-            path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
-
         - # Invalid trait usage
             message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
             paths:
@@ -139,9 +133,16 @@ parameters:
                 - src/**/Test/**
                 - tests/**
 
-        - # It explicitly tests array access on object, so it works from twig scripts
-            message: "#Use explicit methods over array access on object$#"
-            path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
+        # ArrayFacadeTest explicitly tests array access on object, so it works from twig scripts
+        - identifier: offsetAssign.dimType
+          path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
+
+        - identifier: typePerfect.noArrayAccessOnObject
+          path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
+
+        # DefaultsTest explicitly tests that the default values are not changed
+        - identifier: staticMethod.alreadyNarrowedType
+          path: tests/devops/Core/DefaultsTest.php
 
         - # Classes that are allowed to use dynamic property name access
             message: '#Use explicit names over dynamic ones#'
@@ -174,11 +175,6 @@ parameters:
                 - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
                 - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
                 - tests/integration/Core/Framework/Plugin/_fixtures/*
-
-        - # Hard to fix, as no proper var annotation could be used within the while loop
-            message: "#^Parameter \\#1 \\$mediaIds of method Shopware\\\\Core\\\\Content\\\\Media\\\\UnusedMediaPurger\\:\\:filterOutNewMedia\\(\\) expects array\\<string\\>, array\\<int, array\\<string, string\\>\\|string\\> given\\.$#"
-            count: 1
-            path: src/Core/Content/Media/UnusedMediaPurger.php
 
         - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
             message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
@@ -231,23 +227,9 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
                 - src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
 
-        - # For testing purpose this error can be ignored
-            message: '#Cannot assign new offset to Shopware\\Core\\Framework\\Script\\Facade\\ArrayFacade#'
-            path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
-
-        - # TestBuilders must not be internal
-            message: '#must be flagged @internal to not be captured by the BC checker#'
-            paths:
-                - src/Core/Test/Integration/Builder
-
         - # those private methods are called from the trait "RedisCompatibility"
-            message: '#Method Shopware\\Core\\Test\\Stub\\Redis\\RedisStub::do.*\(\) is unused#'
+            identifier: method.unused
             path: src/Core/Test/Stub/Redis/RedisStub.php
-
-        - # To not have a single case for each type, we check them dynamically.
-            message: '#Use explicit names over dynamic ones#'
-            count: 2
-            path: src/Core/Framework/Validation/HappyPathValidator.php
 
         - # It is checked before if the entity supports custom fields, but it is not possible for PHPStan to recognize this
             message: '#Call to an undefined method TElement of Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::.*CustomFields.*\(\)#'
@@ -260,12 +242,5 @@ parameters:
             The query parts are implementation details and should not be relied upon\\.$#
         """
 
-        - # This test should ensure, that the default values are never changed
-            message: '#Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with .* and .* will always evaluate to true.#'
-            identifier: staticMethod.alreadyNarrowedType
-            path: tests/devops/Core/DefaultsTest.php
-
-        - # The test intentionally uses a union type instead of a native type
-            message: '#Property Shopware\\Tests\\Integration\\Core\\Framework\\DataAbstractionLayer\\fixture\\AttributeEntityUnionEnum::\$enum has unresolvable native type.#'
-            paths:
-                - tests/integration/Core/Framework/DataAbstractionLayer/fixture/AttributeEntityUnionEnum.php
+        - # OpenSearch deprecations will be handeld in NEXT-40529
+            message: '#OpenSearch\\#'

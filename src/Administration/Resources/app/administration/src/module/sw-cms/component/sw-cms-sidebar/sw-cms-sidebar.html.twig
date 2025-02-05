@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_sidebar %}
 <sw-sidebar class="sw-cms-sidebar">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_page_settings %}
     <sw-sidebar-item
         ref="pageConfigSidebar"
@@ -13,22 +11,18 @@
         :disabled="page.locked || disabled"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_page_settings_content %}
         <sw-sidebar-collapse :expand-on-loading="true">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_page_settings_header %}
             <template #header>
                 <span>{{ $tc('sw-cms.detail.sidebar.headerPageSettings') }}</span>
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_page_settings_form %}
             <template #content>
                 <div class="sw-cms-sidebar__settings">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_page_settings_name_field %}
                     <sw-text-field
                         v-model:value="page.name"
@@ -38,7 +32,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_page_settings_css_class_field %}
                     <sw-text-field
                         v-model:value="page.cssClass"
@@ -48,7 +41,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_page_settings_type_field %}
                     <sw-select-field
                         v-tooltip.bottom="tooltipDisabled"
@@ -57,7 +49,6 @@
                         :disabled="!isSystemDefaultLanguage || page.type === 'product_detail' || undefined"
                         @update:value="onPageTypeChange"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_page_settings_type_field_options %}
                         <option
                             v-for="pageType in pageTypes"
@@ -71,7 +62,6 @@
                     </sw-select-field>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_page_settings_demo_field %}
                     <sw-entity-single-select
                         v-if="demoEntity !== null"
@@ -85,7 +75,6 @@
                         @update:value="onDemoEntityChange"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_page_settings_demo_field_variant_label %}
                         <template
                             v-if="demoEntity === 'product'"
@@ -97,7 +86,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_page_settings_demo_field_result_item %}
                         <template
                             v-if="demoEntity === 'product'"
@@ -107,7 +95,6 @@
                                 v-bind="{ item, index }"
                             >
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_sidebar_page_settings_demo_field_result_label %}
                                 <span class="sw-select-result__result-item-text">
                                     <sw-product-variant-info :variations="item.variation">
@@ -128,7 +115,6 @@
     </sw-sidebar-item>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_block_overview %}
     <sw-sidebar-item
         ref="blockSelectionSidebar"
@@ -136,18 +122,15 @@
         :title="addBlockTitle"
         :disabled="currentDeviceView === 'form' || !isSystemDefaultLanguage || page.locked || disabled"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_block_overview_content %}
         <div class="sw-cms-sidebar__block-overview">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_block_overview_category %}
             <div class="sw-cms-sidebar__block-category">
                 <sw-select-field
                     v-model:value="currentBlockCategory"
                     :label="$tc('sw-cms.detail.label.blockCategorySelection')"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_overview_category_options %}
                     <option
                         v-for="blockCategory in cmsBlockCategories"
@@ -161,7 +144,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_block_overview_preview %}
             <div
                 class="sw-cms-sidebar__block-selection"
@@ -188,7 +170,6 @@
                             :class="{ 'has--no-label': !block.label }"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_sidebar_block_overview_preview_component %}
                             <component
                                 :is="block.previewComponent"
@@ -197,7 +178,6 @@
                             {% endblock %}
                         </div>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_block_overview_preview_favorite_action %}
                         <sw-button
                             class="sw-cms-sidebar__block-favorite"
@@ -223,7 +203,6 @@
                         {% endblock %}
                     </div>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_overview_preview_label %}
                     <span
                         v-if="block.label"
@@ -240,7 +219,6 @@
     </sw-sidebar-item>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_block_and_section_settings %}
     <sw-sidebar-item
         ref="itemConfigSidebar"
@@ -250,16 +228,13 @@
         @close-content="onCloseBlockConfig"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_block_settings %}
         <div class="sw-cms-sidebar__block-settings">
             <template v-if="selectedBlock !== null">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_sidebar_block_settings_content %}
                 <sw-sidebar-collapse :expand-on-loading="true">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_settings_header %}
                     <template #header>
                         <span>
@@ -268,7 +243,6 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_settings_form %}
                     <template #content>
                         <sw-cms-block-config
@@ -281,18 +255,15 @@
                 </sw-sidebar-collapse>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_sidebar_block_layout_settings_content %}
                 <sw-sidebar-collapse :expand-on-loading="false">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_layout_settings_header %}
                     <template #header>
                         <span> {{ $tc('sw-cms.sidebar.contentMenu.layoutSettings') }}</span>
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_layout_settings_form %}
                     <template #content>
                         <sw-cms-block-layout-config :block="selectedBlock" />
@@ -317,16 +288,13 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_section_settings %}
         <div class="sw-cms-sidebar__section-settings">
             <template v-if="selectedSection !== null">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_sidebar_section_settings_content %}
                 <sw-sidebar-collapse :expand-on-loading="true">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_section_settings_header %}
                     <template #header>
                         <span>
@@ -335,7 +303,6 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_section_settings_form %}
                     <template #content>
                         <sw-cms-section-config
@@ -366,7 +333,6 @@
     </sw-sidebar-item>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_navigator %}
     <sw-sidebar-item
         ref="blockNavigator"
@@ -375,11 +341,9 @@
         :disabled="!page.sections.length === 0 || currentDeviceView === 'form' || page.locked || disabled"
         @click="onSidebarNavigatorClick"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_navigator_content %}
         <div class="sw-cms-sidebar__navigator">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_navigator_section %}
             <div
                 v-for="(section, sectionIndex) in page.sections"
@@ -388,7 +352,6 @@
                 class="sw-cms-sidebar__navigator-section"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_sidebar_navigator_section_header %}
                 <div class="sw-cms-sidebar__navigator-section-header">
                     <template v-if="section.name">
@@ -403,11 +366,9 @@
                         {{ $tc('sw-cms.section.isDefault') }}
                     </template>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_navigator_section_menu %}
                     <sw-context-button :key="section.position">
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_navigator_section_menu_move_up %}
                         <sw-context-menu-item
                             class="sw-cms-sidebar__navigator-section-move-up"
@@ -418,7 +379,6 @@
                         </sw-context-menu-item>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_navigator_section_menu_move_down %}
                         <sw-context-menu-item
                             class="sw-cms-sidebar__navigator-section-move-down"
@@ -429,7 +389,6 @@
                         </sw-context-menu-item>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_navigator_section_menu_settings %}
                         <sw-context-menu-item
                             class="sw-cms-sidebar__navigator-section-settings"
@@ -439,7 +398,6 @@
                         </sw-context-menu-item>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_navigator_section_menu_duplicate %}
                         <sw-context-menu-item
                             class="sw-cms-sidebar__navigator-section-duplicate"
@@ -450,7 +408,6 @@
                         </sw-context-menu-item>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_navigator_section_menu_delete %}
                         <sw-context-menu-item
                             class="sw-cms-sidebar__navigator-section-delete"
@@ -465,10 +422,8 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_sidebar_navigator_main_elements %}
                 <template v-if="getMainContentBlocks(section.blocks).length > 0">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_navigator_main_element %}
                     <template
                         v-for="block in getMainContentBlocks(section.blocks)"
@@ -490,7 +445,6 @@
                 </template>
 
                 <template v-else>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_navigator_main_empty %}
                     <div
                         :key="section.id + '_main'"
@@ -506,10 +460,8 @@
                 <template v-if="section.type === 'sidebar'">
                     <div class="sw-cms-sidebar__navigator-section-spacer"></div>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_navigator_sidebar_elements %}
                     <template v-if="getSidebarContentBlocks(section.blocks).length > 0">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_navigator_sidebar_element %}
                         <template
                             v-for="block in getSidebarContentBlocks(section.blocks)"
@@ -530,7 +482,6 @@
                     </template>
 
                     <template v-else>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_navigator_sidebar_empty %}
                         <div
                             :key="section.id + '_sidebar'"
@@ -550,7 +501,6 @@
     </sw-sidebar-item>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_layout_assignment %}
     <sw-sidebar-item
         ref="layoutAssignment"
@@ -560,24 +510,20 @@
         :disabled="page.locked || disabled"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_layout_assignment_content %}
         <div class="sw-cms-sidebar__layout-assignment-content">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_layout_assignment_headline %}
             <h3 class="sw-cms-sidebar__layout-assignment-headline">
                 {{ $tc('sw-cms.sidebar.layoutAssignment.headline') }}
             </h3>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_layout_assignment_info_text %}
             <p class="sw-cms-sidebar__layout-assignment-info-text">
                 {{ $tc('sw-cms.sidebar.layoutAssignment.infoText') }}
             </p>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_layout_assignment_action_open %}
             <sw-button
                 variant="ghost"
@@ -615,7 +561,6 @@
     </sw-sidebar-item>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_navigator_confirm_modal %}
     <sw-modal
         v-if="showSidebarNavigatorModal"
@@ -625,12 +570,10 @@
         @modal-close="onSidebarNavigationCancel"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_navigator_confirm_modal_content %}
         <p class="sw-confirm-modal__text">
             {{ $tc('sw-cms.detail.sidebar.confirmTextNavigator') }}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_navigator_confirm_modal_content_input_reminder %}
             <sw-checkbox-field
                 v-model:value="navigatorDontRemind"
@@ -642,9 +585,7 @@
         {% endblock %}
 
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_navigator_confirm_modal_content_footer %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_navigator_confirm_modal_content_footer_cancel %}
             <sw-button
                 class="sw-cms-sidebar__navigator-confirm-modal-cancel"
@@ -655,7 +596,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_navigator_confirm_modal_content_footer_confirm %}
             <sw-button
                 class="sw-cms-sidebar__navigator-confirm-modal-confirm"

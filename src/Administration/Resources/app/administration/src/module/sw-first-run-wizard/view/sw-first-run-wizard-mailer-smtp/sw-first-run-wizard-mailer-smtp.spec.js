@@ -42,13 +42,13 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
     }
 
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -62,12 +62,12 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 
     it('template renders with disabled extension management', async () => {
-        Shopware.State.get('context').app.config.settings.disableExtensionManagement = true;
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -76,7 +76,7 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
 
         expect(wrapper.vm.nextAction).toBe('sw.first.run.wizard.index.shopware.account');
 
-        Shopware.State.get('context').app.config.settings.disableExtensionManagement = false;
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
     });
 
     it('should emit the button config and the title on creation', async () => {

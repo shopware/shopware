@@ -7,7 +7,6 @@ import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
 import querystring from 'query-string';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
-import HistoryUtil from 'src/utility/history/history.util';
 import Debouncer from 'src/helper/debouncer.helper';
 
 export default class ListingPlugin extends Plugin {
@@ -51,7 +50,7 @@ export default class ListingPlugin extends Plugin {
 
         this.httpClient = new HttpClient();
 
-        this._urlFilterParams = querystring.parse(HistoryUtil.getSearch());
+        this._urlFilterParams = querystring.parse(window.location.search);
 
         this._filterPanel = DomAccess.querySelector(document, this.options.filterPanelSelector, false);
         this._filterPanelActive = !!this._filterPanel;
@@ -251,7 +250,7 @@ export default class ListingPlugin extends Plugin {
     }
 
     _updateHistory(query) {
-        HistoryUtil.push(HistoryUtil.getLocation().pathname, query, {});
+        window.history.pushState({}, '', `${window.location.pathname}?${query}`);
     }
 
     /**

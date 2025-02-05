@@ -1,10 +1,9 @@
-import { mapState } from 'vuex';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Mixin, Context, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -105,7 +104,7 @@ export default {
             return awarenessConfig?.scopes ?? undefined;
         },
 
-        ...mapState('swFlowState', ['flow']),
+        ...mapState(() => Store.get('swFlow'), ['flow']),
 
         ...mapPropertyErrors('rule', [
             'name',
@@ -139,7 +138,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.State.get('session').languageId,
+                languageId: Shopware.Store.get('session').languageId,
             };
             const criteria = new Criteria(1, 500);
 
@@ -247,7 +246,7 @@ export default {
 
                 this.saveRule()
                     .then(() => {
-                        Shopware.State.dispatch('error/resetApiErrors');
+                        Shopware.Store.get('error').resetApiErrors();
                         this.getRuleDetail();
 
                         this.isSaveSuccessful = true;
@@ -265,7 +264,7 @@ export default {
             this.saveRule()
                 .then(this.syncConditions)
                 .then(() => {
-                    Shopware.State.dispatch('error/resetApiErrors');
+                    Shopware.Store.get('error').resetApiErrors();
                     this.getRuleDetail();
 
                     this.isSaveSuccessful = true;

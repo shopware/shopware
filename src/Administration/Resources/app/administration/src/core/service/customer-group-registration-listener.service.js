@@ -1,4 +1,4 @@
-const { Application, Service, State } = Shopware;
+const { Application, Service, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -57,7 +57,7 @@ export default function addCustomerGroupRegistrationListener(loginService) {
             growl: true,
         };
 
-        State.dispatch('notification/createNotification', notification);
+        Store.get('notification').createNotification(notification);
     }
 
     function getApplicationRootReference() {

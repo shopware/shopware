@@ -15,7 +15,7 @@
             {% endif %}
 
             {% if config('core.loginRegistration.showAccountTypeSelection') or prefix == 'address' or prefix == 'shippingAddress' or hasSelectedBusiness %}
-                <div class="{% if prefix == 'shippingAddress' or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == 'address' %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">
+                <div class="{% if prefix == 'shippingAddress' or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == 'address' %}js-field-toggle-contact-type-company d-block {% else %}js-field-toggle-contact-type-company d-none{% endif %}">
                     {% block component_address_form_company_fields %}
                         <div class="row g-2">
                             {% block component_address_form_company_name %}
@@ -56,7 +56,12 @@
                                                autocomplete="organization"
                                                id="{{ idPrefix ~ prefix }}company"
                                                placeholder="{{ 'address.companyNamePlaceholder'|trans|striptags }}"
-                                               name="{{ prefix }}[company]"
+                                               {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                                               {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                                   name="{% if prefix %}{{ prefix }}[company]{% else %}company{% endif %}"
+                                               {% else %}
+                                                   name="{{ prefix }}[company]"
+                                               {% endif %}
                                                value="{{ data.get('company') }}"
                                                {% if prefix != 'shippingAddress' and accountTypeRequired %}required="required"{% endif %}>
                                     {% endblock %}
@@ -104,7 +109,12 @@
                                                class="form-control{% if violationPath %} is-invalid{% endif %}"
                                                id="{{ idPrefix ~ prefix }}department"
                                                placeholder="{{ 'address.companyDepartmentPlaceholder'|trans|striptags }}"
-                                               name="{{ prefix }}[department]"
+                                               {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                                               {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                                   name="{% if prefix %}{{ prefix }}[department]{% else %}department{% endif %}"
+                                               {% else %}
+                                                   name="{{ prefix }}[department]"
+                                               {% endif %}
                                                value="{{ data.get('department') }}">
                                     {% endblock %}
 
@@ -194,7 +204,12 @@
                                autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}address-line1"
                                id="{{ idPrefix ~ prefix }}AddressStreet"
                                placeholder="{{ 'address.streetPlaceholder'|trans|striptags }}"
-                               name="{{ prefix }}[street]"
+                               {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                               {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                   name="{% if prefix %}{{ prefix }}[street]{% else %}street{% endif %}"
+                               {% else %}
+                                   name="{{ prefix }}[street]"
+                               {% endif %}
                                value="{{ data.get('street') }}"
                                data-form-validation-required
                                {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
@@ -261,7 +276,12 @@
                                autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}postal-code"
                                id="{{ idPrefix ~ prefix }}AddressZipcode"
                                placeholder="{{ 'address.zipcodePlaceholder'|trans|striptags }}"
-                               name="{{ prefix }}[zipcode]"
+                               {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                               {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                   name="{% if prefix %}{{ prefix }}[zipcode]{% else %}zipcode{% endif %}"
+                               {% else %}
+                                   name="{{ prefix }}[zipcode]"
+                               {% endif %}
                                value="{{ zipcodeValue }}"
                                data-input-name="zipcodeInput">
                     {% endblock %}
@@ -321,7 +341,12 @@
                                autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}address-level2"
                                id="{{ idPrefix ~ prefix }}AddressCity"
                                placeholder="{{ 'address.cityPlaceholder'|trans|striptags }}"
-                               name="{{ prefix }}[city]"
+                               {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                               {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                   name="{% if prefix %}{{ prefix }}[city]{% else %}city{% endif %}"
+                               {% else %}
+                                   name="{{ prefix }}[city]"
+                               {% endif %}
                                value="{{ data.get('city') }}"
                                data-form-validation-required
                                {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
@@ -423,7 +448,12 @@
                                    autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}address-line2"
                                    id="{{ idPrefix ~ prefix }}AdditionalField1"
                                    placeholder="{{ 'address.additionalField1Placeholder'|trans|striptags }}"
-                                   name="{{ prefix }}[additionalAddressLine1]"
+                                   {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                                   {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                       name="{% if prefix %}{{ prefix }}[additionalAddressLine1]{% else %}additionalAddressLine1{% endif %}"
+                                   {% else %}
+                                       name="{{ prefix }}[additionalAddressLine1]"
+                                   {% endif %}
                                    value="{{ data.get('additionalAddressLine1') }}"
                                    {% if config('core.loginRegistration.additionalAddressField1Required') %}required="required"{% endif %}>
                         {% endblock %}
@@ -485,7 +515,12 @@
                                    autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}address-line3"
                                    id="{{ idPrefix ~ prefix }}AdditionalField2"
                                    placeholder="{{ 'address.additionalField2Placeholder'|trans|striptags }}"
-                                   name="{{ prefix }}[additionalAddressLine2]"
+                                   {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                   {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                                       name="{% if prefix %}{{ prefix }}[additionalAddressLine2]{% else %}additionalAddressLine2{% endif %}"
+                                   {% else %}
+                                       name="{{ prefix }}[additionalAddressLine2]"
+                                   {% endif %}
                                    value="{{ data.get('additionalAddressLine2') }}"
                                    {% if config('core.loginRegistration.additionalAddressField2Required') %}required="required"{% endif %}>
                         {% endblock %}
@@ -583,7 +618,12 @@
                     {% block component_address_form_country_select %}
                         <select class="country-select form-select{% if violationPath %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}AddressCountry"
-                                name="{{ prefix }}[countryId]"
+                                {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                                {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                    name="{% if prefix %}{{ prefix }}[countryId]{% else %}countryId{% endif %}"
+                                {% else %}
+                                    name="{{ prefix }}[countryId]"
+                                {% endif %}
                                 required="required"
                                 data-initial-country-id="{{ initialCountryId }}">
                             {% if not initialCountryId %}
@@ -673,7 +713,12 @@
                     {% block component_address_form_country_state_select %}
                         <select class="country-state-select form-select{% if violationPath %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}AddressCountryState"
-                                name="{{ prefix }}[countryStateId]"
+                                {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                                {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                    name="{% if prefix %}{{ prefix }}[countryStateId]{% else %}countryStateId{% endif %}"
+                                {% else %}
+                                    name="{{ prefix }}[countryStateId]"
+                                {% endif %}
                                 data-initial-country-state-id="{{ data.get('countryStateId') }}">
                             <option value=""
                                     selected="selected"
@@ -745,7 +790,12 @@
                                    autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}tel"
                                    id="{{ idPrefix ~ prefix }}AddressPhoneNumber"
                                    placeholder="{{ 'address.phoneNumberPlaceholder'|trans|striptags }}"
-                                   name="{{ prefix }}[phoneNumber]"
+                                   {# @deprecated tag:v6.7.0 - Input name prefix changes #}
+                                   {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                       name="{% if prefix %}{{ prefix }}[phoneNumber]{% else %}phoneNumber{% endif %}"
+                                   {% else %}
+                                       name="{{ prefix }}[phoneNumber]"
+                                   {% endif %}
                                    value="{{ data.get('phoneNumber') }}"
                                    {% if config('core.loginRegistration.phoneNumberFieldRequired') %}required="required"{% endif %}>
                         {% endblock %}

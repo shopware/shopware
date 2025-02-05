@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';

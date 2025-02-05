@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_manufacturer_detail %}
 <sw-page class="sw-manufacturer-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline')) }}</h2>
@@ -10,11 +8,9 @@
 
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_detail_actions %}
     <template #smart-bar-actions>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_manufacturer_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -25,7 +21,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_manufacturer_detail_actions_save %}
         <sw-button-process
             v-model:process-success="isSaveSuccessful"
@@ -43,7 +38,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -55,7 +49,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_detail_content %}
     <template #content>
         <sw-card-view>
@@ -66,14 +59,12 @@
 
             <template v-else>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_manufacturer_detail_content_language_info %}
                 <sw-language-info
                     :entity-description="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_manufacturer_detail_base_basic_info_card %}
                 <sw-card
                     position-identifier="sw-manufacturer-detail-basic-info"
@@ -86,7 +77,6 @@
                     >
                         <div class="sw-manufacturer-detail__base-info-wrapper">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_manufacturer_detail_base_info_field_name %}
                             <sw-text-field
                                 v-model:value="manufacturer.name"
@@ -100,7 +90,6 @@
                             />
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_manufacturer_detail_base_info_field_link %}
                             <sw-text-field
                                 v-model:value="manufacturer.link"
@@ -112,7 +101,6 @@
                             {% endblock %}
                         </div>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_manufacturer_detail_logo_upload %}
                         <sw-upload-listener
                             :upload-tag="mediaUploadTag"
@@ -136,7 +124,6 @@
                         {% endblock %}
                     </sw-container>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_manufacturer_detail_base_info_field_description %}
                     <sw-text-editor
                         v-model:value="manufacturer.description"
@@ -151,7 +138,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_manufacturer_detail_custom_field_sets %}
                 <sw-card
                     v-if="customFieldSets.length > 0"
@@ -172,7 +158,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_detail_sidebar %}
     <template #sidebar>
         <sw-sidebar :propagate-width="true">

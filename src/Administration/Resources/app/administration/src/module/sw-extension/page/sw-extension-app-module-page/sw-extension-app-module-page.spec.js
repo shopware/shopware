@@ -56,8 +56,8 @@ async function createWrapper(props) {
  */
 describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', () => {
     beforeEach(() => {
-        Shopware.State.get('session').currentLocale = 'en-GB';
-        Shopware.State.commit('shopwareApps/setApps', testApps);
+        Shopware.Store.get('session').currentLocale = 'en-GB';
+        Shopware.Store.get('shopwareApps').apps = testApps;
     });
 
     it('sets the correct heading and source with a regular module', async () => {
@@ -139,7 +139,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         });
         expect(wrapper.find('.smart-bar__content').exists()).toBeTruthy();
 
-        Shopware.State.commit('extensionSdkModules/addHiddenSmartBar', 'standardModule');
+        Shopware.Store.get('extensionSdkModules').addHiddenSmartBar('standardModule');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.smart-bar__content').exists()).toBeFalsy();

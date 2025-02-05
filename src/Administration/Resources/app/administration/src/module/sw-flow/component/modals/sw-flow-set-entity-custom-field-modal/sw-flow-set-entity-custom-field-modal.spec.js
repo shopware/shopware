@@ -1,7 +1,5 @@
 import { mount } from '@vue/test-utils';
 
-import flowState from 'src/module/sw-flow/state/flow.state';
-
 /**
  * @sw-package after-sales
  */
@@ -183,28 +181,23 @@ async function createWrapper(customField = customNormalField) {
 }
 
 describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () => {
-    Shopware.State.registerModule('swFlowState', {
-        ...flowState,
-        state: {
-            triggerEvent: {
-                data: {
-                    order: {
-                        type: 'entity',
-                    },
+    beforeAll(() => {
+        Shopware.Store.get('swFlow').triggerEvent = {
+            data: {
+                order: {
+                    type: 'entity',
                 },
-                customerAware: false,
-                extensions: [],
-                logAware: false,
-                mailAware: true,
-                name: 'checkout.order.place',
-                orderAware: true,
-                salesChannelAware: true,
-                userAware: false,
-                webhookAware: true,
             },
-            customFieldSets: [],
-            customFields: [],
-        },
+            customerAware: false,
+            extensions: [],
+            logAware: false,
+            mailAware: true,
+            name: 'checkout.order.place',
+            orderAware: true,
+            salesChannelAware: true,
+            userAware: false,
+            webhookAware: true,
+        };
     });
 
     it('should preselect the entity', async () => {

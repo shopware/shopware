@@ -114,7 +114,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $shipping = $data->get('shippingAddress');
 
         if ($billing instanceof DataBag) {
-            if (Feature::isActive('v6.7.0.0')) {
+            if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
                 if ($billing->has('firstName') && !$data->has('firstName')) {
                     $data->set('firstName', $billing->get('firstName'));
                 }
@@ -193,17 +193,6 @@ class RegisterRoute extends AbstractRegisterRoute
         $this->customerRepository->create([$customer], $writeContext);
 
         $criteria = new Criteria([$customer['id']]);
-
-        if (!Feature::isActive('v6.7.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
-            $criteria->addAssociation('addresses');
-            $criteria->addAssociation('salutation');
-            $criteria->addAssociation('defaultBillingAddress.country');
-            $criteria->addAssociation('defaultBillingAddress.countryState');
-            $criteria->addAssociation('defaultBillingAddress.salutation');
-            $criteria->addAssociation('defaultShippingAddress.country');
-            $criteria->addAssociation('defaultShippingAddress.countryState');
-            $criteria->addAssociation('defaultShippingAddress.salutation');
-        }
 
         /** @var CustomerEntity $customerEntity */
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();

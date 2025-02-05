@@ -10,6 +10,8 @@ import DomAccess from 'src/helper/dom-access.helper';
  *
  * This plugin opens a modal
  * where an address can be edited or created
+ *
+ * @deprecated tag:v6.7.0 - will be removed, use address-manager plugin instead
  */
 export default class AddressEditorPlugin extends Plugin {
 

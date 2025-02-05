@@ -513,7 +513,7 @@ Component.register('sw-category-tree-field', {
                             // update the selected item
                             this.selectedTreeItem = newSelection;
                         } else {
-                            // when sibling does not exists, go to next parent sibling
+                            // when sibling does not exist, go to next parent sibling
                             const parent = this.findTreeItemVNodeById(actualSelection.item.parentId);
                             const nextParent = this.getSibling(true, parent.item);
                             if (nextParent) {

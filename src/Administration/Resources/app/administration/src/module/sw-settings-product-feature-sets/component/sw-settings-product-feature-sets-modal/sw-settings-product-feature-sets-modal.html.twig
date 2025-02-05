@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_product_feature_sets_modal %}
 <sw-modal
     :title="$tc('sw-settings-product-feature-sets.modal.labelTitleModal')"
@@ -6,7 +5,6 @@
     @modal-close="$emit('modal-close')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_sets_modal_first_page %}
     <template v-if="showPageOne">
         <sw-radio-field
@@ -21,15 +19,12 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_sets_modal_custom_field_list %}
     <template v-if="showCustomField">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_sets_modal_custom_field_list_toolbar %}
         <div class="sw-product-feature-set-modal-custom-field-list__toolbar">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_custom_field_list_toolbar_search %}
             <sw-simple-search-field
                 v-model:value="term"
@@ -53,21 +48,18 @@
             @selection-change="setFeatureSelection"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_custom_field_list_column_name %}
             <template #column-name="{ item }">
                 {{ readCustomFieldLabel(item) }}
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_custom_field_list_column_type %}
             <template #column-type="{ item }">
                 {{ item.type }}
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_custom_field_list_pagination %}
             <template #pagination>
                 <sw-pagination
@@ -86,15 +78,12 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_sets_modal_property_list %}
     <template v-if="showPropertyGroups">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_sets_modal_property_list_toolbar %}
         <div class="sw-product-feature-set-modal-property-list__toolbar">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_property_list_toolbar_search %}
             <sw-simple-search-field
                 v-model:value="term"
@@ -118,14 +107,12 @@
             @selection-change="setFeatureSelection"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_property_list_column_property %}
             <template #column-id="{ item }">
                 {{ item.name }}
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_property_list_pagination %}
             <template #pagination>
                 <sw-pagination
@@ -144,11 +131,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_sets_modal_product_information_list %}
     <template v-if="showProductInfo">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_sets_modal_product_information_list_toolbar %}{% endblock %}
 
         <sw-data-grid
@@ -161,7 +146,6 @@
             @selection-change="setFeatureSelection"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_product_informationlist_column_property %}
             <template #column-id="{ item }">
                 {{ item.name }}
@@ -173,11 +157,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_sets_modal_footer %}
     <template #modal-footer>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_sets_modal_footer_cancel %}
         <sw-button
             size="small"
@@ -187,7 +169,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_sets_modal_footer_button_add %}
         <sw-button
             v-if="!showPageOne | referencePriceSelected"
@@ -200,7 +181,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_sets_modal_footer_button_next %}
         <sw-button
             v-if="showNextButton"

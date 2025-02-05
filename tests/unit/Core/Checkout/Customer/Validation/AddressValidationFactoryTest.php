@@ -55,7 +55,7 @@ class AddressValidationFactoryTest extends TestCase
 
         $this->assertAddressDefinition($definition);
 
-        if (Feature::isActive('v6.7.0.0')) {
+        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
             static::assertCount(9, $definition);
         }
     }
@@ -64,7 +64,7 @@ class AddressValidationFactoryTest extends TestCase
     {
         $definition = $this->addressValidationFactory->update($this->salesChannelContext)->getProperties();
 
-        if (Feature::isActive('v6.7.0.0')) {
+        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
             static::assertCount(10, $definition);
             static::assertArrayHasKey('id', $definition);
 
@@ -81,7 +81,7 @@ class AddressValidationFactoryTest extends TestCase
      */
     private function assertAddressDefinition(array $definition): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
+        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
             static::assertArrayHasKey('title', $definition);
             static::assertInstanceOf(Length::class, $definition['title'][0]);
             static::assertArrayHasKey('zipcode', $definition);

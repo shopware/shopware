@@ -10,9 +10,10 @@ describe('src/core/data/error-resolver.data', () => {
     let errorResolver;
 
     beforeEach(() => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
+        // Spy on error store methods
+        jest.spyOn(Shopware.Store.get('error'), 'resetApiErrors');
+        jest.spyOn(Shopware.Store.get('error'), 'addApiError');
+        jest.spyOn(Shopware.Store.get('error'), 'addSystemError');
 
         errorResolver = new ErrorResolver();
     });
@@ -25,7 +26,7 @@ describe('src/core/data/error-resolver.data', () => {
         it('should dispatches "error/resetApiErrors" action', () => {
             errorResolver.resetApiErrors();
 
-            expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/resetApiErrors');
+            expect(Shopware.Store.get('error').resetApiErrors).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -74,18 +75,17 @@ describe('src/core/data/error-resolver.data', () => {
 
             errorResolver.handleWriteErrors(changeset, { errors });
 
-            expect(Shopware.State.dispatch).toHaveBeenCalledTimes(3);
-            expect(Shopware.State.dispatch).toHaveBeenNthCalledWith(1, 'error/addApiError', {
+            expect(Shopware.Store.get('error').addApiError).toHaveBeenCalledTimes(2);
+            expect(Shopware.Store.get('error').addSystemError).toHaveBeenCalledTimes(1);
+            expect(Shopware.Store.get('error').addApiError).toHaveBeenNthCalledWith(1, {
                 expression: expect.anything(),
                 error: expect.any(Shopware.Classes.ShopwareError),
             });
-            expect(Shopware.State.dispatch).toHaveBeenNthCalledWith(2, 'error/addApiError', {
+            expect(Shopware.Store.get('error').addApiError).toHaveBeenNthCalledWith(2, {
                 expression: expect.anything(),
                 error: expect.any(Shopware.Classes.ShopwareError),
             });
-            expect(Shopware.State.dispatch).toHaveBeenNthCalledWith(
-                3,
-                'error/addSystemError',
+            expect(Shopware.Store.get('error').addSystemError).toHaveBeenCalledWith(
                 expect.any(Shopware.Classes.ShopwareError),
             );
         });
@@ -118,7 +118,7 @@ describe('src/core/data/error-resolver.data', () => {
             errorResolver.handleWriteErrors(changeset, { errors });
 
             expect(errorResolver.reduceErrorsByWriteIndex).toHaveBeenCalledTimes(1);
-            expect(Shopware.State.dispatch).toHaveBeenNthCalledWith(1, 'error/addApiError', {
+            expect(Shopware.Store.get('error').addApiError).toHaveBeenCalledWith({
                 expression: expect.anything(),
                 error: expect.any(Shopware.Classes.ShopwareError),
             });
@@ -168,15 +168,13 @@ describe('src/core/data/error-resolver.data', () => {
 
             errorResolver.handleDeleteError(errors);
 
-            expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/addSystemError', {
+            expect(Shopware.Store.get('error').addSystemError).toHaveBeenCalledTimes(2);
+            expect(Shopware.Store.get('error').addApiError).toHaveBeenCalledTimes(2);
+            expect(Shopware.Store.get('error').addSystemError).toHaveBeenCalledWith({
                 error: expect.any(Shopware.Classes.ShopwareError),
             });
-            expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/addApiError', {
+            expect(Shopware.Store.get('error').addApiError).toHaveBeenCalledWith({
                 expression: 'Entity1.1',
-                error: expect.any(Shopware.Classes.ShopwareError),
-            });
-            expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/addApiError', {
-                expression: 'Entity2.2',
                 error: expect.any(Shopware.Classes.ShopwareError),
             });
         });

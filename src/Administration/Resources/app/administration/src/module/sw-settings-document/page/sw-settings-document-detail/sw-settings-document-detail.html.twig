@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_document_detail %}
 <sw-page class="sw-settings-document-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="documentConfig.name">
@@ -14,10 +12,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_document_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -28,7 +24,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_document_detail_actions_save %}
         <sw-button-process
             v-model:process-success="isSaveSuccessful"
@@ -53,7 +48,6 @@
         />
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_detail_content %}
     <template #content>
         <sw-card-view>
@@ -63,7 +57,6 @@
             </template>
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_document_detail_assignment_card %}
                 <sw-card
                     position-identifier="sw-settings-document-detail-assignment"
@@ -115,13 +108,11 @@
                             :disabled="!documentConfig.documentType || !acl.can('document.editor')"
                             class="sw-document-detail__select-type"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_document_detail_base_general_input_sales_channel_label %}
                             <template #selection-label-property="{ item }">
                                 {{ item.salesChannel.translated.name }}
                             </template>
                             {% endblock %}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_document_detail_base_general_input_sales_channel_result_item %}
                             <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
                                 <sw-select-result
@@ -152,7 +143,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_document_detail_content_card %}
                 <sw-card
                     position-identifier="sw-settings-document-detail-content"
@@ -163,7 +153,6 @@
                         columns="repeat(auto-fit, minmax(250px, 1fr))"
                         gap="0px 30px"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_name %}
                         <div class="sw-settings-document-detail__field_name">
                             <sw-text-field
@@ -178,7 +167,6 @@
                             />
                         </div>
                         {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_media %}
                         <div
                             flex="250px"
@@ -194,7 +182,6 @@
                             />
                         </div>
                         {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_file_name_prefix %}
                         <div class="sw-settings-document-detail__field_file_name_prefix">
                             <sw-text-field
@@ -205,7 +192,6 @@
                             />
                         </div>
                         {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_file_name_suffix %}
                         <div class="sw-settings-document-detail__field_file_name_suffix">
                             <sw-text-field
@@ -216,7 +202,6 @@
                             />
                         </div>
                         {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_form_field_renderer_content %}
                         <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                         <template v-if="documentConfig.config">
@@ -224,7 +209,6 @@
                                 v-for="(formField, index) in generalFormFields"
                                 :key="`formField-${index}`"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_document_detail_content_form_field_renderer_multi_select %}
                                 <sw-multi-select
                                     v-if="formField && formField.name === 'fileTypes'"
@@ -240,7 +224,6 @@
                                 />
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_document_detail_content_form_field_renderer %}
                                 <sw-form-field-renderer
                                     v-else-if="formField"
@@ -258,7 +241,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
                         <sw-checkbox-field
                             v-if="isShowDivergentDeliveryAddress"
@@ -270,7 +252,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_additional_note_delivery %}
                         <sw-checkbox-field
                             v-if="isShowDisplayNoteDelivery"
@@ -282,7 +263,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_customer_vat_id %}
                         <sw-checkbox-field
                             v-if="isShowDisplayNoteDelivery"
@@ -295,7 +275,6 @@
                         {% endblock %}
 
                         {# @deprecated tag:v6.7.0 - Remove the block #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_delivery_countries %}
                         {% endblock %}
 
@@ -303,7 +282,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_document_detail_company_card %}
                 <sw-card
                     position-identifier="sw-settings-document-detail-company"
@@ -315,14 +293,12 @@
                         gap="0px 30px"
                         align="end"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_company_form_field_renderer_content %}
                         <template v-if="documentConfig.config">
                             <template
                                 v-for="formField in companyFormFields"
                                 :key="formField.name"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_document_detail_company_form_field_renderer %}
                                 <sw-form-field-renderer
                                     v-model:value="documentConfig.config[formField.name]"
@@ -337,7 +313,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_document_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_excluded_search_terms %}
 <sw-card
     :title="$tc('sw-settings-search.generalTab.labelExcludedSearchTerms')"
@@ -6,7 +5,6 @@
     position-identifier="sw-settings-search-excluded-search-terms"
 >
     <template #grid>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_excluded_search_terms_empty_state %}
         <sw-empty-state
             v-if="showEmptyState"
@@ -17,7 +15,6 @@
             class="sw-empty-state"
         >
             <template #icon>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_excluded_search_terms_empty_state_image %}
                 <img
                     :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
@@ -27,7 +24,6 @@
             </template>
 
             <template #actions>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_excluded_search_terms_empty_state_action %}
                 <sw-button
                     class="sw-settings-search-excluded-search-terms__action-add"
@@ -43,10 +39,8 @@
         </sw-empty-state>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_excluded_search_terms_grid %}
         <div v-if="!showEmptyState">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_excluded_search_terms_header_bar %}
             <sw-container
                 class="sw-settings-search-excluded-search-terms__header-bar"
@@ -54,7 +48,6 @@
                 gap="10px"
                 align="center"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_excluded_search_terms_filter %}
                 <sw-card-filter
                     ref="itemFilter"
@@ -63,10 +56,8 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_excluded_search_terms_actions %}
                 <div class="sw-settings-search-excluded-search-terms-group-actions">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_search_excluded_search_terms_add_button %}
                     <sw-button
                         class="sw-settings-search-excluded-search-terms__insert-button"
@@ -79,7 +70,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_search_excluded_search_terms_reset_button %}
                     <sw-button
                         class="sw-settings-search-excluded-search-terms__reset-button"
@@ -96,7 +86,6 @@
             </sw-container>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_excluded_search_terms_grid_list %}
             <sw-container>
                 <sw-data-grid
@@ -123,7 +112,6 @@
                     </template>
 
                     <template #actions="{ item }">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_search_excluded_terms_column_actions %}
                         <sw-context-menu-item
                             variant="danger"
@@ -136,7 +124,6 @@
                     </template>
 
                     <template #pagination>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_search_excluded_terms_list_pagination %}
                         <sw-pagination
                             :page="page"
@@ -148,7 +135,6 @@
                         {% endblock %}
                     </template>
                 </sw-data-grid>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_search_excliuded_terms_no_results %}
                 <div v-if="items.length === 0">
                     <p class="sw-settings-search__no-data-results">

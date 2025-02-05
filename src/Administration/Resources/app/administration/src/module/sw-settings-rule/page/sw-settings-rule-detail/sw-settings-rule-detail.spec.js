@@ -539,8 +539,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const apiLanguageId = Shopware.State.get('context').api.languageId;
-        expect(Shopware.State.get('context').api.languageId).not.toBe('uuid1');
+        const apiLanguageId = Shopware.Store.get('context').api.languageId;
+        expect(Shopware.Store.get('context').api.languageId).not.toBe('uuid1');
 
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
@@ -550,10 +550,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         expect(ruleRepositoryMock.hasChanges).toHaveBeenCalledTimes(1);
         expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(abort ? 1 : 2);
-        expect(Shopware.State.get('context').api.languageId).toBe(abort ? apiLanguageId : 'uuid1');
+        expect(Shopware.Store.get('context').api.languageId).toBe(abort ? apiLanguageId : 'uuid1');
 
         // cleanup
-        Shopware.State.commit('context/setApiLanguageId', apiLanguageId);
+        Shopware.Store.get('context').api.languageId = apiLanguageId;
     });
 
     it('should save language switch', async () => {

@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_image_slider_config %}
 <div class="sw-cms-el-config-image-slider">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_slider_config_tabs %}
     <sw-tabs
         position-identifier="sw-cms-element-config-image-slider"
@@ -9,7 +7,6 @@
         default-item="content"
     >
         <template #default="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_config_tab_content %}
             <sw-tabs-item
                 :title="$tc('sw-cms.elements.general.config.tab.content')"
@@ -19,7 +16,6 @@
                 {{ $tc('sw-cms.elements.general.config.tab.content') }}
             </sw-tabs-item>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_config_tab_options %}
             <sw-tabs-item
                 :title="$tc('sw-cms.elements.general.config.tab.settings')"
@@ -34,13 +30,11 @@
         <template
             #content="{ active }"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_config_content %}
             <sw-container
                 v-if="active === 'content'"
                 class="sw-cms-el-config-image-slider__tab-content"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_image_slider_config_media_selection %}
                 <sw-media-list-selection-v2
                     :entity-media-items="mediaItems"
@@ -54,7 +48,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_image_slider_config_media_modal %}
                 <sw-media-modal-v2
                     v-if="mediaModalIsOpen"
@@ -70,7 +63,6 @@
             </sw-container>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_config_settings %}
             <sw-container
                 v-if="active === 'settings'"
@@ -78,11 +70,9 @@
             >
                 <div class="sw-cms-el-config-image-slider__settings-options">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_gallery_config_settings_display_mode %}
                     <div class="sw-cms-el-config-image-slider__setting-option">
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
                         <sw-select-field
                             v-model:value="element.config.displayMode.value"
@@ -103,7 +93,6 @@
                         </sw-select-field>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
                         <sw-text-field
                             v-model:value="element.config.minHeight.value"
@@ -115,7 +104,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
                         <sw-select-field
                             v-model:value="element.config.verticalAlign.value"
@@ -137,12 +125,10 @@
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_slider_config_settings_navigation %}
                     <div class="sw-cms-el-config-image-slider__setting-navigations sw-cms-el-config-image-slider__setting-option">
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_navigation_arrow_position %}
                             <sw-select-field
                                 v-model:value="element.config.navigationArrows.value"
@@ -164,7 +150,6 @@
 
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_navigation_dots_position %}
                             <sw-select-field
                                 v-model:value="element.config.navigationDots.value"
@@ -227,7 +212,6 @@
                         </div>
                     </div>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_slider_config_settings_links %}
                     <div class="sw-cms-el-config-image-slider__settings-links sw-cms-el-config-image-slider__setting-option">
                         <div
@@ -236,7 +220,6 @@
                             class="sw-cms-el-config-image-slider__settings-link"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_link_url %}
                             <sw-container
                                 :key="sliderItem.mediaId"
@@ -259,7 +242,6 @@
                             </sw-container>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_link_target %}
                             <sw-switch-field
                                 v-model:value="sliderItem.newTab"

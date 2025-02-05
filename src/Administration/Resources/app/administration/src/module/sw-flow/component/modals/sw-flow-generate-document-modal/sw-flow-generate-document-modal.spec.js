@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
-
-import flowState from 'src/module/sw-flow/state/flow.state';
+import { createPinia } from 'pinia';
 
 /**
  * @sw-package after-sales
@@ -36,6 +35,7 @@ async function createWrapper() {
         }),
         {
             global: {
+                plugins: [createPinia()],
                 provide: {
                     repositoryFactory: {
                         create: () => {
@@ -90,16 +90,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-            state: {
-                invalidSequences: [],
-                documentTypes: [],
-            },
-        });
-    });
-
     it('should show validation if document multiple type field is empty', async () => {
         const wrapper = await createWrapper();
 

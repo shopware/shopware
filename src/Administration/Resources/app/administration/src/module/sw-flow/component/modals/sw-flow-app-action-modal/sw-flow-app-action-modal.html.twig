@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_app_action_modal %}
 <sw-modal
     class="sw-flow-app-action-modal"
     @modal-close="onClose"
 >
     <template #modal-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_app_action_modal_header %}
         <div class="sw-flow-app-action-modal__header">
             {{ actionLabel }}
@@ -16,15 +14,12 @@
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_app_action_modal_content %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_app_action_modal_headcontent %}
     <div
         v-if="headline || paragraph"
         class="sw-flow-app-action-modal__headcontent"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_app_action_modal_headline %}
         <div
             v-if="headline"
@@ -34,7 +29,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_app_action_modal_paragraph %}
         <div
             v-if="paragraph"
@@ -56,7 +50,6 @@
     />
     {% endblock %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_app_action_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-app-action-modal__cancel-button"
@@ -67,7 +60,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_app_action_modal_footer_save_button %}
         <sw-button
             class="sw-flow-app-action-modal__save-button"

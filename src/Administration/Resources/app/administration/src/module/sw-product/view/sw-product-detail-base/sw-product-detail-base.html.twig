@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_base %}
 <div class="sw-product-detail-base">
     <template v-if="isLoading">
@@ -7,7 +6,6 @@
     </template>
 
     <template v-else>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_basic_info_card %}
         <sw-card
             v-show="showProductCard('general_information')"
@@ -16,7 +14,6 @@
             :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_basic_info_form %}
             <sw-product-basic-form
                 :show-settings-information="showModeSetting"
@@ -27,8 +24,8 @@
         </sw-card>
         {% endblock %}
 
-        <sw-card
-            v-show="productStates.includes('is-download')"
+        <mt-card
+            v-if="productStates.includes('is-download')"
             class="sw-product-detail-base__downloads"
             :subtitle="$tc('sw-product.detailBase.cardSubtitleDownloads')"
             :is-loading="loading.product || loading.customFieldSets || loading.downloads"
@@ -48,9 +45,8 @@
                 required
                 @media-open="onOpenDownloadMediaModal"
             />
-        </sw-card>
+        </mt-card>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_price_card %}
         <sw-card
             v-show="showProductCard('prices')"
@@ -60,12 +56,10 @@
             :is-loading="loading.product"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_price_form %}
             <sw-product-price-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_advanced_prices_link %}
             <sw-container
                 v-if="productId"
@@ -89,7 +83,6 @@
         {% endblock %}
 
         <template v-if="productStates.includes('is-download')">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_deliverability_downloadable_info_card %}
             <sw-card
                 v-show="showProductCard('deliverability')"
@@ -97,7 +90,6 @@
                 position-identifier="sw-product-detail-base-deliverability-downloadable"
                 :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_deliverability_downloadable_info_form %}
                 <sw-product-deliverability-downloadable-form :disabled="!acl.can('product.editor')" />
                 {% endblock %}
@@ -106,7 +98,6 @@
         </template>
 
         <template v-else>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_deliverability_info_card %}
             <sw-card
                 v-show="showProductCard('deliverability')"
@@ -114,7 +105,6 @@
                 position-identifier="sw-product-detail-base-deliverability"
                 :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_deliverability_info_form %}
                 <sw-product-deliverability-form :allow-edit="acl.can('product.editor')" />
                 {% endblock %}
@@ -122,7 +112,6 @@
             {% endblock %}
         </template>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_category_card %}
         <sw-card
             v-show="showProductCard('visibility_structure')"
@@ -132,7 +121,6 @@
             :is-loading="loading.product"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_category_form %}
             <sw-product-category-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
@@ -140,7 +128,6 @@
         </sw-card>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_media %}
         <sw-inherit-wrapper
             v-show="showProductCard('media')"
@@ -154,7 +141,6 @@
         >
             <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_base_media_card %}
                 <sw-card
                     :subtitle="$tc('sw-product.detailBase.cardSubtitleMedia')"
@@ -164,7 +150,6 @@
                 >
                     <template #title>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_detail_base_media_card_title %}
                         <div
                             class="sw-card__title"
@@ -184,7 +169,6 @@
 
                     </template>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_base_media_card_form %}
                     <sw-product-media-form
                         v-if="mediaFormVisible"
@@ -203,7 +187,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_media_modal %}
         <sw-media-modal-v2
             v-if="showMediaModal"
@@ -214,7 +197,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_settings_card %}
         <sw-card
             v-show="showProductCard('labelling')"
@@ -224,7 +206,6 @@
             :is-loading="loading.product"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_settings_form %}
             <sw-product-settings-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}

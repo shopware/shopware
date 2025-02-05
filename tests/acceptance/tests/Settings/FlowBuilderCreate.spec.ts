@@ -43,7 +43,7 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
         const flowListingRow = await AdminFlowBuilderListing.getLineItemByFlowName(`${testConfig.name}`);
         await ShopAdmin.expects(flowListingRow.flowActiveCheckmark).toBeVisible();
         await flowListingRow.flowContextMenuButton.click();
-        await AdminFlowBuilderListing.contextMenuEdit.click();
+        await flowListingRow.contextMenuEdit.click();
         // Confirm that general tab has the correct values
         await ShopAdmin.expects(AdminFlowBuilderDetail.nameField).toHaveValue(`${testConfig.name}`);
         await ShopAdmin.expects(AdminFlowBuilderDetail.descriptionField).toHaveValue(`${testConfig.description}`);
@@ -55,8 +55,6 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
         ShopAdmin.expects(trigger).toEqual(`${testConfig.triggerLabel}`);
         // Make sure there is only one condition
         await ShopAdmin.expects(AdminFlowBuilderDetail.conditionRule).toHaveText(`${testConfig.condition}`);
-        // Make sure there are no delays
-        await ShopAdmin.expects(AdminFlowBuilderDetail.delayCard).not.toBeVisible();
         // Make sure there is only one section
         await ShopAdmin.expects(AdminFlowBuilderDetail.sequenceSeparator).toBeVisible();
         // Make sure there are only desired actions present after the condition

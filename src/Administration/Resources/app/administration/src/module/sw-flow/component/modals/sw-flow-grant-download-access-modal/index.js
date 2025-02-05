@@ -1,6 +1,6 @@
 import template from './sw-flow-grant-download-access-modal.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Store } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();
 
@@ -56,10 +56,13 @@ export default {
             ];
         },
 
-        ...mapState('swFlowState', [
-            'triggerEvent',
-            'triggerActions',
-        ]),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'triggerEvent',
+                'triggerActions',
+            ],
+        ),
     },
 
     watch: {

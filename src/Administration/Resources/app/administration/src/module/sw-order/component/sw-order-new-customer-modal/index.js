@@ -168,9 +168,7 @@ export default {
                 return;
             }
 
-            Shopware.State.dispatch('error/removeApiError', {
-                expression: `customer_address.${this.billingAddress?.id}.company`,
-            });
+            Shopware.Store.get('error').removeApiError(`customer_address.${this.billingAddress?.id}.company`);
         },
     },
 
@@ -274,7 +272,7 @@ export default {
         },
 
         createErrorMessageForCompanyField() {
-            Shopware.State.dispatch('error/addApiError', {
+            Shopware.Store.get('error').addApiError({
                 expression: `customer_address.${this.billingAddress.id}.company`,
                 error: new Shopware.Classes.ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
@@ -303,7 +301,7 @@ export default {
                         return;
                     }
 
-                    Shopware.State.dispatch('error/addApiError', {
+                    Shopware.Store.get('error').addApiError({
                         expression: `customer.${this.customer.id}.email`,
                         error: exception?.response?.data?.errors[0],
                     });

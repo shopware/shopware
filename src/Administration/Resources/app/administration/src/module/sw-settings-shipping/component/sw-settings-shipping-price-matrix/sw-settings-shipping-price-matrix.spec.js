@@ -1,7 +1,4 @@
 import { mount } from '@vue/test-utils';
-import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
-
-Shopware.State.registerModule('swShippingDetail', state);
 
 /**
  * @sw-package checkout
@@ -14,7 +11,6 @@ const createWrapper = async () => {
         {
             global: {
                 renderStubDefaultSlot: true,
-                store: Shopware.State._store,
                 stubs: {
                     'sw-card': true,
                     'sw-container': true,
@@ -83,11 +79,11 @@ const createWrapper = async () => {
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrix', () => {
     beforeEach(async () => {
-        Shopware.State.commit('swShippingDetail/setCurrencies', [
+        Shopware.Store.get('swShippingDetail').shippingMethod = [
             { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true },
             { id: 'dollar', translated: { name: 'Dollar' } },
             { id: 'pound', translated: { name: 'Pound' } },
-        ]);
+        ];
     });
 
     it('should be a Vue.js component', async () => {

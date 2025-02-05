@@ -1,7 +1,5 @@
 import { mount } from '@vue/test-utils';
 
-import flowState from 'src/module/sw-flow/state/flow.state';
-
 /**
  * @sw-package after-sales
  */
@@ -62,15 +60,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-            state: {
-                flow: {
-                    eventName: '',
-                    sequences,
-                },
-            },
-        });
+        Shopware.Store.get('swFlow').setSequences(sequences);
     });
 
     beforeEach(async () => {
@@ -85,7 +75,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         const button = wrapper.find('.sw-flow-sequence-selector__add-condition');
         await button.trigger('click');
 
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        const sequencesState = Shopware.Store.get('swFlow').sequences;
         const sequence = {
             ...wrapper.props().sequence,
             ruleId: '',
@@ -102,7 +92,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         const button = wrapper.find('.sw-flow-sequence-selector__add-action');
         await button.trigger('click');
 
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        const sequencesState = Shopware.Store.get('swFlow').sequences;
         const sequence = {
             ...wrapper.props().sequence,
             actionName: '',

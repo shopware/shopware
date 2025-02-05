@@ -1,10 +1,10 @@
 import template from './sw-flow-detail-flow.html.twig';
 import './sw-flow-detail-flow.scss';
 
-const { Component, State } = Shopware;
+const { Component, Store } = Shopware;
 const utils = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapGetters, mapState } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -79,15 +79,16 @@ export default {
             });
         },
 
-        ...mapState('swFlowState', [
-            'flow',
-            'triggerActions',
-        ]),
-        ...mapGetters('swFlowState', [
-            'sequences',
-            'availableActions',
-            'hasAvailableAction',
-        ]),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'flow',
+                'triggerActions',
+                'sequences',
+                'availableActions',
+                'hasAvailableAction',
+            ],
+        ),
     },
 
     watch: {
@@ -99,7 +100,7 @@ export default {
 
                 if (!value.length) {
                     const sequence = this.createSequence();
-                    State.commit('swFlowState/addSequence', sequence);
+                    Store.get('swFlow').addSequence(sequence);
                 }
             },
             immediate: true,
@@ -145,7 +146,7 @@ export default {
 
         getTriggerActions() {
             return this.flowActionService.getActions().then((actions) => {
-                State.commit('swFlowState/setTriggerActions', actions);
+                Store.get('swFlow').triggerActions = actions;
             });
         },
 
@@ -229,14 +230,12 @@ export default {
         },
 
         onEventChange(eventName) {
-            State.commit('swFlowState/setEventName', eventName);
-            State.commit('error/removeApiError', {
-                expression: `flow.${this.flow.id}.eventName`,
-            });
+            Store.get('swFlow').setEventName(eventName);
+            Shopware.Store.get('error').removeApiError(`flow.${this.flow.id}.eventName`);
 
             if (!this.rootSequences.length) {
                 const sequence = this.createSequence();
-                State.commit('swFlowState/addSequence', sequence);
+                Store.get('swFlow').addSequence(sequence);
             }
         },
 
@@ -249,7 +248,7 @@ export default {
             newItem.position = 1;
             newItem.displayGroup = this.rootSequences[this.rootSequences.length - 1].displayGroup + 1;
 
-            State.commit('swFlowState/addSequence', newItem);
+            Store.get('swFlow').addSequence(newItem);
         },
 
         getSequenceId(sequence) {

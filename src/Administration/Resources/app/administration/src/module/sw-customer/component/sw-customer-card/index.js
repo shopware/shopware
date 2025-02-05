@@ -144,7 +144,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         emailIdnFilter() {
@@ -158,9 +158,7 @@ export default {
                 return;
             }
 
-            Shopware.State.dispatch('error/removeApiError', {
-                expression: `customer.${this.customer.id}.company`,
-            });
+            Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.company`);
         },
     },
 

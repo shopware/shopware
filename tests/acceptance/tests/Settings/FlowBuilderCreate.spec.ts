@@ -4,10 +4,10 @@ import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
 test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
     ShopAdmin,
     AdminFlowBuilderListing,
+    AdminFlowBuilderDetail,
     IdProvider,
     TestDataService,
     CreateFlow,
-    CheckFlow,
 
 }) => {
 
@@ -40,6 +40,27 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
 
     await test.step('Confirm the flow exists and is structured correctly.', async () => {
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
-        await ShopAdmin.attemptsTo(CheckFlow(testConfig as FlowConfig));
+        const flowListingRow = await AdminFlowBuilderListing.getLineItemByFlowName(`${testConfig.name}`);
+        await ShopAdmin.expects(flowListingRow.flowActiveCheckmark).toBeVisible();
+        await flowListingRow.flowContextMenuButton.click();
+        await AdminFlowBuilderListing.contextMenuEdit.click();
+        // Confirm that general tab has the correct values
+        await ShopAdmin.expects(AdminFlowBuilderDetail.nameField).toHaveValue(`${testConfig.name}`);
+        await ShopAdmin.expects(AdminFlowBuilderDetail.descriptionField).toHaveValue(`${testConfig.description}`);
+        await ShopAdmin.expects(AdminFlowBuilderDetail.priorityField).toHaveValue(`${testConfig.priority}`);
+        // Confirm the flow's structure
+        await AdminFlowBuilderDetail.flowTab.click();
+        // Check trigger by assessing the tooltip that appears on hover
+        const trigger = await AdminFlowBuilderDetail.getSelectedTrigger();
+        ShopAdmin.expects(trigger).toEqual(`${testConfig.triggerLabel}`);
+        // Make sure there is only one condition
+        await ShopAdmin.expects(AdminFlowBuilderDetail.conditionRule).toHaveText(`${testConfig.condition}`);
+        // Make sure there are no delays
+        await ShopAdmin.expects(AdminFlowBuilderDetail.delayCard).not.toBeVisible();
+        // Make sure there is only one section
+        await ShopAdmin.expects(AdminFlowBuilderDetail.sequenceSeparator).toBeVisible();
+        // Make sure there are only desired actions present after the condition
+        await ShopAdmin.expects(AdminFlowBuilderDetail.trueBlockActionDescription).toContainText(`${testConfig.trueActionIdentifier}`);
+        await ShopAdmin.expects(AdminFlowBuilderDetail.falseBlockActionDescription).toContainText(`${testConfig.falseActionIdentifier}`);
     });
 });

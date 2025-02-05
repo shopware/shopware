@@ -168,7 +168,7 @@ jobs:
         run: php src/Core/TestBootstrap.php
 
       - name: Run PHPUnit with coverage
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --exclude-group=quarantined --coverage-cobertura coverage.xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4

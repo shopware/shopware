@@ -416,6 +416,7 @@ class VersionManager
             }
         }
 
+        /** @phpstan-ignore empty.variable (might be overridden by reference) */
         if (!empty($extensions)) {
             $payload['extensions'] = $extensions;
         }

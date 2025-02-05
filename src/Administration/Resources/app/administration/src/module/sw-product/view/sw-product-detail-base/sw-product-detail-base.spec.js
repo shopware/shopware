@@ -60,6 +60,7 @@ async function createWrapper() {
                 'router-link': true,
                 'sw-skeleton': true,
                 'sw-extension-teaser-popover': true,
+                'mt-card': true,
             },
             mocks: {
                 $route: {
@@ -222,9 +223,8 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await wrapper.vm.$nextTick();
 
         const cardElement = wrapper.find('.sw-product-detail-base__downloads');
-        const cardStyles = cardElement.attributes('style');
 
-        expect(cardStyles).toBe('display: none;');
+        expect(cardElement.exists()).toBeFalsy();
     });
 
     it('should show files card when product states includes is-download', async () => {

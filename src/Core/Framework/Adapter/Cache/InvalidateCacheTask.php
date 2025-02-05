@@ -18,4 +18,9 @@ class InvalidateCacheTask extends ScheduledTask
         // Run every five minutes
         return self::MINUTELY * 5;
     }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return true;
+    }
 }

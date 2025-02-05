@@ -4,7 +4,7 @@
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
 
-const { Module, State, Mixin } = Shopware;
+const { Module, Store, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -27,19 +27,19 @@ export default {
     computed: {
         searchPreferences: {
             get() {
-                return State.get('swProfile').searchPreferences;
+                return Store.get('swProfile').searchPreferences;
             },
             set(searchPreferences) {
-                State.commit('swProfile/setSearchPreferences', searchPreferences);
+                Store.get('swProfile').searchPreferences = searchPreferences;
             },
         },
 
         userSearchPreferences: {
             get() {
-                return State.get('swProfile').userSearchPreferences;
+                return Store.get('swProfile').userSearchPreferences;
             },
             set(userSearchPreferences) {
-                State.commit('swProfile/setUserSearchPreferences', userSearchPreferences);
+                Store.get('swProfile').userSearchPreferences = userSearchPreferences;
             },
         },
 

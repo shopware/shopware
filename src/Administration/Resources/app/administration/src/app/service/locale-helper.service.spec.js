@@ -6,12 +6,13 @@ import LocaleHelperService from 'src/app/service/locale-helper.service';
 
 describe('app/service/locale-helper.service.js', () => {
     let localeHelperService;
+    const setAdminLocaleSpy = jest.fn();
 
     beforeEach(async () => {
         localeHelperService = new LocaleHelperService({
             Shopware: {
                 Context: { api: {} },
-                State: { dispatch: () => Promise.resolve() },
+                Store: { get: () => ({ setAdminLocale: setAdminLocaleSpy }) },
             },
             localeRepository: {
                 get: () => Promise.resolve({ code: 'abc123def456' }),
@@ -66,10 +67,8 @@ describe('app/service/locale-helper.service.js', () => {
     });
 
     it('setLocaleWithCode should dispatch the admin locale', async () => {
-        localeHelperService._Shopware.State.dispatch = jest.fn();
-
         await localeHelperService.setLocaleWithCode('testCode');
 
-        expect(localeHelperService._Shopware.State.dispatch).toHaveBeenCalledWith('setAdminLocale', 'testCode');
+        expect(setAdminLocaleSpy).toHaveBeenCalledWith('testCode');
     });
 });

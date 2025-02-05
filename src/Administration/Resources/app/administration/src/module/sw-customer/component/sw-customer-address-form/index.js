@@ -165,9 +165,9 @@ export default {
 
         'country.forceStateInRegistration'(newVal) {
             if (!newVal) {
-                Shopware.State.dispatch('error/removeApiError', {
-                    expression: `${this.address.getEntityName()}.${this.address.id}.countryStateId`,
-                });
+                Shopware.Store.get('error').removeApiError(
+                    `${this.address.getEntityName()}.${this.address.id}.countryStateId`,
+                );
             }
 
             const definition = EntityDefinition.get(this.address.getEntityName());
@@ -177,9 +177,7 @@ export default {
 
         'country.postalCodeRequired'(newVal) {
             if (!newVal) {
-                Shopware.State.dispatch('error/removeApiError', {
-                    expression: `${this.address.getEntityName()}.${this.address.id}.zipcode`,
-                });
+                Shopware.Store.get('error').removeApiError(`${this.address.getEntityName()}.${this.address.id}.zipcode`);
             }
 
             const definition = EntityDefinition.get(this.address.getEntityName());

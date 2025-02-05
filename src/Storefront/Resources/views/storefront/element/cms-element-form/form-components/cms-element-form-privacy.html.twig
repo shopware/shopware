@@ -1,7 +1,7 @@
 {% block cms_form_privacy_opt_in %}
     {% set identifierTemplate = 'form-privacy-opt-in-%s' %}
-    {% set generalPrivacyNoticeSnippet = feature('ACCESSIBILITY_TWEAKS') ? 'general.privacyNoticeTextModal' : 'general.privacyNoticeText' %}
-    {% set contactPrivacyNoticeSnippet = feature('ACCESSIBILITY_TWEAKS') ? 'contact.privacyNoticeTextModal' : 'contact.privacyNoticeText' %}
+    {% set generalPrivacyNoticeSnippet = 'general.privacyNoticeText' %}
+    {% set contactPrivacyNoticeSnippet = 'contact.privacyNoticeText' %}
     {% set cmsPath = 'frontend.cms.page' %}
 
     {# The previous url can be set if the privacy notice link is opened from within an already opened AjaxModal. #}
@@ -32,9 +32,7 @@
         {% else %}
             {% set dataProtectionLabel = contactPrivacyNoticeSnippet|trans({
                 '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
-                '%prevUrl%': prevUrl,
-                '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '" data-prev-url="' ~ prevUrl ~ '">',
-                '%privacyModalTagClose%': '</button>'
+                '%prevUrl%': prevUrl
             })|raw %}
         {% endif %}
 
@@ -57,26 +55,22 @@
                        required>
             {% endblock %}
 
-            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-            {% block cms_form_privacy_opt_in_label %}
-                {# Keep the next 3 variable assignments although being declared already for templates importing this block #}
-                {% set generalPrivacyNoticeSnippet = 'general.privacyNoticeText' %}
-                {% set contactPrivacyNoticeSnippet = 'contact.privacyNoticeText' %}
-                {% set cmsPath = 'frontend.cms.page' %}
-                <label for="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}{{ identifierTemplate|format(_key) }}" class="form-check-label">
-                    {% if requiresTermsOfService == true %}
-                        {{ generalPrivacyNoticeSnippet|trans({
-                            '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
-                            '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage')} )
-                        })|raw }}
-                    {% else %}
-                        {{ contactPrivacyNoticeSnippet|trans({
-                            '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
-                            '%prevUrl%': prevUrl,
-                        })|raw }}
-                    {% endif %}
-                </label>
-            {% endblock %}
-        </div>
+        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+        {% block cms_form_privacy_opt_in_label %}
+            <label for="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}{{ identifierTemplate|format(_key) }}" class="form-check-label">
+                {% if requiresTermsOfService == true %}
+                    {{ generalPrivacyNoticeSnippet|trans({
+                        '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
+                        '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage')} )
+                    })|raw }}
+                {% else %}
+                    {{ contactPrivacyNoticeSnippet|trans({
+                        '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
+                        '%prevUrl%': prevUrl,
+                    })|raw }}
+                {% endif %}
+            </label>
+        {% endblock %}
+    </div>
     {% endif %}
 {% endblock %}

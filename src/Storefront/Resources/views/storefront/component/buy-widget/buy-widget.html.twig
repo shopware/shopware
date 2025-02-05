@@ -112,22 +112,12 @@
                                 {% block buy_widget_tax_link %}
                                     {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
 
-                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                        <button class="btn btn-link-inline product-detail-tax-link"
-                                                type="button"
-                                                data-ajax-modal="true"
-                                                data-url="{{ cmsPath }}">
-                                            {{ taxText }}
-                                        </button>
-                                    {% else %}
-                                        <a class="product-detail-tax-link"
-                                           href="{{ cmsPath }}"
-                                           title="{{ taxText }}"
-                                           data-ajax-modal="true"
-                                           data-url="{{ cmsPath }}">
-                                            {{ taxText }}
-                                        </a>
-                                    {% endif %}
+                                    <button class="btn btn-link-inline"
+                                            type="button"
+                                            data-ajax-modal="true"
+                                            data-url="{{ cmsPath }}">
+                                        {{ taxText }}
+                                    </button>
                                 {% endblock %}
                             </p>
                         </div>

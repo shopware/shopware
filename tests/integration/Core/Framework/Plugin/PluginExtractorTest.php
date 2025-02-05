@@ -4,11 +4,9 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -58,11 +56,7 @@ class PluginExtractorTest extends TestCase
 
         $archive = __DIR__ . '/_fixtures/TestShippingApp.zip';
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(AppException::class);
-        } else {
-            $this->expectException(XmlParsingException::class);
-        }
+        $this->expectException(AppException::class);
 
         $this->expectExceptionMessage('Unable to parse file "TestShippingApp/manifest.xml". Message: deliveryTime must not be empty');
 

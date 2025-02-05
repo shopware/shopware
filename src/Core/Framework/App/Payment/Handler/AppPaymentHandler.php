@@ -27,7 +27,6 @@ use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\RefundPayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\ValidatePayload;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
-use Shopware\Core\Framework\App\Payment\Response\CaptureResponse;
 use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
@@ -236,7 +235,7 @@ class AppPaymentHandler extends AbstractPaymentHandler
 
     private function transitionState(string $entityId, AbstractResponse $response, Context $context, string $entityName = OrderTransactionDefinition::ENTITY_NAME): void
     {
-        if (!$response instanceof PaymentResponse && !$response instanceof RefundResponse && !$response instanceof CaptureResponse) {
+        if (!$response instanceof PaymentResponse && !$response instanceof RefundResponse) {
             return;
         }
 

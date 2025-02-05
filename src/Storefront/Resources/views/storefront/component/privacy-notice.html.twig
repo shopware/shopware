@@ -1,5 +1,5 @@
-{% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
-{% set privacyNoticeSnippet = feature('ACCESSIBILITY_TWEAKS') ? 'general.privacyNoticeTextPage' : 'general.privacyNoticeText' %}
+{% set cmsPath = 'frontend.cms.page' %}
+{% set privacyNoticeSnippet = 'general.privacyNoticeText' %}
 
 {% block component_privacy_notice %}
     <fieldset class="form-text privacy-notice">

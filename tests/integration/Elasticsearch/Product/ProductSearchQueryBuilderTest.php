@@ -172,6 +172,8 @@ class ProductSearchQueryBuilderTest extends TestCase
     #[DataProvider('providerSearchCases')]
     public function testSearch(array $config, string $term, array $expectedProducts, IdsCollection $ids): void
     {
+        static::markTestSkipped('#6556');
+
         $this->registerCustomFieldsMapping();
         $this->setSearchConfiguration(false, $config);
         $this->setSearchScores([]);

@@ -7,7 +7,7 @@ on:
   workflow_call:
 
 env:
-  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999
+  COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
 jobs:
   lint:
@@ -260,6 +260,8 @@ jobs:
     - phpunit
     - license-check
     - composer-audit
+    # add after first RC
+    # bc-checker
 
     runs-on: Ubuntu-latest
     steps:

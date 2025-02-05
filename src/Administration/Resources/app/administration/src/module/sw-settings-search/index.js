@@ -4,7 +4,7 @@
 import './init/services.init';
 import './acl';
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-search', () => import('./page/sw-settings-search'));
@@ -94,14 +94,7 @@ Module.register('sw-settings-search', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'general';
-        },
+        group: 'general',
         to: 'sw.settings.search.index',
         icon: 'regular-search',
         privilege: 'product_search_config.viewer',

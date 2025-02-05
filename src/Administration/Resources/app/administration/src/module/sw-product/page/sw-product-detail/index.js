@@ -390,17 +390,12 @@ export default {
 
     watch: {
         productId() {
-            this.destroyedComponent();
             this.createdComponent();
         },
     },
 
     created() {
         this.createdComponent();
-    },
-
-    unmounted() {
-        this.destroyedComponent();
     },
 
     methods: {
@@ -430,25 +425,7 @@ export default {
             // initialize default state
             this.initState();
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                /**
-                 * @deprecated tag:v6.7.0 - Unused event will be removed.
-                 */
-                this.$root.$on('media-remove', (mediaId) => {
-                    this.removeMediaItem(mediaId);
-                });
-            }
-
             this.initAdvancedModeSettings();
-        },
-
-        destroyedComponent() {
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                /**
-                 * @deprecated tag:v6.7.0 - Unused event will be removed.
-                 */
-                this.$root.$off('media-remove');
-            }
         },
 
         initState() {

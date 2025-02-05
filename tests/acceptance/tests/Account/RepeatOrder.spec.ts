@@ -1,5 +1,4 @@
 import { test } from '@fixtures/AcceptanceTest';
-import { expect } from '@shopware-ag/acceptance-test-suite';
 
 test('As a customer, I want to repeat a previous order via the storefront account.', { tag: '@Order @Account' }, async ({
     ShopCustomer,
@@ -23,8 +22,8 @@ test('As a customer, I want to repeat a previous order via the storefront accoun
     await orderItemLocators.orderActionsButton.click();
     await orderItemLocators.orderRepeatButton.click();
 
-    await expect(StorefrontOffCanvasCart.itemCount).toBeVisible();
-    await expect(StorefrontOffCanvasCart.itemCount).toContainText('1 item');
+    await ShopCustomer.expects(StorefrontOffCanvasCart.itemCount).toBeVisible();
+    await ShopCustomer.expects(StorefrontOffCanvasCart.itemCount).toContainText('1 item');
     const cartProduct = await StorefrontOffCanvasCart.getLineItemByProductNumber(product.productNumber);
-    await expect(cartProduct.productQuantityInput).toHaveValue(productQuantity.toString());
+    await ShopCustomer.expects(cartProduct.productQuantityInput).toHaveValue(productQuantity.toString());
 }); 

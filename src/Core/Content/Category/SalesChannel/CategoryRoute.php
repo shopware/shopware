@@ -60,20 +60,19 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $category = $this->loadCategory($navigationId, $context);
 
-        if (($category->getType() === CategoryDefinition::TYPE_FOLDER
-                || $category->getType() === CategoryDefinition::TYPE_LINK)
-            && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId
-        ) {
+        $categoryHasNonPageType = \in_array($category->getType(), [CategoryDefinition::TYPE_LINK, CategoryDefinition::TYPE_FOLDER], true);
+        if ($categoryHasNonPageType && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId) {
             throw CategoryException::categoryNotFound($navigationId);
         }
 
         $pageId = $category->getCmsPageId();
-        $slotConfig = $category->getTranslation('slotConfig');
-
         $salesChannel = $context->getSalesChannel();
+
         if ($category->getId() === $salesChannel->getNavigationCategoryId() && $salesChannel->getHomeCmsPageId()) {
             $pageId = $salesChannel->getHomeCmsPageId();
             $slotConfig = $salesChannel->getTranslation('homeSlotConfig');
+        } else {
+            $slotConfig = $this->buildCmsSlotConfig($category, $context);
         }
 
         if (!$pageId) {
@@ -107,6 +106,7 @@ class CategoryRoute extends AbstractCategoryRoute
         $criteria->setTitle('category::data');
 
         $criteria->addAssociation('media');
+        $criteria->addAssociation('translations');
 
         $category = $this->categoryRepository
             ->search($criteria, $context)
@@ -137,5 +137,24 @@ class CategoryRoute extends AbstractCategoryRoute
         }
 
         return $criteria;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
+    public function buildCmsSlotConfig(CategoryEntity $category, SalesChannelContext $context): ?array
+    {
+        $inheritanceChain = $context->getLanguageIdChain();
+        if (\count($inheritanceChain) <= 1) {
+            return $category->getTranslation('slotConfig');
+        }
+
+        $translatedSlotConfigs = \array_map(static function ($languageId) use ($category) {
+            $currentTranslation = \array_find($category->getTranslations()?->getElements(), static fn($translation) => $translation?->getLanguageId() === $languageId);
+
+            return $currentTranslation->getSlotConfig() ?? [];
+        }, \array_reverse(\array_unique($inheritanceChain)));
+
+        return \array_merge(...$translatedSlotConfigs);
     }
 }

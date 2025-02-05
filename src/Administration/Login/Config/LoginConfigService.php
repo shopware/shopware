@@ -17,12 +17,14 @@ use Symfony\Component\Validator\Validation;
 #[Package('after-sales')]
 final class LoginConfigService
 {
+    /**
+     * @param array{use_default: bool, client_id: string, client_secret: string, redirect_uri: string, base_url: string} $rawConfig
+     */
     public function __construct(
-        private readonly array    $rawConfig,
-        private readonly string   $appUrl,
+        private readonly array $rawConfig,
+        private readonly string $appUrl,
         protected readonly string $adminPath,
-    )
-    {
+    ) {
     }
 
     public function getConfig(): ?LoginConfig
@@ -45,7 +47,7 @@ final class LoginConfigService
     public function createTemplateData(string $random, ?LoginConfig $loginConfig): TemplateData
     {
         return new TemplateData(
-            $loginConfig?->useDefault ?? true,
+            $loginConfig->useDefault ?? true,
             $loginConfig === null ? null : \sprintf('%s/%s/sso/auth?rdm=%s', $this->appUrl, $this->adminPath, $random),
         );
     }

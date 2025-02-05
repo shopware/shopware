@@ -10,9 +10,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 final class LoginConfig
 {
-    /**
-     * @param array<string, mixed> $loginConfig
-     */
     public function __construct(
         public readonly bool $useDefault,
         public readonly string $clientId,
@@ -20,6 +17,5 @@ final class LoginConfig
         public readonly string $redirectUri,
         public readonly string $baseUrl,
     ) {
-
     }
 }

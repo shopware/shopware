@@ -19,7 +19,17 @@ class LoginConfigServiceTest extends TestCase
 {
     public function testGetConfigWithEmptyRawConfig(): void
     {
-        $configService = new LoginConfigService([], 'http://app.url', '/admin');
+        $configService = new LoginConfigService(
+            [
+                'use_default' => true,
+                'client_id' => 'clientId',
+                'client_secret' => 'clientSecret',
+                'redirect_uri' => 'redirectUri',
+                'base_url' => 'baseUrl',
+            ],
+            'http://app.url',
+            '/admin'
+        );
 
         $config = $configService->getConfig();
 
@@ -35,10 +45,12 @@ class LoginConfigServiceTest extends TestCase
             'redirect_uri' => 'http://redirect.url',
             'base_url' => 'http://base.url',
         ];
+
         $configService = new LoginConfigService($rawConfig, 'http://app.url', '/admin');
 
         $config = $configService->getConfig();
 
+        static::assertNotNull($config);
         static::assertSame($rawConfig['use_default'], $config->useDefault);
         static::assertSame($rawConfig['client_id'], $config->clientId);
         static::assertSame($rawConfig['client_secret'], $config->clientSecret);
@@ -46,10 +58,13 @@ class LoginConfigServiceTest extends TestCase
         static::assertSame($rawConfig['base_url'], $config->baseUrl);
     }
 
+    /**
+     * @param array{use_default: bool, client_id: string, client_secret: string, redirect_uri: string, base_url: string} $rawConfig
+     */
     #[DataProvider('getConfigErrorsTestDataProvider')]
-    public function testGetConfigErrors(array $config, string $exceptionMessage): void
+    public function testGetConfigErrors(array $rawConfig, string $exceptionMessage): void
     {
-        $configService = new LoginConfigService($config, 'http://app.url', '/admin');
+        $configService = new LoginConfigService($rawConfig, 'http://app.url', '/admin');
 
         try {
             $configService->getConfig();
@@ -62,6 +77,9 @@ class LoginConfigServiceTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public static function getConfigErrorsTestDataProvider(): array
     {
         return [

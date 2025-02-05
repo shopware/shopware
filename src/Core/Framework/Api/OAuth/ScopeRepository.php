@@ -20,18 +20,21 @@ class ScopeRepository implements ScopeRepositoryInterface
 {
     /**
      * @internal abstraction on external library
+     *
      * @see PasswordGrant::getIdentifier()
      */
     public const PASSWORD_GRANT = 'password';
 
     /**
      * @internal abstraction on external library
+     *
      * @see ClientCredentialsGrant::getIdentifier()
      */
     public const CLIENT_CREDENTIAL_GRANT = 'client_credentials';
 
     /**
      * @internal abstraction on external library
+     *
      * @see RefreshTokenGrant::getIdentifier()
      */
     public const REFRESH_TOKEN_GRANT = 'refresh_token';

@@ -73,6 +73,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 #[Package('framework')]
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be considered internal
+ */
 class CacheInvalidationSubscriber
 {
     /**
@@ -116,7 +119,7 @@ class CacheInvalidationSubscriber
             $this->cacheInvalidator->invalidate([CachedSystemConfigLoader::CACHE_TAG], true);
 
             // global system config tag is used in all http caches that access system config, that should be invalidated delayed
-            $this->cacheInvalidator->invalidate(['global.system.config']);
+            $this->cacheInvalidator->invalidate(['system.config-' . $event->salesChannelId]);
 
             return;
         }

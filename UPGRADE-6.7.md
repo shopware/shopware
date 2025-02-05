@@ -2430,4 +2430,12 @@ shopware:
         enforce_message_size: false
 
 ```
+
+## Fine-grained caching is removed
+
+The fine-grained caching mechanism for system-config, snippets and theme config was removed, therefore the following configuration settings are no longer available:
+* `shopware.cache.tagging.each_config`
+* `shopware.cache.tagging.each_snippet`
+* `shopware.cache.tagging.each_theme_config`
+
 </details>

@@ -1,12 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_preview %}
 <div class="sw-text-preview">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_preview_shortened_content %}
     <span v-html="shortenedText"></span>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_preview_expand_button %}
     <sw-button
         v-if="shortened"
@@ -19,20 +16,17 @@
     </sw-button>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_preview_modal %}
     <sw-modal
         v-if="showModal"
         :title="modalTitle"
         @modal-close="closeModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_preview_modal_content %}
         <div v-html="fullText"></div>
         {% endblock %}
 
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_text_preview_modal_footer %}
             <sw-button
                 size="small"

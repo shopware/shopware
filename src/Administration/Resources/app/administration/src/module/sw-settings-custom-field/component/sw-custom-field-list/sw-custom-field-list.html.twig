@@ -1,17 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_list %}
 <sw-card
     class="sw-custom-field-list"
     position-identifier="sw-custom-field-list"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_list_toolbar %}
     <div class="sw-custom-field-list__toolbar">
         <sw-container
             columns="1fr 32px minmax(100px, 200px)"
             gap="0 10px"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_toolbar_searchfield %}
             <sw-simple-search-field
                 v-model:value="term"
@@ -22,7 +19,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_toolbar_delete %}
             <sw-button
                 v-tooltip.bottom="{
@@ -43,7 +39,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_toolbar_add %}
             <sw-button
                 v-tooltip.bottom="{
@@ -63,7 +58,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_list_grid %}
     <sw-grid
         v-if="(customFields && customFields.length > 0) || term"
@@ -82,7 +76,6 @@
             #columns="{ item }"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_grid_column_label %}
             <sw-grid-column
                 data-index="label"
@@ -109,7 +102,6 @@
             </sw-grid-column>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_grid_column_type %}
             <sw-grid-column
                 data-index="type"
@@ -128,7 +120,6 @@
             </sw-grid-column>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_grid_column_custom_field_position %}
             <sw-grid-column
                 data-index="position"
@@ -138,7 +129,6 @@
             >
                 {{ item.config.customFieldPosition }}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_custom_field_list_grid_column_custom_field_position_edit %}
                 <template #inline-edit>
                     <sw-number-field
@@ -150,14 +140,12 @@
             </sw-grid-column>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_grid_column_actions %}
             <sw-grid-column
                 flex="minmax(100px, 100px)"
                 align="center"
             >
                 <sw-context-button>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_custom_field_list_grid_column_actions_edit %}
                     <sw-context-menu-item
                         class="sw-custom-field-list__edit-action"
@@ -168,7 +156,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_custom_field_list_grid_column_actions_reset_delete %}
                     <sw-context-menu-item
                         v-if="item.isDeleted"
@@ -179,7 +166,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_custom_field_list_grid_column_actions_delete %}
                     <sw-context-menu-item
                         v-else
@@ -196,7 +182,6 @@
             {% endblock %}
         </template>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_list_grid_pagination %}
         <template #pagination>
             <sw-pagination
@@ -212,7 +197,6 @@
     </sw-grid>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_list_empty_state %}
     <sw-empty-state
         v-else-if="!set.isLoading"
@@ -221,7 +205,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_list_custom_field_detail %}
     <sw-custom-field-detail
         v-if="currentCustomField"
@@ -232,7 +215,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_list_custom_field_delete %}
     <sw-modal
         v-if="deleteCustomField"
@@ -241,17 +223,14 @@
         @modal-close="onCancelDeleteCustomField"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_list_custom_field_delete_text %}
         <p class="sw-custom-field-delete__description">
             {{ $tc('sw-settings-custom-field.customField.list.textDeleteActionConfirmation', deleteCustomField.length, { count: deleteCustomField.length }) }}
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_list_custom_field_delete_actions %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_custom_field_delete_action_cancel %}
             <sw-button
                 size="small"
@@ -261,7 +240,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_custom_field_delete_action_confirm %}
             <sw-button
                 variant="danger"
@@ -276,7 +254,6 @@
     </sw-modal>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_list_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}

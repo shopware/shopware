@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_internal_link %}
 <component
     :is="elementType"
@@ -10,12 +9,10 @@
     @click="$emit('click')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_internal_link__slot %}
     <slot></slot>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_internal_link__icon %}
     <sw-icon
         v-if="!hideIcon"
@@ -31,12 +28,10 @@
     class="sw-internal-link sw-internal-link--disabled"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_internal_link__slot %}
     <slot></slot>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_internal_link__icon %}
     <sw-icon
         v-if="!hideIcon"

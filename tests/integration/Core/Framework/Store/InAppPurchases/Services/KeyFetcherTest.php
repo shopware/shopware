@@ -89,7 +89,7 @@ class KeyFetcherTest extends TestCase
 
         $key = $keyFetcher->getKey(Context::createDefaultContext());
 
-        static::assertSame('ce86f11b0bebb0b711394663c17f0013', $key->getElements()[0]->kid);
+        static::assertSame('ibvOgtMeMhihwgJvEw9yxXOs1YX07H34', $key->getElements()[0]->kid);
     }
 
     public function testGetKeyWithForceRefresh(): void

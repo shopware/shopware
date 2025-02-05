@@ -4,10 +4,17 @@
 
 describe('core/application.js', () => {
     const originalInjectJs = Shopware.Application.injectJs;
+    const originalInjectIframe = Shopware.Application.injectIframe;
+    const originalNodeEnv = process.env.NODE_ENV;
 
     beforeEach(() => {
+        jest.clearAllMocks();
         Shopware.Application.injectJs = originalInjectJs;
+        Shopware.Application.injectIframe = originalInjectIframe;
+        process.env.NODE_ENV = originalNodeEnv;
         Shopware.Context.app.config.bundles = {};
+        window._features_.ADMIN_VITE = false;
+        global.fetch = jest.fn(() => Promise.resolve());
     });
 
     it("should be error tolerant if loading a plugin's files fails", async () => {
@@ -86,5 +93,130 @@ describe('core/application.js', () => {
 
         // check if swagCommercial was called first before the other plugins are loaded
         expect(callOrder.js[0]).toBe('/bundles/swagcommercial/administration/js/swag-commercial.js');
+    });
+
+    it('should load plugins correctly in prod (Webpack)', async () => {
+        // Mock injectIframe method
+        Shopware.Application.injectIframe = jest.fn();
+
+        // Mock plugins
+        Shopware.Context.app.config.bundles = {
+            'swag-commercial': {
+                js: '/bundles/swagcommercial/administration/js/swag-commercial.js',
+            },
+            storefront: {
+                css: '/bundles/storefront/administration/css/storefront.css',
+                js: '/bundles/storefront/administration/js/storefront.js',
+            },
+            'test-plugin': {
+                baseUrl: 'http://localhost:8000/bundles/testplugin/administration/',
+            },
+        };
+
+        // Load plugins
+        await Shopware.Application.loadPlugins();
+
+        // Check if injectIframe was called with correct parameters
+        expect(Shopware.Application.injectIframe).toHaveBeenCalledWith({
+            bundleName: 'test-plugin',
+            iframeSrc: 'http://localhost:8000/bundles/testplugin/administration/',
+        });
+    });
+
+    it('should load plugins correctly in prod (Vite)', async () => {
+        window._features_.ADMIN_VITE = true;
+
+        // Mock injectIframe method
+        Shopware.Application.injectIframe = jest.fn();
+
+        // Mock plugins
+        Shopware.Context.app.config.bundles = {
+            'swag-commercial': {
+                js: '/bundles/swagcommercial/administration/js/swag-commercial.js',
+            },
+            storefront: {
+                css: '/bundles/storefront/administration/css/storefront.css',
+                js: '/bundles/storefront/administration/js/storefront.js',
+            },
+            'test-plugin': {
+                baseUrl: 'http://localhost:8000/bundles/testplugin/administration/',
+            },
+        };
+
+        // Load plugins
+        await Shopware.Application.loadPlugins();
+
+        // Check if injectIframe was called with correct parameters
+        expect(Shopware.Application.injectIframe).toHaveBeenCalledWith({
+            bundleName: 'test-plugin',
+            iframeSrc: 'http://localhost:8000/bundles/testplugin/administration/',
+        });
+    });
+
+    it('should load plugins correctly in watch (Webpack)', async () => {
+        process.env.NODE_ENV = 'development';
+
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                json: () => ({
+                    'test-plugin': {
+                        html: 'http://localhost:8000/bundles/testplugin/administration/',
+                    },
+                }),
+            }),
+        );
+
+        // Mock plugins
+        Shopware.Context.app.config.bundles = {
+            'test-plugin': {
+                baseUrl: 'http://localhost:8000/bundles/testplugin/administration/',
+            },
+        };
+
+        // Mock injectIframe method
+        Shopware.Application.injectIframe = jest.fn();
+
+        // Load plugins
+        await Shopware.Application.loadPlugins();
+
+        // Check if injectIframe was called with correct parameters
+        expect(Shopware.Application.injectIframe).toHaveBeenCalledWith({
+            bundleName: 'test-plugin',
+            iframeSrc: 'http://localhost:8000/bundles/testplugin/administration/',
+        });
+    });
+
+    it('should load plugins correctly in watch (Vite)', async () => {
+        process.env.NODE_ENV = 'development';
+        window._features_.ADMIN_VITE = true;
+
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                json: () => ({
+                    'test-plugin': {
+                        html: 'http://localhost:8000/bundles/testplugin/administration/',
+                    },
+                }),
+            }),
+        );
+
+        // Mock plugins
+        Shopware.Context.app.config.bundles = {
+            'test-plugin': {
+                baseUrl: 'http://localhost:8000/bundles/testplugin/administration/',
+            },
+        };
+
+        // Mock injectIframe method
+        Shopware.Application.injectIframe = jest.fn();
+
+        // Load plugins
+        await Shopware.Application.loadPlugins();
+
+        // Check if injectIframe was called with correct parameters
+        expect(Shopware.Application.injectIframe).toHaveBeenCalledWith({
+            bundleName: 'test-plugin',
+            iframeSrc: 'http://localhost:8000/bundles/testplugin/administration/',
+        });
     });
 });

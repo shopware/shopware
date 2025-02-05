@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_cart_condition_form %}
 <div class="sw-promotion-v2-cart-condition-form">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_cart_condition_form_rules_field %}
     <sw-promotion-v2-rule-select
         v-if="promotion"
@@ -18,7 +16,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_cart_condition_form_use_setgroups_field %}
     <sw-switch-field
         v-model:value="promotion.useSetGroups"
@@ -30,7 +27,6 @@
 
     <template v-if="promotion.useSetGroups">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_cart_condition_setgroup_card %}
         <sw-card
             v-for="(group, index) in promotion.setgroups"
@@ -40,11 +36,9 @@
             class="sw-promotion-v2-cart-condition-form__setgroup-card"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_cart_condition_setgroup_card_context_action %}
             <template #context-actions>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_card_context_action_duplicate %}
                 <sw-context-menu-item
                     :disabled="isEditingDisabled"
@@ -54,7 +48,6 @@
                 </sw-context-menu-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_card_context_action_delete %}
                 <sw-context-menu-item
                     v-tooltip="{
@@ -73,7 +66,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_cart_condition_setgroup_card_title %}
             <div class="sw-promotion-v2-cart-condition-form__setgroup-card-title">
                 {{ $tc('sw-promotion-v2.detail.conditions.setgroups.titleName') }} {{ index + 1 }}
@@ -84,7 +76,6 @@
                 columns="1fr 1fr"
                 gap="0px 30px"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_mode_field %}
                 <sw-select-field
                     v-model:value="group.packagerKey"
@@ -102,7 +93,6 @@
                 </sw-select-field>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_value_field %}
                 <sw-number-field
                     v-model:value="group.value"
@@ -118,7 +108,6 @@
                 columns="1fr 1fr"
                 gap="0px 30px"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_sorting_field %}
                 <sw-select-field
                     v-model:value="group.sorterKey"
@@ -143,7 +132,6 @@
                 gap="0px 30px"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_rules_field %}
                 <sw-promotion-v2-rule-select
                     v-model:collection="group.setGroupRules"
@@ -161,7 +149,6 @@
         </sw-card>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_cart_condition_add_group_button %}
         <div class="sw-promotion-v2-cart-condition-form__add-group-button-container">
             <sw-button

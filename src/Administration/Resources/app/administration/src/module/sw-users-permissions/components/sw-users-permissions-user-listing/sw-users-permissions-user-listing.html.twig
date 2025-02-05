@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_user_list %}
 <sw-card
     class="sw-users-permissions-user-listing sw-settings-user-list"
@@ -11,9 +10,7 @@
             columns="1fr minmax(100px, 200px)"
             gap="0 10px"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_list_smart_bar_actions %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_list_search_bar %}
             <sw-simple-search-field
                 v-model:value="term"
@@ -23,7 +20,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_list_actions_create_user %}
             <sw-button
                 :router-link="{ name: 'sw.users.permissions.user.create' }"
@@ -39,9 +35,7 @@
         </sw-container>
     </div>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_user_list_content %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_user_list_content_grid %}
     <sw-data-grid
         :data-source="user"
@@ -53,10 +47,8 @@
         @column-sort="onSortColumn"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_list_content_grid_actions %}
         <template #actions="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_list_actions_edit %}
             <sw-context-menu-item
                 class="sw-settings-user-list__user-view-action"
@@ -67,7 +59,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_list_actions_delete %}
             <sw-context-menu-item
                 class="sw-settings-user-list__user-delete-action"
@@ -81,7 +72,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_list_column_username_preview %}
         <template #preview-username="{ item, compact }">
             <sw-avatar
@@ -94,10 +84,8 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_list_column_username %}
         <template #column-username="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_list_column_username_content %}
             <router-link
                 class="sw-settings-user-list__columns"
@@ -109,7 +97,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_list_column_username_acl_roles %}
         <template #column-aclRoles="{ item, compact }">
             <template v-if="item.aclRoles && item.aclRoles.length > 0">
@@ -128,7 +115,6 @@
         {% endblock %}
 
         <template #pagination>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_list_grid_pagination %}
             <sw-pagination
                 :page="page"
@@ -141,7 +127,6 @@
         </template>
 
         <template #action-modals="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_list_delete_modal %}
             <sw-modal
                 v-if="getItemToDelete(item)"
@@ -149,14 +134,12 @@
                 variant="small"
                 @modal-close="onCloseDeleteModal"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_user_list_delete_modal_confirm_delete_text %}
                 <p class="sw-settings-user-list__confirm-delete-text">
                     {{ $tc('sw-users-permissions.users.user-grid.textModalDelete', 0, { name: salutation(item) }) }}
                 </p>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_user_list_delete_modal_input__confirm_password %}
                 <sw-password-field
                     v-model:value="confirmPassword"
@@ -171,10 +154,8 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_user_list_delete_modal_footer %}
                 <template #modal-footer>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_user_list_delete_modal_cancel %}
                     <sw-button
                         size="small"
@@ -184,7 +165,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_user_list_delete_modal_confirm %}
                     <sw-button
                         :disabled="!confirmPassword || undefined"

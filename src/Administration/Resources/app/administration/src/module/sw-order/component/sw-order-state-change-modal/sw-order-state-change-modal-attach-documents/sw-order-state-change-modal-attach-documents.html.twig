@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_state_change_modal_attach_documents %}
 <div class="sw-order-state-change-modal-attach-document">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_change_modal_attach_documents_documents_grid %}
     <sw-order-document-card
         ref="attachDocuments"
@@ -13,11 +11,9 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_change_modal_attach_documents_button_wrapper %}
     <div class="sw-order-state-change-modal-attach-documents__button-wrapper">
         <div>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_state_change_modal_attach_documents_send_mail_switch %}
             <sw-switch-field
                 v-model:value="sendMail"
@@ -27,7 +23,6 @@
             {% endblock %}
         </div>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_change_modal_attach_documents_button %}
         <sw-button
             class="sw-order-state-change-modal-attach-documents__button"

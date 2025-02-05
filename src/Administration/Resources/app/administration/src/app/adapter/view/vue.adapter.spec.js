@@ -122,7 +122,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should not set the user when user does not exists', async () => {
+    it('setLocaleFromUser should not set the user when user does not exist', async () => {
         vueAdapter.setLocaleFromUser({
             state: { session: { currentUser: null } },
         });
@@ -130,7 +130,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(Shopware.Service('localeHelper').setLocaleWithId).not.toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should set the user when user does not exists', async () => {
+    it('setLocaleFromUser should set the user when user does not exist', async () => {
         vueAdapter.setLocaleFromUser({
             state: { session: { currentUser: { localeId: '12345' } } },
         });

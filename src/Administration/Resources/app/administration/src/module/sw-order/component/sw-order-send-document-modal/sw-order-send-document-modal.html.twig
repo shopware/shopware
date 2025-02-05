@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_send_document_modal %}
 <sw-modal
     class="sw-order-send-document-modal"
@@ -6,13 +5,11 @@
     :is-loading="isLoading"
     @modal-close="$emit('modal-close')"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_send_document_modal_info %}
     <sw-container
         class="sw-order-send-document-modal__info-container"
         columns="1fr 1fr 1fr"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_send_document_modal_info_number %}
         <sw-description-list>
             <dt>{{ $tc('sw-order.documentSendModal.labelNumber') }}</dt>
@@ -20,7 +17,6 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_send_document_modal_info_type %}
         <sw-description-list>
             <dt>{{ $tc('sw-order.documentSendModal.labelType') }}</dt>
@@ -28,7 +24,6 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_send_document_modal_info_date %}
         <sw-description-list>
             <dt>{{ $tc('sw-order.documentSendModal.labelDate') }}</dt>
@@ -38,7 +33,6 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_send_document_modal_mail_template_select %}
     <sw-entity-single-select
         v-model:value="mailTemplateId"
@@ -57,7 +51,6 @@
     </sw-entity-single-select>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_send_document_modal_customer_mail_select %}
     <sw-text-field
         v-model:value="recipient"
@@ -66,7 +59,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_send_document_modal_subject %}
     <sw-text-field
         v-model:value="subject"
@@ -76,7 +68,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_send_document_modal_mail_content %}
     <div
         class="sw-order-send-document-modal__email-content-label"
@@ -92,7 +83,6 @@
     {% endblock %}
 
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_send_document_modal_secondary_action %}
         <sw-button
             @click="$emit('modal-close')"
@@ -101,7 +91,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_send_document_modal_primary_action %}
         <sw-button
             :disabled="primaryActionDisabled"

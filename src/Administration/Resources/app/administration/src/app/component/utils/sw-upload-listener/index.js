@@ -178,25 +178,23 @@ Component.register('sw-upload-listener', {
             }
 
             if (this.notificationId !== null) {
-                Shopware.State.dispatch('notification/updateNotification', {
+                Shopware.Store.get('notification').updateNotification({
                     uuid: this.notificationId,
                     ...notification,
-                }).then(() => {
-                    if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
-                        this.notificationId = null;
-                    }
                 });
+                if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
+                    this.notificationId = null;
+                }
                 return;
             }
 
-            Shopware.State.dispatch('notification/createNotification', {
+            const newNotificationId = Shopware.Store.get('notification').createNotification({
                 variant: 'success',
                 ...notification,
-            }).then((newNotificationId) => {
-                if (payload.successAmount + payload.failureAmount < payload.totalAmount) {
-                    this.notificationId = newNotificationId;
-                }
             });
+            if (payload.successAmount + payload.failureAmount < payload.totalAmount) {
+                this.notificationId = newNotificationId;
+            }
         },
 
         showErrorNotification(payload) {

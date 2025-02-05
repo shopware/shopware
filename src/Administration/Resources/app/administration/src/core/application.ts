@@ -1,7 +1,7 @@
 import type Bottle from 'bottlejs';
 import type { App } from 'vue';
 import { reactive } from 'vue';
-import type { ContextState } from '../app/state/context.store';
+import type { ContextStore } from '../app/store/context.store';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
  * @sw-package framework
@@ -187,7 +187,7 @@ class ApplicationBootstrapper {
         return this;
     }
 
-    registerConfig(config: { apiContext?: ContextState['api']; appContext?: ContextState['app'] }): ApplicationBootstrapper {
+    registerConfig(config: { apiContext?: ContextStore['api']; appContext?: ContextStore['app'] }): ApplicationBootstrapper {
         if (config.apiContext) {
             this.registerApiContext(config.apiContext);
         }
@@ -201,7 +201,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the api context (api path, path to resources etc.)
      */
-    registerApiContext(context: ContextState['api']): ApplicationBootstrapper {
+    registerApiContext(context: ContextStore['api']): ApplicationBootstrapper {
         Shopware.Context.api = Shopware.Classes._private.ApiContextFactory(context);
 
         return this;
@@ -210,7 +210,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the app context (firstRunWizard, etc.)
      */
-    registerAppContext(context: ContextState['app']): ApplicationBootstrapper {
+    registerAppContext(context: ContextStore['app']): ApplicationBootstrapper {
         Shopware.Context.app = Shopware.Classes._private.AppContextFactory(context);
 
         return this;
@@ -610,6 +610,7 @@ class ApplicationBootstrapper {
             'locale',
             'apiServices',
             'coreDirectives',
+            'store',
         ];
 
         const initContainer = this.getContainer('init');
@@ -950,22 +951,22 @@ class ApplicationBootstrapper {
             name: string;
             baseUrl: string;
             version?: string;
-            type?: 'app' | 'plugin';
-            permissions?: Record<string, unknown>;
+            type: 'app' | 'plugin';
+            permissions: Record<string, unknown>;
         } = {
             active,
             integrationId,
             name: bundleName,
             baseUrl: iframeSrc,
             version: bundleVersion,
-            type: bundleType,
-            permissions: undefined,
+            type: bundleType ?? 'plugin',
+            permissions: {},
         };
 
         // To keep permissions reactive no matter if empty or not
         extension.permissions = permissions ?? reactive({});
 
-        Shopware.State.commit('extensions/addExtension', extension);
+        Shopware.Store.get('extensions').addExtension(extension);
     }
 }
 

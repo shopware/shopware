@@ -5,7 +5,6 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-empty-state';
-import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -97,110 +96,101 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             return new ShopwareDiscountCampaignService();
         });
 
-        Shopware.State.registerModule('swProductDetail', {
-            ...productStore,
-            state: {
-                ...productStore.state,
-                variants: [],
-                parentProduct: {
-                    media: [],
-                    reviews: [
-                        {
-                            id: '1a2b3c',
-                            entity: 'review',
-                            customerId: 'd4c3b2a1',
-                            productId: 'd4c3b2a1',
-                            salesChannelId: 'd4c3b2a1',
-                        },
-                    ],
+        const store = Shopware.Store.get('swProductDetail');
+        store.$reset();
+        store.parentProduct = {
+            media: [],
+            reviews: [
+                {
+                    id: '1a2b3c',
+                    entity: 'review',
+                    customerId: 'd4c3b2a1',
+                    productId: 'd4c3b2a1',
+                    salesChannelId: 'd4c3b2a1',
                 },
-                product: {
-                    isNew: () => false,
-                    getEntityName: () => 'product',
-                    media: [],
-                    reviews: [
-                        {
-                            id: '1a2b3c',
-                            entity: 'review',
-                            customerId: 'd4c3b2a1',
-                            productId: 'd4c3b2a1',
-                            salesChannelId: 'd4c3b2a1',
-                        },
-                    ],
-                    purchasePrices: [
-                        {
-                            currencyId: '1',
-                            linked: true,
-                            gross: 0,
-                            net: 0,
-                        },
-                    ],
-                    price: [
-                        {
-                            currencyId: '1',
-                            linked: true,
-                            gross: 100,
-                            net: 84.034,
-                        },
-                    ],
-                    configuratorSettings: [],
-                    children: [],
+            ],
+        };
+        store.product = {
+            isNew: () => false,
+            getEntityName: () => 'product',
+            media: [],
+            reviews: [
+                {
+                    id: '1a2b3c',
+                    entity: 'review',
+                    customerId: 'd4c3b2a1',
+                    productId: 'd4c3b2a1',
+                    salesChannelId: 'd4c3b2a1',
                 },
-                loading: {
-                    product: false,
-                    media: false,
+            ],
+            purchasePrices: [
+                {
+                    currencyId: '1',
+                    linked: true,
+                    gross: 0,
+                    net: 0,
                 },
-                modeSettings: [
-                    'general_information',
-                    'prices',
-                    'deliverability',
-                    'visibility_structure',
-                    'media',
-                    'labelling',
-                ],
-                advancedModeSetting: {
-                    value: {
-                        settings: [
-                            {
-                                key: 'general_information',
-                                label: 'sw-product.detailBase.cardTitleProductInfo',
-                                enabled: true,
-                                name: 'general',
-                            },
-                            {
-                                key: 'prices',
-                                label: 'sw-product.detailBase.cardTitlePrices',
-                                enabled: true,
-                                name: 'general',
-                            },
-                            {
-                                key: 'deliverability',
-                                label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
-                                enabled: true,
-                                name: 'general',
-                            },
-                            {
-                                key: 'visibility_structure',
-                                label: 'sw-product.detailBase.cardTitleVisibilityStructure',
-                                enabled: true,
-                                name: 'general',
-                            },
-                            {
-                                key: 'labelling',
-                                label: 'sw-product.detailBase.cardTitleSettings',
-                                enabled: true,
-                                name: 'general',
-                            },
-                        ],
-                        advancedMode: {
-                            enabled: true,
-                            label: 'sw-product.general.textAdvancedMode',
-                        },
+            ],
+            price: [
+                {
+                    currencyId: '1',
+                    linked: true,
+                    gross: 100,
+                    net: 84.034,
+                },
+            ],
+            configuratorSettings: [],
+            children: [],
+        };
+        store.modeSettings = [
+            'general_information',
+            'prices',
+            'deliverability',
+            'visibility_structure',
+            'media',
+            'labelling',
+        ];
+        store.advancedModeSetting = {
+            value: {
+                settings: [
+                    {
+                        key: 'general_information',
+                        label: 'sw-product.detailBase.cardTitleProductInfo',
+                        enabled: true,
+                        name: 'general',
                     },
+                    {
+                        key: 'prices',
+                        label: 'sw-product.detailBase.cardTitlePrices',
+                        enabled: true,
+                        name: 'general',
+                    },
+                    {
+                        key: 'deliverability',
+                        label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
+                        enabled: true,
+                        name: 'general',
+                    },
+                    {
+                        key: 'visibility_structure',
+                        label: 'sw-product.detailBase.cardTitleVisibilityStructure',
+                        enabled: true,
+                        name: 'general',
+                    },
+                    {
+                        key: 'labelling',
+                        label: 'sw-product.detailBase.cardTitleSettings',
+                        enabled: true,
+                        name: 'general',
+                    },
+                ],
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode',
                 },
-                creationStates: 'is-physical',
             },
-        });
+        };
+        store.creationStates = 'is-physical';
     });
 
     it('should be a Vue.JS component', async () => {

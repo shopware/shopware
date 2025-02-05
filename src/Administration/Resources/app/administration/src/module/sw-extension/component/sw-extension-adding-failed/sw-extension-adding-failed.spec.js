@@ -1,8 +1,5 @@
 import { mount } from '@vue/test-utils';
-import extensionStore from 'src/module/sw-extension/store/extensions.store';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
-
-Shopware.State.registerModule('shopwareExtensions', extensionStore);
 
 async function createWrapper() {
     const shopwareExtensionService = new ShopwareExtensionService();
@@ -44,7 +41,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     });
 
     it('has a primary block button', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', []);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
 
         const wrapper = await createWrapper();
 
@@ -55,7 +52,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     });
 
     it('emits close if close button is clicked', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', []);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
 
         const wrapper = await createWrapper();
 
@@ -65,7 +62,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     });
 
     it('renders all information if extension is rent', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', [
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
             {
                 name: 'test-app',
                 storeLicense: {
@@ -82,7 +79,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     });
 
     it('does not render additional information if the license is not a subscription', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', [
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
             {
                 name: 'test-app',
                 storeLicense: {
@@ -104,7 +101,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
 
     // eslint-disable-next-line max-len
     it('does not render additional information about licenses and uses general failure text if extension is not licensed', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', []);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
 
         const wrapper = await createWrapper();
 

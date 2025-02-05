@@ -6,6 +6,7 @@ import { CookieStorage } from 'cookie-storage';
 import type { CookieOptions } from 'cookie-storage/lib/cookie-options';
 import html2canvas from 'html2canvas';
 import type { Router } from 'vue-router';
+import type { ContextStore } from '../../app/store/context.store';
 
 /** @private */
 export interface AuthObject {
@@ -47,7 +48,7 @@ export interface LoginService {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createLoginService(
     httpClient: InitContainer['httpClient'],
-    context: VuexRootState['context']['api'],
+    context: ContextStore['api'],
     bearerAuth: AuthObject | null = null,
 ): LoginService {
     /** @var {String} storageKey token */
@@ -84,7 +85,7 @@ export default function createLoginService(
      */
     function verifyUserToken(password: string): Promise<string> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return verifyUserByUsername(Shopware.State.get('session').currentUser.username, password)
+        return verifyUserByUsername(Shopware.Store.get('session').currentUser?.username ?? '', password)
             .then(({ access }) => {
                 if (Shopware.Utils.types.isString(access)) {
                     return access;
@@ -260,7 +261,7 @@ export default function createLoginService(
 
         if (!shouldConsiderUserActivity()) {
             const rememberMeDuration = context.refreshTokenTtl || 7 * 86400 * 1000;
-            cookieOptions.expires = new Date(Date.now() + rememberMeDuration);
+            cookieOptions.expires = new Date(Date.now() + Number(rememberMeDuration));
         }
 
         const authObject = { access, refresh, expiry };
@@ -424,7 +425,7 @@ export default function createLoginService(
                         // that contain urls to images from a different origin will throw a security error in Safari.
                     }
 
-                    sessionStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
+                    sessionStorage.setItem('lastKnownUser', Shopware.Store.get('session').currentUser?.username ?? '');
 
                     window.processingInactivityLogout = true;
 

@@ -78,10 +78,6 @@ trait DocumentTrait
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getAvailablePaymentMethod()->getId();
-        }
-
         $customer = array_merge($customer, $options);
 
         static::getContainer()->get('customer.repository')->upsert([$customer], $this->context);

@@ -17,25 +17,19 @@ class DateRangeRule extends Rule
     final public const RULE_NAME = 'dateRange';
 
     /**
-     * @var \DateTimeInterface|string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $fromDate;
+    protected \DateTimeInterface|string|null $fromDate;
 
     /**
-     * @var \DateTimeInterface|string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $toDate;
+    protected \DateTimeInterface|string|null $toDate;
 
     /**
-     * @var bool
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $useTime;
+    protected bool $useTime;
 
     /**
      * @internal

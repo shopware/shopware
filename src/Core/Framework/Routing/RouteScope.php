@@ -13,7 +13,7 @@ class RouteScope extends AbstractRouteScope
      *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $allowedPaths = ['_wdt', '_profiler', '_error'];
+    protected array $allowedPaths = ['_wdt', '_profiler', '_error'];
 
     public function isAllowed(Request $request): bool
     {

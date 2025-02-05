@@ -22,116 +22,84 @@ class ImportExportLogEntity extends Entity
     final public const ACTIVITY_TEMPLATE = 'template';
 
     /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $activity;
+    protected string $activity;
 
     /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $state;
+    protected string $state;
 
     /**
-     * @var int
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $records = 0;
+    protected int $records = 0;
 
     /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $username;
+    protected ?string $username;
 
     /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $profileName;
+    protected ?string $profileName;
 
     /**
-     * @var UserEntity|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $user;
+    protected ?UserEntity $user;
 
     /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $userId;
+    protected ?string $userId;
 
     /**
-     * @var ImportExportProfileEntity|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $profile;
+    protected ?ImportExportProfileEntity $profile;
 
     /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $profileId;
+    protected ?string $profileId;
 
     /**
-     * @var ImportExportFileEntity|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $file;
+    protected ?ImportExportFileEntity $file;
 
     /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $fileId;
+    protected ?string $fileId;
 
     /**
-     * @var array
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $config = [];
+    protected array $config = [];
 
     /**
-     * @var array
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $result = [];
+    protected array $result = [];
 
     /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $invalidRecordsLogId;
+    protected ?string $invalidRecordsLogId;
 
     /**
-     * @var self|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $invalidRecordsLog;
+    protected ?self $invalidRecordsLog;
 
     /**
-     * @var self|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $failedImportLog;
+    protected ?self $failedImportLog;
 
     public function getActivity(): string
     {

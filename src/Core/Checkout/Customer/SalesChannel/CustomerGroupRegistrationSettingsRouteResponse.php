@@ -10,11 +10,9 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 class CustomerGroupRegistrationSettingsRouteResponse extends StoreApiResponse
 {
     /**
-     * @var CustomerGroupEntity
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $object;
+    protected CustomerGroupEntity $object;
 
     public function __construct(CustomerGroupEntity $object)
     {

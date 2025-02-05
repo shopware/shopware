@@ -26,7 +26,7 @@ class LineItemCustomFieldRule extends Rule
      *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $renderedFieldValue;
+    protected array|string|int|float|bool|null $renderedFieldValue;
 
     protected ?string $selectedField = null;
 

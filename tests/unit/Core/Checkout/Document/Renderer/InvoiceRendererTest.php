@@ -208,8 +208,6 @@ class InvoiceRendererTest extends TestCase
 
     public function testDoNotForceDocumentCreation(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $context = Context::createDefaultContext();
 
         $document = new DocumentEntity();

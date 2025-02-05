@@ -7,82 +7,30 @@ namespace Shopware\Storefront\Test\Framework\Routing\Helper;
  */
 class ExpectedRequest
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $url;
+    public string $url;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $baseUrl;
+    public ?string $baseUrl;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $domainId;
+    public ?string $domainId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $salesChannelId;
+    public ?string $salesChannelId;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $isStorefrontRequest;
+    public ?bool $isStorefrontRequest;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $locale;
+    public ?string $locale;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $currency;
+    public ?string $currency;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $languageCode;
+    public ?string $languageCode;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $snippetLanguageCode;
+    public ?string $snippetLanguageCode;
 
     /**
      * @var class-string<\Throwable>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     public $exception;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $resolvedUrl;
+    public ?string $resolvedUrl;
 
     /**
      * @param class-string<\Throwable>|null $exception

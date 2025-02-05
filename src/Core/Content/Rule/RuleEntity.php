@@ -26,76 +26,58 @@ class RuleEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $name;
+    protected string $name;
 
     /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $description;
+    protected ?string $description;
 
     /**
-     * @var int
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $priority;
+    protected int $priority;
 
     /**
      * @internal
      *
-     * @var string|Rule|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $payload;
+    protected string|Rule|null $payload;
 
     /**
      * @var string[]|null
      *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $moduleTypes;
+    protected ?array $moduleTypes;
 
     /**
-     * @var ProductPriceCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $productPrices;
+    protected ?ProductPriceCollection $productPrices;
 
     /**
-     * @var ShippingMethodCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods;
 
     /**
-     * @var PaymentMethodCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $paymentMethods;
+    protected ?PaymentMethodCollection $paymentMethods;
 
     /**
-     * @var RuleConditionCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $conditions;
+    protected ?RuleConditionCollection $conditions;
 
     /**
-     * @var bool
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $invalid;
+    protected bool $invalid;
 
     /**
      * @var string[]|null
@@ -103,67 +85,49 @@ class RuleEntity extends Entity
     protected ?array $areas = null;
 
     /**
-     * @var ShippingMethodPriceCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $shippingMethodPrices;
+    protected ?ShippingMethodPriceCollection $shippingMethodPrices;
 
     /**
-     * @var PromotionDiscountCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $promotionDiscounts;
+    protected ?PromotionDiscountCollection $promotionDiscounts;
 
     /**
-     * @var PromotionSetGroupCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $promotionSetGroups;
+    protected ?PromotionSetGroupCollection $promotionSetGroups;
 
     /**
-     * @var ShippingMethodPriceCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $shippingMethodPriceCalculations;
+    protected ?ShippingMethodPriceCollection $shippingMethodPriceCalculations;
 
     /**
-     * @var PromotionCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $personaPromotions;
+    protected ?PromotionCollection $personaPromotions;
 
     /**
-     * @var FlowSequenceCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $flowSequences;
+    protected ?FlowSequenceCollection $flowSequences;
 
     /**
-     * @var TagCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $tags;
+    protected ?TagCollection $tags;
 
     /**
-     * @var PromotionCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $orderPromotions;
+    protected ?PromotionCollection $orderPromotions;
 
     /**
-     * @var PromotionCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $cartPromotions;
+    protected ?PromotionCollection $cartPromotions;
 
     protected ?TaxProviderCollection $taxProviders = null;
 

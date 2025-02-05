@@ -163,10 +163,6 @@ class ChangeCustomerGroupActionTest extends TestCase
             'company' => 'Test',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->create([$customer], Context::createDefaultContext());
     }
 

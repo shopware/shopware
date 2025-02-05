@@ -17,19 +17,9 @@ class ExtensionHelper
 {
     final public const IGNORED_PROPERTIES = ['extension', 'extensions', 'elements'];
 
-    /**
-     * @var PropertyInfoExtractor
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $propertyInfoExtractor;
+    protected PropertyInfoExtractor $propertyInfoExtractor;
 
-    /**
-     * @var PropertyAccessor
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $propertyAccessor;
+    protected PropertyAccessor $propertyAccessor;
 
     public function __construct()
     {

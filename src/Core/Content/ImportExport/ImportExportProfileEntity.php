@@ -20,10 +20,8 @@ class ImportExportProfileEntity extends Entity
 
     /**
      * @deprecated tag:v6.7.0 - Will be replaced by technical name
-     *
-     * @var string|null
      */
-    protected $name;
+    protected ?string $name;
 
     /**
      * @deprecated tag:v6.7.0 - will not be nullable
@@ -31,88 +29,70 @@ class ImportExportProfileEntity extends Entity
     protected ?string $technicalName = null;
 
     /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $label;
+    protected string $label;
 
     /**
-     * @var bool
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $systemDefault;
+    protected bool $systemDefault;
 
     /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $sourceEntity;
+    protected string $sourceEntity;
 
     /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $fileType;
+    protected string $fileType;
 
     /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $delimiter;
+    protected ?string $delimiter;
 
     /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $enclosure;
+    protected ?string $enclosure;
 
     /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $type;
+    protected string $type;
 
     /**
      * @var list<array{key: string, mappedKey: string}>|array<Mapping>|null
      *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $mapping;
+    protected ?array $mapping;
 
     /**
      * @var array<string, mixed>|null
      *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $updateBy;
+    protected ?array $updateBy;
 
     /**
-     * @var ImportExportLogCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $importExportLogs;
+    protected ?ImportExportLogCollection $importExportLogs;
 
     /**
      * @var array<string, mixed>
      *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $config;
+    protected array $config;
 
     /**
-     * @var ImportExportProfileTranslationCollection|null
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $translations;
+    protected ?ImportExportProfileTranslationCollection $translations;
 
     /**
      * @deprecated tag:v6.7.0 - Method will be removed

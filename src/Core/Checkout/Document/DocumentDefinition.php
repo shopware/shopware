@@ -77,10 +77,6 @@ class DocumentDefinition extends EntityDefinition
             (new ManyToOneAssociationField('documentA11yMediaFile', 'document_a11y_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
         ]);
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $collection->add((new StringField('file_type', 'fileType'))->addFlags(new ApiAware(), new Required()));
-        }
-
         return $collection;
     }
 }

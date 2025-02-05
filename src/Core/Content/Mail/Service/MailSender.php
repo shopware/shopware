@@ -46,12 +46,8 @@ class MailSender extends AbstractMailSender
         throw new DecorationPatternException(self::class);
     }
 
-    public function send(Email $email, ?Envelope $envelope = null): void
+    public function send(Email $email): void
     {
-        if ($envelope) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The parameter $envelope is deprecated and will be removed.');
-        }
-
         $disabled = $this->configService->get(self::DISABLE_MAIL_DELIVERY);
 
         if ($disabled) {

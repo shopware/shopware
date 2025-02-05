@@ -153,10 +153,6 @@ class MailActionControllerTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], $context);

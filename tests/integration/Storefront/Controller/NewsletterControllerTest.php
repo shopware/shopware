@@ -164,10 +164,6 @@ class NewsletterControllerTest extends TestCase
             'customerNumber' => '12345',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->customerData['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');
 

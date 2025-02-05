@@ -14,8 +14,6 @@ use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
-use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -123,7 +121,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document->getDocumentType());
         static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
-        static::assertSame(FileTypes::PDF, $document->getFileType());
+        static::assertSame(FileTypes::PDF, $document->getDocumentA11yMediaFile()->getExtension($document->getDocumentA11yMediaFile()->getFileName()));
     }
 
     public function testGenerateEmpty(): void

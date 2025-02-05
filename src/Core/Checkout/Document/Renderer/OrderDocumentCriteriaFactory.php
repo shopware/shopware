@@ -45,7 +45,7 @@ final class OrderDocumentCriteriaFactory
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
-        if ($documentType && Feature::isActive('v6.7.0.0')) {
+        if ($documentType) {
             $criteria->addAssociation('documents.documentType');
             $criteria->getAssociation('documents')
                 ->addFilter(new EqualsFilter('documentType.technicalName', $documentType))

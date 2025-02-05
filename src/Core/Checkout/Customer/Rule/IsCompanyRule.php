@@ -18,11 +18,9 @@ class IsCompanyRule extends Rule
     final public const RULE_NAME = 'customerIsCompany';
 
     /**
-     * @var bool
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $isCompany;
+    protected bool $isCompany;
 
     /**
      * @internal

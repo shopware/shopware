@@ -161,32 +161,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
                 }
 
-                /** @var LocaleEntity $locale */
-                $locale = $language->getLocale();
-
-                $html = '';
-                if (!Feature::isActive('v6.7.0.0')) {
-                    $html = $this->documentTemplateRenderer->render(
-                        $template,
-                        [
-                            'order' => $order,
-                            'creditItems' => $creditItems,
-                            'price' => $price->getTotalPrice() * -1,
-                            'amountTax' => $price->getCalculatedTaxes()->getAmount(),
-                            'config' => $config,
-                            'rootDir' => $this->rootDir,
-                            'context' => $context,
-                        ],
-                        $context,
-                        $order->getSalesChannelId(),
-                        $order->getLanguageId(),
-                        $locale->getCode(),
-                    );
-                }
-
-                // @deprecated tag:v6.7.0 - html argument will be removed
                 $doc = new RenderedDocument(
-                    $html,
+                    '',
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
@@ -196,10 +172,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $doc->setTemplate($template);
                 $doc->setOrder($order);
                 $doc->setContext($context);
-
-                if (Feature::isActive('v6.7.0.0')) {
-                    $doc->setContent($this->fileRendererRegistry->render($doc));
-                }
+                $doc->setContent($this->fileRendererRegistry->render($doc));
 
                 $result->addSuccess($orderId, $doc);
             } catch (\Throwable $exception) {

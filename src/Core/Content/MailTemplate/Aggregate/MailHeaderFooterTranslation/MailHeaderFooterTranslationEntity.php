@@ -9,61 +9,21 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class MailHeaderFooterTranslationEntity extends TranslationEntity
 {
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $headerHtml;
+    protected ?string $headerHtml;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $headerPlain;
+    protected ?string $headerPlain;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $footerHtml;
+    protected ?string $footerHtml;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $footerPlain;
+    protected ?string $footerPlain;
 
-    /**
-     * @var MailHeaderFooterEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mailHeaderFooter;
+    protected ?MailHeaderFooterEntity $mailHeaderFooter;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mailHeaderFooterId;
+    protected string $mailHeaderFooterId;
 
     public function getMailHeaderFooterId(): string
     {

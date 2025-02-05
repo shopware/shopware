@@ -1,5 +1,4 @@
 import FlyoutMenuPlugin from 'src/plugin/main-menu/flyout-menu.plugin';
-import Feature from 'src/helper/feature.helper';
 
 const html = `<div class="main-navigation" id="mainNavigation" data-flyout-menu="true">
             <div class="container">
@@ -194,8 +193,6 @@ describe('FlyoutMenu tests', () => {
     });
 
     it('FlyoutMenuPlugin with Accessibility Flag true should remove hidden class', () => {
-        window.Feature = Feature;
-        window.Feature.init({'ACCESSIBILITY_TWEAKS': true});
         plugin.init();
         expect(plugin._hasOpenedFlyouts).toBe(false);
         plugin._triggerEls[0].dispatchEvent(new Event('mouseenter'));
@@ -205,8 +202,6 @@ describe('FlyoutMenu tests', () => {
     });
 
     it('FlyoutMenuPlugin with Accessibility Flag true top style should be remove after closing flyout', () => {
-        window.Feature = Feature;
-        window.Feature.init({'ACCESSIBILITY_TWEAKS': true});
         plugin.init();
         expect(plugin._hasOpenedFlyouts).toBe(false);
         plugin._triggerEls[0].dispatchEvent(new Event('mouseenter'));

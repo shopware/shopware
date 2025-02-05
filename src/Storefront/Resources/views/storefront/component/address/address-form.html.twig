@@ -25,9 +25,9 @@
                                     {% set violationPath = "/#{prefix}/company" %}
                                 {% endif %}
 
-                                {# This field is only rendered in the account address editing, if the account type is "commercial". #}
                                 {% set companyValidationRules = (prefix != 'shippingAddress' and accountTypeRequired) ? 'required' : '' %}
 
+                                {# This field is only rendered in the account address editing, if the account type is "commercial". #}
                                 {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
                                     label: 'address.companyNameLabel'|trans|sw_sanitize,
                                     id: idPrefix ~ prefix ~ '-company',
@@ -323,14 +323,17 @@
                         'data-initial-country-id': initialCountryId,
                     }
                 } %}
+            {% endblock %}
 
-                {% if formViolations.getViolations('/countryStateId') is not empty %}
-                    {% set violationPath = '/countryStateId' %}
-                {% elseif formViolations.getViolations("/#{prefix}/countryStateId") is not empty %}
-                    {% set violationPath = "/#{prefix}/countryStateId" %}
-                {% endif %}
+                {% block component_address_form_state_select %}
 
-                {% set countryStateAutocomplete = 'address-level1' %}
+                    {% if formViolations.getViolations('/countryStateId') is not empty %}
+                        {% set violationPath = '/countryStateId' %}
+                    {% elseif formViolations.getViolations("/#{prefix}/countryStateId") is not empty %}
+                        {% set violationPath = "/#{prefix}/countryStateId" %}
+                    {% endif %}
+
+                    {% set countryStateAutocomplete = 'address-level1' %}
 
                 {% if prefix == 'shippingAddress' %}
                     {% set countryStateAutocomplete = 'shipping address-level1' %}
@@ -346,19 +349,20 @@
                     </option>
                 {% endset %}
 
-                {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
-                    label: 'address.countryStateLabel'|trans|sw_sanitize,
-                    id: idPrefix ~ prefix ~ 'AddressCountryState',
-                    name: prefix ~ '[countryStateId]',
-                    autocomplete: countryStateAutocomplete,
-                    options: countryStateOptions,
-                    violationPath: violationPath,
-                    additionalClass: 'col-md-6 d-none',
-                    additionalSelectClass: 'country-state-select',
-                    attributes: {
-                        'data-initial-country-state-id': data.get('countryStateId'),
-                    }
-                } %}
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'address.countryStateLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ 'AddressCountryState',
+                        name: prefix ~ '[countryStateId]',
+                        autocomplete: countryStateAutocomplete,
+                        options: countryStateOptions,
+                        violationPath: violationPath,
+                        additionalClass: 'col-md-6 d-none',
+                        additionalSelectClass: 'country-state-select',
+                        attributes: {
+                            'data-initial-country-state-id': data.get('countryStateId'),
+                        }
+                    } %}
+                {% endblock %}
             {% endblock %}
         </div>
 

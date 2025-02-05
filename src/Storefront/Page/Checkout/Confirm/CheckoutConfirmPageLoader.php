@@ -32,8 +32,6 @@ class CheckoutConfirmPageLoader
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -42,7 +40,7 @@ class CheckoutConfirmPageLoader
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
         private readonly DataValidator $validator,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 

@@ -56,25 +56,11 @@ PluginManager.register('AccountGuestAbortButton', () => import('src/plugin/heade
 PluginManager.register('OffCanvasCart', () => import('src/plugin/offcanvas-cart/offcanvas-cart.plugin'), '[data-off-canvas-cart]');
 PluginManager.register('AddToCart', () => import('src/plugin/add-to-cart/add-to-cart.plugin'), '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', () => import('src/plugin/collapse/collapse-footer-columns.plugin'), '[data-collapse-footer-columns]');
-if (!Feature.isActive('v6.7.0.0')) {
-    PluginManager.register('CollapseCheckoutConfirmMethods', () => import('src/plugin/collapse/collapse-checkout-confirm-methods.plugin'), '[data-collapse-checkout-confirm-methods]');
-}
-if (Feature.isActive('v6.7.0.0')) {
-    PluginManager.register('Navbar', () => import('src/plugin/navbar/navbar.plugin'), '[data-navbar]');
-} else {
-    /** @deprecated tag:v6.7.0 - FlyoutMenu will be removed, see Navbar for the new implementation. */
-    PluginManager.register('FlyoutMenu', () => import('src/plugin/main-menu/flyout-menu.plugin'), '[data-flyout-menu]');
-}
+PluginManager.register('Navbar', () => import('src/plugin/navbar/navbar.plugin'), '[data-navbar]');
 PluginManager.register('OffCanvasMenu', () => import('src/plugin/main-menu/offcanvas-menu.plugin'), '[data-off-canvas-menu]');
-if (Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-    PluginManager.register('FormHandler', () => import('src/plugin/forms/form-handler.plugin'), '[data-form-handler]');
-}
+PluginManager.register('FormHandler', () => import('src/plugin/forms/form-handler.plugin'), '[data-form-handler]');
 /** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
 PluginManager.register('FormValidation', () => import('src/plugin/forms/form-validation.plugin'), '[data-form-validation]');
-/** @deprecated tag:v6.7.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
-if (!Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-    PluginManager.register('FormScrollToInvalidField', () => import('src/plugin/forms/form-scroll-to-invalid-field.plugin'), 'form');
-}
 /** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
 PluginManager.register('FormSubmitLoader', () => import('src/plugin/forms/form-submit-loader.plugin'), '[data-form-submit-loader]');
 PluginManager.register('FormFieldToggle', () => import('src/plugin/forms/form-field-toggle.plugin'), '[data-form-field-toggle]');
@@ -82,9 +68,7 @@ PluginManager.register('FormAutoSubmit', () => import('src/plugin/forms/form-aut
 PluginManager.register('FormAjaxSubmit', () => import('src/plugin/forms/form-ajax-submit.plugin'), '[data-form-ajax-submit]');
 PluginManager.register('FormAddHistory', () => import('src/plugin/forms/form-add-history.plugin'), '[data-form-add-history]');
 PluginManager.register('FormPreserver', () => import('src/plugin/forms/form-preserver.plugin'), '[data-form-preserver]');
-if (Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-    PluginManager.register('FormAjaxPagination', () => import('src/plugin/forms/form-ajax-pagination.plugin'), '[data-form-ajax-pagination]');
-}
+PluginManager.register('FormAjaxPagination', () => import('src/plugin/forms/form-ajax-pagination.plugin'), '[data-form-ajax-pagination]');
 PluginManager.register('FormAddDynamicRedirect', () => import('src/plugin/forms/form-add-dynamic-redirect-plugin'), '[data-form-add-dynamic-redirect]');
 PluginManager.register('AccountMenu', () => import('src/plugin/header/account-menu.plugin'), '[data-account-menu]');
 PluginManager.register('OffCanvasTabs', () => import('src/plugin/offcanvas-tabs/offcanvas-tabs.plugin'), '[data-off-canvas-tabs]');

@@ -29,9 +29,7 @@
                         <form method="post"
                               action="{{ path('frontend.account.addressbook') }}"
                               class="js-close-address-editor"
-                              {# @deprecated tag:v6.7.0 - Form validation plugin is replaced by form handler plugin. #}
-                              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
-                              {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}
+                              data-form-handler="true"
                               data-form-ajax-submit="true"
                               data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 

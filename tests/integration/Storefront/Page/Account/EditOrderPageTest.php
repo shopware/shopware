@@ -150,12 +150,7 @@ class EditOrderPageTest extends TestCase
         $this->createCustomPaymentMethod($context, ['position' => 0]);
         $this->createCustomPaymentMethod($context, ['position' => 4]);
 
-        if (Feature::isActive('ACCESSIBILITY_TWEAKS')) {
-            $context->getSalesChannel()->setPaymentMethodId($primaryMethod->getId());
-        } else {
-            // replace active payment method with a new one
-            $context->assign(['paymentMethod' => $primaryMethod]);
-        }
+        $context->getSalesChannel()->setPaymentMethodId($primaryMethod->getId());
 
         $page = $this->getPageLoader()->load($request, $context);
         $paymentMethods = \array_values($page->getPaymentMethods()->getElements());

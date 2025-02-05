@@ -27,8 +27,6 @@ class CheckoutCartPageLoader
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
@@ -36,7 +34,7 @@ class CheckoutCartPageLoader
         private readonly StorefrontCartFacade $cartService,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly AbstractCountryRoute $countryRoute,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 

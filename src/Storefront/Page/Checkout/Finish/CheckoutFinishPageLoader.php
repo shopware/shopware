@@ -31,14 +31,12 @@ class CheckoutFinishPageLoader
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly AbstractOrderRoute $orderRoute,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 

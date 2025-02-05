@@ -319,7 +319,7 @@ export default {
             });
             Shopware.Store.get('adminMenu').collapseSidebar();
 
-            const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
+            const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
 
             this.resetCmsPageState();
@@ -329,9 +329,9 @@ export default {
                 this.isLoading = true;
                 const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
 
-                Shopware.State.commit('shopwareApps/setSelectedIds', [
+                Shopware.Store.get('shopwareApps').selectedIds = [
                     this.pageId,
-                ]);
+                ];
 
                 const criteria = new Criteria(1, 25);
                 criteria.addFilter(Criteria.equals('typeId', defaultStorefrontId));
@@ -496,7 +496,7 @@ export default {
 
             return this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
-                const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
+                const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage();
                 this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
                 return this.loadPage(this.pageId);
             });
@@ -684,11 +684,11 @@ export default {
                 meta: { parameters: payload },
             });
 
-            Shopware.State.commit('error/addApiError', { expression, error });
+            Shopware.Store.get('error').addApiError({ expression, error });
         },
 
         getError(property) {
-            return Shopware.State.getters['error/getApiError'](this.page, property);
+            return Shopware.Store.get('error').getApiError(this.page, property);
         },
 
         getSlotValidations() {
@@ -735,7 +735,7 @@ export default {
             }
 
             this.validationWarnings = [];
-            Shopware.State.dispatch('error/resetApiErrors');
+            Shopware.Store.get('error').resetApiErrors();
 
             const valid = [
                 this.missingFieldsValidation(),

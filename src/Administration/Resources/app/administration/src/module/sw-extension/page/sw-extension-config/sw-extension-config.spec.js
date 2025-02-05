@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 
 /**
  * @sw-package checkout
@@ -76,21 +77,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
     });
 
     beforeEach(async () => {
-        if (typeof Shopware.State.get('shopwareExtensions') !== 'undefined') {
-            Shopware.State.unregisterModule('shopwareExtensions');
-        }
-
-        Shopware.State.registerModule('shopwareExtensions', {
-            namespaced: true,
-            state: {
-                myExtensions: { data: [] },
-            },
-            mutations: {
-                setMyExtensions(state, extensions) {
-                    state.myExtensions = extensions;
-                },
-            },
-        });
+        setActivePinia(createPinia());
     });
 
     it('domain should suffix config', async () => {
@@ -106,9 +93,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
     });
 
     it('should not reload extensions on createdComponent if extensions are loaded', async () => {
-        Shopware.State.commit('shopwareExtensions/setMyExtensions', {
-            data: [{ name: 'test-extension' }],
-        });
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([{ name: 'test-extension' }]);
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.shopwareExtensionService.updateExtensionData).toHaveBeenCalledTimes(0);

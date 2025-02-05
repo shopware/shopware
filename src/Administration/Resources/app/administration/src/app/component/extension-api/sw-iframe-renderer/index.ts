@@ -1,4 +1,4 @@
-import type { Extension } from '../../../state/extensions.store';
+import type { Extension } from '../../../store/extensions.store';
 import template from './sw-iframe-renderer.html.twig';
 import './sw-iframe-renderer.scss';
 
@@ -114,11 +114,11 @@ Shopware.Component.register('sw-iframe-renderer', {
         },
 
         componentName(): string | undefined {
-            return Shopware.State.get('sdkLocation').locations[this.locationId];
+            return Shopware.Store.get('sdkLocation').locations[this.locationId];
         },
 
         extension(): Extension | undefined {
-            const extensions = Shopware.State.get('extensions');
+            const extensions = Shopware.Store.get('extensions').extensionsState;
             const srcWithoutSearchParameters = new URL(this.src).origin + new URL(this.src).pathname;
 
             return Object.values(extensions).find((ext) => {

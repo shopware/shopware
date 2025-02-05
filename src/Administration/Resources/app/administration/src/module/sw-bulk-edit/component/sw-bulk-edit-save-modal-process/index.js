@@ -42,15 +42,15 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         documentTypes() {
-            return Shopware.State.get('swBulkEdit')?.orderDocuments?.download?.value;
+            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
         },
 
         documentTypeConfigs() {
-            return Shopware.State.getters['swBulkEdit/documentTypeConfigs'];
+            return Shopware.Store.get('swBulkEdit').documentTypeConfigs;
         },
 
         selectedDocumentTypes() {

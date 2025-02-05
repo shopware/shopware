@@ -233,7 +233,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.State.get('session').languageId,
+                languageId: Shopware.Store.get('session').languageId,
             };
             const criteria = new Criteria();
 
@@ -451,7 +451,7 @@ export default {
             }
 
             if (!this.validateDateRange()) {
-                Shopware.State.dispatch('error/addApiError', {
+                Shopware.Store.get('error').addApiError({
                     expression: `rule_condition.${this.rule.id}.value`,
                     error: new Shopware.Classes.ShopwareError({
                         detail: this.$tc('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
@@ -508,7 +508,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
 
             this.isLoading = true;
             this.loadEntityData(this.ruleId).then(() => {

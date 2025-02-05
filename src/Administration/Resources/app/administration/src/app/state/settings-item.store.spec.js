@@ -2,30 +2,11 @@
  * @package admin
  */
 
-import Vuex from 'vuex';
-import SettingsItemStore from './settings-item.store';
-
 describe('src/app/state/settings.store.js', () => {
-    let store = null;
+    const store = Shopware.Store.get('settingsItems');
 
     beforeEach(() => {
-        store = new Vuex.Store(SettingsItemStore);
-    });
-
-    afterEach(() => {
-        store.replaceState({
-            settingsGroups: {
-                general: [],
-                customer: [],
-                automation: [],
-                localization: [],
-                content: [],
-                commerce: [],
-                system: [],
-                plugins: [],
-                shop: [],
-            },
-        });
+        store.$reset();
     });
 
     it('adds a new item to the specified group', () => {
@@ -34,10 +15,10 @@ describe('src/app/state/settings.store.js', () => {
             name: 'newSetting',
         };
 
-        store.commit('addItem', settingsItem);
+        store.addItem(settingsItem);
 
-        expect(store.state.settingsGroups.general).toHaveLength(1);
-        expect(store.state.settingsGroups.general[0]).toEqual(settingsItem);
+        expect(store.settingsGroups.general).toHaveLength(1);
+        expect(store.settingsGroups.general[0]).toEqual(settingsItem);
     });
 
     it('does not add a duplicate item to the specified group', () => {
@@ -46,10 +27,10 @@ describe('src/app/state/settings.store.js', () => {
             name: 'newSetting',
         };
 
-        store.commit('addItem', settingsItem);
-        store.commit('addItem', settingsItem);
+        store.addItem(settingsItem);
+        store.addItem(settingsItem);
 
-        expect(store.state.settingsGroups.general).toHaveLength(1);
+        expect(store.settingsGroups.general).toHaveLength(1);
     });
 
     it('creates a new group dynamically if the group does not exist', () => {
@@ -58,11 +39,11 @@ describe('src/app/state/settings.store.js', () => {
             name: 'customSetting',
         };
 
-        store.commit('addItem', settingsItem);
+        store.addItem(settingsItem);
 
-        expect(store.state.settingsGroups[settingsItem.group]).toBeDefined();
-        expect(store.state.settingsGroups[settingsItem.group]).toHaveLength(1);
-        expect(store.state.settingsGroups[settingsItem.group][0]).toEqual(settingsItem);
+        expect(store.settingsGroups[settingsItem.group]).toBeDefined();
+        expect(store.settingsGroups[settingsItem.group]).toHaveLength(1);
+        expect(store.settingsGroups[settingsItem.group][0]).toEqual(settingsItem);
     });
 
     it('handles group as a function', () => {
@@ -71,11 +52,11 @@ describe('src/app/state/settings.store.js', () => {
             name: 'dynamicSetting',
         };
 
-        store.commit('addItem', settingsItem);
+        store.addItem(settingsItem);
 
-        expect(store.state.settingsGroups[settingsItem.group()]).toBeDefined();
-        expect(store.state.settingsGroups[settingsItem.group()]).toHaveLength(1);
-        expect(store.state.settingsGroups[settingsItem.group()][0]).toEqual({
+        expect(store.settingsGroups[settingsItem.group()]).toBeDefined();
+        expect(store.settingsGroups[settingsItem.group()]).toHaveLength(1);
+        expect(store.settingsGroups[settingsItem.group()][0]).toEqual({
             group: settingsItem.group,
             name: 'dynamicSetting',
         });
@@ -87,6 +68,6 @@ describe('src/app/state/settings.store.js', () => {
             name: 'orphanSetting',
         };
 
-        expect(() => store.commit('addItem', settingsItem)).toThrow('Group is undefined or invalid');
+        expect(() => store.addItem(settingsItem)).toThrow('Group is undefined or invalid');
     });
 });

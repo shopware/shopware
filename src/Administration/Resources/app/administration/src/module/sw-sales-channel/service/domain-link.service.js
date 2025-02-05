@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-const { Application, Defaults, State } = Shopware;
+const { Application, Defaults } = Shopware;
 
 Application.addServiceProvider('domainLinkService', () => {
     return {
@@ -20,7 +20,7 @@ function getDomainLink(salesChannel) {
     }
 
     const adminLanguageDomain = salesChannel.domains.find((domain) => {
-        return domain.languageId === State.get('session').languageId;
+        return domain.languageId === Shopware.Store.get('session').languageId;
     });
 
     if (adminLanguageDomain) {

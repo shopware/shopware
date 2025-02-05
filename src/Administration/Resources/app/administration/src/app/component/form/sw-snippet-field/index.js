@@ -3,7 +3,6 @@ import './sw-snippet-field.scss';
 
 const {
     Component,
-    State,
     Data: { Criteria },
 } = Shopware;
 
@@ -117,7 +116,7 @@ Component.register('sw-snippet-field', {
                 return;
             }
 
-            const currentLocale = State.get('session').currentLocale;
+            const currentLocale = Shopware.Store.get('session').currentLocale;
             let translation = this.getTranslationByLocale(currentLocale);
             if (translation) {
                 this.textValue = translation.value;

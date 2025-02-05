@@ -153,7 +153,7 @@ class Framework extends Bundle
         }
 
         // @deprecated tag:v6.7.0 - remove complete if condition
-        if (!Feature::isActive('v6.7.0.0')) {
+        if (!Feature::isActive('DYNAMIC_ENTITY_EXTENSIONS')) {
             $this->container
                 ->get(ExtensionRegistry::class)
                 ->configureExtensions(

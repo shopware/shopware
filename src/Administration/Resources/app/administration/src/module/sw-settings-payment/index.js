@@ -18,7 +18,7 @@ Shopware.Component.extend(
 );
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 /**
  * @sw-package checkout
@@ -62,7 +62,14 @@ Module.register('sw-settings-payment', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'commerce';
+        },
         to: 'sw.settings.payment.overview',
         icon: 'regular-credit-card',
         privilege: 'payment.viewer',

@@ -79,7 +79,7 @@ class AddressValidationFactory implements DataValidationFactoryInterface
         /**
          * @deprecated tag:v6.7.0 - fields "firstName", "lastName", "title", "zipcode" will have a maximum length.
          */
-        if (Feature::isActive('v6.7.0.0')) {
+        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
             $definition
                 ->add('firstName', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME], null, null, null, null, null, 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
                 ->add('lastName', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_LAST_NAME], null, null, null, null, null, 'VIOLATION::LAST_NAME_IS_TOO_LONG'))

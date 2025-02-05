@@ -69,8 +69,7 @@ Component.register('sw-data-grid-inline-edit', {
             this.currentValue = this.value;
         },
 
-        beforeDestroyComponent() {
-        },
+        beforeDestroyComponent() {},
 
         emitInput() {
             this.$emit('update:value', this.currentValue);

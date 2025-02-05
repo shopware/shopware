@@ -74,12 +74,10 @@ class Migration1716196653AddTechnicalNameToImportExportProfile extends Migration
     private function getTechnicalName(string $name): string
     {
         // Convert the name to lowercase and replace non-alphanumeric characters with underscores
-        /** @var string $technicalName */
-        $technicalName = preg_replace('/[^a-z0-9_]/', '_', strtolower($name));
+        $technicalName = (string) preg_replace('/[^a-z0-9_]/', '_', strtolower($name));
 
         // Collapse consecutive underscores
-        /** @var string $technicalName */
-        $technicalName = preg_replace('/_+/', '_', $technicalName);
+        $technicalName = (string) preg_replace('/_+/', '_', $technicalName);
 
         // Remove leading and trailing underscores
         return trim($technicalName, '_');

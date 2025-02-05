@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\Exception\MigrateException;
 
 #[Package('framework')]
 class MigrationRuntime
@@ -187,14 +186,16 @@ class MigrationRuntime
                 $matches
             );
 
-            if (isset($matches[1]) && isset($matches[2]) && $matches[2] === 'REFERENCES' && isset($matches[3])) {
-                throw new MigrateException(
+            if (isset($matches[1], $matches[2], $matches[3]) && $matches[2] === 'REFERENCES') {
+                throw MigrationException::migrationError(
                     'The migration failed due to inconsistent data. You can try to check the table `' . $matches[1]
                     . '` for entries that do not match the entries in table `' . $matches[3] . '`.',
                     $e
                 );
-            } elseif (isset($matches[1])) {
-                throw new MigrateException(
+            }
+
+            if (isset($matches[1])) {
+                throw MigrationException::migrationError(
                     'The migration failed due to inconsistent data. You can try to check the table `' . $matches[1]
                     . '` for entries that do not match the entries in the table referenced in the foreign key.',
                     $e

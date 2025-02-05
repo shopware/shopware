@@ -6,7 +6,7 @@ import type CmsVisibility from '../../shared/CmsVisibility';
 const { Filter, Store } = Shopware;
 
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({

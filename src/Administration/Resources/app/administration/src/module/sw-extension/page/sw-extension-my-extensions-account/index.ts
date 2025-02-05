@@ -5,7 +5,7 @@ import extensionErrorHandler from '../../service/extension-error-handler.service
 import type { MappedError } from '../../service/extension-error-handler.service';
 import type { UserInfo } from '../../../../core/service/api/store.api.service';
 
-const { State, Mixin, Filter } = Shopware;
+const { Store, Mixin, Filter } = Shopware;
 
 /**
  * @sw-package checkout
@@ -46,11 +46,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         userInfo(): UserInfo | null {
-            return State.get('shopwareExtensions').userInfo;
+            return Store.get('shopwareExtensions').userInfo;
         },
 
         isLoggedIn(): boolean {
-            return State.get('shopwareExtensions').userInfo !== null;
+            return Store.get('shopwareExtensions').userInfo !== null;
         },
 
         assetFilter() {
@@ -61,9 +61,9 @@ export default Shopware.Component.wrapComponentConfig({
     created() {
         this.createdComponent()
             .then(() => {
-                // component functions are always bound to this
-                // eslint-disable-next-line @typescript-eslint/unbound-method
-                this.unsubscribeStore = State.subscribe(this.showErrorNotification);
+                this.unsubscribeStore = Store.get('shopwareExtensions').$onAction(({ name, args }) =>
+                    this.showErrorNotification({ type: name, payload: args as MappedError[] }),
+                );
             })
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             .catch(() => {});
@@ -125,7 +125,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showErrorNotification({ type, payload }: { type: string; payload: MappedError[] }) {
-            if (type !== 'shopwareExtensions/pluginErrorsMapped') {
+            if (type !== 'pluginErrorsMapped') {
                 return;
             }
 
@@ -159,7 +159,7 @@ export default Shopware.Component.wrapComponentConfig({
         commitErrors(errorResponse: AxiosError<{ errors: StoreApiException[] }>): never {
             if (errorResponse.response) {
                 const mappedErrors = extensionErrorHandler.mapErrors(errorResponse.response.data.errors);
-                Shopware.State.commit('shopwareExtensions/pluginErrorsMapped', mappedErrors);
+                Shopware.Store.get('shopwareExtensions').pluginErrorsMapped(mappedErrors);
             }
 
             throw errorResponse;

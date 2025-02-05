@@ -4,11 +4,11 @@
 import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-profile-index.html.twig';
-import swProfileState from '../../state/sw-profile.state';
+import '../../store/sw-profile.store';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -58,9 +58,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swProfile', [
-            'searchPreferences',
-        ]),
+        searchPreferences: () => Shopware.Store.get('swProfile').searchPreferences,
 
         ...mapPropertyErrors('user', [
             'email',
@@ -69,10 +67,10 @@ export default {
 
         userSearchPreferences: {
             get() {
-                return State.get('swProfile').userSearchPreferences;
+                return Store.get('swProfile').userSearchPreferences;
             },
             set(userSearchPreferences) {
-                State.commit('swProfile/setUserSearchPreferences', userSearchPreferences);
+                Store.get('swProfile').userSearchPreferences = userSearchPreferences;
             },
         },
 
@@ -97,7 +95,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.State.get('session').languageId;
+            return Shopware.Store.get('session').languageId;
         },
     },
 
@@ -127,20 +125,12 @@ export default {
         },
     },
 
-    beforeCreate() {
-        State.registerModule('swProfile', swProfileState);
-    },
-
     created() {
         this.createdComponent();
     },
 
     beforeMount() {
         this.beforeMountComponent();
-    },
-
-    beforeUnmount() {
-        State.unregisterModule('swProfile');
     },
 
     methods: {
@@ -312,7 +302,7 @@ export default {
                         Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
                     })
                     .catch((error) => {
-                        State.dispatch('error/addApiError', {
+                        Shopware.Store.get('error').addApiError({
                             expression: `user.${this.user?.id}.password`,
                             error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                         });
@@ -366,7 +356,7 @@ export default {
                 const data = response.data;
                 delete data.password;
 
-                return Shopware.State.commit('setCurrentUser', data);
+                return Shopware.Store.get('session').setCurrentUser(data);
             });
         },
 

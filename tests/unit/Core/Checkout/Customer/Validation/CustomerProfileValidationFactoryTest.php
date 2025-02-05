@@ -233,7 +233,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             ->add('accountType', new Choice($this->accountTypes))
             ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]));
 
-        if (Feature::isActive('v6.7.0.0')) {
+        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
             $definition
                 ->add('firstName', new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
                 ->add('lastName', new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]));

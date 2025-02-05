@@ -68,5 +68,8 @@ return [
 
         // Changing from Exception to Throwable|null is widening and no problem
         'The parameter \\$previous of Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\MigrateException\\#__construct\(\) changed',
+
+        // changing constructor in a safe way as long as you don't extend the hook
+        'Parameter salesChannelId was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Event\\\\SystemConfigChangedHook'
     ],
 ];

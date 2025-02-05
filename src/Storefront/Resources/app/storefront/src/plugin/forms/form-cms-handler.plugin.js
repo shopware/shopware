@@ -47,7 +47,7 @@ export default class FormCmsHandler extends Plugin {
     }
 
     _getButton() {
-        this._button = this.el.querySelector('button');
+        this._button = this.el.querySelector('button[type="submit"]');
     }
 
     _getCmsBlock() {

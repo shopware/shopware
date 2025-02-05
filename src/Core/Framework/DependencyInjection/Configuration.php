@@ -409,7 +409,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                /** @deprecated tag:v6.7.0 */
                 ->arrayNode('tagging')
+                    ->setDeprecated('shopware/core', '6.6.10.0', 'The fine-grained cache "tagging" configuration is deprecated and will be removed with Shopware 6.7.0.0')
                     ->children()
                         ->booleanNode('each_snippet')
                             ->defaultTrue()

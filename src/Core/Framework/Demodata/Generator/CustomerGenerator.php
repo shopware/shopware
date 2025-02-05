@@ -28,8 +28,6 @@ class CustomerGenerator implements DemodataGeneratorInterface
      */
     private array $salutationIds = [];
 
-    private string|false|null $paymentMethodId = false;
-
     private Generator $faker;
 
     /**

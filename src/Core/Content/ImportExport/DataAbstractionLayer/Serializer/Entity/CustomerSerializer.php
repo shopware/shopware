@@ -19,15 +19,12 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
      * @internal
      *
      * @param array<string, string|null> $cacheCustomerGroups
-     * @param array<string, string|null> $cachePaymentMethods
      * @param array<string, string|null> $cacheSalesChannels
      */
     public function __construct(
         private readonly EntityRepository $customerGroupRepository,
-        private readonly EntityRepository $paymentMethodRepository,
         private readonly EntityRepository $salesChannelRepository,
         private array $cacheCustomerGroups = [],
-        private array $cachePaymentMethods = [],
         private array $cacheSalesChannels = [],
     ) {
     }
@@ -80,7 +77,6 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
     public function reset(): void
     {
         $this->cacheCustomerGroups = [];
-        $this->cachePaymentMethods = [];
         $this->cacheSalesChannels = [];
     }
 

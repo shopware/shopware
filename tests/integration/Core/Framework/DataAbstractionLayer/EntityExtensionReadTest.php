@@ -166,7 +166,7 @@ class EntityExtensionReadTest extends TestCase
         static::assertIsArray($reference);
         static::assertSame($extendableId, Uuid::fromBytesToHex($reference['id']));
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$productId]);
         $criteria->addAssociation('manyToOne');
 
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();

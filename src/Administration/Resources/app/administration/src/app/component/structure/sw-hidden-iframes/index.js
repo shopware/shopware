@@ -15,7 +15,7 @@ Component.register('sw-hidden-iframes', {
 
     computed: {
         extensions() {
-            return Shopware.State.getters['extensions/privilegedExtensions'];
+            return Shopware.Store.get('extensions').privilegedExtensions;
         },
 
         MAIN_HIDDEN() {

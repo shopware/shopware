@@ -332,10 +332,9 @@
                                         <template v-if="isInlineEdit(item) && column.hasOwnProperty('inlineEdit')">
                                             {% block sw_data_grid_columns_render_inline_edit %}
                                             <sw-data-grid-inline-edit
+                                                v-model:value="item[column.property]"
                                                 :column="column"
                                                 :compact="compact"
-                                                :value="item[column.property]"
-                                                @update:value="item[column.property] = $event"
                                             />
                                             {% endblock %}
                                         </template>

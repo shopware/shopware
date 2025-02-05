@@ -40,7 +40,7 @@ export default function viteExternalsPlugin(): Plugin {
 
             // Write temp vue.js file
             await ensureFile(vueJsCachePath);
-            await writeFile(vueJsCachePath, `module.exports = window['Shopware']['Vue'];`);
+            await writeFile(vueJsCachePath, `module.exports = window['Shopware']?.['Vue']`);
 
             return {
                 resolve: {

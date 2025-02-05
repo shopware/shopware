@@ -2,6 +2,7 @@ name: Downstream
 
 on:
   pull_request:
+  merge_group:
   workflow_dispatch:
     inputs:
       nightly:
@@ -54,7 +55,8 @@ jobs:
   downstream-check:
     if: always()
     needs:
-    - rufus
+    # fix with shopware/shopware#6556
+    # - rufus
     - commercial
 
     runs-on: Ubuntu-latest

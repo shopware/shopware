@@ -2,6 +2,10 @@
     {% set label = lineItem.label|trans|sw_sanitize %}
     {% set label = label !== '' ? label : lineItem.label %}
 
+    <div class="line-item-label-descriptor visually-hidden">
+        {{ 'checkout.lineItemLabelDescriptor'|trans|sw_sanitize }}:
+    </div>
+
     {% if lineItemLink %}
         <a href="{{ lineItemLink }}"
            class="line-item-label"

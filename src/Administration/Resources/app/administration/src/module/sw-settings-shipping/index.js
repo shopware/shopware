@@ -1,7 +1,7 @@
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 /**
  * @sw-package checkout
@@ -64,7 +64,14 @@ Module.register('sw-settings-shipping', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'commerce';
+        },
         to: 'sw.settings.shipping.index',
         icon: 'regular-truck',
         privilege: 'shipping.viewer',

@@ -8,6 +8,9 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal
+ */
 #[Package('fundamentals@after-sales')]
 class PipeFactory extends AbstractPipeFactory
 {

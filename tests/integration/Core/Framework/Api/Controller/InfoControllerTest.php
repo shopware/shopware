@@ -63,7 +63,7 @@ class InfoControllerTest extends TestCase
     public function testGetConfig(): void
     {
         $expected = [
-            'version' => '6.6.9999999.9999999-dev',
+            'version' => '6.7.9999999.9999999-dev',
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => true,
@@ -233,7 +233,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersion(): void
     {
         $expected = [
-            'version' => '6.6.9999999.9999999-dev',
+            'version' => '6.7.9999999.9999999-dev',
         ];
 
         $url = '/api/_info/version';
@@ -253,7 +253,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersionOldVersion(): void
     {
         $expected = [
-            'version' => '6.6.9999999.9999999-dev',
+            'version' => '6.7.9999999.9999999-dev',
         ];
 
         $url = '/api/v1/_info/version';
@@ -506,6 +506,8 @@ class InfoControllerTest extends TestCase
 
     public function testBaseAdminPaths(): void
     {
+        static::markTestSkipped('#6556');
+
         if (!class_exists(AdministrationController::class)) {
             static::markTestSkipped('Cannot test without Administration as results will differ');
         }

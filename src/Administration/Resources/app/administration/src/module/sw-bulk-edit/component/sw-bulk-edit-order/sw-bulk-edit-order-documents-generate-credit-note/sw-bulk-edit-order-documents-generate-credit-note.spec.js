@@ -2,7 +2,6 @@
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
-import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-generate-credit-note', { sync: true }), {
@@ -19,10 +18,6 @@ async function createWrapper() {
 describe('sw-bulk-edit-order-documents-generate-credit-note', () => {
     let wrapper;
 
-    beforeAll(() => {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    });
-
     beforeEach(async () => {
         wrapper = await createWrapper();
     });
@@ -38,7 +33,7 @@ describe('sw-bulk-edit-order-documents-generate-credit-note', () => {
             }),
         );
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'credit_note',
             value: {
                 documentDate: 'documentDate',

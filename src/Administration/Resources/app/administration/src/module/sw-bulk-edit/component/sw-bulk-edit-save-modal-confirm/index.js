@@ -53,10 +53,10 @@ export default {
     computed: {
         isFlowTriggered: {
             get() {
-                return Shopware.State.get('swBulkEdit').isFlowTriggered;
+                return Shopware.Store.get('swBulkEdit').isFlowTriggered;
             },
             set(isFlowTriggered) {
-                Shopware.State.commit('swBulkEdit/setIsFlowTriggered', isFlowTriggered);
+                Shopware.Store.get('swBulkEdit').setIsFlowTriggered(isFlowTriggered);
             },
         },
 

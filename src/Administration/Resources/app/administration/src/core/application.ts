@@ -1,7 +1,7 @@
 import type Bottle from 'bottlejs';
 import type { App } from 'vue';
 import { reactive } from 'vue';
-import type { ContextState } from '../app/state/context.store';
+import type { ContextStore } from '../app/store/context.store';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
  * @sw-package framework
@@ -187,7 +187,7 @@ class ApplicationBootstrapper {
         return this;
     }
 
-    registerConfig(config: { apiContext?: ContextState['api']; appContext?: ContextState['app'] }): ApplicationBootstrapper {
+    registerConfig(config: { apiContext?: ContextStore['api']; appContext?: ContextStore['app'] }): ApplicationBootstrapper {
         if (config.apiContext) {
             this.registerApiContext(config.apiContext);
         }
@@ -201,7 +201,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the api context (api path, path to resources etc.)
      */
-    registerApiContext(context: ContextState['api']): ApplicationBootstrapper {
+    registerApiContext(context: ContextStore['api']): ApplicationBootstrapper {
         Shopware.Context.api = Shopware.Classes._private.ApiContextFactory(context);
 
         return this;
@@ -210,7 +210,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the app context (firstRunWizard, etc.)
      */
-    registerAppContext(context: ContextState['app']): ApplicationBootstrapper {
+    registerAppContext(context: ContextStore['app']): ApplicationBootstrapper {
         Shopware.Context.app = Shopware.Classes._private.AppContextFactory(context);
 
         return this;
@@ -610,6 +610,7 @@ class ApplicationBootstrapper {
             'locale',
             'apiServices',
             'coreDirectives',
+            'store',
         ];
 
         const initContainer = this.getContainer('init');
@@ -743,8 +744,10 @@ class ApplicationBootstrapper {
                 bundleName,
                 bundle,
             ]) => {
-                if (!bundle.baseUrl) {
-                    return;
+                if (!window._features_.ADMIN_VITE) {
+                    if (!bundle.baseUrl) {
+                        return;
+                    }
                 }
 
                 if (isDevelopmentMode) {
@@ -769,38 +772,46 @@ class ApplicationBootstrapper {
                     );
                 }
 
+                if (window._features_.ADMIN_VITE) {
+                    if (!bundle.baseUrl) {
+                        return;
+                    }
+                }
+
                 this.injectIframe({
                     active: bundle.active,
                     integrationId: bundle.integrationId,
                     bundleName,
                     bundleVersion: bundle.version,
-                    iframeSrc: bundle.baseUrl,
+                    iframeSrc: bundle.baseUrl!,
                     bundleType: bundle.type,
                 });
             },
         );
 
-        if (isDevelopmentMode) {
-            // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
-            Object.entries(plugins).forEach(
-                ([
-                    pluginName,
-                    entryFiles,
-                ]) => {
-                    const stringUtils = Shopware.Utils.string;
-                    const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
+        if (!window._features_.ADMIN_VITE) {
+            if (isDevelopmentMode) {
+                // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
+                Object.entries(plugins).forEach(
+                    ([
+                        pluginName,
+                        entryFiles,
+                    ]) => {
+                        const stringUtils = Shopware.Utils.string;
+                        const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
 
-                    if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
-                        return;
-                    }
+                        if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
+                            return;
+                        }
 
-                    this.injectIframe({
-                        bundleVersion: undefined,
-                        bundleName: camelCasePluginName,
-                        iframeSrc: entryFiles.html,
-                    });
-                },
-            );
+                        this.injectIframe({
+                            bundleVersion: undefined,
+                            bundleName: camelCasePluginName,
+                            iframeSrc: entryFiles.html,
+                        });
+                    },
+                );
+            }
         }
 
         return Promise.all(injectAllPlugins);
@@ -940,22 +951,22 @@ class ApplicationBootstrapper {
             name: string;
             baseUrl: string;
             version?: string;
-            type?: 'app' | 'plugin';
-            permissions?: Record<string, unknown>;
+            type: 'app' | 'plugin';
+            permissions: Record<string, unknown>;
         } = {
             active,
             integrationId,
             name: bundleName,
             baseUrl: iframeSrc,
             version: bundleVersion,
-            type: bundleType,
-            permissions: undefined,
+            type: bundleType ?? 'plugin',
+            permissions: {},
         };
 
         // To keep permissions reactive no matter if empty or not
         extension.permissions = permissions ?? reactive({});
 
-        Shopware.State.commit('extensions/addExtension', extension);
+        Shopware.Store.get('extensions').addExtension(extension);
     }
 }
 

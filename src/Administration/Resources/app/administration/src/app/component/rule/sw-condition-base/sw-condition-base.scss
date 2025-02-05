@@ -20,6 +20,7 @@ $sw-condition-color-border-default: $color-gray-500;
             .sw-condition__placeholder {
                 background: $color-crimson-50;
 
+                /* stylelint-disable-next-line max-nesting-depth */
                 input {
                     background: $color-crimson-50;
                 }

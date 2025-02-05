@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CmsController::class)]
 class CmsControllerTest extends TestCase
 {

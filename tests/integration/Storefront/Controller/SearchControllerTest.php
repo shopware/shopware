@@ -16,7 +16,7 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SearchControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

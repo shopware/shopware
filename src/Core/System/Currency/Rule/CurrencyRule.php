@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 #[Package('fundamentals@after-sales')]
 class CurrencyRule extends Rule
 {

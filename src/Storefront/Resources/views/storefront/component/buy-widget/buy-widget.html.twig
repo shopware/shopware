@@ -110,22 +110,14 @@
 
                             <p class="product-detail-tax">
                                 {% block buy_widget_tax_link %}
-                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                        {% set cmsPath = path('frontend.cms.page.full', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
-                                    {% else %}
-                                        {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
-                                    {% endif %}
+                                    {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
 
-                                    <a
-                                        href="{{ cmsPath }}"
-                                        title="{{ taxText }}"
-                                        {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+                                    <button class="btn btn-link-inline"
+                                            type="button"
                                             data-ajax-modal="true"
-                                            data-url="{{ cmsPath }}"
-                                        {%- endif -%}
-                                    >
+                                            data-url="{{ cmsPath }}">
                                         {{ taxText }}
-                                    </a>
+                                    </button>
                                 {% endblock %}
                             </p>
                         </div>

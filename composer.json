@@ -40,8 +40,8 @@
             "forward-command": false
         },
         "branch-alias": {
-            "dev-master": "6.6.x-dev",
-            "dev-trunk": "6.6.x-dev"
+            "dev-master": "6.7.x-dev",
+            "dev-trunk": "6.7.x-dev"
         }
     },
     "config": {
@@ -55,7 +55,8 @@
             "composer/package-versions-deprecated": true,
             "phpstan/extension-installer": true,
             "cweagans/composer-patches": true,
-            "symfony/runtime": true
+            "symfony/runtime": true,
+            "php-http/discovery": false
         }
     },
     "require": {

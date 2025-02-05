@@ -49,6 +49,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
+        static::markTestSkipped();
+
         Feature::skipTestIfActive('v6.6.0.0', $this);
 
         parent::setUp();

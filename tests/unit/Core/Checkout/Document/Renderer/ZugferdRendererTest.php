@@ -62,8 +62,11 @@ class ZugferdRendererTest extends TestCase
             ->method('buildDocument')
             ->willReturn('<?xml version="1.0" encoding="UTF-8"?>');
 
+        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
+        $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
+
         $renderer = new ZugferdRenderer(
-            new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition()),
+            $staticRepository,
             $connection,
             $builder,
             $this->createMock(EventDispatcherInterface::class),

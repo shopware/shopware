@@ -23,8 +23,6 @@ const lineBreak = '<br />';
 Component.register('sw-text-preview', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         text: {
             type: String,

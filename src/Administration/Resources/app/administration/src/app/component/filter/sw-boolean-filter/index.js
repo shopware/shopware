@@ -13,8 +13,6 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-boolean-filter', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'filter-update',
         'filter-reset',

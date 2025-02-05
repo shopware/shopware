@@ -8,8 +8,6 @@ import './sw-extension-ratings-card.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['update-extension'],
 
     mixins: ['sw-extension-error'],

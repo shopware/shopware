@@ -12,8 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-switch-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['update:value'],
 
     props: {
@@ -47,15 +45,6 @@ Component.register('sw-switch-field', {
             );
 
             return false;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

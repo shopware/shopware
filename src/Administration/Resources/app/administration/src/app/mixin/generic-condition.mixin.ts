@@ -231,32 +231,17 @@ export default Mixin.register(
 
             updateFieldValue(fieldName: string, value: number, to = undefined, from = undefined) {
                 if (!from || !to || from === to) {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.values, fieldName, value);
-                    } else {
-                        // @ts-expect-error
-                        this.values[fieldName] = value;
-                    }
+                    // @ts-expect-error
+                    this.values[fieldName] = value;
 
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(
-                        this.values,
-                        fieldName,
-                        convertUnit(value, {
-                            from,
-                            to,
-                        }),
-                    );
-                } else {
-                    // @ts-expect-error
-                    this.values[fieldName] = convertUnit(value, {
-                        from,
-                        to,
-                    });
-                }
+                // @ts-expect-error
+                this.values[fieldName] = convertUnit(value, {
+                    from,
+                    to,
+                });
             },
 
             updateVisibleValue(value: number) {

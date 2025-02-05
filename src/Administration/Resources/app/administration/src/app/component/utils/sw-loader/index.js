@@ -12,8 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-loader', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         modelValue: {
             type: String,
@@ -44,25 +42,11 @@ Component.register('sw-loader', {
 
             return false;
         },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

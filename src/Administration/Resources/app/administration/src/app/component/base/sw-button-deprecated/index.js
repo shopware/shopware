@@ -21,12 +21,6 @@ Component.register('sw-button-deprecated', {
 
     inheritAttrs: false,
 
-    compatConfig: {
-        ...Shopware.compatConfig,
-        // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
-        INSTANCE_ATTRS_CLASS_STYLE: false,
-    },
-
     props: {
         disabled: {
             type: Boolean,
@@ -120,15 +114,6 @@ Component.register('sw-button-deprecated', {
             return {
                 'is--hidden': this.isLoading,
             };
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
 
         filteredAttributes() {

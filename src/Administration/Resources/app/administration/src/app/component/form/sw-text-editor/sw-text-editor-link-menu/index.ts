@@ -29,8 +29,6 @@ interface TextEditorLinkMenuConfig {
 Component.register('sw-text-editor-link-menu', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
     ],

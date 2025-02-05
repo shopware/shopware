@@ -12,8 +12,6 @@ const EntityCollection = Shopware.Data.EntityCollection;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['on-change-sales-channel'],
@@ -131,21 +129,13 @@ export default {
     },
 
     created() {
-        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-            this.$root.$on('seo-url-save-finish', this.clearDefaultSeoUrls);
-        } else {
-            Shopware.Utils.EventBus.on('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
-        }
+        Shopware.Utils.EventBus.on('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
 
         this.createdComponent();
     },
 
     beforeUnmount() {
-        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-            this.$root.$off('seo-url-save-finish', this.clearDefaultSeoUrls);
-        } else {
-            Shopware.Utils.EventBus.off('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
-        }
+        Shopware.Utils.EventBus.off('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
     },
 
     methods: {

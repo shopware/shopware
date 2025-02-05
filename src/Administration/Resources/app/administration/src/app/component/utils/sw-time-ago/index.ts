@@ -16,8 +16,6 @@ const { Component } = Shopware;
 Component.register('sw-time-ago', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         date: {
             type: [

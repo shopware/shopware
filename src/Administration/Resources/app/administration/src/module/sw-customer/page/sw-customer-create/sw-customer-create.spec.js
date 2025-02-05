@@ -7,7 +7,7 @@ import { mount } from '@vue/test-utils';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper() {
+async function createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock } = {}) {
     return mount(await wrapTestComponent('sw-customer-create', { sync: true }), {
         global: {
             stubs: {
@@ -55,16 +55,19 @@ async function createWrapper() {
                                         ),
                                     };
                                 },
+                                save: customerRepositorySaveMock,
                             };
                         }
 
                         if (entity === 'language') {
                             return {
-                                searchIds: () =>
-                                    Promise.resolve({
-                                        total: 1,
-                                        data: ['1'],
-                                    }),
+                                searchIds:
+                                    languageRepositorySearchIdsMock ??
+                                    (() =>
+                                        Promise.resolve({
+                                            total: 1,
+                                            data: ['1'],
+                                        })),
                             };
                         }
 
@@ -139,9 +142,9 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     });
 
     it('should override context when the sales channel does not exist language compared to the API language', async () => {
-        const wrapper = await createWrapper();
+        const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
+        const wrapper = await createWrapper({ customerRepositorySaveMock });
         wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
-        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
 
         expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
 
@@ -166,16 +169,16 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     });
 
     it('should keep context when sales channel exists language compared to API language', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
-        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
-
-        wrapper.vm.languageRepository.searchIds = jest.fn(() =>
+        const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
+        const languageRepositorySearchIdsMock = jest.fn(() =>
             Promise.resolve({
                 total: 1,
                 data: [Shopware.Context.api.languageId],
             }),
         );
+
+        const wrapper = await createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock });
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
 
         expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
 
@@ -219,16 +222,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     });
 
     it('should throw exception when the customer creation fails', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            customer: {
-                id: '1',
-                email: 'ytn@shopware.com',
-                boundSalesChannelId: null,
-            },
-        });
-
-        wrapper.vm.customerRepository.save = jest.fn(() =>
+        const customerRepositorySaveMock = jest.fn(() =>
             // eslint-disable-next-line prefer-promise-reject-errors
             Promise.reject({
                 response: {
@@ -245,6 +239,15 @@ describe('module/sw-customer/page/sw-customer-create', () => {
                 },
             }),
         );
+
+        const wrapper = await createWrapper({ customerRepositorySaveMock });
+        await wrapper.setData({
+            customer: {
+                id: '1',
+                email: 'ytn@shopware.com',
+                boundSalesChannelId: null,
+            },
+        });
 
         try {
             await wrapper.vm.onSave();

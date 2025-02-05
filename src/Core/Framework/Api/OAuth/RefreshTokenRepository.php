@@ -32,6 +32,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
     {
+        // User identifier is by design null in case of authentication with integration (and no real user)
         $userIdentifier = $refreshTokenEntity->getAccessToken()->getUserIdentifier();
 
         if ($userIdentifier) {

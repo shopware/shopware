@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Api\OAuth;
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use League\OAuth2\Server\Grant\ClientCredentialsGrant;
+use League\OAuth2\Server\Grant\PasswordGrant;
+use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
@@ -15,6 +18,24 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ScopeRepository implements ScopeRepositoryInterface
 {
+    /**
+     * @internal abstraction on external library
+     * @see PasswordGrant::getIdentifier()
+     */
+    public const PASSWORD_GRANT = 'password';
+
+    /**
+     * @internal abstraction on external library
+     * @see ClientCredentialsGrant::getIdentifier()
+     */
+    public const CLIENT_CREDENTIAL_GRANT = 'client_credentials';
+
+    /**
+     * @internal abstraction on external library
+     * @see RefreshTokenGrant::getIdentifier()
+     */
+    public const REFRESH_TOKEN_GRANT = 'refresh_token';
+
     /**
      * @var ScopeEntityInterface[]
      */
@@ -57,19 +78,19 @@ class ScopeRepository implements ScopeRepositoryInterface
     ): array {
         $hasWrite = false;
 
-        if ($grantType === 'password') {
+        if ($grantType === self::PASSWORD_GRANT) {
             $hasWrite = true;
         }
 
-        if ($grantType !== 'password') {
+        if ($grantType !== self::PASSWORD_GRANT) {
             $scopes = $this->removeScope($scopes, UserVerifiedScope::class);
         }
 
-        if ($grantType === 'client_credentials' && $clientEntity instanceof ApiClient && $clientEntity->getWriteAccess()) {
+        if ($grantType === self::CLIENT_CREDENTIAL_GRANT && $clientEntity instanceof ApiClient && $clientEntity->getWriteAccess()) {
             $hasWrite = true;
         }
 
-        if (!$hasWrite && $grantType !== 'refresh_token') {
+        if (!$hasWrite && $grantType !== self::REFRESH_TOKEN_GRANT) {
             $scopes = $this->removeScope($scopes, WriteScope::class);
         }
 

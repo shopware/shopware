@@ -283,9 +283,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener">
-            <argument type="service" id="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator"/>
-            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <argument type="service" id="shopware.api.authorization_server"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>

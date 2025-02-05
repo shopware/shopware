@@ -38,7 +38,7 @@ class Record implements \JsonSerializable
     /**
      * @var array<string, mixed|null>
      */
-    protected array $meta;
+    protected array $meta = [];
 
     public function __construct(
         string $id = '',

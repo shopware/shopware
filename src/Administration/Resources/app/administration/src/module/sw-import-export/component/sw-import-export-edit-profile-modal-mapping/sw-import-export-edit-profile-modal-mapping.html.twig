@@ -1,11 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_edit_profile_modal_mapping %}
 <div class="sw-import-export-edit-profile-modal-mapping">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_mapping_toolbar %}
     <div class="sw-import-export-edit-profile-modal-mapping__toolbar">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_search_field %}
         <sw-simple-search-field
             v-model:value="searchTerm"
@@ -16,7 +13,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_add_mapping %}
         <sw-button
             v-tooltip="{
@@ -36,7 +32,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_mapping_grid %}
     <sw-data-grid
         v-if="mappingsExist"
@@ -49,7 +44,6 @@
         class="sw-import-export-edit-profile-modal-mapping__grid"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
         <template #column-csvName="{ item, itemIndex }">
             <sw-text-field
@@ -60,7 +54,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_entry_column %}
         <template #column-entry="{ item }">
             <sw-import-export-entity-path-select
@@ -74,7 +67,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_required_column %}
         <template #column-required="{ item }">
             <sw-switch-field
@@ -92,7 +84,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_default_value_column %}
         <template #column-defaultValue="{ item, itemIndex }">
             <sw-switch-field
@@ -110,14 +101,11 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_position_column %}
         <template #column-position="{ item, itemIndex }">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group %}
             <sw-button-group>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up %}
                 <sw-button
                     size="x-small"
@@ -125,7 +113,6 @@
                     :disabled="isFirstMapping(item) || !!searchTerm"
                     @click="updateSorting(itemIndex, 'up')"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up_icon %}
                     <sw-icon
                         name="regular-chevron-up-xxs"
@@ -135,7 +122,6 @@
                 </sw-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down %}
                 <sw-button
                     size="x-small"
@@ -143,7 +129,6 @@
                     :disabled="isLastMapping(item) || !!searchTerm"
                     @click="updateSorting(itemIndex, 'down')"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down_icon %}
                     <sw-icon
                         name="regular-chevron-down-xxs"
@@ -157,7 +142,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_context_menu_delete %}
         <template #actions="{ item }">
             <sw-context-menu-item
@@ -173,7 +157,6 @@
     </sw-data-grid>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_mapping_empty_state %}
     <sw-empty-state
         v-else

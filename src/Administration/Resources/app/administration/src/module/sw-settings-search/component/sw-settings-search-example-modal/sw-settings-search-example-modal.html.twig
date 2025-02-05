@@ -1,20 +1,16 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_searchable_content_example_modal %}
 <sw-modal
     class="sw-settings-search-example-modal"
     :title="$tc('sw-settings-search.generalTab.titleExampleModal')"
     @modal-close="closeModal"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_example_modal_content %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_example_modal_explain %}
     <span class="sw-field sw-settings-search__example-text">
         {{ $tc('sw-settings-search.generalTab.modal.textExplain') }}
     </span>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_example_modal_result %}
     <ul class="sw-settings-search__searchable-content-example-list">
         <li
@@ -42,10 +38,8 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_example_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_example_modal_close %}
         <sw-button
             variant="primary"

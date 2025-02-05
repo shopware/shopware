@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_product_comparison_preview %}
 <div class="sw-sales-channel-detail-product-comparison-preview">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_product_comparison_preview_modal %}
     <sw-modal
         v-if="content"
@@ -11,7 +9,6 @@
         @modal-close="onModalClose"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_product_comparison_preview_modal_errors %}
         <div v-if="displayErrors">
             <h3>{{ $tc('sw-sales-channel.detail.titleProductComparisonPreviewErrors') }}</h3>
@@ -37,7 +34,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_product_comparison_preview_modal_content %}
         <sw-code-editor
             ref="previewEditor"

@@ -1,9 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_list %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_tax_index %}
 <sw-page class="sw-settings-tax-list">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -15,13 +12,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tax_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }} <sw-icon
                 name="regular-chevron-right-xs"
@@ -29,7 +23,6 @@
             /> {{ $tc('sw-settings-tax.list.textHeadline') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tax_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -43,10 +36,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip.bottom="{
@@ -71,11 +62,9 @@
         />
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_list_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tax_list_content_card %}
             <sw-card
                 position-identifier="sw-settings-tax-list-content"
@@ -84,7 +73,6 @@
                 :is-loading="isLoading"
             >
                 <template #grid>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tax_list_grid %}
                     <sw-entity-listing
                         ref="swSettingsTaxGrid"
@@ -108,7 +96,6 @@
                         @inline-edit-save="onInlineEditSave"
                         @inline-edit-cancel="onInlineEditCancel"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tax_list_grid_column_default_name %}
                         <template #column-name="{ item, column, isInlineEdit, compact }">
                             {# if it is not a default tax, the default slot content will be rendered #}
@@ -122,7 +109,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tax_list_grid_column_default_tax_rate %}
                         <template #column-taxRate="{ item, isInlineEdit, compact }">
                             <template v-if="isInlineEdit">
@@ -144,11 +130,9 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tax_list_grid_column_default %}
                         <template #column-default="{ item, isInlineEdit }">
                             <template v-if="isInlineEdit">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tax_list_grid_column_default_editor %}
                                 <sw-checkbox-field
                                     :value="isSelectedDefaultRate(item)"
@@ -157,7 +141,6 @@
                                 {% endblock %}
                             </template>
                             <template v-else>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tax_list_grid_column_default_label %}
                                 <sw-icon
                                     v-if="isSelectedDefaultRate(item)"
@@ -171,10 +154,8 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tax_list_grid_columns_actions %}
                         <template #actions="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tax_list_grid_columns_actions_edit %}
                             <sw-context-menu-item
                                 class="sw-tax-list__edit-action"
@@ -188,7 +169,6 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tax_list_grid_columns_actions_delete %}
                             <sw-context-menu-item
                                 class="sw-tax-list__delete-action"
@@ -202,10 +182,8 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tax_list_grid_action_modals %}
                         <template #action-modals="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tax_list_delete_modal %}
                             <sw-modal
                                 v-if="showDeleteModal === item.id"
@@ -213,17 +191,14 @@
                                 variant="small"
                                 @modal-close="onCloseDeleteModal"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-settings-tax-list__confirm-delete-text">
                                     {{ $tc('sw-settings-tax.list.textDeleteConfirm', 0, { name: item.name }) }}
                                 </p>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tax_list_delete_modal_footer %}
                                 <template #modal-footer>
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_tax_list_delete_modal_cancel %}
                                     <sw-button
                                         size="small"
@@ -233,7 +208,6 @@
                                     </sw-button>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_tax_list_delete_modal_confirm %}
                                     <sw-button
                                         variant="danger"

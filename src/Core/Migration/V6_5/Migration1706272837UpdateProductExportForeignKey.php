@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class Migration1706272837UpdateProductExportForeignKey extends MigrationStep
 {
     public function getCreationTimestamp(): int

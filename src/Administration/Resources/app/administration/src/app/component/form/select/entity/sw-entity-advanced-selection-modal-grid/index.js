@@ -4,7 +4,7 @@ const { Component } = Shopware;
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package framework
  * @status prototype
  */
 Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing', {

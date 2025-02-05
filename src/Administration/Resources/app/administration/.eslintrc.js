@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package admin
  */
 
 const path = require('path');
@@ -191,7 +191,6 @@ module.exports = {
                 'vue/attributes-order': 'error',
                 'vue/no-deprecated-slot-attribute': ['error'],
                 'vue/no-deprecated-slot-scope-attribute': ['error'],
-                'sw-deprecation-rules/no-twigjs-blocks': 'error',
                 // @deprecated v.6.7.0.0 - will be error in v.6.7
                 'sw-deprecation-rules/no-deprecated-components': ['warn', 'disableFix'],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7

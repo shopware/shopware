@@ -77,6 +77,9 @@ class InfoControllerTest extends TestCase
             )
             ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
 
+        $this->fileSystemOperator->method('fileExists')
+            ->willReturn(true);
+
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
         static::assertIsString($content);
@@ -84,7 +87,7 @@ class InfoControllerTest extends TestCase
         $data = json_decode($content, true);
         static::assertIsArray($data);
         static::assertArrayHasKey('version', $data);
-        static::assertSame('6.6.9999999.9999999-dev', $data['version']);
+        static::assertSame('6.6.9999999-dev', $data['version']);
         static::assertArrayHasKey('versionRevision', $data);
         static::assertSame('PHPUnit', $data['versionRevision']);
         static::assertArrayHasKey('adminWorker', $data);

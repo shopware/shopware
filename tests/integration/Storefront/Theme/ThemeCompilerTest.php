@@ -315,7 +315,7 @@ $sw-asset-theme-url: \'http://localhost\';
         $mockConfig = [
             'fields' => [
                 'sw-zero-margin' => [
-                    'name' => 'sw-null-margin',
+                    'name' => 'sw-zero-margin',
                     'type' => 'text',
                     'value' => 0,
                 ],
@@ -343,9 +343,9 @@ $sw-asset-theme-url: \'http://localhost\';
 
 \$theme-id: themeId;
 \$sw-zero-margin: 0;
-\$sw-null-margin: 0;
-\$sw-unset-margin: 0;
-\$sw-empty-margin: 0;
+\$sw-null-margin: null;
+\$sw-unset-margin: null;
+\$sw-empty-margin: null;
 \$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL;
@@ -496,17 +496,21 @@ PHP_EOL;
 
 PHP_EOL;
 
+        /**
+         * The border property is omitted because it has a nullish value.
+         * It has no default value and is not set like the background color down in the test.
+         * The behaviour of the ThemeCompiler will still ad variables with a null value,
+         * but SCSS omits property definitions if they reference a variable with null value.
+         */
         $expectedCssOutput = <<<PHP_EOL
 .test-selector-plugin {
 \tbackground: #fff;
 \tcolor: #eee;
-\tborder: 0;
 }
 
 .test-selector-app {
 \tbackground: #aaa;
 \tcolor: #eee;
-\tborder: 0;
 }
 PHP_EOL;
 
@@ -514,12 +518,10 @@ PHP_EOL;
 .test-selector-plugin {
   background: #fff;
   color: #eee;
-  border: 0;
 }
 .test-selector-app {
   background: #aaa;
   color: #eee;
-  border: 0;
 }
 PHP_EOL;
 

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -84,7 +85,7 @@ class CartMigrateCommand extends Command
 
     protected function createIterator(): LastIdQuery
     {
-        $query = $this->connection->createQueryBuilder();
+        $query = new QueryBuilder($this->connection);
         $query->addSelect(['cart.auto_increment', 'cart.token']);
         $query->from('cart');
         $query->andWhere('cart.auto_increment > :lastId');

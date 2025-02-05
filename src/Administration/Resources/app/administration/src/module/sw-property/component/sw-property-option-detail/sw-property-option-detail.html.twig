@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_option_detail %}
 <sw-modal
     :title="currentOption.name ? currentOption.name : $tc('sw-property.detail.textOptionHeadline')"
     @modal-close="onCancel"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_name %}
     <sw-text-field
         v-model:value="currentOption.name"
@@ -18,7 +16,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_position %}
     <sw-number-field
         v-model:value="currentOption.position"
@@ -31,7 +28,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_color %}
     <sw-colorpicker
         v-model:value="currentOption.colorHexCode"
@@ -43,7 +39,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_media %}
     <sw-upload-listener
         :upload-tag="currentOption.id"
@@ -61,10 +56,8 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_option_detail_footer_cancel %}
         <sw-button
             size="small"
@@ -74,7 +67,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_option_detail_footer_save %}
         <sw-button
             v-tooltip.bottom="{

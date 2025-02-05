@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_side_navigation_item %}
 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <a
@@ -10,7 +9,6 @@
     tabindex="0"
     @click="clickEvent"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_item_slot %}
     <slot></slot>
     {% endblock %}
@@ -43,7 +41,6 @@
     tabindex="0"
     @click="clickEvent"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_item_slot_native %}
     <slot></slot>
     <sw-icon

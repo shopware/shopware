@@ -49,3 +49,19 @@
         margin-bottom: $spacer-lg;
     }
 }
+
+@if feature('ADDRESS_SELECTION_REWORK') {
+    .account-address {
+        .account-address-back {
+            &:hover, &:focus {
+                span.icon {
+                    color: $white;
+                }
+            }
+        }
+    }
+
+    .address-manager-select-address {
+        height: 210px;
+    }
+}

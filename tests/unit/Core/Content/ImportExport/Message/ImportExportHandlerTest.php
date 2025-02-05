@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterProcessFinishedEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportException;
@@ -85,6 +86,27 @@ class ImportExportHandlerTest extends TestCase
         static::assertSame($logEntity->getActivity(), $importExportMessage->getActivity());
     }
 
+    /**
+     * @return iterable<string, array{activity: string}>
+     */
+    public static function dataProviderForTestImportExport(): iterable
+    {
+        yield 'Test import process' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,
+            'method' => 'import',
+        ];
+
+        yield 'Test export process' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_EXPORT,
+            'method' => 'export',
+        ];
+
+        yield 'Test dryrun import process' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_DRYRUN,
+            'method' => 'import',
+        ];
+    }
+
     public function testImportExportHandlerUnknownActivity(): void
     {
         $messageBus = new CollectingMessageBus();
@@ -156,24 +178,138 @@ class ImportExportHandlerTest extends TestCase
         static::assertSame(1, $importExportExceptionImportExportHandlerEventCount);
     }
 
-    /**
-     * @return iterable<string, array{activity: string}>
-     */
-    public static function dataProviderForTestImportExport(): iterable
-    {
-        yield 'Test import process' => [
-            'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,
-            'method' => 'import',
-        ];
+    #[DataProvider('provideDataForTestingExportFinishedEventIsDispatched')]
+    public function testImportExportHandlerDispatchesProcessFinishedEventWhenImportAndExportAreFinished(
+        string $activity,
+        string $method,
+        string $processState,
+        bool $expectEventShouldBeDispatched,
+    ): void {
+        $messageBus = new CollectingMessageBus();
+        $factory = $this->createMock(ImportExportFactory::class);
+        $importExport = $this->createMock(ImportExport::class);
+        $context = Context::createDefaultContext();
+        $eventDispatcher = new EventDispatcher();
 
-        yield 'Test export process' => [
+        $logEntity = new ImportExportLogEntity();
+        $logEntity->setId('test-id');
+        $logEntity->setActivity($activity);
+        $logEntity->setState($processState);
+
+        $progress = new Progress($logEntity->getId(), $logEntity->getState());
+
+        $factory->expects(static::once())
+            ->method('create')
+            ->willReturn($importExport);
+
+        $importExport->expects(static::once())
+            ->method('getLogEntity')
+            ->willReturn($logEntity);
+
+        if ($processState !== Progress::STATE_ABORTED) {
+            $importExport->expects(static::once())
+                ->method($method)
+                ->willReturn($progress);
+        }
+
+        $importExportHandler = new ImportExportHandler($messageBus, $factory, $eventDispatcher);
+
+        $dispatchedEvent = null;
+        $eventDispatcher->addListener(
+            ImportExportAfterProcessFinishedEvent::class,
+            function (ImportExportAfterProcessFinishedEvent $event) use (&$dispatchedEvent): void {
+                $dispatchedEvent = $event;
+            }
+        );
+
+        $message = new ImportExportMessage($context, 'test-id', ImportExportLogEntity::ACTIVITY_EXPORT);
+        $importExportHandler->__invoke($message);
+
+        if (!$expectEventShouldBeDispatched) {
+            static::assertNull($dispatchedEvent, 'Event should not have been dispatched');
+        } else {
+            static::assertNotNull($dispatchedEvent, 'Event should have been dispatched');
+            static::assertSame($logEntity, $dispatchedEvent->getLogEntity());
+            static::assertSame($progress, $dispatchedEvent->getProgress());
+            static::assertSame($context, $dispatchedEvent->getContext());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{
+     *     activity: string,method: string,processState: string,expectEventShouldBeDispatched: bool
+     * }>
+     */
+    public static function provideDataForTestingExportFinishedEventIsDispatched(): iterable
+    {
+        yield 'test ImportExportAfterProcessFinishedEvent is dispatched when export process failed' => [
             'activity' => ImportExportLogEntity::ACTIVITY_EXPORT,
             'method' => 'export',
+            'processState' => Progress::STATE_FAILED,
+            'expectEventShouldBeDispatched' => true,
         ];
 
-        yield 'Test dryrun import process' => [
-            'activity' => ImportExportLogEntity::ACTIVITY_DRYRUN,
+        yield 'test ImportExportAfterProcessFinishedEvent is dispatched when export process succeeded' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_EXPORT,
+            'method' => 'export',
+            'processState' => Progress::STATE_SUCCEEDED,
+            'expectEventShouldBeDispatched' => true,
+        ];
+
+        yield 'test ImportExportAfterProcessFinishedEvent will not be dispatched when export is aborted' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_EXPORT,
+            'method' => 'export',
+            'processState' => Progress::STATE_ABORTED,
+            'expectEventShouldBeDispatched' => false,
+        ];
+
+        yield 'test ImportExportAfterProcessFinishedEvent will not be dispatched when export is merging files' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_EXPORT,
+            'method' => 'export',
+            'processState' => Progress::STATE_MERGING_FILES,
+            'expectEventShouldBeDispatched' => false,
+        ];
+
+        yield 'test ImportExportAfterProcessFinishedEvent will not be dispatched when export is in progress' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_EXPORT,
+            'method' => 'export',
+            'processState' => Progress::STATE_PROGRESS,
+            'expectEventShouldBeDispatched' => false,
+        ];
+
+        yield 'test ImportExportAfterProcessFinishedEvent is dispatched when export import failed' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,
             'method' => 'import',
+            'processState' => Progress::STATE_FAILED,
+            'expectEventShouldBeDispatched' => true,
+        ];
+
+        yield 'test ImportExportAfterProcessFinishedEvent is dispatched when export import succeeded' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,
+            'method' => 'import',
+            'processState' => Progress::STATE_SUCCEEDED,
+            'expectEventShouldBeDispatched' => true,
+        ];
+
+        yield 'test ImportExportAfterProcessFinishedEvent will not be dispatched when import is aborted' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,
+            'method' => 'import',
+            'processState' => Progress::STATE_ABORTED,
+            'expectEventShouldBeDispatched' => false,
+        ];
+
+        yield 'test ImportExportAfterProcessFinishedEvent will not be dispatched when import is in progress' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,
+            'method' => 'import',
+            'processState' => Progress::STATE_PROGRESS,
+            'expectEventShouldBeDispatched' => false,
+        ];
+
+        yield 'test ImportExportAfterProcessFinishedEvent will not be dispatched when import is merging files' => [
+            'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,
+            'method' => 'import',
+            'processState' => Progress::STATE_MERGING_FILES,
+            'expectEventShouldBeDispatched' => false,
         ];
     }
 }

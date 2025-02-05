@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -17,6 +18,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('framework')]
 class UnusedMediaSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @param EntityRepository<ThemeCollection> $themeRepository
+     */
     public function __construct(
         private readonly EntityRepository $themeRepository,
         private readonly ThemeService $themeService

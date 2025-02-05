@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_base_content %}
 {% parent() %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_number_container %}
 <sw-container
     columns="1fr 1fr"
     gap="0 20px"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_number_container_numbertype %}
     <sw-select-field
         v-model:value="currentCustomField.config.numberType"
@@ -17,7 +14,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_number_container_step %}
     <sw-number-field
         v-model:value="currentCustomField.config.step"
@@ -25,7 +21,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_number_container_min %}
     <sw-number-field
         v-model:value="currentCustomField.config.min"
@@ -33,7 +28,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_number_container_max %}
     <sw-number-field
         v-model:value="currentCustomField.config.max"

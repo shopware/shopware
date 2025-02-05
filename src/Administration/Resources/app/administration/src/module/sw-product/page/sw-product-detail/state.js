@@ -70,7 +70,7 @@ export default {
 
             // check if price exists
             if (!productPrice) {
-                // if parent price does not exists
+                // if parent price does not exist
                 if (!state.parentProduct.price) {
                     return {};
                 }

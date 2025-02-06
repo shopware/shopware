@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store;
 
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -77,6 +79,19 @@ class StoreExceptionTest extends TestCase
         );
 
         static::assertSame('FRAMEWORK__STORE_MISSING_INTEGRATION_IN_CONTEXT_SOURCE', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
+    public function testStoreError(): void
+    {
+        $exception = StoreException::storeError(new ClientException('some test message', new Request('GET', 'https://example.com'), new \GuzzleHttp\Psr7\Response()));
+
+        static::assertSame(
+            'some test message',
+            $exception->getMessage()
+        );
+
+        static::assertSame('FRAMEWORK__STORE_ERROR', $exception->getErrorCode());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 }

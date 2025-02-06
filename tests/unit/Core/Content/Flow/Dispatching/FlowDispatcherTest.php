@@ -258,9 +258,6 @@ class FlowDispatcherTest extends TestCase
         $this->container->set(FlowLoader::class, $flowLoader);
         $this->container->set(FlowExecutor::class, $flowExecutor);
 
-        $this->connection->method('getTransactionNestingLevel')->willReturn(1);
-        $this->connection->method('getNestTransactionsWithSavepoints')->willReturn(true);
-
         $this->logger->expects(static::once())
             ->method('warning')
             ->with(

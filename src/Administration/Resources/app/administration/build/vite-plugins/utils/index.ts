@@ -136,12 +136,13 @@ export function loadExtensions(): ExtensionDefinition[] {
                 const appEntryPath = path.resolve(
                     process.env.PROJECT_ROOT as string,
                     definition.basePath,
-                    // @ts-expect-error - We know it is defined at this point because of the filter above
-                    definition.administration.path,
+                    definition.administration?.path ?? '',
                     '../..',
                     'meteor-app',
                 );
-                return fs.existsSync(path.resolve(appEntryPath, 'index.html'));
+
+                return definition.administration?.path
+                    && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
             },
         )
         .map(

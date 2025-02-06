@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlElementNotFoundException;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 #[Package('framework')]
@@ -20,11 +18,7 @@ abstract class XmlReader
     /**
      * load and validate xml file - parse to array
      *
-     * @throws XmlParsingException|UtilException
-     *
      * @return array<array<string, mixed>>
-     *
-     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from XmlParsingException to UtilXmlParsingException
      */
     public function read(string $xmlFile): array
     {
@@ -115,11 +109,6 @@ abstract class XmlReader
         return $options;
     }
 
-    /**
-     * @throws XmlElementNotFoundException|UtilException
-     *
-     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from XmlElementNotFoundException to UtilException
-     */
     public static function getElementChildValueByName(\DOMElement $element, string $name, bool $throwException = false): ?string
     {
         $children = $element->getElementsByTagName($name);

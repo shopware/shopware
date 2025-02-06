@@ -65,7 +65,7 @@ class Migration1737105721MigrateOrderStateChangeDocumentToA11YTest extends TestC
                 continue;
             }
 
-            /** @var array{id: string, content_html: string, content_plain: string}|null $mailTemplate */
+            /** @var array{id: string, content_html: string, content_plain: string}|false $mailTemplate */
             $mailTemplate = $this->connection->fetchAssociative(
                 '
                 SELECT `mail_template`.`id`, `mail_template_translation`.`content_html`, `mail_template_translation`.`content_plain`
@@ -76,7 +76,7 @@ class Migration1737105721MigrateOrderStateChangeDocumentToA11YTest extends TestC
                 ['mailTemplateId' => $mailTemplateId],
             );
 
-            static::assertNotNull($mailTemplate);
+            static::assertNotFalse($mailTemplate);
 
             if ($technicalName === $mailType) {
                 static::assertStringNotContainsString('{% if a11yDocuments', $mailTemplate['content_html']);

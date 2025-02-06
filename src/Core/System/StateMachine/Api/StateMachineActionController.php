@@ -27,7 +27,7 @@ class StateMachineActionController extends AbstractController
      * @internal
      */
     public function __construct(
-        protected readonly StateMachineRegistry $stateMachineRegistry,
+        private readonly StateMachineRegistry $stateMachineRegistry,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
     }

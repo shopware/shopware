@@ -6,7 +6,7 @@
     v-bind="$attrs"
     :model-value="compatValue"
     v-on="listeners"
-    @update:model-value="handleUpdateModelValue"
+    @update:modelValue="handleUpdateModelValue"
 >
     <template
         v-for="(index, name) in getSlots()"

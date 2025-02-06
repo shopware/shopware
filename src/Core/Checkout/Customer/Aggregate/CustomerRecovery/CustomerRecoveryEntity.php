@@ -18,11 +18,6 @@ class CustomerRecoveryEntity extends Entity
 
     protected ?CustomerEntity $customer = null;
 
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
-
     public function getCustomerId(): string
     {
         return $this->customerId;

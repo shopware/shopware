@@ -26,8 +26,8 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
      */
     public function __construct(iterable $processors)
     {
-        foreach ($processors as $handler) {
-            $this->processors[$handler->getSource()] = $handler;
+        foreach ($processors as $processor) {
+            $this->processors[$processor->getSource()] = $processor;
         }
     }
 

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -73,7 +74,10 @@ class CmsSlotsDataResolverTest extends TestCase
 
         $product = $productSliderData->getProducts()?->get($this->ids->get('product-1'));
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertNotNull($product->getTags());
+
+        $tags = $product->getTags();
+        static::assertInstanceOf(TagCollection::class, $tags);
+        static::assertCount(1, $tags);
     }
 
     private function initTestSubscriber(): void

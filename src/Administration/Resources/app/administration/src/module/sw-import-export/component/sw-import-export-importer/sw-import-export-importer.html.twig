@@ -1,17 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_importer %}
 <div class="sw-import-export-importer">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_importer_upload_csv_label %}
     <h2>{{ $tc('sw-import-export.importer.uploadCsvLabel') }}</h2>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_importer_warning_block %}
     <p><span v-html="$tc('sw-import-export.importer.warningBlock')"></span></p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_importer_file_input %}
     <sw-file-input
         :key="isLoading"
@@ -23,12 +19,10 @@
     </sw-file-input>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_importer_select_profile_label %}
     <h2>{{ $tc('sw-import-export.importer.selectProfileLabel') }}</h2>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_importer_profile_select %}
     <sw-entity-single-select
         class="sw-import-export-importer__profile-select"
@@ -44,7 +38,6 @@
     {% endblock %}
 
     <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_importer_profile_select_product_variants_switch %}
         <sw-switch-field
             v-model:value="config.includeVariants"
@@ -55,13 +48,11 @@
     </template>
 
     <template v-if="showProductVariantsInfo">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_importer_product_variants_warning %}
         <sw-alert
             variant="warning"
             class="sw-import-export-importer__variants-warning"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_importer_product_variants_warning_text %}
             <p>
                 <span v-html="$tc('sw-import-export.importer.variantsWarning')"></span>
@@ -88,14 +79,12 @@
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_importer_modal %}
     <sw-modal
         v-if="importModalProfile"
         :title="$tc('sw-import-export.importer.importLabel')"
         @modal-close="setImportModalProfile(null)"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_importer_modal_exporter %}
         <sw-import-export-importer
             :source-entity="importModalProfile"
@@ -104,7 +93,6 @@
         {% endblock %}
 
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_importer_modal_footer %}
             <sw-button
                 size="small"
@@ -117,7 +105,6 @@
     </sw-modal>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_importer_progress %}
     <sw-import-export-progress
         activity-type="import"

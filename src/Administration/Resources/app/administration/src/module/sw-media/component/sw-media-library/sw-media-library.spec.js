@@ -1,5 +1,5 @@
 /**
- * @sw-package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-grid-listener.mixin';

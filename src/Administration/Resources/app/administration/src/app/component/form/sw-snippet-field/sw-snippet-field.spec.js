@@ -110,7 +110,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
     });
 
     it('should show admin language translation of snippet field', async () => {
-        Shopware.State.get('session').currentLocale = 'de-DE';
+        Shopware.Store.get('session').currentLocale = 'de-DE';
 
         const wrapper = await createWrapper('en-GB', [
             {
@@ -140,7 +140,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
     });
 
     it("should show all admin languages' translations of snippet field, even with more than 25 languages", async () => {
-        Shopware.State.get('session').currentLocale = 'de-DE';
+        Shopware.Store.get('session').currentLocale = 'de-DE';
 
         const enGB = {
             author: 'testUser',
@@ -181,7 +181,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
     });
 
     it('should show system default language translation of snippet field', async () => {
-        Shopware.State.get('session').currentLocale = 'nl-NL';
+        Shopware.Store.get('session').currentLocale = 'nl-NL';
 
         const wrapper = await createWrapper('de-DE', [
             {
@@ -211,7 +211,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
     });
 
     it('should show en-GB language translation of snippet field', async () => {
-        Shopware.State.get('session').currentLocale = 'nl-NL';
+        Shopware.Store.get('session').currentLocale = 'nl-NL';
 
         const wrapper = await createWrapper('nl-NL', [
             {
@@ -241,7 +241,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
     });
 
     it('should show snippet key as fallback', async () => {
-        Shopware.State.get('session').currentLocale = 'nl-NL';
+        Shopware.Store.get('session').currentLocale = 'nl-NL';
 
         const wrapper = await createWrapper('nl-NL', []);
 
@@ -252,10 +252,10 @@ describe('src/app/component/form/sw-snippet-field', () => {
     });
 
     it('should display and hide edit modal', async () => {
-        Shopware.State.get('session').currentLocale = 'en-GB';
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').currentLocale = 'en-GB';
+        Shopware.Store.get('session').setCurrentUser({
             username: 'testUser',
-        };
+        });
 
         const wrapper = await createWrapper('en-GB', []);
 

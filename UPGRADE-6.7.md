@@ -116,14 +116,21 @@ This solves some weird states when the HTTP-Cache was invalidated separately fro
 Additionally, the cache hit rate for the Store-API was low, so the performance impact should be minimal, but the amount of cache items and cache invalidations will be reduced.
 This overall should lead to more effective cache resource usage.
 
-## Use ESI includes for Header and Footer
-**More information about this change will be available soon.**
+## Introduction of ESI for header and footer
+The header and footer are now loaded via ESI.
+This allows to cache the header and footer separately from the rest of the page.
+Two new routes `\header` and `\footer` were added to receive the rendered header and footer.
+The rendered header and footer are included into the page with the Twig function `render_esi`, which calls the previously mentioned routes.
+Two new templates `src/Storefront/Resources/views/storefront/layout/header.html.twig` and `src/Storefront/Resources/views/storefront/layout/footer.html.twig` were introduced as new entry points for the header and footer.
+Make sure to adjust your template extensions to be compatible with the new structure.
+The block names are still the same, so it just should be necessary to extend from the new templates.
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
 * [DBAL 4.x](https://github.com/doctrine/dbal/blob/4.2.x/UPGRADE.md#upgrade-to-40): When you are using DBAL directly, please check the upgrade guide.
 * [PHPUnit 11.x](https://github.com/sebastianbergmann/phpunit/blob/11.0.0/ChangeLog-11.0.md#1100---2024-02-02): You need to adjust your tests to the new PHPUnit version.
 * [Dompdf 3.x](https://github.com/dompdf/dompdf/releases/tag/v3.0.0): Please check your document templates, if they are still rendered as expected.
+* [oauth2-server 9.x](https://oauth2.thephpleague.com/upgrade-guide/): We don't expect you are affected by this change on the code level, however the library does not support some requests that are not spec-compliant, look at the detailed [upgrade guide](#non-spec-compliant-apioauthtoken-requests-are-not-supported-anymore).
 
 # Accessibility Compliance
 In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
@@ -397,6 +404,18 @@ We made some breaks in the API, which might affect your plugins or custom integr
 <details>
   <summary>Detailed Changes</summary>
 
+## Non spec-compliant /api/oauth/token requests are not supported anymore
+Due to an upgrade of the "league/oauth2-server" library, some requests that are not spec-compliant with the OAuth spec are not supported anymore.
+Especially scopes now needed to be provided as `scope` parameter and as a space-delimited list of strings.
+
+```diff
+grant_type: 'password',
+client_id: 'administration',
+- scopes: ['write', 'admin'],
++ scope: 'write admin',
+username: user,
+password: pass,
+```
 ## Removal of /api/oauth/authorize route
 Removed API route `/api/oauth/authorize` (`\Core\Framework\Api\Controller\AuthController::authorize` method) without replacement.
 </details>
@@ -425,14 +444,15 @@ In the following event, the CustomerEntity has no association loaded anymore:
 
 ## Payment: Reworked payment handlers
 * The payment handlers have been reworked to provide a more flexible and consistent way to handle payments.
-* The new `AbstractPaymentHandler` class should be used to implement payment handlers.
-* The following interfaces have been deprecated:
+* The new AbstractPaymentHandler class should be used to implement payment handlers. A supports method now determines whether the recurring and refund methods can be used for a specific payment method. All other methods are invoked during every payment process, though your payment handler may not need to implement all of them.
+* The following interfaces have been deprecated and consolidated into the new `AbstractPaymentHandler`:
   * `AsyncPaymentHandlerInterface`
   * `PreparedPaymentHandlerInterface`
   * `SyncPaymentHandlerInterface`
   * `RefundPaymentHandlerInterface`
   * `RecurringPaymentHandlerInterface`
-* Synchronous and asynchronous payments have been merged to return an optional redirect response.
+* Synchronous and asynchronous payments have been unified to return an optional redirect response. This response defines whether the customer is redirected to a payment provider or immediately returned to the order completion page.
+* Payment handlers from plugins now receive only the `orderTransactionId`, request information (if applicable, e.g., not for recurring payments), and a `Context`. Any additional data required to process the payment must be retrieved by the payment handler itself to reduce database load. This also minimises dependency on the `SalesChannelContext`, which may contain information that does not accurately reflect the order (e.g., customer addresses may differ from the order’s addresses). For apps, the same information as before is still sent to the app server.
 
 ## Payment: Capture step of prepared payments removed
 * The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
@@ -2251,9 +2271,40 @@ After:
 </details>
 
 # Storefront
-We made some changes in the administration, which might affect your plugins and themes.
+We made some changes in the Storefront, which might affect your plugins and themes.
 <details>
   <summary>Detailed Changes</summary>
+
+## Removals due to the introduction of ESI for header and footer
+* The properties `header` and `footer` and their getter and setter Methods in `\Shopware\Storefront\Framework\Twig\ErrorTemplateStruct` were removed.
+* The loading of header, footer, payment methods and shipping methods in `\Shopware\Storefront\Page\GenericPageLoader` is removed.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
+* The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` were removed.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+* The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` were removed.
+  Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+* The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` was removed.
+* The `setNavigation` method in `\Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPagelet` was removed.
+* The option `tiggerEvent` in `OffcanvasMenuPlugin` JavaScript plugin was removed, use `triggerEvent` instead.
+* The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/header.html.twig`.
+  * `base_header`
+  * `base_header_inner`
+  * `base_navigation`
+  * `base_navigation_inner`
+  * `base_offcanvas_navigation`
+  * `base_offcanvas_navigation_inner`
+* The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/footer.html.twig`.
+  * `base_footer`
+  * `base_footer_inner`
+* The template variable `page` in following templates was removed. Provide `header` or `footer` directly.
+  * `src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/actions/language-widget.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/top-bar.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig`
+* The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` were removed.
+* The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` was removed.
+* The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` was removed.
 
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
@@ -2393,4 +2444,12 @@ shopware:
         enforce_message_size: false
 
 ```
+
+## Fine-grained caching is removed
+
+The fine-grained caching mechanism for system-config, snippets and theme config was removed, therefore the following configuration settings are no longer available:
+* `shopware.cache.tagging.each_config`
+* `shopware.cache.tagging.each_snippet`
+* `shopware.cache.tagging.each_theme_config`
+
 </details>

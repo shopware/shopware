@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_user_detail_content_confirm_password_modal %}
 <sw-modal
     :title="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
@@ -6,7 +5,6 @@
     @modal-close="onCloseConfirmPasswordModal"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
     <sw-password-field
         v-model:value="confirmPassword"
@@ -20,10 +18,8 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_user_detail_content_confirm_password_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
         <sw-button
             size="small"
@@ -33,7 +29,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_detail_content_confirm_password_modal_actions_change %}
         <sw-button
             variant="primary"

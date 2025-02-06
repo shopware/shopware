@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package discovery
  */
 
 const ApiService = Shopware.Classes.ApiService;

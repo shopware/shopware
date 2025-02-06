@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @sw-package after-sales
@@ -108,30 +107,26 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-tag-modal', () => {
-    Shopware.State.registerModule('swFlowState', {
-        ...flowState,
-        state: {
-            invalidSequences: [],
-            triggerEvent: {
-                data: {
-                    customer: {
-                        type: 'entity',
-                    },
-                    order: {
-                        type: 'entity',
-                    },
+    beforeAll(() => {
+        Shopware.Store.get('swFlow').triggerEvent = {
+            data: {
+                customer: {
+                    type: 'entity',
                 },
-                customerAware: true,
-                extensions: [],
-                logAware: false,
-                mailAware: true,
-                name: 'checkout.customer.login',
-                orderAware: false,
-                salesChannelAware: true,
-                userAware: false,
-                webhookAware: true,
+                order: {
+                    type: 'entity',
+                },
             },
-        },
+            customerAware: true,
+            extensions: [],
+            logAware: false,
+            mailAware: true,
+            name: 'checkout.customer.login',
+            orderAware: false,
+            salesChannelAware: true,
+            userAware: false,
+            webhookAware: true,
+        };
     });
 
     it('should show these fields on modal', async () => {

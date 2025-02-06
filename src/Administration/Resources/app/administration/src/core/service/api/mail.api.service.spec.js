@@ -1,8 +1,4 @@
 /**
- * @sw-package unknown
- */
-
-/**
  * @package checkout
  */
 import MailApiService from 'src/core/service/api/mail.api.service';

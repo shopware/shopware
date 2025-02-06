@@ -40,8 +40,7 @@ interface SwRouteConfig {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta?: $TSFixMe;
     beforeEnter?: NavigationGuard;
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    props?: boolean | Object | RouterLinkProps;
+    props?: boolean | object | RouterLinkProps;
     caseSensitive?: boolean;
     coreRoute?: boolean;
     type?: ModuleTypes;
@@ -526,7 +525,7 @@ function addSettingsItemsToStore(moduleId: string, module: ModuleManifest): void
                 settingsItem.label = module.title;
             }
 
-            Shopware.State.commit('settingsItems/addItem', settingsItem);
+            Shopware.Store.get('settingsItems').addItem(settingsItem);
         } else {
             warn(
                 'ModuleFactory',
@@ -551,7 +550,7 @@ function addEntryRouteToExtensionRouteStore(config: { extensionName: string; rou
         return;
     }
 
-    Shopware.State.commit('extensionEntryRoutes/addItem', config);
+    Shopware.Store.get('extensionEntryRoutes').addItem(config);
 }
 
 /**

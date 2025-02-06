@@ -83,9 +83,8 @@ export default {
         },
 
         currenciesColumns() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.currencies
-                .sort((a, b) => {
+                .toSorted((a, b) => {
                     return b.isSystemDefault ? 1 : -1;
                 })
                 .map((item) => {
@@ -356,7 +355,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.getList();
         },
 

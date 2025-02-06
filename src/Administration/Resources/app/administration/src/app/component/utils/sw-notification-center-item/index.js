@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package framework
  */
 
 import './sw-notification-center-item.scss';
@@ -50,7 +50,7 @@ Component.register('sw-notification-center-item', {
         },
 
         onDelete() {
-            Shopware.State.commit('notification/removeNotification', this.notification);
+            Shopware.Store.get('notification').removeNotification(this.notification);
         },
 
         handleAction(action) {

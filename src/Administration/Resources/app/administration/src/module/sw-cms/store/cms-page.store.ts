@@ -15,7 +15,7 @@ type CmsPageState = {
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 const cmsPageStore = Shopware.Store.register({
     id: 'cmsPage',

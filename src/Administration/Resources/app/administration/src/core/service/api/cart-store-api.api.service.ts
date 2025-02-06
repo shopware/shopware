@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package checkout
  */
 
 import { deepCopyObject } from 'src/core/service/utils/object.utils';

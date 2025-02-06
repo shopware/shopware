@@ -20,7 +20,7 @@ type GenericCustomEntityDetailData = {
 
 /**
  * @private
- * @sw-package content
+ * @sw-package framework
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -181,7 +181,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             void this.loadData();
         },
 

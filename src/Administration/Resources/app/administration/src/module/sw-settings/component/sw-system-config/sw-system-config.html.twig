@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_system_config %}
 <div class="sw-system-config">
     <div
@@ -10,7 +9,6 @@
             @change-sales-channel-id="onSalesChannelChanged"
         />
     </div>
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_system_config_content_card %}
     <sw-card
         v-for="card, index in config"
@@ -35,7 +33,6 @@
             />
         </template>
         <template v-if="hasCssFields">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_system_config_content_compile_notice %}
             <sw-alert variant="warning">
                 {{ $tc('sw-settings.system-config.compileNotice') }}
@@ -49,7 +46,6 @@
                     name="card-element"
                     v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card }"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_system_config_content_card_field %}
                     <sw-inherit-wrapper
                         v-model:value="actualConfigData[currentSalesChannelId][element.name]"

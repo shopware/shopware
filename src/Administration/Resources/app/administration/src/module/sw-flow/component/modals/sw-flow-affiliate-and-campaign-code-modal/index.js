@@ -1,6 +1,6 @@
 import template from './sw-flow-affiliate-and-campaign-code-modal.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Store } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();
 
@@ -64,10 +64,13 @@ export default {
             return this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, properties);
         },
 
-        ...mapState('swFlowState', [
-            'triggerEvent',
-            'triggerActions',
-        ]),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'triggerEvent',
+                'triggerActions',
+            ],
+        ),
     },
 
     watch: {

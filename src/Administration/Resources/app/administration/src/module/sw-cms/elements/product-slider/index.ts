@@ -1,22 +1,22 @@
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-preview-product-slider', () => import('./preview'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-config-product-slider', () => import('./config'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-product-slider', () => import('./component'));
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-slider',

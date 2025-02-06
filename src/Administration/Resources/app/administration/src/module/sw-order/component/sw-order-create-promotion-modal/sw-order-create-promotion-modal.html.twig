@@ -1,30 +1,24 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_promotion_modal %}
 <sw-modal
     :title="$tc('sw-order.promotionModal.labelTitle')"
     class="sw-order-create-promotion-modal"
     @modal-close="onCancel"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_promotion_modal_body %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_promotion_modal_message %}
     <p>{{ hasNoAutomaticPromotions ? $tc('sw-order.promotionModal.messageNoItems') : $tc('sw-order.promotionModal.message') }}</p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_promotion_modal_promotions %}
     <div
         v-for="(item, index) in cartAutomaticPromotionItems"
         :key="index"
         class="sw-order-create-promotion-modal__promotion"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_promotion_modal_promotion_name %}
         <strong class="sw-order-create-promotion-modal__promotion-name">{{ item.label }}</strong>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_promotion_modal_promotion_description %}
         <p>{{ getDescription(item) }}</p>
         {% endblock %}
@@ -32,10 +26,8 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_promotion_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_promotion_modal_footer_button_cancel %}
         <sw-button
             size="small"
@@ -45,7 +37,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_promotion_modal_footer_button_save %}
         <sw-button
             size="small"

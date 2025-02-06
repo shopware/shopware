@@ -9,9 +9,19 @@
 {% block page_checkout_main_content %}
     {% block page_checkout_confirm %}
         {% block page_checkout_confirm_header %}
-            <h1 class="confirm-main-header">
-                {{ 'checkout.confirmHeader'|trans|sw_sanitize }}
-            </h1>
+            {# @deprecated tag:v6.7.0 - Cart header will also display the current amount of line-items #}
+            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                <h1 class="confirm-main-header d-inline-block">
+                    {{ 'checkout.confirmHeader'|trans|sw_sanitize }}
+                </h1>
+                <span class="confirm-main-header-item-counter d-inline-block mb-4 fw-bold fs-3 ms-1 text-dark-emphasis">
+                    ({{- 'checkout.itemCounter'|trans({'%count%': page.cart.lineItems|length})|sw_sanitize -}})
+                </span>
+            {% else %}
+                <h1 class="confirm-main-header">
+                    {{ 'checkout.confirmHeader'|trans|sw_sanitize }}
+                </h1>
+            {% endif %}
         {% endblock %}
 
         {% block page_checkout_confirm_alerts %}
@@ -32,6 +42,8 @@
             <div class="confirm-tos">
                 <div class="card checkout-card">
                     <div class="card-body">
+                        {% set cmsPath = 'frontend.cms.page' %}
+
                         {% block page_checkout_confirm_tos_header %}
                             <div class="card-title">
                                 {{ 'checkout.confirmTermsHeader'|trans|sw_sanitize }}
@@ -40,8 +52,10 @@
 
                         {% block page_checkout_confirm_revocation_notice %}
                             <p class="revocation-notice">
-                                {{ 'checkout.confirmRevocationNotice'|trans({
-                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.revocationPage') })
+                                {% set revocationSnippetKey = 'checkout.confirmRevocationNotice' %}
+
+                                {{ revocationSnippetKey|trans({
+                                    '%url%': path(cmsPath, { id: config('core.basicInformation.revocationPage') })
                                 })|raw }}
                             </p>
                         {% endblock %}
@@ -58,10 +72,11 @@
                                 {% endblock %}
 
                                 {% block page_checkout_confirm_tos_control_label %}
+                                    {% set tosSnippetKey = 'checkout.confirmTermsText' %}
                                     <label for="tos"
                                            class="checkout-confirm-tos-label custom-control-label">
-                                        {{ 'checkout.confirmTermsText'|trans({
-                                            '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+                                        {{ tosSnippetKey|trans({
+                                            '%url%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
                                         })|raw }}
                                     </label>
                                 {% endblock %}

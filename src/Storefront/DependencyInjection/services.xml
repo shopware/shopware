@@ -254,6 +254,8 @@
         <service id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\GenericPageLoader">

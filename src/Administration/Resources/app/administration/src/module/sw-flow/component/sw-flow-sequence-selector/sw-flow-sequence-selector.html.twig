@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_sequence_selector %}
 <div class="sw-flow-sequence-selector">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_selector_title %}
     <div class="sw-flow-sequence-selector__title">
         <slot name="title">
@@ -10,7 +8,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_selector_help_text %}
     <div class="sw-flow-sequence-selector__help-text">
         <slot name="helpText">
@@ -19,10 +16,8 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_selector_actions %}
     <div class="sw-flow-sequence-selector__actions">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_sequence_selector_if_condition %}
         <sw-button
             class="sw-flow-sequence-selector__add-condition"
@@ -30,7 +25,6 @@
             @click="addIfCondition"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_selector_then_action_icon_rule %}
             <sw-icon
                 size="16"
@@ -42,7 +36,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_sequence_selector_then_action %}
         <sw-button
             class="sw-flow-sequence-selector__add-action"
@@ -50,7 +43,6 @@
             @click="addThenAction"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_selector_then_action_icon_file %}
             <sw-icon
                 size="16"
@@ -62,7 +54,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_sequence_selector_extension_options %}{% endblock %}
     </div>
     {% endblock %}

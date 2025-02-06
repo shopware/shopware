@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item-with-quantity">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_with_quantity_field_product %}
     <sw-entity-single-select
         v-model:value="id"
@@ -15,7 +13,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_with_quantity_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
@@ -24,7 +21,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_with_quantity_field_quantity %}
     <sw-number-field
         v-model:value="quantity"

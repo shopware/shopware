@@ -147,7 +147,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository
             ->create([$product->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('p1')]);
         $criteria->addFields(['productNumber', 'name', 'categories.name']);
 
         $values = $this->productRepository
@@ -183,7 +183,7 @@ class EntityReaderTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('p1')]);
         $criteria->addFields(['id', 'productNumber', 'name', 'manufacturer.id', 'manufacturer.name']);
 
         $values = static::getContainer()
@@ -2177,7 +2177,7 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create($products, Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('product-1'), $ids->get('product-2')]);
         $criteria->addAssociation('translations.language.categoryTranslations');
 
         $products = $this->productRepository

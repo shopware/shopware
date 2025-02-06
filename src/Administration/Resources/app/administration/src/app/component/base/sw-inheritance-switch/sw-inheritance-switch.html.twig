@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_inheritance_switch %}
 <div
     class="sw-inheritance-switch"
@@ -8,7 +7,6 @@
         'sw-inheritance-switch--is-not-inherited': !isInherited,
     }"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_inheritance_switch_inherit_icon %}
     <sw-icon
         v-if="isInherited"
@@ -19,7 +17,6 @@
         @click="onClickRemoveInheritance"
     />
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_inheritance_switch_uninherit_icon %}
     <sw-icon
         v-else

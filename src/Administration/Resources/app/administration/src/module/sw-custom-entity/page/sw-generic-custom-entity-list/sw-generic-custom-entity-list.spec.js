@@ -126,7 +126,7 @@ async function createWrapper(query = {}) {
 }
 
 /**
- * @sw-package content
+ * @sw-package framework
  */
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('should display the empty state when 0 entities are found', async () => {
@@ -231,7 +231,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
         const languageSwitch = wrapper.getComponent('.sw-language-switch');
         languageSwitch.vm.$emit('on-change', testLanguageId);
-        expect(Shopware.State.get('context').api.languageId).toBe(testLanguageId);
+        expect(Shopware.Store.get('context').api.languageId).toBe(testLanguageId);
 
         const searchMock = wrapper.vm.customEntityRepository.search;
         expect(searchMock).toHaveBeenCalledTimes(2);

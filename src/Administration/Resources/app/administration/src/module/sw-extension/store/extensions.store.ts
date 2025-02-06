@@ -1,8 +1,15 @@
-import type { Module } from 'vuex';
+/**
+ * @sw-package checkout
+ */
+
 import type { UserInfo } from 'src/core/service/api/store.api.service';
 import type { Extension } from '../service/extension-store-action.service';
+import type { MappedError } from '../service/extension-error-handler.service';
 
-interface ShopwareExtensionsState {
+/**
+ * @private
+ */
+export interface ShopwareExtensionsState {
     search: {
         page: number;
         limit: number;
@@ -25,11 +32,11 @@ type SearchValue<T, K extends keyof T> = {
     value: T[K];
 };
 
-const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = {
-    namespaced: true,
+const shopwareExtensionsStore = Shopware.Store.register({
+    id: 'shopwareExtensions',
 
-    state() {
-        return {
+    state: () =>
+        ({
             search: {
                 page: 1,
                 limit: 12,
@@ -53,58 +60,44 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
             },
             totalPlugins: 0,
             plugins: null,
-        };
-    },
+        }) as ShopwareExtensionsState,
 
-    mutations: {
-        setSearchValue<K extends keyof ShopwareExtensionsState['search']>(
-            state: ShopwareExtensionsState,
-            { key, value }: SearchValue<ShopwareExtensionsState['search'], K>,
-        ) {
-            state.search.page = 1;
-            state.search[key] = value;
+    actions: {
+        setSearchValue<K extends keyof ShopwareExtensionsState['search']>({
+            key,
+            value,
+        }: SearchValue<ShopwareExtensionsState['search'], K>) {
+            this.search.page = 1;
+            this.search[key] = value;
         },
 
-        setExtensionListing(state, extensions: Extension[]) {
-            state.extensionListing = extensions;
+        loadMyExtensions() {
+            this.myExtensions.loading = true;
         },
 
-        loadMyExtensions(state) {
-            state.myExtensions.loading = true;
+        setLoading(value: boolean = true) {
+            this.myExtensions.loading = value;
         },
 
-        // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-        setLoading(state, value: boolean = true) {
-            state.myExtensions.loading = value;
+        setMyExtensions(myExtensions: Extension[]) {
+            this.myExtensions.data = myExtensions;
+            this.myExtensions.loading = false;
         },
 
-        myExtensions(state, myExtensions: Extension[]) {
-            state.myExtensions.data = myExtensions;
-            state.myExtensions.loading = false;
-        },
-
-        categoriesLanguageId(state, languageId: string) {
-            state.categoriesLanguageId = languageId;
-        },
-
-        setUserInfo(state, userInfo: UserInfo | null) {
-            state.userInfo = userInfo;
-        },
-
-        pluginErrorsMapped() {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        pluginErrorsMapped(_mappedError: MappedError[]) {
             /* nth */
         },
     },
-};
+});
+
+/**
+ * @private
+ */
+export type ShopwareExtensionsStore = ReturnType<typeof shopwareExtensionsStore>;
 
 /**
  * @sw-package checkout
  * @private
- * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 export default shopwareExtensionsStore;
-
-/**
- * @private
- */
-export type { ShopwareExtensionsState };

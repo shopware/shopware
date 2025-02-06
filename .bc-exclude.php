@@ -13,6 +13,7 @@ return [
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
         '**/src/Core/Framework/App/Source/AbstractTemporaryDirectoryFactory.php', // dropped (not released yet)
         '**/src/Core/Framework/App/Source/TemporaryDirectoryFactory.php', // dropped decorator (not released yet)
+        '**/src/Storefront/Framework/Twig/NavigationInfo.php', // new class (not released yet)
     ],
     'errors' => [
         // ProductReviewLoader moved to core, the entire classes is deprecated, can be removed after 6.7.0.0 release
@@ -35,6 +36,8 @@ return [
         'Parameter collectionClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
         'Parameter cacheDir was added to Method createTwigEnvironment\(\) of class Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlTwigFactory',
         'Parameter serviceMenu was added to Method __construct\(\) of class Shopware\\\\Storefront\\\\Pagelet\\\\NavigationPagelet',
+        'Parameter paymentMethods was added to Method __construct\(\) of class Shopware\\\\Storefront\\\\Pagelet\\\\NavigationPagelet',
+        'Parameter shippingMethods was added to Method __construct\(\) of class Shopware\\\\Storefront\\\\Pagelet\\\\NavigationPagelet',
 
         // Changed $languageIdChain parameter to $context in TokenQueryBuilder
         'The parameter $languageIdChain of \\\\Shopware\\\\Elasticsearch\\\\TokenQueryBuilder#build\(\) changed from array to array|Shopware\\\\Core\\\\Framework\\\\Context',
@@ -43,6 +46,9 @@ return [
 
         // Changed SHOPWARE_FALLBACK_VERSION to comply with latest composer changes, see: https://github.com/composer/composer/commit/1b5b56f234ab52a9dcfc935228d49e2a5e262e39
         'Value of constant Shopware\\\\Core\\\\Kernel::SHOPWARE_FALLBACK_VERSION changed from \'6.6.9999999.9999999-dev\' to \'6.6.9999999-dev\'',
+
+        // major
+        'Value of constant Shopware\\\\Core\\\\Kernel::SHOPWARE_FALLBACK_VERSION changed from \'6.6.9999999-dev\' to \'6.7.9999999-dev\'',
 
         // The return type was incorrect and led to an error. It is not a breaking change if it's already breaking.
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection#getOrderCustomers\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerCollection to the non-covariant Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerCollection',
@@ -58,6 +64,12 @@ return [
         'Class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity became final',
         'Parameter hydratorClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
 
-        'Parameter a11yMediaId was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentIdStruct'
+        'Parameter a11yMediaId was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentIdStruct',
+
+        // Changing from Exception to Throwable|null is widening and no problem
+        'The parameter \\$previous of Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\MigrateException\\#__construct\(\) changed',
+
+        // changing constructor in a safe way as long as you don't extend the hook
+        'Parameter salesChannelId was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Event\\\\SystemConfigChangedHook'
     ],
 ];

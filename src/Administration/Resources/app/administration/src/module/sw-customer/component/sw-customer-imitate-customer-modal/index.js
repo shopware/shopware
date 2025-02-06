@@ -1,5 +1,5 @@
 /**
- * @sw-package unknown
+ * @sw-package checkout
  */
 
 import ApiService from 'src/core/service/api.service';
@@ -59,7 +59,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         salesChannelDomainCriteria() {

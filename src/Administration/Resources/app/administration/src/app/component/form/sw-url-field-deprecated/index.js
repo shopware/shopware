@@ -51,6 +51,10 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
             type: Boolean,
             default: false,
         },
+        addTrailingSlash: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     data() {
@@ -166,7 +170,8 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
             }
 
             // when a hash or search query is provided we want to allow trailing slash, eg a vue route `admin#/`
-            const removeTrailingSlash = url.hash === '' && url.search === '' ? URL_REGEX.TRAILING_SLASH : '';
+            const removeTrailingSlash =
+                url.hash === '' && url.search === '' && !this.addTrailingSlash ? URL_REGEX.TRAILING_SLASH : '';
 
             // build URL via native URL.toString() function instead by hand @see NEXT-15747
             return url

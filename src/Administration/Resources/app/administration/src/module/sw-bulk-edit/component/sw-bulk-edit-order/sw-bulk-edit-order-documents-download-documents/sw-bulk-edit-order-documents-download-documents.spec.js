@@ -2,7 +2,6 @@
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
-import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-download-documents', { sync: true }), {
@@ -25,10 +24,6 @@ async function createWrapper() {
 
 describe('sw-bulk-edit-order-documents-download-documents', () => {
     let wrapper;
-
-    beforeAll(() => {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    });
 
     beforeEach(async () => {
         wrapper = await createWrapper();

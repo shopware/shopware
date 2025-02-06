@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_store_landing_page %}
 <div class="sw-extension-store-landing-page">
     <div class="sw-extension-store-landing-page__wrapper">
@@ -74,7 +73,10 @@
                 alt=""
             >
 
-            <span v-if="!insideModal" class="sw-extension-store-landing-page__wrapper-label">
+            <span
+                v-if="!insideModal"
+                class="sw-extension-store-landing-page__wrapper-label"
+            >
                 {{ $tc('sw-extension-store.landing-page.label') }}
             </span>
 

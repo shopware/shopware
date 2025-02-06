@@ -14,7 +14,7 @@ export default {
         },
 
         createdComponent() {
-            Shopware.State.commit('context/resetLanguageToDefault');
+            Shopware.Store.get('context').resetLanguageToDefault();
 
             this.deliveryTime = this.deliveryTimeRepository.create();
         },

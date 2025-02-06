@@ -69,7 +69,7 @@ class ConsumeMessagesControllerTest extends TestCase
 
     public function testMessageStatsDecrement(): void
     {
-        $messageBus = static::getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.bus.default');
         $message = new ProductIndexingMessage([Uuid::randomHex()]);
         $messageBus->dispatch($message);
 

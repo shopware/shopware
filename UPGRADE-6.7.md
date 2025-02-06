@@ -130,6 +130,7 @@ We upgraded the following libraries to their latest versions:
 * [DBAL 4.x](https://github.com/doctrine/dbal/blob/4.2.x/UPGRADE.md#upgrade-to-40): When you are using DBAL directly, please check the upgrade guide.
 * [PHPUnit 11.x](https://github.com/sebastianbergmann/phpunit/blob/11.0.0/ChangeLog-11.0.md#1100---2024-02-02): You need to adjust your tests to the new PHPUnit version.
 * [Dompdf 3.x](https://github.com/dompdf/dompdf/releases/tag/v3.0.0): Please check your document templates, if they are still rendered as expected.
+* [oauth2-server 9.x](https://oauth2.thephpleague.com/upgrade-guide/): We don't expect you are affected by this change on the code level, however the library does not support some requests that are not spec-compliant, look at the detailed [upgrade guide](#non-spec-compliant-apioauthtoken-requests-are-not-supported-anymore).
 
 # Accessibility Compliance
 In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
@@ -403,6 +404,18 @@ We made some breaks in the API, which might affect your plugins or custom integr
 <details>
   <summary>Detailed Changes</summary>
 
+## Non spec-compliant /api/oauth/token requests are not supported anymore
+Due to an upgrade of the "league/oauth2-server" library, some requests that are not spec-compliant with the OAuth spec are not supported anymore.
+Especially scopes now needed to be provided as `scope` parameter and as a space-delimited list of strings.
+
+```diff
+grant_type: 'password',
+client_id: 'administration',
+- scopes: ['write', 'admin'],
++ scope: 'write admin',
+username: user,
+password: pass,
+```
 ## Removal of /api/oauth/authorize route
 Removed API route `/api/oauth/authorize` (`\Core\Framework\Api\Controller\AuthController::authorize` method) without replacement.
 </details>

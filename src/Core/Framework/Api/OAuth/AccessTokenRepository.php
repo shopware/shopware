@@ -13,8 +13,10 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
     /**
      * {@inheritdoc}
+     *
+     * @param non-empty-string|null $userIdentifier
      */
-    public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null): AccessTokenEntityInterface
+    public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, ?string $userIdentifier = null): AccessTokenEntityInterface
     {
         $token = new AccessToken($clientEntity, $scopes, $userIdentifier);
 
@@ -35,14 +37,14 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function revokeAccessToken($tokenId): void
+    public function revokeAccessToken(string $tokenId): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isAccessTokenRevoked($tokenId): bool
+    public function isAccessTokenRevoked(string $tokenId): bool
     {
         return false;
     }

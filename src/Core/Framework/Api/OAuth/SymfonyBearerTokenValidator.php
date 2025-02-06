@@ -11,6 +11,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -65,18 +66,21 @@ readonly class SymfonyBearerTokenValidator
             throw OAuthServerException::accessDenied('Access token has been revoked');
         }
 
-        $request->attributes->set('oauth_access_token_id', $claims->get('jti'));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, $claims->get('jti'));
         $aud = $claims->get('aud');
 
         if (\is_array($aud)) {
             $aud = array_shift($aud);
         }
 
-        $request->attributes->set('oauth_client_id', $aud);
-        $request->attributes->set('oauth_user_id', $claims->get('sub'));
-        $request->attributes->set('oauth_scopes', $claims->get('scopes'));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $aud);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES, $claims->get('scopes'));
 
-        if ($userId = $claims->get('sub')) {
+        $userId = $claims->get('sub');
+
+        // for integrations we get the access key as "sub", we only want to set it when it is the real user id
+        if ($userId && Uuid::isValid($userId)) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, $userId);
             $this->validateAccessTokenIssuedAt($token->claims()->get('iat', 0), $userId);
         }
     }

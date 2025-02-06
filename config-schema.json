@@ -386,9 +386,6 @@
                 },
                 "rate_limiter": {
                     "$ref": "#/definitions/rate_limiter"
-                },
-                "jwt_key": {
-                    "$ref": "#/definitions/jwt_key"
                 }
             },
             "title": "API"
@@ -490,28 +487,6 @@
                 }
             },
             "title": "API store"
-        },
-        "jwt_key": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "use_app_secret": {
-                    "type": "boolean",
-                    "default": false
-                },
-                "private_key_path": {
-                    "type": "string",
-                    "description": "Path to the private key file."
-                },
-                "private_key_passphrase": {
-                    "type": "string",
-                    "description": "Passphrase for the private key file."
-                },
-                "public_key_path": {
-                    "type": "string",
-                    "description": "Path to the public key file."
-                }
-            }
         },
         "auto_update": {
             "type": "object",

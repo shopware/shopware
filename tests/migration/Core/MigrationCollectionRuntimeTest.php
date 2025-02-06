@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Migration\Core;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Result;
+use Doctrine\DBAL\Result;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -274,7 +274,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         $statement = $this->createMock(Result::class);
         $statement->method('fetchFirstColumn')->willReturn(['WrongClass']);
 
-        $queryBuilder->method('execute')->willReturn($statement);
+        $queryBuilder->method('executeQuery')->willReturn($statement);
 
         $connection
             ->method('createQueryBuilder')

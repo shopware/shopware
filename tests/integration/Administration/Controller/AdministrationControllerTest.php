@@ -290,9 +290,12 @@ class AdministrationControllerTest extends TestCase
         }
 
         $newLanguageId = Uuid::randomBytes();
-        $statement = $this->connection->prepare('INSERT INTO `language` (`id`, `name`, `locale_id`, `translation_code_id`, `created_at`)
-            VALUES (?, ?, ?, ?, ?)');
-        $statement->executeStatement([$newLanguageId, 'Vietnamese', $localeId[0], $localeId[0], '2021-04-01 04:41:12.045']);
+        $this->connection->executeStatement(
+            '
+            INSERT INTO `language` (`id`, `name`, `locale_id`, `translation_code_id`, `created_at`)
+            VALUES (?, ?, ?, ?, ?)',
+            [$newLanguageId, 'Vietnamese', $localeId[0], $localeId[0], '2021-04-01 04:41:12.045']
+        );
 
         return $newLanguageId;
     }
@@ -308,9 +311,11 @@ class AdministrationControllerTest extends TestCase
 
         if (!$configId) {
             $newConfigId = Uuid::randomBytes();
-            $statement = $this->connection->prepare('INSERT INTO `product_search_config` (`id`, `language_id`, `and_logic`, `min_search_length`, `created_at`)
-                VALUES (?, ?, ?, ?, ?)');
-            $statement->executeStatement([$newConfigId, $newLanguageId, 0, 2, '2021-04-01 04:41:12.045']);
+            $this->connection->executeStatement(
+                'INSERT INTO `product_search_config` (`id`, `language_id`, `and_logic`, `min_search_length`, `created_at`)
+                VALUES (?, ?, ?, ?, ?)',
+                [$newConfigId, $newLanguageId, 0, 2, '2021-04-01 04:41:12.045']
+            );
         }
     }
 

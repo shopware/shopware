@@ -24,9 +24,6 @@ trait DatabaseTransactionBehaviour
             Previous Test case: ' . (new \ReflectionClass($this))->getName() . '::' . static::$lastTestCase
         );
 
-        static::getContainer()->get(Connection::class)
-            ->setNestTransactionsWithSavepoints(true);
-
         static::getContainer()
             ->get(Connection::class)
             ->beginTransaction();

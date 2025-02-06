@@ -34,6 +34,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -424,7 +425,7 @@ class EntityWriteGatewayTest extends TestCase
             ->onlyMethods(['delete'])
             ->getMock();
 
-        $connection->method('delete')->willThrowException(new Exception('test'));
+        $connection->method('delete')->willThrowException(TestExceptionFactory::createException('test'));
 
         $successSpy = $this->callbackSpy();
         $errorSpy = $this->callbackSpy();
@@ -586,7 +587,7 @@ class EntityWriteGatewayTest extends TestCase
             ->onlyMethods(['delete'])
             ->getMock();
 
-        $connection->method('delete')->willThrowException(new Exception('test'));
+        $connection->method('delete')->willThrowException(TestExceptionFactory::createException('test'));
 
         $successSpy = $this->callbackSpy();
         $errorSpy = $this->callbackSpy();

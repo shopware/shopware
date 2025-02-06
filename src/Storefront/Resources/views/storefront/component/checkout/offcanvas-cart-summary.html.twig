@@ -10,7 +10,7 @@
     {% endblock %}
 
     <div class="offcanvas-summary">
-        <dl class="row offcanvas-summary-list">
+        <dl class="row offcanvas-summary-list" aria-label="{{ 'checkout.summaryOffCanvasLabel'|trans|striptags }}">
             {% block component_offcanvas_summary_total %}
                 {% block component_offcanvas_summary_total_label %}
                     <dt class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-8{% else %}col-7{% endif %} summary-label summary-total">

@@ -83,6 +83,7 @@
                             show-clearable-button
                             :error="documentBaseConfigDocumentTypeIdError"
                             entity="document_type"
+                            :criteria="documentCriteria"
                             :label="$tc('sw-settings-document.detail.labelType')"
                             class="sw-settings-document-detail__select-type"
                             :disabled="documentConfig.global || !acl.can('document.editor') || undefined"
@@ -284,6 +285,7 @@
 
                 {% block sw_settings_document_detail_company_card %}
                 <sw-card
+                    class="sw-settings-document-detail__company_card"
                     position-identifier="sw-settings-document-detail-company"
                     :title="$tc('sw-settings-document.detail.companyCard')"
                     :is-loading="isLoading"

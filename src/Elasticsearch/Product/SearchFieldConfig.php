@@ -16,9 +16,10 @@ class SearchFieldConfig
         private readonly bool $tokenize,
         private readonly bool $andLogic = false
     ) {
-        if (Feature::isActive('v6.7.0.0') && \is_int($ranking)) {
-            Feature::throwException('v6.7.0.0', 'The ranking property in SearchFieldConfig is now a float.');
-        }
+        //  shopware/shopware#6556
+        // if (Feature::isActive('v6.7.0.0') && \is_int($ranking)) {
+        //     Feature::throwException('v6.7.0.0', 'The ranking property in SearchFieldConfig is now a float.');
+        // }
 
         $this->ranking = (float) $ranking;
     }

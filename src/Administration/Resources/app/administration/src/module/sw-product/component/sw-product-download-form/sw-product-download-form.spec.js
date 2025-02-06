@@ -6,6 +6,15 @@ import EntityCollection from 'src/core/data/entity-collection.data';
  * @sw-package inventory
  */
 async function createWrapper(hasError = false) {
+    if (hasError) {
+        Shopware.Store.get('error').addApiError({
+            expression: 'product.product1Id.downloads',
+            error: {
+                detail: 'This is an error',
+            },
+        });
+    }
+
     return mount(await wrapTestComponent('sw-product-download-form', { sync: true }), {
         global: {
             mocks: {
@@ -15,16 +24,6 @@ async function createWrapper(hasError = false) {
                             namespaced: true,
                             getters: {
                                 isLoading: () => false,
-                            },
-                        },
-                        error: {
-                            namespaced: true,
-                            getters: {
-                                getApiError: () => {
-                                    return () => {
-                                        return hasError ? { code: 'some-error-code' } : null;
-                                    };
-                                },
                             },
                         },
                     },
@@ -96,15 +95,20 @@ describe('module/sw-product/component/sw-product-download-form', () => {
     beforeAll(() => {
         const product = {
             downloads: getFileCollection(files),
+            id: 'product1Id',
         };
-        product.getEntityName = () => 'T-Shirt';
+        product.getEntityName = () => 'product';
 
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product: product,
-            },
-        });
+        Shopware.Store.get('swProductDetail').product = product;
+    });
+
+    beforeEach(() => {
+        // Reset all mocks
+        jest.clearAllMocks();
+
+        // Reset error state
+        Shopware.Store.get('error').system = {};
+        Shopware.Store.get('error').api = {};
     });
 
     it('should be a Vue.JS component', async () => {

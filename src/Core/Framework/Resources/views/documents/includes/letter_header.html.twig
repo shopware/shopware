@@ -10,11 +10,22 @@ All blocks of this template are available in the template which renders this tem
 #}
 
 {% block letter_header %}
+    {% set addressParts = config.getAddressParts %}
+
     <div class="letter-header">
         <div class="recipient-address-container" tabindex="0">
             {% block document_recipient %}
-                {% if config.displayCompanyAddress and config.companyAddress is not empty %}
-                    <span class="company-address-small">{{ config.companyName }} {{ config.companyAddress }}</span><br><br>
+                {# @deprecated tag:v6.7.0 - companyAddress will be replaced with single fields. companyStreet, companyZipcode, companyCity #}
+                {% set address %}
+                    {% if feature('v6.7.0.0') %}
+                        <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
+                    {% else %}
+                        <span class="company-address-small">{{ config.companyName }} {{ config.companyAddress }}</span><br><br>
+                    {% endif %}
+                {% endset %}
+
+                {% if config.displayCompanyAddress and address is not empty %}
+                    {{ address }}
                 {% endif %}
 
                 {% sw_include '@Framework/snippets/render.html.twig' with {
@@ -31,21 +42,34 @@ All blocks of this template are available in the template which renders this tem
         <div class="sender-address-container" tabindex="0">
             {% block document_sender_address %}
                 <table>
-                    {% if config.companyName %}
-                        {% block document_side_company_name %}
-                            <tr>
-                                <td class="bold">{{ config.companyName }}</td>
-                            </tr>
-                        {% endblock %}
-                    {% endif %}
-
-                    <tr>
-                        <td>
-                            {% if config.displayCompanyAddress and config.companyAddress is not empty %}
-                                {{ config.companyAddress|replace({' - ': '</td></tr><tr><td>'})|raw }}
+                    {% if feature('v6.7.0.0') %}
+                        {% for part in addressParts %}
+                            {% if loop.first and config.companyName %}
+                                <tr>
+                                    <td class="bold">{{ part }}</td>
+                                </tr>
+                            {% elseif config.displayCompanyAddress %}
+                                <tr>
+                                    <td>{{ part }}</td>
+                                </tr>
                             {% endif %}
-                        </td>
-                    </tr>
+                        {% endfor %}
+                    {% else %}
+                        {% if config.companyName %}
+                            {% block document_side_company_name %}
+                                <tr>
+                                    <td class="bold">{{ config.companyName }}</td>
+                                </tr>
+                            {% endblock %}
+                        {% endif %}
+                        <tr>
+                            <td>
+                                {% if config.displayCompanyAddress and config.companyAddress is not empty %}
+                                    {{ config.companyAddress|replace({' - ': '</td></tr><tr><td>'})|raw }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
 
                     {% if config.companyPhone %}
                         {% block document_side_info_phone_number %}

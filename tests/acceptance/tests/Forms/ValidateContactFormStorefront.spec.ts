@@ -1,5 +1,4 @@
-import { test } from '@fixtures/AcceptanceTest';
-import { expect } from '@playwright/test';
+import { test, expect } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want to fill out and submit the contact form.',
@@ -51,6 +50,7 @@ test(
 
         await test.step('Send and validate the negative contact form result.', async () => {
             await StorefrontContactForm.submitButton.click();
+            await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 
             await ShopCustomer.expects(StorefrontContactForm.salutationSelect).toHaveCSS('border-color', 'rgb(194, 0, 23)');
             await ShopCustomer.expects(StorefrontContactForm.firstNameInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');

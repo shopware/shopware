@@ -749,7 +749,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
     });
 
     it('should return ShopwareError when has error', async () => {
-        await Shopware.State.dispatch('error/addApiError', {
+        Shopware.Store.get('error').addApiError({
             expression: 'SYSTEM_CONFIG.null.dummyKey',
             error: new ShopwareError({ code: 'dummyCode' }),
         });

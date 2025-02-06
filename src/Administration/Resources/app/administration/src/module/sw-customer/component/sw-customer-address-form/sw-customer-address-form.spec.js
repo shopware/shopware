@@ -190,7 +190,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     });
 
     it('should hide the error field when a disabled field', async () => {
-        await Shopware.State.dispatch('error/addApiError', {
+        Shopware.Store.get('error').addApiError({
             expression: 'customer_address.1.firstName',
             error: new ShopwareError({
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
@@ -241,10 +241,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     });
 
     it('should dispatch error/removeApiError based on the configuration of the country', async () => {
-        // add mock for dispatch
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
+        // spy for the removeApiError method
+        const errorStore = Shopware.Store.get('error');
+        jest.spyOn(errorStore, 'removeApiError');
 
         const wrapper = await createWrapper();
 
@@ -257,12 +256,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         const address = wrapper.vm.address;
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/removeApiError', {
-            expression: `${address.getEntityName()}.${address.id}.zipcode`,
-        });
-
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/removeApiError', {
-            expression: `${address.getEntityName()}.${address.id}.countryStateId`,
-        });
+        expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.zipcode`);
+        expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.countryStateId`);
     });
 });

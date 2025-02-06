@@ -26,7 +26,6 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -82,17 +81,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 foreach ($products as $product) {
                     $data->set($this->getDataKey($product->getId()), $product);
                 }
-
-                if (!Feature::isActive('v6.7.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
-                    // refresh data timestamp to prevent unnecessary gateway calls
-                    foreach ($items as $lineItem) {
-                        $product = $products->get((string) $lineItem->getReferencedId());
-
-                        if ($product) {
-                            $lineItem->setDataTimestamp(new \DateTimeImmutable());
-                        }
-                    }
-                }
             }
 
             // refresh data timestamp to prevent unnecessary gateway calls
@@ -101,9 +89,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
                 // product was fetched, update timestamp to not fetch it again
                 if ($product instanceof ProductEntity) {
-                    if (Feature::isActive('v6.7.0.0') || Feature::isActive('PERFORMANCE_TWEAKS')) {
-                        $lineItem->setDataTimestamp($product->getUpdatedAt() ?? $product->getCreatedAt());
-                    }
+                    $lineItem->setDataTimestamp($product->getUpdatedAt() ?? $product->getCreatedAt());
                 // we have asked for this product, but we didn't get it back, so we need to remove it
                 } elseif (\in_array($lineItem->getReferencedId(), $ids, true)) {
                     $lineItem->setDataTimestamp(null);

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
@@ -110,7 +111,7 @@ class Migration1672931011ReviewFormMailTemplate extends MigrationStep
         ];
 
         if (!\is_string($templateContentMapping[$locale][$html ? 'html' : 'plain'])) {
-            throw new \RuntimeException(\sprintf('Could not MailTemplate data with locale %s', $locale));
+            throw MigrationException::migrationError(\sprintf('Could not find MailTemplate data with locale %s', $locale));
         }
 
         return $templateContentMapping[$locale][$html ? 'html' : 'plain'];

@@ -4,13 +4,6 @@
 
 // Should be kept in sync with phpstan-type in src/Core/Framework/Log/Package.php
 const VALID_DOMAINS = [
-    // ToDo: exclude the old areas
-    'buyers-experience',
-    'services-settings',
-    'administration',
-    'data-services',
-    'innovation',
-
     // new domains starting at 2025
     'framework',
     'inventory',
@@ -22,6 +15,9 @@ const VALID_DOMAINS = [
     'fundamentals@discovery',
     'fundamentals@checkout',
     'fundamentals@after-sales',
+
+    'data-services',
+    'innovation',
 ];
 const VALID_DOMAIN_LIST = VALID_DOMAINS.map(s => `'${s}'`).join(', ');
 

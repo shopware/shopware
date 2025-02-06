@@ -86,7 +86,7 @@ abstract class MigrationStep
     }
 
     /**
-     * @param array<string> $indexerToRun
+     * @param list<string> $indexerToRun
      */
     protected function registerIndexer(Connection $connection, string $name, array $indexerToRun = []): void
     {

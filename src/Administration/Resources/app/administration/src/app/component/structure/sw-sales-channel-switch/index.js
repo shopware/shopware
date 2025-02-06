@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 import template from './sw-sales-channel-switch.html.twig';
 

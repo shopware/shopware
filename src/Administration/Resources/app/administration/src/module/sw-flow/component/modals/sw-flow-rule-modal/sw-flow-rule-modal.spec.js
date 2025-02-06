@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @sw-package after-sales
@@ -94,10 +93,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-rule-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', flowState);
-    });
-
     it('should show element correctly', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

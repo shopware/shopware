@@ -146,6 +146,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 ]);
 
                 if ($operation->isStatic()) {
+                    // @deprecated tag:v6.7.0 - html argument will be removed
                     $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                     $result->addSuccess($orderId, $doc);
 
@@ -183,6 +184,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     );
                 }
 
+                // @deprecated tag:v6.7.0 - html argument will be removed
                 $doc = new RenderedDocument(
                     $html,
                     $number,
@@ -219,7 +221,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         // Get the correct order with versioning from reference invoice
         $versionContext = $context->createWithVersionId($versionId)->assign([
-            'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
+            'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE)
@@ -233,7 +235,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         }
 
         $versionContext = $context->createWithVersionId(Defaults::LIVE_VERSION)->assign([
-            'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
+            'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE);

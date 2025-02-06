@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Checkout\Promotion\Subscriber;
 
-use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
-use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
@@ -32,18 +30,17 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
      * @internal
      *
      * @param EntityRepository<PromotionIndividualCodeCollection> $codesRepository
-     * @param EntityRepository<OrderCollection> $orderRepository
+     * @param EntityRepository<OrderCustomerCollection> $orderCustomerRepository
      */
     public function __construct(
         private readonly EntityRepository $codesRepository,
-        private readonly EntityRepository $orderRepository
+        private readonly EntityRepository $orderCustomerRepository
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            CheckoutOrderPlacedEvent::class => 'onOrderProcess',
             OrderEvents::ORDER_LINE_ITEM_WRITTEN_EVENT => 'onOrderLineItemWritten',
         ];
     }
@@ -54,30 +51,18 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             return;
         }
 
-        $orderLineItems = new OrderLineItemCollection();
+        $orderLineItems = $this->collectLineItems($event);
 
-        foreach ($event->getWriteResults() as $result) {
-            $orderLineItems->add((new OrderLineItemEntity())->assign($result->getPayload()));
+        if ($orderLineItems->count() === 0) {
+            return;
         }
 
-        $lineItem = $orderLineItems->first();
-        \assert($lineItem instanceof OrderLineItemEntity);
+        $orderCustomer = $this->getOrderCustomer($orderLineItems, $event);
 
-        $order = $this->orderRepository->search(
-            new Criteria([$lineItem->getOrderId()]),
-            $event->getContext()
-        )->getEntities()->first();
-        \assert($order instanceof OrderEntity);
-
-        $this->redeemCode($orderLineItems, $order, $event->getContext());
+        $this->redeemCode($orderLineItems, $orderCustomer, $event->getContext());
     }
 
-    public function onOrderProcess(CheckoutOrderPlacedEvent $event): void
-    {
-        $this->redeemCode($event->getOrder()->getLineItems(), $event->getOrder(), $event->getContext());
-    }
-
-    private function redeemCode(?OrderLineItemCollection $lineItems, OrderEntity $order, Context $context): void
+    private function redeemCode(?OrderLineItemCollection $lineItems, OrderCustomerEntity $customer, Context $context): void
     {
         foreach ($lineItems ?? [] as $item) {
             // only update promotions in here
@@ -102,9 +87,6 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             if (!($individualCode instanceof PromotionIndividualCodeEntity)) {
                 continue;
             }
-
-            /** @var OrderCustomerEntity $customer */
-            $customer = $order->getOrderCustomer();
 
             // set the code to be redeemed
             // and assign all required metadata
@@ -143,5 +125,33 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
         }
 
         return $promotion;
+    }
+
+    private function collectLineItems(EntityWrittenEvent $event): OrderLineItemCollection
+    {
+        $orderLineItems = new OrderLineItemCollection();
+
+        foreach ($event->getWriteResults() as $result) {
+            if ($result->getPayload()['type'] !== 'promotion') {
+                continue;
+            }
+            $orderLineItems->add((new OrderLineItemEntity())->assign($result->getPayload()));
+        }
+
+        return $orderLineItems;
+    }
+
+    private function getOrderCustomer(OrderLineItemCollection $orderLineItems, EntityWrittenEvent $event): OrderCustomerEntity
+    {
+        $lineItem = $orderLineItems->first();
+        \assert($lineItem instanceof OrderLineItemEntity);
+
+        $orderCustomer = $this->orderCustomerRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('orderId', $lineItem->getOrderId())),
+            $event->getContext()
+        )->getEntities()->first();
+        \assert($orderCustomer instanceof OrderCustomerEntity);
+
+        return $orderCustomer;
     }
 }

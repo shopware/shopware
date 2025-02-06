@@ -5,12 +5,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
@@ -49,7 +48,6 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
     public function testSubscribeToOrderLineItemWritten(): void
     {
         // we need to have a key for the Shopware event
-        static::assertArrayHasKey(CheckoutOrderPlacedEvent::class, PromotionIndividualCodeRedeemer::getSubscribedEvents());
         static::assertArrayHasKey(OrderEvents::ORDER_LINE_ITEM_WRITTEN_EVENT, PromotionIndividualCodeRedeemer::getSubscribedEvents());
     }
 
@@ -60,80 +58,34 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $codeRepository->expects(static::never())->method('searchIds');
         $redeemer = new PromotionIndividualCodeRedeemer($codeRepository, $this->createMock(EntityRepository::class));
 
-        $lineItem = new OrderLineItemEntity();
-        $lineItem->setId(Uuid::randomHex());
-        $lineItem->setType('test');
-        $order = new OrderEntity();
-        $order->setLineItems(new OrderLineItemCollection([$lineItem]));
-
-        $context = Generator::generateSalesChannelContext();
-
-        $event = new CheckoutOrderPlacedEvent($context, $order);
-
-        $redeemer->onOrderProcess($event);
-    }
-
-    public function testOnOrderCreateWillProcessMultipleCodes(): void
-    {
-        $code = new PromotionIndividualCodeEntity();
-        $code->setId(Uuid::randomHex());
-
-        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> $codeRepository */
-        $codeRepository = new StaticEntityRepository([
-            static function (Criteria $criteria) {
-                $filter = $criteria->getFilters()[0];
-                static::assertInstanceOf(EqualsFilter::class, $filter);
-                static::assertSame('notexisting', $filter->getValue());
-
-                return new PromotionIndividualCodeCollection();
-            },
-            static function (Criteria $criteria) use ($code) {
-                $filter = $criteria->getFilters()[0];
-                static::assertInstanceOf(EqualsFilter::class, $filter);
-                static::assertSame('existing', $filter->getValue());
-
-                return new PromotionIndividualCodeCollection([$code]);
-            },
-        ]);
-        $redeemer = new PromotionIndividualCodeRedeemer($codeRepository, $this->createMock(EntityRepository::class));
-
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
         $customer = new OrderCustomerEntity();
         $customer->setId(Uuid::randomHex());
         $customer->setFirstName('foo');
         $customer->setLastName('bar');
         $customer->setCustomerId(Uuid::randomHex());
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId(Uuid::randomHex());
+        $lineItem->setType('test');
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setLineItems(new OrderLineItemCollection([$lineItem]));
         $order->setOrderCustomer($customer);
 
-        $lineItem1 = new OrderLineItemEntity();
-        $lineItem1->setId(Uuid::randomHex());
-        $lineItem1->setType(PromotionProcessor::LINE_ITEM_TYPE);
-        $lineItem1->setPayload(['code' => 'notexisting']);
-        $lineItem1->setOrderId($order->getId());
-
-        $lineItem2 = new OrderLineItemEntity();
-        $lineItem2->setId(Uuid::randomHex());
-        $lineItem2->setType(PromotionProcessor::LINE_ITEM_TYPE);
-        $lineItem2->setPayload(['code' => 'existing']);
-        $lineItem2->setOrderId($order->getId());
-
-        $order->setLineItems(new OrderLineItemCollection([$lineItem1, $lineItem2]));
+        $lineItem->setOrderId($order->getId());
 
         $context = Generator::generateSalesChannelContext();
 
-        $event = new CheckoutOrderPlacedEvent($context, $order);
-
-        $redeemer->onOrderProcess($event);
-
-        static::assertSame([[[
-            'id' => $code->getId(),
-            'payload' => [
-                'orderId' => $order->getId(),
-                'customerId' => $customer->getCustomerId(),
-                'customerName' => 'foo bar',
+        $event = new EntityWrittenEvent(
+            'order_line_item',
+            [
+                new EntityWriteResult($lineItem->getId(), $lineItem->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
             ],
-        ]]], $codeRepository->updates);
+            $context->getContext()
+        );
+
+        $redeemer->onOrderLineItemWritten($event);
     }
 
     public function testOnOrderLineItemWrittenWillProcessMultipleCodes(): void
@@ -181,7 +133,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $order->setOrderCustomer($customer);
 
         $orderRepository->expects(static::once())->method('search')->willReturn(
-            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $context),
+            new EntitySearchResult('order_customer', 1, new OrderCustomerCollection([$customer]), null, new Criteria(), $context),
         );
 
         $event = new EntityWrittenEvent(

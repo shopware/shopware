@@ -183,14 +183,13 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            if ($property === 'customFields') {
+            if ($property === 'customFields' && $value) {
                 if ($this->blockedCustomFields === null) {
                     $this->fetchBlockedCustomFields();
                 }
 
                 $blockedFields = $this->blockedCustomFields[$alias] ?? [];
                 $blockedFields = \array_merge($blockedFields, $this->blockedCustomFields['global'] ?? []);
-
                 if ($blockedFields) {
                     $blockedFieldsLookup = \array_flip($blockedFields);
 

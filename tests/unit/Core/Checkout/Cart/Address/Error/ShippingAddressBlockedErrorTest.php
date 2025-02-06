@@ -17,6 +17,7 @@ class ShippingAddressBlockedErrorTest extends TestCase
     public function testAPI(): void
     {
         $error = new ShippingAddressBlockedError('test');
+
         static::assertSame('shipping-address-blocked-test', $error->getId());
         static::assertSame('Shippings to shipping address test are not possible.', $error->getMessage());
         static::assertSame('shipping-address-blocked', $error->getMessageKey());

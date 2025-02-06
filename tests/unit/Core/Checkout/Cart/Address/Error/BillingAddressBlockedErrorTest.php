@@ -17,6 +17,7 @@ class BillingAddressBlockedErrorTest extends TestCase
     public function testAPI(): void
     {
         $error = new BillingAddressBlockedError('test');
+
         static::assertSame('billing-address-blocked-test', $error->getId());
         static::assertSame('Billings to billing address test are not possible.', $error->getMessage());
         static::assertSame('billing-address-blocked', $error->getMessageKey());

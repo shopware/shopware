@@ -35,14 +35,23 @@ class DeliveryProcessorTest extends TestCase
         $shippingMethod->setId(Uuid::randomHex());
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->expects(static::once())->method('getShippingMethod')->willReturn($shippingMethod);
+        $context
+            ->expects(static::once())
+            ->method('getShippingMethod')
+            ->willReturn($shippingMethod);
 
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('has')->with($shippingMethod->getId())->willReturn(true);
-        $result->expects(static::once())->method('get')->with($shippingMethod->getId())->willReturn($shippingMethod);
+        $result
+            ->expects(static::once())
+            ->method('has')->with($shippingMethod->getId())->willReturn(true);
+        $result
+            ->expects(static::once())
+            ->method('get')->with($shippingMethod->getId())->willReturn($shippingMethod);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects(static::once())->method('search')->willReturn($result);
+        $repository
+            ->expects(static::once())
+            ->method('search')->willReturn($result);
 
         $processor = new DeliveryProcessor(
             $this->createMock(DeliveryBuilder::class),
@@ -60,20 +69,27 @@ class DeliveryProcessorTest extends TestCase
     {
         $context = $this->createMock(SalesChannelContext::class);
         $calculator = $this->createMock(DeliveryCalculator::class);
-        $calculator->expects(static::once())->method('calculate');
+        $calculator
+            ->expects(static::once())
+            ->method('calculate');
 
         $delivery = $this->getMockBuilder(Delivery::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $newCosts = null;
-        $delivery->expects(static::atLeastOnce())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
-            /** @var CalculatedPrice $newCosts */
-            $newCosts = $costsParameter;
-        });
+        $delivery
+            ->expects(static::atLeastOnce())
+            ->method('setShippingCosts')
+            ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+                $newCosts = $costsParameter;
+            });
 
         $builder = $this->createMock(DeliveryBuilder::class);
-        $builder->expects(static::once())->method('build')->willReturn(new DeliveryCollection([$delivery]));
+        $builder
+            ->expects(static::once())
+            ->method('build')
+            ->willReturn(new DeliveryCollection([$delivery]));
 
         $processor = new DeliveryProcessor($builder, $calculator, $this->createMock(EntityRepository::class));
 
@@ -83,7 +99,7 @@ class DeliveryProcessorTest extends TestCase
         $toCalculate = new Cart('calculate');
         $processor->process(new CartDataCollection(), $original, $toCalculate, $context, new CartBehavior());
 
-        static::assertNotNull($newCosts);
+        static::assertInstanceOf(CalculatedPrice::class, $newCosts);
         static::assertNotEmpty($toCalculate->getDeliveries());
     }
 }

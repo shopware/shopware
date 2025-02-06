@@ -334,7 +334,7 @@ class AccountServiceTest extends TestCase
         $dispatcher
             ->expects(static::exactly(2))
             ->method('dispatch')
-            ->with(static::callback(function ($event) use ($context, $customer): bool {
+            ->with(static::callback(static function ($event) use ($context, $customer): bool {
                 if ($event instanceof CustomerBeforeLoginEvent) {
                     static::assertSame($context, $event->getSalesChannelContext());
                     static::assertSame($customer->getEmail(), $event->getEmail());

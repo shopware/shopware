@@ -26,6 +26,7 @@ class BillingAddressCountryRegionMissingErrorTest extends TestCase
         $address->setId('address-id');
 
         $error = new BillingAddressCountryRegionMissingError($address);
+
         static::assertSame('country-region-missing-billing-address', $error->getId());
         static::assertSame('A country region needs to be defined for the billing address "Max Mustermann, 12345 Musterstadt".', $error->getMessage());
         static::assertSame('country-region-missing-billing-address', $error->getMessageKey());

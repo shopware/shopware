@@ -26,6 +26,7 @@ class ShippingAddressSalutationMissingErrorTest extends TestCase
         $address->setId('address-id');
 
         $error = new ShippingAddressSalutationMissingError($address);
+
         static::assertSame('salutation-missing-shipping-address', $error->getId());
         static::assertSame('A salutation needs to be defined for the shipping address "Max Mustermann, 12345 Musterstadt".', $error->getMessage());
         static::assertSame('salutation-missing-shipping-address', $error->getMessageKey());

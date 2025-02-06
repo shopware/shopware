@@ -26,6 +26,7 @@ class BillingAddressSalutationMissingErrorTest extends TestCase
         $address->setId('address-id');
 
         $error = new BillingAddressSalutationMissingError($address);
+
         static::assertSame('salutation-missing-billing-address', $error->getId());
         static::assertSame('A salutation needs to be defined for the billing address "Max Mustermann, 12345 Musterstadt".', $error->getMessage());
         static::assertSame('salutation-missing-billing-address', $error->getMessageKey());

@@ -56,17 +56,24 @@ class DeliveryCalculatorTest extends TestCase
     public function testCalculateAdminShippingCostZero(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context
+            ->method('getItemRounding')
+            ->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $delivery = $this->getMockBuilder(Delivery::class)
             ->disableOriginalConstructor()
             ->getMock();
         $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
+        $delivery
+            ->expects(static::atLeastOnce())
+            ->method('getShippingCosts')->willReturn($costs);
         $newCosts = null;
-        $delivery->expects(static::once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
-            $newCosts = $costsParameter;
-        });
+        $delivery
+            ->expects(static::once())
+            ->method('setShippingCosts')
+            ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+                $newCosts = $costsParameter;
+            });
 
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
         $lineItem->setDeliveryInformation(
@@ -82,19 +89,22 @@ class DeliveryCalculatorTest extends TestCase
         $price = $lineItem->getPrice();
         static::assertNotNull($price);
 
-        $delivery->expects(static::once())->method('getPositions')->willReturn(
-            new DeliveryPositionCollection(
-                [
-                    new DeliveryPosition(
-                        Uuid::randomHex(),
-                        $lineItem,
-                        1,
-                        $price,
-                        new DeliveryDate(new \DateTime(), new \DateTime())
-                    ),
-                ]
-            )
-        );
+        $delivery
+            ->expects(static::once())
+            ->method('getPositions')
+            ->willReturn(
+                new DeliveryPositionCollection(
+                    [
+                        new DeliveryPosition(
+                            Uuid::randomHex(),
+                            $lineItem,
+                            1,
+                            $price,
+                            new DeliveryDate(new \DateTime(), new \DateTime())
+                        ),
+                    ]
+                )
+            );
 
         $data = new CartDataCollection();
 
@@ -105,7 +115,10 @@ class DeliveryCalculatorTest extends TestCase
         $cart->setBehavior($cartBehavior);
 
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
-        $quantityPriceCalculatorMock->expects(static::once())->method('calculate')->willReturn($costs);
+        $quantityPriceCalculatorMock
+            ->expects(static::once())
+            ->method('calculate')
+            ->willReturn($costs);
 
         $deliveryCalculator = new DeliveryCalculator(
             $quantityPriceCalculatorMock,
@@ -122,7 +135,9 @@ class DeliveryCalculatorTest extends TestCase
     public function testCalculateShippingFreeShippingCost(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context
+            ->method('getItemRounding')
+            ->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $delivery = $this->getMockBuilder(Delivery::class)
             ->disableOriginalConstructor()
@@ -174,7 +189,10 @@ class DeliveryCalculatorTest extends TestCase
             );
 
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
-        $quantityPriceCalculatorMock->expects(static::once())->method('calculate')->willReturn($costs);
+        $quantityPriceCalculatorMock
+            ->expects(static::once())
+            ->method('calculate')
+            ->willReturn($costs);
 
         $deliveryCalculator = new DeliveryCalculator(
             $quantityPriceCalculatorMock,

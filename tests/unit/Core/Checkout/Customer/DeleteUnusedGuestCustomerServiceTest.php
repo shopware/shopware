@@ -68,7 +68,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         $ids = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
         $deleteIds = \array_values(\array_map(static fn (string $id) => ['id' => $id], $ids));
-        $searchResultIds = \array_map(fn (string $id) => ['primaryKey' => $id, 'data' => []], $ids);
+        $searchResultIds = \array_map(static fn (string $id) => ['primaryKey' => $id, 'data' => []], $ids);
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository

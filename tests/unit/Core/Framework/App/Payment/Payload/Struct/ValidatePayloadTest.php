@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\App\Payload\Source;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\CapturePayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\ValidatePayload;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -15,7 +14,7 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CapturePayload::class)]
+#[CoversClass(ValidatePayload::class)]
 class ValidatePayloadTest extends TestCase
 {
     public function testPayload(): void

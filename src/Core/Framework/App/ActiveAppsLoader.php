@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
@@ -35,11 +34,6 @@ class ActiveAppsLoader implements ResetInterface
      */
     public function getActiveApps(): array
     {
-        // @deprecated tag:v6.7.0 - remove if condition
-        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
-            return [];
-        }
-
         if ($this->activeApps === null) {
             $this->activeApps = $this->loadApps();
         }

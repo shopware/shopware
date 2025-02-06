@@ -2,7 +2,6 @@ import template from './sw-category-tree.html.twig';
 import './sw-category-tree.scss';
 
 const { Criteria } = Shopware.Data;
-const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
  * @sw-package discovery
@@ -71,16 +70,16 @@ export default {
     },
 
     computed: {
-        ...mapState('swCategoryDetail', [
-            'categoriesToDelete',
-        ]),
+        categoriesToDelete() {
+            return Shopware.Store.get('swCategoryDetail').categoriesToDelete;
+        },
 
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },
 
         category() {
-            return Shopware.State.get('swCategoryDetail').category;
+            return Shopware.Store.get('swCategoryDetail').category;
         },
 
         categories() {
@@ -137,9 +136,7 @@ export default {
 
             this.$refs.categoryTree.onDeleteElements(value);
 
-            Shopware.State.commit('swCategoryDetail/setCategoriesToDelete', {
-                categoriesToDelete: undefined,
-            });
+            Shopware.Store.get('swCategoryDetail').categoriesToDelete = undefined;
         },
 
         allowEdit(value) {

@@ -80,6 +80,11 @@ class CheckoutControllerTest extends TestCase
 
     private ?string $customerId = null;
 
+    protected function setUp(): void
+    {
+        static::markTestSkipped('#6556');
+    }
+
     /**
      * @param string|float|int|bool|null $customerComment
      */

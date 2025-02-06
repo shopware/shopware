@@ -11,7 +11,7 @@ jobs:
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
-      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
       APP_URL: http://localhost:8000
     services:
       database:
@@ -180,4 +180,4 @@ jobs:
       - name: Create sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"
-          bash .github/bin/sbp_release.bash create "${{ github.ref_type == 'tag' && github.ref_name || 'v6.6.9999999.9999999-dev' }}"
+          bash .github/bin/sbp_release.bash create "${{ github.ref_type == 'tag' && github.ref_name || 'v6.7.9999999.9999999-dev' }}"

@@ -51,7 +51,7 @@ export default Mixin.register(
 
             category(): EntitySchema.Entities['category'] {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                return Shopware.State.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
+                return Shopware.Store.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
             },
         },
 

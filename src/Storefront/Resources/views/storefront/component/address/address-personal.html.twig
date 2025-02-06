@@ -530,117 +530,116 @@
                     additionalClass: 'col-sm-6',
                 } %}
             {% else %}
+                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+                {% block component_address_personal_fields_birthday_label %}
+                    <label for="{{ idPrefix ~ prefix }}personalBirthday">
+                        {{ "account.personalBirthdayLabel"|trans|sw_sanitize }}{{ config('core.loginRegistration.birthdayFieldRequired') ? "general.required"|trans|sw_sanitize }}
+                    </label>
+                {% endblock %}
 
-            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-            {% block component_address_personal_fields_birthday_label %}
-                <label for="{{ idPrefix ~ prefix }}personalBirthday">
-                    {{ "account.personalBirthdayLabel"|trans|sw_sanitize }}{{ config('core.loginRegistration.birthdayFieldRequired') ? "general.required"|trans|sw_sanitize }}
-                </label>
-            {% endblock %}
+                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+                {% block component_address_personal_fields_birthday_selects %}
+                    <div class="row g-2">
 
-            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-            {% block component_address_personal_fields_birthday_selects %}
-                <div class="row g-2">
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+                        {% block component_address_personal_fields_birthday_select_day %}
+                            <div class="form-group col-md-2 col-4">
+                                <select id="{{ idPrefix ~ prefix }}personalBirthday"
+                                        name="{% if prefix %}{{ prefix }}[birthdayDay]{% else %}birthdayDay{% endif %}"
+                                        class="form-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
+                                        {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
+                                    {% if not data.get('birthdayDay') %}
+                                        <option selected="selected"
+                                                value="">
+                                            {{ "account.personalBirthdaySelectDay"|trans|sw_sanitize }}
+                                        </option>
+                                    {% endif %}
+                                    {% for day in range(1, 31) %}
+                                        <option value="{{ day }}"
+                                                {% if day == data.get('birthdayDay') %} selected="selected"{% endif %}>
+                                            {{ day }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
 
-                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                    {% block component_address_personal_fields_birthday_select_day %}
-                        <div class="form-group col-md-2 col-4">
-                            <select id="{{ idPrefix ~ prefix }}personalBirthday"
-                                    name="{% if prefix %}{{ prefix }}[birthdayDay]{% else %}birthdayDay{% endif %}"
-                                    class="form-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
-                                    {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
-                                {% if not data.get('birthdayDay') %}
-                                    <option selected="selected"
-                                            value="">
-                                        {{ "account.personalBirthdaySelectDay"|trans|sw_sanitize }}
-                                    </option>
-                                {% endif %}
-                                {% for day in range(1, 31) %}
-                                    <option value="{{ day }}"
-                                            {% if day == data.get('birthdayDay') %} selected="selected"{% endif %}>
-                                        {{ day }}
-                                    </option>
-                                {% endfor %}
-                            </select>
+                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+                                {% block component_address_personal_fields_birthday_select_day_error %}
+                                    {% if formViolations.getViolations('/birthdayDay') is not empty %}
+                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                            violationPath: '/birthdayDay'
+                                        } %}
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
 
-                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                            {% block component_address_personal_fields_birthday_select_day_error %}
-                                {% if formViolations.getViolations('/birthdayDay') is not empty %}
-                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                        violationPath: '/birthdayDay'
-                                    } %}
-                                {% endif %}
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+                        {% block component_address_personal_fields_birthday_select_month %}
+                            <div class="form-group col-md-2 col-4">
+                                <select name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
+                                        class="form-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
+                                        {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
+                                    {% if not data.get('birthdayMonth') %}
+                                        <option selected="selected"
+                                                value="">
+                                            {{ "account.personalBirthdaySelectMonth"|trans|sw_sanitize }}
+                                        </option>
+                                    {% endif %}
+                                    {% for month in range(1, 12) %}
+                                        <option value="{{ month }}"
+                                                {% if month == data.get('birthdayMonth') %} selected="selected"{% endif %}>
+                                            {{ month }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
 
-                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                    {% block component_address_personal_fields_birthday_select_month %}
-                        <div class="form-group col-md-2 col-4">
-                            <select name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
-                                    class="form-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
-                                    {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
-                                {% if not data.get('birthdayMonth') %}
-                                    <option selected="selected"
-                                            value="">
-                                        {{ "account.personalBirthdaySelectMonth"|trans|sw_sanitize }}
-                                    </option>
-                                {% endif %}
-                                {% for month in range(1, 12) %}
-                                    <option value="{{ month }}"
-                                            {% if month == data.get('birthdayMonth') %} selected="selected"{% endif %}>
-                                        {{ month }}
-                                    </option>
-                                {% endfor %}
-                            </select>
+                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+                                {% block component_address_personal_fields_birthday_select_month_error %}
+                                    {% if formViolations.getViolations('/birthdayMonth') is not empty %}
+                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                            violationPath: '/birthdayMonth'
+                                        } %}
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
 
-                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                            {% block component_address_personal_fields_birthday_select_month_error %}
-                                {% if formViolations.getViolations('/birthdayMonth') is not empty %}
-                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                        violationPath: '/birthdayMonth'
-                                    } %}
-                                {% endif %}
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+                        {% block component_address_personal_fields_birthday_select_year %}
+                            <div class="form-group col-md-2 col-4">
+                                {% set currentYear = "now"|date('Y') %}
+                                {% set startYear = currentYear - 120 %}
 
-                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                    {% block component_address_personal_fields_birthday_select_year %}
-                        <div class="form-group col-md-2 col-4">
-                            {% set currentYear = "now"|date('Y') %}
-                            {% set startYear = currentYear - 120 %}
+                                <select name="{% if prefix %}{{ prefix }}[birthdayYear]{% else %}birthdayYear{% endif %}"
+                                        class="form-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
+                                        {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
+                                    {% if not data.get('birthdayYear') %}
+                                        <option selected="selected"
+                                                value="">
+                                            {{ "account.personalBirthdaySelectYear"|trans|sw_sanitize }}
+                                        </option>
+                                    {% endif %}
+                                    {% for year in range(currentYear, startYear) %}
+                                        <option value="{{ year }}"
+                                                {% if year == data.get('birthdayYear') %} selected="selected"{% endif %}>
+                                            {{ year }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
 
-                            <select name="{% if prefix %}{{ prefix }}[birthdayYear]{% else %}birthdayYear{% endif %}"
-                                    class="form-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
-                                    {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
-                                {% if not data.get('birthdayYear') %}
-                                    <option selected="selected"
-                                            value="">
-                                        {{ "account.personalBirthdaySelectYear"|trans|sw_sanitize }}
-                                    </option>
-                                {% endif %}
-                                {% for year in range(currentYear, startYear) %}
-                                    <option value="{{ year }}"
-                                            {% if year == data.get('birthdayYear') %} selected="selected"{% endif %}>
-                                        {{ year }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-
-                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                            {% block component_address_personal_fields_birthday_select_year_error %}
-                                {% if formViolations.getViolations('/birthdayYear') is not empty %}
-                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                        violationPath: '/birthdayYear'
-                                    } %}
-                                {% endif %}
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </div>
-            {% endblock %}
-        {% endif %}
+                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+                                {% block component_address_personal_fields_birthday_select_year_error %}
+                                    {% if formViolations.getViolations('/birthdayYear') is not empty %}
+                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                            violationPath: '/birthdayYear'
+                                        } %}
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            {% endif %}
         {% endif %}
     {% endblock %}
 {% endblock %}

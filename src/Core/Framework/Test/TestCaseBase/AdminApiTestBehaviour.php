@@ -178,7 +178,7 @@ trait AdminApiTestBehaviour
         ];
 
         if (!empty($scopes)) {
-            $authPayload['scope'] = $scopes;
+            $authPayload['scope'] = implode(' ', $scopes);
         }
 
         $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));

@@ -549,6 +549,7 @@ class CustomDocRenderer extends AbstractDocumentRenderer
         $result = new RendererResult();
 
         foreach ($operations as $operation) {
+            // @deprecated tag:v6.7.0 - html argument will be removed
             $rendered = new RenderedDocument('<html>test</html>');
             $rendered->setName('custom.pdf');
 

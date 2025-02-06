@@ -1,11 +1,9 @@
 import { mount } from '@vue/test-utils';
-import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
+import { nextTick } from 'vue';
 
 /**
  * @sw-package checkout
  */
-
-Shopware.State.registerModule('swShippingDetail', state);
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrices', () => {
     const createWrapper = async () => {
@@ -16,7 +14,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             {
                 global: {
                     renderStubDefaultSlot: true,
-                    store: Shopware.State._store,
                     stubs: {
                         'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
                             sync: true,
@@ -108,12 +105,12 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     }
 
     beforeEach(async () => {
-        Shopware.State.commit('swShippingDetail/setCurrencies', [
+        Shopware.Store.get('swShippingDetail').currencies = [
             { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true },
             { id: 'dollar', translated: { name: 'Dollar' } },
             { id: 'pound', translated: { name: 'Pound' } },
-        ]);
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        ];
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             id: '12345',
             prices: [
                 {
@@ -151,9 +148,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     ],
                 },
             ],
-        });
+        };
 
-        const shippingMethod = Shopware.State.get('swShippingDetail').shippingMethod;
+        const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod;
 
         // add remove method to array
         shippingMethod.prices.remove = (id) => {
@@ -171,12 +168,12 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             prices: [
                 { ruleId: '1' },
                 { ruleId: '1' },
             ],
-        });
+        };
 
         await flushPromises();
 
@@ -189,12 +186,14 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             prices: [
                 { ruleId: '1' },
                 { ruleId: '2' },
             ],
-        });
+        };
+
+        await nextTick();
 
         const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
 
@@ -205,7 +204,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             prices: [
                 { ruleId: '1' },
                 { ruleId: '2' },
@@ -213,7 +212,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                 { ruleId: '4' },
                 { ruleId: '5' },
             ],
-        });
+        };
+
+        await nextTick();
 
         const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
 
@@ -224,12 +225,12 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             prices: [
                 { ruleId: '1' },
                 { ruleId: '2' },
             ],
-        });
+        };
 
         const addPriceMatrixButton = wrapper.find('.sw-settings-shipping-price-matrices__actions .sw-button');
         expect(addPriceMatrixButton.attributes('disabled')).toBeFalsy();
@@ -239,7 +240,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             id: 7,
             prices: [
                 {
@@ -268,11 +269,13 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                 },
                 { ruleId: '2' },
             ],
-        });
+        };
 
-        expect(Object.keys(wrapper.vm.shippingPriceGroups)).not.toContain(' null');
+        expect(Object.keys(wrapper.vm.shippingPriceGroups)).not.toContain('null');
 
         wrapper.vm.onDuplicatePriceMatrix(wrapper.vm.shippingPriceGroups['1']);
+
+        await nextTick();
 
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).toContain('null');
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).not.toContain('new');
@@ -297,7 +300,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             id: 7,
             prices: [
                 { ruleId: '1' },
@@ -305,7 +308,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                 { ruleId: '2' },
                 { ruleId: '3' },
             ],
-        });
+        };
 
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).toContain('2');
 
@@ -318,7 +321,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             id: 7,
             prices: [
                 { ruleId: '1' },
@@ -326,11 +329,13 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                 { ruleId: '2' },
                 { ruleId: '3' },
             ],
-        });
-
-        Shopware.State.get('swShippingDetail').shippingMethod.prices.add = (value) => {
-            Shopware.State.get('swShippingDetail').shippingMethod.prices.push(value);
         };
+
+        Shopware.Store.get('swShippingDetail').shippingMethod.prices.add = (value) => {
+            Shopware.Store.get('swShippingDetail').shippingMethod.prices.push(value);
+        };
+
+        await nextTick();
 
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).not.toContain('null');
 
@@ -354,7 +359,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should show all rules with weight and up to three decimal places', async () => {
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             id: '12345',
             prices: [
                 {
@@ -426,9 +431,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     ],
                 },
             ],
-        });
+        };
 
-        const shippingMethod = Shopware.State.get('swShippingDetail').shippingMethod;
+        const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod;
 
         // add remove method to array
         shippingMethod.prices.remove = (id) => {
@@ -549,7 +554,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should delete a pricing rule and change the values', async () => {
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
             id: '12345',
             prices: [
                 {
@@ -604,9 +609,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     ],
                 },
             ],
-        });
+        };
 
-        const shippingMethod = Shopware.State.get('swShippingDetail').shippingMethod;
+        const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod;
 
         // add remove method to array
         shippingMethod.prices.remove = (id) => {

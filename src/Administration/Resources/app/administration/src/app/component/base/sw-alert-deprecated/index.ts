@@ -1,4 +1,4 @@
-import type { NotificationType } from 'src/app/mixin/notification.mixin';
+import type { NotificationVariant } from 'src/app/store/notification.store';
 import type { PropType } from 'vue';
 import template from './sw-alert-deprecated.html.twig';
 import './sw-alert-deprecated.scss';
@@ -30,7 +30,7 @@ Component.register('sw-alert-deprecated', {
 
     props: {
         variant: {
-            type: String as PropType<NotificationType>,
+            type: String as PropType<NotificationVariant>,
             required: false,
             default: 'info',
             validValues: [

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Store\Struct\BinaryCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -51,7 +52,8 @@ class ExtensionLoader
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigurationService $configurationService,
         private readonly LocaleProvider $localeProvider,
-        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly InAppPurchase $inAppPurchase
     ) {
     }
 
@@ -190,6 +192,7 @@ class ExtensionLoader
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
             'managedByComposer' => $plugin->getManagedByComposer(),
+            'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
 
         return ExtensionStruct::fromArray($this->replaceCollections($data));
@@ -246,6 +249,7 @@ class ExtensionLoader
                 'isTheme' => is_file($app->getPath() . '/Resources/theme.json'),
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
+                'inAppPurchases' => $this->inAppPurchase->getByExtension($app->getMetadata()->getName()),
             ];
 
             $collection->set($name, $this->loadFromArray($context, $row, $language));

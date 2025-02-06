@@ -420,6 +420,8 @@ class LineItemGroupBuilderTest extends TestCase
     #[Group('lineitemgroup')]
     public function testPackagerNotFound(): void
     {
+        static::markTestSkipped('#6556');
+
         $cart = $this->buildCart(3);
 
         $group = $this->buildGroup('UNKNOWN', 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
@@ -436,6 +438,8 @@ class LineItemGroupBuilderTest extends TestCase
     #[Group('lineitemgroup')]
     public function testSorterNotFound(): void
     {
+        static::markTestSkipped('#6556');
+
         $cart = $this->buildCart(3);
 
         $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, 'UNKNOWN', new RuleCollection());

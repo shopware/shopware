@@ -12,8 +12,6 @@ import type { NavigationGuardNext, RouteLocationNormalizedLoaded, RouteLocationR
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
-import type { ContextState } from 'src/app/state/context.store';
-import type { ExtensionComponentSectionsState } from 'src/app/state/extension-component-sections.store';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
@@ -32,29 +30,24 @@ import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type { ComponentInternalInstance } from 'vue';
 import type { I18n } from 'vue-i18n';
 import type { Slots } from '@vue/runtime-core';
-import type { Store, mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+import type {
+    Store,
+    mapActions as mapVuexActions,
+    mapGetters as mapVuexGetters,
+    mapMutations as mapVuexMutations,
+    mapState as mapVuexState,
+} from 'vuex';
+import type { mapActions, mapState } from 'pinia';
 import type * as mapErrors from 'src/app/service/map-errors.service';
 import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
-import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
-import type { TabsState } from './app/state/tabs.store';
-import type { MenuItemState } from './app/state/menu-item.store';
-import type { ModalsState } from './app/state/modals.store';
-import type { ExtensionSdkModuleState } from './app/state/extension-sdk-module.store';
-import type { MainModuleState } from './app/state/main-module.store';
-import type { ActionButtonState } from './app/state/action-button.store';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
-import type { ShopwareExtensionsState } from './module/sw-extension/store/extensions.store';
-import type { PaymentOverviewCardState } from './module/sw-settings-payment/state/overview-cards.store';
-import type { SwOrderState } from './module/sw-order/state/order.store';
 import type AclService from './app/service/acl.service';
-import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 import type EntityValidationService from './app/service/entity-validation.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
 import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
-import type { SdkLocationState } from './app/state/sdk-location.store';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
 import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
@@ -88,9 +81,8 @@ import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
-import type { UsageDataModuleState } from './app/state/usage-data.store';
+import type BusinessEventsApiService from './core/service/api/business-events.api.service';
 import type { FileValidationService } from './app/service/file-validation.service';
-import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
@@ -98,7 +90,41 @@ import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
 import type { AdminMenuStore } from './app/store/admin-menu.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
+import type { ExtensionComponentSectionsStore } from './app/store/extension-component-sections.store';
 import type { BlockOverrideStore } from './app/store/block-override.store';
+import type { ExtensionEntryRoutes } from './app/store/extension-entry-routes.store';
+import type { ExtensionSdkModules } from './app/store/extension-sdk-module.store';
+import type { Extensions } from './app/store/extensions.store';
+import type { ErrorStore } from './app/store/error.store';
+import type { AdminHelpCenterStore } from './app/store/admin-help-center.store';
+import type { ActionButtonsStore } from './app/store/action-buttons.store';
+import type { ContextStore } from './app/store/context.store';
+import type { LicenseViolationStore } from './app/store/license-violation.store';
+import type { ExtensionMainModules } from './app/store/main-module.store';
+import type { MarketingStore } from './app/store/marketing.store';
+import type { SdkLocation } from './app/store/sdk-location.store';
+import type { RuleConditionsConfig } from './app/store/rule-conditions-config.store';
+import type { SettingsItems } from './app/store/settings-item.store';
+import type { ShopwareApps } from './app/store/shopware-apps.store';
+import type { System } from './app/store/system.store';
+import type { ModalsStore } from './app/store/modals.store';
+import type { MenuItemStore } from './app/store/menu-item.store';
+import type { NotificationStore } from './app/store/notification.store';
+import type { TabsStore } from './app/store/tabs.store';
+import type { UsageData } from './app/store/usage-data.store';
+import type { SessionStore } from './app/store/session.store';
+import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
+import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
+import type { ShopwareExtensionsStore } from './module/sw-extension/store/extensions.store';
+import type { SwOrderDetailStore } from './module/sw-order/store/order-detail.store';
+import type { SwOrderStore } from './module/sw-order/store/order.store';
+import type { SwShippingDetailStore } from './module/sw-settings-shipping/page/sw-settings-shipping-detail/store';
+import type { PaymentOverviewCardStore } from './module/sw-settings-payment/store/overview-cards.store';
+import type { SwProductDetailStore } from './module/sw-product/page/sw-product-detail/store';
+import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store';
+import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
+import type { SwFlowStore } from './module/sw-flow/store/flow.store';
+import type { SwBulkStore } from './module/sw-bulk-edit/store/sw-bulk-edit.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -241,6 +267,7 @@ declare global {
         configService: ConfigApiService;
         importExport: ImportExportService;
         fileValidationService: FileValidationService;
+        businessEventService: BusinessEventsApiService;
     }
 
     interface MixinContainer {
@@ -311,9 +338,11 @@ declare global {
 
     interface ComponentHelper {
         mapState: typeof mapState;
-        mapMutations: typeof mapMutations;
-        mapGetters: typeof mapGetters;
         mapActions: typeof mapActions;
+        mapVuexState: typeof mapVuexState;
+        mapVuexMutations: typeof mapVuexMutations;
+        mapVuexGetters: typeof mapVuexGetters;
+        mapVuexActions: typeof mapVuexActions;
         mapPropertyErrors: typeof mapErrors.mapPropertyErrors;
         mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors;
         mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors;
@@ -326,30 +355,7 @@ declare global {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
-        context: ContextState;
-        extensions: ExtensionsState;
-        tabs: TabsState;
-        extensionComponentSections: ExtensionComponentSectionsState;
-        paymentOverviewCardState: PaymentOverviewCardState;
-        swOrder: SwOrderState;
-        session: {
-            currentUser: EntitySchema.Entities['user'];
-            userPending: boolean;
-            languageId: string;
-            currentLocale: string | null;
-        };
         swCategoryDetail: $TSFixMe;
-        menuItem: MenuItemState;
-        extensionSdkModules: ExtensionSdkModuleState;
-        extensionMainModules: MainModuleState;
-        modals: ModalsState;
-        actionButtons: ActionButtonState;
-        shopwareExtensions: ShopwareExtensionsState;
-        extensionEntryRoutes: $TSFixMe;
-        shopwareApps: ShopwareAppsState;
-        sdkLocation: SdkLocationState;
-        usageData: UsageDataModuleState;
-        adminHelpCenter: AdminHelpCenterState;
     }
 
     interface PiniaRootState {
@@ -358,7 +364,41 @@ declare global {
         teaserPopover: TeaserPopoverStore;
         adminMenu: AdminMenuStore;
         inAppPurchaseCheckout: InAppPurchasesStore;
+        extensionComponentSections: ExtensionComponentSectionsStore;
         blockOverride: BlockOverrideStore;
+        extensionEntryRoutes: ExtensionEntryRoutes;
+        extensionSdkModules: ExtensionSdkModules;
+        extensions: Extensions;
+        error: ErrorStore;
+        context: ContextStore;
+        adminHelpCenter: AdminHelpCenterStore;
+        actionButtons: ActionButtonsStore;
+        licenseViolation: LicenseViolationStore;
+        extensionMainModules: ExtensionMainModules;
+        marketing: MarketingStore;
+        sdkLocation: SdkLocation;
+        ruleConditionsConfig: RuleConditionsConfig;
+        settingsItems: SettingsItems;
+        shopwareApps: ShopwareApps;
+        system: System;
+        modals: ModalsStore;
+        menuItem: MenuItemStore;
+        notification: NotificationStore;
+        tabs: TabsStore;
+        usageData: UsageData;
+        session: SessionStore;
+        swCategoryDetail: SwCategoryDetailStore;
+        swSeoUrl: SwSeoUrlStore;
+        shopwareExtensions: ShopwareExtensionsStore;
+        swOrderDetail: SwOrderDetailStore;
+        swOrder: SwOrderStore;
+        swShippingDetailStore: SwShippingDetailStore;
+        paymentOverviewCard: PaymentOverviewCardStore;
+        swProductDetail: SwProductDetailStore;
+        swProfile: SwProfileStore;
+        swPromotionDetail: SwPromotionDetailStore;
+        swFlow: SwFlowStore;
+        swBulkEdit: SwBulkStore;
     }
 
     /**
@@ -366,9 +406,9 @@ declare global {
      */
     type VueComponent = ComponentConfig;
 
-    type apiContext = ContextState['api'];
+    type apiContext = ContextStore['api'];
 
-    type appContext = ContextState['app'];
+    type appContext = ContextStore['app'];
 
     /**
      * @see Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory

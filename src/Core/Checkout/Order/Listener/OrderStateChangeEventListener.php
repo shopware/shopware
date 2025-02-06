@@ -193,12 +193,9 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             $context->getVersionId(),
             $order->getCurrencyFactor(),
             true,
-            rounding: $itemRounding
+            $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
+            $itemRounding
         );
-
-        if ($order->getTaxStatus()) {
-            $orderContext->setTaxState($order->getTaxStatus());
-        }
 
         $orderContext->addState(...$context->getStates());
         $orderContext->addExtensions($context->getExtensions());

@@ -312,10 +312,7 @@ class OrderConverter
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
         $salesChannelContext->addState(...$context->getStates());
-
-        if ($order->getTaxStatus()) {
-            $salesChannelContext->setTaxState($order->getTaxStatus());
-        }
+        $salesChannelContext->setTaxState($order->getTaxStatus() ?? $order->getPrice()->getTaxStatus());
 
         if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
             $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);

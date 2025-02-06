@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -138,7 +139,7 @@ class CartPersister extends AbstractCartPersister
         $timestamp = $time->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         do {
-            $result = $stmt->executeStatement(['timestamp' => $timestamp]);
+            $result = StatementHelper::executeStatement($stmt, ['timestamp' => $timestamp]);
         } while ($result > 0);
     }
 

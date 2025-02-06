@@ -107,7 +107,6 @@ class ImportExport
         $context->addState(Context::SKIP_TRIGGER_FLOW);
 
         if ($this->logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_DRYRUN) {
-            $this->connection->setNestTransactionsWithSavepoints(true);
             $this->connection->beginTransaction();
         }
 

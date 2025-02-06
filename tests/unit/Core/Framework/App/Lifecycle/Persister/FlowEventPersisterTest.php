@@ -124,11 +124,13 @@ class FlowEventPersisterTest extends TestCase
     {
         $appId = Uuid::randomHex();
 
-        $this->connectionMock->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($appId): void {
+        $this->connectionMock->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($appId): int {
             static::assertSame('UPDATE `flow` SET `active` = false WHERE `event_name` IN (SELECT `name` FROM `app_flow_event` WHERE `app_id` = :appId);', $sql);
             static::assertSame([
                 'appId' => Uuid::fromHexToBytes($appId),
             ], $params);
+
+            return 1;
         });
 
         $this->flowEventPersister->deactivateFlow($appId);

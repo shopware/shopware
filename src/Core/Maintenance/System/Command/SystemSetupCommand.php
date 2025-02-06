@@ -142,7 +142,7 @@ class SystemSetupCommand extends Command
         $io->section('Application information');
         $env['BLUE_GREEN_DEPLOYMENT'] = $io->confirm('Blue Green Deployment', $input->getOption('blue-green') !== '0') ? '1' : '0';
 
-        $io->section('Generate keys and secrets');
+        $io->section('Generate secrets');
 
         $env['APP_SECRET'] = Random::getString(SystemGenerateAppSecretCommand::APP_SECRET_LENGTH);
         $env['INSTANCE_ID'] = $this->generateInstanceId();

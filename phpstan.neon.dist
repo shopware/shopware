@@ -236,11 +236,6 @@ parameters:
             count: 4
             path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
 
-        # NEXT-33380 - Add support for dbal/doctrine 3.8.0, add profiling to get sql query parts from query builder without using deprecated methods getQueryPart or getQueryParts https://github.com/doctrine/dbal/pull/6179
-        - """
-            #^Call to deprecated method getQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
-            The query parts are implementation details and should not be relied upon\\.$#
-        """
 
         - # OpenSearch deprecations will be handeld in NEXT-40529
             message: '#OpenSearch\\#'

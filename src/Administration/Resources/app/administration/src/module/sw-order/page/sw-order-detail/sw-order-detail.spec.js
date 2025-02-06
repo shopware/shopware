@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 
 /**
  * @sw-package checkout
@@ -118,9 +119,10 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
         await wrapper.setData({ identifier: '1', createdById: '2' });
 
-        await Shopware.State.commit('swOrderDetail/setOrder', {
+        Shopware.Store.get('swOrderDetail').order = {
             orderNumber: 1,
-        });
+        };
+        await nextTick();
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });
@@ -462,6 +464,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         });
 
         expect(createNewVersionIdMock).toHaveBeenCalled();
-        expect(Shopware.State.getters['swOrderDetail/isLoading']).toBe(false);
+        expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(false);
     });
 });

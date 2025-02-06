@@ -6,7 +6,7 @@ import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 
 const { Mixin } = Shopware;
-const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -34,20 +34,41 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-            'defaultPrice',
-            'defaultCurrency',
-            'productTaxRate',
-            'showModeSetting',
-        ]),
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'taxes',
-            'currencies',
-        ]),
+        defaultPrice() {
+            return Shopware.Store.get('swProductDetail').defaultPrice;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        productTaxRate() {
+            return Shopware.Store.get('swProductDetail').productTaxRate;
+        },
+
+        showModeSetting() {
+            return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
+
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        taxes() {
+            return Shopware.Store.get('swProductDetail').taxes;
+        },
+
+        currencies() {
+            return Shopware.Store.get('swProductDetail').currencies;
+        },
 
         ...mapPropertyErrors('product', [
             'taxId',

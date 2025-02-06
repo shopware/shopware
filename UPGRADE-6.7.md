@@ -130,6 +130,7 @@ We upgraded the following libraries to their latest versions:
 * [DBAL 4.x](https://github.com/doctrine/dbal/blob/4.2.x/UPGRADE.md#upgrade-to-40): When you are using DBAL directly, please check the upgrade guide.
 * [PHPUnit 11.x](https://github.com/sebastianbergmann/phpunit/blob/11.0.0/ChangeLog-11.0.md#1100---2024-02-02): You need to adjust your tests to the new PHPUnit version.
 * [Dompdf 3.x](https://github.com/dompdf/dompdf/releases/tag/v3.0.0): Please check your document templates, if they are still rendered as expected.
+* [oauth2-server 9.x](https://oauth2.thephpleague.com/upgrade-guide/): We don't expect you are affected by this change on the code level, however the library does not support some requests that are not spec-compliant, look at the detailed [upgrade guide](#non-spec-compliant-apioauthtoken-requests-are-not-supported-anymore).
 
 # Accessibility Compliance
 In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
@@ -403,6 +404,18 @@ We made some breaks in the API, which might affect your plugins or custom integr
 <details>
   <summary>Detailed Changes</summary>
 
+## Non spec-compliant /api/oauth/token requests are not supported anymore
+Due to an upgrade of the "league/oauth2-server" library, some requests that are not spec-compliant with the OAuth spec are not supported anymore.
+Especially scopes now needed to be provided as `scope` parameter and as a space-delimited list of strings.
+
+```diff
+grant_type: 'password',
+client_id: 'administration',
+- scopes: ['write', 'admin'],
++ scope: 'write admin',
+username: user,
+password: pass,
+```
 ## Removal of /api/oauth/authorize route
 Removed API route `/api/oauth/authorize` (`\Core\Framework\Api\Controller\AuthController::authorize` method) without replacement.
 </details>
@@ -431,14 +444,15 @@ In the following event, the CustomerEntity has no association loaded anymore:
 
 ## Payment: Reworked payment handlers
 * The payment handlers have been reworked to provide a more flexible and consistent way to handle payments.
-* The new `AbstractPaymentHandler` class should be used to implement payment handlers.
-* The following interfaces have been deprecated:
+* The new AbstractPaymentHandler class should be used to implement payment handlers. A supports method now determines whether the recurring and refund methods can be used for a specific payment method. All other methods are invoked during every payment process, though your payment handler may not need to implement all of them.
+* The following interfaces have been deprecated and consolidated into the new `AbstractPaymentHandler`:
   * `AsyncPaymentHandlerInterface`
   * `PreparedPaymentHandlerInterface`
   * `SyncPaymentHandlerInterface`
   * `RefundPaymentHandlerInterface`
   * `RecurringPaymentHandlerInterface`
-* Synchronous and asynchronous payments have been merged to return an optional redirect response.
+* Synchronous and asynchronous payments have been unified to return an optional redirect response. This response defines whether the customer is redirected to a payment provider or immediately returned to the order completion page.
+* Payment handlers from plugins now receive only the `orderTransactionId`, request information (if applicable, e.g., not for recurring payments), and a `Context`. Any additional data required to process the payment must be retrieved by the payment handler itself to reduce database load. This also minimises dependency on the `SalesChannelContext`, which may contain information that does not accurately reflect the order (e.g., customer addresses may differ from the order’s addresses). For apps, the same information as before is still sent to the app server.
 
 ## Payment: Capture step of prepared payments removed
 * The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
@@ -2430,4 +2444,12 @@ shopware:
         enforce_message_size: false
 
 ```
+
+## Fine-grained caching is removed
+
+The fine-grained caching mechanism for system-config, snippets and theme config was removed, therefore the following configuration settings are no longer available:
+* `shopware.cache.tagging.each_config`
+* `shopware.cache.tagging.each_snippet`
+* `shopware.cache.tagging.each_theme_config`
+
 </details>

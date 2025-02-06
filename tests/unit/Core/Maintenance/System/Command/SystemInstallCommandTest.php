@@ -117,26 +117,6 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(0, $result);
     }
 
-    public function testJwtGenerationCanBeSkipped(): void
-    {
-        $command = $this->prepareCommandInstance([
-            'database:migrate',
-            'database:migrate-destructive',
-            'system:configure-shop',
-            'dal:refresh:index',
-            'scheduled-task:register',
-            'plugin:refresh',
-            'theme:refresh',
-            'theme:compile',
-            'assets:install',
-            'cache:clear',
-        ]);
-
-        $result = $command->run(new ArrayInput(['--skip-jwt-keys-generation' => true]), new BufferedOutput());
-
-        static::assertSame(0, $result);
-    }
-
     public function testAssetsInstallCanBeSkipped(): void
     {
         $command = $this->prepareCommandInstance([

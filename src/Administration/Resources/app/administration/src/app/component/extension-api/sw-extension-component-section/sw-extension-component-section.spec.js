@@ -46,7 +46,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     beforeEach(async () => {
-        Shopware.State.get('extensionComponentSections').identifier = {};
+        Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
     it('should be a Vue.js component', async () => {
@@ -55,7 +55,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     it('should not render tabs in card section', async () => {
-        Shopware.State.commit('extensionComponentSections/addSection', {
+        Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
             props: {
@@ -72,7 +72,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     it('should render tabs in card section', async () => {
-        Shopware.State.commit('extensionComponentSections/addSection', {
+        Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
             props: {
@@ -107,7 +107,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     it('should switch tab when clicking', async () => {
-        Shopware.State.commit('extensionComponentSections/addSection', {
+        Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
             props: {
@@ -148,7 +148,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         'dev',
         'prod',
     ])('should be deprecated in %s env', async (env) => {
-        Shopware.State.commit('extensionComponentSections/addSection', {
+        Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
             props: {

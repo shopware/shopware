@@ -3410,7 +3410,7 @@ class ElasticsearchProductTest extends TestCase
                 ->property('red', 'color')
                 ->build(),
             (new ProductBuilder($this->ids, 'zanother-product-3b'))
-                ->name('Foo Sti')
+                ->name('Bar Sti')
                 ->manufacturer('m2')
                 ->price(100, 100, 'default', 100, 100)
                 ->purchasePrice(100)

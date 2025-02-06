@@ -84,10 +84,5 @@ parameters:
 
         - # issue 6556
             message: '#^.*$#'
-            count: 37
-            path: tests/integration/Core/Content/Product/SalesChannel/Detail/ProductDetailRouteTest.php
-
-        - # issue 6556
-            message: '#^.*$#'
             count: 3
             path: tests/unit/Elasticsearch/Product/ProductSearchQueryBuilderTest.php

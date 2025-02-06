@@ -177,21 +177,21 @@ class Generator extends TestCase
         $languageInfo ??= new LanguageInfo(self::LANGUAGE_INFO_NAME, self::LANGUAGE_INFO_LOCALE_CODE);
 
         $salesChannelContext = new SalesChannelContext(
-            baseContext: $baseContext,
-            token: $token,
-            domainId: $domainId,
-            salesChannel: $salesChannel,
-            currency: $currency,
-            currentCustomerGroup: $currentCustomerGroup,
-            taxRules: $taxRules,
-            paymentMethod: $paymentMethod,
-            shippingMethod: $shippingMethod,
-            shippingLocation: $shippingLocation,
-            customer: $customer,
-            itemRounding: $itemRounding,
-            totalRounding: $totalRounding,
-            areaRuleIds: $areaRuleIds,
-            languageInfo: $languageInfo,
+            $baseContext,
+            $token,
+            $domainId,
+            $salesChannel,
+            $currency,
+            $currentCustomerGroup,
+            $taxRules,
+            $paymentMethod,
+            $shippingMethod,
+            $shippingLocation,
+            $customer,
+            $itemRounding,
+            $totalRounding,
+            $languageInfo,
+            $areaRuleIds,
         );
 
         if ($overrides) {

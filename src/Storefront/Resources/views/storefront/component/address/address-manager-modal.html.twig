@@ -121,7 +121,9 @@
                 <form
                     action="{{ path('frontend.account.addressmanager.switch')}}"
                     method="post"
-                    data-form-submit-loader="true"
+                    {# @deprecated tag:v6.7.0 - Form loader plugin will be replaced by form handler plugin. #}
+                    {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+                    {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-submit-loader="true"{% endif %}
                 >
                     <input
                         type="hidden"

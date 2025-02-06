@@ -14,7 +14,7 @@
                 {% endif %}
 
                 {% block page_account_address_form_welcome_headline %}
-                    <h1>
+                    <h1 {% if feature('ADDRESS_SELECTION_REWORK') %} class="mx-2 mb-0" {% endif %}>
                         {{ 'account.addressCreateWelcome'|trans|sw_sanitize }}
                     </h1>
                 {% endblock %}
@@ -30,9 +30,10 @@
                               action="{{ path('frontend.account.address.create') }}"
                               {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
                               {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
-                              {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}
-                              data-form-validation="true"
-                              data-form-submit-loader="true"
+                              {% if not feature('ACCESSIBILITY_TWEAKS') %}
+                                  data-form-validation="true"
+                                  data-form-submit-loader="true"
+                              {% endif %}
                         >
                             {% block page_account_address_form_create_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {

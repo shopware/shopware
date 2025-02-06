@@ -162,6 +162,11 @@ class InternalClassRule implements Rule
             return false;
         }
 
+        if (\str_contains($namespace, '\\Test\\Integration\\Builder\\')) {
+            // Test builder classes are not internal by design
+            return false;
+        }
+
         if (\str_contains($namespace, '\\Test\\')) {
             return true;
         }

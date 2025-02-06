@@ -80,8 +80,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.get('notification').notifications = {};
-        Shopware.State.get('notification').growlNotifications = {};
+        Shopware.Store.get('notification').notifications = {};
+        Shopware.Store.get('notification').growlNotifications = {};
     });
 
     it('should show warning modal and then call the file input form', async () => {
@@ -205,7 +205,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         const wrapper = await createWrapper();
 
         // no growl message was thrown
-        expect(Object.keys(Shopware.State.get('notification').growlNotifications)).toHaveLength(0);
+        expect(Object.keys(Shopware.Store.get('notification').growlNotifications)).toHaveLength(0);
 
         // return an error from the upload
         uploadSpy.mockImplementationOnce(() =>
@@ -232,7 +232,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         // check if error notification gets thrown
         await wrapper.vm.$nextTick();
-        const growlNotifications = Shopware.State.get('notification').growlNotifications;
+        const growlNotifications = Shopware.Store.get('notification').growlNotifications;
 
         expect(Object.keys(growlNotifications)).toHaveLength(1);
         Object.keys(growlNotifications).forEach((key) => {

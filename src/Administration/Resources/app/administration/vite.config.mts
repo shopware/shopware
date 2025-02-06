@@ -9,6 +9,7 @@ import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
 import * as fs from 'fs';
 import symfonyPlugin from 'vite-plugin-symfony';
+import colors from 'picocolors';
 import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
@@ -21,7 +22,7 @@ process.env = { ...process.env, ...loadEnv('', process.cwd()) };
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '/../../../../../');
 
 if (!process.env.APP_URL) {
-    throw new Error('APP_URL is not defined');
+    console.log(colors.yellowBright('APP_URL is not defined. Dev-Mode will not work.'));
 }
 
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');

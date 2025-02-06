@@ -7,7 +7,7 @@ import './sw-product-basic-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Context, Mixin } = Shopware;
-const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -44,11 +44,17 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'loading',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         ...mapPropertyErrors('product', [
             'name',
@@ -64,7 +70,7 @@ export default {
         },
 
         isTitleRequired() {
-            return Shopware.State.getters['context/isSystemDefaultLanguage'];
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
         },
 
         productNumberRangeLink() {

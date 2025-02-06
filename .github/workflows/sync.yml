@@ -5,6 +5,7 @@ on:
     branches:
       - trunk
       - 6.5.x
+      - 6.6.x
   workflow_call:
 
 jobs:
@@ -12,7 +13,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.repository == 'shopware/shopware'
     permissions:
-        id-token: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,3 +33,4 @@ jobs:
           git remote add private https://github.com/shopware/shopware-private.git
           git fetch private
           git push -f private ${{ github.ref }}
+

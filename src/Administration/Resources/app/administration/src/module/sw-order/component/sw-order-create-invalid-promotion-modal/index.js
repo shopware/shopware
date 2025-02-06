@@ -5,7 +5,7 @@ import './sw-order-create-invalid-promotion-modal.scss';
  * @sw-package checkout
  */
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -20,7 +20,7 @@ export default {
 
     computed: {
         invalidPromotionCodes() {
-            return State.getters['swOrder/invalidPromotionCodes'];
+            return Store.get('swOrder').invalidPromotionCodes;
         },
     },
 

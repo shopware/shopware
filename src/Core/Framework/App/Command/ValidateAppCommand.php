@@ -10,7 +10,6 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -33,31 +32,6 @@ class ValidateAppCommand extends Command
         private readonly ManifestValidator $manifestValidator
     ) {
         parent::__construct();
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - reason:visibility-change - will be private in v6.7.0
-     *
-     * @return array<int, string>
-     */
-    public function validate(string $appDir): array
-    {
-        $context = Context::createCLIContext();
-        $invalids = [];
-
-        try {
-            foreach ($this->getManifestsFromDir($appDir) as $manifest) {
-                try {
-                    $this->manifestValidator->validate($manifest, $context);
-                } catch (AppValidationException $e) {
-                    $invalids[] = $e->getMessage();
-                }
-            }
-        } catch (XmlParsingException|AppXmlParsingException $e) {
-            $invalids[] = $e->getMessage();
-        }
-
-        return $invalids;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -95,6 +69,29 @@ class ValidateAppCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the app, has also to be the name of the folder under which the app can be found under custom/apps.');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function validate(string $appDir): array
+    {
+        $context = Context::createCLIContext();
+        $invalids = [];
+
+        try {
+            foreach ($this->getManifestsFromDir($appDir) as $manifest) {
+                try {
+                    $this->manifestValidator->validate($manifest, $context);
+                } catch (AppValidationException $e) {
+                    $invalids[] = $e->getMessage();
+                }
+            }
+        } catch (AppXmlParsingException $e) {
+            $invalids[] = $e->getMessage();
+        }
+
+        return $invalids;
     }
 
     /**

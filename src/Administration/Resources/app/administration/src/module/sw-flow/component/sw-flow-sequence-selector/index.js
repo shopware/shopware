@@ -1,7 +1,7 @@
 import template from './sw-flow-sequence-selector.html.twig';
 import './sw-flow-sequence-selector.scss';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 /**
  * @private
@@ -54,14 +54,14 @@ export default {
 
     methods: {
         addIfCondition() {
-            State.commit('swFlowState/updateSequence', {
+            Store.get('swFlow').updateSequence({
                 id: this.sequence.id,
                 ruleId: '',
             });
         },
 
         addThenAction() {
-            State.commit('swFlowState/updateSequence', {
+            Store.get('swFlow').updateSequence({
                 id: this.sequence.id,
                 actionName: '',
             });

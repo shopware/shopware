@@ -15,19 +15,12 @@ class TreeItem extends Struct
      */
     public ?string $afterId;
 
-    /**
-     * @var CategoryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $category;
+    protected ?CategoryEntity $category;
 
     /**
      * @var TreeItem[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $children;
+    protected array $children;
 
     /**
      * @param TreeItem[] $children

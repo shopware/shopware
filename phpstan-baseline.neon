@@ -3102,16 +3102,6 @@ parameters:
 			path: src/Core/Framework/Test/Filesystem/Adapter/MemoryAdapterFactory.php
 
 		-
-			message: "#^Argument of an invalid type array\\<string\\>\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/ExtensionHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\ExtensionHelper\\:\\:removeExtensions\\(\\) has parameter \\$object with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/ExtensionHelper.php
-
-		-
 			message: "#^Mixed variable in a `\\$oldBag\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 3
 			path: src/Core/Framework/Test/TestSessionStorage.php

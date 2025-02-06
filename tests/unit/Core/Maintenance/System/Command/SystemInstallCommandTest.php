@@ -63,7 +63,6 @@ class SystemInstallCommandTest extends TestCase
                 'shopEmail' => 'admin@gmail.com',
                 'shopLocale' => 'de-DE',
                 'shopCurrency' => 'USD',
-                'skipJwtKeysGeneration' => true,
                 'basicSetup' => true,
                 'shopName_1' => 'Storefront',
                 'shopLocale_1' => 'de-DE',

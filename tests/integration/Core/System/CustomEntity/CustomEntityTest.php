@@ -620,11 +620,10 @@ class CustomEntityTest extends TestCase
     {
         static::assertTrue($schema->hasTable($table), \sprintf('Table %s do not exists', $table));
 
-        $existing = \array_keys($schema->getTable($table)->getColumns());
+        $table = $schema->getTable($table);
 
         foreach ($columns as $column) {
-            // strtolower required for assertContains
-            static::assertContains(\strtolower($column), $existing, 'Column ' . $column . ' not found in table ' . $table . ': ' . \print_r($existing, true));
+            static::assertTrue($table->hasColumn($column), 'Column ' . $column . ' not found in table ' . $table->getName());
         }
     }
 

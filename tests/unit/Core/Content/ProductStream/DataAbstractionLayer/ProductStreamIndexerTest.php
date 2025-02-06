@@ -192,11 +192,20 @@ class ProductStreamIndexerTest extends TestCase
         $this->productDefinition->expects(static::exactly(5))->method('getEntityName')->willReturn('product');
 
         $statement = $this->createMock(Statement::class);
-        $statement->expects(static::once())->method('executeStatement')->with([
-            'serialized' => $serialized,
-            'invalid' => 0,
-            'id' => Uuid::fromHexToBytes($productStreamId),
-        ]);
+        $params = [
+            ['serialized', $serialized],
+            ['invalid', 0],
+            ['id', Uuid::fromHexToBytes($productStreamId)],
+        ];
+        $matcher = static::exactly(\count($params));
+        $statement->expects($matcher)
+            ->method('bindValue')
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
+            });
+
+        $statement->expects(static::once())->method('executeStatement')->willReturn(1);
 
         $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn($filters);
         $this->connection->expects(static::once())->method('prepare')->willReturn($statement);
@@ -210,7 +219,7 @@ class ProductStreamIndexerTest extends TestCase
         $result->expects(static::once())->method('fetchOne')->willReturn(1);
 
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(static::once())->method('getQueryPart')->willReturn(['id']);
+        $queryBuilder->expects(static::once())->method('getSelectParts')->willReturn(['id']);
         $queryBuilder->expects(static::once())->method('executeQuery')->willReturn($result);
 
         $this->iteratorFactory->expects(static::once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));

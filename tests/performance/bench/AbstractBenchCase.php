@@ -25,7 +25,6 @@ abstract class AbstractBenchCase
 
         $this->context = clone Fixtures::context();
 
-        static::getContainer()->get(Connection::class)->setNestTransactionsWithSavepoints(true);
         static::getContainer()->get(Connection::class)->beginTransaction();
     }
 

@@ -306,10 +306,5 @@ const ShopwareInstance = new ShopwareClass();
 // Freeze InAppPurchase to prevent modifications
 Object.defineProperty(ShopwareInstance, 'InAppPurchase', { configurable: false, writable: false });
 
-// Only works for webpack order of imports
-if (!window._features_.ADMIN_VITE) {
-    window.Shopware = ShopwareInstance;
-}
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export { ShopwareClass, ShopwareInstance };

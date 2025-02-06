@@ -1,7 +1,6 @@
 import initState from './store';
 import './mixin/sw-extension-error.mixin';
 import './service';
-import './page/sw-extension-my-extensions-account';
 import './acl';
 
 initState(Shopware);

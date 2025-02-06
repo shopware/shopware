@@ -10,7 +10,6 @@
     },
     "types": [
       "vite/client",
-      "@types/webpack-env",
       "jest"
     ],
     "resolveJsonModule": true,

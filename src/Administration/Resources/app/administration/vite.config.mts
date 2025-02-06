@@ -4,6 +4,7 @@
 
 import { defineConfig, loadEnv } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgLoader from 'vite-svg-loader';
 import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
@@ -77,6 +78,11 @@ export default defineConfig(({ command }) => {
                 AssetPlugin(isProd, __dirname),
                 AssetPathPlugin(),
 
+                // Twig.JS loads node modules, so we need to polyfill them
+                nodePolyfills({
+                    // To add only specific polyfills, add them here. If no option is passed, adds all polyfills
+                    include: ['path', 'events'],
+                }),
                 svgLoader(),
                 vue(),
             ];
@@ -94,7 +100,7 @@ export default defineConfig(({ command }) => {
                          * the original tags need to be deleted
                          * @default src/main.ts
                          */
-                        entry: 'src/index.vite.ts',
+                        entry: 'src/index.ts',
 
                         /**
                          * Data that needs to be injected into the index.html ejs template
@@ -126,6 +132,10 @@ export default defineConfig(({ command }) => {
                 {
                     find: /^src\//,
                     replacement: '/src/',
+                },
+                {
+                    find: /^test\//,
+                    replacement: '/test/',
                 },
                 {
                     // this is required for the SCSS modules
@@ -181,7 +191,7 @@ export default defineConfig(({ command }) => {
             rollupOptions: {
                 // overwrite default .html entry
                 input: {
-                    administration: 'src/index.vite.ts',
+                    administration: 'src/index.ts',
                 },
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',

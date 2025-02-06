@@ -7,11 +7,10 @@
  * The environment variable VITE_MODE is automatically set by the npm commands in the package.json.
  * You can just run `composer build:js:admin` or `composer watch:admin` respectively.
  *
- * @package framework
+ * @sw-package framework
  */
 
 import { createServer, build, defineConfig, createLogger } from 'vite';
-import type { Plugin } from 'vite';
 import path from 'path';
 import fs from 'fs';
 import colors from 'picocolors';
@@ -46,7 +45,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
 
     const logger = createLogger();
 
-    logger.info = (msg, options) => {
+    logger.info = (msg) => {
         if (msg.includes('vite:config')) {
             configInfoDebug(msg);
             return;
@@ -65,7 +64,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
         plugins: [
             TwigPlugin(),
             AssetPlugin(!isDev, __dirname),
-            AssetPathPlugin(),
+            AssetPathPlugin(extension.technicalFolderName),
             svgLoader(),
             OverrideComponentRegisterPlugin({
                 root: extension.path,
@@ -144,7 +143,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
             outDir: path.resolve(extension.basePath, 'Resources/public/administration'),
             emptyOutDir: true,
             manifest: true,
-            sourcemap: true,
+            sourcemap: useSourceMap,
             rollupOptions: {
                 input: {
                     [extension.technicalName]: extension.filePath,

@@ -43,6 +43,8 @@ module.exports = {
 
     testRunner: 'jest-jasmine2',
 
+    resolver: '<rootDir>/jest-resolver.js',
+
     runner: 'groups',
 
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),

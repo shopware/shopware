@@ -12,8 +12,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
     static options = {
         navigationUrl: window.router['frontend.menu.offcanvas'],
         position: 'left',
-        /** @deprecated tag:v6.7.0 - property "tiggerEvent" will be removed. Use "triggerEvent" instead */
-        tiggerEvent: 'click',
         triggerEvent: 'click',
 
         additionalOffcanvasClass: 'navigation-offcanvas',
@@ -39,10 +37,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
         this._client = new HttpClient();
         this._content = LoadingIndicator.getTemplate();
 
-        /** @deprecated tag:v6.7.0 - Remove if condition completely, as "tiggerEvent" will be removed */
-        if (this.options.tiggerEvent !== this.options.triggerEvent) {
-            this.options.triggerEvent = this.options.tiggerEvent;
-        }
         this._registerEvents();
     }
 

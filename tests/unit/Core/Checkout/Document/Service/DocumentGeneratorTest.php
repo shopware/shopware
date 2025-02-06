@@ -349,6 +349,7 @@ class DocumentGeneratorTest extends TestCase
             [$mediaId, $mediaA11yId],
             new RenderedDocument(
                 name: 'invoice',
+                content: 'test'
             ),
             [
                 $orderId => new DocumentGenerateOperation(
@@ -374,6 +375,7 @@ class DocumentGeneratorTest extends TestCase
             [$mediaId, null],
             new RenderedDocument(
                 name: 'invoice',
+                content: 'test',
             ),
             [
                 $orderId => new DocumentGenerateOperation(

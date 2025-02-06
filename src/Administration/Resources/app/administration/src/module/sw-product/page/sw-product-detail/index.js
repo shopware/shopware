@@ -4,14 +4,14 @@
 
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-product-detail.html.twig';
-import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
+import '../../page/sw-product-detail/store';
 
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const type = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -81,24 +81,53 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'localMode',
-            'advancedModeSetting',
-            'modeSettings',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'productRepository',
-            'isLoading',
-            'isChild',
-            'defaultCurrency',
-            'defaultFeatureSet',
-            'showModeSetting',
-            'advanceModeEnabled',
-            'productStates',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        localMode() {
+            return Shopware.Store.get('swProductDetail').localMode;
+        },
+
+        advancedModeSetting() {
+            return Shopware.Store.get('swProductDetail').advancedModeSetting;
+        },
+
+        modeSettings() {
+            return Shopware.Store.get('swProductDetail').modeSettings;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        isChild() {
+            return Shopware.Store.get('swProductDetail').isChild;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        getDefaultFeatureSet() {
+            return Shopware.Store.get('swProductDetail').getDefaultFeatureSet;
+        },
+
+        showModeSetting() {
+            return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
+
+        advanceModeEnabled() {
+            return Shopware.Store.get('swProductDetail').advanceModeEnabled;
+        },
+
+        productStates() {
+            return Shopware.Store.get('swProductDetail').productStates;
+        },
 
         ...mapPageErrors(errorConfiguration),
 
@@ -162,7 +191,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userModeSettingsRepository() {
@@ -366,16 +395,8 @@ export default {
         },
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swProductDetail', swProductDetailState);
-    },
-
     created() {
         this.createdComponent();
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swProductDetail');
     },
 
     unmounted() {
@@ -401,8 +422,8 @@ export default {
             // when create
             if (!this.productId) {
                 // set language to system language
-                if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                    Shopware.State.commit('context/resetLanguageToDefault');
+                if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+                    Shopware.Store.get('context').resetLanguageToDefault();
                 }
             }
 
@@ -431,7 +452,7 @@ export default {
         },
 
         initState() {
-            Shopware.State.commit('swProductDetail/setApiContext', Shopware.Context.api);
+            Shopware.Store.get('swProductDetail').apiContext = Shopware.Context.api;
 
             // when product exists
             if (this.productId) {
@@ -449,7 +470,7 @@ export default {
         },
 
         initAdvancedModeSettings() {
-            Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.getAdvancedModeDefaultSetting());
+            Shopware.Store.get('swProductDetail').advancedModeSetting = this.getAdvancedModeDefaultSetting();
 
             this.getAdvancedModeSetting();
         },
@@ -492,15 +513,15 @@ export default {
                     return accumulator;
                 }, []);
 
-                Shopware.State.commit('swProductDetail/setAdvancedModeSetting', modeSettings);
-                Shopware.State.commit('swProductDetail/setModeSettings', this.changeModeSettings());
+                Shopware.Store.get('swProductDetail').advancedModeSetting = modeSettings;
+                Shopware.Store.get('swProductDetail').modeSettings = this.changeModeSettings();
 
                 await this.$nextTick();
             });
         },
 
         saveAdvancedMode() {
-            Shopware.State.commit('swProductDetail/setLoading', [
+            Shopware.Store.get('swProductDetail').setLoading([
                 'advancedMode',
                 true,
             ]);
@@ -508,7 +529,7 @@ export default {
                 .save(this.advancedModeSetting)
                 .then(() => {
                     this.getAdvancedModeSetting().then(() => {
-                        Shopware.State.commit('swProductDetail/setLoading', [
+                        Shopware.Store.get('swProductDetail').setLoading([
                             'advancedMode',
                             false,
                         ]);
@@ -522,7 +543,7 @@ export default {
         },
 
         onChangeSetting() {
-            Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.advancedModeSetting);
+            Shopware.Store.get('swProductDetail').advancedModeSetting = this.advancedModeSetting;
             this.saveAdvancedMode();
         },
 
@@ -536,16 +557,15 @@ export default {
         },
 
         onChangeSettingItem() {
-            Shopware.State.commit('swProductDetail/setModeSettings', this.changeModeSettings());
+            Shopware.Store.get('swProductDetail').modeSettings = this.changeModeSettings();
             this.saveAdvancedMode();
         },
 
         loadState() {
-            Shopware.State.commit('swProductDetail/setLocalMode', false);
-            Shopware.State.commit('swProductDetail/setProductId', this.productId);
-            Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Store.get('swProductDetail').localMode = false;
+            Shopware.Store.get('shopwareApps').selectedIds = [
                 this.productId,
-            ]);
+            ];
 
             return this.loadAll();
         },
@@ -561,20 +581,19 @@ export default {
 
         createState() {
             // set local mode
-            Shopware.State.commit('swProductDetail/setLocalMode', true);
-            Shopware.State.commit('shopwareApps/setSelectedIds', []);
+            Shopware.Store.get('swProductDetail').localMode = true;
+            Shopware.Store.get('shopwareApps').selectedIds = [];
 
-            Shopware.State.commit('swProductDetail/setLoading', [
+            Shopware.Store.get('swProductDetail').setLoading([
                 'product',
                 true,
             ]);
 
             // set product "type"
-            Shopware.State.commit('swProductDetail/setCreationStates', this.creationStates);
+            Shopware.Store.get('swProductDetail').creationStates = this.creationStates;
 
             // create empty product
-            Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create());
-            Shopware.State.commit('swProductDetail/setProductId', this.product.id);
+            Shopware.Store.get('swProductDetail').product = this.productRepository.create();
 
             // fill empty data
             this.product.active = true;
@@ -639,11 +658,11 @@ export default {
                     });
                 }
 
-                if (this.defaultFeatureSet && this.defaultFeatureSet.length > 0) {
-                    this.product.featureSetId = this.defaultFeatureSet[0].id;
+                if (this.getDefaultFeatureSet?.length) {
+                    this.product.featureSetId = this.getdefaultFeatureSet[0].id;
                 }
 
-                Shopware.State.commit('swProductDetail/setLoading', [
+                Shopware.Store.get('swProductDetail').setLoading([
                     'product',
                     false,
                 ]);
@@ -657,7 +676,7 @@ export default {
         },
 
         loadProduct() {
-            Shopware.State.commit('swProductDetail/setLoading', [
+            Shopware.Store.get('swProductDetail').setLoading([
                 'product',
                 true,
             ]);
@@ -673,15 +692,15 @@ export default {
                         product.purchasePrices = this.getDefaultPurchasePrices();
                     }
 
-                    Shopware.State.commit('swProductDetail/setProduct', product);
+                    Shopware.Store.get('swProductDetail').product = product;
 
                     if (this.product.parentId) {
                         this.loadParentProduct();
                     } else {
-                        Shopware.State.commit('swProductDetail/setParentProduct', {});
+                        Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
 
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'product',
                         false,
                     ]);
@@ -700,7 +719,7 @@ export default {
         },
 
         loadParentProduct() {
-            Shopware.State.commit('swProductDetail/setLoading', [
+            Shopware.Store.get('swProductDetail').setLoading([
                 'parentProduct',
                 true,
             ]);
@@ -708,10 +727,10 @@ export default {
             return this.productRepository
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
                 .then((res) => {
-                    Shopware.State.commit('swProductDetail/setParentProduct', res);
+                    Shopware.Store.get('swProductDetail').parentProduct = res;
                 })
                 .then(() => {
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'parentProduct',
                         false,
                     ]);
@@ -719,7 +738,7 @@ export default {
         },
 
         loadCurrencies() {
-            Shopware.State.commit('swProductDetail/setLoading', [
+            Shopware.Store.get('swProductDetail').setLoading([
                 'currencies',
                 true,
             ]);
@@ -727,10 +746,10 @@ export default {
             return this.currencyRepository
                 .search(new Criteria(1, 500))
                 .then((res) => {
-                    Shopware.State.commit('swProductDetail/setCurrencies', res);
+                    Shopware.Store.get('swProductDetail').currencies = res;
                 })
-                .then(() => {
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                .finally(() => {
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'currencies',
                         false,
                     ]);
@@ -738,7 +757,7 @@ export default {
         },
 
         loadTaxes() {
-            Shopware.State.commit('swProductDetail/setLoading', [
+            Shopware.Store.get('swProductDetail').setLoading([
                 'taxes',
                 true,
             ]);
@@ -746,10 +765,10 @@ export default {
             return this.taxRepository
                 .search(this.taxCriteria)
                 .then((res) => {
-                    Shopware.State.commit('swProductDetail/setTaxes', res);
+                    Shopware.Store.get('swProductDetail').setTaxes(res);
                 })
-                .then(() => {
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                .finally(() => {
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'taxes',
                         false,
                     ]);
@@ -763,7 +782,7 @@ export default {
         },
 
         loadAttributeSet() {
-            Shopware.State.commit('swProductDetail/setLoading', [
+            Shopware.Store.get('swProductDetail').setLoading([
                 'customFieldSets',
                 true,
             ]);
@@ -771,10 +790,10 @@ export default {
             return this.customFieldSetRepository
                 .search(this.customFieldSetCriteria)
                 .then((res) => {
-                    Shopware.State.commit('swProductDetail/setAttributeSet', res);
+                    Shopware.Store.get('swProductDetail').customFieldSets = res;
                 })
                 .finally(() => {
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'customFieldSets',
                         false,
                     ]);
@@ -782,7 +801,7 @@ export default {
         },
 
         loadDefaultFeatureSet() {
-            Shopware.State.commit('swProductDetail/setLoading', [
+            Shopware.Store.get('swProductDetail').setLoading([
                 'defaultFeatureSet',
                 true,
             ]);
@@ -790,10 +809,10 @@ export default {
             return this.featureSetRepository
                 .search(this.defaultFeatureSetCriteria)
                 .then((res) => {
-                    Shopware.State.commit('swProductDetail/setDefaultFeatureSet', res);
+                    Shopware.Store.get('swProductDetail').setDefaultFeatureSet(res);
                 })
-                .then(() => {
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                .finally(() => {
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'defaultFeatureSet',
                         false,
                     ]);
@@ -844,7 +863,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.initState();
         },
 
@@ -955,9 +974,9 @@ export default {
         onSaveFinished(response) {
             const updatePromises = [];
 
-            if (Shopware.State.list().includes('swSeoUrl')) {
-                const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
-                const defaultSeoUrl = Shopware.State.get('swSeoUrl').defaultSeoUrl;
+            if (Shopware.Store.list().includes('swSeoUrl')) {
+                const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
+                const defaultSeoUrl = Shopware.Store.get('swSeoUrl').defaultSeoUrl;
 
                 if (seoUrls) {
                     seoUrls.forEach((seoUrl) => {
@@ -989,7 +1008,7 @@ export default {
                     switch (response) {
                         case 'empty': {
                             this.isSaveSuccessful = true;
-                            Shopware.State.commit('error/resetApiErrors');
+                            Shopware.Store.get('error').resetApiErrors();
                             break;
                         }
 
@@ -1039,7 +1058,7 @@ export default {
         },
 
         saveProduct() {
-            Shopware.State.commit('swProductDetail/setLoading', [
+            Shopware.Store.get('swProductDetail').setLoading([
                 'product',
                 true,
             ]);
@@ -1053,12 +1072,12 @@ export default {
             return new Promise((resolve) => {
                 // check if product exists
                 if (!this.productRepository.hasChanges(this.product)) {
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'product',
                         false,
                     ]);
                     resolve('empty');
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'product',
                         false,
                     ]);
@@ -1070,7 +1089,7 @@ export default {
                     .save(this.product)
                     .then(() => {
                         this.loadAll().then(() => {
-                            Shopware.State.commit('swProductDetail/setLoading', [
+                            Shopware.Store.get('swProductDetail').setLoading([
                                 'product',
                                 false,
                             ]);
@@ -1079,7 +1098,7 @@ export default {
                         });
                     })
                     .catch((response) => {
-                        Shopware.State.commit('swProductDetail/setLoading', [
+                        Shopware.Store.get('swProductDetail').setLoading([
                             'product',
                             false,
                         ]);

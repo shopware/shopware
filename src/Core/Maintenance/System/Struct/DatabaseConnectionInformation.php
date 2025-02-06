@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Maintenance\MaintenanceException;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
 #[Package('framework')]
 class DatabaseConnectionInformation extends Struct
@@ -31,12 +31,7 @@ class DatabaseConnectionInformation extends Struct
 
     protected ?bool $sslDontVerifyServerCert = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Native return type will be added
-     *
-     * @return DatabaseConnectionInformation
-     */
-    public function assign(array $options)
+    public function assign(array $options): DatabaseConnectionInformation
     {
         // We pass request values directly to the assign method,
         // so we need to cast them to the correct type first

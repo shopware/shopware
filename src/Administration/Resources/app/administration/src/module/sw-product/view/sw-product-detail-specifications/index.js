@@ -4,9 +4,6 @@
 
 import template from './sw-product-detail-specifications.html.twig';
 
-const { Component } = Shopware;
-const { mapState, mapGetters } = Component.getComponentHelper();
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -26,19 +23,33 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'customFieldSets',
-            'loading',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-            'showModeSetting',
-            'showProductCard',
-            'productStates',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        loading() {
+            return Shopware.Store.get('swProductDetail').loading;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        customFieldSets() {
+            return Shopware.Store.get('swProductDetail').customFieldSets;
+        },
+
+        showModeSetting() {
+            return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
+
+        productStates() {
+            return Shopware.Store.get('swProductDetail').productStates;
+        },
 
         customFieldsExists() {
             return !this.customFieldSets.length <= 0;
@@ -46,6 +57,12 @@ export default {
 
         showCustomFieldsCard() {
             return this.showProductCard('custom_fields') && !this.isLoading && this.customFieldsExists;
+        },
+    },
+
+    methods: {
+        showProductCard(key) {
+            return Shopware.Store.get('swProductDetail').showProductCard(key);
         },
     },
 };

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -49,6 +50,7 @@ class PdfRendererTest extends TestCase
             new ExtensionDispatcher($dispatcher),
         );
 
+        // @deprecated tag:v6.7.0 - html argument will be removed
         $rendered = new RenderedDocument('html', '1001', InvoiceRenderer::TYPE);
         $rendered->setContext(Context::createDefaultContext());
         $rendered->setOrder($this->getOrder());
@@ -64,6 +66,7 @@ class PdfRendererTest extends TestCase
         $renderer->render($rendered);
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testRender(): void
     {
         $html = '
@@ -83,6 +86,7 @@ class PdfRendererTest extends TestCase
             </html>
         ';
 
+        // @deprecated tag:v6.7.0 - html argument will be removed
         $rendered = new RenderedDocument(
             $html,
             '1001',
@@ -122,10 +126,9 @@ class PdfRendererTest extends TestCase
 
     public function testRenderWithoutHtml(): void
     {
-        $html = '';
-
+        // @deprecated tag:v6.7.0 - html argument will be removed
         $rendered = new RenderedDocument(
-            $html,
+            '',
             '1001',
             InvoiceRenderer::TYPE,
         );
@@ -160,8 +163,9 @@ class PdfRendererTest extends TestCase
 
     public function testRenderThrowException(): void
     {
-        static::expectException(DocumentException::class);
+        $this->expectException(DocumentException::class);
 
+        // @deprecated tag:v6.7.0 - html argument will be removed
         $rendered = new RenderedDocument(
             '',
             '1001',

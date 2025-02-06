@@ -1,8 +1,8 @@
 import template from './sw-flow-trigger.html.twig';
 import './sw-flow-trigger.scss';
 
-const { Component, State } = Shopware;
-const { mapPropertyErrors, mapState, mapGetters } = Component.getComponentHelper();
+const { Component, Store } = Shopware;
+const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 const utils = Shopware.Utils;
 const { camelCase, capitalizeString } = Shopware.Utils.string;
 const { isEmpty } = utils.types;
@@ -94,11 +94,14 @@ export default {
             return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
         },
 
-        ...mapState('swFlowState', [
-            'flow',
-            'triggerEvents',
-        ]),
-        ...mapGetters('swFlowState', ['isSequenceEmpty']),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'flow',
+                'triggerEvents',
+                'isSequenceEmpty',
+            ],
+        ),
         ...mapPropertyErrors('flow', ['eventName']),
     },
 
@@ -181,9 +184,9 @@ export default {
             document.addEventListener('keydown', this.handleGeneralKeyEvents);
 
             this.isLoading = true;
-            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
-            State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(this.eventName));
-            State.dispatch('swFlowState/setRestrictedRules', this.eventName);
+            Store.get('swFlow').fetchTriggerActions();
+            Store.get('swFlow').triggerEvent = this.getDataByEvent(this.eventName);
+            Store.get('swFlow').restrictedRules = this.eventName;
 
             this.isLoading = false;
         },
@@ -612,8 +615,8 @@ export default {
             if (this.isSequenceEmpty) {
                 const { id } = item.data;
 
-                State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(id));
-                State.dispatch('swFlowState/setRestrictedRules', id);
+                Store.get('swFlow').triggerEvent = this.getDataByEvent(id);
+                Store.get('swFlow').restrictedRules = id;
                 this.$emit('option-select', id);
             } else {
                 this.showConfirmModal = this.flow.eventName !== item.id;
@@ -622,8 +625,8 @@ export default {
         },
 
         onConfirm() {
-            State.commit('swFlowState/setTriggerEvent', this.triggerSelect);
-            State.dispatch('swFlowState/setRestrictedRules', this.triggerSelect.name);
+            Store.get('swFlow').triggerEvent = this.triggerSelect;
+            Store.get('swFlow').restrictedRules = this.triggerSelect.name;
             this.$emit('option-select', this.triggerSelect.name);
         },
 
@@ -739,8 +742,8 @@ export default {
 
             if (this.isSequenceEmpty) {
                 this.$emit('option-select', item.name);
-                State.commit('swFlowState/setTriggerEvent', item);
-                State.dispatch('swFlowState/setRestrictedRules', item.name);
+                Store.get('swFlow').triggerEvent = item;
+                Store.get('swFlow').restrictedRules = item.name;
             } else {
                 this.showConfirmModal = true;
                 this.triggerSelect = item;

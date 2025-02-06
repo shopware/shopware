@@ -4,11 +4,11 @@ namespace Shopware\Core\Framework\Store\Exception;
 
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Store\StoreException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-class StoreApiException extends ShopwareHttpException
+class StoreApiException extends StoreException
 {
     /**
      * @var string
@@ -33,7 +33,11 @@ class StoreApiException extends ShopwareHttpException
         } catch (\JsonException) {
         }
 
-        parent::__construct($data['description'] ?? $exception->getMessage());
+        parent::__construct(
+            $this->getStatusCode(),
+            $this->getErrorCode(),
+            $data['description'] ?? $exception->getMessage()
+        );
 
         $this->title = $data['title'] ?? '';
         $this->documentationLink = $data['documentationLink'] ?? '';

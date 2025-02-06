@@ -2,7 +2,7 @@ import template from './sw-landing-page-detail-base.html.twig';
 import './sw-landing-page-detail-base.scss';
 
 const { Mixin } = Shopware;
-const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
  * @sw-package discovery
@@ -30,15 +30,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swCategoryDetail', {
-            customFieldSetsArray: (state) => {
-                if (!state.customFieldSets) {
-                    return [];
-                }
-
-                return state.customFieldSets;
-            },
-        }),
+        customFieldSetsArray() {
+            return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
+        },
 
         ...mapPropertyErrors('landingPage', [
             'name',
@@ -47,7 +41,7 @@ export default {
         ]),
 
         landingPage() {
-            return Shopware.State.get('swCategoryDetail').landingPage;
+            return Shopware.Store.get('swCategoryDetail').landingPage;
         },
 
         cmsPage() {

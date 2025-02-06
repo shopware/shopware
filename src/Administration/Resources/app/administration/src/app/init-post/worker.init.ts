@@ -6,13 +6,12 @@ import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
-import type { ContextState } from '../state/context.store';
-import type {
-    NotificationConfig,
-    NotificationService,
-    NotificationWorkerOptions,
-} from '../../core/factory/worker-notification.factory';
+import type { ContextStore } from '../store/context.store';
+import type { NotificationService, NotificationWorkerOptions } from '../../core/factory/worker-notification.factory';
 import type WorkerNotificationFactory from '../../core/factory/worker-notification.factory';
+import type { NotificationType } from '../store/notification.store';
+
+type ContextAppConfig = ContextStore['app']['config'];
 
 let enabled = false;
 let enabledNotification = false;
@@ -25,7 +24,6 @@ let enabledNotification = false;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeWorker() {
     const loginService = Shopware.Service('loginService');
-    const context = Shopware.Context.app;
     const workerNotificationFactory = Shopware.Application.getContainer('factory').workerNotification;
     const configService = Shopware.Service('configService');
 
@@ -33,13 +31,13 @@ export default function initializeWorker() {
 
     function getConfig() {
         return configService.getConfig().then((response) => {
-            Object.entries(response as { [key: string]: unknown }).forEach(
+            Object.entries(response as ContextAppConfig).forEach(
                 ([
                     key,
                     value,
                 ]) => {
-                    Shopware.State.commit('context/addAppConfigValue', {
-                        key,
+                    Shopware.Store.get('context').addAppConfigValue({
+                        key: key as keyof ContextAppConfig,
                         value,
                     });
                 },
@@ -53,6 +51,7 @@ export default function initializeWorker() {
                 enableNotificationWorker(loginService);
             }
 
+            const context = Shopware.Context.app;
             if (context.config.adminWorker?.enableAdminWorker && !enabled) {
                 enableAdminWorker(loginService, Shopware.Context.api, context.config.adminWorker);
             }
@@ -66,11 +65,7 @@ export default function initializeWorker() {
     return loginService.addOnLoginListener(getConfig);
 }
 
-function enableAdminWorker(
-    loginService: LoginService,
-    context: ApiContext,
-    config: ContextState['app']['config']['adminWorker'],
-) {
+function enableAdminWorker(loginService: LoginService, context: ApiContext, config: ContextAppConfig['adminWorker']) {
     // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
     const transports = (JSON.parse(JSON.stringify(config))?.transports || []) as string[];
 
@@ -160,7 +155,7 @@ function getWorker(): SharedWorker {
     return worker;
 }
 
-function enableWorkerNotificationListener(loginService: LoginService, context: ContextState['api']) {
+function enableWorkerNotificationListener(loginService: LoginService, context: ContextStore['api']) {
     let workerNotificationListener = new WorkerNotificationListener(context);
 
     if (loginService.isLoggedIn()) {
@@ -464,7 +459,7 @@ function messageQueueNotification(
         entry.size *= multiplier;
     }
 
-    const config: NotificationConfig = {
+    const config: NotificationType = {
         title: $root.$tc(messages.title),
         message: $root.$tc(messages.message, entry.size),
         variant: 'info',

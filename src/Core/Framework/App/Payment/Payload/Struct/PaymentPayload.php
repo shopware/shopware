@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
 use Shopware\Core\Framework\App\Payload\Source;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
@@ -26,13 +25,6 @@ class PaymentPayload implements PaymentPayloadInterface
     protected OrderTransactionEntity $orderTransaction;
 
     /**
-     * @deprecated tag:v6.7.0 - will be removed, use `requestData` instead
-     *
-     * @var mixed[]
-     */
-    protected array $queryParameters;
-
-    /**
      * @param mixed[] $requestData
      */
     public function __construct(
@@ -44,9 +36,6 @@ class PaymentPayload implements PaymentPayloadInterface
         protected ?RecurringDataStruct $recurring = null,
     ) {
         $this->orderTransaction = $this->removeApp($orderTransaction);
-
-        // @deprecated tag:v6.7.0 - will be removed, use `requestData` instead
-        $this->queryParameters = $requestData;
     }
 
     public function getOrderTransaction(): OrderTransactionEntity
@@ -99,9 +88,7 @@ class PaymentPayload implements PaymentPayloadInterface
     {
         $payload = $this->traitJsonSerialize();
 
-        if (Feature::isActive('v6.7.0.0')) {
-            unset($payload['queryParameters']);
-        }
+        unset($payload['queryParameters']);
 
         return $payload;
     }

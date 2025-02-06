@@ -39,6 +39,15 @@ class DocumentException extends HttpException
 
     public static function invalidDocumentGeneratorType(string $type): self
     {
+        if (Feature::isActive('v6.7.0.0')) {
+            return new self(
+                Response::HTTP_BAD_REQUEST,
+                self::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,
+                'Unable to find a document generator with type "{{ type }}"',
+                ['type' => $type]
+            );
+        }
+
         return new InvalidDocumentGeneratorTypeException(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,
@@ -212,6 +221,22 @@ class DocumentException extends HttpException
             self::FILE_EXTENSION_NOT_SUPPORTED,
             'File extension not supported: {{ fileExtension }}',
             ['fileExtension' => $fileExtension]
+        );
+    }
+
+    /**
+     * @param array<string, string[]> $violations
+     */
+    public static function electronicInvoiceViolation(int $count, array $violations): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::GENERATION_ERROR,
+            'Unable to generate document. {{counter}} violation(s) found',
+            [
+                'counter' => $count,
+                'violations' => $violations,
+            ]
         );
     }
 }

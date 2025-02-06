@@ -334,12 +334,16 @@ class DocumentGenerator
             return null;
         }
 
-        if (!Feature::isActive('v6.7.0.0')) {
+        try {
             $document->setContent($this->fileRendererRegistry->render($document));
 
-            if ($documentType && $result) {
-                $this->rendererRegistry->finalize($documentType, $operation, $context, new DocumentRendererConfig(), $result);
+            if (!Feature::isActive('v6.7.0.0')) {
+                if ($documentType && $result) {
+                    $this->rendererRegistry->finalize($documentType, $operation, $context, new DocumentRendererConfig(), $result);
+                }
             }
+        } catch (\Throwable) {
+            return null;
         }
 
         if ($document->getContent() === '') {

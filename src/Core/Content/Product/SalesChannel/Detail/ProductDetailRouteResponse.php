@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct>
+ * @extends StoreApiResponse<ArrayStruct<string, SalesChannelProductEntity|PropertyGroupCollection|null>>
  */
 #[Package('inventory')]
 class ProductDetailRouteResponse extends StoreApiResponse

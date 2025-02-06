@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct>
+ * @extends StoreApiResponse<ArrayStruct<string, PaymentMethodCollection|ShippingMethodCollection|ErrorCollection>>
  */
 #[Package('checkout')]
 class CheckoutGatewayRouteResponse extends StoreApiResponse

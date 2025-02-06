@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
- * @extends StoreApiResponse<ArrayStruct>
+ * @extends StoreApiResponse<ArrayStruct<string, true>>>
  */
 #[Package('framework')]
 class SuccessResponse extends StoreApiResponse

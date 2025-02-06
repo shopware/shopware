@@ -141,6 +141,7 @@ Shopware.Module.register('sw-import-export', {
     },
 
     settingsItem: {
+        group: 'automation',
         to: 'sw.import.export.index',
         icon: 'regular-database',
         privilege: 'system.import_export',

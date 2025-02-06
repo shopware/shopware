@@ -175,6 +175,7 @@ Module.register('sw-flow', {
     },
 
     settingsItem: {
+        group: 'automation',
         to: 'sw.flow.index',
         icon: 'regular-flow',
         privilege: 'flow.viewer',

@@ -52,6 +52,7 @@ Module.register('sw-settings-document', {
     },
 
     settingsItem: {
+        group: 'commerce',
         to: 'sw.settings.document.index',
         privilege: 'document.viewer',
         icon: 'regular-file-text',

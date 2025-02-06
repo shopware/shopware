@@ -29,7 +29,6 @@ trait ProductSliderUnitTrait
             'id' => 'product-1',
             '_uniqueIdentifier' => 'product-1',
             'isCloseout' => false,
-            'displayParent' => false,
             'variantListingConfig' => new VariantListingConfig(
                 false,
                 'product-1',

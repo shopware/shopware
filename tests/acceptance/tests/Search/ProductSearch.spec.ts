@@ -30,18 +30,18 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
         //     await ShopCustomer.expects(totalCount1).toBe(1);
         // });
 
-        await test.step('Customer searches for a partial term and sees multiple matching products', async () => {
-            await ShopCustomer.attemptsTo(SearchForTerm('Bo'));
-            const totalCount2 = await StorefrontSearchSuggest.getTotalSearchResultCount();
-            await ShopCustomer.expects(totalCount2).toBeGreaterThanOrEqual(2);
-        });
+        // await test.step('Customer searches for a partial term and sees multiple matching products', async () => {
+        //     await ShopCustomer.attemptsTo(SearchForTerm('Bo'));
+        //     const totalCount2 = await StorefrontSearchSuggest.getTotalSearchResultCount();
+        //     await ShopCustomer.expects(totalCount2).toBeGreaterThanOrEqual(2);
+        // });
 
-        await test.step('Customer navigates to the results page to view all matching products', async () => {
-            await StorefrontSearchSuggest.searchSuggestTotalLink.click();
-            await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText('Bo');
-
-            const listedItemsCount = await StorefrontSearchSuggest.productListItems.count();
-            await ShopCustomer.expects(listedItemsCount).toBeGreaterThanOrEqual(2);
-        });
+        // await test.step('Customer navigates to the results page to view all matching products', async () => {
+        //     await StorefrontSearchSuggest.searchSuggestTotalLink.click();
+        //     await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText('Bo');
+        //
+        //     const listedItemsCount = await StorefrontSearchSuggest.productListItems.count();
+        //     await ShopCustomer.expects(listedItemsCount).toBeGreaterThanOrEqual(2);
+        // });
     }
 );

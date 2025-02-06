@@ -6,7 +6,6 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
@@ -52,7 +51,6 @@ class ImportExportProfileEntity extends Entity
     protected array $config;
 
     protected ?ImportExportProfileTranslationCollection $translations;
-
 
     public function getTechnicalName(): string
     {

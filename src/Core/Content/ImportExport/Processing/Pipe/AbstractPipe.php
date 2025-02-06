@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Pipe;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**

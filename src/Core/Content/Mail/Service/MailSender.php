@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Mail\Service;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;

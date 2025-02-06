@@ -28,7 +28,7 @@ class ExpectedRequest
     /**
      * @var class-string<\Throwable>|null
      */
-    public $exception;
+    public ?string $exception;
 
     public ?string $resolvedUrl;
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -32,16 +31,7 @@ class DocumentException extends HttpException
 
     public static function invalidDocumentGeneratorType(string $type): self
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_BAD_REQUEST,
-                self::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,
-                'Unable to find a document generator with type "{{ type }}"',
-                ['type' => $type]
-            );
-        }
-
-        return new InvalidDocumentGeneratorTypeException(
+        return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,
             'Unable to find a document generator with type "{{ type }}"',

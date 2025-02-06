@@ -2,18 +2,12 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
-use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
 use Shopware\Core\Content\ImportExport\Exception\FileNotFoundException;
-use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
-use Shopware\Core\Content\ImportExport\Exception\InvalidFileContentException;
 use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
-use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\RequiredByUserException;
-use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -191,7 +185,7 @@ class ImportExportException extends HttpException
 
     public static function profileWrongType(string $profileId, string $profileType): self
     {
-       return new self(
+        return new self(
             Response::HTTP_NOT_FOUND,
             self::PROFILE_WRONG_TYPE,
             'The import/export profile with id {{ profileId }} can only be used for {{ profileType }}',

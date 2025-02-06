@@ -47,6 +47,7 @@
 
         <service id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader">
             <argument type="service" id="document_base_config.repository"/>
+            <argument type="service" id="country.repository"/>
 
             <tag name="kernel.event_subscriber" />
         </service>
@@ -159,8 +160,35 @@
             <tag name="document_type.renderer" key="html"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Document\Service\XmlRenderer">
+            <tag name="document_type.renderer" key="xml"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry">
             <argument type="tagged_iterator" tag="document_type.renderer" index-by="key"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+
+            <tag name="document.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer">
+            <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer"/>
+            <argument>%kernel.shopware_version%</argument>
+
+            <tag name="document.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder">
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>

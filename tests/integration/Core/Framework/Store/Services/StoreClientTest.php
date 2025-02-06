@@ -2,17 +2,22 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
+use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -40,6 +45,14 @@ class StoreClientTest extends TestCase
         $this->setLicenseDomain('shopware-test');
 
         $this->storeContext = $this->createAdminStoreContext();
+    }
+
+    public function testLoginWithShopwareIdInvalidSource(): void
+    {
+        $this->expectException(StoreException::class);
+        $this->expectExceptionMessage('Expected context source to be "' . AdminApiSource::class . '" but got "' . SystemSource::class . '".');
+
+        $this->storeClient->loginWithShopwareId('shopwareId', 'password', Context::createDefaultContext());
     }
 
     public function testSignPayloadWithAppSecret(): void
@@ -148,6 +161,7 @@ class StoreClientTest extends TestCase
         $pluginList->add((new ExtensionStruct())->assign([
             'name' => 'TestExtension',
             'version' => '1.0.0',
+            'inAppPurchases' => ['feature1', 'feature2'],
         ]));
 
         $this->getStoreRequestHandler()->append(new Response(200, [], \json_encode([
@@ -155,6 +169,7 @@ class StoreClientTest extends TestCase
                 [
                     'name' => 'TestExtension',
                     'version' => '1.1.0',
+                    'inAppFeatures' => 'feature1,feature2',
                 ],
             ],
         ], \JSON_THROW_ON_ERROR)));
@@ -164,6 +179,7 @@ class StoreClientTest extends TestCase
         static::assertCount(1, $updateList);
         static::assertEquals('TestExtension', $updateList[0]->getName());
         static::assertEquals('1.1.0', $updateList[0]->getVersion());
+        static::assertEquals('feature1,feature2', $updateList[0]->getInAppFeatures());
 
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
@@ -226,5 +242,43 @@ class StoreClientTest extends TestCase
 
         static::assertEquals('/swplatform/pluginlicenses/123/cancel', $lastRequest->getUri()->getPath());
         static::assertEquals('POST', $lastRequest->getMethod());
+    }
+
+    public function testCancelSubscriptionAlreadyCancelled(): void
+    {
+        $errorInfo = [
+            'success' => false,
+        ];
+        $this->getStoreRequestHandler()->append(new Response(400, [], \json_encode($errorInfo, \JSON_THROW_ON_ERROR)));
+
+        $this->expectException(StoreException::class);
+        $this->storeClient->cancelSubscription(123, $this->storeContext);
+    }
+
+    public function testCreateRatingThrowsExceptionOnClientError(): void
+    {
+        $this->getStoreRequestHandler()->append(new ClientException(
+            'Client error',
+            $this->createMock(RequestInterface::class),
+            $this->createMock(ResponseInterface::class)
+        ));
+
+        $rating = new ReviewStruct();
+        $rating->setExtensionId(123);
+
+        $this->expectException(StoreException::class);
+        $this->storeClient->createRating($rating, $this->storeContext);
+    }
+
+    public function testFetchLicensesThrowsExceptionOnClientError(): void
+    {
+        $this->getStoreRequestHandler()->append(new ClientException(
+            'Client error',
+            $this->createMock(RequestInterface::class),
+            $this->createMock(ResponseInterface::class)
+        ));
+
+        $this->expectException(StoreException::class);
+        $this->storeClient->listMyExtensions(new ExtensionCollection(), $this->storeContext);
     }
 }

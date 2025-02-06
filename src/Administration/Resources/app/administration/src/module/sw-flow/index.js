@@ -1,10 +1,8 @@
 import './service';
 import './acl';
+import './store/flow.store';
 
-import flowState from './state/flow.state';
-
-const { Module, State, Feature } = Shopware;
-State.registerModule('swFlowState', flowState);
+const { Module, Feature } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-flow-index', () => import('./page/sw-flow-index'));

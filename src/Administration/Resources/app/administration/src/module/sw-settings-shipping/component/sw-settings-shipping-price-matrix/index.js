@@ -7,7 +7,6 @@ const {
     Data: { Criteria },
 } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 /**
  * @sw-package checkout
@@ -74,19 +73,34 @@ export default {
     },
 
     computed: {
-        ...mapState('swShippingDetail', [
-            'shippingMethod',
-            'currencies',
-            'restrictedRuleIds',
-        ]),
+        shippingMethod() {
+            return Shopware.Store.get('swShippingDetail').shippingMethod;
+        },
 
-        ...mapGetters('swShippingDetail', [
-            'defaultCurrency',
+        currencies() {
+            return Shopware.Store.get('swShippingDetail').currencies;
+        },
+
+        restrictedRuleIds() {
             /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
-            'usedRules',
-            'unrestrictedPriceMatrixExists',
-            'newPriceMatrixExists',
-        ]),
+            return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
+        },
+
+        usedRules() {
+            return Shopware.Store.get('swShippingDetail').usedRules;
+        },
+
+        unrestrictedPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').unrestrictedPriceMatrixExists;
+        },
+
+        newPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').newPriceMatrixExists;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swShippingDetail').defaultCurrency;
+        },
 
         ruleRepository() {
             return this.repositoryFactory.create('rule');

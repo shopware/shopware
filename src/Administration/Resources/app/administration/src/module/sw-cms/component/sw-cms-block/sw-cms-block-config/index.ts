@@ -57,7 +57,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         duplicateDisabled() {
-            return !this.block.id;
+            return !this.block.id || this.block.isNew;
         },
 
         combinedDuplicateDisabled() {
@@ -66,11 +66,11 @@ export default Shopware.Component.wrapComponentConfig({
 
         combinedDuplicateClasses() {
             return {
-                'is--disabled': this.combinedDuplicateDisabled
+                'is--disabled': this.combinedDuplicateDisabled,
             };
         },
 
-        deleteClasses() {
+        quickactionClasses() {
             return {
                 'is--disabled': this.quickactionsDisabled,
             };

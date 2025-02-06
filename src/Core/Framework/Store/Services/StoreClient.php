@@ -6,13 +6,12 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
-use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -53,7 +52,7 @@ class StoreClient
     public function loginWithShopwareId(string $shopwareId, string $password, Context $context): void
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
+            throw StoreException::invalidContextSource(AdminApiSource::class, $context->getSource()::class);
         }
 
         $userId = $context->getSource()->getUserId();
@@ -116,6 +115,7 @@ class StoreClient
             $extensionList[] = [
                 'name' => $extension->getName(),
                 'version' => $extension->getVersion(),
+                'inAppFeatures' => \implode(',', $extension->getInAppPurchases()),
             ];
         }
 
@@ -310,7 +310,7 @@ class StoreClient
 
             $response = $this->fetchLicenses($payload, $context);
         } catch (ClientException $e) {
-            throw new StoreApiException($e);
+            throw StoreException::storeError($e);
         }
 
         $body = \json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
@@ -357,7 +357,7 @@ class StoreClient
                 }
             }
 
-            throw new StoreApiException($e);
+            throw StoreException::storeError($e);
         }
     }
 
@@ -374,7 +374,7 @@ class StoreClient
                 ]
             );
         } catch (ClientException $e) {
-            throw new StoreApiException($e);
+            throw StoreException::storeError($e);
         }
     }
 

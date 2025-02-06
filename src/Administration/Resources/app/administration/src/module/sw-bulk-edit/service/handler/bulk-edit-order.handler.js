@@ -23,7 +23,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         this.entityIds = entityIds;
 
         let promises = [];
-        const shouldTriggerFlows = Shopware.State.get('swBulkEdit').isFlowTriggered;
+        const shouldTriggerFlows = Shopware.Store.get('swBulkEdit').isFlowTriggered;
 
         const orders = await this.orderRepository.search(this.getCriteria());
 

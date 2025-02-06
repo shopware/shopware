@@ -65,7 +65,7 @@ const setup = async ({ type, series, options, fillEmptyValues, sort } = {}) => {
 
 describe('asyncComponent/base/sw-chart', () => {
     beforeEach(async () => {
-        Shopware.State.commit('setAdminLocale', {
+        Shopware.Store.get('session').setAdminLocaleState({
             locale: 'en-GB',
             locales: [
                 'en-GB',
@@ -344,7 +344,7 @@ describe('asyncComponent/base/sw-chart', () => {
     });
 
     it('should load the correct default locale', async () => {
-        Shopware.State.commit('setAdminLocale', {
+        Shopware.Store.get('session').setAdminLocaleState({
             locale: 'nl-NL',
             locales: [
                 'en-GB',
@@ -360,7 +360,7 @@ describe('asyncComponent/base/sw-chart', () => {
     });
 
     it('should load the fallback locale when default locale does not exist', async () => {
-        Shopware.State.commit('setAdminLocale', {
+        Shopware.Store.get('session').setAdminLocaleState({
             locale: 'foo-BAR',
             locales: [
                 'en-GB',

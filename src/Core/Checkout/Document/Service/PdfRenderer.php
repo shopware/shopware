@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
@@ -87,7 +88,7 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
 
     private function getHtml(RenderedDocument $document): string
     {
-        if ($document->getHtml() !== '') {
+        if (!Feature::isActive('v6.7.0.0') && $document->getHtml() !== '') {
             return $document->getHtml();
         }
 

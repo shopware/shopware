@@ -12,7 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 abstract class DocumentOrderEvent extends Event
 {
     /**
-     * @param DocumentGenerateOperation[] $operations
+     * @param array<string, DocumentGenerateOperation> $operations
      */
     public function __construct(
         private readonly OrderCollection $orders,

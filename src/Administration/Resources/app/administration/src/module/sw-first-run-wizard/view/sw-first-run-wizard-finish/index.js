@@ -50,7 +50,7 @@ export default {
         },
 
         buttonConfig() {
-            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
             const prevRoute = disabledExtensionManagement ? 'shopware.account' : 'store';
 
             return [

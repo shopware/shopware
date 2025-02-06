@@ -116,6 +116,7 @@
 
                 <sw-context-menu-item
                     class="sw-order-document-settings-modal__preview-button-html"
+                    :disabled="htmlPreviewDisabled"
                     @click="onPreview('html')"
                 >
                     {{ $tc('sw-order.documentModal.labelPreviewOnlyHtml') }}

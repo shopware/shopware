@@ -60,6 +60,8 @@ class StoreUpdateStruct extends Struct
      */
     protected $integrated;
 
+    protected string $inAppFeatures = '';
+
     public function getApiAlias(): string
     {
         return 'store_update';
@@ -98,5 +100,15 @@ class StoreUpdateStruct extends Struct
     public function isIntegrated(): bool
     {
         return $this->integrated;
+    }
+
+    public function getInAppFeatures(): string
+    {
+        return $this->inAppFeatures;
+    }
+
+    public function setInAppFeatures(string $inAppFeatures): void
+    {
+        $this->inAppFeatures = $inAppFeatures;
     }
 }

@@ -1,6 +1,6 @@
 import template from './sw-flow-generate-document-modal.html.twig';
 
-const { Component } = Shopware;
+const { Component, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
@@ -49,7 +49,7 @@ export default {
             return criteria;
         },
 
-        ...mapState('swFlowState', ['documentTypes']),
+        ...mapState(() => Store.get('swFlow'), ['documentTypes']),
     },
 
     watch: {
@@ -78,7 +78,7 @@ export default {
 
             if (!this.documentTypes.length) {
                 this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                    Shopware.State.commit('swFlowState/setDocumentTypes', data);
+                    Shopware.Store.get('swFlow').documentTypes = data;
                 });
             }
         },

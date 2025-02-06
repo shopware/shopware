@@ -190,7 +190,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').languageId = '123456789';
+        Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
     });
 
@@ -198,7 +198,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         // Unmount need to be called here manually because the publishData cleanup does
         // not work with automatic unmount
         await wrapper.unmount();
-        Shopware.State.get('session').languageId = '';
+        Shopware.Store.get('session').languageId = '';
     });
 
     it('should be a Vue.js component', async () => {

@@ -153,13 +153,13 @@ class AuthControllerTest extends TestCase
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            Response::HTTP_UNAUTHORIZED,
+            Response::HTTP_BAD_REQUEST,
             $client->getResponse()->getStatusCode(),
             print_r($client->getResponse()->getContent(), true)
         );
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $response['errors'][0]['status']);
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
         static::assertEquals('The refresh token is invalid.', $response['errors'][0]['title']);
         static::assertEquals('Cannot decrypt the refresh token', $response['errors'][0]['detail']);
     }
@@ -197,14 +197,14 @@ class AuthControllerTest extends TestCase
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            Response::HTTP_UNAUTHORIZED,
+            Response::HTTP_BAD_REQUEST,
             $client->getResponse()->getStatusCode(),
             print_r($client->getResponse()->getContent(), true)
         );
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $response['errors'][0]['status']);
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
         static::assertEquals('The refresh token is invalid.', $response['errors'][0]['title']);
         static::assertEquals('Token has been revoked', $response['errors'][0]['detail']);
     }
@@ -312,7 +312,7 @@ class AuthControllerTest extends TestCase
             'client_id' => 'administration',
             'username' => 'admin',
             'password' => 'shopware',
-            'scope' => [],
+            'scope' => '',
         ];
 
         $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
@@ -337,7 +337,7 @@ class AuthControllerTest extends TestCase
             'client_id' => 'administration',
             'username' => 'admin',
             'password' => 'shopware',
-            'scope' => ['admin', 'write', 'admin', 'admin', 'write', 'write', 'admin'],
+            'scope' => 'admin write admin admin write write admin',
         ];
 
         $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
@@ -362,7 +362,7 @@ class AuthControllerTest extends TestCase
             'client_id' => 'administration',
             'username' => 'admin',
             'password' => 'shopware',
-            'scope' => ['admin', 'write'],
+            'scope' => 'admin write',
         ];
 
         $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
@@ -374,7 +374,7 @@ class AuthControllerTest extends TestCase
             'grant_type' => 'refresh_token',
             'client_id' => 'administration',
             'refresh_token' => $data['refresh_token'],
-            'scope' => ['admin'], // change the scope to something different
+            'scope' => 'admin', // change the scope to something different
         ];
 
         $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
@@ -399,7 +399,7 @@ class AuthControllerTest extends TestCase
             'client_id' => 'administration',
             'username' => 'admin',
             'password' => 'shopware',
-            'scope' => ['admin', 'write', UserVerifiedScope::IDENTIFIER],
+            'scope' => 'admin write ' . UserVerifiedScope::IDENTIFIER,
         ];
 
         $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
@@ -426,7 +426,7 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(UnencryptedToken::class, $parsedNewAccessToken);
         $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
 
-        static::assertContains(UserVerifiedScope::IDENTIFIER, $newAccessTokenScopes);
+        static::assertNotContains(UserVerifiedScope::IDENTIFIER, $newAccessTokenScopes);
     }
 
     public function testAccessTokenScopesUnchangedAfterRefreshGrant(): void
@@ -440,7 +440,7 @@ class AuthControllerTest extends TestCase
             'client_id' => 'administration',
             'username' => 'admin',
             'password' => 'shopware',
-            'scope' => ['admin', 'write'],
+            'scope' => 'admin write',
         ];
 
         $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));

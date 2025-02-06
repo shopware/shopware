@@ -19,54 +19,19 @@ class AppPaymentMethodEntity extends Entity
 
     protected ?string $appId;
 
-    /**
-     * @var AppEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $app;
+    protected ?AppEntity $app = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethodId;
+    protected string $paymentMethodId;
 
-    /**
-     * @var PaymentMethodEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethod;
+    protected ?PaymentMethodEntity $paymentMethod = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $appName;
+    protected string $appName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $identifier;
+    protected string $identifier;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $payUrl;
+    protected ?string $payUrl = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $finalizeUrl;
+    protected ?string $finalizeUrl = null;
 
     protected ?string $validateUrl = null;
 
@@ -76,19 +41,9 @@ class AppPaymentMethodEntity extends Entity
 
     protected ?string $recurringUrl = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $originalMediaId;
+    protected ?string $originalMediaId = null;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $originalMedia;
+    protected ?MediaEntity $originalMedia = null;
 
     public function getAppId(): ?string
     {

@@ -5,11 +5,9 @@ namespace Shopware\Core\Maintenance\System\Command;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Maintenance\MaintenanceException;
-use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,7 +16,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Style\OutputStyle;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -37,7 +34,6 @@ class SystemSetupCommand extends Command
 {
     public function __construct(
         private readonly string $projectDir,
-        private readonly JwtCertificateGenerator $jwtCertificateGenerator,
         private readonly DotenvDumpCommand $dumpEnvCommand
     ) {
         parent::__construct();
@@ -53,8 +49,6 @@ class SystemSetupCommand extends Command
             ->addOption('database-ssl-cert', null, InputOption::VALUE_OPTIONAL, 'Database SSL Cert path', $this->getDefault('DATABASE_SSL_CERT', ''))
             ->addOption('database-ssl-key', null, InputOption::VALUE_OPTIONAL, 'Database SSL Key path', $this->getDefault('DATABASE_SSL_KEY', ''))
             ->addOption('database-ssl-dont-verify-cert', null, InputOption::VALUE_OPTIONAL, 'Database Don\'t verify server cert', $this->getDefault('DATABASE_SSL_DONT_VERIFY_SERVER_CERT', ''))
-            ->addOption('generate-jwt-keys', null, InputOption::VALUE_NONE, 'Generate jwt private and public key')
-            ->addOption('jwt-passphrase', null, InputOption::VALUE_OPTIONAL, 'JWT private key passphrase', 'shopware')
             ->addOption('composer-home', null, InputOption::VALUE_REQUIRED, 'Set the composer home directory otherwise the environment variable $COMPOSER_HOME will be used or the project dir as fallback', $this->getDefault('COMPOSER_HOME', ''))
             ->addOption('app-env', null, InputOption::VALUE_OPTIONAL, 'Application environment', $this->getDefault('APP_ENV', 'prod'))
             ->addOption('app-url', null, InputOption::VALUE_OPTIONAL, 'Application URL', $this->getDefault('APP_URL', 'http://localhost'))
@@ -132,10 +126,6 @@ class SystemSetupCommand extends Command
         }
 
         if (!$input->isInteractive()) {
-            if (!Feature::isActive('v6.7.0.0')) {
-                $this->generateJwt($input, $io);
-            }
-
             $env['APP_SECRET'] = Random::getString(SystemGenerateAppSecretCommand::APP_SECRET_LENGTH);
             $env['INSTANCE_ID'] = $this->generateInstanceId();
 
@@ -153,10 +143,6 @@ class SystemSetupCommand extends Command
         $env['BLUE_GREEN_DEPLOYMENT'] = $io->confirm('Blue Green Deployment', $input->getOption('blue-green') !== '0') ? '1' : '0';
 
         $io->section('Generate keys and secrets');
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->generateJwt($input, $io);
-        }
 
         $env['APP_SECRET'] = Random::getString(SystemGenerateAppSecretCommand::APP_SECRET_LENGTH);
         $env['INSTANCE_ID'] = $this->generateInstanceId();
@@ -287,32 +273,6 @@ class SystemSetupCommand extends Command
                 ],
             ),
             $output
-        );
-    }
-
-    private function generateJwt(InputInterface $input, OutputStyle $io): void
-    {
-        $jwtDir = $this->projectDir . '/config/jwt';
-
-        if (!is_dir($jwtDir) && !mkdir($jwtDir, 0700, true) && !is_dir($jwtDir)) {
-            throw MaintenanceException::couldNotCreateDirectory($jwtDir);
-        }
-
-        // TODO: make it regenerate the public key if only private exists
-        if (file_exists($jwtDir . '/private.pem') && !$input->getOption('force')) {
-            $io->note('Private/Public key already exists. Skipping');
-
-            return;
-        }
-
-        if (!$input->getOption('generate-jwt-keys') && !$input->getOption('jwt-passphrase')) {
-            return;
-        }
-
-        $this->jwtCertificateGenerator->generate(
-            $jwtDir . '/private.pem',
-            $jwtDir . '/public.pem',
-            $input->getOption('jwt-passphrase')
         );
     }
 

@@ -147,18 +147,6 @@ describe('module/sw-cms/component/sw-cms-list-item', () => {
             true,
         ],
         [
-            'on-item-click',
-            'onElementClick',
-            true,
-            false,
-        ] /** @deprecated tag:v6.7.0 - `on-item-click` will be removed */,
-        [
-            'on-item-click',
-            'onElementClick',
-            false,
-            true,
-        ] /** @deprecated tag:v6.7.0 - `on-item-click` will be removed */,
-        [
             'element-click',
             'onElementClick',
             true,

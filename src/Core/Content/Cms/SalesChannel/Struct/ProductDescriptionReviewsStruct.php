@@ -10,33 +10,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ProductDescriptionReviewsStruct extends Struct
 {
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
+    protected ?string $productId;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $ratingSuccess;
+    protected ?bool $ratingSuccess;
 
-    /**
-     * @var ProductReviewResult|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $reviews;
+    protected ?ProductReviewResult $reviews;
 
-    /**
-     * @var SalesChannelProductEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $product;
+    protected ?SalesChannelProductEntity $product;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

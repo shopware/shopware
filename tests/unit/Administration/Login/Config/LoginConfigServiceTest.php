@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Administration\Login\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Core\Framework\Log\Package;
@@ -19,17 +20,7 @@ class LoginConfigServiceTest extends TestCase
 {
     public function testGetConfigWithEmptyRawConfig(): void
     {
-        $configService = new LoginConfigService(
-            [
-                'use_default' => true,
-                'client_id' => 'clientId',
-                'client_secret' => 'clientSecret',
-                'redirect_uri' => 'redirectUri',
-                'base_url' => 'baseUrl',
-            ],
-            'http://app.url',
-            '/admin'
-        );
+        $configService = new LoginConfigService([], 'http://app.url', '/admin');
 
         $config = $configService->getConfig();
 
@@ -59,7 +50,7 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array{use_default: bool, client_id: string, client_secret: string, redirect_uri: string, base_url: string} $rawConfig
+     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string} $rawConfig
      */
     #[DataProvider('getConfigErrorsTestDataProvider')]
     public function testGetConfigErrors(array $rawConfig, string $exceptionMessage): void
@@ -309,5 +300,148 @@ class LoginConfigServiceTest extends TestCase
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid URL',
             ],
         ];
+    }
+
+    public function testCreateTemplateDataWithNullAsLoginConfig(): void
+    {
+        $configService = new LoginConfigService([], 'http://app.url', '/admin');
+
+        $result = $configService->createTemplateData('randomString', null);
+
+        static::assertTrue($result->useDefault);
+        static::assertNull($result->url);
+    }
+
+    public function testCreateTemplateDataWithValidLoginConfig(): void
+    {
+        $rawConfig = [
+            'use_default' => false,
+            'client_id' => 'clientId',
+            'client_secret' => 'clientSecret',
+            'redirect_uri' => 'http://redirect.url',
+            'base_url' => 'http://base.url',
+        ];
+
+        $configService = new LoginConfigService($rawConfig, 'http://app.url', '/admin');
+        $loginConfig = $configService->getConfig();
+
+        $result = $configService->createTemplateData('randomString', $loginConfig);
+
+        static::assertFalse($result->useDefault);
+        static::assertSame('http://app.url/admin/sso/auth?rdm=randomString', $result->url);
+    }
+
+    #[DataProvider('createTemplateDataShouldRemovePrefixedSlashesTestDataProvider')]
+    public function testCreateTemplateDataShouldRemovePrefixedSlashes(string $adminPath): void
+    {
+        $rawConfig = [
+            'use_default' => false,
+            'client_id' => 'clientId',
+            'client_secret' => 'clientSecret',
+            'redirect_uri' => 'http://redirect.url',
+            'base_url' => 'http://base.url',
+        ];
+
+        $configService = new LoginConfigService($rawConfig, 'http://app.url', $adminPath);
+        $loginConfig = $configService->getConfig();
+
+        $result = $configService->createTemplateData('randomString', $loginConfig);
+
+        static::assertFalse($result->useDefault);
+        static::assertSame('http://app.url/admin/sso/auth?rdm=randomString', $result->url);
+    }
+
+    /**
+     * @return array<string, array<string, string>>
+     */
+    public static function createTemplateDataShouldRemovePrefixedSlashesTestDataProvider(): array
+    {
+        return [
+            'one slash' => [
+                'adminPath' => '/admin',
+            ],
+            'three slashes' => [
+                'adminPath' => '///admin',
+            ],
+            'six slashes' => [
+                'adminPath' => '//////admin',
+            ],
+            'fourteen slashes' => [
+                'adminPath' => '//////////////admin',
+            ],
+        ];
+    }
+
+    #[DataProvider('createRedirectUrlTestDataProvider')]
+    public function testCreateRedirectUrl(string $random, LoginConfig $loginConfig, string $expectedUrl): void
+    {
+        $appUrl = 'http://app.url';
+        $configService = new LoginConfigService([], $appUrl, '/admin');
+
+        $result = $configService->createRedirectUrl($random, $loginConfig);
+        static::assertStringStartsWith($loginConfig->baseUrl, $result);
+
+        // check query parameter
+        $query = $this->getQueryParamsAsArray($result);
+        static::assertSame($loginConfig->clientId, $query['client_id']);
+        static::assertSame($loginConfig->redirectUri, $query['redirect_uri']);
+
+        static::assertIsString($query['state']);
+
+        // check state and query parameter
+        static::assertArrayHasKey('state', $query);
+        static::assertStringStartsWith('http://app.url', $query['state']);
+
+        $stateUrlQuery = $this->getQueryParamsAsArray($query['state']);
+        static::assertSame($random, $stateUrlQuery['rdm']);
+
+        // check given expected url
+        static::assertSame($expectedUrl, $result);
+    }
+
+    /**
+     * @return array<string, array{random: string, loginConfig: LoginConfig, expectedUrl: string}>
+     */
+    public static function createRedirectUrlTestDataProvider(): array
+    {
+        return [
+            'Test case one' => [
+                'random' => 'justARandomString',
+                'loginConfig' => new LoginConfig(
+                    true,
+                    'justAClientID',
+                    'justAClientSecret',
+                    'http://justARedirectUri.org',
+                    'http://justABaseUrl.net',
+                ),
+                'expectedUrl' => 'http://justABaseUrl.net/oauth/authorize?client_id=justAClientID&redirect_uri=http%3A%2F%2FjustARedirectUri.org&response_type=code&scope=openid&state=http%3A%2F%2Fapp.url%2Fapi%2Foauth%2Fsso%2Fcode%3Frdm%3DjustARandomString',
+            ],
+
+            'Test case two' => [
+                'random' => 'justARandomString',
+                'loginConfig' => new LoginConfig(
+                    true,
+                    'anotherClientID',
+                    'anotherClientSecret',
+                    'http://another-redirect-url.org',
+                    'http://another-base-url.net',
+                ),
+                'expectedUrl' => 'http://another-base-url.net/oauth/authorize?client_id=anotherClientID&redirect_uri=http%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=openid&state=http%3A%2F%2Fapp.url%2Fapi%2Foauth%2Fsso%2Fcode%3Frdm%3DjustARandomString',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int|string, array<mixed>|string>
+     */
+    private function getQueryParamsAsArray(string $url): array
+    {
+        $urlResult = \parse_url($url);
+        $query = [];
+        static::assertIsArray($urlResult);
+        static::assertArrayHasKey('query', $urlResult);
+        \parse_str($urlResult['query'], $query);
+
+        return $query;
     }
 }

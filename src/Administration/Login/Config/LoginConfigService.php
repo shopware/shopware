@@ -18,12 +18,12 @@ use Symfony\Component\Validator\Validation;
 final class LoginConfigService
 {
     /**
-     * @param array{use_default: bool, client_id: string, client_secret: string, redirect_uri: string, base_url: string} $rawConfig
+     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string} $rawConfig
      */
     public function __construct(
         private readonly array $rawConfig,
         private readonly string $appUrl,
-        protected readonly string $adminPath,
+        private readonly string $adminPath,
     ) {
     }
 
@@ -48,7 +48,7 @@ final class LoginConfigService
     {
         return new TemplateData(
             $loginConfig->useDefault ?? true,
-            $loginConfig === null ? null : \sprintf('%s/%s/sso/auth?rdm=%s', $this->appUrl, $this->adminPath, $random),
+            $loginConfig === null ? null : \sprintf('%s/%s/sso/auth?rdm=%s', $this->appUrl, \ltrim($this->adminPath, '/'), $random),
         );
     }
 

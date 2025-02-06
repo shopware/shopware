@@ -487,15 +487,17 @@ class AddressControllerTest extends TestCase
         static::assertNotNull($customer);
 
         $dataBag = new RequestDataBag([
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'not',
-            'lastName' => 'not',
-            'company' => 'not',
-            'department' => 'not',
-            'street' => 'not',
-            'zipcode' => 'not',
-            'city' => 'not',
-            'countryId' => $this->getValidCountryId(),
+            'address' => [
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'not',
+                'lastName' => 'not',
+                'company' => 'not',
+                'department' => 'not',
+                'street' => 'not',
+                'zipcode' => 'not',
+                'city' => 'not',
+                'countryId' => $this->getValidCountryId(),
+            ],
         ]);
 
         $controller->addressManagerUpsert($request, $dataBag, $context, $customer, null, self::ADDRESS_TYPE_SHIPPING);
@@ -537,15 +539,17 @@ class AddressControllerTest extends TestCase
         static::assertNotNull($customer);
 
         $dataBag = new RequestDataBag([
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'not',
-            'lastName' => 'not',
-            'company' => 'not',
-            'department' => 'not',
-            'street' => 'not',
-            'zipcode' => 'not',
-            'city' => 'not',
-            'countryId' => $this->getValidCountryId(),
+            'address' => [
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'not',
+                'lastName' => 'not',
+                'company' => 'not',
+                'department' => 'not',
+                'street' => 'not',
+                'zipcode' => 'not',
+                'city' => 'not',
+                'countryId' => $this->getValidCountryId(),
+            ],
         ]);
 
         $controller->addressManagerUpsert($request, $dataBag, $context, $customer, null, self::ADDRESS_TYPE_BILLING);
@@ -985,10 +989,12 @@ class AddressControllerTest extends TestCase
         static::assertNotNull($customer);
 
         $dataBag = new RequestDataBag([
-            'firstName' => 'not',
-            'company' => 'not',
-            'department' => 'not',
-            'street' => 'not',
+            'address' => [
+                'firstName' => 'not',
+                'company' => 'not',
+                'department' => 'not',
+                'street' => 'not',
+            ],
         ]);
 
         $this->addEventListener(

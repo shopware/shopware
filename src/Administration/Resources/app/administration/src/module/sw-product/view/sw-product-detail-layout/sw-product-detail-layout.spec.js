@@ -3,8 +3,9 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-layout', { sync: true }), {
@@ -69,11 +70,11 @@ async function createWrapper(privileges = []) {
 
 describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     beforeAll(() => {
-        State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
+        Store.register({
+            id: 'swProductDetail',
+            state: () => ({
                 product: null,
-            },
+            }),
             mutations: {
                 setProduct(state, product) {
                     state.product = product;
@@ -129,7 +130,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                 },
             },
         });
-        State.commit('context/setApiLanguageId', '123456789');
+        Shopware.Store.get('context').setApiLanguageId('123456789');
     });
 
     afterAll(() => {
@@ -186,10 +187,10 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
 
     it('should be able to select a product page layout', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.$store.commit('swProductDetail/setProduct', { id: '1' });
+        Store.get('swProductDetail').product = { id: '1' };
 
         wrapper.vm.onSelectLayout('cmsPageId');
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expect(wrapper.vm.product.cmsPageId).toBe('cmsPageId');
         expect(wrapper.vm.currentPage.id).toBe('cmsPageId');
@@ -203,7 +204,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should be able to overwrite product config to selected layout config', async () => {
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             id: '1',
             cmsPageId: 'cmsPageId',
             slotConfig: {
@@ -214,7 +215,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                     },
                 },
             },
-        });
+        };
 
         const wrapper = await createWrapper();
         await wrapper.vm.handleGetCmsPage();
@@ -274,7 +275,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     it('should update new content of slotConfig in product', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Store.get('swProductDetail').product = {
             slotConfig: {
                 elementId: {
                     content: {
@@ -282,7 +283,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                     },
                 },
             },
-        });
+        };
 
         const element = {
             id: 'elementId',
@@ -302,7 +303,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
         const handleGetCmsPageMock = jest.spyOn(wrapper.vm, 'handleGetCmsPage');
 
-        State.commit('context/setApiLanguageId', '123');
+        Shopware.Store.get('context').setApiLanguageId('123');
 
         await flushPromises();
 

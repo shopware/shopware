@@ -7,7 +7,9 @@ test.describe.configure({ mode: 'serial' });
 test(
     'As a customer, I expect to see and use a basic captcha function on the contact form.',
     { tag: '@form @contact' },
-    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel, TestDataService }) => {
+    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel, TestDataService, InstanceMeta }) => {
+
+        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
         await TestDataService.setSystemConfig({'core.basicInformation.activeCaptchasV2': {'basicCaptcha': { 'name': 'basicCaptcha', 'isActive': true }} });
 
@@ -35,7 +37,7 @@ test(
             await ShopCustomer.expects(StorefrontContactForm.basicCaptchaRefreshButton).toBeVisible();
         });
 
-        await test.step('Send and validate the contact form.', async () => {
+        await test.step('Send and validate the unaccomplished contact form.', async () => {
             const contactFormPromise = StorefrontContactForm.page.waitForResponse(
                 `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
             );
@@ -51,7 +53,10 @@ test(
 test(
     'As a customer, I expect to see and use the google recaptcha V2 and V3 function on the contact form.',
     { tag: '@form @contact' },
-    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, TestDataService }) => {
+    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, TestDataService, InstanceMeta }) => {
+
+        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
+
         // https://developers.google.com/recaptcha/docs/faq
         const reCAPTCHA_TEST_SITEKEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 

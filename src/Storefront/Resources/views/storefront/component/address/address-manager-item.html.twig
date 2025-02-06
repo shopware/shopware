@@ -1,0 +1,81 @@
+<li class="col-12 col-lg-6" data-address-id="{{ address.id }}" data-address-type="{{ type }}">
+    <div class="p-3 border address-manager-select-address">
+        <div class="row h-100">
+            <div class="d-flex justify-content-between">
+                <div class="d-inline-flex gap-2">
+                    <input
+                        type="radio"
+                        name="{{ type }}"
+                        value="{{ address.id }}"
+                        id="{{ type }}-{{ address.id }}"
+                        data-address-type="{{ type }}"
+                        {% if address.id == activeAddressId %}checked{% endif %}
+                        class="form-check-input col-auto"
+                    />
+
+                    {% block address_manager_modal_address %}
+                        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                            address: address
+                        } %}
+                    {% endblock %}
+                </div>
+
+                {% block address_manager_modal_item_dropdown %}
+                    <div class="dropdown">
+                        {% block address_manager_modal_item_dropdown_button %}
+                        <button
+                            type="button" id="dropdownMenuButton"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            class="bg-transparent border-0"
+                        >
+                            {% sw_icon 'more-vertical' style {size: 's'} %}
+                        </button>
+                        {% endblock %}
+
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            {% block address_manager_modal_item_dropdown_items %}
+                                <li>
+                                    <a
+                                        class="dropdown-item text-primary address-manager-modal-address-form"
+                                        href="#"
+                                        data-address-id="{{ address.id }}"
+                                        data-address-type="{{ type }}"
+                                    >
+                                        {{ 'global.default.edit'|trans|sw_sanitize }}
+                                    </a>
+                                </li>
+                                {% if defaultAddressId !== address.id %}
+                                    <li>
+                                        <a
+                                            class="dropdown-item address-manager-modal-set-default-address"
+                                            href="#"
+                                            data-address-id="{{ address.id }}"
+                                            data-address-type="{{ type }}"
+                                        >
+                                            {% if type === 'shipping' %}
+                                                {{ 'account.addressesSetAsDefaultShippingAction'|trans|sw_sanitize }}
+                                            {% else %}
+                                                {{ 'account.addressesSetAsDefaultBillingAction'|trans|sw_sanitize }}
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endblock %}
+                        </ul>
+                    </div>
+                {% endblock %}
+            </div>
+
+            {% if address.id === defaultAddressId %}
+                {% block address_manager_modal_default_badge %}
+                    <div class="mt-auto d-flex justify-content-end">
+                        <span class="fs-6 fw-semibold px-4 py-1 bg-primary rounded-pill text-white">
+                            {{ 'account.addressDefault'|trans|sw_sanitize }}
+                        </span>
+                    </div>
+                {% endblock %}
+            {% endif %}
+        </div>
+    </div>
+</li>

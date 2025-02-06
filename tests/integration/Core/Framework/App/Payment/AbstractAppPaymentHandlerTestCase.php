@@ -29,7 +29,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -162,10 +161,6 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
                 'city' => 'Schöppingen',
             ])
             ->customerGroup(TestDefaults::FALLBACK_CUSTOMER_GROUP);
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer->add('defaultPaymentMethodId', $this->getValidPaymentMethodId());
-        }
 
         $this->customerRepository->upsert([$customer->build()], $this->context);
 

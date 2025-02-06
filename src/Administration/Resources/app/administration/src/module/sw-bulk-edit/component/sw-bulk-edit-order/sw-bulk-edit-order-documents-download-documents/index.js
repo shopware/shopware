@@ -32,10 +32,10 @@ export default {
 
         documentTypes: {
             get() {
-                return Shopware.State.get('swBulkEdit')?.orderDocuments?.download?.value;
+                return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
             },
             set(documentTypes) {
-                Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+                Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
                     type: 'download',
                     value: documentTypes,
                 });

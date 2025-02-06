@@ -193,7 +193,7 @@ Component.register('sw-tabs-deprecated', {
         },
 
         tabExtensions() {
-            return Shopware.State.get('tabs').tabItems[this.positionIdentifier] ?? [];
+            return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },
     },
 

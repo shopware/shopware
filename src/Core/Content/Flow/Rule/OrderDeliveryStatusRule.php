@@ -11,7 +11,10 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-#[Package('after-sales')]
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
+#[Package('fundamentals@after-sales')]
 class OrderDeliveryStatusRule extends FlowRule
 {
     public const RULE_NAME = 'orderDeliveryStatus';

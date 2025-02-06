@@ -23,8 +23,8 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.6.x-dev",
-            "dev-trunk": "6.6.x-dev"
+            "dev-master": "6.7.x-dev",
+            "dev-trunk": "6.7.x-dev"
         }
     },
     "minimum-stability": "stable",

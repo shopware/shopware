@@ -27,8 +27,10 @@ class DocumentFileRendererRegistryTest extends TestCase
     public function testRender(RenderedDocument $document, \Closure $expectsClosure): void
     {
         $registry = $this->createMock(DocumentFileRendererRegistry::class);
-        $registry->expects(static::exactly(1))
-            ->method('render')->willReturn($document->getHtml());
+        $registry
+            ->expects(static::exactly(1))
+            ->method('render')
+            ->willReturn($document->getContent());
 
         $locale = new LocaleEntity();
         $locale->setId(Uuid::randomHex());
@@ -54,11 +56,12 @@ class DocumentFileRendererRegistryTest extends TestCase
 
     public function testThrowException(): void
     {
-        static::expectException(DocumentException::class);
-        static::expectExceptionMessage('File extension not supported: xml');
+        $this->expectException(DocumentException::class);
+        $this->expectExceptionMessage('File extension not supported: xml');
 
         $registry = new DocumentFileRendererRegistry([]);
 
+        // @deprecated tag:v6.7.0 - html argument will be removed
         $registry->render(new RenderedDocument(
             '',
             '1001',
@@ -73,9 +76,9 @@ class DocumentFileRendererRegistryTest extends TestCase
     {
         yield 'PDF renderer' => [
             new RenderedDocument(
-                'pdf',
-                '1001',
-                'invoice',
+                number: '1001',
+                name: 'invoice',
+                content: 'pdf'
             ),
 
             function (string $rendered): void {
@@ -85,12 +88,12 @@ class DocumentFileRendererRegistryTest extends TestCase
 
         yield 'HTML renderer' => [
             new RenderedDocument(
-                'html',
-                '1001',
-                'invoice',
-                HtmlRenderer::FILE_EXTENSION,
-                [],
-                HtmlRenderer::FILE_CONTENT_TYPE
+                number: '1001',
+                name: 'invoice',
+                fileExtension: HtmlRenderer::FILE_EXTENSION,
+                config: [],
+                contentType: HtmlRenderer::FILE_CONTENT_TYPE,
+                content: 'html'
             ),
 
             function (string $rendered): void {

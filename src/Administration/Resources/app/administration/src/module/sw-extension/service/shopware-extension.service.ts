@@ -96,7 +96,7 @@ export default class ShopwareExtensionService {
     }
 
     public async updateExtensionData(): Promise<void> {
-        Shopware.State.commit('shopwareExtensions/loadMyExtensions');
+        Shopware.Store.get('shopwareExtensions').loadMyExtensions();
 
         try {
             await this.extensionStoreActionService.refresh();
@@ -104,20 +104,20 @@ export default class ShopwareExtensionService {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const myExtensions = await this.extensionStoreActionService.getMyExtensions();
 
-            Shopware.State.commit('shopwareExtensions/myExtensions', myExtensions);
+            Shopware.Store.get('shopwareExtensions').setMyExtensions(myExtensions);
 
             await this.updateModules();
         } finally {
-            Shopware.State.commit('shopwareExtensions/setLoading', false);
+            Shopware.Store.get('shopwareExtensions').setLoading(false);
         }
     }
 
     public async checkLogin(): Promise<void> {
         try {
             const { userInfo } = await this.storeApiService.checkLogin();
-            Shopware.State.commit('shopwareExtensions/setUserInfo', userInfo);
+            Shopware.Store.get('shopwareExtensions').userInfo = userInfo;
         } catch {
-            Shopware.State.commit('shopwareExtensions/setUserInfo', null);
+            Shopware.Store.get('shopwareExtensions').userInfo = null;
         }
     }
 
@@ -182,7 +182,7 @@ export default class ShopwareExtensionService {
         }
 
         /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
-        const entryRoutes = Shopware.State.get('extensionEntryRoutes').routes;
+        const entryRoutes = Shopware.Store.get('extensionEntryRoutes').routes;
 
         if (entryRoutes[extension.name] !== undefined) {
             return {
@@ -198,7 +198,7 @@ export default class ShopwareExtensionService {
     private async updateModules() {
         const modules = await this.appModulesService.fetchAppModules();
 
-        Shopware.State.commit('shopwareApps/setApps', modules);
+        Shopware.Store.get('shopwareApps').apps = modules;
     }
 
     private async getLinkToTheme(extension: Extension) {
@@ -237,7 +237,7 @@ export default class ShopwareExtensionService {
     }
 
     private getAppFromStore(extensionName: string) {
-        return Shopware.State.get('shopwareApps').apps.find((innerApp) => {
+        return Shopware.Store.get('shopwareApps').apps.find((innerApp) => {
             return innerApp.name === extensionName;
         });
     }

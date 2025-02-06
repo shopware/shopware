@@ -2,7 +2,6 @@
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
-import promotionState from 'src/module/sw-promotion-v2/page/sw-promotion-v2-detail/state';
 
 async function createWrapper() {
     return mount(
@@ -39,10 +38,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-promotion-v2/view/sw-promotion-detail-discounts', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swPromotionDetail', promotionState);
-    });
-
     it('should disable adding discounts when privileges not set', async () => {
         global.activeAclRoles = [];
 

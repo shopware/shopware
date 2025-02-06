@@ -288,6 +288,10 @@
             {% block component_address_personal_fields_first_name %}
                 {# @deprecated tag:v6.7.0 - firstName will have additional validation #}
                 {% if feature('ADDRESS_SELECTION_REWORK') %}
+                    {% if prefix != 'address' %}
+                        {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
+                    {% endif %}
+
                     {# New implementation, setting of "violationPath" #}
                     {% if formViolations.getViolations("/#{prefix}/firstName") is not empty %}
                         {% set violationPath = "/#{prefix}/firstName" %}
@@ -309,7 +313,7 @@
                         label: 'account.personalFirstNameLabel'|trans|sw_sanitize,
                         id: idPrefix ~ prefix ~ '-personalFirstName',
                         name: prefix ? prefix ~ '[firstName]' : 'firstName',
-                        value: (prefix and feature('v6.7.0.0') and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
+                        value: (prefix and feature('ADDRESS_SELECTION_REWORK') and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
                         autocomplete: 'section-personal given-name',
                         violationPath: violationPath,
                         validationRules: 'required',
@@ -360,6 +364,10 @@
             {% block component_address_personal_fields_last_name %}
                 {# @deprecated tag:v6.7.0 - lastName will have additional validation #}
                 {% if feature('ADDRESS_SELECTION_REWORK') %}
+                    {% if prefix != 'address' %}
+                        {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
+                    {% endif %}
+
                     {% if formViolations.getViolations("/#{prefix}/lastName") is not empty %}
                         {% set violationPath = "/#{prefix}/lastName" %}
                     {% elseif formViolations.getViolations("/lastName") is not empty and not prefix %}
@@ -380,7 +388,7 @@
                         label: 'account.personalLastNameLabel'|trans|sw_sanitize,
                         id: idPrefix ~ prefix ~ '-personalLastName',
                         name: prefix ? prefix ~ '[lastName]' : 'lastName',
-                        value: (prefix and feature('v6.7.0.0') and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
+                        value: (prefix and feature('ADDRESS_SELECTION_REWORK') and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
                         autocomplete: 'section-personal family-name',
                         violationPath: violationPath,
                         validationRules: 'required',
@@ -405,9 +413,9 @@
                                id="{{ idPrefix ~ prefix }}personalLastName"
                                placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}"
                                {# New implementation, name and value with prefix #}
-                               {% if feature('v6.7.0.0') %}
+                               {% if feature('ADDRESS_SELECTION_REWORK') %}
                                    name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
-                                   value="{% if prefix and data.has(prefix) %}{{ data.get(prefix).get('lastName') }}{% else %}{{ data.get('lastName')}}{% endif %}"
+                                   value="{% if prefix and data.has(prefix) %}{{ data.get(prefix).get('lastName') }}{% else %}{{data.get('lastName')}}{% endif %}"
                                {% else %}
                                     name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
                                     value="{{ data.get('lastName') }}"

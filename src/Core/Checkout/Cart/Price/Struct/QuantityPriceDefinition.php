@@ -23,10 +23,6 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 
     protected float $price;
 
-    protected TaxRuleCollection $taxRules;
-
-    protected int $quantity;
-
     protected bool $isCalculated = true;
 
     protected ?ReferencePriceDefinition $referencePriceDefinition = null;
@@ -37,12 +33,10 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 
     public function __construct(
         float $price,
-        TaxRuleCollection $taxRules,
-        int $quantity = 1
+        protected TaxRuleCollection $taxRules,
+        protected int $quantity = 1
     ) {
         $this->price = FloatComparator::cast($price);
-        $this->taxRules = $taxRules;
-        $this->quantity = $quantity;
     }
 
     public function getPrice(): float

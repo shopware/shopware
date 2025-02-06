@@ -19,13 +19,7 @@ class CartPrice extends Struct
 
     protected float $totalPrice;
 
-    protected CalculatedTaxCollection $calculatedTaxes;
-
-    protected TaxRuleCollection $taxRules;
-
     protected float $positionPrice;
-
-    protected string $taxStatus;
 
     protected float $rawTotal;
 
@@ -33,17 +27,14 @@ class CartPrice extends Struct
         float $netPrice,
         float $totalPrice,
         float $positionPrice,
-        CalculatedTaxCollection $calculatedTaxes,
-        TaxRuleCollection $taxRules,
-        string $taxStatus,
+        protected CalculatedTaxCollection $calculatedTaxes,
+        protected TaxRuleCollection $taxRules,
+        protected string $taxStatus,
         ?float $rawTotal = null
     ) {
         $this->netPrice = FloatComparator::cast($netPrice);
         $this->totalPrice = FloatComparator::cast($totalPrice);
-        $this->calculatedTaxes = $calculatedTaxes;
-        $this->taxRules = $taxRules;
         $this->positionPrice = FloatComparator::cast($positionPrice);
-        $this->taxStatus = $taxStatus;
         $rawTotal ??= $totalPrice;
         $this->rawTotal = FloatComparator::cast($rawTotal);
     }

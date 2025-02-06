@@ -12,25 +12,16 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 #[Package('checkout')]
 class LoadWishlistRouteResponse extends StoreApiResponse
 {
-    protected CustomerWishlistEntity $wishlist;
-
     /**
-     * @var EntitySearchResult<ProductCollection>
-     */
-    protected EntitySearchResult $productListing;
-
-    /**
-     * @param EntitySearchResult<ProductCollection> $listing
+     * @param EntitySearchResult<ProductCollection> $productListing
      */
     public function __construct(
-        CustomerWishlistEntity $wishlist,
-        EntitySearchResult $listing
+        protected CustomerWishlistEntity $wishlist,
+        protected EntitySearchResult $productListing
     ) {
-        $this->wishlist = $wishlist;
-        $this->productListing = $listing;
         parent::__construct(new ArrayStruct([
-            'wishlist' => $wishlist,
-            'products' => $listing,
+            'wishlist' => $this->wishlist,
+            'products' => $this->productListing,
         ], 'wishlist_products'));
     }
 

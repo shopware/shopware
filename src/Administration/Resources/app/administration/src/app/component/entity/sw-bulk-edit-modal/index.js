@@ -103,7 +103,7 @@ Component.register('sw-bulk-edit-modal', {
             this.$emit('modal-close');
 
             if (this.itemCount > 0) {
-                Shopware.State.commit('shopwareApps/setSelectedIds', Object.keys(this.bulkEditSelection));
+                Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.bulkEditSelection);
                 this.$emit('edit-items');
             }
         },

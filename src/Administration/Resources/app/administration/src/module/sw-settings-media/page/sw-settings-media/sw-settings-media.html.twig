@@ -46,6 +46,8 @@
                     <mt-slider
                         v-if="!isLoading"
                         v-model="sliderValue"
+                        :label="$tc('sw-settings-media.3d.lightIntensity.label')"
+                        :help-text="$tc('sw-settings-media.3d.lightIntensity.helpText')"
                         :min="0"
                         :max="100"
                         @input="onSliderChange"

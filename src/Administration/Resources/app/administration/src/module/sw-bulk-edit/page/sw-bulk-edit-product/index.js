@@ -1,12 +1,12 @@
 import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
-import swProductDetailState from '../../../sw-product/page/sw-product-detail/state';
+import '../../../sw-product/page/sw-product-detail/store';
+import '../../store/sw-bulk-edit.store';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
-const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 /**
@@ -51,19 +51,28 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'taxes',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'defaultCurrency',
-            'defaultPrice',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        taxes() {
+            return Shopware.Store.get('swProductDetail').taxes;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        defaultPrice() {
+            return Shopware.Store.get('swProductDetail').defaultPrice;
+        },
 
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         customFieldSetRepository() {
@@ -241,7 +250,7 @@ export default {
                     name: 'price',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.price,
+                        price: this.product?.price,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -255,7 +264,7 @@ export default {
                     name: 'purchasePrices',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.purchasePrices,
+                        price: this.product?.purchasePrices,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -269,7 +278,7 @@ export default {
                     name: 'listPrice',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.listPrice,
+                        price: this.product?.listPrice,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -285,7 +294,7 @@ export default {
                     name: 'regulationPrice',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.regulationPrice,
+                        price: this.product?.regulationPrice,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -497,7 +506,7 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-category-tree-field',
-                        categoriesCollection: this.product.categories,
+                        categoriesCollection: this.product?.categories,
                         allowOverwrite: true,
                         allowClear: true,
                         allowAdd: true,
@@ -512,7 +521,7 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-entity-tag-select',
-                        entityCollection: this.product.tags,
+                        entityCollection: this.product?.tags,
                         entityName: 'tag',
                         allowOverwrite: true,
                         allowClear: true,
@@ -528,7 +537,7 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-multi-tag-select',
-                        value: this.product.searchKeywords,
+                        value: this.product?.searchKeywords,
                         allowOverwrite: true,
                         allowClear: true,
                         allowAdd: false,
@@ -762,7 +771,7 @@ export default {
                 return null;
             }
 
-            return this.repositoryFactory.create(this.product.prices.entity, this.product.prices.source);
+            return this.repositoryFactory.create(this.product?.prices.entity, this.product?.prices.source);
         },
 
         ruleCriteria() {
@@ -778,11 +787,11 @@ export default {
         },
 
         priceRuleGroups() {
-            if (!this.product.prices) {
+            if (!this.product?.prices) {
                 return {};
             }
 
-            return this.product.prices.reduce((r, a) => {
+            return this.product?.prices.reduce((r, a) => {
                 r[a.ruleId] = [
                     ...(r[a.ruleId] || []),
                     a,
@@ -798,8 +807,8 @@ export default {
                 return;
             }
 
-            const ids = this.product.prices?.getIds();
-            ids.forEach((id) => this.product.prices.remove(id));
+            const ids = this.product?.prices?.getIds();
+            ids.forEach((id) => this.product?.prices.remove(id));
         },
         'product.visibilities': {
             handler(productVisibilities) {
@@ -894,14 +903,6 @@ export default {
         },
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swProductDetail', swProductDetailState);
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swProductDetail');
-    },
-
     created() {
         this.createdComponent();
     },
@@ -927,7 +928,7 @@ export default {
                 this.loadBulkEditData();
 
                 const product = this.isChild ? this.parentProduct : this.productRepository.create();
-                Shopware.State.commit('swProductDetail/setProduct', product);
+                Shopware.Store.get('swProductDetail').product = product;
                 this.definePricesBulkEdit();
 
                 if (this.isChild) {
@@ -968,11 +969,11 @@ export default {
                 .get(this.$route.params.parentId, Shopware.Context.api, this.productCriteria)
                 .then((parentProduct) => {
                     parentProduct.stock = null;
-                    Shopware.State.commit('swProductDetail/setParentProduct', parentProduct);
+                    Shopware.Store.get('swProductDetail').parentProduct = parentProduct;
                     this.parentProductFrozen = JSON.stringify(parentProduct);
                 })
                 .catch(() => {
-                    Shopware.State.commit('swProductDetail/setParentProduct', {});
+                    Shopware.Store.get('swProductDetail').parentProduct = {};
                 });
         },
 
@@ -1054,7 +1055,7 @@ export default {
         loadTaxes() {
             return this.taxRepository.search(this.taxCriteria).then((taxes) => {
                 this.taxRate = this.isChild ? this.parentProduct?.tax : taxes[0];
-                Shopware.State.commit('swProductDetail/setTaxes', taxes);
+                Shopware.Store.get('swProductDetail').setTaxes(taxes);
             });
         },
 
@@ -1064,13 +1065,13 @@ export default {
             }
 
             return this.taxes.find((tax) => {
-                return tax.id === this.product.taxId;
+                return tax.id === this.product?.taxId;
             });
         },
 
         loadCurrencies() {
             return this.currencyRepository.search(new Criteria(1, 500)).then((res) => {
-                Shopware.State.commit('swProductDetail/setCurrencies', res);
+                Shopware.Store.get('swProductDetail').currencies = res;
             });
         },
 
@@ -1140,7 +1141,7 @@ export default {
                 },
             ];
 
-            if (!types.isEmpty(this.parentProduct.price[0][price])) {
+            if (!types.isEmpty(this.parentProduct.price?.[0][price])) {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
                     this.$set(this.product, `${price}`, [
                         this.parentProduct.price[0][price],
@@ -1272,9 +1273,9 @@ export default {
 
             if (priceField) {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(priceField.value[0], 'listPrice', this.product.listPrice[0]);
+                    this.$set(priceField.value[0], 'listPrice', this.product?.listPrice[0]);
                 } else {
-                    priceField.value[0].listPrice = this.product.listPrice[0];
+                    priceField.value[0].listPrice = this.product?.listPrice[0];
                 }
             }
         },
@@ -1286,9 +1287,9 @@ export default {
 
             if (priceField) {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(priceField.value[0], 'regulationPrice', this.product.regulationPrice[0]);
+                    this.$set(priceField.value[0], 'regulationPrice', this.product?.regulationPrice[0]);
                 } else {
-                    priceField.value[0].regulationPrice = this.product.regulationPrice[0];
+                    priceField.value[0].regulationPrice = this.product?.regulationPrice[0];
                 }
             }
         },
@@ -1333,7 +1334,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
         },
 
         loadRules() {
@@ -1343,10 +1344,10 @@ export default {
         },
 
         onRuleChange(rules) {
-            if (rules.length > this.product.prices.length) {
+            if (rules.length > this.product?.prices.length) {
                 const newPriceRule = this.priceRepository.create();
 
-                newPriceRule.productId = this.product.id;
+                newPriceRule.productId = this.product?.id;
                 newPriceRule.quantityStart = 1;
                 newPriceRule.quantityEnd = null;
                 newPriceRule.currencyId = this.defaultCurrency.id;
@@ -1380,25 +1381,25 @@ export default {
                 }
 
                 rules.forEach((rule) => {
-                    if (this.product.prices.some((item) => item.ruleId === rule.ruleId)) {
+                    if (this.product?.prices.some((item) => item.ruleId === rule.ruleId)) {
                         return;
                     }
 
                     newPriceRule.ruleId = rule.id;
                     newPriceRule.ruleName = rule.name;
 
-                    this.product.prices.add(newPriceRule);
+                    this.product?.prices.add(newPriceRule);
                 });
 
                 return;
             }
 
-            this.product.prices.forEach((price) => {
+            this.product?.prices.forEach((price) => {
                 if (rules.some((rule) => price.ruleId === rule.ruleId)) {
                     return;
                 }
 
-                this.product.prices.remove(price.id);
+                this.product?.prices.remove(price.id);
             });
         },
 
@@ -1425,8 +1426,8 @@ export default {
             }
             if (item.name === 'isPriceInherited') {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product.price, 0, parentProductFrozen.price[0]);
-                    this.$set(this.product.purchasePrices, 0, parentProductFrozen.purchasePrices[0]);
+                    this.$set(this.product?.price, 0, parentProductFrozen.price[0]);
+                    this.$set(this.product?.purchasePrices, 0, parentProductFrozen.purchasePrices[0]);
                 } else {
                     this.product.price[0] = parentProductFrozen.price[0];
                     this.product.purchasePrices[0] = parentProductFrozen.purchasePrices[0];
@@ -1442,7 +1443,7 @@ export default {
                       };
                 if (this.isCompatEnabled('INSTANCE_SET')) {
                     this.$set(this.product, 'listPrice', [listPrice]);
-                    this.$set(this.product.price[0], 'listPrice', listPrice);
+                    this.$set(this.product?.price[0], 'listPrice', listPrice);
                 } else {
                     this.product.listPrice = [listPrice];
                     this.product.price[0].listPrice = listPrice;
@@ -1460,7 +1461,7 @@ export default {
                     this.$set(this.product, 'regulationPrice', [
                         regulationPrice,
                     ]);
-                    this.$set(this.product.price[0], 'regulationPrice', regulationPrice);
+                    this.$set(this.product?.price[0], 'regulationPrice', regulationPrice);
                 } else {
                     this.product.regulationPrice = [regulationPrice];
                     this.product.price[0].regulationPrice = regulationPrice;

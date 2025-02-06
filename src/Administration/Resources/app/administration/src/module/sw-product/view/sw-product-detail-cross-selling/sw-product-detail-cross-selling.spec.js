@@ -4,8 +4,6 @@
 
 import { mount } from '@vue/test-utils';
 
-import productStore from 'src/module/sw-product/page/sw-product-detail/state';
-
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-product-detail-cross-selling', {
@@ -56,16 +54,13 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
     let wrapper;
 
     beforeEach(async () => {
-        if (Shopware.State.get('swProductDetail')) {
-            Shopware.State.unregisterModule('swProductDetail');
-        }
-        Shopware.State.registerModule('swProductDetail', productStore);
+        Shopware.Store.get('swProductDetail').$reset();
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
-        Shopware.State.registerModule('context', {
-            namespaced: true,
+        Shopware.Store.register({
+            id: 'context',
 
             getters: {
                 isSystemDefaultLanguage() {
@@ -73,10 +68,12 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
                 },
             },
 
-            state: {
-                api: {
-                    assetsPath: '/',
-                },
+            state() {
+                return {
+                    api: {
+                        assetsPath: '/',
+                    },
+                };
             },
         });
     });
@@ -100,14 +97,14 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
     });
 
     it('should show inherited state when product is a variant', async () => {
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             id: 'productId',
             parentId: 'parentProductId',
             crossSellings: [],
-        });
-        Shopware.State.commit('swProductDetail/setParentProduct', {
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
             id: 'parentProductId',
-        });
+        };
 
         wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
@@ -117,11 +114,11 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
     });
 
     it('should show empty state for main product', async () => {
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             id: 'productId',
             parentId: null,
             crossSellings: [],
-        });
+        };
 
         wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

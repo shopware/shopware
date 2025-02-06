@@ -45,7 +45,7 @@ jobs:
     needs: create_deployment_branches
     if: ${{ github.repository == 'shopware/shopware-private' }}
     env:
-      CURRENT_MAJOR_ALIAS: "6.6.x-dev"
+      CURRENT_MAJOR_ALIAS: "6.7.x-dev"
     steps:
       - name: Checkout platform
         uses: actions/checkout@v4

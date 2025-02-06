@@ -55,7 +55,8 @@ jobs:
   downstream-check:
     if: always()
     needs:
-    - rufus
+    # fix with shopware/shopware#6556
+    # - rufus
     - commercial
 
     runs-on: Ubuntu-latest

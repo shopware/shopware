@@ -104,7 +104,7 @@ async function createWrapper(
     ];
 
     settingsItemsMock.forEach((settingsItem) => {
-        Shopware.State.commit('settingsItems/addItem', settingsItem);
+        Shopware.Store.get('settingsItems').addItem(settingsItem);
     });
 
     return mount(
@@ -159,7 +159,7 @@ async function createWrapper(
 
 describe('module/sw-settings/page/sw-settings-index', () => {
     beforeEach(async () => {
-        Shopware.State.get('settingsItems').settingsGroups = {};
+        Shopware.Store.get('settingsItems').settingsGroups = {};
     });
 
     it('should be a Vue.js component', async () => {
@@ -228,7 +228,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'b',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -261,7 +261,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'b',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper();
 
@@ -282,7 +282,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'b',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper('system.foo_bar');
 
@@ -303,7 +303,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'b',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper();
 
@@ -324,7 +324,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             backgroundEnabled: false,
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -365,7 +365,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'b',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper('system.foo_bar');
 
@@ -387,7 +387,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'b',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper('system.foo_bar');
 
@@ -408,7 +408,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'Dynamic Setting',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -430,7 +430,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             label: 'Bar Setting',
         };
 
-        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
 
         const wrapper = await createWrapper(['system.foo_bar']);
         const shopGroup = wrapper.vm.settingsGroups.shop;

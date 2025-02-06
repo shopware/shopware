@@ -229,7 +229,7 @@ export default {
                 })
                 .then((emailIsValid) => {
                     if (this.errorEmailCustomer) {
-                        Shopware.State.dispatch('error/addApiError', {
+                        Shopware.Store.get('error').addApiError({
                             expression: `customer.${this.customer.id}.email`,
                             error: null,
                         });
@@ -239,7 +239,7 @@ export default {
                 })
                 .catch((exception) => {
                     this.emailIsValid = false;
-                    Shopware.State.dispatch('error/addApiError', {
+                    Shopware.Store.get('error').addApiError({
                         expression: `customer.${this.customer.id}.email`,
                         error: new ShopwareError(exception.response.data.errors[0]),
                     });
@@ -331,7 +331,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.createdComponent();
         },
 
@@ -341,7 +341,7 @@ export default {
             const passwordNotEquals = passwordNew !== passwordConfirm;
 
             if (passwordSet && passwordNotEquals) {
-                Shopware.State.dispatch('error/addApiError', {
+                Shopware.Store.get('error').addApiError({
                     expression: `customer.${this.customer.id}.passwordConfirm`,
                     error: new ShopwareError({
                         detail: this.$tc('sw-customer.error.passwordDoNotMatch'),
@@ -393,7 +393,7 @@ export default {
 
         createErrorMessageForCompanyField() {
             this.isLoading = false;
-            Shopware.State.dispatch('error/addApiError', {
+            Shopware.Store.get('error').addApiError({
                 expression: `customer.${this.customer.id}.company`,
                 error: new ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',

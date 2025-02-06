@@ -31,7 +31,7 @@ describe('src/app/init-post/usage-data.init.ts', () => {
     });
 
     beforeEach(() => {
-        Shopware.State.commit('usageData/updateConsent', {
+        Shopware.Store.get('usageData').updateConsent({
             isConsentGiven: undefined,
             isBannerHidden: undefined,
         });
@@ -43,15 +43,15 @@ describe('src/app/init-post/usage-data.init.ts', () => {
 
         await initializeUsageDataContext();
 
-        expect(Shopware.State.get('usageData').isConsentGiven).toBe(false);
-        expect(Shopware.State.get('usageData').isBannerHidden).toBe(true);
+        expect(Shopware.Store.get('usageData').isConsentGiven).toBe(false);
+        expect(Shopware.Store.get('usageData').isBannerHidden).toBe(true);
     });
 
     it('should init the consent data when user is logged in', async () => {
         await initializeUsageDataContext();
 
-        expect(Shopware.State.get('usageData').isConsentGiven).toBe(true);
-        expect(Shopware.State.get('usageData').isBannerHidden).toBe(false);
+        expect(Shopware.Store.get('usageData').isConsentGiven).toBe(true);
+        expect(Shopware.Store.get('usageData').isBannerHidden).toBe(false);
     });
 
     it('should set static consent data when the request fails', async () => {
@@ -59,7 +59,7 @@ describe('src/app/init-post/usage-data.init.ts', () => {
 
         await initializeUsageDataContext();
 
-        expect(Shopware.State.get('usageData').isConsentGiven).toBe(false);
-        expect(Shopware.State.get('usageData').isBannerHidden).toBe(true);
+        expect(Shopware.Store.get('usageData').isConsentGiven).toBe(false);
+        expect(Shopware.Store.get('usageData').isBannerHidden).toBe(true);
     });
 });

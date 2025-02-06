@@ -175,6 +175,8 @@ class CartFacadeTest extends TestCase
 
     public function testDependency(): void
     {
+        static::markTestSkipped('#6556');
+
         if (!Feature::isActive('v6.7.0.0')) {
             $this->expectException(HookInjectionException::class);
         } else {

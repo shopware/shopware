@@ -1172,7 +1172,6 @@
     "customer_wishlist_product.updatedAt",
     "document.id",
     "document.documentTypeId",
-    "document.fileType",
     "document.referencedDocumentId",
     "document.orderId",
     "document.documentMediaFileId",

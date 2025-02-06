@@ -12,19 +12,12 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 #[Package('checkout')]
 class LoadWishlistRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var CustomerWishlistEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $wishlist;
+    protected CustomerWishlistEntity $wishlist;
 
     /**
      * @var EntitySearchResult<ProductCollection>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $productListing;
+    protected EntitySearchResult $productListing;
 
     /**
      * @param EntitySearchResult<ProductCollection> $listing

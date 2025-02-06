@@ -18,8 +18,6 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['feature'],
-
     emits: ['sales-channel-change'],
 
     props: {

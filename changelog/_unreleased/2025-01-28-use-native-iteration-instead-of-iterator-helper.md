@@ -1,9 +1,10 @@
 ---
 title: Use native iteration instead of iterator helper
-issue: #0000
+issue: NEXT-39407
 ---
 # Storefront
 * Deprecated `iterator.helper.js`. Use native iteration like `forEach` directly instead.
+* Changed and fixed `FormSerializeUtil.serializeJson()` so it does not always return an empty object. 
 ___
 # Upgrade Information
 ## Deprecate Storefront `Iterator` helper

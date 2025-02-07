@@ -29,7 +29,7 @@ class ImportExportProfileEntity extends Entity
 
     protected ?string $delimiter = null;
 
-    protected ?string $enclosure  = null;
+    protected ?string $enclosure = null;
 
     protected string $type;
 

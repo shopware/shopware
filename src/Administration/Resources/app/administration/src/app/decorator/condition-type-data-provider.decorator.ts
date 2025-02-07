@@ -1,6 +1,6 @@
 import type RuleConditionService from '../service/rule-condition.service';
 
-const { Application, Feature } = Shopware;
+const { Application } = Shopware;
 
 /**
  * @sw-package fundamentals@after-sales

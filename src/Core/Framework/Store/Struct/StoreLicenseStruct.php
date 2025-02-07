@@ -11,89 +11,29 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class StoreLicenseStruct extends Struct
 {
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected int $id;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $producerName;
+    protected string $producerName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $technicalPluginName;
+    protected string $technicalPluginName;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $creationDate;
+    protected \DateTimeInterface $creationDate;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $expirationDate;
+    protected \DateTimeInterface $expirationDate;
 
-    /**
-     * @var StoreLicenseSubscriptionStruct|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $subscription;
+    protected ?StoreLicenseSubscriptionStruct $subscription;
 
-    /**
-     * @var StoreLicenseTypeStruct
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected StoreLicenseTypeStruct $type;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $availableVersion;
+    protected string $availableVersion;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $installed;
+    protected bool $installed;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $iconPath;
+    protected string $iconPath;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $updateAvailable;
+    protected bool $updateAvailable;
 
     public function getTechnicalPluginName(): string
     {

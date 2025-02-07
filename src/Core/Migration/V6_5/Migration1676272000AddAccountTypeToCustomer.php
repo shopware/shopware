@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -73,7 +74,7 @@ class Migration1676272000AddAccountTypeToCustomer extends MigrationStep
                     'limit' => self::CHUNK_SIZE,
                 ],
                 [
-                    'limit' => \PDO::PARAM_INT,
+                    'limit' => ParameterType::INTEGER,
                 ]
             );
         }

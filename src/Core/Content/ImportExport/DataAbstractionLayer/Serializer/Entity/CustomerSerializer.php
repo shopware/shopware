@@ -77,7 +77,6 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
     public function reset(): void
     {
         $this->cacheCustomerGroups = [];
-        $this->cachePaymentMethods = [];
         $this->cacheSalesChannels = [];
     }
 

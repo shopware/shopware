@@ -27,8 +27,6 @@ class CustomerSerializerTest extends TestCase
 
     private EntityRepository $customerGroupRepository;
 
-    private EntityRepository $paymentMethodRepository;
-
     private EntityRepository $salesChannelRepository;
 
     private EntityRepository $customerRepository;
@@ -37,19 +35,15 @@ class CustomerSerializerTest extends TestCase
 
     private string $customerGroupId = 'a536fe4ef675470f8cddfcc7f8360e4b';
 
-    private string $paymentMethodId = '733530bc28f74bfbb43c32b595ac9fa0';
-
     protected function setUp(): void
     {
         $this->customerGroupRepository = static::getContainer()->get('customer_group.repository');
-        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
         $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
 
         $this->serializer = new CustomerSerializer(
             $this->customerGroupRepository,
-            $this->paymentMethodRepository,
             $this->salesChannelRepository
         );
         $this->serializer->setRegistry($serializerRegistry);
@@ -59,7 +53,6 @@ class CustomerSerializerTest extends TestCase
     {
         $salesChannel = $this->createSalesChannel();
         $this->createCustomerGroup();
-        $this->createPaymentMethod();
 
         $config = new Config([], [], []);
         $customer = [
@@ -67,13 +60,6 @@ class CustomerSerializerTest extends TestCase
                 'translations' => [
                     'DEFAULT' => [
                         'name' => 'test customer group',
-                    ],
-                ],
-            ],
-            'defaultPaymentMethod' => [
-                'translations' => [
-                    'DEFAULT' => [
-                        'name' => 'test payment method',
                     ],
                 ],
             ],
@@ -108,7 +94,6 @@ class CustomerSerializerTest extends TestCase
     {
         $serializer = new CustomerSerializer(
             $this->customerGroupRepository,
-            $this->paymentMethodRepository,
             $this->salesChannelRepository
         );
 
@@ -133,17 +118,6 @@ class CustomerSerializerTest extends TestCase
             [
                 'id' => $this->customerGroupId,
                 'name' => 'test customer group',
-            ],
-        ], Context::createDefaultContext());
-    }
-
-    private function createPaymentMethod(): void
-    {
-        $this->paymentMethodRepository->upsert([
-            [
-                'id' => $this->paymentMethodId,
-                'name' => 'test payment method',
-                'technicalName' => 'payment_test',
             ],
         ], Context::createDefaultContext());
     }

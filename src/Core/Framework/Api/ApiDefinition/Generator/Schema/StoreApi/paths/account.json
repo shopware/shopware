@@ -318,43 +318,6 @@
                 ]
             }
         },
-        "/account/change-payment-method/{paymentMethodId}": {
-            "post": {
-                "tags": ["Profile"],
-                "summary": "Change the customer's default payment method",
-                "description": "Changes a customer's default (preselected) payment method.",
-                "operationId": "changePaymentMethod",
-                "parameters": [
-                    {
-                        "name": "paymentMethodId",
-                        "in": "path",
-                        "description": "Identifier of the desired default payment method",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns a success response indicating a successful update.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "ApiKey": [],
-                        "ContextToken": []
-                    }
-                ]
-            }
-        },
         "/account/customer-recovery-is-expired": {
             "post": {
                 "tags": ["Profile"],

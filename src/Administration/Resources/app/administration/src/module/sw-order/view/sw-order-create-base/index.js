@@ -14,8 +14,6 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['feature'],
-
     emits: ['error'],
 
     mixins: [
@@ -80,10 +78,6 @@ export default {
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags');
-
-            if (!this.feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('defaultPaymentMethod');
-            }
 
             return criteria;
         },

@@ -402,7 +402,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.affiliateCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: expect.any(Array),
                 }),
                 'campaign-code-filter': expect.objectContaining({
                     property: 'campaignCode',
@@ -411,7 +410,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.campaignCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: expect.any(Array),
                 }),
                 'promotion-code-filter': expect.objectContaining({
                     property: 'lineItems.payload.code',
@@ -420,7 +418,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.promotionCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: expect.any(Array),
                 }),
             }),
         );

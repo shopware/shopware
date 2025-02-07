@@ -18,18 +18,11 @@ class CartShippingCostRule extends Rule
 {
     public const RULE_NAME = 'cartShippingCost';
 
-    protected ?float $cartShippingCost;
-
-    protected string $operator;
-
     public function __construct(
-        string $operator = self::OPERATOR_EQ,
-        ?float $cartShippingCost = null
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?float $cartShippingCost = null
     ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->cartShippingCost = $cartShippingCost;
     }
 
     public function match(RuleScope $scope): bool

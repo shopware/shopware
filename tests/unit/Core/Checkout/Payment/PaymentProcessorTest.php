@@ -16,22 +16,18 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
-use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -60,8 +56,6 @@ class PaymentProcessorTest extends TestCase
 
     private TokenFactoryInterfaceV2&MockObject $tokenGenerator;
 
-    private PaymentService&MockObject $oldService;
-
     private OrderTransactionStateHandler&MockObject $stateHandler;
 
     protected function setUp(): void
@@ -76,7 +70,6 @@ class PaymentProcessorTest extends TestCase
             $this->createMock(InitialStateIdLoader::class),
             $this->router = $this->createMock(RouterInterface::class),
             $this->createMock(SystemConfigService::class),
-            $this->oldService = $this->createMock(PaymentService::class),
         );
     }
 
@@ -301,43 +294,6 @@ class PaymentProcessorTest extends TestCase
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - remove
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testPayWithOldProcessor(): void
-    {
-        $orderTransaction = new OrderTransactionEntity();
-        $orderTransaction->setId('order-transaction-id');
-        $orderTransaction->setPaymentMethodId('payment-method-id');
-        $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
-
-        $request = new Request();
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        $handler = $this->createMock(SynchronousPaymentHandlerInterface::class);
-        $this->paymentHandlerRegistry->expects(static::once())
-            ->method('getPaymentMethodHandler')
-            ->with('payment-method-id')
-            ->willReturn($handler);
-
-        $this->oldService
-            ->expects(static::once())
-            ->method('handlePaymentByOrder')
-            ->with('order-id', new RequestDataBag(), $salesChannelContext, 'finish-url', 'error-url')
-            ->willReturn(null);
-
-        $response = $this->processor->pay(
-            'order-id',
-            $request,
-            $salesChannelContext,
-            'finish-url',
-            'error-url',
-        );
-
-        static::assertNull($response);
-    }
-
     public function testFinalize(): void
     {
         $orderTransaction = new OrderTransactionEntity();
@@ -416,48 +372,6 @@ class PaymentProcessorTest extends TestCase
 
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
-        $response = $this->processor->finalize(
-            $tokenStruct,
-            $request,
-            $salesChannelContext,
-        );
-
-        static::assertSame($tokenStruct, $response);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - remove
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testFinalizeWithOldHandler(): void
-    {
-        $orderTransaction = new OrderTransactionEntity();
-        $orderTransaction->setId('order-transaction-id');
-        $orderTransaction->setPaymentMethodId('payment-method-id');
-        $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
-
-        $request = new Request();
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        $handler = $this->createMock(AsynchronousPaymentHandlerInterface::class);
-        $this->paymentHandlerRegistry->expects(static::once())
-            ->method('getPaymentMethodHandler')
-            ->with('payment-method-id')
-            ->willReturn($handler);
-
-        $tokenStruct = new TokenStruct(
-            paymentMethodId: 'payment-method-id',
-            transactionId: 'order-transaction-id',
-            expires: \PHP_INT_MAX,
-            token: 'token',
-        );
-
-        $this->oldService
-            ->expects(static::once())
-            ->method('finalizeTransaction')
-            ->with('token', $request, $salesChannelContext)
-            ->willReturn($tokenStruct);
-
         $response = $this->processor->finalize(
             $tokenStruct,
             $request,
@@ -609,29 +523,6 @@ class PaymentProcessorTest extends TestCase
 
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
-        $this->processor->validate(
-            $cart,
-            $requestDataBag,
-            $salesChannelContext,
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - remove
-     */
-    public function testValidateWithInvalidInterface(): void
-    {
-        $requestDataBag = new RequestDataBag();
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelContext->getPaymentMethod()->setId('payment-method-id');
-        $cart = new Cart(Uuid::randomHex());
-        $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
-
-        $this->paymentHandlerRegistry->expects(static::once())
-            ->method('getPaymentMethodHandler')
-            ->with($salesChannelContext->getPaymentMethod()->getId())
-            ->willReturn($this->createMock(SynchronousPaymentHandlerInterface::class));
-
         $this->processor->validate(
             $cart,
             $requestDataBag,

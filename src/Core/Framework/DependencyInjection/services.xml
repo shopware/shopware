@@ -668,7 +668,6 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider">
             <argument />  <!-- $serviceLocator will be set in the compiler pass -->
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
         </service>
 
 

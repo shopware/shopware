@@ -251,7 +251,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 -$order->getPositionPrice(),
                 $taxes,
                 $creditItemsCalculatedPrice->getTaxRules(),
-                $order->getTaxStatus()
+                $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
             );
         } else {
             $price = new CartPrice(
@@ -260,7 +260,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 -$order->getPositionPrice(),
                 $taxes,
                 $creditItemsCalculatedPrice->getTaxRules(),
-                $order->getTaxStatus()
+                $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
             );
         }
 

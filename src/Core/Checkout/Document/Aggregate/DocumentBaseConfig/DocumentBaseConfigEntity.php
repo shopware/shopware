@@ -37,7 +37,7 @@ class DocumentBaseConfigEntity extends Entity
 
     protected DocumentBaseConfigSalesChannelCollection $salesChannels;
 
-    protected ?DocumentTypeEntity $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
     protected ?MediaEntity $logo = null;
 

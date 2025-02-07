@@ -18,7 +18,7 @@ class DocumentConfiguration extends Struct
     /**
      * @var array<string>
      */
-    protected array $deliveryCountries;
+    protected array $deliveryCountries = [];
 
     protected ?bool $displayPrices = null;
 
@@ -56,8 +56,6 @@ class DocumentConfiguration extends Struct
     protected ?bool $displayCompanyAddress = null;
 
     protected ?string $title = null;
-
-    protected ?string $companyAddress = null;
 
     protected ?string $companyName = null;
 

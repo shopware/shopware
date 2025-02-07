@@ -20,7 +20,6 @@ export default {
         'customSnippetApiService',
         'orderService',
         'repositoryFactory',
-        'feature',
     ],
 
     emits: [

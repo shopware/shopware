@@ -99,6 +99,7 @@
 
         <service id="Shopware\Core\Installer\Controller\RequirementsController" public="true">
             <argument type="tagged_iterator" tag="shopware.installer.requirement"/>
+            <argument type="string">%kernel.project_dir%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

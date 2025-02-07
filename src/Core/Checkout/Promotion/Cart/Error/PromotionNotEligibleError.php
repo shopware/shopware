@@ -10,12 +10,7 @@ class PromotionNotEligibleError extends Error
 {
     private const KEY = 'promotion-not-eligible';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
     public function __construct(string $name)
     {

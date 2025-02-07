@@ -13,40 +13,15 @@ class PromotionDiscountPriceEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $discountId;
+    protected string $discountId;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
+    protected float $price;
 
-    /**
-     * @var PromotionDiscountEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotionDiscount;
+    protected PromotionDiscountEntity $promotionDiscount;
 
-    /**
-     * @var CurrencyEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currency;
+    protected CurrencyEntity $currency;
 
     public function getCurrencyId(): string
     {

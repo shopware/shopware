@@ -16,7 +16,6 @@ export default {
         'acl',
         'repositoryFactory',
         'promotionCodeApiService',
-        'feature',
     ],
 
     emits: [

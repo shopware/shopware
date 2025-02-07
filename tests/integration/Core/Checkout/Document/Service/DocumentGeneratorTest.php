@@ -306,21 +306,21 @@ class DocumentGeneratorTest extends TestCase
                 'extension' => FileTypes::PDF,
             ]),
             true,
-            new DocumentGenerationException('Parameter "fileName" is missing'),
+            DocumentException::generationError('Parameter "fileName" is missing'),
         ];
 
         yield 'upload non static document' => [
             true,
             new Request(),
             false,
-            new DocumentGenerationException('This document is dynamically generated and cannot be overwritten'),
+            DocumentException::generationError('This document is dynamically generated and cannot be overwritten'),
         ];
 
         yield 'upload with existed media' => [
             true,
             new Request(),
             true,
-            new DocumentGenerationException('Document already exists'),
+            DocumentException::generationError('Document already exists'),
         ];
     }
 
@@ -580,7 +580,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGenerateWithInvalidType(): void
     {
-        static::expectException(InvalidDocumentRendererException::class);
+        static::expectException(DocumentException::class);
         static::expectExceptionMessage('Unable to find a document renderer with type "invalid_type"');
         $this->documentGenerator->generate('invalid_type', [], $this->context);
     }

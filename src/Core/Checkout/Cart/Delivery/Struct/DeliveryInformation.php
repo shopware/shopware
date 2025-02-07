@@ -8,80 +8,16 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DeliveryInformation extends Struct
 {
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stock;
-
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $weight;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $freeDelivery;
-
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $restockTime;
-
-    /**
-     * @var DeliveryTime|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deliveryTime;
-
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $height;
-
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $width;
-
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $length;
-
     public function __construct(
-        int $stock,
-        ?float $weight,
-        bool $freeDelivery,
-        ?int $restockTime = null,
-        ?DeliveryTime $deliveryTime = null,
-        ?float $height = null,
-        ?float $width = null,
-        ?float $length = null
+        protected int $stock,
+        protected ?float $weight,
+        protected bool $freeDelivery,
+        protected ?int $restockTime = null,
+        protected ?DeliveryTime $deliveryTime = null,
+        protected ?float $height = null,
+        protected ?float $width = null,
+        protected ?float $length = null
     ) {
-        $this->stock = $stock;
-        $this->weight = $weight;
-        $this->freeDelivery = $freeDelivery;
-        $this->restockTime = $restockTime;
-        $this->deliveryTime = $deliveryTime;
-        $this->height = $height;
-        $this->width = $width;
-        $this->length = $length;
     }
 
     public function getStock(): int

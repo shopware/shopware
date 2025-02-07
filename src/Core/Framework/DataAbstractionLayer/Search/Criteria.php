@@ -73,9 +73,9 @@ class Criteria extends Struct implements \Stringable
      */
     protected array $groupFields = [];
 
-    protected ?int $offset;
+    protected ?int $offset = null;
 
-    protected ?int $limit;
+    protected ?int $limit = null;
 
     protected int $totalCountMode = self::TOTAL_COUNT_MODE_NONE;
 
@@ -91,14 +91,14 @@ class Criteria extends Struct implements \Stringable
 
     protected bool $inherited = false;
 
-    protected ?string $term;
+    protected ?string $term = null;
 
     /**
      * @var array<string, array<string, string>>|null
      */
-    protected ?array $includes;
+    protected ?array $includes = null;
 
-    protected ?string $title;
+    protected ?string $title = null;
 
     /**
      * @var list<string>

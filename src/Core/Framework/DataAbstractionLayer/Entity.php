@@ -13,16 +13,16 @@ class Entity extends Struct
 {
     protected string $_uniqueIdentifier;
 
-    protected ?string $versionId;
+    protected ?string $versionId = null;
 
     /**
      * @var array<string, mixed>
      */
     protected array $translated = [];
 
-    protected ?\DateTimeInterface $createdAt;
+    protected ?\DateTimeInterface $createdAt = null;
 
-    protected ?\DateTimeInterface $updatedAt;
+    protected ?\DateTimeInterface $updatedAt = null;
 
     private ?string $_entityName = null;
 

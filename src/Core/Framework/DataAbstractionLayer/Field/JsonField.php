@@ -19,7 +19,7 @@ class JsonField extends Field implements StorageAware
     /**
      * @var array<mixed>|null
      */
-    protected ?array $default;
+    protected ?array $default = null;
 
     /**
      * @param list<Field> $propertyMapping

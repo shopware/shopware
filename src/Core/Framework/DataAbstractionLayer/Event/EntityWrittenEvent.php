@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EntityWrittenEvent extends NestedEvent implements GenericEvent
 {
-    protected ?array $ids;
+    protected ?array $ids = null;
 
     protected NestedEventCollection $events;
 
@@ -21,7 +21,7 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
 
     protected Context $context;
 
-    protected ?array $payloads;
+    protected ?array $payloads = null;
 
     /**
      * @var EntityWriteResult[]
@@ -31,7 +31,7 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
     /**
      * @var EntityExistence[]
      */
-    protected ?array $existences;
+    protected ?array $existences = null;
 
     protected string $name;
 

@@ -116,8 +116,8 @@ class ExtensionRegistry
 
     private function getInstance(DefinitionInstanceRegistry $registry, EntityExtension $extension): EntityDefinition
     {
-            $entity = $extension->getEntityName();
+        $entity = $extension->getEntityName();
 
-            return $registry->getByEntityName($entity);
+        return $registry->getByEntityName($entity);
     }
 }

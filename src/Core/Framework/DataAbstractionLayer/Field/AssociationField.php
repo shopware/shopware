@@ -11,7 +11,7 @@ abstract class AssociationField extends Field
 {
     protected string $referenceClass;
 
-    protected ?EntityDefinition $referenceDefinition;
+    protected ?EntityDefinition $referenceDefinition = null;
 
     protected string $referenceField;
 

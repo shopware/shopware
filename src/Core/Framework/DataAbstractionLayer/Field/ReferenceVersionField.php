@@ -12,7 +12,7 @@ class ReferenceVersionField extends FkField
 {
     protected string $versionReferenceClass;
 
-    protected ?EntityDefinition $versionReferenceDefinition;
+    protected ?EntityDefinition $versionReferenceDefinition = null;
 
     protected string $storageName;
 

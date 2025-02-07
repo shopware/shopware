@@ -28,13 +28,13 @@ class VersionCommitDataEntity extends Entity
     /**
      * @var array<string, mixed>|null
      */
-    protected ?array $payload;
+    protected ?array $payload = null;
 
-    protected ?VersionCommitEntity $commit;
+    protected ?VersionCommitEntity $commit = null;
 
-    protected ?string $userId;
+    protected ?string $userId = null;
 
-    protected ?string $integrationId;
+    protected ?string $integrationId = null;
 
     public function getAutoIncrement(): int
     {

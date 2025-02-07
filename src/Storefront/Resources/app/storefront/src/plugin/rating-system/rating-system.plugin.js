@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @package content
@@ -32,7 +31,7 @@ export default class RatingSystemPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        Iterator.iterate(this._ratingPoints, point => {
+        this._ratingPoints.forEach(point => {
             point.addEventListener('click', this._onClickRating.bind(this));
         });
     }
@@ -58,7 +57,7 @@ export default class RatingSystemPlugin extends Plugin {
      * @param points
      */
     setRating(points){
-        Iterator.iterate(this._ratingPoints, radio => {
+        this._ratingPoints.forEach(radio => {
             const radioValue = radio.getAttribute(this.options.reviewPointAttr);
 
             if (radioValue <= points) {
@@ -78,7 +77,7 @@ export default class RatingSystemPlugin extends Plugin {
      * @public
      */
     resetRating() {
-        Iterator.iterate(this._ratingPoints, radio => {
+        this._ratingPoints.forEach(radio => {
             radio.classList.remove(this.options.activeClass);
         });
     }
@@ -120,7 +119,7 @@ export default class RatingSystemPlugin extends Plugin {
     _showInfoText(event) {
         const targetValue = event.target.value;
 
-        Iterator.iterate(this._textWrappers, textWrapper => {
+        this._textWrappers.forEach(textWrapper => {
             if (textWrapper.hasAttribute(`${this.options.ratingTextAttr}`)) {
                 if (textWrapper.getAttribute(`${this.options.ratingTextAttr}`) === targetValue) {
                     textWrapper.classList.remove(this.options.hiddenClass);

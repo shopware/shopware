@@ -1,4 +1,3 @@
-import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 
 /**
@@ -51,8 +50,8 @@ class ElementReplaceHelperSingleton {
         }
 
         if (src instanceof NodeList && target instanceof NodeList && target.length > src.length) {
-            Iterator.iterate(target, (targetEl) => {
-                Iterator.iterate(src, (srcEl) => {
+            target.forEach((targetEl) => {
+                src.forEach((srcEl) => {
                     if (srcEl.innerHTML && srcEl.className === targetEl.className) {
                         targetEl.innerHTML = srcEl.innerHTML;
                     }
@@ -63,7 +62,7 @@ class ElementReplaceHelperSingleton {
         }
 
         if (src instanceof NodeList) {
-            Iterator.iterate(src, (srcEl, index) => {
+            src.forEach((srcEl, index) => {
                 if (srcEl.innerHTML) {
                     target[index].innerHTML = srcEl.innerHTML;
                 }
@@ -72,7 +71,7 @@ class ElementReplaceHelperSingleton {
         }
 
         if (target instanceof NodeList) {
-            Iterator.iterate(target, (targetEl) => {
+            target.forEach((targetEl) => {
                 if (src.innerHTML) {
                     targetEl.innerHTML = src.innerHTML;
                 }
@@ -99,7 +98,7 @@ class ElementReplaceHelperSingleton {
      * @private
      */
     _replaceSelectors(src, selectors, strict) {
-        Iterator.iterate(selectors, (selector) => {
+        selectors.forEach((selector) => {
             const srcElements = DomAccess.querySelectorAll(src, selector, strict);
             const targetElements = DomAccess.querySelectorAll(document, selector, strict);
 

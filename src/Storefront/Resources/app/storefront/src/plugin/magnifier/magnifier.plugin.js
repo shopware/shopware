@@ -2,7 +2,6 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import { Vector2 } from 'src/helper/vector.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 const PORTRAIT_ORIENTATION = 1;
 const LANDSCAPE_ORIENTATION = 0;
@@ -111,7 +110,7 @@ export default class MagnifierPlugin extends Plugin {
      * Registers all necessary event listeners.
      */
     _registerEvents() {
-        Iterator.iterate(this._imageContainers, imageContainer => {
+        this._imageContainers.forEach(imageContainer => {
             const image = DomAccess.querySelector(imageContainer, this.options.imageSelector, false);
             if (image) {
                 image.addEventListener('mousemove', (event) => this._onMouseMove(event, imageContainer, image), false);
@@ -453,7 +452,7 @@ export default class MagnifierPlugin extends Plugin {
      */
     _removeOverlay() {
         const overlays = document.querySelectorAll(`.${this.options.overlayClass}`);
-        Iterator.iterate(overlays, overlay => overlay.remove());
+        overlays.forEach(overlay => overlay.remove());
 
         this.$emitter.publish('removeOverlay');
     }
@@ -487,7 +486,7 @@ export default class MagnifierPlugin extends Plugin {
      */
     _removeZoomImage() {
         const zoomImages = document.querySelectorAll(`.${this.options.zoomImageClass}`);
-        Iterator.iterate(zoomImages, zoomImage => zoomImage.remove());
+        zoomImages.forEach(zoomImage => zoomImage.remove());
 
         this.$emitter.publish('removeZoomImage');
     }
@@ -514,7 +513,7 @@ export default class MagnifierPlugin extends Plugin {
         this._removeOverlay();
 
         const images = DomAccess.querySelectorAll(document, this.options.imageSelector);
-        Iterator.iterate(images, image => this._setCursor(image, 'default'));
+        images.forEach(image => this._setCursor(image, 'default'));
 
         this.$emitter.publish('stopMagnify');
     }

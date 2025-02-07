@@ -22,24 +22,18 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 
 /**
  * @internal
@@ -205,131 +199,6 @@ class Generator extends TestCase
         }
 
         return $salesChannelContext;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed. Use `generateSalesChannelContext` instead
-     */
-    public static function createSalesChannelContext(
-        ?Context $baseContext = null,
-        ?CustomerGroupEntity $currentCustomerGroup = null,
-        ?SalesChannelEntity $salesChannel = null,
-        ?CurrencyEntity $currency = null,
-        ?TaxCollection $taxes = null,
-        ?CountryEntity $country = null,
-        ?CountryStateEntity $state = null,
-        ?CustomerAddressEntity $shipping = null,
-        ?PaymentMethodEntity $paymentMethod = null,
-        ?ShippingMethodEntity $shippingMethod = null,
-        ?CustomerEntity $customer = null,
-        ?string $token = null,
-        ?string $domainId = null,
-        bool $createCustomer = true,
-        ?LanguageInfo $languageInfo = null,
-    ): SalesChannelContext {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0', 'generateSalesChannelContext'),
-        );
-
-        if (!$baseContext) {
-            $baseContext = Context::createDefaultContext();
-        }
-        if ($salesChannel === null) {
-            $salesChannel = new SalesChannelEntity();
-            $salesChannel->setId('ffa32a50e2d04cf38389a53f8d6cd594');
-            $salesChannel->setNavigationCategoryId(Uuid::randomHex());
-            $salesChannel->setTaxCalculationType(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
-            $salesChannel->setPaymentMethodId($paymentMethod?->getId() ?? '19d144ffe15f4772860d59fca7f207c1');
-            $salesChannel->setShippingMethodId($shippingMethod?->getId() ?? '8beeb66e9dda46b18891a059257a590e');
-        }
-
-        $currency = $currency ?: (new CurrencyEntity())->assign([
-            'id' => '4c8eba11bd3546d786afbed481a6e665',
-            'factor' => 1,
-        ]);
-
-        $currency->setFactor(1);
-
-        if (!$currentCustomerGroup) {
-            $currentCustomerGroup = new CustomerGroupEntity();
-            $currentCustomerGroup->setId(TestDefaults::FALLBACK_CUSTOMER_GROUP);
-            $currentCustomerGroup->setDisplayGross(true);
-        }
-
-        if (!$taxes) {
-            $tax = new TaxEntity();
-            $tax->setId('4926035368e34d9fa695e017d7a231b9');
-            $tax->setName('test');
-            $tax->setTaxRate(19.0);
-
-            $taxes = new TaxCollection([$tax]);
-        }
-
-        if (!$country) {
-            $country = new CountryEntity();
-            $country->setId('5cff02b1029741a4891c430bcd9e3603');
-            $country->setCustomerTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
-            $country->setCompanyTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
-            $country->setName('Germany');
-        }
-        if (!$state) {
-            $state = new CountryStateEntity();
-            $state->setId('bd5e2dcf547e4df6bb1ff58a554bc69e');
-            $state->setCountryId($country->getId());
-        }
-
-        if (!$shipping) {
-            $shipping = new CustomerAddressEntity();
-            $shipping->setCountry($country);
-            $shipping->setCountryState($state);
-        }
-
-        if (!$paymentMethod) {
-            $paymentMethod = (new PaymentMethodEntity())->assign(
-                [
-                    'id' => '19d144ffe15f4772860d59fca7f207c1',
-                    'handlerIdentifier' => SyncTestPaymentHandler::class,
-                    'name' => 'Generated Payment',
-                    'active' => true,
-                ]
-            );
-        }
-
-        if (!$shippingMethod) {
-            $deliveryTime = new DeliveryTimeEntity();
-            $deliveryTime->setMin(1);
-            $deliveryTime->setMax(2);
-            $deliveryTime->setUnit(DeliveryTimeEntity::DELIVERY_TIME_DAY);
-
-            $shippingMethod = new ShippingMethodEntity();
-            $shippingMethod->setDeliveryTime($deliveryTime);
-            $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
-        }
-
-        if (!$customer && $createCustomer) {
-            $customer = new CustomerEntity();
-            $customer->setId(Uuid::randomHex());
-            $customer->setGroup($currentCustomerGroup);
-        }
-
-        return new SalesChannelContext(
-            $baseContext,
-            $token ?? Uuid::randomHex(),
-            $domainId ?? Uuid::randomHex(),
-            $salesChannel,
-            $currency,
-            $currentCustomerGroup,
-            $taxes,
-            $paymentMethod,
-            $shippingMethod,
-            ShippingLocation::createFromAddress($shipping),
-            $customer,
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            [],
-            $languageInfo ?? new LanguageInfo('English', 'en-GB')
-        );
     }
 
     public static function createCart(): Cart

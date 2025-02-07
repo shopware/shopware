@@ -15,54 +15,19 @@ class CartPrice extends Struct
     final public const TAX_STATE_NET = 'net';
     final public const TAX_STATE_FREE = 'tax-free';
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $netPrice;
+    protected float $netPrice;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalPrice;
+    protected float $totalPrice;
 
-    /**
-     * @var CalculatedTaxCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculatedTaxes;
+    protected CalculatedTaxCollection $calculatedTaxes;
 
-    /**
-     * @var TaxRuleCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
+    protected TaxRuleCollection $taxRules;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $positionPrice;
+    protected float $positionPrice;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxStatus;
+    protected string $taxStatus;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $rawTotal;
+    protected float $rawTotal;
 
     public function __construct(
         float $netPrice,

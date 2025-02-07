@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
@@ -33,20 +32,6 @@ class AccountServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->accountService = static::getContainer()->get(AccountService::class);
-    }
-
-    public function testLogin(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $salesChannelContext = $this->createSalesChannelContext();
-        $customerId = $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), 'foo@bar.com');
-        $token = $this->accountService->login('foo@bar.com', $salesChannelContext);
-
-        $customer = $this->getCustomerFromToken($token, $salesChannelContext->getSalesChannelId());
-
-        static::assertSame('foo@bar.com', $customer->getEmail());
-        static::assertSame($customerId, $customer->getId());
     }
 
     public function testLoginById(): void
@@ -310,10 +295,6 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()
             ->get('customer.repository')

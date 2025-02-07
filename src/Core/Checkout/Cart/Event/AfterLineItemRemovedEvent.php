@@ -14,24 +14,12 @@ class AfterLineItemRemovedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
      * @var LineItem[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $lineItems;
+    protected array $lineItems;
 
-    /**
-     * @var Cart
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cart;
+    protected Cart $cart;
 
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelContext;
+    protected SalesChannelContext $salesChannelContext;
 
     /**
      * @param LineItem[] $lineItems

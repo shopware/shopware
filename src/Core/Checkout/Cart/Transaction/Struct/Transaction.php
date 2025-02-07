@@ -9,19 +9,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class Transaction extends Struct
 {
-    /**
-     * @var CalculatedPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $amount;
+    protected CalculatedPrice $amount;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethodId;
+    protected string $paymentMethodId;
 
     protected ?Struct $validationStruct = null;
 

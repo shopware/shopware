@@ -138,7 +138,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     private function getLanguageInfo(Context $context): LanguageInfo
     {
         $data = $this->connection->createQueryBuilder()
-            ->select(['language.name', 'locale.code as localeCode'])
+            ->select('language.name', 'locale.code as localeCode')
             ->from('language')
             ->innerJoin('language', 'locale', 'locale', 'language.translation_code_id = locale.id')
             ->where('language.id = :id')

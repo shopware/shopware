@@ -13,6 +13,10 @@ shopware:
         default: true
         major: true
         toggleable: false
+      - name: v6.8.0.0
+        default: false
+        major: true
+        toggleable: false
       - name: ADDRESS_SELECTION_REWORK
         default: true
         major: true

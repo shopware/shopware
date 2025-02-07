@@ -356,10 +356,6 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerDefaultPaymentMethodRule">
-            <tag name="shopware.rule.definition" />
-        </service>
-
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemPropertyValueRule">
             <tag name="shopware.rule.definition"/>
         </service>

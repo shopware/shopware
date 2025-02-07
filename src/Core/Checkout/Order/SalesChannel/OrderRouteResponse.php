@@ -21,10 +21,8 @@ class OrderRouteResponse extends StoreApiResponse
 
     /**
      * @var array<string, bool>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $paymentChangeable = [];
+    protected array $paymentChangeable = [];
 
     public function getObject(): Struct
     {

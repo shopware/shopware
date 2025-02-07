@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -84,21 +83,8 @@ class CustomerDeletedEvent extends Event implements ShopwareSalesChannelEvent, C
 
     public function getValues(): array
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return [
-                'customer' => $this->serializedCustomer,
-            ];
-        }
-
         return [
             'customer' => $this->serializedCustomer,
-            'customerId' => $this->customer->getId(),
-            'customerNumber' => $this->customer->getCustomerNumber(),
-            'customerEmail' => $this->customer->getEmail(),
-            'customerFirstName' => $this->customer->getFirstName(),
-            'customerLastName' => $this->customer->getLastName(),
-            'customerCompany' => $this->customer->getCompany(),
-            'customerSalutationId' => $this->customer->getSalutationId(),
         ];
     }
 }

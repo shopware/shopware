@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -47,9 +46,8 @@ class PaymentMethodCollection extends EntityCollection
     public function sortPaymentMethodsByPreference(SalesChannelContext $context): void
     {
         $ids = array_merge(
-            !Feature::isActive('ACCESSIBILITY_TWEAKS') ? [$context->getPaymentMethod()->getId()] : [],
             [$context->getSalesChannel()->getPaymentMethodId()],
-            $this->getIds()
+            $this->getIds(),
         );
 
         $this->sortByIdArray($ids);

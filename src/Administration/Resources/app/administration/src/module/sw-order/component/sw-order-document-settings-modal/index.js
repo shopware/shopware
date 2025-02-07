@@ -16,7 +16,6 @@ export default {
 
     inject: [
         'numberRangeService',
-        'feature',
         'repositoryFactory',
     ],
 

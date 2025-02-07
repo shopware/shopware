@@ -22,10 +22,6 @@ class SystemSetupCommandTest extends TestCase
         @unlink(__DIR__ . '/.env');
         @unlink(__DIR__ . '/symfony.lock');
         @unlink(__DIR__ . '/.env.local.php');
-        @unlink(__DIR__ . '/config/jwt/private.pem');
-        @unlink(__DIR__ . '/config/jwt/public.pem');
-        @rmdir(__DIR__ . '/config/jwt');
-        @rmdir(__DIR__ . '/config');
     }
 
     public function testEnvFileGeneration(): void

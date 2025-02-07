@@ -17,7 +17,6 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     props: {

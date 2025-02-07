@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class LineItemPropertyRule extends Rule
@@ -19,8 +19,6 @@ class LineItemPropertyRule extends Rule
 
     /**
      * @param list<string> $identifiers
-     *
-     * @internal
      */
     public function __construct(
         protected array $identifiers = [],

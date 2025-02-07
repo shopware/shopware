@@ -21,54 +21,19 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     final public const TYPE = 'quantity';
     final public const SORTING_PRIORITY = 100;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
+    protected float $price;
 
-    /**
-     * @var TaxRuleCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
+    protected TaxRuleCollection $taxRules;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $quantity;
+    protected int $quantity;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $isCalculated = true;
+    protected bool $isCalculated = true;
 
-    /**
-     * @var ReferencePriceDefinition|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencePriceDefinition;
+    protected ?ReferencePriceDefinition $referencePriceDefinition = null;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $listPrice;
+    protected ?float $listPrice = null;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $regulationPrice;
+    protected ?float $regulationPrice = null;
 
     public function __construct(
         float $price,

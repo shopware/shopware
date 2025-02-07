@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
-use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -69,7 +68,7 @@ class PromotionItemBuilder
      * It will automatically reference all provided "product" item Ids within the payload.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, string $currencyId, float $currencyFactor = 1.0): LineItem
     {

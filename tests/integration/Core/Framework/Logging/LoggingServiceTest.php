@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Log\LoggingService;
 use Shopware\Core\Framework\Test\Logging\Event\LogAwareTestFlowEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 
 /**
  * @internal
@@ -73,7 +74,7 @@ class LoggingServiceTest extends TestCase
         $service = new LoggingService('test', $logger);
 
         $service->logFlowEvent(
-            new FlowLogEvent(TestFlowBusinessEvent::EVENT_NAME, new MailErrorEvent($this->context, Level::Error, new Exception()))
+            new FlowLogEvent(TestFlowBusinessEvent::EVENT_NAME, new MailErrorEvent($this->context, Level::Error, TestExceptionFactory::createException('test')))
         );
 
         $records = $handler->getRecords();

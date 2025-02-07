@@ -35,7 +35,7 @@ class ShopConfiguratorTest extends TestCase
 
     public function testUpdateBasicInformation(): void
     {
-        $this->connection->expects(static::exactly(2))->method('executeStatement')->willReturnCallback(function (string $sql, array $parameters): void {
+        $this->connection->expects(static::exactly(2))->method('executeStatement')->willReturnCallback(function (string $sql, array $parameters): int {
             static::assertSame(
                 'INSERT INTO `system_config` (`id`, `configuration_key`, `configuration_value`, `sales_channel_id`, `created_at`)
             VALUES (:id, :key, :value, NULL, NOW())
@@ -55,6 +55,8 @@ class ShopConfiguratorTest extends TestCase
                 static::assertSame('core.basicInformation.email', $parameters['key']);
                 static::assertSame('{"_value":"shop@test.com"}', $parameters['value']);
             }
+
+            return 1;
         });
 
         $this->shopConfigurator->updateBasicInformation('test-shop', 'shop@test.com');
@@ -65,7 +67,7 @@ class ShopConfiguratorTest extends TestCase
         $this->expectException(MaintenanceException::class);
         $this->expectExceptionMessage('Default language locale not found');
 
-        $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters): ?array {
+        $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters): false {
             static::assertSame(
                 'SELECT locale.id, locale.code
              FROM language
@@ -77,7 +79,7 @@ class ShopConfiguratorTest extends TestCase
             static::assertArrayHasKey('languageId', $parameters);
             static::assertSame(Defaults::LANGUAGE_SYSTEM, Uuid::fromBytesToHex($parameters['languageId']));
 
-            return null;
+            return false;
         });
 
         $this->shopConfigurator->setDefaultLanguage('vi-VN');
@@ -215,13 +217,15 @@ class ShopConfiguratorTest extends TestCase
         /**
          * @param array<string, string> $parameters
          */
-        $insertCallback = static function (string $table, array $parameters): void {
+        $insertCallback = static function (string $table, array $parameters): int {
             static::assertSame('country_state_translation', $table);
             static::assertArrayHasKey('language_id', $parameters);
             static::assertArrayHasKey('name', $parameters);
             static::assertArrayHasKey('country_state_id', $parameters);
             static::assertArrayHasKey('created_at', $parameters);
             static::assertSame(Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $parameters['language_id']);
+
+            return 1;
         };
 
         yield 'empty country state translations' => [
@@ -268,7 +272,7 @@ class ShopConfiguratorTest extends TestCase
             /**
              * @param array<string, string> $parameters
              */
-            'insertCallback' => function (string $table, array $parameters): void {
+            'insertCallback' => function (string $table, array $parameters): int {
                 static::assertSame('country_state_translation', $table);
                 static::assertArrayHasKey('language_id', $parameters);
                 static::assertArrayHasKey('name', $parameters);
@@ -295,6 +299,8 @@ class ShopConfiguratorTest extends TestCase
                 if ($countryStateId === 'id_de_rp') {
                     static::assertSame('Rheinland-Pfalz', $parameters['name']);
                 }
+
+                return 1;
             },
         ];
 

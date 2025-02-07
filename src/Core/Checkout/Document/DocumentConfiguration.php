@@ -13,152 +13,56 @@ use Shopware\Core\System\Country\CountryEntity;
 #[Package('after-sales')]
 class DocumentConfiguration extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected string $id;
 
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $deliveryCountries;
+    protected array $deliveryCountries = [];
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayPrices;
+    protected ?bool $displayPrices = null;
 
     /**
      * @var array<string, mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $logo;
+    protected ?array $logo = null;
+
+    protected ?string $filenamePrefix = null;
+
+    protected ?string $filenameSuffix = null;
+
+    protected ?string $documentNumber = null;
+
+    protected ?string $documentDate = null;
+
+    protected ?string $documentComment = null;
+
+    protected ?string $pageOrientation = null;
+
+    protected ?string $pageSize = null;
+
+    protected ?bool $displayFooter = null;
+
+    protected ?bool $displayHeader = null;
+
+    protected ?bool $displayLineItems = null;
+
+    protected ?bool $displayLineItemPosition = null;
+
+    protected ?int $itemsPerPage = null;
+
+    protected ?bool $displayPageCount = null;
+
+    protected ?bool $displayCompanyAddress = null;
+
+    protected ?string $title = null;
 
     /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filenamePrefix;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filenameSuffix;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentNumber;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentDate;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentComment;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pageOrientation;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pageSize;
-
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayFooter;
-
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayHeader;
-
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayLineItems;
-
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayLineItemPosition;
-
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $itemsPerPage;
-
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayPageCount;
-
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayCompanyAddress;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $title;
-
-    /**
-     * @var string|null
-     *
      * @deprecated tag:v6.7.0 - Will be replaced by single fields: companyStreet, companyZipcode, companyCity, companyCountry
      */
-    protected $companyAddress;
+    protected ?string $companyAddress = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $companyName;
+    protected ?string $companyName = null;
 
     protected string $companyStreet = '';
 
@@ -172,117 +76,40 @@ class DocumentConfiguration extends Struct
 
     protected string $paymentDueDate = '';
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $companyEmail;
+    protected ?string $companyEmail = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $companyPhone;
+    protected ?string $companyPhone = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $companyUrl;
+    protected ?string $companyUrl = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxNumber;
+    protected ?string $taxNumber = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxOffice;
+    protected ?string $taxOffice = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $vatId;
+    protected ?string $vatId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $bankName;
+    protected ?string $bankName = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $bankIban;
+    protected ?string $bankIban = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $bankBic;
+    protected ?string $bankBic = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $placeOfJurisdiction;
+    protected ?string $placeOfJurisdiction = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $placeOfFulfillment;
+    protected ?string $placeOfFulfillment = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $executiveDirector;
+    protected ?string $executiveDirector = null;
 
     /**
      * @var array<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $custom = [];
+    protected array $custom = [];
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $diplayLineItemPosition;
+    protected bool $diplayLineItemPosition;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayInCustomerAccount;
+    protected bool $displayInCustomerAccount;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentTypeId;
+    protected string $documentTypeId;
 
     /**
      * @var array<string>

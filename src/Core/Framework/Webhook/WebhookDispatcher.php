@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
@@ -28,8 +27,7 @@ class WebhookDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
-        // @deprecated tag:v6.7.0 - remove DISABLE_EXTENSIONS from if condition
-        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false) || !HookableEventFactory::isHookable($event)) {
+        if (!HookableEventFactory::isHookable($event)) {
             return $event;
         }
 

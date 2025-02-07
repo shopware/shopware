@@ -11,19 +11,9 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('checkout')]
 class TaxRule extends Struct
 {
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRate;
+    protected float $taxRate;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $percentage;
+    protected float $percentage;
 
     public function __construct(
         float $taxRate,

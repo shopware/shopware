@@ -659,7 +659,7 @@ export default {
                 }
 
                 if (this.getDefaultFeatureSet?.length) {
-                    this.product.featureSetId = this.getdefaultFeatureSet[0].id;
+                    this.product.featureSetId = this.getDefaultFeatureSet[0].id;
                 }
 
                 Shopware.Store.get('swProductDetail').setLoading([

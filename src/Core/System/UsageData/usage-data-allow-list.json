@@ -1320,7 +1320,6 @@
   "customer": [
     "id",
     "groupId",
-    "defaultPaymentMethodId",
     "salesChannelId",
     "languageId",
     "lastPaymentMethodId",

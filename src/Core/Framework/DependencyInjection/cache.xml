@@ -22,11 +22,7 @@
         </service>
 
         <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis" public="true">
-            <!-- @deprecated tag:v6.7.0 - Replace factory method with getConnection on the next line -->
-            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getOrCreateFromDsn"/>
             <argument>%shopware.cache.invalidation.delay_options.connection%</argument>
-            <!-- @deprecated tag:v6.7.0 - remove next line (dsn argument) -->
-            <argument>%shopware.cache.invalidation.delay_options.dsn%</argument>
         </service>
 
         <service id="shopware.cache.invalidator.storage.redis" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage" lazy="true">

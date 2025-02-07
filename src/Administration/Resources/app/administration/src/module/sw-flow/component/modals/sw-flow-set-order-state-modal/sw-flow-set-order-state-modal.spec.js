@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @sw-package after-sales
@@ -87,10 +86,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', flowState);
-    });
-
     it('should show error notification if no field is selected', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();

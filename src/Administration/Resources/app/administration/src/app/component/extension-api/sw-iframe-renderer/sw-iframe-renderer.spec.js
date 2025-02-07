@@ -59,13 +59,13 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         window.location = new URL('https://www.example.com');
 
         // Clear extension store
-        Object.keys(Shopware.State.get('extensions')).forEach((key) => {
-            delete Shopware.State.get('extensions')[key];
+        Object.keys(Shopware.Store.get('extensions').extensionsState).forEach((key) => {
+            delete Shopware.Store.get('extensions').extensionsState[key];
         });
 
         // Clear sdkLocation store
-        Object.keys(Shopware.State.get('sdkLocation').locations).forEach((key) => {
-            delete Shopware.State.get('sdkLocation').locations[key];
+        Object.keys(Shopware.Store.get('sdkLocation').locations).forEach((key) => {
+            delete Shopware.Store.get('sdkLocation').locations[key];
         });
 
         // Reset route mock
@@ -85,7 +85,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     });
 
     it('should not call signIframeSrc for plugins', async () => {
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'foo',
             baseUrl: 'https://example.com',
             permissions: [],
@@ -101,7 +101,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     });
 
     it('should call signIframeSrc for apps', async () => {
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'foo',
             baseUrl: 'https://example.com',
             permissions: [],
@@ -119,7 +119,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     });
 
     it('should render correct iFrame src when parameters are given', async () => {
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'MeteorAdminSDKExampleApp',
             baseUrl: 'http://localhost:8888/index.html',
             permissions: [],
@@ -146,7 +146,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     });
 
     it('should render iFrame', async () => {
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'foo',
             baseUrl: 'https://example.com',
             permissions: [],
@@ -166,7 +166,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     });
 
     it('should render iFrame with replacement component', async () => {
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'foo',
             baseUrl: 'https://example.com',
             permissions: [],
@@ -175,7 +175,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             active: true,
         });
 
-        Shopware.State.commit('sdkLocation/addLocation', {
+        Shopware.Store.get('sdkLocation').addLocation({
             locationId: 'foo',
             componentName: 'my-replacement-component',
         });
@@ -205,7 +205,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             'locationId_my-great-extension-main-module_pathname': '/app/',
         };
 
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'my-great-extension',
             baseUrl: 'https://my-great-extension.com',
             permissions: [],
@@ -242,7 +242,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             'locationId_my-great-extension-main-module_pathname': '/app/',
         };
 
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'my-great-extension',
             baseUrl: 'https://example.com',
             permissions: [],
@@ -296,7 +296,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             'locationId_my-great-extension-main-module_pathname': '/app/',
         };
 
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'my-great-extension',
             baseUrl: 'https://example.com',
             permissions: [],
@@ -337,7 +337,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     });
 
     it('should update the iFrame src when location ID changes', async () => {
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'MeteorAdminSDKExampleApp',
             baseUrl: 'http://localhost:8888/index.html',
             permissions: [],

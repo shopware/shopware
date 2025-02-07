@@ -5,7 +5,7 @@
 import template from './sw-product-packaging-form.html.twig';
 
 const { Mixin } = Shopware;
-const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -34,14 +34,17 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         ...mapPropertyErrors('product', [
             'purchaseUnit',

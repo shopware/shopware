@@ -43,18 +43,33 @@
                                 {% endblock %}
 
                                 {% block page_checkout_confirm_address_shipping_actions %}
-                                    <div class="card-actions">
+                                    {# @deprecated tag:v6.7.0 - old address editor will be removed. #}
+                                    {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                        {% set addressManagerOptions = {
+                                            initialTab: 'shipping',
+                                            activeShippingAddressId: shippingAddress.id
+                                        } %}
+                                    {% else %}
                                         {% set addressEditorOptions = {
                                             changeShipping: true,
                                             addressId: shippingAddress.id,
                                         } %}
+                                    {% endif %}
 
+                                    <div class="card-actions">
                                         {% block page_checkout_confirm_address_shipping_actions_link %}
                                             <a href="{{ path('frontend.account.address.edit.page', {addressId: shippingAddress.id}) }}"
                                                title="{{ 'account.overviewChangeShipping'|trans|striptags }}"
                                                class="btn btn-light"
-                                               data-address-editor="true"
-                                               data-address-editor-options="{{ addressEditorOptions|json_encode }}">
+                                               {# @deprecated tag:v6.7.0 - old address editor will be removed #}
+                                               {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                                   data-address-manager="true"
+                                                   data-address-manager-options="{{ addressManagerOptions|json_encode }}"
+                                               {% else %}
+                                                   data-address-editor="true"
+                                                   data-address-editor-options="{{ addressEditorOptions|json_encode }}"
+                                               {% endif %}
+                                            >
                                                 {{ 'account.overviewChangeShipping'|trans|sw_sanitize }}
                                             </a>
                                         {% endblock %}
@@ -94,17 +109,32 @@
 
                             {% block page_checkout_confirm_address_billing_actions %}
                                 <div class="card-actions">
-                                    {% set addressEditorOptions = {
-                                        changeBilling: true,
-                                        addressId: billingAddress.id,
-                                    } %}
+                                    {# @deprecated tag:v6.7.0 - old address editor will be removed. #}
+                                    {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                        {% set addressManagerOptions = {
+                                            initialTab: 'billing',
+                                            addressId: billingAddress.id,
+                                        } %}
+                                    {% else %}
+                                        {% set addressEditorOptions = {
+                                            changeBilling: true,
+                                            addressId: billingAddress.id,
+                                        } %}
+                                    {% endif %}
 
                                     {% block page_checkout_confirm_address_billing_actions_link %}
                                         <a href="{{ path('frontend.account.address.edit.page', {addressId: billingAddress.id}) }}"
                                            title="{{ 'account.overviewChangeBilling'|trans|striptags }}"
                                            class="btn btn-light"
-                                           data-address-editor="true"
-                                           data-address-editor-options="{{ addressEditorOptions|json_encode }}">
+                                           {# @deprecated tag:v6.7.0 - old address editor will be removed. #}
+                                           {% if feature('ADDRESS_SELECTION_REWORK') %}
+                                                  data-address-manager="true"
+                                                  data-address-manager-options="{{ addressManagerOptions|json_encode }}"
+                                           {% else %}
+                                                  data-address-editor="true"
+                                                  data-address-editor-options="{{ addressEditorOptions|json_encode }}"
+                                           {% endif %}
+                                        >
                                             {{ 'account.overviewChangeBilling'|trans|sw_sanitize }}
                                         </a>
                                     {% endblock %}

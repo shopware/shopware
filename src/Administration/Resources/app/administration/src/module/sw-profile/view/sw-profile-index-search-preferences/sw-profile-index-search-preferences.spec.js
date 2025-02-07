@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 
 /**
  * @sw-package fundamentals@framework
@@ -9,24 +10,6 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
         isDiscountCampaignActive: jest.fn(() => true),
     };
 });
-
-const swProfileStateMock = {
-    namespaced: true,
-    state() {
-        return {
-            searchPreferences: [],
-            userSearchPreferences: null,
-        };
-    },
-    mutations: {
-        setSearchPreferences(state, searchPreferences) {
-            state.searchPreferences = searchPreferences;
-        },
-        setUserSearchPreferences(state, userSearchPreferences) {
-            state.userSearchPreferences = userSearchPreferences;
-        },
-    },
-};
 
 async function createWrapper() {
     return mount(
@@ -90,7 +73,7 @@ async function createWrapper() {
 
 describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('swProfile', swProfileStateMock);
+        Shopware.Store.get('swProfile').$reset();
     });
 
     beforeEach(() => {
@@ -161,7 +144,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swProfile/setSearchPreferences', [
+        Shopware.Store.get('swProfile').searchPreferences = [
             {
                 entityName: 'product',
                 _searchable: false,
@@ -174,7 +157,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     },
                 ],
             },
-        ]);
+        ];
+        await nextTick();
 
         await wrapper.find('.sw-profile-index-search-preferences-searchable-elements__button-select-all').trigger('click');
 
@@ -198,7 +182,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swProfile/setSearchPreferences', [
+        Shopware.Store.get('swProfile').searchPreferences = [
             {
                 entityName: 'product',
                 _searchable: true,
@@ -211,7 +195,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     },
                 ],
             },
-        ]);
+        ];
+        await nextTick();
 
         await wrapper.find('.sw-profile-index-search-preferences-searchable-elements__button-deselect-all').trigger('click');
 
@@ -235,7 +220,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swProfile/setSearchPreferences', [
+        Shopware.Store.get('swProfile').searchPreferences = [
             {
                 entityName: 'product',
                 _searchable: false,
@@ -250,7 +235,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     },
                 ],
             },
-        ]);
+        ];
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
@@ -279,7 +264,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swProfile/setSearchPreferences', [
+        Shopware.Store.get('swProfile').searchPreferences = [
             {
                 entityName: 'product',
                 _searchable: false,
@@ -294,7 +279,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     },
                 ],
             },
-        ]);
+        ];
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
@@ -354,7 +339,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
             ]),
         );
 
-        await Shopware.State.commit('swProfile/setUserSearchPreferences', [
+        Shopware.Store.get('swProfile').userSearchPreferences = [
             {
                 order: {
                     documents: {
@@ -363,7 +348,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     },
                 },
             },
-        ]);
+        ];
 
         expect(wrapper.vm.defaultSearchPreferences).toEqual(
             expect.arrayContaining([

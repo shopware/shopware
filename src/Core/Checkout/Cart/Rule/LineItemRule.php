@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
 class LineItemRule extends Rule
 {
@@ -16,8 +19,6 @@ class LineItemRule extends Rule
 
     /**
      * @param list<string>|null $identifiers
-     *
-     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

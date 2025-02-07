@@ -7,14 +7,63 @@
     {% block sw_settings_content %}
     <template #content>
         <sw-card-view>
+            {% block sw_settings_content_card_view %}
+            <sw-card
+                v-if="feature.isActive('v6.7.0.0')"
+                hero
+                class="sw-settings__card--hero"
+                position-identifier="sw-settings-index"
+            >
+                {% block sw_settings_content_card_view_header %}
+                <h1 class="sw-settings__content-header">
+                    {{ $tc('sw-settings.index.title') }}
+                </h1>
+                {% endblock %}
+
+                {% block sw_settings_content_card_content_grid %}
+                <div class="sw-settings__content-grid" position-identifier="sw-settings-index-content">
+                    <div v-for="(settingsItems, settingsGroup) in settingsGroups"
+                         :key="settingsGroup"
+                         class="sw-settings__content-group"
+                    >
+                        <h2>{{ getGroupLabel(settingsGroup) }}</h2>
+
+                        <sw-settings-item
+                            v-for="settingsItem in settingsItems"
+                            :id="settingsItem.id"
+                            :key="settingsItem.name"
+                            :label="getLabel(settingsItem)"
+                            :to="getRouteConfig(settingsItem)"
+                            :background-enabled="settingsItem.backgroundEnabled"
+                        >
+                            <template #icon>
+                                <component
+                                    :is="settingsItem.iconComponent"
+                                    v-if="settingsItem.iconComponent"
+                                />
+                                <sw-icon
+                                    v-else
+                                    :name="settingsItem.icon"
+                                />
+                            </template>
+                        </sw-settings-item>
+                    </div>
+                </div>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {# @deprecated tag:v6.7.0 - block will be removed #}
             {% block sw_settings_content_tabs %}
             <sw-tabs
+                v-if="!feature.isActive('v6.7.0.0')"
                 class="sw-settings__tabs"
                 position-identifier="sw-settings-index"
                 :is-vertical="true"
                 :small="false"
             >
                 <template #default="{ active }">
+                    {# @deprecated tag:v6.7.0 - block will be removed #}
                     {% block sw_settings_content_tab_shop %}
                     <sw-tabs-item
                         v-if="settingsGroups['shop']"
@@ -28,6 +77,7 @@
                     </sw-tabs-item>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - block will be removed #}
                     {% block sw_settings_content_tab_system %}
                     <sw-tabs-item
                         v-if="settingsGroups['system']"
@@ -41,6 +91,7 @@
                     </sw-tabs-item>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - block will be removed #}
                     {% block sw_settings_content_tab_plugins %}
                     <sw-tabs-item
                         v-if="hasPluginConfig()"
@@ -56,7 +107,10 @@
                 </template>
 
                 <template #content="{ active }">
+                    {# @deprecated tag:v6.7.0 - block will be removed #}
                     {% block sw_settings_content_card %}
+
+                    {# @deprecated tag:v6.7.0 - block will be removed #}
                     {% block sw_settings_content_header %}
                     <h1 class="sw-settings__content-header">
                         {{ $tc('sw-settings.index.title') }}
@@ -67,6 +121,7 @@
                         class="sw-settings__card"
                         position-identifier="sw-settings-index-content"
                     >
+                        {# @deprecated tag:v6.7.0 - block will be removed #}
                         {% block sw_settings_content_card_content %}
                         <slot
                             v-for="(settingsItems, settingsGroup) in settingsGroups"

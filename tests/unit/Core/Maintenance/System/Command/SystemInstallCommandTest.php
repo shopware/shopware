@@ -63,7 +63,6 @@ class SystemInstallCommandTest extends TestCase
                 'shopEmail' => 'admin@gmail.com',
                 'shopLocale' => 'de-DE',
                 'shopCurrency' => 'USD',
-                'skipJwtKeysGeneration' => true,
                 'basicSetup' => true,
                 'shopName_1' => 'Storefront',
                 'shopLocale_1' => 'de-DE',
@@ -113,26 +112,6 @@ class SystemInstallCommandTest extends TestCase
         ]);
 
         $result = $command->run(new ArrayInput(['--basic-setup' => true]), new BufferedOutput());
-
-        static::assertSame(0, $result);
-    }
-
-    public function testJwtGenerationCanBeSkipped(): void
-    {
-        $command = $this->prepareCommandInstance([
-            'database:migrate',
-            'database:migrate-destructive',
-            'system:configure-shop',
-            'dal:refresh:index',
-            'scheduled-task:register',
-            'plugin:refresh',
-            'theme:refresh',
-            'theme:compile',
-            'assets:install',
-            'cache:clear',
-        ]);
-
-        $result = $command->run(new ArrayInput(['--skip-jwt-keys-generation' => true]), new BufferedOutput());
 
         static::assertSame(0, $result);
     }

@@ -9,7 +9,7 @@ Shopware.Component.register('sw-seo-main-category', () => import('./component/sw
 Shopware.Component.register('sw-settings-seo', () => import('./page/sw-settings-seo'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-seo', {
@@ -34,7 +34,14 @@ Module.register('sw-settings-seo', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'content';
+        },
         to: 'sw.settings.seo.index',
         icon: 'regular-search',
         privilege: 'system.system_config',

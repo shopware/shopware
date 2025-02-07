@@ -12,7 +12,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     metaInfo() {
         return {
@@ -22,7 +25,7 @@ export default {
 
     computed: {
         settingsGroups() {
-            const settingsGroups = Object.entries(Shopware.State.get('settingsItems').settingsGroups);
+            const settingsGroups = Object.entries(Shopware.Store.get('settingsItems').settingsGroups);
             return settingsGroups.reduce(
                 (
                     acc,
@@ -104,6 +107,11 @@ export default {
             }
 
             return this.$tc(settingsItem.label.label);
+        },
+
+        getGroupLabel(settingsGroup) {
+            const upper = settingsGroup.charAt(0).toUpperCase() + settingsGroup.slice(1);
+            return this.$tc(`sw-settings.index.tab${upper}`);
         },
     },
 };

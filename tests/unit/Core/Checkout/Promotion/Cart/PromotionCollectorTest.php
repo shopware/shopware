@@ -260,6 +260,7 @@ class PromotionCollectorTest extends TestCase
             $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
             $discount->setValue(10.0);
             $discount->setPromotionId($promotion->getId());
+            $discount->setConsiderAdvancedRules(false);
 
             $discounts[] = $discount;
         }

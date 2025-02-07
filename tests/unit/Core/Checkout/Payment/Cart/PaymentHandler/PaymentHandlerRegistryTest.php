@@ -7,29 +7,14 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RecurringPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Cart\RecurringPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -43,7 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 class PaymentHandlerRegistryTest extends TestCase
 {
     /**
-     * @var array<string, PaymentHandlerInterface|AbstractPaymentHandler>
+     * @var array<string, AbstractPaymentHandler>
      */
     private array $registeredHandlers = [];
 
@@ -100,11 +85,6 @@ class PaymentHandlerRegistryTest extends TestCase
     {
         $registry = new PaymentHandlerRegistry(
             $this->registerHandler(AbstractPaymentHandler::class),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
             $this->connection,
         );
 
@@ -112,82 +92,6 @@ class PaymentHandlerRegistryTest extends TestCase
         static::assertInstanceOf(AbstractPaymentHandler::class, $abstract);
 
         $foo = $registry->getPaymentMethodHandler(Uuid::randomHex());
-        static::assertNull($foo);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed with old interfaces
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testOldPaymentRegistry(): void
-    {
-        $registry = new PaymentHandlerRegistry(
-            $this->registerHandler(AbstractPaymentHandler::class),
-            $this->registerHandlerInterface(SynchronousPaymentHandlerInterface::class),
-            $this->registerHandlerInterface(AsynchronousPaymentHandlerInterface::class),
-            $this->registerHandlerInterface(PreparedPaymentHandlerInterface::class),
-            $this->registerHandlerInterface(RefundPaymentHandlerInterface::class),
-            $this->registerHandlerInterface(RecurringPaymentHandlerInterface::class),
-            $this->connection,
-        );
-
-        $abstract = $registry->getPaymentMethodHandler($this->ids->get(AbstractPaymentHandler::class));
-        static::assertInstanceOf(AbstractPaymentHandler::class, $abstract);
-
-        $foo = $registry->getPaymentMethodHandler(Uuid::randomHex());
-        static::assertNull($foo);
-
-        $sync = $registry->getSyncPaymentHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
-        static::assertInstanceOf(SynchronousPaymentHandlerInterface::class, $sync);
-
-        $async = $registry->getAsyncPaymentHandler($this->ids->get(AsynchronousPaymentHandlerInterface::class));
-        static::assertInstanceOf(AsynchronousPaymentHandlerInterface::class, $async);
-
-        $prepared = $registry->getPreparedPaymentHandler($this->ids->get(PreparedPaymentHandlerInterface::class));
-        static::assertInstanceOf(PreparedPaymentHandlerInterface::class, $prepared);
-
-        $refund = $registry->getRefundPaymentHandler($this->ids->get(RefundPaymentHandlerInterface::class));
-        static::assertInstanceOf(RefundPaymentHandlerInterface::class, $refund);
-
-        $recurring = $registry->getRecurringPaymentHandler($this->ids->get(RecurringPaymentHandlerInterface::class));
-        static::assertInstanceOf(RecurringPaymentHandlerInterface::class, $recurring);
-
-        $foo = $registry->getRecurringPaymentHandler(Uuid::randomHex());
-        static::assertNull($foo);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed with old interfaces
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testPaymentRegistryWithoutServices(): void
-    {
-        $registry = new PaymentHandlerRegistry(
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            $this->connection,
-        );
-
-        $sync = $registry->getSyncPaymentHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
-        static::assertNull($sync);
-
-        $async = $registry->getAsyncPaymentHandler($this->ids->get(AsynchronousPaymentHandlerInterface::class));
-        static::assertNull($async);
-
-        $prepared = $registry->getPreparedPaymentHandler($this->ids->get(PreparedPaymentHandlerInterface::class));
-        static::assertNull($prepared);
-
-        $refund = $registry->getRefundPaymentHandler($this->ids->get(RefundPaymentHandlerInterface::class));
-        static::assertNull($refund);
-
-        $recurring = $registry->getRecurringPaymentHandler($this->ids->get(RecurringPaymentHandlerInterface::class));
-        static::assertNull($recurring);
-
-        $foo = $registry->getRecurringPaymentHandler(Uuid::randomHex());
         static::assertNull($foo);
     }
 
@@ -198,11 +102,6 @@ class PaymentHandlerRegistryTest extends TestCase
                 AbstractPaymentHandler::class => fn () => new class {
                 },
             ]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
             $this->connection,
         );
 
@@ -216,11 +115,6 @@ class PaymentHandlerRegistryTest extends TestCase
 
         $registry = new PaymentHandlerRegistry(
             new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
             $this->connection,
         );
 
@@ -228,27 +122,6 @@ class PaymentHandlerRegistryTest extends TestCase
         static::assertNull($sync);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - will be removed with old interfaces
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testRegistryWithMismatchedExpectedType(): void
-    {
-        $registry = new PaymentHandlerRegistry(
-            new ServiceLocator([]),
-            $this->registerHandlerInterface(AsynchronousPaymentHandlerInterface::class),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            $this->connection,
-        );
-
-        $sync = $registry->getSyncPaymentHandler($this->ids->get(AsynchronousPaymentHandlerInterface::class));
-        static::assertNull($sync);
-    }
-
-    #[DisabledFeatures(['v6.7.0.0'])]
     public function testConnectionQueryBuilder(): void
     {
         $qb = $this->createMock(QueryBuilder::class);
@@ -299,15 +172,10 @@ class PaymentHandlerRegistryTest extends TestCase
 
         $registry = new PaymentHandlerRegistry(
             new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
             $connection,
         );
 
-        $registry->getPaymentMethodHandler($uuid, 'foo');
+        $registry->getPaymentMethodHandler($uuid);
     }
 
     /**
@@ -327,60 +195,6 @@ class PaymentHandlerRegistryTest extends TestCase
             {
                 return null;
             }
-        };
-
-        $this->registeredHandlers[Uuid::fromHexToBytes($this->ids->get($handler))] = $class;
-
-        return new ServiceLocator([$class::class => fn () => $class]);
-    }
-
-    /**
-     * @param class-string<PaymentHandlerInterface> $handler
-     *
-     * @return ServiceLocator<PaymentHandlerInterface>
-     *
-     * @deprecated tag:v6.7.0 - all following can be removed
-     */
-    private function registerHandlerInterface(string $handler): ServiceLocator
-    {
-        $class = match ($handler) {
-            SynchronousPaymentHandlerInterface::class => new class implements SynchronousPaymentHandlerInterface {
-                public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
-                {
-                }
-            },
-            AsynchronousPaymentHandlerInterface::class => new class implements AsynchronousPaymentHandlerInterface {
-                public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
-                {
-                    return new RedirectResponse('https://example.com');
-                }
-
-                public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, SalesChannelContext $salesChannelContext): void
-                {
-                }
-            },
-            PreparedPaymentHandlerInterface::class => new class implements PreparedPaymentHandlerInterface {
-                public function validate(Cart $cart, RequestDataBag $requestDataBag, SalesChannelContext $context): Struct
-                {
-                    return new ArrayStruct();
-                }
-
-                public function capture(PreparedPaymentTransactionStruct $transaction, RequestDataBag $requestDataBag, SalesChannelContext $context, Struct $preOrderPaymentStruct): void
-                {
-                }
-            },
-            RefundPaymentHandlerInterface::class => new class implements RefundPaymentHandlerInterface {
-                public function refund(string $refundId, Context $context): void
-                {
-                }
-            },
-            RecurringPaymentHandlerInterface::class => new class implements RecurringPaymentHandlerInterface {
-                public function captureRecurring(RecurringPaymentTransactionStruct $transaction, Context $context): void
-                {
-                }
-            },
-            default => new class implements PaymentHandlerInterface {
-            },
         };
 
         $this->registeredHandlers[Uuid::fromHexToBytes($this->ids->get($handler))] = $class;

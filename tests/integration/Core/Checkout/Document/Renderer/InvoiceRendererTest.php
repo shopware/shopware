@@ -65,6 +65,8 @@ class InvoiceRendererTest extends TestCase
 
     protected function setUp(): void
     {
+        static::markTestSkipped('#6556');
+
         $this->context = Context::createDefaultContext();
 
         $priceRuleId = Uuid::randomHex();

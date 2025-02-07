@@ -1,5 +1,3 @@
-import Iterator from 'src/helper/iterator.helper';
-
 const SELECTOR_CLASS = 'loader';
 const VISUALLY_HIDDEN_CLASS = 'visually-hidden';
 
@@ -44,7 +42,7 @@ export default class LoadingIndicatorUtil {
      */
     remove() {
         const indicators = this.parent.querySelectorAll(`.${SELECTOR_CLASS}`);
-        Iterator.iterate(indicators, indicator => indicator.remove());
+        indicators.forEach(indicator => indicator.remove());
     }
 
     /**

@@ -103,7 +103,7 @@ Module.register('sw-settings-tax', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'localization',
         to: 'sw.settings.tax.index',
         icon: 'regular-chart-pie',
         privilege: 'tax.viewer',

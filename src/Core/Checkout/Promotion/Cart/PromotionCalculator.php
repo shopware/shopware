@@ -5,8 +5,6 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -38,9 +36,8 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
-use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -83,7 +80,6 @@ class PromotionCalculator
      * recalculate the whole cart with these new items.
      *
      * @throws DiscountCalculatorNotFoundException
-     * @throws InvalidPriceDefinitionException
      * @throws CartException
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
@@ -234,12 +230,9 @@ class PromotionCalculator
      *
      * @throws DiscountCalculatorNotFoundException
      * @throws FilterSorterNotFoundException
-     * @throws InvalidPriceDefinitionException
+     * @throws PromotionException
      * @throws InvalidScopeDefinitionException
      * @throws CartException
-     * @throws LineItemGroupPackagerNotFoundException
-     * @throws LineItemGroupSorterNotFoundException
-     * @throws SetGroupNotFoundException
      */
     private function calculateDiscount(LineItem $item, Cart $calculatedCart, SalesChannelContext $context): DiscountCalculatorResult
     {

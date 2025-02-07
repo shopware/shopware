@@ -235,7 +235,3 @@ parameters:
             message: '#Call to an undefined method TElement of Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::.*CustomFields.*\(\)#'
             count: 4
             path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
-
-
-        - # OpenSearch deprecations will be handeld in NEXT-40529
-            message: '#OpenSearch\\#'

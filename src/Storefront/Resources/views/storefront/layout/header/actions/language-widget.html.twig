@@ -9,7 +9,7 @@
                 <form method="post"
                       action="{{ path('frontend.checkout.switch-language') }}"
                       class="language-form"
-                      data-form-auto-submit="true">
+                      data-active-route-redirect="true">
                     {% block layout_header_actions_language_widget_content %}
                         {% set isoCode = context.languageInfo.localeCode|lower|split('-') %}
                         {% set language = isoCode[0] %}
@@ -71,12 +71,6 @@
                                 </ul>
                             {% endblock %}
                         </div>
-
-                        <input name="redirectTo" type="hidden" value="{{ activeRoute }}">
-
-                        {% for key, value in app.request.attributes.get('_route_params') %}
-                            <input name="redirectParameters[{{ key }}]" type="hidden" value="{{ value }}">
-                        {% endfor %}
                     {% endblock %}
                 </form>
             {% endblock %}

@@ -9,7 +9,7 @@
                 <form method="post"
                       action="{{ path('frontend.checkout.configure') }}"
                       class="currency-form"
-                      data-form-auto-submit="true">
+                      data-active-route-redirect="true">
                     {% block layout_header_actions_currency_widget_content %}
                         <div class="currencies-menu dropdown">
                             {% block layout_header_actions_currency_widget_dropdown_toggle %}
@@ -65,18 +65,6 @@
                                         {% endblock %}
                                     {% endfor %}
                                 </ul>
-                            {% endblock %}
-
-                            {% block layout_header_actions_currency_widget_form_redirect %}
-                                <input name="redirectTo"
-                                       type="hidden"
-                                       value="{{ activeRoute }}">
-
-                                {% for key, value in app.request.attributes.get('_route_params') %}
-                                    <input name="redirectParameters[{{ key }}]"
-                                           type="hidden"
-                                           value="{{ value }}">
-                                {% endfor %}
                             {% endblock %}
                         </div>
                     {% endblock %}

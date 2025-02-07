@@ -1,5 +1,5 @@
-import { test } from '@fixtures/AcceptanceTest';
-import { expect } from '@playwright/test';
+import { test, expect } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 // Annotate entire file as serial run.
 test.describe.configure({ mode: 'serial' });
@@ -45,7 +45,12 @@ test(
             const contactFormResponse = await contactFormPromise;
             expect(contactFormResponse.ok()).toBeTruthy();
 
-            await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            if (satisfies(InstanceMeta.version, '<6.7')) {
+                await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            } else {
+                await ShopCustomer.expects(StorefrontContactForm.formAlert).toBeVisible();
+                await ShopCustomer.expects(StorefrontContactForm.formAlert).toContainText('Incorrect input. Please try again.');
+            }
         });
     }
 );

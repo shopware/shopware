@@ -18,9 +18,12 @@ class CommerceTest extends TestCase
     {
         $commerce = new Commerce(Factory::create());
 
-        ReflectionHelper::getProperty(Commerce::class, 'productName')->setValue($commerce, ['adjective' => ['Test Product Name']]);
+        $productNameProperty = ReflectionHelper::getProperty(Commerce::class, 'productName');
+        $originalProductName = $productNameProperty->getValue($commerce);
+        $productNameProperty->setValue($commerce, ['adjective' => ['Test Product Name']]);
 
         $setName = $commerce->customFieldSet();
+        $productNameProperty->setValue($commerce, $originalProductName);
 
         static::assertStringNotContainsString(' ', $setName);
         static::assertStringContainsString('Test_Product_Name', $setName);

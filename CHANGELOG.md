@@ -1,6 +1,32 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.16
+*  [#3476 - NEXT-33504 - fix: Allow `association_fields` of `media_default_folder` to be nullable](https://github.com/shopware/shopware/issues/3476) ([@aragon999](https://github.com/aragon999))
+*  [#3486 - NEXT-32844 - fix(elasticsearch): Add separator to admin ES search indexer queries](https://github.com/shopware/shopware/issues/3486) ([@M-arcus](https://github.com/M-arcus))
+*  [#3494 - NEXT-30575 - fix(core): Remove HTML sanitization from mail header and footer fields](https://github.com/shopware/shopware/issues/3494) ([@M-arcus](https://github.com/M-arcus))
+*  [#3518 - NEXT-33235 - perf: Only use `searchIds` for import id resolving](https://github.com/shopware/shopware/issues/3518) ([@aragon999](https://github.com/aragon999))
+*  [#3567 - NEXT-34491 - NEXT-14691 - Add pseudo modal twig blocks](https://github.com/shopware/shopware/issues/3567) ([@lacknere](https://github.com/lacknere))
+*  [#3579 - NEXT-34070 - Improved seo url replacer](https://github.com/shopware/shopware/issues/3579) ([@akf-bw](https://github.com/akf-bw))
+*  [#3580 - NEXT-34102 - Add new block in analytics template](https://github.com/shopware/shopware/issues/3580) ([@wannevancamp](https://github.com/wannevancamp))
+*  [#3605 - NEXT-34399 - Update action.html.twig to include css class for detail button](https://github.com/shopware/shopware/issues/3605) ([@choeft](https://github.com/choeft))
+*  [#3611 - NEXT-34676 - Update ProductDetailRoute.php](https://github.com/shopware/shopware/issues/3611) ([@aneufeld23](https://github.com/aneufeld23))
+*  [#3684 - NEXT-36143 - feat: resolve extension parameters in compiler passes](https://github.com/shopware/shopware/issues/3684) ([@Ocarthon](https://github.com/Ocarthon))
+*  [#3718 - NEXT-36288 - feat: Add event to select variant on product detail page](https://github.com/shopware/shopware/issues/3718) ([@aragon999](https://github.com/aragon999))
+*  [#3779 - NEXT-36924 - Add missing check for context object in request attributes for StoreApiSeoResolver](https://github.com/shopware/shopware/issues/3779) ([@mromeike](https://github.com/mromeike))
+*  [#3833 - NEXT-37557 - Update Bootstrap Docs Link](https://github.com/shopware/shopware/issues/3833) ([@levin192](https://github.com/levin192))
+*  [#3836 - NEXT-37684 - Fix updating thumbnails in strict mode](https://github.com/shopware/shopware/issues/3836) ([@phizab](https://github.com/phizab))
+*  [#5759 - Fixed Elasticsearch Filter parsing of translated fields in product-related entities](./changelog/release-6-5-8-16/2024-12-04-fixed-elasticsearch-filter-parsing-of-translated-fields-in-product-related-entities.md) ([Martin Bens](https://github.com/spigandromeda))
+*  [NEXT-32135 - Set-Group promotions cause a timeout if too many products are in cart](./changelog/release-6-5-8-16/2024-11-05-set-group-promotions-cause-a-timeout-if-too-many-products-are-in-cart.md)
+*  [NEXT-38535 - Adding the sort when searching the properties](./changelog/release-6-5-8-16/2024-11-26-adding-the-sort-when-searching-the-properties.md)
+*  [NEXT-38579 - Changed to cleanup custom fields before save to DB](./changelog/release-6-5-8-16/2024-10-24-changed-to-cleanup-custom-fields-before-save-to-db.md)
+*  [NEXT-39044 - Fix order can not recalculate when line items are empty](./changelog/release-6-5-8-16/2024-10-21-fix-order-can-not-recalculate-when-line-items-are-empty.md)
+*  [NEXT-39215 - Fixed Belgian VAT ID pattern](./changelog/release-6-5-8-16/2024-10-25-fixed-belgian-vat-id-pattern.md)
+*  [NEXT-39245 - Fix address handling does not work properly](./changelog/release-6-5-8-16/2024-10-28-fix-address-handling-does-not-work-properly.md)
+*  [NEXT-39299 - Fixed price field collection serialization](./changelog/release-6-5-8-16/2024-11-11-fixed-price-field-collection-serialization.md)
+*  [NEXT-39349 - Fixed shipping method fixed tax recalculation](./changelog/release-6-5-8-16/2024-11-11-fixed-shipping-method-fixed-tax-recalculation.md)
+*  [NEXT-39414 - Fix issue delivery promotion not apply](./changelog/release-6-5-8-16/2024-11-20-fix-issue-delivery-promotion-not-apply.md)
+
 ## 6.5.8.15
 *  [#3476 - NEXT-33504 - fix: Allow `association_fields` of `media_default_folder` to be nullable](https://github.com/shopware/shopware/issues/3476) ([@aragon999](https://github.com/aragon999))
 *  [#3486 - NEXT-32844 - fix(elasticsearch): Add separator to admin ES search indexer queries](https://github.com/shopware/shopware/issues/3486) ([@M-arcus](https://github.com/M-arcus))

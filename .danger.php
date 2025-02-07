@@ -189,16 +189,6 @@ return (new Config())
             },
         ]
     ))
-    ->useRule(function (Context $context): void {
-        // The title is not important here as we import the pull requests and prefix them
-        if ($context->platform->pullRequest->projectIdentifier === 'shopware/platform') {
-            return;
-        }
-
-        if (!preg_match('/(?m)^((WIP:\s)|^(Draft:\s)|^(DRAFT:\s))?(\[[\w.]+]\s)?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
-            $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-00000 - My Title', $context->platform->pullRequest->title));
-        }
-    })
     ->useRule(new Condition(
         function (Context $context) {
             return $context->platform instanceof Gitlab;

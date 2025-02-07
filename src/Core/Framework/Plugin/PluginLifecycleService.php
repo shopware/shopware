@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -47,7 +46,6 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
-use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -88,7 +86,6 @@ class PluginLifecycleService
         private readonly SystemConfigService $systemConfigService,
         private readonly CustomEntityPersister $customEntityPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
     ) {
@@ -143,10 +140,6 @@ class PluginLifecycleService
             $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
 
             $pluginBaseClass->install($installContext);
-
-            if (!Feature::isActive('v6.7.0.0')) {
-                $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
-            }
 
             $this->runMigrations($installContext);
 
@@ -205,7 +198,7 @@ class PluginLifecycleService
             $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
         }
 
-        if (!$uninstallContext->keepUserData() && Feature::isActive('v6.7.0.0')) {
+        if (!$uninstallContext->keepUserData()) {
             // plugin->uninstall() will remove the tables etc of the plugin,
             // we drop the migrations before, so we can recover in case of errors by rerunning the migrations
             $pluginBaseClass->removeMigrations();
@@ -214,9 +207,6 @@ class PluginLifecycleService
         $pluginBaseClass->uninstall($uninstallContext);
 
         if (!$uninstallContext->keepUserData()) {
-            if (!Feature::isActive('v6.7.0.0')) {
-                $pluginBaseClass->removeMigrations();
-            }
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
         }
 
@@ -314,10 +304,6 @@ class PluginLifecycleService
 
         if ($plugin->getActive() && !$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
         }
 
         $this->runMigrations($updateContext);

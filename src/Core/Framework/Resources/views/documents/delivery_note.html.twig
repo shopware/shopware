@@ -25,12 +25,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
 
 {% block document_recipient %}
     {% if config.displayCompanyAddress %}
-        {# @deprecated tag:v6.7.0 - companyAddress will be replaced with single fields. companyStreet, companyZipcode, companyCity #}
-        {% if feature('v6.7.0.0') %}
-            <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
-        {% elseif config.companyAddress is not empty %}
-            <span class="company-address-small">{{ config.companyName }} {{ config.companyAddress }}</span><br><br>
-        {% endif %}
+        <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
     {% endif %}
 
     {% sw_include '@Framework/snippets/render.html.twig' with {

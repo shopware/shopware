@@ -21,8 +21,6 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     final public const TYPE = 'quantity';
     final public const SORTING_PRIORITY = 100;
 
-    protected float $price;
-
     protected bool $isCalculated = true;
 
     protected ?ReferencePriceDefinition $referencePriceDefinition = null;
@@ -32,7 +30,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     protected ?float $regulationPrice = null;
 
     public function __construct(
-        float $price,
+        protected float $price,
         protected TaxRuleCollection $taxRules,
         protected int $quantity = 1
     ) {

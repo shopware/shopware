@@ -9,13 +9,9 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('checkout')]
 class ReferencePriceDefinition extends Struct
 {
-    protected float $purchaseUnit;
-
-    protected float $referenceUnit;
-
     public function __construct(
-        float $purchaseUnit,
-        float $referenceUnit,
+        protected float $purchaseUnit,
+        protected float $referenceUnit,
         protected string $unitName
     ) {
         $this->purchaseUnit = FloatComparator::cast($purchaseUnit);

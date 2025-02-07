@@ -72,13 +72,18 @@ admin_assets_list() {
   cat <<EOF | tr -d '[:blank:]'
     ${PLATFORM_DIR}/repos/administration/Resources/public/static/js/app.js
     ${PLATFORM_DIR}/repos/administration/Resources/public/static/css/app.css
+    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/js/storefront.js
+    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/css/storefront.css
 EOF
 }
 
 # Returns a list of mandatory assets for the Storefront package.
 storefront_assets_list() {
   cat <<EOF | tr -d '[:blank:]'
-    ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/dist/storefront/storefront.js
+    ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/dist/js/runtime.js
+    ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/dist/js/vendor-node.js
+    ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/dist/js/vendor-shared.js
+    ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/dist/storefront/js/storefront.js
     ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/js/storefront.js
     ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/css/storefront.css
     ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/vendor/bootstrap/package.json

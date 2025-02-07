@@ -1,4 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 test(
     'As a customer, I want to fill out and submit the contact form.',
@@ -40,7 +41,7 @@ test(
 test(
     'As a customer, I forgot to fill out some fields and should be informed about the missing ones.',
     { tag: '@form @contact' },
-    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm }) => {
+    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, InstanceMeta }) => {
 
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
@@ -61,6 +62,9 @@ test(
             await ShopCustomer.expects(StorefrontContactForm.commentInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
             await ShopCustomer.expects(StorefrontContactForm.privacyPolicyCheckbox).toHaveCSS('border-color', 'rgb(194, 0, 23)');
 
+            if (satisfies(InstanceMeta.version, '>=6.7')) {
+                await ShopCustomer.expects(StorefrontContactForm.formFieldFeedback).toHaveCount(8);
+            }
             await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).not.toBeVisible();
         });
     }

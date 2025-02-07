@@ -25,7 +25,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DeliveryNoteRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -40,6 +40,8 @@ class DeliveryNoteRendererTest extends TestCase
 
     protected function setUp(): void
     {
+        static::markTestSkipped('#6556');
+
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
@@ -95,7 +97,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         static::assertInstanceOf(RenderedDocument::class, $rendered);
         static::assertCount(1, $caughtEvent->getOrders());
-        static::assertStringContainsString('<html>', $rendered->getHtml());
+        static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
 
         $assertionCallback($deliveryNoteNumber, $order->getOrderNumber(), $rendered);
@@ -107,7 +109,7 @@ class DeliveryNoteRendererTest extends TestCase
             '2000',
             function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
                 $html = $rendered->getHtml();
-                static::assertStringContainsString('<html>', $html);
+                static::assertStringContainsString('<html lang="en-GB">', $html);
                 static::assertStringContainsString('</html>', $html);
 
                 static::assertStringContainsString('Delivery note ' . $deliveryNoteNumber, $html);

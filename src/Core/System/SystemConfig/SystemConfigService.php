@@ -29,7 +29,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigService implements ResetInterface
 {
     /**
@@ -71,7 +71,7 @@ class SystemConfigService implements ResetInterface
     public function get(string $key, ?string $salesChannelId = null)
     {
         if (Feature::isActive('cache_rework')) {
-            $this->dispatcher->dispatch(new AddCacheTagEvent('global.system.config'));
+            $this->dispatcher->dispatch(new AddCacheTagEvent('system.config-' . $salesChannelId));
         } else {
             if ($this->fineGrainedCache) {
                 foreach (array_keys($this->keys) as $trace) {
@@ -351,7 +351,7 @@ class SystemConfigService implements ResetInterface
         $insertQueue->execute();
 
         // Dispatch the hook before the events to invalid the cache
-        $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping()));
+        $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping(), $salesChannelId));
 
         // Dispatch events that the given values have been changed
         foreach ($events as $event) {

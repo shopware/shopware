@@ -3,7 +3,7 @@ import template from './sw-promotion-detail-discounts.html.twig';
 import './sw-promotion-detail-discounts.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package checkout
  *
  * @private
  */
@@ -26,22 +26,22 @@ export default {
 
     computed: {
         promotion() {
-            return Shopware.State.get('swPromotionDetail').promotion;
+            return Shopware.Store.get('swPromotionDetail').promotion;
         },
 
         isLoading: {
             get() {
-                return Shopware.State.get('swPromotionDetail').isLoading;
+                return Shopware.Store.get('swPromotionDetail').isLoading;
             },
             set(isLoading) {
-                Shopware.State.commit('swPromotionDetail/setIsLoading', isLoading);
+                Shopware.Store.get('swPromotionDetail').isLoading = isLoading;
             },
         },
 
         discounts() {
             return (
-                Shopware.State.get('swPromotionDetail').promotion &&
-                Shopware.State.get('swPromotionDetail').promotion.discounts
+                Shopware.Store.get('swPromotionDetail').promotion &&
+                Shopware.Store.get('swPromotionDetail').promotion.discounts
             );
         },
     },

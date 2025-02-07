@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Validation;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -50,25 +49,16 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
         return $definition;
     }
 
-    /**
-     * @param Context|SalesChannelContext $context
-     */
-    private function addConstraints(DataValidationDefinition $definition, $context): void
+    private function addConstraints(DataValidationDefinition $definition, SalesChannelContext $context): void
     {
-        if ($context instanceof SalesChannelContext) {
-            $frameworkContext = $context->getContext();
-            $salesChannelId = $context->getSalesChannel()->getId();
-        } else {
-            $frameworkContext = $context;
-            $salesChannelId = null;
-        }
-
         $definition
-            ->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $frameworkContext]))
+            ->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $context->getContext()]))
             ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]))
             ->add('firstName', new NotBlank(), new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
             ->add('lastName', new NotBlank(), new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]))
             ->add('accountType', new Choice($this->accountTypes));
+
+        $salesChannelId = $context->getSalesChannelId();
 
         if ($this->systemConfigService->get('core.loginRegistration.showBirthdayField', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.birthdayFieldRequired', $salesChannelId)) {

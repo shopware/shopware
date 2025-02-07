@@ -2,7 +2,7 @@ import template from './sw-dashboard-index.html.twig';
 import './sw-dashboard-index.scss';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  *
  * @private
  */
@@ -46,7 +46,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         greetingName() {
-            const { currentUser } = Shopware.State.get('session');
+            const { currentUser } = Shopware.Store.get('session');
 
             // if currentUser?.firstName returns a loose falsy value
             // like `""`, `0`, `false`, `null`, `undefined`

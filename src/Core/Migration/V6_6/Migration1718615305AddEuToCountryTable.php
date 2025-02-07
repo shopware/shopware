@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1718615305AddEuToCountryTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -68,9 +68,5 @@ class Migration1718615305AddEuToCountryTable extends MigrationStep
                 'euCountryIsoCodes' => ArrayParameterType::STRING,
             ],
         );
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

@@ -1,4 +1,3 @@
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 
@@ -48,7 +47,7 @@ interface ComponentData {
 }
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  * @deprecated tag:v6.7.0 - Will be removed without replacement
  *
  * @private
@@ -274,7 +273,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isSessionLoaded() {
-            return !Shopware.State.get('session')?.userPending;
+            return !Shopware.Store.get('session')?.userPending;
         },
 
         currencyFilter() {
@@ -364,7 +363,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const initContainer = Shopware.Application.getContainer('init');
             const httpClient = initContainer.httpClient;
-            const timezone = Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
+            const timezone = Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
 
             return httpClient
                 .get<

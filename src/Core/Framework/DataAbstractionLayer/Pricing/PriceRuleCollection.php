@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<PriceRuleEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class PriceRuleCollection extends EntityCollection
 {
     public function getApiAlias(): string

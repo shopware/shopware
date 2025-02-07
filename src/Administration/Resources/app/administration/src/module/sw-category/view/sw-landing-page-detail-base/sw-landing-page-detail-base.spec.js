@@ -1,34 +1,24 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
-import { deepMergeObject } from 'src/core/service/utils/object.utils';
 
-async function createWrapper(state = {}) {
-    if (Shopware.State.get('swCategoryDetail')) {
-        Shopware.State.unregisterModule('swCategoryDetail');
-    }
-
-    Shopware.State.registerModule('swCategoryDetail', {
-        namespaced: true,
-        state: deepMergeObject(
-            {
-                category: {
-                    media: [],
-                    name: 'Computer parts',
-                    footerSalesChannels: [],
-                    navigationSalesChannels: [],
-                    serviceSalesChannels: [],
-                    productAssignmentType: 'product',
-                    isNew: () => false,
-                },
-                landingPage: {
-                    cmsPageId: null,
-                },
-            },
-            state,
-        ),
-    });
+async function createWrapper({
+    landingPage = {
+        cmsPageId: null,
+    },
+} = {}) {
+    Shopware.Store.get('swCategoryDetail').$reset();
+    Shopware.Store.get('swCategoryDetail').category = {
+        media: [],
+        name: 'Computer parts',
+        footerSalesChannels: [],
+        navigationSalesChannels: [],
+        serviceSalesChannels: [],
+        productAssignmentType: 'product',
+        isNew: () => false,
+    };
+    Shopware.Store.get('swCategoryDetail').landingPage = landingPage;
 
     return mount(await wrapTestComponent('sw-landing-page-detail-base', { sync: true }), {
         global: {
@@ -60,7 +50,7 @@ async function createWrapper(state = {}) {
                     props: ['disabled'],
                 },
                 'sw-entity-multi-select': true,
-                'sw-alert': true,
+                'mt-banner': true,
                 'sw-textarea-field': true,
                 'sw-custom-field-set-renderer': true,
             },
@@ -69,7 +59,7 @@ async function createWrapper(state = {}) {
             },
             computed: {
                 landingPage() {
-                    return Shopware.State.get('swCategoryDetail').landingPage;
+                    return Shopware.Store.get('swCategoryDetail').landingPage;
                 },
             },
         },

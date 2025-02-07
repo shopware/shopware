@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 const USER_CONFIG_KEY = 'extension.plugin_upload';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
@@ -40,7 +40,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userConfigCriteria() {

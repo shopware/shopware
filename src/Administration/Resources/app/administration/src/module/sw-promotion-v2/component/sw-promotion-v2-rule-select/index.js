@@ -3,7 +3,7 @@ import './sw-promotion-v2-rule-select.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package checkout
  */
 export default {
     template,
@@ -13,7 +13,6 @@ export default {
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
-        'feature',
     ],
 
     emits: ['update:collection'],

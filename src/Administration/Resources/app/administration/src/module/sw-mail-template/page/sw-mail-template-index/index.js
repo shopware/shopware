@@ -2,7 +2,7 @@ import template from './sw-mail-template-index.html.twig';
 import './sw-mail-template-index.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -26,7 +26,7 @@ export default {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.$refs.mailHeaderFooterList.getList();
             this.$refs.mailTemplateList.getList();
         },

@@ -15,7 +15,7 @@ use Shopware\Core\Migration\Traits\Translations;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@discovery')]
 class Migration1677470540AddProvincesForCanada extends MigrationStep
 {
     use ImportTranslationsTrait;

@@ -31,7 +31,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -212,7 +212,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             $productData[0]['mainCategories'][] = [
                 'categoryId' => $this->ids->get('navigation-a-1'),
                 'id' => Uuid::randomHex(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
             ];
         }
 

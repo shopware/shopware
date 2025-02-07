@@ -14,7 +14,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ParentRelationValidator implements EventSubscriberInterface
 {
     final public const VIOLATION_PARENT_RELATION_DOES_NOT_ALLOW_SELF_REFERENCES = 'FRAMEWORK__PARENT_RELATION_DOES_NOT_ALLOW_SELF_REFERENCES';

@@ -29,7 +29,7 @@ use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
-#[Package('core')]
+#[Package('framework')]
 class Translator extends AbstractTranslator
 {
     use TranslatorTrait;

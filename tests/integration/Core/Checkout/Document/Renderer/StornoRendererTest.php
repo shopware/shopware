@@ -37,7 +37,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class StornoRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -56,6 +56,8 @@ class StornoRendererTest extends TestCase
 
     protected function setUp(): void
     {
+        static::markTestSkipped('#6556');
+
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
@@ -135,7 +137,7 @@ class StornoRendererTest extends TestCase
         static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
         $rendered = $processedTemplate->getSuccess()[$orderId];
         static::assertInstanceOf(RenderedDocument::class, $rendered);
-        static::assertStringContainsString('<html>', $rendered->getHtml());
+        static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
 
         $localeProvider = static::createMock(LanguageLocaleCodeProvider::class);

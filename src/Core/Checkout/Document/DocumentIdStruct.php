@@ -5,13 +5,14 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentIdStruct extends Struct
 {
     public function __construct(
         protected string $id,
         protected string $deepLinkCode,
-        protected ?string $mediaId = null
+        protected ?string $mediaId = null,
+        protected ?string $a11yMediaId = null,
     ) {
     }
 
@@ -38,6 +39,11 @@ class DocumentIdStruct extends Struct
     public function getMediaId(): ?string
     {
         return $this->mediaId;
+    }
+
+    public function getA11yMediaId(): ?string
+    {
+        return $this->a11yMediaId;
     }
 
     public function getApiAlias(): string

@@ -7,7 +7,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @status ready
  * @description The <u>sw-rule-modal</u> component is used to create or modify a rule.
  * @example-type code-only
@@ -112,7 +112,7 @@ Component.register('sw-rule-modal', {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.State.get('session').languageId,
+                languageId: Shopware.Store.get('session').languageId,
             };
             const criteria = new Criteria(1, 500);
             criteria.addAssociation('appScriptCondition');

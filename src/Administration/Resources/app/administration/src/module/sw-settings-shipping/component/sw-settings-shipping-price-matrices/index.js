@@ -7,10 +7,9 @@ const {
     Context,
 } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -21,7 +20,6 @@ export default {
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
-        'feature',
     ],
 
     mixins: [
@@ -38,16 +36,25 @@ export default {
     },
 
     computed: {
-        ...mapState('swShippingDetail', [
-            'shippingMethod',
-        ]),
+        shippingMethod() {
+            return Shopware.Store.get('swShippingDetail').shippingMethod;
+        },
 
-        ...mapGetters('swShippingDetail', [
-            'shippingPriceGroups',
-            'usedRules',
-            'unrestrictedPriceMatrixExists',
-            'newPriceMatrixExists',
-        ]),
+        shippingPriceGroups() {
+            return Shopware.Store.get('swShippingDetail').shippingPriceGroups;
+        },
+
+        usedRules() {
+            return Shopware.Store.get('swShippingDetail').usedRules;
+        },
+
+        unrestrictedPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').unrestrictedPriceMatrixExists;
+        },
+
+        newPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').newPriceMatrixExists;
+        },
 
         ruleRepository() {
             return this.repositoryFactory.create('rule');

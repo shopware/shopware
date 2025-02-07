@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
@@ -115,7 +115,7 @@ async function createWrapper(condition = {}) {
 
 describe('components/rule/condition-type/sw-condition-generic', () => {
     beforeEach(() => {
-        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
+        Shopware.Store.get('ruleConditionsConfig').config = ruleConditionsConfig;
     });
 
     it('should render fields and set condition values on change', async () => {

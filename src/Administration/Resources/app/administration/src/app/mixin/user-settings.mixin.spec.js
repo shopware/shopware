@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import 'src/app/mixin/user-settings.mixin';
 import { mount } from '@vue/test-utils';
@@ -202,7 +202,7 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
         expect(createRepositoryFactoryMock.save).toHaveBeenCalledWith(
             expect.objectContaining({
                 key: 'custom.my-identifier',
-                userId: undefined,
+                userId: null,
                 value: {
                     entity: 'value',
                 },

@@ -50,7 +50,7 @@ class EntityLoadedEventFactoryTest extends TestCase
 
         $this->productRepository->create([$builder->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$this->ids->get('p1')]);
         $criteria->addAssociations([
             'manufacturer',
             'prices',

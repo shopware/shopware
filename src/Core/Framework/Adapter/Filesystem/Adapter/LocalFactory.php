@@ -8,7 +8,7 @@ use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-#[Package('core')]
+#[Package('framework')]
 class LocalFactory implements AdapterFactoryInterface
 {
     /**

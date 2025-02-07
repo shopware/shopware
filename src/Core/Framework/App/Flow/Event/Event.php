@@ -10,7 +10,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Event
 {
     private const XSD_FILE = '/Schema/flow-1.0.xsd';

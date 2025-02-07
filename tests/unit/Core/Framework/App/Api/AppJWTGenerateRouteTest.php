@@ -25,7 +25,7 @@ class AppJWTGenerateRouteTest extends TestCase
             StaticInAppPurchaseFactory::createWithFeatures(),
         );
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $this->expectException(AppException::class);
@@ -41,7 +41,7 @@ class AppJWTGenerateRouteTest extends TestCase
             StaticInAppPurchaseFactory::createWithFeatures(),
         );
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('Could not find app with identifier "test"');
@@ -72,7 +72,7 @@ class AppJWTGenerateRouteTest extends TestCase
             $inAppPurchase,
         );
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $response = $appJWTGenerateRoute->generate('extension-1', $context);
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -87,11 +87,11 @@ class AppJWTGenerateRouteTest extends TestCase
 
         static::assertArrayHasKey('salesChannelId', $payload);
         static::assertArrayHasKey('customerId', $payload);
-        static::assertSame($context->getSalesChannel()->getId(), $payload['salesChannelId']);
-        static::assertSame($context->getCustomer()?->getId(), $payload['customerId']);
+        static::assertSame($context->getSalesChannelId(), $payload['salesChannelId']);
+        static::assertSame($context->getCustomerId(), $payload['customerId']);
         static::assertSame($context->getPaymentMethod()->getId(), $payload['paymentMethodId']);
         static::assertSame($context->getShippingMethod()->getId(), $payload['shippingMethodId']);
-        static::assertSame($context->getCurrency()->getId(), $payload['currencyId']);
+        static::assertSame($context->getCurrencyId(), $payload['currencyId']);
         static::assertSame($context->getLanguageId(), $payload['languageId']);
         static::assertSame('a6a4063ffda65516983ad40e8dc91db6', $payload['inAppPurchases']);
     }

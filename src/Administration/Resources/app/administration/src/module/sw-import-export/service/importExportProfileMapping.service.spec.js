@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import ImportExportProfileMappingService from 'src/module/sw-import-export/service/importExportProfileMapping.service';
 // eslint-disable-next-line import/no-unresolved
@@ -271,8 +271,10 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'salesChannel.currency.itemRounding',
             'salesChannel.currency.totalRounding',
             'salesChannel.paymentMethod.id',
+            'salesChannel.paymentMethod.technicalName',
             'salesChannel.paymentMethod.translations.DEFAULT.name',
             'salesChannel.shippingMethod.id',
+            'salesChannel.shippingMethod.technicalName',
             'salesChannel.shippingMethod.taxType',
             'salesChannel.shippingMethod.deliveryTime.id',
             'salesChannel.shippingMethod.translations.DEFAULT.name',

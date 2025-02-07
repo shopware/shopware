@@ -37,7 +37,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(SendMailAction::class)]
 class SendMailActionTest extends TestCase
 {

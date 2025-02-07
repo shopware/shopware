@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  * @experimental stableVersion:v6.7.0 feature:VITE
  *
  * These types of initializers are called in the end of the initialization process.

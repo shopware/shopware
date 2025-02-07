@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Store\InAppPurchase;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class QuerySigner
 {
     public function __construct(

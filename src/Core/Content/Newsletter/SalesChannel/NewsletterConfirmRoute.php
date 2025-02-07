@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 {
     /**
@@ -60,7 +60,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 
         $this->newsletterRecipientRepository->update([$data], $context->getContext());
 
-        $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
+        $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();

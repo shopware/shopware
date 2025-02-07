@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -245,10 +245,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     return Promise.resolve({ data: {} });
                 },
             };
-        });
-
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
         });
     });
 

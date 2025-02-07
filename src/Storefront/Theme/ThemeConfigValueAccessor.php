@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeConfigValueAccessor
 {
     /**
@@ -43,10 +43,11 @@ class ThemeConfigValueAccessor
      */
     public static function buildName(string $key): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        );
+        // fix with #6556
+        // Feature::triggerDeprecationOrThrow(
+        //     'v6.7.0.0',
+        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        // );
 
         return 'theme.' . $key;
     }

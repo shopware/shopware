@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 use League\Flysystem\FilesystemAdapter;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 interface AdapterFactoryInterface
 {
     public function create(array $config): FilesystemAdapter;

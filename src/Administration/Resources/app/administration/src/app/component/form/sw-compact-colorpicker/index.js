@@ -4,7 +4,7 @@ import './sw-compact-colorpicker.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */

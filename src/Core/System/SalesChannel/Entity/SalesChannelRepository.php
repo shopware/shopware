@@ -30,7 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @template TEntityCollection of EntityCollection
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelRepository
 {
     /**

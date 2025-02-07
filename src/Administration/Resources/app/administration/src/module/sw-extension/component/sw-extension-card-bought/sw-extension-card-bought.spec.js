@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
+import { setActivePinia, createPinia } from 'pinia';
 
 import ExtensionErrorService from 'src/module/sw-extension/service/extension-error.service';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
 import ExtensionStoreActionService from 'src/module/sw-extension/service/extension-store-action.service';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
-import extensionStore from 'src/module/sw-extension/store/extensions.store';
 
 Shopware.Application.addServiceProvider('loginService', () => {
     return {
@@ -132,17 +132,17 @@ async function createWrapper(extension) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -156,23 +156,20 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 
     beforeEach(() => {
-        if (Shopware.State.get('shopwareExtensions')) {
-            Shopware.State.unregisterModule('shopwareExtensions');
-        }
-        Shopware.State.registerModule('shopwareExtensions', extensionStore);
+        setActivePinia(createPinia());
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -186,7 +183,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 
@@ -375,10 +372,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     it('should not try to cancel the extension subscription on remove attempt when it already has an expiry date', async () => {
-        httpClient.delete.mockImplementation(() => {
-            return Promise.resolve();
-        });
-
         const cancelLicenceSpy = jest.spyOn(extensionStoreActionService, 'cancelLicense');
         const removeExtensionSpy = jest.spyOn(extensionStoreActionService, 'removeExtension');
 
@@ -415,7 +408,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(0);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
-        expect(httpClient.delete).toHaveBeenCalledTimes(1);
     });
 
     it('should try to cancel the extension subscription on remove attempt when it has no expiry date', async () => {
@@ -460,7 +452,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(1);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
-        expect(httpClient.delete).toHaveBeenCalledTimes(2);
+        expect(httpClient.delete).toHaveBeenCalledTimes(1);
     });
 
     it('should display error on install and download attempt when app subscription is expired', async () => {

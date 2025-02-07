@@ -14,7 +14,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
 {% endblock %}
 
 {% block document_headline %}
-    <h1 class="headline">
+    <h1 class="headline" tabindex="0">
         {% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}
     </h1>
 {% endblock %}
@@ -24,8 +24,13 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
 
 {% block document_recipient %}
-    {% if config.displayCompanyAddress and config.companyAddress is not empty %}
-        {{ config.companyName }} {{ config.companyAddress }}<br><br>
+    {% if config.displayCompanyAddress %}
+        {# @deprecated tag:v6.7.0 - companyAddress will be replaced with single fields. companyStreet, companyZipcode, companyCity #}
+        {% if feature('v6.7.0.0') %}
+            <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
+        {% elseif config.companyAddress is not empty %}
+            <span class="company-address-small">{{ config.companyName }} {{ config.companyAddress }}</span><br><br>
+        {% endif %}
     {% endif %}
 
     {% sw_include '@Framework/snippets/render.html.twig' with {

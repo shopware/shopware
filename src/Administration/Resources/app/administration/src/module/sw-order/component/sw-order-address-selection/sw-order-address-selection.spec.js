@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 
 const { Context } = Shopware;
@@ -136,9 +136,10 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swOrderDetail', {
-            namespaced: true,
-            state: {
+        Shopware.Store.unregister('swOrderDetail');
+        Shopware.Store.register({
+            id: 'swOrderDetail',
+            state: () => ({
                 isLoading: false,
                 isSavedSuccessful: false,
                 versionContext: {},
@@ -161,7 +162,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                         customerId: '63e27affb5804538b5b06cb4e344b130',
                     },
                 },
-            },
+            }),
         });
     });
 

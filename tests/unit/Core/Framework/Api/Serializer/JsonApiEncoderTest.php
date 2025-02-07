@@ -23,7 +23,7 @@ use Symfony\Component\DependencyInjection\Container;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(JsonApiEncoder::class)]
 class JsonApiEncoderTest extends TestCase
 {

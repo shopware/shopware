@@ -10,7 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal
+ */
+#[Package('fundamentals@after-sales')]
 class EntityPipe extends AbstractPipe
 {
     public function __construct(

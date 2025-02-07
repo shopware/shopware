@@ -359,7 +359,7 @@ class ProductStreamUpdaterTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 19, 'name' => 'with id'],
             'visibilities' => [
-                ['salesChannelId' => $this->salesChannel->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $this->salesChannel->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
             'categories' => [
                 ['id' => Uuid::randomHex(), 'name' => 'Clothing'],

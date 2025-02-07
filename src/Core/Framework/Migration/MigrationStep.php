@@ -10,12 +10,14 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class MigrationStep
 {
     use AddColumnTrait;
 
     final public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
+
+    private const MAX_INT_32_BIT = 2147483647;
 
     /**
      * get creation timestamp
@@ -32,6 +34,17 @@ abstract class MigrationStep
      */
     public function updateDestructive(Connection $connection): void
     {
+    }
+
+    public function getPlausibleCreationTimestamp(): int
+    {
+        $creationTime = $this->getCreationTimestamp();
+
+        if ($creationTime < 1 || $creationTime >= self::MAX_INT_32_BIT) {
+            throw MigrationException::implausibleCreationTimestamp($creationTime, $this);
+        }
+
+        return $creationTime;
     }
 
     public function removeTrigger(Connection $connection, string $name): void
@@ -61,7 +74,7 @@ abstract class MigrationStep
     }
 
     /**
-     * @param array<string> $indexerToRun
+     * @param list<string> $indexerToRun
      */
     protected function registerIndexer(Connection $connection, string $name, array $indexerToRun = []): void
     {
@@ -85,20 +98,18 @@ abstract class MigrationStep
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:parameter-name-change - Parameter `column` will be renamed to `columnName`
-     *
      * @return bool - Returns true when the column has really been deleted
      */
-    protected function dropColumnIfExists(Connection $connection, string $table, string $column): bool
+    protected function dropColumnIfExists(Connection $connection, string $table, string $columnName): bool
     {
         try {
-            $connection->executeStatement(\sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $column));
+            $connection->executeStatement(\sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $columnName));
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;
             }
 
-            // column does not exists
+            // column does not exist
             if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
                 return false;
             }
@@ -110,13 +121,11 @@ abstract class MigrationStep
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:parameter-name-change - Parameter `column` will be renamed to `foreignKeyName`
-     *
      * @return bool - Returns true when the foreign key has really been deleted
      */
-    protected function dropForeignKeyIfExists(Connection $connection, string $table, string $column): bool
+    protected function dropForeignKeyIfExists(Connection $connection, string $table, string $foreignKeyName): bool
     {
-        $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $column);
+        $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $foreignKeyName);
 
         try {
             $connection->executeStatement($sql);
@@ -125,7 +134,7 @@ abstract class MigrationStep
                 return false;
             }
 
-            // fk does not exists
+            // fk does not exist
             if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
                 return false;
             }
@@ -137,13 +146,11 @@ abstract class MigrationStep
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:parameter-name-change - Parameter `index` will be renamed to `indexName`
-     *
      * @return bool - Returns true when the index has really been deleted
      */
-    protected function dropIndexIfExists(Connection $connection, string $table, string $index): bool
+    protected function dropIndexIfExists(Connection $connection, string $table, string $indexName): bool
     {
-        $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $index);
+        $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $indexName);
 
         try {
             $connection->executeStatement($sql);
@@ -152,7 +159,7 @@ abstract class MigrationStep
                 return false;
             }
 
-            // index does not exists
+            // index does not exist
             if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
                 return false;
             }

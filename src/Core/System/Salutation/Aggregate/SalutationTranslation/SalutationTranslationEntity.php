@@ -7,38 +7,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class SalutationTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutationId;
+    protected string $salutationId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayName;
+    protected ?string $displayName = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $letterName;
+    protected ?string $letterName = null;
 
-    /**
-     * @var SalutationEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutation;
+    protected ?SalutationEntity $salutation = null;
 
     public function getSalutationId(): string
     {

@@ -5,7 +5,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Defaults } = Shopware;
@@ -17,8 +17,6 @@ export default {
     template,
 
     compatConfig: Shopware.compatConfig,
-
-    inject: ['feature'],
 
     emits: ['sales-channel-change'],
 

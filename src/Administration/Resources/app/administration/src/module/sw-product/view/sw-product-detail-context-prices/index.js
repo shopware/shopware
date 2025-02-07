@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-detail-context-prices.html.twig';
@@ -7,7 +7,6 @@ import './sw-product-detail-context-prices.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -49,20 +48,41 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'taxes',
-            'currencies',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-            'defaultCurrency',
-            'defaultPrice',
-            'productTaxRate',
-            'isChild',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        taxes() {
+            return Shopware.Store.get('swProductDetail').taxes;
+        },
+
+        currencies() {
+            return Shopware.Store.get('swProductDetail').currencies;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        defaultPrice() {
+            return Shopware.Store.get('swProductDetail').defaultPrice;
+        },
+
+        productTaxRate() {
+            return Shopware.Store.get('swProductDetail').productTaxRate;
+        },
+
+        isChild() {
+            return Shopware.Store.get('swProductDetail').isChild;
+        },
 
         priceRepository() {
             if (this.product && this.product.prices) {
@@ -86,8 +106,7 @@ export default {
                 return priceRuleGroups;
             }
 
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            const sortedPrices = this.product.prices.sort((a, b) => {
+            const sortedPrices = this.product.prices.toSorted((a, b) => {
                 const aRule = this.findRuleById(a.ruleId);
                 const bRule = this.findRuleById(b.ruleId);
 
@@ -223,7 +242,7 @@ export default {
             );
 
             if (this.canSetLoadingRules) {
-                Shopware.State.commit('swProductDetail/setLoading', [
+                Shopware.Store.get('swProductDetail').setLoading([
                     'rules',
                     true,
                 ]);
@@ -232,7 +251,7 @@ export default {
                 this.rules = res;
                 this.totalRules = res.total;
 
-                Shopware.State.commit('swProductDetail/setLoading', [
+                Shopware.Store.get('swProductDetail').setLoading([
                     'rules',
                     false,
                 ]);

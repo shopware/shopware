@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_state_change_modal %}
 <sw-modal
     :title="modalTitle"
@@ -6,7 +5,6 @@
     @modal-close="onCancel"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_change_modal_attach_documents_component %}
     <sw-order-state-change-modal-attach-documents
         :order="order"

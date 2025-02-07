@@ -7,7 +7,6 @@
       "email",
       "groupId",
       "salesChannelId",
-      "defaultPaymentMethodId",
       "customerNumber",
       "password",
       "vatIds",

@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import { TotalCountMode } from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 
 const createWrapper = async () => {

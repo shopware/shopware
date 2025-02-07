@@ -1,13 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_privilege_error %}
 <sw-page class="sw-privilege-error">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_privilege_error_inner %}
     <template #content>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_privilege_error_inner_content %}
         <div class="sw-privilege-error__content">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_privilege_error_inner_content_image %}
             <img
                 class="sw-privilege-error__access-denied-image"
@@ -16,17 +12,14 @@
             >
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_privilege_error_inner_content_headline %}
             <h1>{{ $tc('sw-privilege-error.general.mainMenuItemGeneral') }}</h1>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_privilege_error_inner_content_description %}
             <p>{{ $tc('sw-privilege-error.general.descriptionTextModule') }}</p>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_privilege_error_inner_content_back_button %}
             <sw-button
                 variant="primary"

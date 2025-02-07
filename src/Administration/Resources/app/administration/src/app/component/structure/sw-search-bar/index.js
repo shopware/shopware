@@ -7,7 +7,7 @@ const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -195,7 +195,7 @@ Component.register('sw-search-bar', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         showSearchTipForEsSearch() {

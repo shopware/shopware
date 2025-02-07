@@ -59,7 +59,7 @@ class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware,
     {
         if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
             $orderCustomer = $this->order->getOrderCustomer();
-            if ($orderCustomer === null) {
+            if (!$orderCustomer) {
                 throw new AssociationNotFoundException('orderCustomer');
             }
 
@@ -90,13 +90,13 @@ class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware,
 
     public function getCustomerId(): string
     {
-        $customer = $this->getOrder()->getOrderCustomer();
+        $orderCustomer = $this->order->getOrderCustomer();
 
-        if ($customer === null || $customer->getCustomerId() === null) {
-            throw OrderException::orderCustomerDeleted($this->getOrderId());
+        if (!$orderCustomer?->getCustomerId()) {
+            throw OrderException::orderCustomerDeleted($this->order->getId());
         }
 
-        return $customer->getCustomerId();
+        return $orderCustomer->getCustomerId();
     }
 
     public function getOrderTransactionId(): string

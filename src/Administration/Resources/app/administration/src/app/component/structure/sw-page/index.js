@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -191,7 +191,7 @@ Component.register('sw-page', {
     },
 
     beforeUnmount() {
-        Shopware.State.dispatch('error/resetApiErrors');
+        Shopware.Store.get('error').resetApiErrors();
         this.beforeDestroyComponent();
     },
 

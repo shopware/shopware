@@ -17,7 +17,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @final
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class RemoteThumbnailLoader implements ResetInterface
 {
     /**

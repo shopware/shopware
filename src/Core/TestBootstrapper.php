@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;
@@ -102,7 +102,6 @@ class TestBootstrapper
         if ($this->classLoader !== null) {
             return $this->classLoader;
         }
-
         $classLoader = require $this->getProjectDir() . '/vendor/autoload.php';
 
         $this->addPluginAutoloadDev($classLoader);

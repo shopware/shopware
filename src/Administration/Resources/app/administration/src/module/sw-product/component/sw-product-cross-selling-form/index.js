@@ -1,9 +1,13 @@
+/**
+ * @sw-package inventory
+ */
+
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Component, Mixin } = Shopware;
-const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -62,13 +66,13 @@ export default {
             'position',
         ]),
 
-        ...mapState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         productCrossSellingRepository() {
             return this.repositoryFactory.create('product_cross_selling');

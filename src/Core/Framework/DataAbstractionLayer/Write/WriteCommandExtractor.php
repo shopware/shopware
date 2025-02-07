@@ -42,7 +42,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  *
  * Contains recursive calls from extract->map->AssociationInterface->extract->map->....
  */
-#[Package('core')]
+#[Package('framework')]
 class WriteCommandExtractor
 {
     /**

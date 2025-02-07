@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class IdsCollection
 {
     /**
@@ -142,7 +142,7 @@ class IdsCollection
             if ($key) {
                 $keys[] = $key;
             } else {
-                throw new \RuntimeException('Key not found for id ' . $id);
+                $keys[] = 'Key not found for ID ' . $id;
             }
         }
 

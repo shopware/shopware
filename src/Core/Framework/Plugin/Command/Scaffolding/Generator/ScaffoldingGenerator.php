@@ -11,7 +11,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 interface ScaffoldingGenerator
 {
     public const STUB_DIRECTORY = __DIR__ . '/../stubs';

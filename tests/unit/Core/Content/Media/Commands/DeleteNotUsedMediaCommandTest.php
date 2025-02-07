@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(DeleteNotUsedMediaCommand::class)]
 class DeleteNotUsedMediaCommandTest extends TestCase
 {
@@ -245,6 +245,14 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
         $commandTester->assertCommandIsSuccessful();
 
+        $lines = explode("\n", $commandTester->getDisplay(true));
+        $parsed = [];
+
+        foreach ($lines as $line) {
+            // Keep the parameters, otherwise PHP deprecations are triggered
+            $parsed[] = str_getcsv($line, ',', '"', '\\');
+        }
+
         static::assertSame(
             [
                 [
@@ -266,7 +274,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
                     '1 MB',
                 ],
             ],
-            array_map(str_getcsv(...), explode("\n", $commandTester->getDisplay(true)))
+            $parsed
         );
     }
 

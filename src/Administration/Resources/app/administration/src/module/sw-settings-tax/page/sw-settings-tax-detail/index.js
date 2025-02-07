@@ -2,7 +2,7 @@ import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -19,7 +19,6 @@ export default {
         'acl',
         'customFieldDataProviderService',
         'systemConfigApiService',
-        'feature',
     ],
 
     mixins: [
@@ -211,7 +210,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.createdComponent();
         },
 

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 const orderFixture = {
     id: '2720b2fa-2ddc-479b-8c93-864fc8978f77',
@@ -52,31 +52,8 @@ const successResponseForNotification = {
 };
 
 const createStateMapper = (customOrder = {}) => {
-    if (Shopware.State.list().includes('swOrderDetail')) {
-        Shopware.State.unregisterModule('swOrderDetail');
-    }
-
-    const newModule = {
-        state: {
-            order: {
-                ...orderFixture,
-                ...customOrder,
-            },
-        },
-    };
-
-    Shopware.State.registerModule('swOrderDetail', {
-        ...{
-            namespaced: true,
-            state: {
-                isLoading: false,
-                isSavedSuccessful: false,
-                versionContext: {},
-                order: orderFixture,
-            },
-        },
-        ...newModule,
-    });
+    Shopware.Store.get('swOrderDetail').$reset();
+    Shopware.Store.get('swOrderDetail').order = { ...orderFixture, ...customOrder };
 };
 
 async function createWrapper(privileges = []) {

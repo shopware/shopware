@@ -10,53 +10,16 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntitySearchResult<ProductReviewCollection>
  */
-#[Package('inventory')]
+#[Package('after-sales')]
 class ProductReviewResult extends EntitySearchResult
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var RatingMatrix
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $matrix;
+    protected RatingMatrix $matrix;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var ProductReviewEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerReview;
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalReviews;
+    protected ?ProductReviewEntity $customerReview = null;
 
     protected int $totalReviewsInCurrentLanguage;
 
@@ -88,16 +51,6 @@ class ProductReviewResult extends EntitySearchResult
     public function setCustomerReview(?ProductReviewEntity $customerReview): void
     {
         $this->customerReview = $customerReview;
-    }
-
-    public function getTotalReviews(): int
-    {
-        return $this->totalReviews;
-    }
-
-    public function setTotalReviews(int $totalReviews): void
-    {
-        $this->totalReviews = $totalReviews;
     }
 
     public function getTotalReviewsInCurrentLanguage(): int

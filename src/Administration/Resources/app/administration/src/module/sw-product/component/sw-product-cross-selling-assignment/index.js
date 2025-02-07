@@ -1,11 +1,10 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-cross-selling-assignment.html.twig';
 import './sw-product-cross-selling-assignment.scss';
 
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -43,13 +42,13 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         isLoadingGrid() {
             return this.isLoadingData || this.isLoading;

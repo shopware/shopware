@@ -12,7 +12,7 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptFileReader
 {
     private const SCRIPT_DIR = '/Resources/scripts';

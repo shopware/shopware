@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-manufacturer-detail.html.twig';
@@ -139,7 +139,7 @@ export default {
                 return;
             }
 
-            Shopware.State.commit('context/resetLanguageToDefault');
+            Shopware.Store.get('context').resetLanguageToDefault();
             this.manufacturer = this.manufacturerRepository.create();
         },
 

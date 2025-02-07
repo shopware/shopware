@@ -113,7 +113,7 @@ class ScriptTwigLoaderTest extends TestCase
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class DummyScript extends Script
 {
     public function __construct(

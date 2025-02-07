@@ -12,7 +12,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class HttpCacheKeyGenerator
 {
     final public const CURRENCY_COOKIE = 'sw-currency';

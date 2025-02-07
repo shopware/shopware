@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingExceptio
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-#[Package('core')]
+#[Package('framework')]
 class RoutingException extends HttpException
 {
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__MISSING_REQUEST_PARAMETER';

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1612980753AddLinkSettingsToCategory extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -30,10 +30,10 @@ SQL;
         $connection->executeStatement($sql);
 
         $connection->createQueryBuilder()
-            ->update('category_translation', 'translation')
+            ->update('category_translation')
             ->set('link_type', ':linkType')
-            ->where('translation.external_link IS NOT NULL')
-            ->orWhere('translation.category_id IN (SELECT id FROM category WHERE translation.category_id = category.id AND category.type = \'link\')')
+            ->where('category_translation.external_link IS NOT NULL')
+            ->orWhere('category_translation.category_id IN (SELECT id FROM category WHERE category_translation.category_id = category.id AND category.type = \'link\')')
             ->setParameter('linkType', 'external')
             ->executeStatement();
     }

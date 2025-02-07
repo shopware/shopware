@@ -53,7 +53,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class GenerateDocumentActionTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -529,7 +529,7 @@ class GenerateDocumentActionTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class CustomDocRenderer extends AbstractDocumentRenderer
 {
     final public const TYPE = 'customDoc';
@@ -549,6 +549,7 @@ class CustomDocRenderer extends AbstractDocumentRenderer
         $result = new RendererResult();
 
         foreach ($operations as $operation) {
+            // @deprecated tag:v6.7.0 - html argument will be removed
             $rendered = new RenderedDocument('<html>test</html>');
             $rendered->setName('custom.pdf');
 

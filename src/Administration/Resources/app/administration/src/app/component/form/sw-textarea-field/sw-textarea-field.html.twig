@@ -1,5 +1,6 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-textarea component #}
+{% block sw_textarea_field %}
 <mt-textarea
     v-if="useMeteorComponent"
     v-bind="$attrs"
@@ -18,9 +19,11 @@
         </slot>
     </template>
 </mt-textarea>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
+{% block sw_textarea_field_deprecated %}
 <sw-textarea-field-deprecated
     v-else
     v-bind="$attrs"
@@ -40,3 +43,4 @@
         </slot>
     </template>
 </sw-textarea-field-deprecated>
+{% endblock %}

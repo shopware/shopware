@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { ShopwareError } = Shopware.Classes;
@@ -162,11 +162,11 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
             },
         });
 
-        expect(Shopware.State.getters['error/getApiError'](entityMock, 'street')).toBeNull();
+        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeNull();
 
         await wrapper.vm.onSaveAddress();
 
-        expect(Shopware.State.getters['error/getApiError'](entityMock, 'street')).toBeInstanceOf(ShopwareError);
+        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
     });
 
     it('should clone address line correctly', async () => {

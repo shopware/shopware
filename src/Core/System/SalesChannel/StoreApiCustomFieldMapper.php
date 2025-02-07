@@ -9,7 +9,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class StoreApiCustomFieldMapper implements ResetInterface
 {
     /**

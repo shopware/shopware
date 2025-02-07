@@ -28,7 +28,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class StorefrontSubscriber implements EventSubscriberInterface
 {
     /**
@@ -96,7 +96,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             /** @var SalesChannelContext|null $salesChannelContext */
             $salesChannelContext = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
             if ($salesChannelContext !== null) {
-                $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+                $salesChannelId = $salesChannelContext->getSalesChannelId();
             }
         }
 

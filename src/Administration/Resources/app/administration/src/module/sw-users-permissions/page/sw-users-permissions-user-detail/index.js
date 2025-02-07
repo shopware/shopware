@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
@@ -171,7 +171,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.State.get('session').languageId;
+            return Shopware.Store.get('session').languageId;
         },
 
         tooltipSave() {
@@ -232,7 +232,7 @@ export default {
 
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
             const languagePromise = new Promise((resolve) => {
-                Shopware.State.commit('context/setApiLanguageId', this.languageId);
+                Shopware.Store.get('context').api.languageId = this.languageId;
                 resolve(this.languageId);
             });
 
@@ -399,7 +399,7 @@ export default {
                                 detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
                             });
 
-                            Shopware.State.commit('error/addApiError', {
+                            Shopware.Store.get('error').addApiError({
                                 expression,
                                 error,
                             });
@@ -451,7 +451,7 @@ export default {
                 const data = response.data;
                 delete data.password;
 
-                return Shopware.State.commit('setCurrentUser', data);
+                return Shopware.Store.get('session').setCurrentUser(data);
             });
         },
 

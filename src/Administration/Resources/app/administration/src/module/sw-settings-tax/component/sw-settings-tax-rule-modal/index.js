@@ -1,7 +1,7 @@
 import template from './sw-settings-tax-rule-modal.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Context } = Shopware;
@@ -16,7 +16,6 @@ export default {
 
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     emits: ['modal-close'],

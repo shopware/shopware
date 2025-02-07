@@ -13,7 +13,7 @@ const documentTypesForDisplayNoteDelivery = [
 ];
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -101,7 +101,26 @@ export default {
                         label: this.$tc('sw-settings-document.detail.labelItemsPerPage'),
                     },
                 },
-                null,
+                {
+                    name: 'fileTypes',
+                    type: 'array',
+                    config: {
+                        componentName: 'sw-multi-select',
+                        labelProperty: 'name',
+                        valueProperty: 'id',
+                        options: [
+                            {
+                                id: 'pdf',
+                                name: 'PDF',
+                            },
+                            {
+                                id: 'html',
+                                name: 'HTML',
+                            },
+                        ],
+                        label: this.$tc('sw-settings-document.detail.labelFileTypes'),
+                    },
+                },
                 {
                     name: 'displayHeader',
                     type: 'bool',
@@ -177,6 +196,39 @@ export default {
                         type: 'text',
                         label: this.$tc('sw-settings-document.detail.labelCompanyAddress'),
                         helpText: this.$tc('sw-settings-document.detail.helpTextCompanyAddress'),
+                    },
+                },
+                {
+                    name: 'companyStreet',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyStreet'),
+                    },
+                },
+                {
+                    name: 'companyZipcode',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyZipcode'),
+                    },
+                },
+                {
+                    name: 'companyCity',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCity'),
+                    },
+                },
+                {
+                    name: 'companyCountryId',
+                    type: 'sw-entity-single-select',
+                    config: {
+                        entity: 'country',
+                        componentName: 'sw-entity-single-select',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCountry'),
                     },
                 },
                 {
@@ -283,6 +335,15 @@ export default {
                         label: this.$tc('sw-settings-document.detail.labelExecutiveDirector'),
                     },
                 },
+                {
+                    name: 'paymentDueDate',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelPaymentDueDate'),
+                        helpText: this.$tc('sw-settings-document.detail.helpTextPaymentDueDate'),
+                    },
+                },
             ],
             alreadyAssignedSalesChannelIdsToType: [],
             typeIsLoading: false,
@@ -372,6 +433,23 @@ export default {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        fileTypesSelected() {
+            if (!this.documentConfig?.config?.fileTypes) {
+                return [];
+            }
+
+            return this.documentConfig.config.fileTypes;
+        },
+
+        // We don't want to select ZUGFeRD as a type. "invoice" configuration is used instead (NEXT-40492)
+        documentCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.not('AND', [Criteria.prefix('technicalName', 'zugferd_')]));
+
+            return criteria;
+        },
     },
 
     created() {
@@ -429,6 +507,7 @@ export default {
             this.documentConfig.salesChannels.forEach((salesChannelAssoc) => {
                 this.documentConfigSalesChannels.push(salesChannelAssoc.id);
             });
+
             this.isLoading = false;
         },
 
@@ -516,7 +595,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
 
             return this.loadEntityData();
         },
@@ -535,6 +614,8 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
             this.onChangeSalesChannel();
+
+            this.isSaveSuccessful = true;
 
             return this.documentBaseConfigRepository
                 .save(this.documentConfig)
@@ -580,6 +661,20 @@ export default {
                     this.documentConfigSalesChannelOptionsCollection.push(option);
                 }
             });
+        },
+
+        onRemoveDocumentType(type) {
+            let fileTypes = this.documentConfig.config.fileTypes ?? [];
+            if (fileTypes.length === 1) {
+                return;
+            }
+
+            fileTypes = fileTypes.filter((fileType) => fileType !== type.id);
+            this.documentConfig.config.fileTypes = fileTypes;
+        },
+
+        onAddDocumentType(type) {
+            this.documentConfig.config.fileTypes.push(type.id);
         },
     },
 };

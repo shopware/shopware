@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterRecipientSalutationSubscriber::class)]
 class NewsletterRecipientSalutationSubscriberTest extends TestCase
 {
@@ -57,7 +57,7 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::never())->method('executeUpdate');
+        $this->connection->expects(static::never())->method('executeStatement');
 
         $this->salutationSubscriber->setDefaultSalutation($event);
     }
@@ -77,7 +77,7 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
 
         $this->connection->expects(static::once())
             ->method('executeStatement')
-            ->willReturnCallback(function ($sql, $params) use ($newsletterRecipientId): void {
+            ->willReturnCallback(function ($sql, $params) use ($newsletterRecipientId): int {
                 static::assertSame($params, [
                     'id' => Uuid::fromHexToBytes($newsletterRecipientId),
                     'notSpecified' => 'not_specified',
@@ -93,6 +93,8 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
                 )
                 WHERE `id` = :id AND `salutation_id` is NULL
             ', $sql);
+
+                return 1;
             });
 
         $this->salutationSubscriber->setDefaultSalutation($event);

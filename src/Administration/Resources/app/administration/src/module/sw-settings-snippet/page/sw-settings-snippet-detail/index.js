@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import template from './sw-settings-snippet-detail.html.twig';
 
@@ -100,7 +100,7 @@ export default {
 
         currentAuthor: {
             get() {
-                return this._currentAuthor || `user/${Shopware.State.get('session').currentUser.username}`;
+                return this._currentAuthor || `user/${Shopware.Store.get('session').currentUser.username}`;
             },
         },
     },

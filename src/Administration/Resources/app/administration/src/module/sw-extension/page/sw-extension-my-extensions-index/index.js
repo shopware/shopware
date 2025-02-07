@@ -1,7 +1,7 @@
 import template from './sw-extension-my-extensions-index.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
@@ -31,7 +31,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
     },
 

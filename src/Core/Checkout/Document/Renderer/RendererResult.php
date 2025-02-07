@@ -5,18 +5,18 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 final class RendererResult extends Struct
 {
     /**
      * @var array<string, RenderedDocument>
      */
-    private array $success = [];
+    protected array $success = [];
 
     /**
      * @var array<string, \Throwable>
      */
-    private array $errors = [];
+    protected array $errors = [];
 
     public function addSuccess(string $orderId, RenderedDocument $renderedDocument): void
     {

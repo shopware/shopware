@@ -21,7 +21,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class SalutationSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

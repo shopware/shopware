@@ -12,7 +12,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @deprecated tag:v6.7.0 - Will be removed. Use DataAbstractionLayerException::parentFieldForeignKeyConstraintMissing instead
  */
-#[Package('core')]
+#[Package('framework')]
 class ParentFieldForeignKeyConstraintMissingException extends ShopwareHttpException
 {
     public function __construct(EntityDefinition $definition, Field $parentField)

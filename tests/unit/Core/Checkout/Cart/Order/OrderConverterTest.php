@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -40,7 +39,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDo
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -72,7 +70,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -128,13 +126,8 @@ class OrderConverterTest extends TestCase
                     SalesChannelContextService::PAYMENT_METHOD_ID => 'order-transaction-payment-method-id',
                 ];
                 static::assertSame($expectedOptions, $options);
-                $salesChannelContext = $this->getSalesChannelContext(true);
-                $salesChannelContext->expects(static::once())->method('setItemRounding')->with($this->cashRoundingConfig);
-                $salesChannelContext->expects(static::once())->method('setTotalRounding')->with($this->cashRoundingConfig);
-                $salesChannelContext->expects(static::once())->method('setRuleIds')->with(['order-rule-id-1', 'order-rule-id-2']);
-                $salesChannelContext->expects(static::once())->method('setAreaRuleIds')->with([RuleAreas::PAYMENT_AREA => ['rule-id']]);
 
-                return $salesChannelContext;
+                return $this->getSalesChannelContext(true);
             }
         );
 
@@ -280,68 +273,6 @@ class OrderConverterTest extends TestCase
     /**
      * @param class-string<\Throwable> $exceptionClass
      */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    #[DataProvider('convertToOrderExceptionsDataWithDisabledFeatures')]
-    public function testConvertToOrderExceptionsWithDisabledFeatures(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
-    {
-        if ($exceptionClass !== '') {
-            $this->expectException($exceptionClass);
-        }
-
-        $cart = $this->getCart();
-        $cart->setDeliveries(
-            $this->getDeliveryCollection(
-                $exceptionClass === DeliveryWithoutAddressException::class
-            )
-        );
-
-        $conversionContext = new OrderConversionContext();
-        $conversionContext->setIncludeCustomer($conversionIncludeCustomer);
-
-        $salesChannelContext = $this->getSalesChannelContext(
-            $loginCustomer,
-            $exceptionClass === AddressNotFoundException::class
-        );
-
-        $result = $this->orderConverter->convertToOrder($cart, $salesChannelContext, $conversionContext);
-
-        // unset uncheckable ids
-        unset(
-            $result['id'],
-            $result['billingAddressId'],
-            $result['deepLinkCode'],
-            $result['orderDateTime'],
-            $result['stateId'],
-            $result['languageId'],
-        );
-        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
-            unset($result['lineItems'][$i]['id']);
-        }
-
-        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
-            unset(
-                $result['deliveries'][$i]['shippingOrderAddress']['id'],
-                $result['deliveries'][$i]['shippingDateEarliest'],
-                $result['deliveries'][$i]['shippingDateLatest'],
-            );
-        }
-
-        $expected = $this->getExpectedConvertToOrder();
-        unset($expected['addresses']);
-        $expected['shippingCosts']['unitPrice'] = 1;
-        $expected['shippingCosts']['totalPrice'] = 1;
-
-        $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
-        static::assertIsString($expectedJson);
-        $actual = \json_encode($result, \JSON_THROW_ON_ERROR);
-        static::assertIsString($actual);
-        // As json to avoid classes
-        static::assertJsonStringEqualsJsonString($expectedJson, $actual);
-    }
-
-    /**
-     * @param class-string<\Throwable> $exceptionClass
-     */
     #[DataProvider('convertToOrderExceptionsData')]
     public function testConvertToOrderExceptions(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
     {
@@ -398,30 +329,6 @@ class OrderConverterTest extends TestCase
         static::assertIsString($actual);
         // As json to avoid classes
         static::assertJsonStringEqualsJsonString($expectedJson, $actual);
-    }
-
-    /**
-     * @return list<array{0: class-string<ShopwareHttpException>, 1?: false, 2?: false}>
-     */
-    public static function convertToOrderExceptionsDataWithDisabledFeatures(): array
-    {
-        return [
-            [
-                AddressNotFoundException::class,
-            ],
-            [
-                DeliveryWithoutAddressException::class,
-            ],
-            [
-                CartException::class,
-                false,
-            ],
-            [
-                CartException::class,
-                false,
-                false,
-            ],
-        ];
     }
 
     /**
@@ -702,21 +609,26 @@ class OrderConverterTest extends TestCase
         $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
     }
 
-    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject&SalesChannelContext
+    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
-        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
-        if ($loginCustomer) {
-            $salesChannelContext->method('getCustomer')->willReturn($this->getCustomer($customerWithoutBillingAddress));
-        }
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('payment-method-id');
-        $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethod);
+
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            salesChannel: $salesChannel,
+            paymentMethod: $paymentMethod,
+            itemRounding: $this->cashRoundingConfig,
+            totalRounding: $this->cashRoundingConfig,
+            areaRuleIds: [RuleAreas::PAYMENT_AREA => ['rule-id']],
+            customer: $loginCustomer ? $this->getCustomer($customerWithoutBillingAddress) : null,
+            overrides: $loginCustomer ? [] : ['customer' => null]
+        );
+
+        $salesChannelContext->setRuleIds(['order-rule-id-1', 'order-rule-id-2']);
 
         return $salesChannelContext;
     }
@@ -1220,11 +1132,8 @@ class OrderConverterTest extends TestCase
                     ],
                     'shippingMethod' => [
                         'name' => null,
-                        'active' => null,
-                        'position' => null,
                         'description' => null,
                         'trackingUrl' => null,
-                        'deliveryTimeId' => null,
                         'deliveryTime' => null,
                         'translations' => null,
                         'orderDeliveries' => null,
@@ -1237,7 +1146,6 @@ class OrderConverterTest extends TestCase
                         'taxId' => null,
                         'media' => null,
                         'tags' => null,
-                        'taxType' => null,
                         'tax' => null,
                         '_uniqueIdentifier' => null,
                         'versionId' => null,
@@ -1248,7 +1156,8 @@ class OrderConverterTest extends TestCase
                         'id' => null,
                         'customFields' => null,
                         'appShippingMethod' => null,
-                        'technicalName' => null,
+                        'active' => null,
+                        'position' => null,
                     ],
                     'shippingCosts' => [
                         'unitPrice' => 1,
@@ -1315,8 +1224,8 @@ class OrderConverterTest extends TestCase
                 'regulationPrice' => null,
                 'extensions' => [],
             ],
-            'currencyId' => '',
-            'currencyFactor' => 0,
+            'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'lineItems' => [
                 [
@@ -1396,8 +1305,18 @@ class OrderConverterTest extends TestCase
             'campaignCode' => null,
             'source' => null,
             'createdById' => null,
-            'itemRounding' => [],
-            'totalRounding' => [],
+            'itemRounding' => [
+                'decimals' => 2,
+                'extensions' => [],
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
+            'totalRounding' => [
+                'decimals' => 2,
+                'extensions' => [],
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
             'orderCustomer' => [
                 'company' => null,
                 'customFields' => null,
@@ -1416,7 +1335,10 @@ class OrderConverterTest extends TestCase
             ],
             'transactions' => [],
             'orderNumber' => '10000',
-            'ruleIds' => [],
+            'ruleIds' => [
+                'order-rule-id-1',
+                'order-rule-id-2',
+            ],
             'addresses' => [
                 [
                     'city' => 'billing-address-city',

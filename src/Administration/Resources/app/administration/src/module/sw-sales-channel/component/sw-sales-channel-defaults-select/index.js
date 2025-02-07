@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import './sw-sales-channel-defaults-select.scss';
@@ -132,7 +132,7 @@ export default {
         },
 
         defaultsValueError() {
-            return Shopware.State.getters['error/getApiError'](this.salesChannel, this.defaultPropertyName);
+            return Shopware.Store.get('error').getApiError(this.salesChannel, this.defaultPropertyName);
         },
 
         labelProperty() {

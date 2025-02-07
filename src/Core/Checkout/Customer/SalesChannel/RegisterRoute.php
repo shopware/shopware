@@ -27,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
@@ -114,14 +113,12 @@ class RegisterRoute extends AbstractRegisterRoute
         $shipping = $data->get('shippingAddress');
 
         if ($billing instanceof DataBag) {
-            if (Feature::isActive('v6.7.0.0')) {
-                if ($billing->has('firstName') && !$data->has('firstName')) {
-                    $data->set('firstName', $billing->get('firstName'));
-                }
+            if ($billing->has('firstName') && !$data->has('firstName')) {
+                $data->set('firstName', $billing->get('firstName'));
+            }
 
-                if ($billing->has('lastName') && !$data->has('lastName')) {
-                    $data->set('lastName', $billing->get('lastName'));
-                }
+            if ($billing->has('lastName') && !$data->has('lastName')) {
+                $data->set('lastName', $billing->get('lastName'));
             }
 
             if ($data->has('title')) {
@@ -194,17 +191,6 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $criteria = new Criteria([$customer['id']]);
 
-        if (!Feature::isActive('v6.7.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
-            $criteria->addAssociation('addresses');
-            $criteria->addAssociation('salutation');
-            $criteria->addAssociation('defaultBillingAddress.country');
-            $criteria->addAssociation('defaultBillingAddress.countryState');
-            $criteria->addAssociation('defaultBillingAddress.salutation');
-            $criteria->addAssociation('defaultShippingAddress.country');
-            $criteria->addAssociation('defaultShippingAddress.countryState');
-            $criteria->addAssociation('defaultShippingAddress.salutation');
-        }
-
         /** @var CustomerEntity $customerEntity */
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 
@@ -237,13 +223,13 @@ class RegisterRoute extends AbstractRegisterRoute
                 'shippingAddressId' => null,
                 'domainId' => $context->getDomainId(),
             ],
-            $context->getSalesChannel()->getId(),
+            $context->getSalesChannelId(),
             $customerEntity->getId()
         );
 
         $new = $this->contextService->get(
             new SalesChannelContextServiceParameters(
-                $context->getSalesChannel()->getId(),
+                $context->getSalesChannelId(),
                 $newToken,
                 $context->getLanguageId(),
                 $context->getCurrencyId(),
@@ -428,11 +414,11 @@ class RegisterRoute extends AbstractRegisterRoute
             'customerNumber' => $this->numberRangeValueGenerator->getValue(
                 $this->customerRepository->getDefinition()->getEntityName(),
                 $context->getContext(),
-                $context->getSalesChannel()->getId()
+                $context->getSalesChannelId()
             ),
-            'salesChannelId' => $context->getSalesChannel()->getId(),
-            'languageId' => $context->getContext()->getLanguageId(),
-            'groupId' => $context->getCurrentCustomerGroup()->getId(),
+            'salesChannelId' => $context->getSalesChannelId(),
+            'languageId' => $context->getLanguageId(),
+            'groupId' => $context->getCustomerGroupId(),
             'requestedGroupId' => $data->get('requestedGroupId', null),
             'salutationId' => $data->get('salutationId'),
             'firstName' => $data->get('firstName'),
@@ -447,10 +433,6 @@ class RegisterRoute extends AbstractRegisterRoute
             'firstLogin' => new \DateTimeImmutable(),
             'addresses' => [],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $context->getPaymentMethod()->getId();
-        }
 
         if (!$isGuest) {
             $customer['password'] = $data->get('password');
@@ -488,7 +470,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $validation = $this->accountValidationFactory->create($context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
         $validation->add('requestedGroupId', new EntityExists([
             'entity' => 'customer_group',

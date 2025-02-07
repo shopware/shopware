@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -193,7 +193,7 @@ Component.register('sw-tabs-deprecated', {
         },
 
         tabExtensions() {
-            return Shopware.State.get('tabs').tabItems[this.positionIdentifier] ?? [];
+            return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },
     },
 

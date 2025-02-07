@@ -1,7 +1,7 @@
 import template from './sw-customer-detail-base.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -60,7 +60,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.State.commit('shopwareApps/setSelectedIds', this.customer.id ? [this.customer.id] : []);
+            Shopware.Store.get('shopwareApps').selectedIds = this.customer.id ? [this.customer.id] : [];
 
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((customFieldSets) => {
                 this.customerCustomFieldSets = customFieldSets;

@@ -58,7 +58,7 @@ use Symfony\Component\Mime\Part\DataPart;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SendMailActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -101,7 +101,7 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $customerId = $this->createCustomer($context->getContext());
         $orderId = $this->createOrder($customerId, $context->getContext());
@@ -395,7 +395,7 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
@@ -971,7 +971,7 @@ class SendMailActionTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class TestEmailService extends MailService
 {
     public float $calls = 0;

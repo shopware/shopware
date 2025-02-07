@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 declare namespace EntitySchema {
     interface generic_custom_entity {
         id: string;

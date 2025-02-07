@@ -1,6 +1,6 @@
 import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
-import swBulkEditState from '../../state/sw-bulk-edit.state';
+import '../../store/sw-bulk-edit.store';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -9,7 +9,7 @@ const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
 
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -18,7 +18,6 @@ export default {
     compatConfig: Shopware.compatConfig,
 
     inject: [
-        'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
     ],
@@ -47,7 +46,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         customFieldSetRepository() {
@@ -88,7 +87,7 @@ export default {
         },
 
         accountFormFields() {
-            const fields = [
+            return [
                 {
                     name: 'groupId',
                     config: {
@@ -127,20 +126,6 @@ export default {
                     },
                 },
             ];
-
-            if (this.feature.isActive('v6.7.0.0')) {
-                fields.splice(1, 0, {
-                    name: 'defaultPaymentMethodId',
-                    config: {
-                        componentName: 'sw-entity-single-select',
-                        entity: 'payment_method',
-                        changeLabel: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.label'),
-                        placeholder: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.placeholder'),
-                    },
-                });
-            }
-
-            return fields;
         },
 
         tagsFormFields() {
@@ -162,23 +147,15 @@ export default {
         },
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    },
-
     created() {
         this.createdComponent();
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swBulkEdit');
     },
 
     methods: {
         createdComponent() {
             this.setRouteMetaModule();
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+                Shopware.Store.get('context').resetLanguageToDefault();
             }
 
             this.isLoading = true;
@@ -351,7 +328,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
         },
     },
 };

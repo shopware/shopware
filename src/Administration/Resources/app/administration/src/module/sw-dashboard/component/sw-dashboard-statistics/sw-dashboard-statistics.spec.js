@@ -67,7 +67,7 @@ async function createWrapper(privileges = [], repository = {}) {
 }
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     let wrapper;
@@ -75,20 +75,7 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     beforeAll(() => {
         Shopware.Context.app.systemCurrencyISOCode = 'EUR';
 
-        if (Shopware.State.get('session')) {
-            Shopware.State.unregisterModule('session');
-        }
-
-        Shopware.State.registerModule('session', {
-            state: {
-                currentUser: null,
-            },
-            mutations: {
-                setCurrentUser(state, user) {
-                    state.currentUser = user;
-                },
-            },
-        });
+        Shopware.Store.get('session').setCurrentUser({ id: '1234' });
 
         Shopware.Application.addInitializer('httpClient', () => {
             return {

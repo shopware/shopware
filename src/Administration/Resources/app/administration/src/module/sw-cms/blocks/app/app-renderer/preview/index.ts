@@ -4,7 +4,7 @@ import './sw-cms-block-app-preview-renderer.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

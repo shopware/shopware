@@ -11,7 +11,7 @@ use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\SavedConfig;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestFinishedSubscriber implements FinishedSubscriber
 {
     public function __construct(private readonly SavedConfig $savedConfig)

@@ -31,7 +31,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class InternalClassRule implements Rule
 {
     private const INTERNAL_NAMESPACES = [
@@ -159,6 +159,11 @@ class InternalClassRule implements Rule
         $namespace = $node->getClassReflection()->getName();
 
         if (\str_contains($namespace, 'Shopware\\Core\\Test\\Stub\\')) {
+            return false;
+        }
+
+        if (\str_contains($namespace, '\\Test\\Integration\\Builder\\')) {
+            // Test builder classes are not internal by design
             return false;
         }
 

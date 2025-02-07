@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class BillingCountryRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

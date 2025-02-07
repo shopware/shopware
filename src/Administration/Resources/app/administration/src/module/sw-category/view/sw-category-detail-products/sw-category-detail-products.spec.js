@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -75,16 +75,8 @@ async function createWrapper() {
 
 describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     beforeEach(async () => {
-        if (Shopware.State.get('swCategoryDetail')) {
-            Shopware.State.unregisterModule('swCategoryDetail');
-        }
-
-        Shopware.State.registerModule('swCategoryDetail', {
-            namespaced: true,
-            state: {
-                category: categoryMock,
-            },
-        });
+        Shopware.Store.get('swCategoryDetail').$reset();
+        Shopware.Store.get('swCategoryDetail').category = categoryMock;
     });
 
     it('should render stream select when changing the assignment type to stream', async () => {

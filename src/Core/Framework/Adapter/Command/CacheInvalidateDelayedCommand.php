@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'cache:clear:delayed', description: 'Invalidates the delayed cache keys/tags')]
-#[Package('core')]
+#[Package('framework')]
 class CacheInvalidateDelayedCommand extends Command
 {
     /**

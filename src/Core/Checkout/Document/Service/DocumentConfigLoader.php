@@ -11,10 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
     /**
@@ -24,9 +26,13 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CountryCollection> $countryRepository
      */
-    public function __construct(private readonly EntityRepository $documentConfigRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $documentConfigRepository,
+        private readonly EntityRepository $countryRepository
+    ) {
     }
 
     /**
@@ -59,6 +65,12 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $salesChannelConfig = $documentConfigs->filter(fn (DocumentBaseConfigEntity $config) => $config->getSalesChannels()->count() > 0)->first();
 
         $config = DocumentConfigurationFactory::createConfiguration([], $globalConfig, $salesChannelConfig);
+
+        if (Uuid::isValid($config->getCompanyCountryId())) {
+            $country = $this->countryRepository->search(new Criteria([$config->getCompanyCountryId()]), $context)->first();
+
+            $config->setCompanyCountry($country);
+        }
 
         $this->configs[$documentType] ??= [];
 

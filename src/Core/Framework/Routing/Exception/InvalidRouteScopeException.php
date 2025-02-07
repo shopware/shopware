@@ -6,14 +6,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class InvalidRouteScopeException extends ShopwareHttpException
 {
-    public function __construct(string $routeName)
+    public function __construct(?string $routeName)
     {
         parent::__construct(
             'Invalid route scope for route {{ routeName }}.',
-            ['routeName' => $routeName]
+            ['routeName' => $routeName ?? '']
         );
     }
 

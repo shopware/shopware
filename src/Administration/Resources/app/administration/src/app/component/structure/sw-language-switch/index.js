@@ -6,7 +6,7 @@ const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -137,7 +137,7 @@ Component.register('sw-language-switch', {
             this.lastLanguageId = this.languageId;
 
             if (this.changeGlobalLanguage) {
-                Shopware.State.commit('context/setApiLanguageId', this.languageId);
+                Shopware.Store.get('context').api.languageId = this.languageId;
                 if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                     this.$root.$emit('on-change-application-language', {
                         languageId: this.languageId,

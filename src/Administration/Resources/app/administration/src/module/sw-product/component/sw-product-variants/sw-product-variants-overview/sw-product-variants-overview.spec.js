@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
@@ -116,6 +116,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-media-preview-v2': true,
                 'sw-context-menu-divider': true,
                 'sw-media-modal-v2': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
         },
     });
@@ -131,12 +132,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         };
         product.getEntityName = () => 'T-Shirt';
 
-        if (Shopware.State.get('swProductDetail')) {
-            Shopware.State.unregisterModule('swProductDetail');
-        }
-
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
+        Shopware.Store.register({
+            id: 'swProductDetail',
             state() {
                 return {
                     product: product,
@@ -179,7 +176,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             getters: {
                 isLoading: () => false,
             },
-            mutations: {
+            actions: {
                 setVariants(state, variants) {
                     state.variants = variants;
                 },

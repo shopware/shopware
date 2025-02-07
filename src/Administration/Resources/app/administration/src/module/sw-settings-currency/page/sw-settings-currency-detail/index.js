@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@framework
  */
 import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
@@ -207,7 +207,7 @@ export default {
                 ]);
             }
 
-            Shopware.State.commit('context/resetLanguageToDefault');
+            Shopware.Store.get('context').resetLanguageToDefault();
             this.isLoading = true;
             this.currency = this.currencyRepository.create();
             // defaults for rounding

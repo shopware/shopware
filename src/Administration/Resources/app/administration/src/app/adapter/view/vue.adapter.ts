@@ -1,11 +1,10 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
 import type { Router } from 'vue-router';
-import type { Store as VuexStore } from 'vuex';
 import { createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
@@ -17,6 +16,9 @@ import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { compatUtils } from '@vue/compat';
 
 import * as MeteorImport from '@shopware-ag/meteor-component-library';
+import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
+import useSystem from '../../composables/use-system';
+import useSession from '../../composables/use-session';
 
 const { Component, State, Mixin } = Shopware;
 
@@ -60,8 +62,8 @@ export default class VueAdapter extends ViewAdapter {
         this.initDirectives();
 
         const vuexRoot = State._store;
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        const i18n = this.initLocales(vuexRoot) as I18n<{}, {}, {}, string, true>;
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        const i18n = this.initLocales() as I18n<{}, {}, {}, string, true>;
 
         // add router to View
         this.router = router;
@@ -96,6 +98,11 @@ export default class VueAdapter extends ViewAdapter {
                 throw new Error(msg);
             }
         };
+        // This is a hack for providing the data scope to the components.
+        Object.defineProperty(this.app.config.globalProperties, '$dataScope', {
+            get: getBlockDataScope,
+            enumerable: true,
+        });
 
         /**
          * This is a hack for providing the services to the components.
@@ -459,7 +466,7 @@ export default class VueAdapter extends ViewAdapter {
      * Returns the Vue.set function
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setReactive(target: any, propertyName: string, value: unknown) {
+    setReactive(this: void, target: any, propertyName: string, value: unknown) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         target[propertyName] = value;
 
@@ -517,19 +524,20 @@ export default class VueAdapter extends ViewAdapter {
     /**
      * Initialises the standard locales.
      */
-    initLocales(store: VuexStore<VuexRootState>) {
+    initLocales() {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;
+        const { registerAdminLocale } = useSystem();
 
         registry.forEach((localeMessages, key) => {
-            store.commit('registerAdminLocale', key);
+            registerAdminLocale(key);
             // @ts-expect-error - key is safe because we iterate through the registry
             messages[key] = localeMessages;
         });
 
         const lastKnownLocale = this.localeFactory.getLastKnownLocale();
-        void store.dispatch('setAdminLocale', lastKnownLocale);
+        void useSession().setAdminLocale(lastKnownLocale);
 
         const options = {
             locale: lastKnownLocale,
@@ -542,18 +550,19 @@ export default class VueAdapter extends ViewAdapter {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const i18n = createI18n(options);
 
-        store.subscribe(({ type }, state) => {
-            if (type === 'setAdminLocale') {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                i18n.global.locale = state.session.currentLocale!;
-            }
-        });
+        Shopware.Vue.watch(
+            useSession().currentLocale,
+            (currentLocale: string | null) => {
+                i18n.global.locale = currentLocale ?? '';
+            },
+            { immediate: true },
+        );
 
-        this.setLocaleFromUser(store);
+        this.setLocaleFromUser();
 
         // watch for changes of the user to update the locale
-        Shopware.State.watch(
-            (state) => state.session.currentUser,
+        Shopware.Vue.watch(
+            useSession().currentUser,
             (newValue, oldValue) => {
                 const currentUserLocaleId = newValue?.localeId;
                 const oldUserLocaleId = oldValue?.localeId;
@@ -569,8 +578,8 @@ export default class VueAdapter extends ViewAdapter {
         return i18n;
     }
 
-    setLocaleFromUser(store: VuexStore<VuexRootState>) {
-        const currentUser = store.state.session.currentUser;
+    setLocaleFromUser() {
+        const currentUser = useSession().currentUser.value;
 
         if (currentUser) {
             const userLocaleId = currentUser.localeId;

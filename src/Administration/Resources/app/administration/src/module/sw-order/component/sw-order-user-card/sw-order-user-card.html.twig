@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_base_order_overview %}
 <sw-card
     class="sw-order-user-card"
@@ -7,7 +6,6 @@
     :is-loading="isLoading"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_address_modal %}
     <sw-order-address-modal
         v-if="addressBeingEdited"
@@ -25,11 +23,9 @@
     <template #grid>
         <sw-container rows="auto auto">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_user_card_row_primary %}
             <sw-card-section divider="bottom">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_user_card_metadata_container %}
                 <sw-container
                     columns="80px 1fr max-content"
@@ -38,7 +34,6 @@
                     class="sw-order-user-card__container"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_user_card_avatar %}
                     <sw-avatar
                         size="80px"
@@ -48,10 +43,8 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_user_card_metadata %}
                     <div class="sw-order-user-card__metadata">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_user_card_metadata_user_name %}
                         <div
                             v-if="currentOrder.orderCustomer"
@@ -60,7 +53,6 @@
                             {{ fullName }}
                         </div>
                         {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_user_card_metadata_tags %}
 
                         <sw-entity-tag-select
@@ -77,10 +69,8 @@
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_detail_base_info_summary %}
                     <div class="sw-order-user-card__info-summary">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block  sw_order_detail_base_info_summary_entries %}
                         <div class="sw-order-user-card__metadata-price">
                             {{ currencyFilter(currentOrder.amountTotal, currentOrder.currency.isoCode) }}
@@ -97,18 +87,15 @@
                 {% endblock %}
 
                 <slot name="additional-actions">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_user_card_slot_additional_actions %}{% endblock %}
                 </slot>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_base_order_overview_columns %}
                 <sw-container
                     columns="repeat(auto-fit, minmax(250px, 1fr))"
                     gap="30px 30px"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_detail_base_order_overview_left_column %}
                     <sw-description-list
                         columns="1fr"
@@ -116,7 +103,6 @@
                         class="sw-order-user-card__summary-vertical"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_order_overview_email %}
                         <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}*</dt>
                         <dd>
@@ -130,7 +116,6 @@
                         </dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_order_overview_billing_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
@@ -156,14 +141,12 @@
                         </dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_order_overview_left_column_slot %}
                         {% endblock %}
 
                     </sw-description-list>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_detail_base_order_overview_right_column %}
                     <sw-description-list
                         columns="1fr"
@@ -171,7 +154,6 @@
                         class="sw-order-user-card__summary-vertical"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_order_overview_phone_number %}
                         <dt>
                             {{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}
@@ -195,7 +177,6 @@
                         </dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_order_overview_shipping_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
@@ -242,7 +223,6 @@
                         </dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_order_overview_right_column_slot %}
                         {% endblock %}
 
@@ -255,21 +235,18 @@
             </sw-card-section>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_user_card_row_secondary %}
             <sw-card-section
                 secondary
                 slim
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_base_secondary_info_order_overview %}
                 <sw-container
                     columns="repeat(auto-fit, minmax(250px, 1fr))"
                     gap="30px 30px"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_detail_base_secondary_info_order_overview_contents %}
                     <sw-description-list
                         columns="1fr"
@@ -277,10 +254,8 @@
                         class="sw-order-user-card__summary-vertical"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_order_overview_left_column %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_sales_channel %}
                         <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>
                         <dd class="sw-order-base__label-sales-channel">
@@ -288,7 +263,6 @@
                         </dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_payment %}
                         <template v-if="currentOrder.transactions.length > 0">
                             <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
@@ -298,19 +272,16 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_delivery %}
                         <dt>{{ $tc('sw-order.detailBase.labelShippingMethod') }}</dt>
                         <dd>{{ hasDeliveries ? delivery.shippingMethod.translated.name :$tc('sw-order.detailBase.labelNoDeliveriesYet') }}</dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_affiliate %}
                         <dt>{{ $tc('sw-order.detailBase.labelAffiliateCode') }}</dt>
                         <dd>{{ currentOrder.affiliateCode || '-' }}</dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_order_overview_left_column_slot %}
                         {% endblock %}
 
@@ -324,31 +295,25 @@
                     >
                         {%  block sw_order_detail_base_secondary_info_order_overview_right_column %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_order_language %}
                         <dt>{{ $tc('sw-order.detailBase.labelLanguage') }}</dt>
                         <dd>{{ currentOrder.language.name }}</dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_last_change %}
                         <dt>{{ $tc('sw-order.detailBase.labelLastChange') }}</dt>
                         <dd>{{ lastChangedDate }}</dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_tracking_codes %}
                         <template v-if="isEditing && delivery">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_detail_base_secondary_info_tracking_codes_input %}
                             <dt>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_input_label %}
                                 {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
                                 {% endblock %}
                             </dt>
                             <dd>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_input_content %}
                                 <sw-multi-tag-select
                                     v-model:value="delivery.trackingCodes"
@@ -368,16 +333,13 @@
                             {% endblock %}
                         </template>
                         <template v-else-if="delivery">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_detail_base_secondary_info_tracking_codes_display %}
                             <dt>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_display_label %}
                                 {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
                                 {% endblock %}
                             </dt>
                             <dd>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_display_content %}
                                 <sw-button
                                     v-for="trackingCode in delivery.trackingCodes"
@@ -392,16 +354,13 @@
                             {% endblock %}
                         </template>
                         <template v-else>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_detail_base_secondary_info_tracking_codes_empty %}
                             <dt>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_empty_label %}
                                 {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
                                 {% endblock %}
                             </dt>
                             <dd>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_empty_content %}
                                 <span>-</span>
                                 {% endblock %}
@@ -410,7 +369,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_campaign %}
                         <template v-if="currentOrder.campaignCode">
                             <dt>{{ $tc('sw-order.detailBase.labelCampaignCode') }}</dt>
@@ -418,7 +376,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_secondary_info_order_overview_right_column_slot %}
                         {% endblock %}
 

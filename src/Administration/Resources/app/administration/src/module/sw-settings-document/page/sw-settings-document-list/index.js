@@ -7,7 +7,7 @@ const {
 } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -65,7 +65,7 @@ export default {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
 
             this.getList();
         },

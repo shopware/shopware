@@ -40,7 +40,7 @@ class ChangelogParserTest extends TestCase
                     'major' => null,
                 ],
                 __DIR__ . '/_fixture/stage/minimal-template-expectation.txt',
-                3,
+                2,
             ],
             [
                 __DIR__ . '/_fixture/stage/full-template.txt',

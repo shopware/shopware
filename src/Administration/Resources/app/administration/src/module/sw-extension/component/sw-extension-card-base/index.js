@@ -4,7 +4,7 @@ import './sw-extension-card-base.scss';
 const { Utils, Filter } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
@@ -149,7 +149,7 @@ export default {
         },
 
         extensionMainModule() {
-            return Shopware.State.get('extensionMainModules').mainModules.find(
+            return Shopware.Store.get('extensionMainModules').mainModules.find(
                 (mainModule) => mainModule.extensionName === this.extension.name,
             );
         },
@@ -192,7 +192,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
 
         showContextMenu() {
@@ -323,10 +323,10 @@ export default {
             }
         },
 
-        async closeModalAndRemoveExtension() {
+        async closeModalAndRemoveExtension(removeData) {
             // we close the modal in the called methods before updating the listing
             if (this.extension.storeLicense === null || this.extension.storeLicense.variant !== 'rent') {
-                await this.removeExtension();
+                await this.removeExtension(removeData);
                 this.showRemovalModal = false;
 
                 return;
@@ -387,12 +387,12 @@ export default {
             Utils.debug.warn(this._name, 'No implementation of installAndActivateExtension found');
         },
 
-        async removeExtension() {
+        async removeExtension(removeData) {
             try {
                 this.showRemovalModal = false;
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type);
+                await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type, removeData);
                 this.extension.active = false;
             } catch (e) {
                 this.showStoreError(e);

@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 import './teaser-popover.store';
 
 describe('teaser-popover.store', () => {

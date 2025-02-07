@@ -2,7 +2,7 @@ import template from './sw-order-user-card.html.twig';
 import './sw-order-user-card.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -20,7 +20,6 @@ export default {
         'customSnippetApiService',
         'orderService',
         'repositoryFactory',
-        'feature',
     ],
 
     emits: [

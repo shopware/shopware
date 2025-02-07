@@ -38,7 +38,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('framework')]
 class ProductController extends StorefrontController
 {
     /**
@@ -198,7 +198,7 @@ class ProductController extends StorefrontController
      */
     private function checkReviewsActive(SalesChannelContext $context): void
     {
-        $showReview = $this->systemConfigService->get('core.listing.showReview', $context->getSalesChannel()->getId());
+        $showReview = $this->systemConfigService->get('core.listing.showReview', $context->getSalesChannelId());
 
         if (!$showReview) {
             throw StorefrontException::reviewNotActive();

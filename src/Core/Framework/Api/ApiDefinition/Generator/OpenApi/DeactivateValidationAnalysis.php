@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 use OpenApi\Analysis;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class DeactivateValidationAnalysis extends Analysis
 {
     public function validate(): bool

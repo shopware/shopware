@@ -2,7 +2,7 @@ import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -123,7 +123,7 @@ export default {
                 .then((customer) => {
                     this.availableAddresses = customer[0].addresses;
 
-                    return Shopware.State.dispatch('error/resetApiErrors');
+                    return Shopware.Store.get('error').resetApiErrors();
                 })
                 .finally(() => {
                     this.isLoading = false;

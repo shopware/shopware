@@ -8,9 +8,9 @@ use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SpatialObjectTypeDetector implements TypeDetectorInterface
 {
     protected const SUPPORTED_FILE_EXTENSIONS = [

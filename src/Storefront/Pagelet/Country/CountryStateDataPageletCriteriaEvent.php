@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
+#[Package('discovery')]
 class CountryStateDataPageletCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(

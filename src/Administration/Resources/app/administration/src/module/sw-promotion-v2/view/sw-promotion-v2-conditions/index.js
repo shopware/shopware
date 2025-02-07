@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-conditions.html.twig';
 
@@ -15,7 +15,6 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
         'ruleConditionDataProviderService',
     ],
 

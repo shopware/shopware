@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class StorefrontMediaUploader
 {
     /**

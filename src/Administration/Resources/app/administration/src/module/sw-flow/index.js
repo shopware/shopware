@@ -1,10 +1,8 @@
 import './service';
 import './acl';
+import './store/flow.store';
 
-import flowState from './state/flow.state';
-
-const { Module, State } = Shopware;
-State.registerModule('swFlowState', flowState);
+const { Module, Feature } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-flow-index', () => import('./page/sw-flow-index'));
@@ -65,7 +63,7 @@ Shopware.Component.register('sw-flow-leave-page-modal', () => import('./componen
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 Module.register('sw-flow', {
     type: 'core',
@@ -177,7 +175,14 @@ Module.register('sw-flow', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'automation';
+        },
         to: 'sw.flow.index',
         icon: 'regular-flow',
         privilege: 'flow.viewer',

@@ -12,13 +12,13 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\SalesChannelRule;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelRule::class)]
 class SalesChannelRuleTest extends TestCase
 {
@@ -101,12 +101,12 @@ class SalesChannelRuleTest extends TestCase
 
     private function createRuleScope(string $salesChannelId): RuleScope
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
 
-        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            salesChannel: $salesChannel
+        );
 
         return new CheckoutRuleScope(
             $salesChannelContext

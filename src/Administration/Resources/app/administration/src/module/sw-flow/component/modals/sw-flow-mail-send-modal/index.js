@@ -6,13 +6,14 @@ const {
     Component,
     Utils,
     Classes: { ShopwareError },
+    Store,
 } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
@@ -219,11 +220,14 @@ export default {
             return !(this.replyTo === null || this.replyTo === 'contactFormMail');
         },
 
-        ...mapState('swFlowState', [
-            'mailTemplates',
-            'triggerEvent',
-            'triggerActions',
-        ]),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'mailTemplates',
+                'triggerEvent',
+                'triggerActions',
+            ],
+        ),
     },
 
     created() {
@@ -362,10 +366,10 @@ export default {
 
             const currentMailTemplate = this.mailTemplates.find((item) => item.id === id);
             if (!currentMailTemplate && mailTemplate) {
-                Shopware.State.commit('swFlowState/setMailTemplates', [
+                Shopware.Store.get('swFlow').mailTemplates = [
                     ...this.mailTemplates,
                     mailTemplate,
-                ]);
+                ];
             }
         },
 

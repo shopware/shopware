@@ -3,7 +3,7 @@ import template from './sw-email-field-deprecated.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  * @deprecated tag:v6.7.0  - Will be removed use mt-email-field instead.
  *
  * @private

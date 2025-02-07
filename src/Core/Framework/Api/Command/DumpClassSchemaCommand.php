@@ -24,7 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'framework:dump:class:schema',
     description: 'Dumps the schema of the given entity',
 )]
-#[Package('core')]
+#[Package('framework')]
 class DumpClassSchemaCommand extends Command
 {
     /**

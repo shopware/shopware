@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_details %}
 <div class="sw-order-detail-details">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_details_payment %}
     <sw-order-details-state-card
         v-if="transaction"
@@ -15,7 +13,6 @@
         @save-edits="onSaveEdits"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_payment_billing_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__billing-address"
@@ -28,7 +25,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_payment_method_select %}
         <sw-entity-single-select
             v-model:value="transaction.paymentMethodId"
@@ -45,7 +41,6 @@
     </sw-order-details-state-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_details_shipping %}
     <sw-order-details-state-card
         v-if="delivery"
@@ -58,7 +53,6 @@
         @save-edits="onSaveEdits"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__shipping-address"
@@ -71,7 +65,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_method_select %}
         <sw-entity-single-select
             v-model:value="delivery.shippingMethodId"
@@ -84,7 +77,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_costs %}
         <sw-number-field
             v-model:value="shippingCosts"
@@ -99,7 +91,6 @@
         </sw-number-field>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_date %}
         <sw-datepicker
             v-model:value="delivery.shippingDateEarliest"
@@ -109,7 +100,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_tracking_codes %}
         <sw-multi-tag-select
             v-model:value="delivery.trackingCodes"
@@ -132,7 +122,6 @@
     </sw-order-details-state-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_details_order %}
     <sw-order-details-state-card
         :title="$tc('sw-order.detailsTab.labelOrderCard')"
@@ -144,7 +133,6 @@
         @save-edits="onSaveEdits"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_email %}
         <sw-text-field
             v-model:value="order.orderCustomer.email"
@@ -157,7 +145,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_phone_number %}
         <sw-text-field
             v-model:value="order.addresses.get(order.billingAddressId).phoneNumber"
@@ -168,7 +155,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_sales_channel %}
         <sw-entity-single-select
             v-model:value="order.salesChannelId"
@@ -180,7 +166,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_language %}
         <sw-entity-single-select
             v-model:value="order.languageId"
@@ -193,7 +178,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_affiliate %}
         <sw-text-field
             v-model:value="order.affiliateCode"
@@ -203,7 +187,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_campaign %}
         <sw-text-field
             v-model:value="order.campaignCode"
@@ -213,7 +196,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_customer_comment %}
         <sw-textarea-field
             v-model:value="order.customerComment"
@@ -223,7 +205,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_promotion %}
         <sw-order-promotion-field
             class="sw-order-detail-details__promotion"
@@ -236,7 +217,6 @@
     </sw-order-details-state-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_details_custom_fields %}
     <sw-extension-component-section
         position-identifier="sw-order-detail-base-custom-fields__before"
@@ -258,7 +238,6 @@
         position-identifier="sw-order-detail-base-custom-fields__after"
     />
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_state_history_modal %}
     <sw-order-state-history-modal
         v-if="showStateHistoryModal"

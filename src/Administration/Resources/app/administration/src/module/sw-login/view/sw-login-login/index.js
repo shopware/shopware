@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
@@ -49,7 +49,7 @@ Component.register('sw-login-login', {
 
     created() {
         if (!localStorage.getItem('sw-admin-locale')) {
-            Shopware.State.dispatch('setAdminLocale', navigator.language);
+            Shopware.Store.get('session').setAdminLocale(navigator.language);
         }
     },
 

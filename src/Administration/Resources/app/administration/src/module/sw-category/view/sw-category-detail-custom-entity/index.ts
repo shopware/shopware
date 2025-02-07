@@ -1,6 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from 'src/core/data/entity-collection.data';
-
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-category-detail-custom-entity.html.twig';
 import './sw-category-detail-custom-entity.scss';
@@ -10,7 +7,7 @@ const EXTENSION_POSTFIX = 'SwCategories';
 
 /**
  * @private
- * @package inventory
+ * @sw-package inventory
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -59,7 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         category(): Entity<'category'> | null {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            return Shopware.State.get('swCategoryDetail').category as Entity<'category'> | null;
+            return Shopware.Store.get('swCategoryDetail').category as Entity<'category'> | null;
         },
 
         customEntityCriteria(): Criteria {

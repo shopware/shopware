@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -16,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'database:create-migration',
     description: 'Creates a new migration file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class CreateMigrationCommand extends Command
 {
     /**
@@ -54,11 +55,11 @@ class CreateMigrationCommand extends Command
         $package = $input->getOption('package') ?? 'core';
 
         if (!preg_match('/^[a-zA-Z0-9\_]*$/', (string) $name)) {
-            throw new \InvalidArgumentException('Migration name contains forbidden characters!');
+            throw MigrationException::invalidArgument('Migration name contains forbidden characters!');
         }
 
         if ($directory && !$namespace) {
-            throw new \InvalidArgumentException('Please specify both dir and namespace or none.');
+            throw MigrationException::invalidArgument('Please specify both dir and namespace or none.');
         }
 
         $timestamp = (new \DateTime())->getTimestamp();
@@ -83,7 +84,7 @@ class CreateMigrationCommand extends Command
         }
 
         // We create a core-migration in case no directory or plugin was given
-        [$_, $major] = explode('.', $this->shopwareVersion);
+        [, $major] = explode('.', $this->shopwareVersion);
         $directory = $this->coreDir . '/Migration/V6_' . $major;
         $namespace = 'Shopware\\Core\\Migration\\V6_' . $major;
         $params = [
@@ -107,31 +108,25 @@ class CreateMigrationCommand extends Command
 
     private function createPluginMigration(OutputInterface $output, string $pluginName, int $timestamp, string $name): void
     {
-        $pluginBundles = array_filter($this->kernelPluginCollection->all(), static fn (Plugin $value) => mb_strpos($value->getName(), (string) $pluginName) === 0);
+        $pluginBundles = array_filter($this->kernelPluginCollection->all(), static fn (Plugin $value) => mb_strpos($value->getName(), $pluginName) === 0);
 
         if (\count($pluginBundles) === 0) {
-            throw new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
+            throw MigrationException::pluginNotFound($pluginName);
         }
 
         if (\count($pluginBundles) > 1) {
             $pluginBundles = array_filter($pluginBundles, static fn (Plugin $value) => $pluginName === $value->getName());
 
             if (\count($pluginBundles) > 1) {
-                throw new \RuntimeException(
-                    \sprintf(
-                        'More than one plugin name starting with "%s" was found: %s',
-                        $pluginName,
-                        implode(';', array_keys($pluginBundles))
-                    )
-                );
+                throw MigrationException::moreThanOnePluginFound($pluginName, array_keys($pluginBundles));
             }
         }
 
         $pluginBundle = array_values($pluginBundles)[0];
 
         $directory = $pluginBundle->getMigrationPath();
-        if (!file_exists($directory) && !mkdir($directory) && !is_dir($directory)) {
-            throw new \RuntimeException(\sprintf('Migration directory "%s" could not be created', $directory));
+        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
+            throw MigrationException::migrationDirectoryNotCreated($directory);
         }
 
         $namespace = $pluginBundle->getMigrationNamespace();

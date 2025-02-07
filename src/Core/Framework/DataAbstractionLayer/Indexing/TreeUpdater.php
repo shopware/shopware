@@ -13,12 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('framework')]
 class TreeUpdater
 {
     /**
@@ -408,7 +409,7 @@ class TreeUpdater
         RetryableQuery::retryable(
             connection: $this->connection,
             closure: function () use ($statement, $update): void {
-                $statement->executeStatement($update);
+                StatementHelper::executeStatement($statement, $update);
             }
         );
 

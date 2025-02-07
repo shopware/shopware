@@ -21,7 +21,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -376,6 +376,7 @@ class SystemConfigServiceTest extends TestCase
         $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, function (SystemConfigChangedHook $event) use (&$called): void {
             static::assertEquals([
                 'changes' => ['foo.bar'],
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
             ], $event->getWebhookPayload());
 
             $called = true;

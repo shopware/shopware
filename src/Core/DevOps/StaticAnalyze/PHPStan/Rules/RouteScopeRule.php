@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RouteScopeRule implements Rule
 {
     public function getNodeType(): string

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import AppActionButtonService from 'src/core/service/api/app-action-button.service';

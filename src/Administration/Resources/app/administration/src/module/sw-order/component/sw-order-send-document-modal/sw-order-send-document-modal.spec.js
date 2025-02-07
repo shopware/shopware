@@ -3,7 +3,7 @@ import uuid from 'src/../test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const mockOrderWithMailHeaderFooter = {
@@ -40,6 +40,9 @@ const mockDocuments = [
         documentNumber: 1000,
         createdAt: '2024-01-23T14:00:00.000+00:00',
         id: uuid.get('storno'),
+        deepLinkCode: '12345',
+        documentMediaFile: { id: '1235', fileExtension: 'pdf' },
+        documentA11yMediaFile: { id: '123456', fileExtension: 'html' },
     },
     {
         config: {
@@ -52,6 +55,7 @@ const mockDocuments = [
         documentNumber: 1001,
         createdAt: '2024-01-23T14:00:00.000+00:00',
         id: uuid.get('credit_note'),
+        documentMediaFile: { id: '1235', fileExtension: 'pdf' },
     },
     {
         config: {
@@ -64,6 +68,7 @@ const mockDocuments = [
         documentNumber: 1002,
         createdAt: '2024-01-23T14:00:00.000+00:00',
         id: uuid.get('invoice'),
+        documentMediaFile: { id: '1235', fileExtension: 'pdf' },
     },
 ];
 
@@ -362,7 +367,18 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             {
                 order: mockOrderWithMailHeaderFooter,
                 salesChannel: mockOrderWithMailHeaderFooter.salesChannel,
+                document: mockDocuments[0],
+                a11yDocuments: [
+                    {
+                        documentId: mockDocuments[0].id,
+                        deepLinkCode: mockDocuments[0].deepLinkCode,
+                        fileExtension: 'html',
+                    },
+                ],
             },
+            null,
+            null,
+            Shopware.Context.api,
         );
         expect(wrapper.emitted('document-sent')).toHaveLength(1);
     });
@@ -384,5 +400,18 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.emitted('modal-close')).toHaveLength(1);
+    });
+
+    it('should load the link with a11y documents', async () => {
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.vm.a11yDocuments).toHaveLength(1);
+        expect(wrapper.vm.a11yDocuments[0]).toEqual({
+            documentId: mockDocuments[0].id,
+            deepLinkCode: '12345',
+            fileExtension: 'html',
+        });
     });
 });

@@ -6,7 +6,7 @@ use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class TransactionFailedException extends FlowException
 {
     final public const TRANSACTION_FAILED = 'TRANSACTION_FAILED';

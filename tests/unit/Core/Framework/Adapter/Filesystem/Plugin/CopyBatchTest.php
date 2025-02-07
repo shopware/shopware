@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Plugin;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
@@ -55,10 +56,10 @@ class CopyBatchTest extends TestCase
         unlink($tmpFile);
     }
 
-    public function testConstructor(): void
+    public function testConstructorThrowsAnExceptionWithNoResource(): void
     {
-        static::expectException(\InvalidArgumentException::class);
-        // @phpstan-ignore-next-line
+        static::expectException(AdapterException::class);
+        // @phpstan-ignore-next-line - sourceFile is supposed to be a resource or a string only from doctag param
         new CopyBatchInput(null, []);
     }
 }

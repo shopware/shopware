@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-individual-codes-behavior.html.twig';
 import './sw-promotion-v2-individual-codes-behavior.scss';
@@ -16,7 +16,6 @@ export default {
         'acl',
         'repositoryFactory',
         'promotionCodeApiService',
-        'feature',
     ],
 
     emits: [

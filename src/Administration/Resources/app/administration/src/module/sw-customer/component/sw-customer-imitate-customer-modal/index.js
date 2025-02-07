@@ -1,3 +1,7 @@
+/**
+ * @sw-package checkout
+ */
+
 import ApiService from 'src/core/service/api.service';
 import template from './sw-customer-imitate-customer-modal.html.twig';
 import './sw-customer-imitate-customer-modal.scss';
@@ -55,7 +59,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         salesChannelDomainCriteria() {

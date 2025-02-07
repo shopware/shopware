@@ -2,6 +2,8 @@
 
 /**
  * This module creates a live reload server for the Shopware storefront.
+ *
+ * @sw-package framework
  */
 module.exports = function createLiveReloadServer(sslOptions) {
     return new Promise((resolve, reject) => {

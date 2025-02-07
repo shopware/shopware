@@ -1,3 +1,4 @@
+{% block sw_error_summary %}
 <sw-alert
     v-if="errorCount > 0"
     class="sw-error-summary"
@@ -12,3 +13,4 @@
         <span class="sw-error-summary__quantity">{{ entry.count }}x</span> "{{ entry.message }}"
     </li>
 </sw-alert>
+{% endblock %}

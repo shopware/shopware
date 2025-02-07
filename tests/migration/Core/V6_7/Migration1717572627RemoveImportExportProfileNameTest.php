@@ -12,7 +12,7 @@ use Shopware\Core\Migration\V6_7\Migration1717572627RemoveImportExportProfileNam
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(Migration1717572627RemoveImportExportProfileName::class)]
 class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
 {

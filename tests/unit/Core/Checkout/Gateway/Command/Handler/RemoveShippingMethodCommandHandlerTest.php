@@ -51,7 +51,7 @@ class RemoveShippingMethodCommandHandlerTest extends TestCase
         $command = new RemoveShippingMethodCommand('test-1');
 
         $handler = new RemoveShippingMethodCommandHandler();
-        $handler->handle($command, $response, Generator::createSalesChannelContext());
+        $handler->handle($command, $response, Generator::generateSalesChannelContext());
 
         static::assertCount(1, $response->getAvailableShippingMethods());
         static::assertNotNull($response->getAvailableShippingMethods()->first());

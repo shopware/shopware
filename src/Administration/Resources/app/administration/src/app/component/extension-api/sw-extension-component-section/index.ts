@@ -1,8 +1,8 @@
-import type { ComponentSectionEntry } from 'src/app/state/extension-component-sections.store';
+import type { ComponentSectionEntry } from 'src/app/store/extension-component-sections.store';
 import template from './sw-extension-component-section.html.twig';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description A card is a flexible and extensible content container.
@@ -53,7 +53,7 @@ Shopware.Component.register('sw-extension-component-section', {
 
     computed: {
         componentSections(): ComponentSectionEntry[] {
-            const sections = Shopware.State.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [];
+            const sections = Shopware.Store.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [];
             if (sections.length && this.deprecated) {
                 sections.forEach((section) => {
                     const debugArgs = [

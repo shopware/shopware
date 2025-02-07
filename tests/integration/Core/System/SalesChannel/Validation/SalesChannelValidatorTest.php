@@ -19,7 +19,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

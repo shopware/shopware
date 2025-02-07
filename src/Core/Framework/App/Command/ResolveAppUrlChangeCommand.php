@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'app:url-change:resolve',
     description: 'Resolves app url changes',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ResolveAppUrlChangeCommand extends Command
 {
     public function __construct(private readonly Resolver $appUrlChangeResolver)

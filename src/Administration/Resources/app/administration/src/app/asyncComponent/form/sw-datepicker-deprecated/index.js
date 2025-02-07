@@ -8,7 +8,7 @@ import './sw-datepicker.scss';
 const { Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Datepicker wrapper for date inputs. For all configuration options visit:
@@ -128,7 +128,7 @@ export default {
 
     computed: {
         locale() {
-            return Shopware.State.getters.adminLocaleLanguage || 'en';
+            return Shopware.Store.get('session').adminLocaleLanguage || 'en';
         },
 
         currentFlatpickrConfig() {
@@ -215,7 +215,7 @@ export default {
         },
 
         userTimeZone() {
-            return Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
+            return Shopware?.Store?.get('session')?.currentUser?.timeZone ?? 'UTC';
         },
 
         timezoneFormattedValue: {
@@ -277,7 +277,7 @@ export default {
         },
 
         is24HourFormat() {
-            const locale = Shopware.State.get('session').currentLocale;
+            const locale = Shopware.Store.get('session').currentLocale;
             const formatter = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
             const intlOptions = formatter.resolvedOptions();
             return !intlOptions.hour12;
@@ -379,6 +379,11 @@ export default {
                         '(the specified mode will be ignored!). ' +
                         "The modes 'multiple' or 'range' are currently not supported",
                 );
+            }
+
+            // To fix receiving `time_24hr` as a string
+            if (typeof newConfig.time_24hr === 'string') {
+                newConfig.time_24hr = newConfig.time_24hr === 'true';
             }
 
             return {
@@ -530,6 +535,13 @@ export default {
         },
 
         createConfig() {
+            this.defaultConfig = {
+                time_24hr: this.is24HourFormat,
+                locale: this.locale,
+                altInput: true,
+                allowInput: true,
+            };
+
             let dateFormat = 'Y-m-dTH:i:S';
             let altFormat = this.getDateStringFormat({
                 year: 'numeric',
@@ -555,28 +567,25 @@ export default {
                 });
             }
 
-            this.defaultConfig = {
-                time_24hr: this.is24HourFormat,
-                locale: this.locale,
+            Object.assign(this.defaultConfig, {
                 dateFormat,
-                altInput: true,
                 altFormat,
-                allowInput: true,
-            };
+            });
         },
 
         getDateStringFormat(options) {
-            const locale = Shopware.State.get('session').currentLocale;
+            const locale = Shopware.Store.get('session').currentLocale;
             const formatter = new Intl.DateTimeFormat(locale, options);
             const parts = formatter.formatToParts(new Date(2000, 0, 1, 0, 0, 0));
+            const mergedConfig = this.getMergedConfig(this.config);
             const flatpickrMapping = {
                 // https://flatpickr.js.org/formatting/
                 year: 'Y', // 4-digit year
                 month: 'm', // 2-digit month
                 day: 'd', // 2-digit day
-                hour: this.is24HourFormat ? 'H' : 'h', // 24-hour or 12-hour
+                hour: mergedConfig.time_24hr ? 'H' : 'h', // 24-hour or 12-hour
                 minute: 'i', // 2-digit minute
-                dayPeriod: 'K', // AM/PM
+                dayPeriod: mergedConfig.time_24hr ? '' : 'K', // AM/PM
             };
             // 'literal' parts are the separators
             return parts.map((part) => (part.type === 'literal' ? part.value : flatpickrMapping[part.type])).join('');

@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
+#[Package('discovery')]
 class WishlistPage extends Page
 {
     /**

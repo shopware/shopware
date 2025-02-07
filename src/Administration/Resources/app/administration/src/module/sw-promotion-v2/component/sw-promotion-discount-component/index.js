@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
 /**
- * @package buyers-experience
+ * @sw-package checkout
  *
  * @private
  */
@@ -20,7 +20,6 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
         'ruleConditionDataProviderService',
     ],
 

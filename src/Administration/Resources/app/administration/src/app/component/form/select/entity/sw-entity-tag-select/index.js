@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 

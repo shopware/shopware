@@ -3,7 +3,7 @@ import './sw-search-bar-item.scss';
 
 const { Component, Application } = Shopware;
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -184,7 +184,7 @@ Component.register('sw-search-bar-item', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         mediaNameFilter() {

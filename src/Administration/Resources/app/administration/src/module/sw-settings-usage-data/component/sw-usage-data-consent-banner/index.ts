@@ -2,7 +2,7 @@ import template from './sw-usage-data-consent-banner.html.twig';
 import './sw-usage-data-consent-banner.scss';
 
 /**
- * @package data-services
+ * @sw-package data-services
  *
  * @private
  */
@@ -36,15 +36,15 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         isAccepted: {
             get() {
-                return Shopware.State.get('usageData').isConsentGiven;
+                return Shopware.Store.get('usageData').isConsentGiven;
             },
             set(isConsentGiven: boolean) {
-                Shopware.State.commit('usageData/updateIsConsentGiven', isConsentGiven);
+                Shopware.Store.get('usageData').updateIsConsentGiven(isConsentGiven);
             },
         },
 
         isHidden() {
-            return Shopware.State.get('usageData').isBannerHidden;
+            return Shopware.Store.get('usageData').isBannerHidden;
         },
 
         hasSufficientPrivileges() {
@@ -70,7 +70,7 @@ export default Shopware.Component.wrapComponentConfig({
             await this.usageDataService.hideBanner();
             this.showLinkToSettingsPage = true;
 
-            Shopware.State.commit('usageData/hideBanner');
+            Shopware.Store.get('usageData').hideBanner();
         },
 
         onClose(): void {

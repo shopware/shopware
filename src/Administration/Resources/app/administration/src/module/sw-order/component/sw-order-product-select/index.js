@@ -4,7 +4,7 @@ import './sw-order-product-select.scss';
 import { TotalCountMode } from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Service } = Shopware;

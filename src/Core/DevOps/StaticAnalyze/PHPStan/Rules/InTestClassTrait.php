@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 trait InTestClassTrait
 {
     protected function isInTestClass(Scope $scope): bool

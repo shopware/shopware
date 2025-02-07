@@ -2,7 +2,8 @@ import template from './sw-first-run-wizard-defaults.html.twig';
 import './sw-first-run-wizard-defaults.scss';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 export default {
@@ -50,7 +51,7 @@ export default {
                 },
             ];
 
-            if (!Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (!Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 buttons.unshift({
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),

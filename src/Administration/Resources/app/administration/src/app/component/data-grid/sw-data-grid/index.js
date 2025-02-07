@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -205,6 +205,12 @@ Component.register('sw-data-grid', {
                 return false;
             },
         },
+
+        contextButtonMenuWidth: {
+            type: Number,
+            required: false,
+            default: 220,
+        },
     },
 
     data() {
@@ -303,7 +309,7 @@ Component.register('sw-data-grid', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userGridSettingCriteria() {

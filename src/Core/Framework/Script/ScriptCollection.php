@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends EntityCollection<ScriptEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

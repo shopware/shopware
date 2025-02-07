@@ -12,7 +12,7 @@ type ComponentData = {
 };
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
@@ -87,7 +87,7 @@ Component.register('sw-meteor-page', {
     },
 
     beforeUnmount(): void {
-        void Shopware.State.dispatch('error/resetApiErrors');
+        void Shopware.Store.get('error').resetApiErrors();
     },
 
     mounted(): void {

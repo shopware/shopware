@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
@@ -128,7 +128,7 @@ handleGet((data, additionalOptions) => {
     }
 
     if (registeredDataSet.deprecated) {
-        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalOptions._event_.origin),
         );
 
@@ -222,6 +222,7 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
         }
 
         function setObject(transferObject: transferObject, prePath: string | null = null): void {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             if (typeof transferObject?.getIsDirty === 'function' && !transferObject.getIsDirty()) {
                 return;
             }

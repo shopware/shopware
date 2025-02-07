@@ -6,7 +6,7 @@ const { Context, Mixin, Filter } = Shopware;
 /**
  * @status ready
  * @description The <u>sw-media-modal-delete</u> component is used to validate the delete action.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-modal-delete :itemsToDelete="[items]">
@@ -216,7 +216,7 @@ export default {
             };
 
             if (this.notificationId !== null) {
-                await Shopware.State.dispatch('notification/updateNotification', {
+                await Shopware.Store.get('notification').updateNotification({
                     uuid: this.notificationId,
                     ...notification,
                 });
@@ -228,7 +228,7 @@ export default {
                 return;
             }
 
-            const newNotificationId = await Shopware.State.dispatch('notification/createNotification', {
+            const newNotificationId = await Shopware.Store.get('notification').createNotification({
                 variant: 'success',
                 ...notification,
             });

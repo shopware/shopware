@@ -1,9 +1,12 @@
+/**
+ * @sw-package inventory
+ */
+
 import template from './sw-product-download-form.html.twig';
 import './sw-product-download-form.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { format } = Shopware.Utils;
-const { mapGetters } = Component.getComponentHelper();
 
 /**
  * @private
@@ -47,12 +50,8 @@ export default {
     },
 
     computed: {
-        ...mapGetters('error', [
-            'getApiError',
-        ]),
-
         product() {
-            const state = Shopware.State.get('swProductDetail');
+            const state = Shopware.Store.get('swProductDetail');
 
             if (this.isInherited) {
                 return state.parentProduct;
@@ -61,9 +60,9 @@ export default {
             return state.product;
         },
 
-        ...mapGetters('swProductDetail', {
-            isStoreLoading: 'isLoading',
-        }),
+        isStoreLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         isLoading() {
             return this.isMediaLoading || this.isStoreLoading;
@@ -85,7 +84,7 @@ export default {
         },
 
         error() {
-            return this.getApiError(this.product, 'downloads');
+            return Shopware.Store.get('error').getApiError(this.product, 'downloads');
         },
 
         hasError() {
@@ -152,9 +151,7 @@ export default {
 
             this.product.downloads.add(productDownload);
             if (this.error) {
-                Shopware.State.dispatch('error/removeApiError', {
-                    expression: this.error.selfLink,
-                });
+                Shopware.Store.get('error').removeApiError(this.error.selfLink);
             }
         },
 

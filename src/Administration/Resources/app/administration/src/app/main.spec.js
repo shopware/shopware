@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 describe('src/app/main.ts', () => {
     let VueAdapter;
@@ -196,6 +196,8 @@ describe('src/app/main.ts', () => {
                 create: () => {},
             };
         });
+
+        jest.spyOn(Shopware, 'Context', 'get').mockReturnValue({ api: {} });
     });
 
     it('should create the global application DI container in the Shopware object', () => {

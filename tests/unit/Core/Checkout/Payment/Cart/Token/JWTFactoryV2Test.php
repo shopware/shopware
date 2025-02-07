@@ -31,7 +31,7 @@ class JWTFactoryV2Test extends TestCase
     protected function setUp(): void
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
-        $configuration->setValidationConstraints(new NoopConstraint());
+        $configuration = $configuration->withValidationConstraints(new NoopConstraint());
         $connection = $this->createMock(Connection::class);
         $this->tokenFactory = new JWTFactoryV2($configuration, $connection);
     }
@@ -94,7 +94,7 @@ class JWTFactoryV2Test extends TestCase
     public function testExpiredToken(): void
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
-        $configuration->setValidationConstraints(new StrictValidAt(new FrozenClock(new \DateTimeImmutable('now - 1 day'))));
+        $configuration = $configuration->withValidationConstraints(new StrictValidAt(new FrozenClock(new \DateTimeImmutable('now - 1 day'))));
         $tokenFactory = new JWTFactoryV2($configuration, $this->createMock(Connection::class));
 
         $transaction = self::createTransaction();
@@ -112,7 +112,7 @@ class JWTFactoryV2Test extends TestCase
     public function testTokenNotStored(): void
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
-        $configuration->setValidationConstraints(new NoopConstraint());
+        $configuration = $configuration->withValidationConstraints(new NoopConstraint());
         $connection = $this->createMock(Connection::class);
         $connection
             ->method('fetchOne')

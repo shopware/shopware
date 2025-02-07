@@ -28,7 +28,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('discovery')]
 class NavigationRoute extends AbstractNavigationRoute
 {
     final public const ALL_TAG = 'navigation';

@@ -16,7 +16,6 @@
 
     <template #default>
         {# @internal - Do NOT use this block - it will be removed without replacement #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_help_center_content %}
         <div class="sw-help-center__header">
             <h3 class="sw-help-center__title">
@@ -48,7 +47,6 @@
             <p>{{ $tc('global.sw-help-center.support.paragraph') }}</p>
 
             {# @internal - Do NOT use this block - it will be removed without replacement #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_help_center_support_request_item_link %}
             <sw-external-link :href="$tc('global.sw-help-center.support.linkUrl')">
                 {{ $tc('global.sw-help-center.support.linkText') }}

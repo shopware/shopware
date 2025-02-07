@@ -17,54 +17,19 @@ class StateMachineEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $technicalName;
+    protected string $technicalName;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var StateMachineTransitionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $transitions;
+    protected ?StateMachineTransitionCollection $transitions = null;
 
-    /**
-     * @var StateMachineStateCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $states;
+    protected ?StateMachineStateCollection $states = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $initialStateId;
+    protected ?string $initialStateId = null;
 
-    /**
-     * @var StateMachineTranslationCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?StateMachineTranslationCollection $translations = null;
 
-    /**
-     * @var StateMachineHistoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $historyEntries;
+    protected ?StateMachineHistoryCollection $historyEntries = null;
 
     public function getHistoryEntries(): ?StateMachineHistoryCollection
     {
@@ -137,7 +102,7 @@ class StateMachineEntity extends Entity
         $this->initialStateId = $initialStateId;
     }
 
-    public function getTranslations(): StateMachineTranslationCollection
+    public function getTranslations(): ?StateMachineTranslationCollection
     {
         return $this->translations;
     }

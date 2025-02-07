@@ -1,10 +1,10 @@
 import type Bottle from 'bottlejs';
 import type { App } from 'vue';
 import { reactive } from 'vue';
-import type { ContextState } from '../app/state/context.store';
+import type { ContextStore } from '../app/store/context.store';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/application
  */
@@ -12,6 +12,7 @@ import type VueAdapter from '../app/adapter/view/vue.adapter';
 interface bundlesSinglePluginResponse {
     css?: string | string[];
     js?: string | string[];
+    hmrSrc?: string;
     html?: string;
     baseUrl?: null | string;
     type?: 'app' | 'plugin';
@@ -186,7 +187,7 @@ class ApplicationBootstrapper {
         return this;
     }
 
-    registerConfig(config: { apiContext?: ContextState['api']; appContext?: ContextState['app'] }): ApplicationBootstrapper {
+    registerConfig(config: { apiContext?: ContextStore['api']; appContext?: ContextStore['app'] }): ApplicationBootstrapper {
         if (config.apiContext) {
             this.registerApiContext(config.apiContext);
         }
@@ -200,7 +201,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the api context (api path, path to resources etc.)
      */
-    registerApiContext(context: ContextState['api']): ApplicationBootstrapper {
+    registerApiContext(context: ContextStore['api']): ApplicationBootstrapper {
         Shopware.Context.api = Shopware.Classes._private.ApiContextFactory(context);
 
         return this;
@@ -209,7 +210,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the app context (firstRunWizard, etc.)
      */
-    registerAppContext(context: ContextState['app']): ApplicationBootstrapper {
+    registerAppContext(context: ContextStore['app']): ApplicationBootstrapper {
         Shopware.Context.app = Shopware.Classes._private.AppContextFactory(context);
 
         return this;
@@ -458,21 +459,19 @@ class ApplicationBootstrapper {
         const initContainer = this.getContainer('init');
         const initPostContainer = this.getContainer('init-post');
 
-        return (
-            this.initializeInitializersVite(initPreContainer, '-pre')
-                .then(() => this.initializeInitializersVite(initContainer))
-                .then(() => this.initializeInitializersVite(initPostContainer, '-post'))
-                // .then(() => this.loadPlugins())
-                .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
-                .then(() => {
-                    if (!this.view) {
-                        return Promise.reject();
-                    }
+        return this.initializeInitializersVite(initPreContainer, '-pre')
+            .then(() => this.initializeInitializersVite(initContainer))
+            .then(() => this.initializeInitializersVite(initPostContainer, '-post'))
+            .then(() => this.loadPlugins())
+            .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
+            .then(() => {
+                if (!this.view) {
+                    return Promise.reject();
+                }
 
-                    return this.view.initDependencies();
-                })
-                .then(() => this.createApplicationRoot())
-        );
+                return this.view.initDependencies();
+            })
+            .then(() => this.createApplicationRoot());
         // .catch((error) => this.createApplicationRootError(error));
     }
 
@@ -611,6 +610,7 @@ class ApplicationBootstrapper {
             'locale',
             'apiServices',
             'coreDirectives',
+            'store',
         ];
 
         const initContainer = this.getContainer('init');
@@ -618,7 +618,7 @@ class ApplicationBootstrapper {
             const exists = initContainer.hasOwnProperty(key);
 
             if (!exists) {
-                console.error(`The initializer "${key}" does not exists`);
+                console.error(`The initializer "${key}" does not exist`);
             }
         });
 
@@ -696,7 +696,7 @@ class ApplicationBootstrapper {
             const response = await fetch('./sw-plugin-dev.json');
             plugins = (await response.json()) as bundlesPluginResponse;
 
-            // Added via webpack.config.js@193
+            // Added via webpack.config.js@193 || plugins.vite.ts@123
             if (Shopware.Utils.object.hasOwnProperty(plugins, 'metadata')) {
                 delete plugins.metadata;
             }
@@ -717,6 +717,13 @@ class ApplicationBootstrapper {
         const injectAllPlugins = Object.entries(plugins)
             .filter(([pluginName]) => {
                 // Filter the swag-commercial plugin because it was loaded beforehand
+                if (window._features_.ADMIN_VITE) {
+                    return ![
+                        'swag-commercial',
+                        'SwagCommercial',
+                        'Administration',
+                    ].includes(pluginName);
+                }
                 return ![
                     'swag-commercial',
                     'SwagCommercial',
@@ -737,8 +744,10 @@ class ApplicationBootstrapper {
                 bundleName,
                 bundle,
             ]) => {
-                if (!bundle.baseUrl) {
-                    return;
+                if (!window._features_.ADMIN_VITE) {
+                    if (!bundle.baseUrl) {
+                        return;
+                    }
                 }
 
                 if (isDevelopmentMode) {
@@ -763,38 +772,46 @@ class ApplicationBootstrapper {
                     );
                 }
 
+                if (window._features_.ADMIN_VITE) {
+                    if (!bundle.baseUrl) {
+                        return;
+                    }
+                }
+
                 this.injectIframe({
                     active: bundle.active,
                     integrationId: bundle.integrationId,
                     bundleName,
                     bundleVersion: bundle.version,
-                    iframeSrc: bundle.baseUrl,
+                    iframeSrc: bundle.baseUrl!,
                     bundleType: bundle.type,
                 });
             },
         );
 
-        if (isDevelopmentMode) {
-            // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
-            Object.entries(plugins).forEach(
-                ([
-                    pluginName,
-                    entryFiles,
-                ]) => {
-                    const stringUtils = Shopware.Utils.string;
-                    const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
+        if (!window._features_.ADMIN_VITE) {
+            if (isDevelopmentMode) {
+                // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
+                Object.entries(plugins).forEach(
+                    ([
+                        pluginName,
+                        entryFiles,
+                    ]) => {
+                        const stringUtils = Shopware.Utils.string;
+                        const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
 
-                    if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
-                        return;
-                    }
+                        if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
+                            return;
+                        }
 
-                    this.injectIframe({
-                        bundleVersion: undefined,
-                        bundleName: camelCasePluginName,
-                        iframeSrc: entryFiles.html,
-                    });
-                },
-            );
+                        this.injectIframe({
+                            bundleVersion: undefined,
+                            bundleName: camelCasePluginName,
+                            iframeSrc: entryFiles.html,
+                        });
+                    },
+                );
+            }
         }
 
         return Promise.all(injectAllPlugins);
@@ -806,6 +823,22 @@ class ApplicationBootstrapper {
     private async injectPlugin(plugin: bundlesSinglePluginResponse): Promise<unknown[] | null> {
         let allScripts = [];
         let allStyles = [];
+
+        // if dev and vite feature flag
+        if (window._features_.ADMIN_VITE && process.env.NODE_ENV === 'development' && plugin.hmrSrc && plugin.js) {
+            allScripts.push(this.injectJs(plugin.hmrSrc));
+            allScripts.push(this.injectJs(plugin.js as string));
+
+            try {
+                return await Promise.all([
+                    ...allScripts,
+                ]);
+            } catch (_) {
+                console.warn('Error while loading plugin', plugin);
+
+                return null;
+            }
+        }
 
         // load multiple js scripts
         if (plugin.js && Array.isArray(plugin.js)) {
@@ -842,6 +875,10 @@ class ApplicationBootstrapper {
             const script = document.createElement('script');
             script.src = scriptSrc;
             script.async = true;
+
+            if (window._features_.ADMIN_VITE) {
+                script.type = 'module';
+            }
 
             // resolve when script was loaded succcessfully
             script.onload = (): void => {
@@ -914,22 +951,22 @@ class ApplicationBootstrapper {
             name: string;
             baseUrl: string;
             version?: string;
-            type?: 'app' | 'plugin';
-            permissions?: Record<string, unknown>;
+            type: 'app' | 'plugin';
+            permissions: Record<string, unknown>;
         } = {
             active,
             integrationId,
             name: bundleName,
             baseUrl: iframeSrc,
             version: bundleVersion,
-            type: bundleType,
-            permissions: undefined,
+            type: bundleType ?? 'plugin',
+            permissions: {},
         };
 
         // To keep permissions reactive no matter if empty or not
         extension.permissions = permissions ?? reactive({});
 
-        Shopware.State.commit('extensions/addExtension', extension);
+        Shopware.Store.get('extensions').addExtension(extension);
     }
 }
 

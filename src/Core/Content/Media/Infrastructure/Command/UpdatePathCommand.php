@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'media:update-path',
     description: 'Iterates over the media and updates the path column.',
 )]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class UpdatePathCommand extends Command
 {
     /**

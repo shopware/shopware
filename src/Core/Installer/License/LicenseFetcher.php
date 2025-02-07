@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class LicenseFetcher
 {
     /**

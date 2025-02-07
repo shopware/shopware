@@ -1,4 +1,8 @@
 {# @deprecated tag:v6.7.0 - This template will be removed, use src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig #}
+{% if not header is defined and page is defined %}
+    {% set header = page.header %}
+{% endif %}
+
 {% block layout_main_navigation %}
     <div class="main-navigation"
          id="mainNavigation"
@@ -27,9 +31,9 @@
                         {% endblock %}
 
                         {% block layout_main_navigation_menu_items %}
-                            {% set activePath = page.header.navigation.active.path %}
+                            {% set activePath = '|' ~ shopware.navigation.pathIdList|join('|') ~ '|' %}
 
-                            {% for treeItem in page.header.navigation.tree %}
+                            {% for treeItem in header.navigation.tree %}
                                 {% set category = treeItem.category %}
                                 {% set name = category.translated.name %}
 
@@ -45,7 +49,12 @@
                                             </div>
                                         </div>
                                     {% else %}
-                                        <a class="nav-link main-navigation-link nav-item-{{ category.id}} {% if category.id == page.header.navigation.active.id or category.id in activePath %} active{% endif %}"
+                                        {% set active = '' %}
+                                        {% if category.id == shopware.navigation.id or category.id in activePath %}
+                                            {% set active = 'active' %}
+                                        {% endif %}
+
+                                        <a class="nav-link main-navigation-link nav-item-{{ category.id}} {{ active }}"
                                            href="{{ category_url(category) }}"
                                            itemprop="url"
                                            {% if treeItem.children|length > 0 %}data-flyout-menu-trigger="{{ category.id }}"{% endif %}
@@ -80,7 +89,7 @@
                 {% if not feature('ACCESSIBILITY_TWEAKS') %}
                 {% block layout_main_navigation_menu_flyout_wrapper %}
                     {% set navigationChildrenCount = 0 %}
-                    {% for treeItem in page.header.navigation.tree %}
+                    {% for treeItem in header.navigation.tree %}
                         {% if treeItem.category.childCount > 0 %}
                             {% set navigationChildrenCount = navigationChildrenCount + 1 %}
                         {% endif %}
@@ -90,7 +99,7 @@
                         {% block layout_main_navigation_menu_flyout_container %}
                             <div class="navigation-flyouts">
                                 {% block layout_main_navigation_menu_flyouts %}
-                                    {% for treeItem in page.header.navigation.tree %}
+                                    {% for treeItem in header.navigation.tree %}
                                         {% if treeItem.children|length > 0 %}
                                             {% block layout_main_navigation_menu_flyout %}
                                                 <div class="navigation-flyout"

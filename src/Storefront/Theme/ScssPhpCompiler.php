@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal - may be changed in the future
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ScssPhpCompiler extends AbstractScssCompiler
 {
     private Compiler $compiler;

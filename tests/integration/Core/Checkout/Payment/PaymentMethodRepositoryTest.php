@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 
 /**
  * @internal
@@ -56,10 +56,10 @@ class PaymentMethodRepositoryTest extends TestCase
         static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
         static::assertSame(
             $paymentMethod[0]['availabilityRule']['id'],
-            $firstPaymentMethod->getAvailabilityRule()->getId()
+            $firstPaymentMethod->getAvailabilityRuleId()
         );
         static::assertSame(
-            'handler_shopware_asynctestpaymenthandler',
+            'handler_shopware_testpaymenthandler',
             $firstPaymentMethod->getFormattedHandlerIdentifier()
         );
         static::assertFalse($firstPaymentMethod->getAfterOrderEnabled());
@@ -106,7 +106,7 @@ class PaymentMethodRepositoryTest extends TestCase
         static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
         static::assertSame(
             $paymentMethod[0]['availabilityRule']['id'],
-            $firstPaymentMethod->getAvailabilityRule()->getId()
+            $firstPaymentMethod->getAvailabilityRuleId()
         );
         static::assertSame(
             'Object',
@@ -242,7 +242,7 @@ class PaymentMethodRepositoryTest extends TestCase
                 'id' => $this->paymentMethodId,
                 'name' => 'test',
                 'technicalName' => 'test_payment',
-                'handlerIdentifier' => AsyncTestPaymentHandler::class,
+                'handlerIdentifier' => TestPaymentHandler::class,
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),
                     'name' => 'asd',

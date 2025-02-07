@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import '../sw-settings-listing-option-base';
 import template from './sw-settings-listing-option-create.html.twig';
@@ -37,7 +37,7 @@ export default {
         createdComponent() {
             this.fetchCustomFields().then(() => {
                 this.productSortingEntity = this.createProductSortingEntity();
-                Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.Store.get('context').resetLanguageToDefault();
             });
         },
 

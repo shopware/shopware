@@ -12,16 +12,16 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
 class LineItemGoodsTotalRule extends FilterRule
 {
     final public const RULE_NAME = 'cartLineItemGoodsTotal';
 
     protected int $count;
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         ?int $count = null

@@ -1,13 +1,11 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import type { PaymentOverviewCard } from '../../state/overview-cards.store';
+import type { PaymentOverviewCard } from '../../store/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 interface PaymentMethodCard {
@@ -59,7 +57,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customCards(): PaymentOverviewCard[] {
-            return Shopware.State.get('paymentOverviewCardState').cards ?? [];
+            return Shopware.Store.get('paymentOverviewCard').cards ?? [];
         },
 
         paymentMethodRepository(): Repository<'payment_method'> {
@@ -154,7 +152,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.loadPaymentMethods();
         },
 

@@ -99,9 +99,7 @@ class InvoiceRendererTest extends TestCase
             $orderRepositoryMock,
             $documentConfigLoaderMock,
             $this->createMock(EventDispatcherInterface::class),
-            $documentTemplateRenderer,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            '',
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );
@@ -189,9 +187,7 @@ class InvoiceRendererTest extends TestCase
             $orderRepositoryMock,
             new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
             $this->createMock(EventDispatcherInterface::class),
-            $documentTemplateRenderer,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            '',
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );
@@ -246,9 +242,7 @@ class InvoiceRendererTest extends TestCase
             $orderRepositoryMock,
             $documentConfigLoaderMock,
             $this->createMock(EventDispatcherInterface::class),
-            $documentTemplateRenderer,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            '',
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );

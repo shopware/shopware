@@ -31,7 +31,6 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
-use Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition;
@@ -500,37 +499,6 @@ class CacheInvalidationSubscriber
     public function invalidatePropertyFilters(EntityWrittenContainerEvent $event): void
     {
         $this->cacheInvalidator->invalidate([...$this->getChangedPropertyFilterTags($event), ...$this->getDeletedPropertyFilterTags($event)]);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - reason:remove-subscriber - Will be removed, use invalidateProduct instead
-     */
-    public function invalidateReviewRoute(ProductChangedEventInterface $event): void
-    {
-        if (Feature::isActive('cache_rework')) {
-            // @deprecated tag:v6.7.0 - remove also event listener
-            return;
-        }
-
-        $this->cacheInvalidator->invalidate(
-            array_map(CachedProductReviewRoute::buildName(...), $event->getIds())
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - reason:remove-subscriber - Will be removed, use invalidateProduct instead
-     */
-    public function invalidateListings(ProductChangedEventInterface $event): void
-    {
-        if (Feature::isActive('cache_rework')) {
-            // @deprecated tag:v6.7.0 - remove also event listener
-            return;
-        }
-
-        // invalidates product listings which are based on the product category assignment
-        $this->cacheInvalidator->invalidate(
-            array_map(CachedProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()))
-        );
     }
 
     public function invalidateStreamsBeforeIndexing(EntityWrittenContainerEvent $event): void

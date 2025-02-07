@@ -39,7 +39,6 @@ use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPage;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\ProductControllerStub;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -84,7 +83,6 @@ class ProductControllerTest extends TestCase
             $this->seoUrlPlaceholderHandlerMock,
             $this->productReviewLoaderMock,
             $this->systemConfigServiceMock,
-            $this->createMock(EventDispatcher::class),
         );
     }
 

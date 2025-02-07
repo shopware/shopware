@@ -109,7 +109,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                     ]);
 
                     if ($operation->isStatic()) {
-                        $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                        $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
 
                         continue;
@@ -122,6 +122,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                     }
 
                     $doc = new RenderedDocument(
+                        '',
                         $number,
                         $config->buildName(),
                         $operation->getFileType(),

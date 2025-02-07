@@ -62,6 +62,7 @@ class DocumentFileRendererRegistryTest extends TestCase
         $registry = new DocumentFileRendererRegistry([]);
 
         $registry->render(new RenderedDocument(
+            '',
             '1001',
             'invoice',
             'xml',

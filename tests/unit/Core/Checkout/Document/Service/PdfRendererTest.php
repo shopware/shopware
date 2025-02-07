@@ -49,7 +49,7 @@ class PdfRendererTest extends TestCase
             new ExtensionDispatcher($dispatcher),
         );
 
-        $rendered = new RenderedDocument('1001', InvoiceRenderer::TYPE);
+        $rendered = new RenderedDocument('', '1001', InvoiceRenderer::TYPE);
         $rendered->setContext(Context::createDefaultContext());
         $rendered->setOrder($this->getOrder());
 
@@ -67,6 +67,7 @@ class PdfRendererTest extends TestCase
     public function testRenderWithoutHtml(): void
     {
         $rendered = new RenderedDocument(
+            '',
             '1001',
             InvoiceRenderer::TYPE,
         );
@@ -104,6 +105,7 @@ class PdfRendererTest extends TestCase
         $this->expectException(DocumentException::class);
 
         $rendered = new RenderedDocument(
+            '',
             '1001',
             InvoiceRenderer::TYPE,
         );

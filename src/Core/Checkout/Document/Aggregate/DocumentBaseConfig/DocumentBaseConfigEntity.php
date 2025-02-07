@@ -18,28 +18,28 @@ class DocumentBaseConfigEntity extends Entity
 
     protected string $name;
 
-    protected ?string $filenamePrefix;
+    protected ?string $filenamePrefix = null;
 
-    protected ?string $filenameSuffix;
+    protected ?string $filenameSuffix = null;
 
     protected string $documentNumber;
 
     protected bool $global = false;
 
-    protected ?string $documentTypeId;
+    protected ?string $documentTypeId = null;
 
-    protected ?string $logoId;
+    protected ?string $logoId = null;
 
     /**
      * @var array<string, string|bool|array<int, string>>|null
      */
-    protected ?array $config;
+    protected ?array $config = null;
 
     protected DocumentBaseConfigSalesChannelCollection $salesChannels;
 
     protected ?DocumentTypeEntity $documentType;
 
-    protected ?MediaEntity $logo;
+    protected ?MediaEntity $logo = null;
 
     public function getName(): string
     {

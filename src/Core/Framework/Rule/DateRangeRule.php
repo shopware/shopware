@@ -16,9 +16,9 @@ class DateRangeRule extends Rule
 {
     final public const RULE_NAME = 'dateRange';
 
-    protected \DateTimeInterface|string|null $fromDate;
+    protected \DateTimeInterface|string|null $fromDate = null;
 
-    protected \DateTimeInterface|string|null $toDate;
+    protected \DateTimeInterface|string|null $toDate = null;
 
     protected bool $useTime;
 

@@ -13,13 +13,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class ProductReviewResult extends EntitySearchResult
 {
-    protected ?string $parentId;
+    protected ?string $parentId = null;
 
     protected string $productId;
 
     protected RatingMatrix $matrix;
 
-    protected ?ProductReviewEntity $customerReview;
+    protected ?ProductReviewEntity $customerReview = null;
 
     protected int $totalReviewsInCurrentLanguage;
 

@@ -16,25 +16,25 @@ class MailTemplateEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected ?string $mailTemplateTypeId;
+    protected ?string $mailTemplateTypeId= null;
 
-    protected ?MailTemplateTypeEntity $mailTemplateType;
+    protected ?MailTemplateTypeEntity $mailTemplateType= null;
 
     protected bool $systemDefault;
 
-    protected ?string $senderName;
+    protected ?string $senderName= null;
 
-    protected ?string $description;
+    protected ?string $description= null;
 
-    protected ?string $subject;
+    protected ?string $subject= null;
 
-    protected ?string $contentHtml;
+    protected ?string $contentHtml= null;
 
-    protected ?string $contentPlain;
+    protected ?string $contentPlain= null;
 
-    protected ?MailTemplateTranslationCollection $translations;
+    protected ?MailTemplateTranslationCollection $translations= null;
 
-    protected ?MailTemplateMediaCollection $media;
+    protected ?MailTemplateMediaCollection $media= null;
 
     public function getMailTemplateType(): ?MailTemplateTypeEntity
     {

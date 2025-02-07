@@ -27,31 +27,31 @@ class ImportExportLogEntity extends Entity
 
     protected int $records = 0;
 
-    protected ?string $username;
+    protected ?string $username = null;
 
-    protected ?string $profileName;
+    protected ?string $profileName = null;
 
-    protected ?UserEntity $user;
+    protected ?UserEntity $user = null;
 
-    protected ?string $userId;
+    protected ?string $userId = null;
 
-    protected ?ImportExportProfileEntity $profile;
+    protected ?ImportExportProfileEntity $profile = null;
 
-    protected ?string $profileId;
+    protected ?string $profileId = null;
 
-    protected ?ImportExportFileEntity $file;
+    protected ?ImportExportFileEntity $file = null;
 
-    protected ?string $fileId;
+    protected ?string $fileId = null;
 
     protected array $config = [];
 
     protected array $result = [];
 
-    protected ?string $invalidRecordsLogId;
+    protected ?string $invalidRecordsLogId = null;
 
-    protected ?self $invalidRecordsLog;
+    protected ?self $invalidRecordsLog = null;
 
-    protected ?self $failedImportLog;
+    protected ?self $failedImportLog = null;
 
     public function getActivity(): string
     {

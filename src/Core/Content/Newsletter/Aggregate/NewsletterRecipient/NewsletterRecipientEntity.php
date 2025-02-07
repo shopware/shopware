@@ -19,37 +19,37 @@ class NewsletterRecipientEntity extends Entity
 
     protected string $email;
 
-    protected ?string $title;
+    protected ?string $title = null;
 
-    protected ?string $firstName;
+    protected ?string $firstName = null;
 
-    protected ?string $lastName;
+    protected ?string $lastName = null;
 
-    protected ?string $zipCode;
+    protected ?string $zipCode = null;
 
-    protected ?string $city;
+    protected ?string $city = null;
 
-    protected ?string $street;
+    protected ?string $street = null;
 
-    protected ?string $status;
+    protected ?string $status = null;
 
     protected string $hash;
 
-    protected ?string $salutationId;
+    protected ?string $salutationId = null;
 
-    protected ?SalutationEntity $salutation;
+    protected ?SalutationEntity $salutation = null;
 
     protected string $languageId;
 
-    protected ?LanguageEntity $language;
+    protected ?LanguageEntity $language = null;
 
     protected string $salesChannelId;
 
-    protected ?SalesChannelEntity $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    protected ?\DateTimeInterface $confirmedAt;
+    protected ?\DateTimeInterface $confirmedAt = null;
 
-    protected ?TagCollection $tags;
+    protected ?TagCollection $tags = null;
 
     public function getEmail(): string
     {

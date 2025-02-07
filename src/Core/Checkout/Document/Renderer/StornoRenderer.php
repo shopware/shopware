@@ -28,6 +28,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
@@ -131,8 +133,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 ]);
 
                 if ($operation->isStatic()) {
-                    // @deprecated tag:v6.7.0 - html argument will be removed
-                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                     $result->addSuccess($orderId, $doc);
 
                     continue;
@@ -145,7 +146,6 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 }
 
                 $doc = new RenderedDocument(
-                    '',
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),

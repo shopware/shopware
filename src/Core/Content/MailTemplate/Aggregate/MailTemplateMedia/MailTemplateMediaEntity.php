@@ -15,13 +15,13 @@ class MailTemplateMediaEntity extends Entity
 
     protected string $mailTemplateId;
 
-    protected ?string $languageId;
+    protected ?string $languageId = null;
 
     protected string $mediaId;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
-    protected ?MailTemplateEntity $mailTemplate;
+    protected ?MailTemplateEntity $mailTemplate = null;
 
     public function getMailTemplateId(): string
     {

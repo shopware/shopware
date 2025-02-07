@@ -21,9 +21,9 @@ class ImportExportFileEntity extends Entity
 
     protected int $size;
 
-    protected ?ImportExportLogEntity $log;
+    protected ?ImportExportLogEntity $log = null;
 
-    protected ?string $accessToken;
+    protected ?string $accessToken = null;
 
     public function getOriginalName(): string
     {

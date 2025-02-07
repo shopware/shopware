@@ -16,11 +16,11 @@ class Progress extends Struct
 
     protected string $logId;
 
-    protected ?string $invalidRecordsLogId;
+    protected ?string $invalidRecordsLogId = null;
 
     protected int $offset = 0;
 
-    protected ?int $total;
+    protected ?int $total = null;
 
     protected int $processedRecords = 0;
 

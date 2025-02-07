@@ -10,7 +10,7 @@ class ImportExportProfileTranslationEntity extends TranslationEntity
 {
     protected string $importExportProfileId;
 
-    protected ?string $label;
+    protected ?string $label = null;
 
     protected ImportExportProfileEntity $importExportProfile;
 

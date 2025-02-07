@@ -13,23 +13,23 @@ class MailHeaderFooterEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected bool $systemDefault;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $headerHtml;
+    protected ?string $headerHtml = null;
 
-    protected ?string $headerPlain;
+    protected ?string $headerPlain = null;
 
-    protected ?string $footerHtml;
+    protected ?string $footerHtml = null;
 
-    protected ?string $footerPlain;
+    protected ?string $footerPlain = null;
 
-    protected ?SalesChannelCollection $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    protected ?MailHeaderFooterTranslationCollection $translations;
+    protected ?MailHeaderFooterTranslationCollection $translations = null;
 
     public function getName(): ?string
     {

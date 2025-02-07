@@ -9,19 +9,19 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class MailHeaderFooterTranslationEntity extends TranslationEntity
 {
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $headerHtml;
+    protected ?string $headerHtml = null;
 
-    protected ?string $headerPlain;
+    protected ?string $headerPlain = null;
 
-    protected ?string $footerHtml;
+    protected ?string $footerHtml = null;
 
-    protected ?string $footerPlain;
+    protected ?string $footerPlain = null;
 
-    protected ?MailHeaderFooterEntity $mailHeaderFooter;
+    protected ?MailHeaderFooterEntity $mailHeaderFooter = null;
 
     protected string $mailHeaderFooterId;
 

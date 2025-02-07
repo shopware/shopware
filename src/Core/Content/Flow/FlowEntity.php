@@ -33,7 +33,7 @@ class FlowEntity extends Entity
     /**
      * @internal
      */
-    protected string|Flow|null $payload;
+    protected string|Flow|null $payload = null;
 
     protected bool $invalid;
 

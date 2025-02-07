@@ -27,27 +27,27 @@ class RuleEntity extends Entity
 
     protected string $name;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
     protected int $priority;
 
     /**
      * @internal
      */
-    protected string|Rule|null $payload;
+    protected string|Rule|null $payload = null;
 
     /**
      * @var string[]|null
      */
-    protected ?array $moduleTypes;
+    protected ?array $moduleTypes = null;
 
-    protected ?ProductPriceCollection $productPrices;
+    protected ?ProductPriceCollection $productPrices = null;
 
-    protected ?ShippingMethodCollection $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods = null;
 
-    protected ?PaymentMethodCollection $paymentMethods;
+    protected ?PaymentMethodCollection $paymentMethods = null;
 
-    protected ?RuleConditionCollection $conditions;
+    protected ?RuleConditionCollection $conditions = null;
 
     protected bool $invalid;
 
@@ -56,23 +56,23 @@ class RuleEntity extends Entity
      */
     protected ?array $areas = null;
 
-    protected ?ShippingMethodPriceCollection $shippingMethodPrices;
+    protected ?ShippingMethodPriceCollection $shippingMethodPrices = null;
 
-    protected ?PromotionDiscountCollection $promotionDiscounts;
+    protected ?PromotionDiscountCollection $promotionDiscounts = null;
 
-    protected ?PromotionSetGroupCollection $promotionSetGroups;
+    protected ?PromotionSetGroupCollection $promotionSetGroups = null;
 
-    protected ?ShippingMethodPriceCollection $shippingMethodPriceCalculations;
+    protected ?ShippingMethodPriceCollection $shippingMethodPriceCalculations = null;
 
-    protected ?PromotionCollection $personaPromotions;
+    protected ?PromotionCollection $personaPromotions = null;
 
-    protected ?FlowSequenceCollection $flowSequences;
+    protected ?FlowSequenceCollection $flowSequences = null;
 
-    protected ?TagCollection $tags;
+    protected ?TagCollection $tags = null;
 
-    protected ?PromotionCollection $orderPromotions;
+    protected ?PromotionCollection $orderPromotions = null;
 
-    protected ?PromotionCollection $cartPromotions;
+    protected ?PromotionCollection $cartPromotions = null;
 
     protected ?TaxProviderCollection $taxProviders = null;
 

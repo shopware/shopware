@@ -9,28 +9,28 @@ class ExpectedRequest
 {
     public string $url;
 
-    public ?string $baseUrl;
+    public ?string $baseUrl = null;
 
-    public ?string $domainId;
+    public ?string $domainId = null;
 
-    public ?string $salesChannelId;
+    public ?string $salesChannelId = null;
 
-    public ?bool $isStorefrontRequest;
+    public ?bool $isStorefrontRequest = null;
 
-    public ?string $locale;
+    public ?string $locale = null;
 
-    public ?string $currency;
+    public ?string $currency = null;
 
-    public ?string $languageCode;
+    public ?string $languageCode = null;
 
-    public ?string $snippetLanguageCode;
+    public ?string $snippetLanguageCode = null;
 
     /**
      * @var class-string<\Throwable>|null
      */
-    public ?string $exception;
+    public ?string $exception = null;
 
-    public ?string $resolvedUrl;
+    public ?string $resolvedUrl = null;
 
     /**
      * @param class-string<\Throwable>|null $exception

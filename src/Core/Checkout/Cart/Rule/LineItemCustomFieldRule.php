@@ -24,7 +24,7 @@ class LineItemCustomFieldRule extends Rule
     /**
      * @var array<string|int|bool|float>|string|int|float|bool|null
      */
-    protected array|string|int|float|bool|null $renderedFieldValue;
+    protected array|string|int|float|bool|null $renderedFieldValue = null;
 
     protected ?string $selectedField = null;
 

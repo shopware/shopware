@@ -16,15 +16,15 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
 
     protected string $documentBaseConfigId;
 
-    protected ?string $salesChannelId;
+    protected ?string $salesChannelId = null;
 
     protected string $documentTypeId;
 
-    protected ?DocumentTypeEntity $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    protected ?DocumentBaseConfigEntity $documentBaseConfig;
+    protected ?DocumentBaseConfigEntity $documentBaseConfig = null;
 
-    protected ?SalesChannelEntity $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getDocumentBaseConfigId(): string
     {

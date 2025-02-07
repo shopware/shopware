@@ -12,8 +12,10 @@ class ProductReviewRouteResponse extends StoreApiResponse
 {
     /**
      * @var EntitySearchResult<ProductReviewCollection>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected EntitySearchResult $object;
+    protected $object;
 
     /**
      * @param EntitySearchResult<ProductReviewCollection> $object

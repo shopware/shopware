@@ -19,13 +19,13 @@ class MailTemplateTypeEntity extends Entity
 
     protected string $technicalName;
 
-    protected ?array $availableEntities;
+    protected ?array $availableEntities = null;
 
-    protected ?MailTemplateTypeTranslationCollection $translations;
+    protected ?MailTemplateTypeTranslationCollection $translations = null;
 
-    protected ?MailTemplateCollection $mailTemplates;
+    protected ?MailTemplateCollection $mailTemplates = null;
 
-    protected ?array $templateData;
+    protected ?array $templateData = null;
 
     public function getName(): string
     {

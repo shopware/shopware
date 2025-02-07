@@ -26,6 +26,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
@@ -112,7 +114,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
 
                     if ($operation->isStatic()) {
-                        $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                        $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
 
                         continue;
@@ -125,7 +127,6 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     }
 
                     $doc = new RenderedDocument(
-                        '',
                         $number,
                         $config->buildName(),
                         $operation->getFileType(),

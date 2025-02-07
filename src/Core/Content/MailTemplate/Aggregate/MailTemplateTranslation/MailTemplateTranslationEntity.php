@@ -14,15 +14,15 @@ class MailTemplateTranslationEntity extends TranslationEntity
 
     protected string $mailTemplateId;
 
-    protected ?string $senderName;
+    protected ?string $senderName = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $subject;
+    protected ?string $subject = null;
 
-    protected ?string $contentHtml;
+    protected ?string $contentHtml = null;
 
-    protected ?string $contentPlain;
+    protected ?string $contentPlain = null;
 
     protected ?MailTemplateEntity $mailTemplate;
 

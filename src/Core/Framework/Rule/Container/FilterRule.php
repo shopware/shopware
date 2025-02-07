@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Rule\Rule;
 #[Package('fundamentals@after-sales')]
 abstract class FilterRule extends Rule implements ContainerInterface
 {
-    protected ?Container $filter;
+    protected ?Container $filter = null;
 
     public function addRule(Rule $rule): void
     {

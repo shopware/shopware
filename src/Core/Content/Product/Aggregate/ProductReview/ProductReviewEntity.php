@@ -19,33 +19,33 @@ class ProductReviewEntity extends Entity
 
     protected string $productId;
 
-    protected ?string $customerId;
+    protected ?string $customerId = null;
 
     protected string $salesChannelId;
 
     protected string $languageId;
 
-    protected ?string $externalUser;
+    protected ?string $externalUser = null;
 
-    protected ?string $externalEmail;
+    protected ?string $externalEmail = null;
 
-    protected ?float $points;
+    protected ?float $points = null;
 
     protected bool $status;
 
-    protected ?string $comment;
+    protected ?string $comment = null;
 
-    protected ?SalesChannelEntity $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    protected ?LanguageEntity $language;
+    protected ?LanguageEntity $language = null;
 
-    protected ?CustomerEntity $customer;
+    protected ?CustomerEntity $customer = null;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
-    protected ?string $content;
+    protected ?string $content = null;
 
-    protected ?string $title;
+    protected ?string $title = null;
 
     public function getProductId(): string
     {

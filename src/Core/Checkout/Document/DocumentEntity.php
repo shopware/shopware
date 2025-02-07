@@ -22,11 +22,9 @@ class DocumentEntity extends Entity
 
     protected string $documentTypeId;
 
-    protected ?string $documentMediaFileId;
+    protected ?string $documentMediaFileId = null;
 
-    protected string $fileType;
-
-    protected ?OrderEntity $order;
+    protected ?OrderEntity $order = null;
 
     /**
      * @var array<string, mixed>
@@ -39,17 +37,17 @@ class DocumentEntity extends Entity
 
     protected string $deepLinkCode;
 
-    protected ?DocumentTypeEntity $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    protected ?string $referencedDocumentId;
+    protected ?string $referencedDocumentId = null;
 
-    protected ?DocumentEntity $referencedDocument;
+    protected ?DocumentEntity $referencedDocument = null;
 
-    protected ?DocumentCollection $dependentDocuments;
+    protected ?DocumentCollection $dependentDocuments = null;
 
-    protected ?MediaEntity $documentMediaFile;
+    protected ?MediaEntity $documentMediaFile = null;
 
-    protected ?string $documentNumber;
+    protected ?string $documentNumber = null;
 
     protected ?string $documentA11yMediaFileId = null;
 

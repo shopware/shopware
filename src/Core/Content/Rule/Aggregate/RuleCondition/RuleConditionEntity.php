@@ -20,22 +20,22 @@ class RuleConditionEntity extends Entity implements IdAware
 
     protected string $ruleId;
 
-    protected ?string $scriptId;
+    protected ?string $scriptId = null;
 
-    protected ?string $parentId;
+    protected ?string $parentId = null;
 
     /**
      * @var array<string, mixed>|null
      */
-    protected ?array $value;
+    protected ?array $value = null;
 
-    protected ?RuleEntity $rule;
+    protected ?RuleEntity $rule = null;
 
-    protected ?AppScriptConditionEntity $appScriptCondition;
+    protected ?AppScriptConditionEntity $appScriptCondition = null;
 
-    protected ?RuleConditionCollection $children;
+    protected ?RuleConditionCollection $children = null;
 
-    protected ?RuleConditionEntity $parent;
+    protected ?RuleConditionEntity $parent = null;
 
     protected int $position;
 

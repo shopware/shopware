@@ -27,9 +27,9 @@ class ImportExportProfileEntity extends Entity
 
     protected string $fileType;
 
-    protected ?string $delimiter;
+    protected ?string $delimiter = null;
 
-    protected ?string $enclosure;
+    protected ?string $enclosure  = null;
 
     protected string $type;
 

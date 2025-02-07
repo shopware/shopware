@@ -72,8 +72,6 @@ admin_assets_list() {
   cat <<EOF | tr -d '[:blank:]'
     ${PLATFORM_DIR}/repos/administration/Resources/public/static/js/app.js
     ${PLATFORM_DIR}/repos/administration/Resources/public/static/css/app.css
-    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/js/storefront.js
-    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/css/storefront.css
 EOF
 }
 

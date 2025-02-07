@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -92,13 +92,14 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
     {
         $code = new PromotionIndividualCodeEntity();
         $code->setId(Uuid::randomHex());
+        $code->setCode('existing');
 
         /** @var StaticEntityRepository<PromotionIndividualCodeCollection> $codeRepository */
         $codeRepository = new StaticEntityRepository([
             static function (Criteria $criteria) use ($code) {
                 $filter = $criteria->getFilters()[0];
-                static::assertInstanceOf(EqualsFilter::class, $filter);
-                static::assertSame('existing', $filter->getValue());
+                static::assertInstanceOf(EqualsAnyFilter::class, $filter);
+                static::assertSame(['existing'], $filter->getValue());
 
                 return new PromotionIndividualCodeCollection([$code]);
             },

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<string, bool>>
+ * @extends StoreApiResponse<ArrayStruct<array{isExpired: bool}>>
  */
 #[Package('checkout')]
 class CustomerRecoveryIsExpiredResponse extends StoreApiResponse

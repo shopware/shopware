@@ -9,14 +9,14 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<string, SalesChannelProductEntity|PropertyGroupCollection|null>>
+ * @extends StoreApiResponse<ArrayStruct<array{product: SalesChannelProductEntity, configurator: PropertyGroupCollection|null}>>
  */
 #[Package('inventory')]
 class ProductDetailRouteResponse extends StoreApiResponse
 {
     public function __construct(
         SalesChannelProductEntity $product,
-        ?PropertyGroupCollection $configurator
+        ?PropertyGroupCollection $configurator,
     ) {
         parent::__construct(new ArrayStruct([
             'product' => $product,
@@ -24,9 +24,6 @@ class ProductDetailRouteResponse extends StoreApiResponse
         ], 'product_detail'));
     }
 
-    /**
-     * @return ArrayStruct<string, mixed>
-     */
     public function getResult(): ArrayStruct
     {
         return $this->object;

@@ -8,7 +8,7 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<string, RedirectResponse|null>>
+ * @extends StoreApiResponse<ArrayStruct<array{redirectResponse: RedirectResponse|null}>>
  */
 #[Package('checkout')]
 class HandlePaymentMethodRouteResponse extends StoreApiResponse
@@ -16,11 +16,7 @@ class HandlePaymentMethodRouteResponse extends StoreApiResponse
     public function __construct(?RedirectResponse $response)
     {
         parent::__construct(
-            new ArrayStruct(
-                [
-                    'redirectResponse' => $response,
-                ]
-            )
+            new ArrayStruct(['redirectResponse' => $response])
         );
     }
 
@@ -29,6 +25,11 @@ class HandlePaymentMethodRouteResponse extends StoreApiResponse
         return $this->object->get('redirectResponse');
     }
 
+    /**
+     * @return ArrayStruct<array{redirectUrl: string|null}>
+     *
+     * @phpstan-ignore method.childReturnType (it is intended to return a different ArrayStruct)
+     */
     public function getObject(): ArrayStruct
     {
         return new ArrayStruct([

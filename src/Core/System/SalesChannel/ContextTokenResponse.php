@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\PlatformRequest;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<string, string|null>>
+ * @extends StoreApiResponse<ArrayStruct<array{redirectUrl: string|null}>>
  */
 #[Package('framework')]
 class ContextTokenResponse extends StoreApiResponse

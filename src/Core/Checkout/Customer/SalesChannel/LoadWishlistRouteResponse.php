@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<string, CustomerWishlistEntity|EntitySearchResult<ProductCollection>>>
+ * @extends StoreApiResponse<ArrayStruct<array{wishlist: CustomerWishlistEntity, products: EntitySearchResult<ProductCollection>}>>
  */
 #[Package('checkout')]
 class LoadWishlistRouteResponse extends StoreApiResponse

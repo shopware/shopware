@@ -31,7 +31,7 @@ class CmsSlotEntity extends Entity
     /**
      * @var array<mixed>|null
      */
-    protected ?array $config = [];
+    protected ?array $config = null;
 
     protected ?FieldConfigCollection $fieldConfig = null;
 

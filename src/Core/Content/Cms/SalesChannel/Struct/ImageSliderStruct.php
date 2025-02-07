@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ImageSliderStruct extends Struct
 {
-    protected ?array $navigation = [];
+    protected ?array $navigation = null;
 
     /**
      * @var ImageSliderItemStruct[]|null

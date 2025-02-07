@@ -55,7 +55,7 @@ class CmsBlockEntity extends Entity
     /**
      * @var array<string, bool>|null
      */
-    protected ?array $visibility = [];
+    protected ?array $visibility = null;
 
     public function getType(): string
     {

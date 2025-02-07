@@ -35,7 +35,7 @@ class CategoryEntity extends Entity
     /**
      * @var array<mixed>|null
      */
-    protected ?array $breadcrumb = [];
+    protected ?array $breadcrumb = null;
 
     protected ?string $path = null;
 
@@ -76,7 +76,7 @@ class CategoryEntity extends Entity
     /**
      * @var array<mixed>|null
      */
-    protected ?array $slotConfig = [];
+    protected ?array $slotConfig = null;
 
     protected ?SalesChannelCollection $navigationSalesChannels = null;
 

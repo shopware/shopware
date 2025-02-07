@@ -26,7 +26,7 @@ class LandingPageTranslationEntity extends TranslationEntity
 
     protected ?string $keywords = null;
 
-    protected ?array $slotConfig = [];
+    protected ?array $slotConfig = null;
 
     public function getLandingPageId(): string
     {

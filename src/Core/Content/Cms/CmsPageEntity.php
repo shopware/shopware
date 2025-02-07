@@ -43,7 +43,7 @@ class CmsPageEntity extends Entity
     /**
      * @var array<string, array<string, mixed>>|null
      */
-    protected ?array $config = [];
+    protected ?array $config = null;
 
     protected ?string $previewMediaId = null;
 

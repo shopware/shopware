@@ -22,7 +22,7 @@ class CategoryTranslationEntity extends TranslationEntity
     /**
      * @var array<string>|null
      */
-    protected ?array $breadcrumb = [];
+    protected ?array $breadcrumb = null;
 
     protected ?CategoryEntity $category = null;
 
@@ -31,7 +31,7 @@ class CategoryTranslationEntity extends TranslationEntity
     /**
      * @var array<string, mixed>|null
      */
-    protected ?array $slotConfig = [];
+    protected ?array $slotConfig = null;
 
     protected ?string $linkType = null;
 

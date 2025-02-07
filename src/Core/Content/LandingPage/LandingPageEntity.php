@@ -42,7 +42,7 @@ class LandingPageEntity extends Entity
 
     protected ?string $url = null;
 
-    protected ?array $slotConfig = [];
+    protected ?array $slotConfig = null;
 
     protected ?SeoUrlCollection $seoUrls = null;
 

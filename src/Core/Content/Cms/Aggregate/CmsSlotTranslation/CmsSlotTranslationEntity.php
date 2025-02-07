@@ -15,7 +15,7 @@ class CmsSlotTranslationEntity extends TranslationEntity
     /**
      * @var array<mixed>|null
      */
-    protected ?array $config = [];
+    protected ?array $config = null;
 
     protected string $cmsSlotId;
 

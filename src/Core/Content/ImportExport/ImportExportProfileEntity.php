@@ -41,7 +41,7 @@ class ImportExportProfileEntity extends Entity
     /**
      * @var array<string, mixed>|null
      */
-    protected ?array $updateBy;
+    protected ?array $updateBy = [];
 
     protected ?ImportExportLogCollection $importExportLogs;
 

@@ -93,8 +93,6 @@ Shopware.Module.register('sw-extension', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     entity: 'extension',
-    // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
-    display: !Shopware.Context.app.disableExtensions,
 
     searchMatcher: (regex, labelType, manifest) => {
         const match = labelType.toLowerCase().match(regex);

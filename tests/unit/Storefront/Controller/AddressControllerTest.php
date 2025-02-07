@@ -25,7 +25,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
@@ -96,99 +95,6 @@ class AddressControllerTest extends TestCase
         $containerBuilder->set('request_stack', new RequestStack());
         $containerBuilder->set('translator', $translator);
         $this->controller->setContainer($containerBuilder);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 remove
-     */
-    #[DisabledFeatures(['ADDRESS_SELECTION_REWORK', 'v6.7.0.0'])]
-    public function testAddressBook(): void
-    {
-        $context = Generator::generateSalesChannelContext();
-        $request = new Request();
-        $dataBag = new RequestDataBag();
-
-        $customer = new CustomerEntity();
-        $customer->setId(Uuid::randomHex());
-
-        $response = $this->controller->addressBook($request, $dataBag, $context, $customer);
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-
-        $renderParams = $this->controller->renderStorefrontParameters;
-
-        static::assertArrayHasKey('messages', $renderParams);
-        static::assertCount(0, $renderParams['messages']);
-        static::assertArrayHasKey('page', $renderParams);
-        static::assertArrayNotHasKey('formViolations', $renderParams);
-        static::assertArrayNotHasKey('postedData', $renderParams);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 remove
-     */
-    #[DisabledFeatures(['ADDRESS_SELECTION_REWORK', 'v6.7.0.0'])]
-    public function testAddressBookWithConstraintViolation(): void
-    {
-        $context = Generator::generateSalesChannelContext();
-        $request = new Request();
-        $dataBag = new RequestDataBag();
-        $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
-
-        $customer = new CustomerEntity();
-        $customer->setId(Uuid::randomHex());
-
-        $this->abstractUpsertAddressRoute
-            ->expects(static::once())
-            ->method('upsert')
-            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
-
-        $response = $this->controller->addressBook($request, $dataBag, $context, $customer);
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-
-        $renderParams = $this->controller->renderStorefrontParameters;
-
-        static::assertArrayHasKey('messages', $renderParams);
-        static::assertCount(0, $renderParams['messages']);
-        static::assertArrayHasKey('page', $renderParams);
-        static::assertArrayHasKey('formViolations', $renderParams);
-        static::assertArrayHasKey('postedData', $renderParams);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 remove
-     */
-    #[DisabledFeatures(['ADDRESS_SELECTION_REWORK', 'v6.7.0.0'])]
-    public function testAddressBookWithException(): void
-    {
-        $context = Generator::generateSalesChannelContext();
-        $request = new Request();
-        $dataBag = new RequestDataBag();
-        $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
-
-        $customer = new CustomerEntity();
-        $customer->setId(Uuid::randomHex());
-
-        $this->abstractUpsertAddressRoute
-            ->expects(static::once())
-            ->method('upsert')
-            ->willThrowException(new \Exception());
-
-        $response = $this->controller->addressBook($request, $dataBag, $context, $customer);
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-
-        $renderParams = $this->controller->renderStorefrontParameters;
-
-        static::assertArrayHasKey('success', $renderParams);
-        static::assertFalse($renderParams['success']);
-        static::assertArrayHasKey('messages', $renderParams);
-        static::assertCount(2, $renderParams['messages']);
-        static::assertArrayHasKey('type', $renderParams['messages']);
-        static::assertArrayHasKey('text', $renderParams['messages']);
-        static::assertEquals(AddressControllerTestClass::DANGER, $renderParams['messages']['type']);
-        static::assertEquals('error.message-default', $renderParams['messages']['text']);
-        static::assertArrayHasKey('page', $renderParams);
-        static::assertArrayNotHasKey('formViolations', $renderParams);
-        static::assertArrayNotHasKey('postedData', $renderParams);
     }
 
     public function testAccountAddressOverview(): void

@@ -10,26 +10,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class BinaryStruct extends StoreStruct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $version;
+    protected string $version;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $text;
+    protected string $text;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $creationDate;
+    protected string $creationDate;
 
     /**
      * @return BinaryStruct

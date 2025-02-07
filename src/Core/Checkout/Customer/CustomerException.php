@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -25,11 +24,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class CustomerException extends HttpException
 {
-    /**
-     * @deprecated tag:v6.7.0 - Constant CUSTOMER_IS_INACTIVE will be removed as it is unused
-     */
-    public const CUSTOMER_IS_INACTIVE = 'CHECKOUT__CUSTOMER_IS_INACTIVE';
-
     public const CUSTOMERS_NOT_FOUND = 'CHECKOUT__CUSTOMERS_NOT_FOUND';
     public const CUSTOMER_NOT_FOUND = 'CHECKOUT__CUSTOMER_NOT_FOUND';
     public const CUSTOMER_GROUP_NOT_FOUND = 'CHECKOUT__CUSTOMER_GROUP_NOT_FOUND';
@@ -258,25 +252,8 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed as it is unused
-     */
-    public static function inactiveCustomer(string $id): ShopwareHttpException
+    public static function customerOptinNotCompleted(string $id): CustomerOptinNotCompletedException
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method "CustomerException::inactiveCustomer" will be removed as it is unused.');
-
-        return self::customerOptinNotCompleted($id);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Parameter $message will be removed as it is unused
-     */
-    public static function customerOptinNotCompleted(string $id, ?string $message = null): CustomerOptinNotCompletedException
-    {
-        if ($message !== null) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The parameter $message is unused and will be removed.');
-        }
-
         return new CustomerOptinNotCompletedException($id);
     }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -760,6 +761,6 @@ class ConfigurationServiceException extends ConfigurationService
      */
     public function checkConfiguration(string $domain, Context $context): bool
     {
-        throw Exception::invalidPlatformType('any');
+        throw new InvalidPlatformVersion('any');
     }
 }

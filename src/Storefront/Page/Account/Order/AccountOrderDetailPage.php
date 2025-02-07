@@ -10,19 +10,9 @@ use Shopware\Storefront\Page\Page;
 #[Package('checkout')]
 class AccountOrderDetailPage extends Page
 {
-    /**
-     * @var OrderEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
+    protected OrderEntity $order;
 
-    /**
-     * @var OrderLineItemCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lineItems;
+    protected ?OrderLineItemCollection $lineItems;
 
     public function getOrder(): OrderEntity
     {

@@ -15,8 +15,6 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['feature'],
-
     emits: [
         'on-save-item',
         'on-remove-items',

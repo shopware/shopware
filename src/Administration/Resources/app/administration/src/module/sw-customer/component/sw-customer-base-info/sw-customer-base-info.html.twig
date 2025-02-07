@@ -63,44 +63,6 @@
         </sw-description-list>
         {% endblock %}
 
-        {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-        {% block sw_customer_base_metadata_default_payment %}
-        <sw-description-list v-if="!feature.isActive('v6.7.0.0')">
-            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-            {% block sw_customer_base_metadata_default_payment_label %}
-            <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelDefaultPayment') }}
-            </dt>
-            {% endblock %}
-
-            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-            {% block sw_customer_base_metadata_default_payment_content %}
-            <dd
-                v-if="!customerEditMode"
-                class="sw-customer-base__label-default-payment-method"
-            >
-                {{ customer.defaultPaymentMethod.translated.distinguishableName }}
-            </dd>
-            {% endblock %}
-
-            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-            {% block sw_customer_base_metadata_default_payment_editor %}
-            <dd v-else>
-                <sw-entity-single-select
-                    v-model:value="customer.defaultPaymentMethodId"
-                    name="sw-field--customer-defaultPaymentMethodId"
-                    class="sw-customer-base-info__payment-select"
-                    entity="payment_method"
-                    label-property="distinguishableName"
-                    size="small"
-                    show-clearable-button
-                    :error="customerDefaultPaymentMethodIdError"
-                />
-            </dd>
-            {% endblock %}
-        </sw-description-list>
-        {% endblock %}
-
         {% block sw_customer_base_metadata_active %}
         <sw-description-list>
             {% block sw_customer_base_metadata_active_label %}

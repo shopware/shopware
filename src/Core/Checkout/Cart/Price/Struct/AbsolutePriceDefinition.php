@@ -20,12 +20,7 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
     final public const TYPE = 'absolute';
     final public const SORTING_PRIORITY = 75;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
+    protected float $price;
 
     /**
      * Allows to define a filter rule which line items should be considered for percentage discount/surcharge

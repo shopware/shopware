@@ -24,9 +24,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
@@ -175,13 +173,7 @@ class CartFacadeTest extends TestCase
 
     public function testDependency(): void
     {
-        static::markTestSkipped('#6556');
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectException(HookInjectionException::class);
-        } else {
-            $this->expectException(CartException::class);
-        }
+        $this->expectException(CartException::class);
 
         $service = static::getContainer()->get(CartFacadeHookFactory::class);
         $service->factory(new TestHook('test', Context::createDefaultContext()), $this->script);

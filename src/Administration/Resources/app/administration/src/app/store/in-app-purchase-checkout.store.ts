@@ -2,7 +2,6 @@
  * @sw-package checkout
  */
 import type { iapCheckout } from '@shopware-ag/meteor-admin-sdk/es/iap';
-import type { Extension } from 'src/app/store/extensions.store';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type InAppPurchaseRequest = Omit<iapCheckout, 'responseType'>;
@@ -28,12 +27,7 @@ const inAppPurchaseCheckoutStore = Shopware.Store.register({
     }),
 
     actions: {
-        // @deprecated tag:v6.7.0 - extension will only be string
-        request(entry: InAppPurchaseRequest, extension: Extension | string): void {
-            if (Shopware.Utils.types.isObject(extension)) {
-                extension = extension.name;
-            }
-
+        request(entry: InAppPurchaseRequest, extension: string): void {
             if (!Shopware.Context.app.config.bundles?.[extension]) {
                 throw new Error(`Extension with the name "${extension}" not found.`);
             }

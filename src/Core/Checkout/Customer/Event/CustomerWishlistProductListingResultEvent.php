@@ -16,19 +16,12 @@ class CustomerWishlistProductListingResultEvent extends NestedEvent implements S
 {
     final public const EVENT_NAME = 'checkout.customer.wishlist_listing_product_result';
 
-    /**
-     * @var Request
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $request;
+    protected Request $request;
 
     /**
      * @var EntitySearchResult<ProductCollection>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $result;
+    protected EntitySearchResult $result;
 
     /**
      * @param EntitySearchResult<ProductCollection> $wishlistProductListingResult

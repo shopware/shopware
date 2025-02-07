@@ -8,8 +8,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
-use Shopware\Core\Checkout\Shipping\ShippingException;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -24,11 +22,7 @@ class CartExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
 
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertSame(CartException::SHIPPING_METHOD_NOT_FOUND, $e->getErrorCode());
-        } else {
-            static::assertSame(ShippingException::SHIPPING_METHOD_NOT_FOUND, $e->getErrorCode());
-        }
+        static::assertSame(CartException::SHIPPING_METHOD_NOT_FOUND, $e->getErrorCode());
 
         static::assertSame('Could not find shipping method with id "shipping-method-id"', $e->getMessage());
     }

@@ -40,6 +40,7 @@ export default defineConfig(({ command }) => {
     return {
         base,
         server: {
+            port: Number(process.env.ADMIN_PORT) || 5173,
             proxy: {
                 '/api': {
                     target: process.env.APP_URL,

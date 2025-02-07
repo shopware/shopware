@@ -501,6 +501,38 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate([...$this->getChangedPropertyFilterTags($event), ...$this->getDeletedPropertyFilterTags($event)]);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:remove-subscriber - Will be removed, use invalidateProduct instead
+     */
+    public function invalidateReviewRoute(ProductChangedEventInterface $event): void
+    {
+        if (Feature::isActive('cache_rework')) {
+            // @deprecated tag:v6.7.0 - remove also event listener
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate(
+            // @TODO: @M.Telgmann. I changed it from CachedProductReviewRoute::buildName(...) to CachedProductListingRoute::buildName(...) to avoid PHPStan errors.
+            array_map(CachedProductListingRoute::buildName(...), $event->getIds())
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:remove-subscriber - Will be removed, use invalidateProduct instead
+     */
+    public function invalidateListings(ProductChangedEventInterface $event): void
+    {
+        if (Feature::isActive('cache_rework')) {
+            // @deprecated tag:v6.7.0 - remove also event listener
+            return;
+        }
+
+        // invalidates product listings which are based on the product category assignment
+        $this->cacheInvalidator->invalidate(
+            array_map(CachedProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()))
+        );
+    }
+
     public function invalidateStreamsBeforeIndexing(EntityWrittenContainerEvent $event): void
     {
         // invalidates all stream based pages and routes before the product indexer changes product_stream_mapping

@@ -15,7 +15,7 @@ class LanguageLocaleCodeProvider implements ResetInterface
     /**
      * @var ?LanguageData
      */
-    private ?array $languages = [];
+    private ?array $languages = null;
 
     /**
      * @internal

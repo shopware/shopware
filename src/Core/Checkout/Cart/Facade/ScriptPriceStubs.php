@@ -121,7 +121,8 @@ class ScriptPriceStubs implements ResetInterface
     {
         if ($this->currencies === null) {
             /** @var array<string, string> */
-            $this->currencies = $this->connection->fetchAllKeyValue('SELECT iso_code, LOWER(HEX(id)) FROM currency');
+            $currencies = $this->connection->fetchAllKeyValue('SELECT iso_code, LOWER(HEX(id)) FROM currency');
+            $this->currencies = $currencies;
         }
 
         $mapped = [];

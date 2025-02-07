@@ -12,7 +12,7 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal not intended for decoration or replacement
- * 
+ *
  * @phpstan-import-type TFlows from AbstractFlowLoader
  */
 #[Package('after-sales')]

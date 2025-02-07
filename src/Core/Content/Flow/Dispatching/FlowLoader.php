@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal not intended for decoration or replacement
- * 
+ *
  * @phpstan-import-type TFlows from AbstractFlowLoader
  */
 #[Package('after-sales')]

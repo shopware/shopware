@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal not intended for decoration or replacement
- * 
+ *
  * @phpstan-type TFlows array<string, array<array{id: string, name: string, payload: array<mixed>}>>
  */
 #[Package('after-sales')]

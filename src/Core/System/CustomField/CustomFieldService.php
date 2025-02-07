@@ -120,7 +120,7 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
             return $this->customFields;
         }
 
-        /** @var array<string, mixed> $customField */
+        /** @var array<string, mixed> */
         return $this->customFields = $this->connection->fetchAllKeyValue('SELECT `name`, `type` FROM `custom_field` WHERE `active` = 1');
     }
 }

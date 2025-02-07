@@ -10,8 +10,6 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['feature'],
-
     emits: ['update:rating'],
 
     props: {

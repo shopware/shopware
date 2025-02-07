@@ -5,20 +5,16 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent as StorefrontProductReviewsLoadedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -182,27 +178,13 @@ class CmsController extends StorefrontController
 
         $reviews = $this->productReviewLoader->load($request, $context, $product->getId(), $product->getParentId());
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            /** @var StorefrontSearchResult<ProductReviewCollection> $storefrontReviews */
-            $storefrontReviews = new StorefrontSearchResult(
-                $reviews->getEntity(),
-                $reviews->getTotal(),
-                $reviews->getEntities(),
-                $reviews->getAggregations(),
-                $reviews->getCriteria(),
-                $reviews->getContext()
-            );
-
-            $this->eventDispatcher->dispatch(new StorefrontProductReviewsLoadedEvent($storefrontReviews, $context, $request));
-        }
-
         $event = new SwitchBuyBoxVariantEvent($elementId, $product, $configurator, $request, $context);
         $this->eventDispatcher->dispatch($event);
 
         $response = $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
             'product' => $product,
             'configuratorSettings' => $configurator,
-            'totalReviews' => $reviews->getTotalReviews(),
+            'totalReviews' => $reviews->getTotal(),
             'elementId' => $elementId,
         ]);
         $response->headers->set('x-robots-tag', 'noindex');

@@ -11,19 +11,9 @@ use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPagelet;
 #[Package('checkout')]
 class AccountOverviewPage extends Page
 {
-    /**
-     * @var OrderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $newestOrder;
+    protected ?OrderEntity $newestOrder = null;
 
-    /**
-     * @var CustomerEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customer;
+    protected CustomerEntity $customer;
 
     protected NewsletterAccountPagelet $newsletterAccountPagelet;
 

@@ -11,54 +11,19 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class LicenseStruct extends Struct
 {
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected int $id;
 
-    /**
-     * @var \DateTimeImmutable
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $creationDate;
+    protected \DateTimeImmutable $creationDate;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $variant;
+    protected string $variant;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentText;
+    protected string $paymentText;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $netPrice;
+    protected float $netPrice;
 
-    /**
-     * @var \DateTimeImmutable|null null for free extensions
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $nextBookingDate;
+    protected ?\DateTimeImmutable $nextBookingDate;
 
-    /**
-     * @var ExtensionStruct
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $licensedExtension;
+    protected ExtensionStruct $licensedExtension;
 
     protected ?\DateTimeInterface $expirationDate = null;
 

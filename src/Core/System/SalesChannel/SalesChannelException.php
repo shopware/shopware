@@ -10,7 +10,6 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
-use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -198,15 +197,8 @@ class SalesChannelException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function taxNotFound(string $taxId): self|TaxNotFoundException
+    public static function taxNotFound(string $taxId): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new TaxNotFoundException($taxId);
-        }
-
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::TAX_DOES_NOT_EXISTS_EXCEPTION,

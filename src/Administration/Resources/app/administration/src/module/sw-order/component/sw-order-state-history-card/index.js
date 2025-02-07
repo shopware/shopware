@@ -19,7 +19,6 @@ export default {
         'orderStateMachineService',
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     emits: [

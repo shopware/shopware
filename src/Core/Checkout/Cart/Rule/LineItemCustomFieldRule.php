@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class LineItemCustomFieldRule extends Rule
@@ -23,10 +23,8 @@ class LineItemCustomFieldRule extends Rule
 
     /**
      * @var array<string|int|bool|float>|string|int|float|bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $renderedFieldValue;
+    protected array|string|int|float|bool|null $renderedFieldValue = null;
 
     protected ?string $selectedField = null;
 
@@ -34,8 +32,6 @@ class LineItemCustomFieldRule extends Rule
 
     /**
      * @param array<string, mixed> $renderedField
-     *
-     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

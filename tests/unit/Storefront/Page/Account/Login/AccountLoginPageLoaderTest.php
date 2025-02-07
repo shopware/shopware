@@ -154,7 +154,7 @@ class AccountLoginPageLoaderTest extends TestCase
         static::assertInstanceOf(AccountLoginPageLoadedEvent::class, $events[0]);
     }
 
-    public function testSetStandardMetaDataIfTranslatorIsSet(): void
+    public function testSetStandardMetaData(): void
     {
         $pageLoader = new TestAccountLoginPageLoader(
             $this->genericLoader,
@@ -172,26 +172,6 @@ class AccountLoginPageLoaderTest extends TestCase
         $pageLoader->setMetaInformationAccess($page);
 
         static::assertInstanceOf(MetaInformation::class, $page->getMetaInformation());
-    }
-
-    public function testNotSetStandardMetaDataIfTranslatorIsNotSet(): void
-    {
-        $pageLoader = new TestAccountLoginPageLoader(
-            $this->genericLoader,
-            $this->eventDispatcher,
-            $this->countryRoute,
-            $this->salutationRoute,
-            $this->salutationSorter,
-            null
-        );
-
-        $page = new AccountLoginPage();
-
-        static::assertNull($page->getMetaInformation());
-
-        $pageLoader->setMetaInformationAccess($page);
-
-        static::assertNull($page->getMetaInformation());
     }
 }
 

@@ -29,7 +29,7 @@ class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
     {
         $qb = $this->connection->createQueryBuilder()
             ->from('theme_sales_channel')
-            ->select(['LOWER(HEX(sales_channel_id))', 'LOWER(HEX(theme_id))'])
+            ->select('LOWER(HEX(sales_channel_id))', 'LOWER(HEX(theme_id))')
             ->leftJoin('theme_sales_channel', 'sales_channel', 'sales_channel', 'sales_channel.id = theme_sales_channel.sales_channel_id')
             ->where('sales_channel.type_id = :typeId')
             ->setParameter('typeId', Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT));

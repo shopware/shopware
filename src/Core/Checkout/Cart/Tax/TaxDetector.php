@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Country\CountryEntity;
@@ -65,11 +64,7 @@ class TaxDetector extends AbstractTaxDetector
         }
 
         if (!empty($vatPattern) && $shippingLocationCountry->getCheckVatIdPattern()) {
-            if (Feature::isActive('v6.7.0.0')) {
-                $regex = '/^' . $vatPattern . '$/';
-            } else {
-                $regex = '/^' . $vatPattern . '$/i';
-            }
+            $regex = '/^' . $vatPattern . '$/';
 
             foreach ($vatIds as $vatId) {
                 if (!preg_match($regex, $vatId)) {

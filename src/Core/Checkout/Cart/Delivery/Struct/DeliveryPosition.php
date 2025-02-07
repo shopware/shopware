@@ -10,40 +10,15 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DeliveryPosition extends Struct
 {
-    /**
-     * @var LineItem
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lineItem;
+    protected LineItem $lineItem;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $quantity;
+    protected float $quantity;
 
-    /**
-     * @var CalculatedPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
+    protected CalculatedPrice $price;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $identifier;
+    protected string $identifier;
 
-    /**
-     * @var DeliveryDate
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deliveryDate;
+    protected DeliveryDate $deliveryDate;
 
     public function __construct(
         string $identifier,

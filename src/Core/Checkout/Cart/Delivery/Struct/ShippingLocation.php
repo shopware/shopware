@@ -13,8 +13,8 @@ class ShippingLocation extends Struct
 {
     public function __construct(
         protected CountryEntity $country,
-        protected ?CountryStateEntity $state,
-        protected ?CustomerAddressEntity $address
+        protected ?CountryStateEntity $state = null,
+        protected ?CustomerAddressEntity $address = null
     ) {
     }
 

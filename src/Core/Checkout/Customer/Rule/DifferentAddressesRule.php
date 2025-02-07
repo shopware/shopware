@@ -18,12 +18,10 @@ class DifferentAddressesRule extends Rule
 {
     final public const RULE_NAME = 'customerDifferentAddresses';
 
-    protected bool $isDifferent;
-
-    public function __construct(bool $isDifferent = true)
-    {
+    public function __construct(
+        protected bool $isDifferent = true
+    ) {
         parent::__construct();
-        $this->isDifferent = $isDifferent;
     }
 
     public function match(RuleScope $scope): bool

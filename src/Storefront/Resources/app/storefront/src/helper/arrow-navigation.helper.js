@@ -1,5 +1,4 @@
 import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 const ARROW_NAVIGATION_ACTIVE_CLASS = 'is-active';
 
@@ -72,7 +71,7 @@ export default class ArrowNavigationHelper {
         this._clampIterator();
 
         // remove all active classes
-        Iterator.iterate(this._items, (item) => item.classList.remove(ARROW_NAVIGATION_ACTIVE_CLASS));
+        this._items.forEach((item) => item.classList.remove(ARROW_NAVIGATION_ACTIVE_CLASS));
 
         // add active class to current iteration
         this._getCurrentSelection().classList.add(ARROW_NAVIGATION_ACTIVE_CLASS);

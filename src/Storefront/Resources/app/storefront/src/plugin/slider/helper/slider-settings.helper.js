@@ -1,5 +1,4 @@
 import deepmerge from 'deepmerge';
-import Iterator from 'src/helper/iterator.helper';
 
 export default class SliderSettingsHelper {
 
@@ -30,7 +29,7 @@ export default class SliderSettingsHelper {
      * @param {Object} options
      */
     static prepareBreakpointPxValues(options) {
-        Iterator.iterate(options.responsive, (viewportOptions,viewport) => {
+        Object.entries(options.responsive).forEach(([viewport, viewportOptions]) => {
             const viewportWidth = window.breakpoints[viewport.toLowerCase()];
             options.responsive[viewportWidth] = viewportOptions;
             delete options.responsive[viewport];

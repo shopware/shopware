@@ -1,7 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 import Feature from 'src/helper/feature.helper';
 
 
@@ -86,7 +85,7 @@ export default class FlyoutMenuPlugin extends Plugin {
         }
 
         // register opening triggers
-        Iterator.iterate(this._triggerEls, el => {
+        this._triggerEls.forEach(el => {
             const flyoutId = DomAccess.getDataAttribute(el, this.options.triggerDataAttribute);
             el.addEventListener(openEvent, this._openFlyoutById.bind(this, flyoutId, el));
             el.addEventListener('keydown', (event) => {
@@ -106,13 +105,13 @@ export default class FlyoutMenuPlugin extends Plugin {
         });
 
         // register closing triggers
-        Iterator.iterate(this._closeEls, el => {
+        this._closeEls.forEach(el => {
             el.addEventListener(clickEvent, this._closeAllFlyouts.bind(this));
         });
 
         // register non touch events for open flyouts
         if (!DeviceDetection.isTouchDevice()) {
-            Iterator.iterate(this._flyoutEls, el => {
+            this._flyoutEls.forEach(el => {
                 el.addEventListener('mousemove', () => this._clearDebounce());
                 el.addEventListener('mouseleave', () => this._debounce(this._closeAllFlyouts));
             });
@@ -196,7 +195,7 @@ export default class FlyoutMenuPlugin extends Plugin {
     _closeAllFlyouts() {
         const flyoutEls = this.el.querySelectorAll(`[${this.options.flyoutIdDataAttribute}]`);
 
-        Iterator.iterate(flyoutEls, el => {
+        flyoutEls.forEach(el => {
             const triggerEl = this._retrieveTriggerEl(el);
             this._closeFlyout(el, triggerEl);
         });

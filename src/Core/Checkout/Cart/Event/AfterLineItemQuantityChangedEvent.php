@@ -12,25 +12,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
-     * @var array<array<string, mixed>>
-     */
-    protected array $items;
-
-    protected Cart $cart;
-
-    protected SalesChannelContext $salesChannelContext;
-
-    /**
      * @param array<array<string, mixed>> $items
      */
     public function __construct(
-        Cart $cart,
-        array $items,
-        SalesChannelContext $salesChannelContext
+        protected Cart $cart,
+        protected array $items,
+        protected SalesChannelContext $salesChannelContext
     ) {
-        $this->cart = $cart;
-        $this->items = $items;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getCart(): Cart

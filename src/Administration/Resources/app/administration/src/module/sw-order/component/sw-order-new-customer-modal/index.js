@@ -95,6 +95,10 @@ export default {
             },
 
             set(newValue) {
+                if (newValue === this.isSameBilling) {
+                    return;
+                }
+
                 if (newValue === true) {
                     this.customer.defaultShippingAddressId = this.customer.defaultBillingAddressId;
 

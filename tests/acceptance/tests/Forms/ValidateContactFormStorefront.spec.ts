@@ -50,6 +50,7 @@ test(
         });
 
         await test.step('Send and validate the negative contact form result.', async () => {
+            await StorefrontContactForm.page.waitForLoadState('domcontentloaded');
             await StorefrontContactForm.submitButton.click();
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 

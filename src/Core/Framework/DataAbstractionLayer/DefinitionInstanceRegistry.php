@@ -28,7 +28,7 @@ class DefinitionInstanceRegistry
     /**
      * @var array<class-string<Entity>, EntityDefinition>|null
      */
-    protected ?array $entityClassMapping;
+    protected ?array $entityClassMapping = null;
 
     /**
      * @internal

@@ -16,11 +16,11 @@ class Price extends Struct
 
     protected bool $linked;
 
-    protected ?Price $listPrice;
+    protected ?Price $listPrice = null;
 
-    protected ?array $percentage;
+    protected ?array $percentage = null;
 
-    protected ?Price $regulationPrice;
+    protected ?Price $regulationPrice = null;
 
     public function __construct(
         string $currencyId,

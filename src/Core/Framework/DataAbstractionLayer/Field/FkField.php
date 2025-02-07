@@ -16,7 +16,7 @@ class FkField extends Field implements StorageAware
 
     protected string $referenceClass;
 
-    protected ?EntityDefinition $referenceDefinition;
+    protected ?EntityDefinition $referenceDefinition = null;
 
     protected string $referenceField;
 

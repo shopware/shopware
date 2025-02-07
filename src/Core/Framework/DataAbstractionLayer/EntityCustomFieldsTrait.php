@@ -13,7 +13,7 @@ trait EntityCustomFieldsTrait
      * @var array<mixed>|null
      */
     #[CustomFields]
-    protected ?array $customFields;
+    protected ?array $customFields = null;
 
     /**
      * @return array<mixed>|null

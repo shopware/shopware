@@ -15,17 +15,17 @@ class VersionCommitEntity extends Entity
 
     protected int $autoIncrement;
 
-    protected ?string $message;
+    protected ?string $message = null;
 
-    protected ?string $userId;
+    protected ?string $userId = null;
 
-    protected ?string $integrationId;
+    protected ?string $integrationId = null;
 
     protected VersionCommitDataCollection $data;
 
     protected bool $isMerge;
 
-    protected ?VersionEntity $version;
+    protected ?VersionEntity $version = null;
 
     public function getAutoIncrement(): int
     {

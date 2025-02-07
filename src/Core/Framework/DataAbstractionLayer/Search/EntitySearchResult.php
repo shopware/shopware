@@ -30,7 +30,7 @@ class EntitySearchResult extends EntityCollection
 
     protected int $page;
 
-    protected ?int $limit;
+    protected ?int $limit = null;
 
     /**
      * @param TEntityCollection $entities

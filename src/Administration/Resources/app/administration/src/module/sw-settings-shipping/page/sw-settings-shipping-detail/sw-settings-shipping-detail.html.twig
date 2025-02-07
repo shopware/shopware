@@ -90,19 +90,13 @@
                             v-model:value="shippingMethod.technicalName"
                             name="sw-field--shippingMethod-technicalName"
                             class="sw-settings-shipping-detail__field-technical-name"
-                            :required="feature.isActive('v6.7.0.0')"
+                            required
                             :disabled="!acl.can('shipping.editor') || undefined"
                             :label="$tc('sw-settings-shipping.detail.labelTechnicalName')"
                             :placeholder="placeholder(shippingMethod, 'technicalName', $tc('sw-settings-shipping.detail.placeholderTechnicalName'))"
                             :error="shippingMethodTechnicalNameError"
                             :help-text="$tc('sw-settings-shipping.detail.helpTextTechnicalName')"
-                            :class="!shippingMethod.technicalName ? 'has--warning' : ''"
-                        >
-                            {# @deprecated tag:v6.7.0 - Hint can be removed: with technical names now required, the hint is no longer needed. Also remove the snippet and dynamic class has--warning #}
-                            <template #hint>
-                                <span v-if="!shippingMethod.technicalName">{{ $tc('sw-settings-shipping.detail.hintTextTechnicalName') }}</span>
-                            </template>
-                        </sw-text-field>
+                        />
                         {% endblock %}
 
                         {% block sw_settings_shipping_detail_base_content_field_position %}

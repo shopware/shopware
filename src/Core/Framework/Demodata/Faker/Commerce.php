@@ -47,6 +47,6 @@ class Commerce extends FakerCommerce
 
     public function customFieldSet(): string
     {
-        return static::randomElement(static::$productName['adjective']) . ' ' . static::randomElement(static::$department) . ' ' . static::randomNumber(5);
+        return str_replace(' ', '_', static::randomElement(static::$productName['adjective']) . ' ' . static::randomElement(static::$department) . ' ' . static::randomNumber(5));
     }
 }

@@ -4,7 +4,6 @@
 
 import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
-import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import querystring from 'query-string';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
@@ -284,7 +283,7 @@ export default class ListingPlugin extends Plugin {
     }
 
     _registerLabelEvents(resetButtons) {
-        Iterator.iterate(resetButtons, (label) => {
+        resetButtons.forEach((label) => {
             label.addEventListener('click', () => this.resetFilter(label));
         });
     }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
@@ -23,9 +24,9 @@ class RetryableQuery
      *
      * @param array<string, mixed> $params
      */
-    public function execute(array $params = []): int
+    public function execute(array $params = []): int|string
     {
-        return self::retry($this->connection, fn () => $this->query->executeStatement($params), 0);
+        return self::retry($this->connection, fn () => StatementHelper::executeStatement($this->query, $params), 0);
     }
 
     /**

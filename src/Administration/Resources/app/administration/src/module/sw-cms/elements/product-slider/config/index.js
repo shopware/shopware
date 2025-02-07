@@ -203,6 +203,7 @@ export default {
 
         onProductsChange() {
             this.element.config.products.value = this.productCollection.getIds();
+            this.element.translated.config.products.value = this.productCollection.getIds();
 
             if (!this.element?.data) {
                 return;

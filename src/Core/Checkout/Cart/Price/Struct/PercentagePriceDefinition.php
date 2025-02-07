@@ -20,21 +20,12 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
     final public const TYPE = 'percentage';
     final public const SORTING_PRIORITY = 50;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $percentage;
+    protected float $percentage;
 
     /**
      * Allows to define a filter rule which line items should be considered for percentage discount/surcharge
-     *
-     * @var Rule|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $filter;
+    protected ?Rule $filter;
 
     public function __construct(
         float $percentage,

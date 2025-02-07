@@ -20,7 +20,6 @@ export default {
         'repositoryFactory',
         'orderService',
         'acl',
-        'feature',
     ],
 
     emits: [

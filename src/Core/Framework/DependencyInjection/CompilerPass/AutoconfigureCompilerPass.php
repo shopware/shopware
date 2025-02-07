@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Cart\TaxProvider\AbstractTaxProvider;
 use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\LegacyEncoderInterface;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
 use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
@@ -30,7 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
@@ -109,12 +107,6 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
         $container
             ->registerForAutoconfiguration(AbstractDocumentRenderer::class)
             ->addTag('document.renderer');
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $container
-                ->registerForAutoconfiguration(SynchronousPaymentHandlerInterface::class)
-                ->addTag('shopware.payment.method.sync');
-        }
 
         $container
             ->registerForAutoconfiguration(AbstractPaymentHandler::class)

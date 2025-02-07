@@ -34,18 +34,6 @@ export default {
             isLoading: false,
             filterLoading: false,
             showDeleteModal: false,
-            /**
-             * @deprecated tag:v6.7.0 - will be removed without replacement
-             */
-            availableAffiliateCodes: [],
-            /**
-             * @deprecated tag:v6.7.0 - will be removed without replacement
-             */
-            availableCampaignCodes: [],
-            /**
-             * @deprecated tag:v6.7.0 - will be removed without replacement
-             */
-            availablePromotionCodes: [],
             filterCriteria: [],
             defaultFilters: [
                 'order-number-filter',
@@ -210,7 +198,6 @@ export default {
                     placeholder: this.$tc('sw-order.filters.affiliateCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableAffiliateCodes,
                 },
                 'campaign-code-filter': {
                     property: 'campaignCode',
@@ -219,7 +206,6 @@ export default {
                     placeholder: this.$tc('sw-order.filters.campaignCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableCampaignCodes,
                 },
                 'promotion-code-filter': {
                     property: 'lineItems.payload.code',
@@ -228,7 +214,6 @@ export default {
                     placeholder: this.$tc('sw-order.filters.promotionCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availablePromotionCodes,
                 },
                 'document-filter': {
                     property: 'documents',
@@ -505,30 +490,6 @@ export default {
             );
 
             return style.colorCode;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - will be removed without replacement
-         */
-        loadFilterValues() {
-            this.filterLoading = true;
-
-            return this.orderRepository
-                .search(this.filterSelectCriteria)
-                .then(({ aggregations }) => {
-                    const { affiliateCodes, campaignCodes, promotionCodes } = aggregations;
-
-                    this.availableAffiliateCodes = affiliateCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
-                    this.availableCampaignCodes = campaignCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
-                    this.availablePromotionCodes = promotionCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
-
-                    this.filterLoading = false;
-
-                    return aggregations;
-                })
-                .catch(() => {
-                    this.filterLoading = false;
-                });
         },
 
         onDelete(id) {

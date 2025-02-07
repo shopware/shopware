@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -65,9 +64,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $shippingMethods = $result->getEntities();
 
-        if (Feature::isActive('cache_rework')) {
-            $shippingMethods->sortShippingMethodsByPreference($context);
-        }
+        $shippingMethods->sortShippingMethodsByPreference($context);
 
         /**
          * @deprecated tag:v6.7.0 - onlyAvailable flag will be removed, use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute  instead
@@ -78,13 +75,11 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $result->assign(['entities' => $shippingMethods, 'elements' => $shippingMethods, 'total' => $shippingMethods->count()]);
 
-        if (Feature::isActive('cache_rework')) {
-            $this->scriptExecutor->execute(new ShippingMethodRouteHook(
-                $shippingMethods,
-                $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
-                $context
-            ));
-        }
+        $this->scriptExecutor->execute(new ShippingMethodRouteHook(
+            $shippingMethods,
+            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
+            $context
+        ));
 
         return new ShippingMethodRouteResponse($result);
     }

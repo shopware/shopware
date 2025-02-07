@@ -951,31 +951,6 @@ parameters:
 			path: src/Core/Content/LandingPage/Aggregate/LandingPageTranslation/LandingPageTranslationEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:__construct\\(\\) has parameter \\$skip with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:\\$ids type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/LandingPage/Event/LandingPageRouteCacheTagsEvent.php

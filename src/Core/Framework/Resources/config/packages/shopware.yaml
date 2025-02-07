@@ -148,7 +148,7 @@ shopware:
         asset:
         sitemap:
         allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "csv", "xls", "xlsx", "html"]
-        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html"]
+        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml"]
         private_local_download_strategy: "php"
 
     cdn:
@@ -438,6 +438,10 @@ shopware:
             CHECKOUT__CART_LINE_ITEM_TYPE_NOT_UPDATABLE: notice
             CHECKOUT__INVALID_PAYMENT_TOKEN: notice
             DOCUMENT__INVALID_GENERATOR_TYPE: notice
+            DOCUMENT__INVALID_RENDERER_TYPE: notice
+            DOCUMENT__NUMBER_ALREADY_EXISTS: notice
+            DOCUMENT__DOCUMENT_NOT_FOUND: notice
+            DOCUMENT__GENERATION_ERROR: notice
             DOCUMENT__ORDER_NOT_FOUND: notice
             CHECKOUT__PROMOTION__NOT_FOUND: notice
             CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND: notice

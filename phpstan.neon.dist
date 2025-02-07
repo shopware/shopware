@@ -241,6 +241,3 @@ parameters:
             #^Call to deprecated method getQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
             The query parts are implementation details and should not be relied upon\\.$#
         """
-
-        - # OpenSearch deprecations will be handeld in NEXT-40529
-            message: '#OpenSearch\\#'

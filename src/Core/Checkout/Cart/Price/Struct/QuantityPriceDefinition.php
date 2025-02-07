@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -103,6 +104,9 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         return self::SORTING_PRIORITY;
     }
 
+    /**
+     * @return array<string, list<Constraint>>
+     */
     public static function getConstraints(): array
     {
         return [

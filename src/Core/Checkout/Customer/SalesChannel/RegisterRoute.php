@@ -27,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
@@ -114,14 +113,12 @@ class RegisterRoute extends AbstractRegisterRoute
         $shipping = $data->get('shippingAddress');
 
         if ($billing instanceof DataBag) {
-            if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-                if ($billing->has('firstName') && !$data->has('firstName')) {
-                    $data->set('firstName', $billing->get('firstName'));
-                }
+            if ($billing->has('firstName') && !$data->has('firstName')) {
+                $data->set('firstName', $billing->get('firstName'));
+            }
 
-                if ($billing->has('lastName') && !$data->has('lastName')) {
-                    $data->set('lastName', $billing->get('lastName'));
-                }
+            if ($billing->has('lastName') && !$data->has('lastName')) {
+                $data->set('lastName', $billing->get('lastName'));
             }
 
             if ($data->has('title')) {
@@ -436,10 +433,6 @@ class RegisterRoute extends AbstractRegisterRoute
             'firstLogin' => new \DateTimeImmutable(),
             'addresses' => [],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $context->getPaymentMethod()->getId();
-        }
 
         if (!$isGuest) {
             $customer['password'] = $data->get('password');

@@ -21,7 +21,6 @@ export default {
         'documentService',
         'numberRangeService',
         'repositoryFactory',
-        'feature',
         'acl',
     ],
 

@@ -10,19 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class StoreApiException extends StoreException
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $title;
+    protected string $title;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentationLink;
+    protected string $documentationLink;
 
     public function __construct(ClientException $exception)
     {

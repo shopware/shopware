@@ -19,7 +19,6 @@ export default Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     props: {

@@ -125,18 +125,6 @@ All available Hooks that can be used to load additional data.
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[request](./miscellaneous-script-services-reference.md#RequestFacade)<br> |
 | **Stoppable**          | `false`                  |
 
-#### account-payment-method-page-loaded
-
-| <!-- -->               | <!-- -->                                |
-|:-----------------------|:----------------------------------------|
-| **Name**               | account-payment-method-page-loaded                         |
-| **Since**              | 6.4.8.0                        |
-| **Class**              | `Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedHook`                      |
-| **Description**        | Triggered when the AccountPaymentMethodPage is loaded<br>                  |
-| **Available Data**     | page: [`Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/PaymentMethod/AccountPaymentMethodPage.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
-| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[request](./miscellaneous-script-services-reference.md#RequestFacade)<br> |
-| **Stoppable**          | `false`                  |
-
 #### account-profile-page-loaded
 
 | <!-- -->               | <!-- -->                                |

@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
-use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -64,7 +63,7 @@ class RecalculationService
      *
      * @throws CustomerNotLoggedInException
      * @throws CartException
-     * @throws DeliveryWithoutAddressException
+     * @throws OrderException
      * @throws EmptyCartException
      * @throws InconsistentCriteriaIdsException
      */
@@ -105,7 +104,7 @@ class RecalculationService
     }
 
     /**
-     * @throws DeliveryWithoutAddressException
+     * @throws OrderException
      * @throws InconsistentCriteriaIdsException
      * @throws CartException
      * @throws ProductNotFoundException
@@ -145,7 +144,7 @@ class RecalculationService
     }
 
     /**
-     * @throws DeliveryWithoutAddressException
+     * @throws OrderException
      * @throws InconsistentCriteriaIdsException
      * @throws CartException
      */

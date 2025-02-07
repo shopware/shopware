@@ -10,16 +10,13 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class IsGuestCustomerRule extends Rule
 {
     final public const RULE_NAME = 'customerIsGuest';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $isGuest = true)
     {
         parent::__construct();

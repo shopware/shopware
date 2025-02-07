@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Checkout;
-use Shopware\Core\Checkout\DependencyInjection\CompilerPass\CartRedisCompilerPass;
+use Shopware\Core\Checkout\DependencyInjection\CompilerPass\CartStorageCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -27,7 +27,7 @@ class CheckoutTest extends TestCase
 
         $cartRedisCompilerPass = \array_filter(
             $container->getCompiler()->getPassConfig()->getBeforeOptimizationPasses(),
-            static fn (CompilerPassInterface $pass) => $pass instanceof CartRedisCompilerPass
+            static fn (CompilerPassInterface $pass) => $pass instanceof CartStorageCompilerPass
         );
 
         static::assertCount(1, $cartRedisCompilerPass);

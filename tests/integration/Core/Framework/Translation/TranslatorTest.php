@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -433,13 +434,13 @@ class TranslatorTest extends TestCase
         );
 
         // assign new uuid to old DEFAULT
-        $stmt->executeStatement([
+        StatementHelper::executeStatement($stmt, [
             'newId' => Uuid::randomBytes(),
             'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
         ]);
 
         // change id to DEFAULT
-        $stmt->executeStatement([
+        StatementHelper::executeStatement($stmt, [
             'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'oldId' => $currentDeId,
         ]);

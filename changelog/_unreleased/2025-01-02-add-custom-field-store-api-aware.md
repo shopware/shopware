@@ -10,4 +10,4 @@ author_github: akf-bw
 * Changed `Shopware\Core\System\SalesChannel\Api\StructEncoder` to fetch blocked custom fields & exclude them from the store API response
 ___
 # Administration
-* Added `sw_custom_field_detail_modal_store_api_aware` & `sw_custom_field_detail_modal_allow_cart_expose` blocks to `sw-custom-field-detail.html.twig`
+* Added `sw_custom_field_detail_modal_store_api_aware` and `sw_custom_field_detail_modal_allow_cart_expose` blocks to `sw-custom-field-detail.html.twig`

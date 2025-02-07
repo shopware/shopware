@@ -287,7 +287,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             ->get('newsletter_recipient.repository')
             ->delete([$newsletterRecipient], $context);
 
-        $messageBus = static::getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.bus.default');
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
 
         foreach ($messageBus->getDispatchedMessages() as $message) {

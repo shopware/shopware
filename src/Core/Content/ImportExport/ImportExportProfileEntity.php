@@ -36,7 +36,7 @@ class ImportExportProfileEntity extends Entity
     /**
      * @var list<array{key: string, mappedKey: string}>|array<Mapping>|null
      */
-    protected ?array $mapping;
+    protected ?array $mapping = null;
 
     /**
      * @var array<string, mixed>|null

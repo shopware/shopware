@@ -82,7 +82,7 @@ class DocumentRouteTest extends TestCase
 
     public function testThrowExceptionWithoutDeeplink(): void
     {
-        static::expectException(CustomerNotLoggedInException::class);
+        static::expectException(DocumentException::class);
         static::expectExceptionMessage('Customer is not logged in.');
 
         $customer = new CustomerEntity();

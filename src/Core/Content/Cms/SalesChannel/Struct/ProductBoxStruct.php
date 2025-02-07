@@ -9,9 +9,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ProductBoxStruct extends Struct
 {
-    protected ?string $productId;
+    protected ?string $productId = null;
 
-    protected ?SalesChannelProductEntity $product;
+    protected ?SalesChannelProductEntity $product = null;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

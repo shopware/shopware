@@ -24,27 +24,27 @@ class CmsSlotEntity extends Entity
 
     protected string $slot;
 
-    protected ?CmsBlockEntity $block;
+    protected ?CmsBlockEntity $block = null;
 
     protected string $blockId;
 
     /**
      * @var array<mixed>|null
      */
-    protected ?array $config;
+    protected ?array $config = [];
 
-    protected ?FieldConfigCollection $fieldConfig;
+    protected ?FieldConfigCollection $fieldConfig = null;
 
     /**
      * @var EntityCollection<CmsSlotTranslationEntity>|null
      */
-    protected ?EntityCollection $translations;
+    protected ?EntityCollection $translations = null;
 
-    protected ?Struct $data;
+    protected ?Struct $data = null;
 
     protected bool $locked;
 
-    protected ?string $cmsBlockVersionId;
+    protected ?string $cmsBlockVersionId = null;
 
     public function getType(): string
     {

@@ -10,15 +10,15 @@ use Shopware\Core\Framework\Log\Package;
 class LandingPageIndexerEvent extends NestedEvent
 {
     /**
-     * @var string[]
+     * @var list<string>
      */
     protected array $ids;
 
     protected Context $context;
 
     /**
-     * @param string[] $ids
-     * @param string[] $skip
+     * @param list<string> $ids
+     * @param list<string> $skip
      */
     public function __construct(
         array $ids,
@@ -30,7 +30,7 @@ class LandingPageIndexerEvent extends NestedEvent
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getIds(): array
     {
@@ -43,7 +43,7 @@ class LandingPageIndexerEvent extends NestedEvent
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getSkip(): array
     {

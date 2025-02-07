@@ -24,20 +24,20 @@ class CategoryEntity extends Entity
 
     protected ?string $afterCategoryId = null;
 
-    protected ?string $parentId;
+    protected ?string $parentId = null;
 
     protected int $autoIncrement;
 
-    protected ?string $mediaId;
+    protected ?string $mediaId = null;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     /**
      * @var array<mixed>|null
      */
-    protected ?array $breadcrumb;
+    protected ?array $breadcrumb = [];
 
-    protected ?string $path;
+    protected ?string $path = null;
 
     protected int $level;
 
@@ -49,48 +49,48 @@ class CategoryEntity extends Entity
 
     protected bool $displayNestedProducts;
 
-    protected ?CategoryEntity $parent;
+    protected ?CategoryEntity $parent = null;
 
-    protected ?CategoryCollection $children;
+    protected ?CategoryCollection $children = null;
 
-    protected ?CategoryTranslationCollection $translations;
+    protected ?CategoryTranslationCollection $translations = null;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
-    protected ?ProductCollection $products;
+    protected ?ProductCollection $products = null;
 
-    protected ?ProductCollection $nestedProducts;
+    protected ?ProductCollection $nestedProducts = null;
 
-    protected ?TagCollection $tags;
+    protected ?TagCollection $tags = null;
 
-    protected ?string $cmsPageId;
+    protected ?string $cmsPageId = null;
 
     protected bool $cmsPageIdSwitched = false;
 
-    protected ?CmsPageEntity $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
-    protected ?string $productStreamId;
+    protected ?string $productStreamId = null;
 
-    protected ?ProductStreamEntity $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
     /**
      * @var array<mixed>|null
      */
-    protected ?array $slotConfig;
+    protected ?array $slotConfig = [];
 
-    protected ?SalesChannelCollection $navigationSalesChannels;
+    protected ?SalesChannelCollection $navigationSalesChannels = null;
 
-    protected ?SalesChannelCollection $footerSalesChannels;
+    protected ?SalesChannelCollection $footerSalesChannels = null;
 
-    protected ?SalesChannelCollection $serviceSalesChannels;
+    protected ?SalesChannelCollection $serviceSalesChannels = null;
 
-    protected ?string $linkType;
+    protected ?string $linkType = null;
 
-    protected ?bool $linkNewTab;
+    protected ?bool $linkNewTab = null;
 
-    protected ?string $internalLink;
+    protected ?string $internalLink = null;
 
-    protected ?string $externalLink;
+    protected ?string $externalLink = null;
 
     protected bool $visible;
 
@@ -98,19 +98,19 @@ class CategoryEntity extends Entity
 
     protected string $productAssignmentType;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $metaTitle;
+    protected ?string $metaTitle = null;
 
-    protected ?string $metaDescription;
+    protected ?string $metaDescription = null;
 
-    protected ?string $keywords;
+    protected ?string $keywords = null;
 
-    protected ?MainCategoryCollection $mainCategories;
+    protected ?MainCategoryCollection $mainCategories = null;
 
-    protected ?SeoUrlCollection $seoUrls;
+    protected ?SeoUrlCollection $seoUrls = null;
 
-    protected ?string $customEntityTypeId;
+    protected ?string $customEntityTypeId = null;
 
     public function getParentId(): ?string
     {

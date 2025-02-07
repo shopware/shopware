@@ -13,7 +13,7 @@ class ProductListingStruct extends Struct
     /**
      * @var EntitySearchResult<ProductCollection>|null
      */
-    protected ?EntitySearchResult $listing;
+    protected ?EntitySearchResult $listing = null;
 
     /**
      * @return EntitySearchResult<ProductCollection>|null

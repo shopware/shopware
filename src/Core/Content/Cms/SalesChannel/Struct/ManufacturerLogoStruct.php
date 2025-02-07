@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class ManufacturerLogoStruct extends ImageStruct
 {
-    protected ?ProductManufacturerEntity $manufacturer;
+    protected ?ProductManufacturerEntity $manufacturer = null;
 
     public function getManufacturer(): ?ProductManufacturerEntity
     {

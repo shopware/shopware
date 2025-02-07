@@ -10,13 +10,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class BuyBoxStruct extends Struct
 {
-    protected ?string $productId;
+    protected ?string $productId = null;
 
     protected int $totalReviews;
 
-    protected ?SalesChannelProductEntity $product;
+    protected ?SalesChannelProductEntity $product = null;
 
-    protected ?PropertyGroupCollection $configuratorSettings;
+    protected ?PropertyGroupCollection $configuratorSettings = null;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

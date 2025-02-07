@@ -20,31 +20,31 @@ class LandingPageEntity extends Entity
 
     protected bool $active;
 
-    protected ?LandingPageTranslationCollection $translations;
+    protected ?LandingPageTranslationCollection $translations = null;
 
-    protected ?TagCollection $tags;
+    protected ?TagCollection $tags = null;
 
-    protected ?string $cmsPageId;
+    protected ?string $cmsPageId = null;
 
-    protected ?string $cmsPageVersionId;
+    protected ?string $cmsPageVersionId = null;
 
-    protected ?CmsPageEntity $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
-    protected ?SalesChannelCollection $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $metaTitle;
+    protected ?string $metaTitle = null;
 
-    protected ?string $metaDescription;
+    protected ?string $metaDescription = null;
 
-    protected ?string $keywords;
+    protected ?string $keywords = null;
 
-    protected ?string $url;
+    protected ?string $url = null;
 
-    protected ?array $slotConfig;
+    protected ?array $slotConfig = [];
 
-    protected ?SeoUrlCollection $seoUrls;
+    protected ?SeoUrlCollection $seoUrls = null;
 
     public function isActive(): bool
     {

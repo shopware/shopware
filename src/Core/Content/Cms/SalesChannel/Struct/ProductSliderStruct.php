@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ProductSliderStruct extends Struct
 {
-    protected ?ProductCollection $products;
+    protected ?ProductCollection $products = null;
 
     protected ?string $streamId = null;
 

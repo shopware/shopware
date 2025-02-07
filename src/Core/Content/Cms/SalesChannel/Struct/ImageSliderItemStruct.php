@@ -9,11 +9,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ImageSliderItemStruct extends Struct
 {
-    protected ?string $url;
+    protected ?string $url = null;
 
-    protected ?bool $newTab;
+    protected ?bool $newTab = null;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
     public function getMedia(): ?MediaEntity
     {

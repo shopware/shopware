@@ -14,7 +14,7 @@ class Tree extends Struct
      */
     protected array $tree;
 
-    protected ?CategoryEntity $active;
+    protected ?CategoryEntity $active = null;
 
     /**
      * @param TreeItem[] $tree

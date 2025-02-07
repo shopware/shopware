@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class TextStruct extends Struct
 {
-    protected ?string $content;
+    protected ?string $content = null;
 
     public function getContent(): ?string
     {

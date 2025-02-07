@@ -13,9 +13,9 @@ class TreeItem extends Struct
     /**
      * @internal public to allow AfterSort::sort()
      */
-    public ?string $afterId;
+    public ?string $afterId = null;
 
-    protected ?CategoryEntity $category;
+    protected ?CategoryEntity $category = null;
 
     /**
      * @var TreeItem[]

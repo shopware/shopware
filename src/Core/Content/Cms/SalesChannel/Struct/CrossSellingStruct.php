@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class CrossSellingStruct extends Struct
 {
-    protected ?CrossSellingElementCollection $crossSellings;
+    protected ?CrossSellingElementCollection $crossSellings = null;
 
     public function getCrossSellings(): ?CrossSellingElementCollection
     {

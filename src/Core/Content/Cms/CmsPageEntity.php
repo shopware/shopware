@@ -21,39 +21,39 @@ class CmsPageEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected string $type;
 
-    protected ?string $entity;
+    protected ?string $entity = null;
 
-    protected ?CmsSectionCollection $sections;
+    protected ?CmsSectionCollection $sections = null;
 
     /**
      * @var EntityCollection<CmsPageTranslationEntity>|null
      */
-    protected ?EntityCollection $translations;
+    protected ?EntityCollection $translations = null;
 
-    protected ?CategoryCollection $categories;
+    protected ?CategoryCollection $categories = null;
 
-    protected ?ProductCollection $products;
+    protected ?ProductCollection $products = null;
 
-    protected ?string $cssClass;
+    protected ?string $cssClass = null;
 
     /**
      * @var array<string, array<string, mixed>>|null
      */
-    protected ?array $config;
+    protected ?array $config = [];
 
-    protected ?string $previewMediaId;
+    protected ?string $previewMediaId = null;
 
-    protected ?MediaEntity $previewMedia;
+    protected ?MediaEntity $previewMedia = null;
 
     protected bool $locked;
 
-    protected ?LandingPageCollection $landingPages;
+    protected ?LandingPageCollection $landingPages = null;
 
-    protected ?CmsPageCollection $homeSalesChannels;
+    protected ?CmsPageCollection $homeSalesChannels = null;
 
     public function getName(): ?string
     {

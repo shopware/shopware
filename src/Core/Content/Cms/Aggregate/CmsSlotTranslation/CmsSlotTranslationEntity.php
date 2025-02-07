@@ -15,11 +15,11 @@ class CmsSlotTranslationEntity extends TranslationEntity
     /**
      * @var array<mixed>|null
      */
-    protected ?array $config;
+    protected ?array $config = [];
 
     protected string $cmsSlotId;
 
-    protected ?CmsSlotEntity $cmsSlot;
+    protected ?CmsSlotEntity $cmsSlot = null;
 
     /**
      * @return array<mixed>|null

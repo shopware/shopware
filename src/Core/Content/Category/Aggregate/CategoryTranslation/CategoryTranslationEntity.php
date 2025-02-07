@@ -17,37 +17,37 @@ class CategoryTranslationEntity extends TranslationEntity
 
     protected string $categoryVersionId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     /**
      * @var array<string>|null
      */
-    protected ?array $breadcrumb;
+    protected ?array $breadcrumb = [];
 
-    protected ?CategoryEntity $category;
+    protected ?CategoryEntity $category = null;
 
-    protected ?LanguageEntity $language;
+    protected ?LanguageEntity $language = null;
 
     /**
      * @var array<string, mixed>|null
      */
-    protected ?array $slotConfig;
+    protected ?array $slotConfig = [];
 
-    protected ?string $linkType;
+    protected ?string $linkType = null;
 
-    protected ?bool $linkNewTab;
+    protected ?bool $linkNewTab = null;
 
-    protected ?string $internalLink;
+    protected ?string $internalLink = null;
 
-    protected ?string $externalLink;
+    protected ?string $externalLink = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $metaTitle;
+    protected ?string $metaTitle = null;
 
-    protected ?string $metaDescription;
+    protected ?string $metaDescription = null;
 
-    protected ?string $keywords;
+    protected ?string $keywords = null;
 
     public function getCategoryId(): string
     {

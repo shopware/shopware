@@ -18,44 +18,44 @@ class CmsBlockEntity extends Entity
 
     protected string $type;
 
-    protected ?CmsSlotCollection $slots;
+    protected ?CmsSlotCollection $slots = null;
 
     protected string $sectionId;
 
-    protected ?CmsSectionEntity $section;
+    protected ?CmsSectionEntity $section = null;
 
     protected int $position;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $sectionPosition;
+    protected ?string $sectionPosition = null;
 
-    protected ?string $marginTop;
+    protected ?string $marginTop = null;
 
-    protected ?string $marginBottom;
+    protected ?string $marginBottom = null;
 
-    protected ?string $marginLeft;
+    protected ?string $marginLeft = null;
 
-    protected ?string $marginRight;
+    protected ?string $marginRight = null;
 
-    protected ?string $backgroundColor;
+    protected ?string $backgroundColor = null;
 
-    protected ?string $backgroundMediaId;
+    protected ?string $backgroundMediaId = null;
 
-    protected ?MediaEntity $backgroundMedia;
+    protected ?MediaEntity $backgroundMedia = null;
 
-    protected ?string $backgroundMediaMode;
+    protected ?string $backgroundMediaMode = null;
 
-    protected ?string $cssClass;
+    protected ?string $cssClass = null;
 
     protected bool $locked;
 
-    protected ?string $cmsSectionVersionId;
+    protected ?string $cmsSectionVersionId = null;
 
     /**
      * @var array<string, bool>|null
      */
-    protected ?array $visibility;
+    protected ?array $visibility = [];
 
     public function getType(): string
     {

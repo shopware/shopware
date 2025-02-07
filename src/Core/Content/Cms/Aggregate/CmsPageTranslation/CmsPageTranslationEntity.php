@@ -12,13 +12,13 @@ class CmsPageTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected string $cmsPageId;
 
     protected string $cmsPageVersionId;
 
-    protected ?CmsPageEntity $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
     public function getCmsPageId(): string
     {

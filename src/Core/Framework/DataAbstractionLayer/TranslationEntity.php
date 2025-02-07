@@ -10,7 +10,7 @@ class TranslationEntity extends Entity
 {
     protected string $languageId;
 
-    protected ?LanguageEntity $language;
+    protected ?LanguageEntity $language = null;
 
     public function getLanguageId(): string
     {

@@ -18,38 +18,38 @@ class CmsSectionEntity extends Entity
 
     protected string $type;
 
-    protected ?CmsBlockCollection $blocks;
+    protected ?CmsBlockCollection $blocks = null;
 
     protected string $pageId;
 
-    protected ?CmsPageEntity $page;
+    protected ?CmsPageEntity $page = null;
 
     protected int $position;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $sizingMode;
+    protected ?string $sizingMode = null;
 
-    protected ?string $mobileBehavior;
+    protected ?string $mobileBehavior = null;
 
-    protected ?string $backgroundColor;
+    protected ?string $backgroundColor = null;
 
-    protected ?string $backgroundMediaId;
+    protected ?string $backgroundMediaId = null;
 
-    protected ?MediaEntity $backgroundMedia;
+    protected ?MediaEntity $backgroundMedia = null;
 
-    protected ?string $backgroundMediaMode;
+    protected ?string $backgroundMediaMode = null;
 
-    protected ?string $cssClass;
+    protected ?string $cssClass = null;
 
     protected bool $locked;
 
-    protected ?string $cmsPageVersionId;
+    protected ?string $cmsPageVersionId = null;
 
     /**
      * @var array<string, bool>|null
      */
-    protected ?array $visibility;
+    protected ?array $visibility = [];
 
     public function getType(): string
     {

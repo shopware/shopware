@@ -10,13 +10,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ProductDescriptionReviewsStruct extends Struct
 {
-    protected ?string $productId;
+    protected ?string $productId = null;
 
-    protected ?bool $ratingSuccess;
+    protected ?bool $ratingSuccess = null;
 
-    protected ?ProductReviewResult $reviews;
+    protected ?ProductReviewResult $reviews = null;
 
-    protected ?SalesChannelProductEntity $product;
+    protected ?SalesChannelProductEntity $product = null;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

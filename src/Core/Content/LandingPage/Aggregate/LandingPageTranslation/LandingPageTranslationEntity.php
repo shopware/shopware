@@ -14,19 +14,19 @@ class LandingPageTranslationEntity extends TranslationEntity
 
     protected string $landingPageId;
 
-    protected ?LandingPageEntity $landingPage;
+    protected ?LandingPageEntity $landingPage = null;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $url;
+    protected ?string $url = null;
 
-    protected ?string $metaTitle;
+    protected ?string $metaTitle = null;
 
-    protected ?string $metaDescription;
+    protected ?string $metaDescription = null;
 
-    protected ?string $keywords;
+    protected ?string $keywords = null;
 
-    protected ?array $slotConfig;
+    protected ?array $slotConfig = [];
 
     public function getLandingPageId(): string
     {

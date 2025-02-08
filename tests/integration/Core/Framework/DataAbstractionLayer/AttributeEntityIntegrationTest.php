@@ -207,6 +207,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'text' => 'text',
             'int' => 1,
             'float' => 1.1,
@@ -252,6 +253,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertSame('string', $record->string);
+        static::assertSame('', $record->emptyString);
         static::assertSame('text', $record->text);
         static::assertSame(1, $record->int);
         static::assertSame(1.1, $record->float);
@@ -329,6 +331,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'orders' => null,
             'translations' => null,
             'customFields' => null,
+            'emptyString' => '',
         ], $json);
     }
 

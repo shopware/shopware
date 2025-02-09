@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\Node\SwBlockReferenceExpression;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\EmbedTokenParser;
@@ -64,6 +65,10 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
 
         if ($templateArgument !== null) {
             return new SwBlockReferenceExpression($args[0], $templateArgument, $line);
+        }
+
+        if (!$args[0] instanceof AbstractExpression) {
+            throw AdapterException::swBlockInstanceError();
         }
         // sw-fix-end
 

@@ -13,6 +13,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
+use Twig\Node\Expression\AbstractExpression;
+use Twig\Node\Node;
+use Twig\Node\Nodes;
+use Twig\Parser;
 use Twig\TwigFunction;
 
 /**
@@ -49,6 +53,20 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
 
         static::assertContains('sw_source', $functionNames);
         static::assertContains('sw_include', $functionNames);
+    }
+
+    public function testAbstractExpressionIsThrown(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The first argument of the "sw_block" function must be an instance of AbstractExpression.');
+
+        $extension = new TwigFeaturesWithInheritanceExtension($this->createMock(TemplateFinder::class));
+        $extension->parseSwBlockFunction(
+            $this->createMock(Parser::class),
+            $this->createMock(AbstractExpression::class),
+            new Nodes([$this->createMock(Node::class)]),
+            100
+        );
     }
 
     private function parseTemplate(string $template): string

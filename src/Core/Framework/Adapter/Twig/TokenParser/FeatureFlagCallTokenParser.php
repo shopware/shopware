@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class FeatureFlagCallTokenParser extends AbstractTokenParser
 {

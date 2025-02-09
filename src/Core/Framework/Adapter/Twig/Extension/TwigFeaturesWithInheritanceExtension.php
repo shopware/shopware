@@ -26,6 +26,9 @@ use Twig\Util\CallableArgumentsExtractor;
 #[Package('framework')]
 class TwigFeaturesWithInheritanceExtension extends AbstractExtension
 {
+    /**
+     * @internal
+     */
     public function __construct(private readonly TemplateFinderInterface $finder)
     {
     }

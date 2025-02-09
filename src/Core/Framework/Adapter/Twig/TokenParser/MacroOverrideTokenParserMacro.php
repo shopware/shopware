@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Token;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 /**
  * @internal

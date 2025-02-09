@@ -12,6 +12,8 @@ use Twig\Node\Node;
 use Twig\Token;
 
 /**
+ * @internal
+ *
  * @see \Twig\TokenParser\EmbedTokenParser
  */
 #[Package('framework')]

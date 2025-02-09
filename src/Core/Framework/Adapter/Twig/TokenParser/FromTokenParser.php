@@ -14,6 +14,8 @@ use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
 /**
+ * @internal
+ *
  * @see \Twig\TokenParser\FromTokenParser
  */
 #[Package('framework')]

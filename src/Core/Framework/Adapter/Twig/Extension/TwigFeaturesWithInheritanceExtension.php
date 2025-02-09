@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Twig\TokenParser\ImportTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\UseTokenParser;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
+use Twig\Error\LoaderError;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\CoreExtension;
 use Twig\Node\Expression\AbstractExpression;
@@ -74,6 +75,15 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
         return CoreExtension::source($env, $this->finder->find($name), $ignoreMissing);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     * @param array<string, string>|string|TemplateWrapper $template
+     * @param array<string, mixed> $variables
+     *
+     * @throws LoaderError
+     *
+     * @see CoreExtension::include
+     */
     public function include(
         Environment $env,
         array $context,

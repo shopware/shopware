@@ -15,7 +15,7 @@ use Twig\TokenParser\AbstractTokenParser;
 /**
  * @see \Twig\TokenParser\ImportTokenParser
  */
-#[Package('core')]
+#[Package('framework')]
 final class ImportTokenParser extends AbstractTokenParser
 {
     public function __construct(private readonly TemplateFinderInterface $templateFinder)

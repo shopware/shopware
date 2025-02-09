@@ -14,7 +14,7 @@ use Twig\Token;
 /**
  * @see \Twig\TokenParser\EmbedTokenParser
  */
-#[Package('core')]
+#[Package('framework')]
 final class EmbedTokenParser extends \Twig\TokenParser\IncludeTokenParser
 {
     public function __construct(private readonly TemplateFinderInterface $templateFinder)

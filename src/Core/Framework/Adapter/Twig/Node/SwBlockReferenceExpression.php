@@ -10,7 +10,7 @@ use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\BlockReferenceExpression;
 use Twig\Node\Node;
 
-#[Package('core')]
+#[Package('framework')]
 #[YieldReady]
 class SwBlockReferenceExpression extends AbstractExpression
 {

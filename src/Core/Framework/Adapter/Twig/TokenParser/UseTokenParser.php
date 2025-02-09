@@ -15,7 +15,7 @@ use Twig\TokenParser\AbstractTokenParser;
 /**
  * @see \Twig\TokenParser\UseTokenParser
  */
-#[Package('core')]
+#[Package('framework')]
 final class UseTokenParser extends AbstractTokenParser
 {
     public function __construct(private readonly TemplateFinderInterface $templateFinder)

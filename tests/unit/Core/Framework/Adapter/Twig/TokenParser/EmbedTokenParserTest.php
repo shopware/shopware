@@ -14,7 +14,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(EmbedTokenParser::class)]
 class EmbedTokenParserTest extends TestCase
 {

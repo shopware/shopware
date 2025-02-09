@@ -22,7 +22,7 @@ use Twig\TwigFunction;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(SwTwigFunction::class)]
 #[CoversClass(TwigFeaturesWithInheritanceExtension::class)]
 class TwigFeaturesWithInheritanceExtensionTest extends TestCase

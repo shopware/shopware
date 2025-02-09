@@ -14,7 +14,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(ImportTokenParser::class)]
 class ImportTokenParserTest extends TestCase
 {

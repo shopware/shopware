@@ -23,7 +23,7 @@ use Twig\TokenParser\TokenParserInterface;
 use Twig\TwigFunction;
 use Twig\Util\CallableArgumentsExtractor;
 
-#[Package('core')]
+#[Package('framework')]
 class TwigFeaturesWithInheritanceExtension extends AbstractExtension
 {
     public function __construct(private readonly TemplateFinderInterface $finder)

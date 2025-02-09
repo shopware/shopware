@@ -18,7 +18,7 @@ use Twig\TwigFunction;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(SwBlockReferenceExpression::class)]
 class SwBlockReferenceExpressionTest extends TestCase
 {

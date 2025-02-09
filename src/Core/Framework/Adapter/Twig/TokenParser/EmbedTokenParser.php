@@ -5,11 +5,13 @@ namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Node\EmbedNode;
+use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\NameExpression;
 use Twig\Node\Expression\Variable\ContextVariable;
 use Twig\Node\Node;
 use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
 /**
  * @internal
@@ -17,12 +19,15 @@ use Twig\Token;
  * @see \Twig\TokenParser\EmbedTokenParser
  */
 #[Package('framework')]
-final class EmbedTokenParser extends \Twig\TokenParser\IncludeTokenParser
+final class EmbedTokenParser extends AbstractTokenParser
 {
     public function __construct(private readonly TemplateFinderInterface $templateFinder)
     {
     }
 
+    /**
+     * @see \Twig\TokenParser\EmbedTokenParser::parse
+     */
     public function parse(Token $token): Node
     {
         $stream = $this->parser->getStream();
@@ -75,5 +80,39 @@ final class EmbedTokenParser extends \Twig\TokenParser\IncludeTokenParser
     public function getTag(): string
     {
         return 'sw_embed';
+    }
+
+    /**
+     * @see \Twig\TokenParser\IncludeTokenParser::parseArguments
+     *
+     * @return array{0: ?AbstractExpression, 1: bool, 2: bool}
+     */
+    protected function parseArguments(): array
+    {
+        $stream = $this->parser->getStream();
+
+        $ignoreMissing = false;
+
+        if ($stream->nextIf(Token::NAME_TYPE, 'ignore')) {
+            $stream->expect(Token::NAME_TYPE, 'missing');
+
+            $ignoreMissing = true;
+        }
+
+        $variables = null;
+
+        if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
+            $variables = $this->parser->getExpressionParser()->parseExpression();
+        }
+
+        $only = false;
+
+        if ($stream->nextIf(Token::NAME_TYPE, 'only')) {
+            $only = true;
+        }
+
+        $stream->expect(Token::BLOCK_END_TYPE);
+
+        return [$variables, $only, $ignoreMissing];
     }
 }

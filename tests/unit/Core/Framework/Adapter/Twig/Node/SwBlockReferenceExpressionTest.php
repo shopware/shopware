@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Node;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\TwigFeaturesWithInheritanceExtension;
-use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
+use Shopware\Core\Framework\Adapter\Twig\Node\SwBlockReferenceExpression;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Log\Package;
@@ -19,23 +19,14 @@ use Twig\TwigFunction;
  * @internal
  */
 #[Package('core')]
-#[CoversClass(SwTwigFunction::class)]
-#[CoversClass(TwigFeaturesWithInheritanceExtension::class)]
-class TwigFeaturesWithInheritanceExtensionTest extends TestCase
+#[CoversClass(SwBlockReferenceExpression::class)]
+class SwBlockReferenceExpressionTest extends TestCase
 {
-    public function testRenderSourceReferencingFromInheritedTemplate(): void
+    public function testRenderBlockReferencingFromInheritedTemplate(): void
     {
         static::assertSame(
-            'start {% block inner %}content{% endblock %} end',
-            $this->parseTemplate('{{ sw_source("foo.html.twig") }}')
-        );
-    }
-
-    public function testRenderIncludeReferencingFromInheritedTemplate(): void
-    {
-        static::assertSame(
-            'start content end',
-            $this->parseTemplate('{{ sw_include("foo.html.twig") }}')
+            'content',
+            $this->parseTemplate('{{ sw_block("inner", "foo.html.twig") }}')
         );
     }
 
@@ -47,8 +38,7 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
             $extension->getFunctions(),
         );
 
-        static::assertContains('sw_source', $functionNames);
-        static::assertContains('sw_include', $functionNames);
+        static::assertContains('sw_block', $functionNames);
     }
 
     private function parseTemplate(string $template): string

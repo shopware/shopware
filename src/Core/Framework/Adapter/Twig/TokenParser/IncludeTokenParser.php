@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\SwInclude;
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\IncludeNode;
@@ -14,7 +14,7 @@ use Twig\TokenParser\AbstractTokenParser;
 #[Package('framework')]
 final class IncludeTokenParser extends AbstractTokenParser
 {
-    public function __construct(private readonly TemplateFinderInterface $finder)
+    public function __construct(private readonly TemplateFinder $finder)
     {
     }
 

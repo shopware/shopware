@@ -18,7 +18,6 @@ export default {
     compatConfig: Shopware.compatConfig,
 
     inject: [
-        'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
     ],
@@ -88,7 +87,7 @@ export default {
         },
 
         accountFormFields() {
-            const fields = [
+            return [
                 {
                     name: 'groupId',
                     config: {
@@ -127,20 +126,6 @@ export default {
                     },
                 },
             ];
-
-            if (this.feature.isActive('v6.7.0.0')) {
-                fields.splice(1, 0, {
-                    name: 'defaultPaymentMethodId',
-                    config: {
-                        componentName: 'sw-entity-single-select',
-                        entity: 'payment_method',
-                        changeLabel: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.label'),
-                        placeholder: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.placeholder'),
-                    },
-                });
-            }
-
-            return fields;
         },
 
         tagsFormFields() {

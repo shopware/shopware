@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 export default class NavbarPlugin extends Plugin {
     static options = {
@@ -25,7 +24,7 @@ export default class NavbarPlugin extends Plugin {
         const closeEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'mouseleave';
         const clickEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
-        Iterator.iterate(this._topLevelLinks, el => {
+        this._topLevelLinks.forEach(el => {
             el.addEventListener(openEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(closeEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));

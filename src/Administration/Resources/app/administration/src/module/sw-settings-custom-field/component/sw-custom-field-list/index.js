@@ -122,6 +122,7 @@ export default {
 
         onAddCustomField() {
             const customField = this.customFieldRepository.create();
+            customField.storeApiAware = true;
             this.onCustomFieldEdit(customField);
         },
 

@@ -821,7 +821,6 @@
         "customerBirthdayRule": "Customer date of birth",
         "customerCreatedByAdminRule": "Customer created by admin",
         "customerSalutationRule": "Customer salutation",
-        "customerDefaultPaymentMethodRule": "Customer with default payment method",
         "lineItemPropertyValueRule": "Item with property value",
         "lineItemVariantValueRule": "Item with variant value"
       }

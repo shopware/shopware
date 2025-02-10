@@ -33,7 +33,7 @@ describe('src/app/component/base/sw-text-field', () => {
     });
 
     it('should render the mt-text-field when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['v6.7.0.0'];
+        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
 
         const wrapper = await createWrapper();
 

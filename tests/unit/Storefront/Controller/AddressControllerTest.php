@@ -25,7 +25,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
@@ -97,7 +96,6 @@ class AddressControllerTest extends TestCase
         $containerBuilder->set('translator', $translator);
         $this->controller->setContainer($containerBuilder);
     }
-
 
     public function testAccountAddressOverview(): void
     {

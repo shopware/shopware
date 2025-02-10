@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class PaymentMethodRule extends Rule
@@ -20,8 +20,6 @@ class PaymentMethodRule extends Rule
 
     /**
      * @param list<string> $paymentMethodIds
-     *
-     * @internal
      */
     public function __construct(
         protected string $operator = Rule::OPERATOR_EQ,

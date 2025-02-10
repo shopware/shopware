@@ -1,11 +1,16 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { RuleType } from '@shopware-ag/acceptance-test-suite';
+import { satisfies } from 'compare-versions';
 test('As an admin user, I want to filter and add rule assignments, to easily add new entities to a rule', { tag: '@Rule' }, async ({
     ShopAdmin,
     TestDataService,
     AdminRuleDetail,
     AssignEntitiesToRule,
+    InstanceMeta,
 }) => {
+    // TODO: Meteor fix
+    test.skip(satisfies(InstanceMeta.version, '>=6.7'), 'Skipped due to 6.7 mt-button expect in the ats npm package');
+
     const rule = await TestDataService.createBasicRule();
     const shippingMethod1 = await TestDataService.createBasicShippingMethod();
     const shippingMethod2 = await TestDataService.createBasicShippingMethod();

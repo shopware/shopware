@@ -16,7 +16,6 @@ export default {
         'repositoryFactory',
         'acl',
         'promotionSyncService',
-        'feature',
     ],
 
     props: {

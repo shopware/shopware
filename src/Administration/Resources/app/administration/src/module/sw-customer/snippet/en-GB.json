@@ -255,10 +255,6 @@
         "label": "Status",
         "placeholder": "Select status..."
       },
-      "defaultPaymentMethod": {
-        "label": "Default payment method",
-        "placeholder": "Select default payment method..."
-      },
       "customerGroup": {
         "label": "Customer group",
         "placeholder": "Select customer group..."

@@ -15,7 +15,6 @@ export default {
 
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     emits: [

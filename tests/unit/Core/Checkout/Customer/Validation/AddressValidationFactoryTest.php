@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -77,7 +76,6 @@ class AddressValidationFactoryTest extends TestCase
      */
     private function assertAddressDefinition(array $definition): void
     {
-
         static::assertArrayHasKey('title', $definition);
         static::assertInstanceOf(Length::class, $definition['title'][0]);
         static::assertArrayHasKey('zipcode', $definition);

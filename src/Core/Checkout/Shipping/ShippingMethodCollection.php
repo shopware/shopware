@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -62,9 +61,8 @@ class ShippingMethodCollection extends EntityCollection
     public function sortShippingMethodsByPreference(SalesChannelContext $context): void
     {
         $ids = array_merge(
-            !Feature::isActive('ACCESSIBILITY_TWEAKS') ? [$context->getShippingMethod()->getId()] : [],
             [$context->getSalesChannel()->getShippingMethodId()],
-            $this->getIds()
+            $this->getIds(),
         );
 
         $this->sortByIdArray($ids);

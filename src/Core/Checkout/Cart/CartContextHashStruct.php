@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class CartContextHashStruct extends Struct
 {
-    protected ?float $price;
+    protected ?float $price = null;
 
-    protected ?string $shippingMethod;
+    protected ?string $shippingMethod = null;
 
-    protected ?string $paymentMethod;
+    protected ?string $paymentMethod = null;
 
     /**
      * @var array<string, mixed>

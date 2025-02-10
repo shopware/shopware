@@ -14,16 +14,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class BillingCityRule extends Rule
 {
     final public const RULE_NAME = 'customerBillingCity';
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $cityName = null

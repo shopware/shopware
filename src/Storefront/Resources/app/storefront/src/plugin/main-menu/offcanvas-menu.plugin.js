@@ -3,7 +3,6 @@ import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.util';
 import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @sw-package framework
@@ -59,9 +58,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
         if (OffCanvas.exists()) {
             const offCanvasElements = OffCanvas.getOffCanvas();
 
-            Iterator.iterate(offCanvasElements, offcanvas => {
+            offCanvasElements.forEach(offcanvas => {
                 const links = offcanvas.querySelectorAll(this.options.linkSelector);
-                Iterator.iterate(links, link => {
+                links.forEach(link => {
                     OffcanvasMenuPlugin._resetLoader(link);
                     link.addEventListener('click', (event) => {
                         this._getLinkEventHandler(event, link);

@@ -15,7 +15,6 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
@@ -29,189 +28,71 @@ class PromotionEntity extends Entity
 
     final public const CODE_TYPE_NO_CODE = 'no_code';
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $validFrom;
+    protected ?\DateTimeInterface $validFrom = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $validUntil;
+    protected ?\DateTimeInterface $validUntil = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $maxRedemptionsGlobal;
+    protected ?int $maxRedemptionsGlobal = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $maxRedemptionsPerCustomer;
+    protected ?int $maxRedemptionsPerCustomer = null;
 
     protected int $priority;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $exclusive;
+    protected bool $exclusive;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $useCodes = false;
+    protected bool $useCodes = false;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $useSetGroups = false;
+    protected bool $useSetGroups = false;
 
     /**
      * Stores if the persona condition uses rules or customer assignments.
      * Default mode is "use rules".
-     *
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $customerRestriction = false;
+    protected bool $customerRestriction = false;
 
     protected bool $preventCombination = false;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $useIndividualCodes;
+    protected bool $useIndividualCodes;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - will be changed to native type
-     */
-    protected $individualCodePattern;
+    protected ?string $individualCodePattern = null;
 
-    /**
-     * @var PromotionSalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannels;
+    protected ?PromotionSalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $code;
+    protected ?string $code = null;
 
-    /**
-     * @var PromotionDiscountCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $discounts;
+    protected ?PromotionDiscountCollection $discounts = null;
 
-    /**
-     * @var PromotionIndividualCodeCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $individualCodes;
+    protected ?PromotionIndividualCodeCollection $individualCodes = null;
 
-    /**
-     * @var PromotionSetGroupCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $setgroups;
+    protected ?PromotionSetGroupCollection $setgroups = null;
 
-    /**
-     * @var RuleCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderRules;
+    protected ?RuleCollection $orderRules = null;
 
-    /**
-     * @var RuleCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $personaRules;
+    protected ?RuleCollection $personaRules = null;
 
-    /**
-     * @var CustomerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $personaCustomers;
+    protected ?CustomerCollection $personaCustomers = null;
 
-    /**
-     * @var RuleCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cartRules;
+    protected ?RuleCollection $cartRules = null;
 
     protected ?OrderLineItemCollection $orderLineItems = null;
 
-    /**
-     * @var PromotionTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?PromotionTranslationCollection $translations = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderCount;
+    protected int $orderCount;
 
     /**
      * @var array<string, int>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $ordersPerCustomerCount;
+    protected ?array $ordersPerCustomerCount = null;
 
     /**
-     * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var string[]
      */
-    protected $exclusionIds;
+    protected array $exclusionIds = [];
 
     public function getName(): ?string
     {
@@ -350,18 +231,10 @@ class PromotionEntity extends Entity
     /**
      * Gets the placeholder pattern that will be used
      * to generate new individual codes.
-     *
-     * @return string|null the pattern for individual code generation
-     *
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will be changed to nullable string
      */
     public function getIndividualCodePattern(): ?string
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return $this->individualCodePattern;
-        }
-
-        return (string) $this->individualCodePattern;
+        return $this->individualCodePattern;
     }
 
     /**
@@ -584,10 +457,6 @@ class PromotionEntity extends Entity
      */
     public function getExclusionIds(): array
     {
-        if ($this->exclusionIds === null) {
-            return [];
-        }
-
         return $this->exclusionIds;
     }
 

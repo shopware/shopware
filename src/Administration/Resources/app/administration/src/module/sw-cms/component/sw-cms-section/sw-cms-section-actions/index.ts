@@ -36,13 +36,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    data() {
-        return {
-            /* @deprecated: tag:v6.7.0 - Will be removed use cmsPageStateStore instead. */
-            cmsPageState: Shopware.Store.get('cmsPage'),
-        };
-    },
-
     computed: {
         componentClasses() {
             return {
@@ -54,17 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            if (this.cmsPageState.selectedSection) {
-                this.cmsPageStateStore.setSection(this.section);
-            }
-        },
-
         selectSection() {
             if (this.disabled) {
                 return;

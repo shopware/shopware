@@ -14,24 +14,12 @@ class ProductGatewayCriteriaEvent extends NestedEvent implements ShopwareSalesCh
 {
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $ids;
+    protected array $ids;
 
-    /**
-     * @var Criteria
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $criteria;
+    protected Criteria $criteria;
 
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected SalesChannelContext $context;
 
     public function __construct(
         array $ids,
@@ -43,6 +31,9 @@ class ProductGatewayCriteriaEvent extends NestedEvent implements ShopwareSalesCh
         $this->context = $context;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getIds(): array
     {
         return $this->ids;

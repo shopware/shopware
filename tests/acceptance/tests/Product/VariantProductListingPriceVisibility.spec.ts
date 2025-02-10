@@ -36,7 +36,7 @@ test(
         const variantProducts = await TestDataService.createVariantProducts(parentProduct, propertyGroups, {
             price: prices,
         });
-        const productItemLocators = await StorefrontHome.getListingItemByProductId(parentProduct.id);
+        const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
 
         await test.step('Validating listing price is available on product listing page for base variant product.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());

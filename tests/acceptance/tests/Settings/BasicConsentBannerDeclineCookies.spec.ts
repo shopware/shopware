@@ -32,7 +32,7 @@ test('As a shop customer, I want to continue shopping without accepting the cook
     });
 
     await test.step('Navigate to the product page and verify the cookie banner', async () => {
-        const productListItemLocators = await StorefrontHome.getListingItemByProductId(product.id);
+        const productListItemLocators = await StorefrontHome.getListingItemByProductName(product.name);
         await productListItemLocators.productImage.click();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
     });

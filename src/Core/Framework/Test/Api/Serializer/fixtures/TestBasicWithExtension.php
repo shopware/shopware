@@ -69,7 +69,7 @@ class TestBasicWithExtension extends SerializationFixture
                         ],
                     ],
                 ],
-                'meta' => null,
+                'meta' => [],
             ],
             'included' => [
                 [
@@ -98,7 +98,7 @@ class TestBasicWithExtension extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
                 [
                     'id' => '3e352be2d85846dd97529c0f6b544870',
@@ -126,7 +126,7 @@ class TestBasicWithExtension extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
                 [
                     'id' => '6f51622eb3814c75ae0263cece27ce72',
@@ -154,7 +154,7 @@ class TestBasicWithExtension extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
                 [
                     'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
@@ -194,7 +194,7 @@ class TestBasicWithExtension extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
         ];

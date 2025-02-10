@@ -54,7 +54,7 @@ class TestBasicWithToManyExtension extends SerializationFixture
                         ],
                     ],
                 ],
-                'meta' => null,
+                'meta' => [],
             ],
             'included' => [
                 [
@@ -83,7 +83,7 @@ class TestBasicWithToManyExtension extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
                 [
                     'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
@@ -109,7 +109,7 @@ class TestBasicWithToManyExtension extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
         ];

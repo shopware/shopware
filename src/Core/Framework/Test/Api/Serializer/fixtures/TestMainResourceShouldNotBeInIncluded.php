@@ -130,7 +130,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                         ],
                     ],
                 ],
-                'meta' => null,
+                'meta' => [],
             ],
             'included' => [
                 [
@@ -284,7 +284,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
         ];

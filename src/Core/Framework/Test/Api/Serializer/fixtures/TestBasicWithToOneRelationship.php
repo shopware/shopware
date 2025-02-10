@@ -201,7 +201,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
                         ],
                     ],
                 ],
-                'meta' => null,
+                'meta' => [],
             ],
             'included' => [
                 [
@@ -274,7 +274,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
         ];

@@ -101,7 +101,7 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
                             'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/promotion-set-groups', $baseUrl)],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
             'included' => [],

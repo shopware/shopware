@@ -181,7 +181,7 @@ class TestBasicStruct extends SerializationFixture
                         ],
                     ],
                 ],
-                'meta' => null,
+                'meta' => [],
             ],
             'included' => [],
         ];

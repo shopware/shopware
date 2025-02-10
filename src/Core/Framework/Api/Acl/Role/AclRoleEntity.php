@@ -16,18 +16,18 @@ class AclRoleEntity extends Entity
 
     protected string $name;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
     /**
      * @var list<string>
      */
     protected array $privileges = [];
 
-    protected ?UserCollection $users;
+    protected ?UserCollection $users = null;
 
-    protected ?AppEntity $app;
+    protected ?AppEntity $app = null;
 
-    protected ?IntegrationCollection $integrations;
+    protected ?IntegrationCollection $integrations = null;
 
     protected ?\DateTimeInterface $deletedAt = null;
 

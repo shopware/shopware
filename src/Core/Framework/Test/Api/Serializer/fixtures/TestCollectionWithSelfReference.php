@@ -100,7 +100,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
             'included' => [
@@ -153,7 +153,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
         ];

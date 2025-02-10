@@ -228,11 +228,11 @@ class PluginException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
      */
     public static function pluginComposerRequire(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRequireException
     {
-        if (!Feature::isActive('v6.7.0.0')) {
+        if (!Feature::isActive('v6.8.0.0')) {
             return new PluginComposerRequireException($pluginName, $pluginComposerName, $output);
         }
 
@@ -249,11 +249,11 @@ class PluginException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
      */
     public static function pluginComposerRemove(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRemoveException
     {
-        if (!Feature::isActive('v6.7.0.0')) {
+        if (!Feature::isActive('v6.8.0.0')) {
             return new PluginComposerRemoveException($pluginName, $pluginComposerName, $output);
         }
 

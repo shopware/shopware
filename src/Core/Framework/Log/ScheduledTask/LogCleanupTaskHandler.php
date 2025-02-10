@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Log\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -54,7 +55,7 @@ final class LogCleanupTaskHandler extends ScheduledTaskHandler
                     WHERE ls.ID IS NULL;';
 
             $statement = $this->connection->prepare($sql);
-            $statement->bindValue('maxEntries', $maxEntries, \PDO::PARAM_INT);
+            $statement->bindValue('maxEntries', $maxEntries, ParameterType::INTEGER);
             $statement->executeStatement();
         }
     }

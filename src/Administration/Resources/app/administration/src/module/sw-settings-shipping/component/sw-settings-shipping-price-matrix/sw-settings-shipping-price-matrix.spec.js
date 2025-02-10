@@ -92,22 +92,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should add conditions association', async () => {
-        if (Shopware.Feature.isActive('v6.7.0.0')) {
-            return;
-        }
-
-        const wrapper = await createWrapper();
-        const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
-        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
-
-        expect(ruleFilterCriteria.hasAssociation('conditions')).toBeTruthy();
-        expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeTruthy();
-    });
-
     it('should not add conditions association', async () => {
-        global.activeFeatureFlags = ['v6.7.0.0'];
-
         const wrapper = await createWrapper();
         const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;

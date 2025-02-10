@@ -19,7 +19,6 @@ export default {
     inject: [
         'bulkEditApiFactory',
         'repositoryFactory',
-        'feature',
         'orderDocumentApiService',
     ],
 

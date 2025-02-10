@@ -10,8 +10,7 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
         page: 1,
-        /** @deprecated tag:v6.7.0 - `paginationItemSelector` will be changed to `.page-link` instead of `input[type=radio]` */
-        paginationItemSelector: window.Feature.isActive('ACCESSIBILITY_TWEAKS') ? '.pagination .page-link' : '.pagination input[type=radio]',
+        paginationItemSelector: '.pagination .page-link',
         paginationNavSelector: '.pagination-nav',
     });
 
@@ -33,28 +32,16 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
      * @private
      */
     _registerButtonEvents() {
-        /** @deprecated tag:v6.7.0 - Pagination items will use click event on anchor instead of change event on radio inputs. */
-        if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            this.buttons.forEach((button) => {
-                button.addEventListener('click', this.onChangePage.bind(this));
-            });
-        } else {
-            this.buttons.forEach((radio) => {
-                radio.addEventListener('change', this.onChangePage.bind(this));
-            });
-        }
+        this.buttons.forEach((button) => {
+            button.addEventListener('click', this.onChangePage.bind(this));
+        });
     }
 
     onChangePage(event) {
-        /** @deprecated tag:v6.7.0 - Current page will be retrieved from data attribute `data-page` instead of radio input value. */
-        if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            event.preventDefault();
+        event.preventDefault();
 
-            this.tempValue = event.currentTarget.dataset.page;
-            this._saveFocusState(event.currentTarget);
-        } else {
-            this.tempValue = event.target.value;
-        }
+        this.tempValue = event.currentTarget.dataset.page;
+        this._saveFocusState(event.currentTarget);
 
         this._pageChanged = true;
         this.listing.changeListing();
@@ -117,8 +104,7 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
     afterContentChange() {
         this._initButtons();
 
-        /** @deprecated tag:v6.7.0 - Remove `ACCESSIBILITY_TWEAKS` feature toggle from if-condition, keep other checks. */
-        if (window.Feature.isActive('ACCESSIBILITY_TWEAKS') && this.buttons && this._pageChanged) {
+        if (this.buttons && this._pageChanged) {
             this._resumeFocusState();
         }
 

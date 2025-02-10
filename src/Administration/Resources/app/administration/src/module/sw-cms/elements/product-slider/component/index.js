@@ -41,13 +41,6 @@ export default {
             };
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed, use the specific navigation setting `hasNavigationArrows` instead
-         */
-        hasNavigation() {
-            return this.hasNavigationArrows;
-        },
-
         hasNavigationArrows() {
             return [
                 'inside',

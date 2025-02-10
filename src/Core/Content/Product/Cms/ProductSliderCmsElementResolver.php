@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -33,13 +32,6 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
     private const STATIC_SEARCH_KEY = 'product-slider';
     private const FALLBACK_LIMIT = 50;
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, as the associations will not be loaded in the collect method anymore
-     */
-    private const PRODUCT_ASSOCIATIONS = [
-        'options.group',
-        'manufacturer',
-    ];
 
     /**
      * @internal
@@ -70,11 +62,6 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         if ($products->isStatic() && $products->getValue()) {
             $criteria = new Criteria($products->getArrayValue());
-
-            if (!Feature::isActive('v6.7.0.0')) {
-                $criteria->addAssociations(self::PRODUCT_ASSOCIATIONS);
-            }
-
             $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
         }
 
@@ -165,13 +152,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             return null;
         }
 
-        $criteria = $this->resolveCriteriaForLazyLoadedRelations($resolverContext, $config);
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $criteria?->addAssociations(self::PRODUCT_ASSOCIATIONS);
-        }
-
-        return $criteria;
+        return $this->resolveCriteriaForLazyLoadedRelations($resolverContext, $config);
     }
 
     private function collectByProductStream(ResolverContext $resolverContext, FieldConfig $config, FieldConfigCollection $elementConfig): Criteria
@@ -184,10 +165,6 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $criteria = new Criteria();
         $criteria->addFilter(...$filters);
         $criteria->setLimit($elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT);
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $criteria->addAssociations(self::PRODUCT_ASSOCIATIONS);
-        }
 
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
         $criteria->addFilter(

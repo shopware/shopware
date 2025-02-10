@@ -215,13 +215,6 @@ export default {
             this.showCodeTypeChangeModal = false;
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed. Use `savePromotion` instead
-         */
-        createPromotion() {
-            return this.savePromotion();
-        },
-
         async savePromotion() {
             this.isLoading = true;
 

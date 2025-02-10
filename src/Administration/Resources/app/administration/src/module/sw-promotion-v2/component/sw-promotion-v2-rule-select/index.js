@@ -13,7 +13,6 @@ export default {
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
-        'feature',
     ],
 
     emits: ['update:collection'],

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class CustomerGroupRule extends Rule
@@ -20,8 +20,6 @@ class CustomerGroupRule extends Rule
     final public const RULE_NAME = 'customerCustomerGroup';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $customerGroupIds
      */
     public function __construct(

@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\System\CustomEntity;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException;
 use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -36,24 +33,13 @@ class CustomEntityException extends HttpException
         return new self(Response::HTTP_INTERNAL_SERVER_ERROR, self::CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_WRONG_TYPE, 'Entity label_property "{{ labelProperty }}" must be a string field', ['labelProperty' => $labelProperty]);
     }
 
-    public static function notFound(string $entityName): self|CustomEntityNotFoundException
+    public static function notFound(string $entityName): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new CustomEntityNotFoundException($entityName);
-        }
-
         return new self(Response::HTTP_NOT_FOUND, self::NOT_FOUND, 'Custom entity "{{ entityName }}" not found', ['entityName' => $entityName]);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function xmlParsingException(string $file, string $message): self|XmlParsingException
+    public static function xmlParsingException(string $file, string $message): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new XmlParsingException($file, $message);
-        }
-
         return new CustomEntityXmlParsingException($file, $message);
     }
 }

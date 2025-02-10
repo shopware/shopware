@@ -199,6 +199,39 @@ export default {
                     },
                 },
                 {
+                    name: 'companyStreet',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyStreet'),
+                    },
+                },
+                {
+                    name: 'companyZipcode',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyZipcode'),
+                    },
+                },
+                {
+                    name: 'companyCity',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCity'),
+                    },
+                },
+                {
+                    name: 'companyCountryId',
+                    type: 'sw-entity-single-select',
+                    config: {
+                        entity: 'country',
+                        componentName: 'sw-entity-single-select',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCountry'),
+                    },
+                },
+                {
                     name: 'companyName',
                     type: 'text',
                     config: {
@@ -302,6 +335,15 @@ export default {
                         label: this.$tc('sw-settings-document.detail.labelExecutiveDirector'),
                     },
                 },
+                {
+                    name: 'paymentDueDate',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelPaymentDueDate'),
+                        helpText: this.$tc('sw-settings-document.detail.helpTextPaymentDueDate'),
+                    },
+                },
             ],
             alreadyAssignedSalesChannelIdsToType: [],
             typeIsLoading: false,
@@ -398,6 +440,15 @@ export default {
             }
 
             return this.documentConfig.config.fileTypes;
+        },
+
+        // We don't want to select ZUGFeRD as a type. "invoice" configuration is used instead (NEXT-40492)
+        documentCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.not('AND', [Criteria.prefix('technicalName', 'zugferd_')]));
+
+            return criteria;
         },
     },
 

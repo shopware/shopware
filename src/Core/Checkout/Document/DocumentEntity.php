@@ -17,112 +17,43 @@ class DocumentEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderId;
+    protected string $orderId;
+
+    protected string $orderVersionId;
+
+    protected string $documentTypeId;
+
+    protected ?string $documentMediaFileId = null;
 
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderVersionId;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentTypeId;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentMediaFileId;
-
-    /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be removed
      */
-    protected $fileType;
+    protected string $fileType;
 
-    /**
-     * @var OrderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
+    protected ?OrderEntity $order = null;
 
     /**
      * @var array<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $config;
+    protected array $config;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sent;
+    protected bool $sent;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $static;
+    protected bool $static;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deepLinkCode;
+    protected string $deepLinkCode;
 
-    /**
-     * @var DocumentTypeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencedDocumentId;
+    protected ?string $referencedDocumentId = null;
 
-    /**
-     * @var DocumentEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencedDocument;
+    protected ?DocumentEntity $referencedDocument = null;
 
-    /**
-     * @var DocumentCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $dependentDocuments;
+    protected ?DocumentCollection $dependentDocuments = null;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentMediaFile;
+    protected ?MediaEntity $documentMediaFile = null;
 
-    protected ?string $documentNumber;
+    protected ?string $documentNumber = null;
 
     protected ?string $documentA11yMediaFileId = null;
 

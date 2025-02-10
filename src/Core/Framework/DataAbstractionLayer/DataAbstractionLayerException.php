@@ -48,10 +48,6 @@ class DataAbstractionLayerException extends HttpException
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
     public const MIGRATION_STUB_NOT_FOUND = 'FRAMEWORK__MIGRATION_STUB_NOT_FOUND';
     public const MIGRATION_DIRECTORY_NOT_FOUND = 'FRAMEWORK__MIGRATION_DIRECTORY_NOT_FOUND';
-    /**
-     * @deprecated tag:v6.7.0 - Constant will be removed without replacement
-     */
-    public const DATABASE_PLATFORM_INVALID = 'FRAMEWORK__DATABASE_PLATFORM_INVALID';
     public const FIELD_TYPE_NOT_FOUND = 'FRAMEWORK__FIELD_TYPE_NOT_FOUND';
     public const PLUGIN_NOT_FOUND = 'FRAMEWORK__PLUGIN_NOT_FOUND';
     public const INVALID_FILTER_QUERY = 'FRAMEWORK__INVALID_FILTER_QUERY';
@@ -255,20 +251,6 @@ class DataAbstractionLayerException extends HttpException
             self::MIGRATION_DIRECTORY_NOT_FOUND,
             'Migration directory not found: {{ path }}.',
             ['path' => $path]
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed without replacement
-     */
-    public static function databasePlatformInvalid(): self
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
-
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DATABASE_PLATFORM_INVALID,
-            'Database platform can not be detected'
         );
     }
 

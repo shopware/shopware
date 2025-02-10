@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 #[Package('checkout')]
 class CustomerPasswordMatches extends Constraint
@@ -16,19 +15,9 @@ class CustomerPasswordMatches extends Constraint
         self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',
     ];
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $message = 'Your password is wrong';
+    public string $message = 'Your password is wrong';
 
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected SalesChannelContext $context;
 
     /**
      * @internal
@@ -41,10 +30,6 @@ class CustomerPasswordMatches extends Constraint
         );
 
         parent::__construct($options);
-
-        if (!$this->context instanceof SalesChannelContext) {
-            throw new MissingOptionsException(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
-        }
     }
 
     public function getContext(): SalesChannelContext

@@ -32,14 +32,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Controller\AccountPaymentController">
-            <argument type="service" id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Storefront\Controller\AccountProfileController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader"/>

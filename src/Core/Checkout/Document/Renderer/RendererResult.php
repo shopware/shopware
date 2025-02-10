@@ -11,12 +11,12 @@ final class RendererResult extends Struct
     /**
      * @var array<string, RenderedDocument>
      */
-    private array $success = [];
+    protected array $success = [];
 
     /**
      * @var array<string, \Throwable>
      */
-    private array $errors = [];
+    protected array $errors = [];
 
     public function addSuccess(string $orderId, RenderedDocument $renderedDocument): void
     {

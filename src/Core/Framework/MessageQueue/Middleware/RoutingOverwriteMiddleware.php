@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Middleware;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
@@ -18,15 +17,9 @@ class RoutingOverwriteMiddleware implements MiddlewareInterface
 {
     /**
      * @param array<string, string|list<string>> $routing
-     * @param array<string, string|list<string>> $overwrite
      */
-    public function __construct(
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed in v6.7.0.0. Use $overwrite instead
-         */
-        private readonly array $routing,
-        private readonly array $overwrite
-    ) {
+    public function __construct(private readonly array $routing)
+    {
     }
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
@@ -39,9 +32,7 @@ class RoutingOverwriteMiddleware implements MiddlewareInterface
             return $stack->next()->handle($envelope, $stack);
         }
 
-        $overwrites = Feature::isActive('v6.7.0.0') ? $this->overwrite : $this->routing;
-
-        $transports = $this->getTransports($envelope, $overwrites, true);
+        $transports = $this->getTransports($envelope, $this->routing, true);
 
         if (empty($transports)) {
             return $stack->next()->handle($envelope, $stack);

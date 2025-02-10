@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -27,6 +28,11 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
     ) {
+    }
+
+    public function getDecorated(): AbstractProductSliderProcessor
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function getSource(): string

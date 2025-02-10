@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -28,11 +29,18 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
     ) {
+    }
+
+    public function getDecorated(): AbstractProductSliderProcessor
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function getSource(): string
@@ -128,14 +136,13 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $criteria = $originCriteria->cloneForRead($finalProductIds);
 
         $products = $this->productRepository->search($criteria, $context)->getEntities();
-        \assert($products instanceof ProductCollection);
         $products->sortByIdArray($finalProductIds);
 
         return $products;
     }
 
     /**
-     * @return string[] List of product ids
+     * @return list<string>
      */
     private function collectFinalProductIds(ProductCollection $streamResult): array
     {
@@ -154,7 +161,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
             $finalProductIds[] = $productId ?? $product->getId();
         }
 
-        return array_unique($finalProductIds);
+        /** @var list<string> $finalIds */
+        $finalIds = array_unique($finalProductIds);
+
+        return $finalIds;
     }
 
     private function addGrouping(Criteria $criteria): void

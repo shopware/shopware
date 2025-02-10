@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     /**
-     * @var array<int|string, AbstractProductSliderProcessor>
+     * @var array<string, AbstractProductSliderProcessor>
      */
     private array $processors = [];
 

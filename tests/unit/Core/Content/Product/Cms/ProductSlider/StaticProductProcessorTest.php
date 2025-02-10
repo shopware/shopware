@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -38,9 +39,15 @@ class StaticProductProcessorTest extends TestCase
         $this->configService = $this->createMock(SystemConfigService::class);
     }
 
+    public function testGetDecorated(): void
+    {
+        $this->expectException(DecorationPatternException::class);
+        $this->getProcessor()->getDecorated();
+    }
+
     public function testGetSource(): void
     {
-        static::assertSame('static', $this->getHandler()->getSource());
+        static::assertSame('static', $this->getProcessor()->getSource());
     }
 
     public function testCollect(): void
@@ -53,7 +60,7 @@ class StaticProductProcessorTest extends TestCase
         $config = new FieldConfig('products', FieldConfig::SOURCE_STATIC, $expectedIds);
         $this->config->add($config);
 
-        $collection = $this->getHandler()->collect($slot, $this->config, $resolverContext);
+        $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
         static::assertInstanceOf(CriteriaCollection::class, $collection);
 
         $list = $collection->all();
@@ -80,7 +87,7 @@ class StaticProductProcessorTest extends TestCase
         $data = new ElementDataCollection();
         $data->add('product-slider_id', $searchResult);
 
-        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
         $data = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $data);
@@ -105,7 +112,7 @@ class StaticProductProcessorTest extends TestCase
         $data = new ElementDataCollection();
         $data->add('product-slider_id', $searchResult);
 
-        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
         $data = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $data);
@@ -123,7 +130,7 @@ class StaticProductProcessorTest extends TestCase
         $resolverContext = $this->getResolverContext();
         $data = new ElementDataCollection();
 
-        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
         $data = $slot->getData();
         static::assertNull($data);
@@ -146,13 +153,13 @@ class StaticProductProcessorTest extends TestCase
         $data = new ElementDataCollection();
         $data->add('product-slider_id', $searchResult);
 
-        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
         $data = $slot->getData();
         static::assertNull($data);
     }
 
-    private function getHandler(): StaticProductProcessor
+    private function getProcessor(): StaticProductProcessor
     {
         return new StaticProductProcessor($this->configService);
     }

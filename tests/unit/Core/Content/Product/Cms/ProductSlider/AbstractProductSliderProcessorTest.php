@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Product\Cms\ProductSlider\AbstractProductSliderProcessor;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
@@ -21,6 +22,12 @@ use Shopware\Core\Framework\Log\Package;
 class AbstractProductSliderProcessorTest extends TestCase
 {
     use ProductSliderUnitTrait;
+
+    public function testGetDecorated(): void
+    {
+        $this->expectException(DecorationPatternException::class);
+        (new TestAbstractProductSliderProcessor())->getDecorated();
+    }
 
     public function testGetSource(): void
     {
@@ -45,6 +52,11 @@ class AbstractProductSliderProcessorTest extends TestCase
  */
 class TestAbstractProductSliderProcessor extends AbstractProductSliderProcessor
 {
+    public function getDecorated(): AbstractProductSliderProcessor
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
     public function getSource(): string
     {
         return 'test';

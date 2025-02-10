@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\Tax\TaxCollection;
 
@@ -50,9 +51,15 @@ class ProductStreamProcessorTest extends TestCase
         $this->config = new FieldConfigCollection();
     }
 
+    public function testGetDecorated(): void
+    {
+        $this->expectException(DecorationPatternException::class);
+        $this->getProcessor()->getDecorated();
+    }
+
     public function testGetSource(): void
     {
-        static::assertSame('product_stream', $this->getHandler()->getSource());
+        static::assertSame('product_stream', $this->getProcessor()->getSource());
     }
 
     public function testCollect(): void
@@ -64,7 +71,7 @@ class ProductStreamProcessorTest extends TestCase
 
         $this->config->add($config);
 
-        $collection = $this->getHandler()->collect($slot, $this->config, $resolverContext);
+        $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
         static::assertInstanceOf(CriteriaCollection::class, $collection);
 
         $list = $collection->all();
@@ -99,7 +106,7 @@ class ProductStreamProcessorTest extends TestCase
         $this->config->add($productsConfig);
         $this->config->add($sortingConfig);
 
-        $collection = $this->getHandler()->collect($slot, $this->config, $resolverContext);
+        $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
         static::assertInstanceOf(CriteriaCollection::class, $collection);
 
         $list = $collection->all();
@@ -130,7 +137,7 @@ class ProductStreamProcessorTest extends TestCase
         $this->productRepository->expects(static::once())
             ->method('search')->willReturn($searchResult);
 
-        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
@@ -144,7 +151,7 @@ class ProductStreamProcessorTest extends TestCase
         $resolverContext = $this->getResolverContext();
         $data = new ElementDataCollection();
 
-        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
         static::assertNull($slot->getData());
     }
 
@@ -164,7 +171,7 @@ class ProductStreamProcessorTest extends TestCase
         );
 
         $data->add('product-slider-entity-fallback_id', $result);
-        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
         static::assertNull($slot->getData());
     }
 
@@ -191,14 +198,14 @@ class ProductStreamProcessorTest extends TestCase
         $this->productRepository->expects(static::never())
             ->method('search');
 
-        $this->getHandler()->enrich($slot, $data, $resolverContext);
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
         static::assertEmpty($slider->getProducts());
     }
 
-    private function getHandler(): ProductStreamProcessor
+    private function getProcessor(): ProductStreamProcessor
     {
         return new ProductStreamProcessor($this->productStreamBuilder, $this->productRepository);
     }

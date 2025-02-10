@@ -12,8 +12,6 @@ const { ChangesetGenerator } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: {
         swOrderDetailOnLoadingChange: {
             from: 'swOrderDetailOnLoadingChange',

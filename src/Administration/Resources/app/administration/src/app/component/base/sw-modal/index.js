@@ -19,8 +19,6 @@ const utils = Shopware.Utils;
 Component.register('sw-modal', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: ['shortcutService'],

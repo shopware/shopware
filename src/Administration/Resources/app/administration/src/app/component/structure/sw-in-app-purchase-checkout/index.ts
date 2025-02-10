@@ -12,8 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-in-app-purchase-checkout', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         entry(): InAppPurchaseRequest | null {
             const store = Shopware.Store.get('inAppPurchaseCheckout');

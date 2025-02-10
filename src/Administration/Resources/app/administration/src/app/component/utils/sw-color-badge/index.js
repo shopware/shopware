@@ -25,8 +25,6 @@ const { Component } = Shopware;
 Component.register('sw-color-badge', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         variant: {
             type: String,

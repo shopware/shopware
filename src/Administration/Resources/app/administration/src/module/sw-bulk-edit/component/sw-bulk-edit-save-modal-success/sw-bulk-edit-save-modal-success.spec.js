@@ -3,7 +3,11 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(
+    repositoryMocks = {
+        search: () => Promise.resolve([]),
+    },
+) {
     return mount(
         await wrapTestComponent('sw-bulk-edit-save-modal-success', {
             sync: true,
@@ -19,7 +23,7 @@ async function createWrapper() {
                     repositoryFactory: {
                         create: () => {
                             return {
-                                search: () => Promise.resolve([]),
+                                search: repositoryMocks.search,
                             };
                         },
                     },
@@ -73,37 +77,42 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     it('should be able to get latest documents', async () => {
-        wrapper.vm.documentRepository.search = jest.fn(() => {
-            return Promise.resolve([
-                {
-                    id: '1',
-                    documentTypeId: '1',
-                    orderId: '1',
-                    createdAt: '2020-01-01',
-                    deepLinkCode: '123',
-                    fileType: 'pdf',
-                    orderVersionId: '1',
-                },
-                {
-                    id: '2',
-                    documentTypeId: '1',
-                    orderId: '1',
-                    createdAt: '2020-01-01',
-                    deepLinkCode: '123',
-                    fileType: 'pdf',
-                    orderVersionId: '1',
-                },
-                {
-                    id: '3',
-                    documentTypeId: '2',
-                    orderId: '1',
-                    createdAt: '2020-01-01',
-                    deepLinkCode: '123',
-                    fileType: 'pdf',
-                    orderVersionId: '1',
-                },
-            ]);
+        wrapper.unmount();
+
+        wrapper = await createWrapper({
+            search: () => {
+                return Promise.resolve([
+                    {
+                        id: '1',
+                        documentTypeId: '1',
+                        orderId: '1',
+                        createdAt: '2020-01-01',
+                        deepLinkCode: '123',
+                        fileType: 'pdf',
+                        orderVersionId: '1',
+                    },
+                    {
+                        id: '2',
+                        documentTypeId: '1',
+                        orderId: '1',
+                        createdAt: '2020-01-01',
+                        deepLinkCode: '123',
+                        fileType: 'pdf',
+                        orderVersionId: '1',
+                    },
+                    {
+                        id: '3',
+                        documentTypeId: '2',
+                        orderId: '1',
+                        createdAt: '2020-01-01',
+                        deepLinkCode: '123',
+                        fileType: 'pdf',
+                        orderVersionId: '1',
+                    },
+                ]);
+            },
         });
+
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'download',
             isChanged: true,
@@ -140,7 +149,6 @@ describe('sw-bulk-edit-save-modal-success', () => {
                 credit_note: expect.arrayContaining(['3']),
             }),
         );
-        wrapper.vm.documentRepository.search.mockRestore();
     });
 
     it('should be able to download documents', async () => {

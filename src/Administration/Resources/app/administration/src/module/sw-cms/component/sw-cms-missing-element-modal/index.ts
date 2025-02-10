@@ -9,8 +9,6 @@ import './sw-cms-missing-element-modal.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'modal-close',
         'modal-save',

@@ -10,8 +10,6 @@ const { Filter, Context } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['media-sidebar-folder-renamed'],
@@ -110,19 +108,7 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-
         filteredAttributes() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return {};
-            }
-
             const filteredAttributes = {};
 
             Object.entries(this.$attrs).forEach(

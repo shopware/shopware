@@ -3,7 +3,6 @@
  */
 
 import { config, enableAutoUnmount } from '@vue/test-utils';
-import Vue, { compatUtils } from 'vue';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import '@testing-library/jest-dom';
@@ -98,49 +97,6 @@ config.global.config.compilerOptions = {
 
 // enable autoUnmount for wrapper after each test
 enableAutoUnmount(afterEach);
-
-// Make common utils available globally as well
-global.Vue = Vue;
-
-// Add all directives
-const directiveRegistry = Shopware.Directive.getDirectiveRegistry();
-directiveRegistry.forEach((value, key) => {
-    if (key === 'tooltip') {
-        global.Vue.directive('tooltip', {
-            beforeMount(el, binding) {
-                el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
-                el.setAttribute('tooltip-mock-message', binding.value.message);
-                el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
-            },
-            mounted(el, binding) {
-                el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
-                el.setAttribute('tooltip-mock-message', binding.value.message);
-                el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
-            },
-            updated(el, binding) {
-                el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
-                el.setAttribute('tooltip-mock-message', binding.value.message);
-                el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
-            },
-        });
-        return;
-    }
-
-    if (key === 'popover') {
-        global.Vue.directive('popover', {});
-        return;
-    }
-
-    global.Vue.directive(key, value);
-});
-
-// Add all filters
-const filterRegistry = Shopware.Filter.getRegistry();
-filterRegistry.forEach((value, key) => {
-    if (compatUtils.checkCompatEnabled('FILTERS')) {
-        global.Vue.filter(key, value);
-    }
-});
 
 // Add services
 Shopware.Service().register('acl', () => aclService);
@@ -280,17 +236,41 @@ config.global.stubs = {
 
 // Add global plugins
 config.global.plugins = [
-    // isCompatEnabled method plugin
-    {
-        install: (app) => {
-            app.config.globalProperties.isCompatEnabled = function (key) {
-                return this.$options.compatConfig?.[key] ?? !window._features_.DISABLE_VUE_COMPAT;
-            };
-        },
-    },
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
 ];
+
+// Add global directives
+const directiveRegistry = Shopware.Directive.getDirectiveRegistry();
+directiveRegistry.forEach((value, key) => {
+    if (key === 'tooltip') {
+        config.global.directives[key] = {
+            beforeMount(el, binding) {
+                el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
+                el.setAttribute('tooltip-mock-message', binding.value.message);
+                el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
+            },
+            mounted(el, binding) {
+                el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
+                el.setAttribute('tooltip-mock-message', binding.value.message);
+                el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
+            },
+            updated(el, binding) {
+                el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
+                el.setAttribute('tooltip-mock-message', binding.value.message);
+                el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
+            },
+        };
+        return;
+    }
+
+    if (key === 'popover') {
+        config.global.directives[key] = {};
+        return;
+    }
+
+    config.global.directives[key] = value;
+});
 
 global.allowedErrors = [
     {
@@ -427,62 +407,59 @@ global.console.error = (...args) => {
     }
 };
 
-if (!process.env.DISABLE_JEST_COMPAT_MODE) {
-    // Mute warnings for now as they are expected due to compat options
-    global.console.warn = () => {};
-} else {
-    global.console.warn = (...args) => {
-        let silenceWarning = false;
-        // eslint-disable-next-line array-callback-return
-        global.allowedErrors.some(allowedError => {
-            if (allowedError.method !== 'warn') {
-                return;
-            }
 
-            if (typeof allowedError.msg === 'string') {
-                if (typeof args[0] === 'string') {
-                    const shouldBeSilenced = args[0].includes(allowedError.msg);
-
-                    if (shouldBeSilenced) {
-                        silenceWarning = true;
-                    }
-                }
-                return;
-            }
-
-            if (typeof allowedError.msgCheck === 'function') {
-                if (allowedError.msgCheck) {
-                    const shouldBeSilenced = allowedError.msgCheck(args[0], args[1]);
-
-                    if (shouldBeSilenced) {
-                        silenceWarning = true;
-                    }
-                }
-
-                return;
-            }
-
-            const shouldBeSilenced = allowedError.msg && allowedError.msg.test(args[0]);
-
-            if (shouldBeSilenced) {
-                silenceWarning = true;
-            }
-        });
-
-        if (!silenceWarning) {
-            // Create an error to preserve the original console.warn stack
-            const e = new Error();
-            warnTrace = e.stack;
-
-            // Set console.warn arguments for global after each
-            consoleHasWarning = true;
-            warnArgs = args;
-
-            // Call original warn to print to std::out
-            warn(...args);
+global.console.warn = (...args) => {
+    let silenceWarning = false;
+    // eslint-disable-next-line array-callback-return
+    global.allowedErrors.some(allowedError => {
+        if (allowedError.method !== 'warn') {
+            return;
         }
-    };
-}
+
+        if (typeof allowedError.msg === 'string') {
+            if (typeof args[0] === 'string') {
+                const shouldBeSilenced = args[0].includes(allowedError.msg);
+
+                if (shouldBeSilenced) {
+                    silenceWarning = true;
+                }
+            }
+            return;
+        }
+
+        if (typeof allowedError.msgCheck === 'function') {
+            if (allowedError.msgCheck) {
+                const shouldBeSilenced = allowedError.msgCheck(args[0], args[1]);
+
+                if (shouldBeSilenced) {
+                    silenceWarning = true;
+                }
+            }
+
+            return;
+        }
+
+        const shouldBeSilenced = allowedError.msg && allowedError.msg.test(args[0]);
+
+        if (shouldBeSilenced) {
+            silenceWarning = true;
+        }
+    });
+
+    if (!silenceWarning) {
+        // Create an error to preserve the original console.warn stack
+        const e = new Error();
+        warnTrace = e.stack;
+
+        // Set console.warn arguments for global after each
+        consoleHasWarning = true;
+        warnArgs = args;
+
+        // Call original warn to print to std::out
+        warn(...args);
+    }
+};
+
 
 // eslint-disable-next-line jest/require-top-level-describe
 beforeEach(() => {

@@ -13,8 +13,6 @@ const { Component } = Shopware;
 Component.register('sw-list-price-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     props: {
@@ -175,12 +173,8 @@ Component.register('sw-list-price-field', {
                 const price = this.priceForCurrency;
 
                 if (price) {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(price, 'listPrice', newValue);
-                    } else {
-                        // eslint-disable-next-line vue/no-mutating-props
-                        price.listPrice = newValue;
-                    }
+                    // eslint-disable-next-line vue/no-mutating-props
+                    price.listPrice = newValue;
                 }
             },
         },

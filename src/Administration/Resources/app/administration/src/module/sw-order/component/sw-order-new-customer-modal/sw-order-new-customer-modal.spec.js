@@ -8,7 +8,12 @@ import ShopwareError from 'src/core/data/ShopwareError';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper() {
+async function createWrapper(
+    repositoryMocks = {
+        customerRepositoryMock: undefined,
+        languageRepositoryMock: undefined,
+    },
+) {
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
             stubs: {
@@ -32,6 +37,10 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: (entity) => {
                         if (entity === 'customer') {
+                            if (repositoryMocks.customerRepositoryMock) {
+                                return repositoryMocks.customerRepositoryMock;
+                            }
+
                             return {
                                 create: () => {
                                     return {
@@ -45,10 +54,15 @@ async function createWrapper() {
                                         ),
                                     };
                                 },
+                                save: () => Promise.resolve(),
                             };
                         }
 
                         if (entity === 'language') {
+                            if (repositoryMocks.languageRepositoryMock) {
+                                return repositoryMocks.languageRepositoryMock;
+                            }
+
                             return {
                                 searchIds: () =>
                                     Promise.resolve({
@@ -130,8 +144,18 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     });
 
     it('should override context when the sales channel does not exist language compared to the API language', async () => {
+        await wrapper.unmount();
+        wrapper = await createWrapper({
+            customerRepositoryMock: {
+                create: () => ({
+                    id: '1',
+                    addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                }),
+                save: jest.fn((customer, context) => Promise.resolve(context)),
+            },
+        });
+
         wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
-        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
 
         expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
 
@@ -154,15 +178,25 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     });
 
     it('should keep context when sales channel exists language compared to API language', async () => {
-        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
-        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
+        await wrapper.unmount();
+        wrapper = await createWrapper({
+            languageRepositoryMock: {
+                searchIds: () =>
+                    Promise.resolve({
+                        total: 1,
+                        data: [Shopware.Context.api.languageId],
+                    }),
+            },
+            customerRepositoryMock: {
+                create: () => ({
+                    id: '1',
+                    addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                }),
+                save: jest.fn((customer, context) => Promise.resolve(context)),
+            },
+        });
 
-        wrapper.vm.languageRepository.searchIds = jest.fn(() =>
-            Promise.resolve({
-                total: 1,
-                data: [Shopware.Context.api.languageId],
-            }),
-        );
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
 
         expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
 

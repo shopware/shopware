@@ -24,8 +24,6 @@ interface GridColumn {
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
     ],

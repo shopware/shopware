@@ -15,8 +15,6 @@ import './sw-iframe-renderer.scss';
 Shopware.Component.register('sw-iframe-renderer', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['extensionSdkService'],
 
     props: {

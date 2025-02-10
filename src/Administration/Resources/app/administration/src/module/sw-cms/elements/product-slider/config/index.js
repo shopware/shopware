@@ -11,8 +11,6 @@ const { Criteria, EntityCollection } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'feature',
@@ -209,11 +207,7 @@ export default {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'products', this.productCollection);
-            } else {
-                this.element.data.products = this.productCollection;
-            }
+            this.element.data.products = this.productCollection;
         },
 
         isSelected(itemId) {

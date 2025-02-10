@@ -17,8 +17,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'salesChannelService',
         'productExportService',
@@ -589,11 +587,7 @@ export default {
 
         deleteSalesChannel(salesChannelId) {
             this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    this.$root.$emit('sales-channel-change');
-                } else {
-                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
-                }
+                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
                 this.salesChannelFavoritesService.refresh();
             });
         },

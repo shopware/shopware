@@ -18,8 +18,6 @@ const { Component } = Shopware;
 Component.register('sw-inheritance-warning', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         name: {
             type: String,

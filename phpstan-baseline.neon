@@ -671,26 +671,6 @@ parameters:
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/SerializerRegistry.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Event\\\\ImportExportAfterImportRecordEvent\\:\\:__construct\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Event/ImportExportAfterImportRecordEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Event\\\\ImportExportAfterImportRecordEvent\\:\\:__construct\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Event/ImportExportAfterImportRecordEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Event\\\\ImportExportAfterImportRecordEvent\\:\\:getRecord\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Event/ImportExportAfterImportRecordEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Event\\\\ImportExportAfterImportRecordEvent\\:\\:getRow\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Event/ImportExportAfterImportRecordEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Event\\\\ImportExportBeforeExportRecordEvent\\:\\:__construct\\(\\) has parameter \\$originalRecord with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Event/ImportExportBeforeExportRecordEvent.php

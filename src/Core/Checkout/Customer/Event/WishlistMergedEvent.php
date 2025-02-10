@@ -11,18 +11,18 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('checkout')]
 class WishlistMergedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    protected array $products;
-
-    protected SalesChannelContext $context;
-
+    /**
+     * @param array<array{id: string, productId?: string, productVersionId?: string}> $products
+     */
     public function __construct(
-        array $product,
-        SalesChannelContext $context
+        protected array $products,
+        protected SalesChannelContext $context
     ) {
-        $this->products = $product;
-        $this->context = $context;
     }
 
+    /**
+     * @return array<array{id: string, productId?: string, productVersionId?: string}>
+     */
     public function getProducts(): array
     {
         return $this->products;

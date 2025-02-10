@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +36,7 @@ class CacheStore implements StoreInterface
     /**
      * @internal
      *
-     * @param AbstractCacheTracer<StoreApiResponse> $tracer
+     * @param AbstractCacheTracer<StoreApiResponse<Struct>> $tracer
      * @param array<string, mixed> $sessionOptions
      */
     public function __construct(

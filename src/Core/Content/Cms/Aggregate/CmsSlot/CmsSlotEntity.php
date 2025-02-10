@@ -20,77 +20,31 @@ class CmsSlotEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $slot;
+    protected string $slot;
 
-    /**
-     * @var CmsBlockEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $block;
+    protected ?CmsBlockEntity $block = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $blockId;
+    protected string $blockId;
 
     /**
      * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $config;
+    protected ?array $config = null;
 
-    /**
-     * @var FieldConfigCollection|null
-     *
-     * @internal
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fieldConfig;
+    protected ?FieldConfigCollection $fieldConfig = null;
 
     /**
      * @var EntityCollection<CmsSlotTranslationEntity>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $translations;
+    protected ?EntityCollection $translations = null;
 
-    /**
-     * @var Struct|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $data;
+    protected ?Struct $data = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $locked;
+    protected bool $locked;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsBlockVersionId;
+    protected ?string $cmsBlockVersionId = null;
 
     public function getType(): string
     {

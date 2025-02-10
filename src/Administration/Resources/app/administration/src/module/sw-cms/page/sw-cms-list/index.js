@@ -254,17 +254,6 @@ export default {
             criteria.addAggregation(linkedLayoutsFilter);
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        addPageAggregations(criteria) {
-            return criteria
-                .addAggregation(Criteria.terms('products', 'id', null, null, Criteria.count('productCount', 'products.id')))
-                .addAggregation(
-                    Criteria.terms('categories', 'id', null, null, Criteria.count('categoryCount', 'categories.id')),
-                );
-        },
-
         showDefaultLayoutContextMenu(cmsPage) {
             if (!this.acl.can('system_config:read')) {
                 return false;

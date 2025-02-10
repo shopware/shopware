@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\Country\Event\CountryRouteCacheKeyEvent;
 use Shopware\Core\System\Country\Event\CountryRouteCacheTagsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -103,7 +102,7 @@ class CachedCountryRoute extends AbstractCountryRoute
     /**
      * @return array<string>
      */
-    private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
+    private function generateTags(Request $request, CountryRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(
             $this->tracer->get(self::buildName($context->getSalesChannelId())),

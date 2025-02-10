@@ -2,6 +2,8 @@ import './service';
 import './acl';
 import './store/flow.store';
 
+const { Module } = Shopware;
+
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-flow-index', () => import('./page/sw-flow-index'));
 Shopware.Component.register('sw-flow-detail', () => import('./page/sw-flow-detail'));

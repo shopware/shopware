@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Strategy\Import;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Strategy\Import\BatchImportStrategy;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
@@ -55,6 +57,7 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
         $this->repository->expects(static::once())->method($method)->willReturn($writeResult);
+        $this->eventDispatcher->expects(static::exactly(2))->method('dispatch');
 
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
 
@@ -94,6 +97,13 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
                 return $writeResult;
             }
         );
+
+        $this->eventDispatcher->expects(static::exactly(2))
+            ->method('dispatch')
+            ->with(static::logicalOr(
+                static::isInstanceOf(ImportExportAfterImportRecordEvent::class),
+                static::isInstanceOf(ImportExportExceptionImportRecordEvent::class)
+            ));
 
         $result = $this->strategy->commit($config, $progress, $context);
 

@@ -25,26 +25,16 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
     final public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
 
-    protected DeliveryBuilder $builder;
-
-    protected DeliveryCalculator $deliveryCalculator;
-
-    /**
-     * @var EntityRepository<ShippingMethodCollection>
-     */
-    protected EntityRepository $shippingMethodRepository;
-
     /**
      * @internal
+     *
+     * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      */
     public function __construct(
-        DeliveryBuilder $builder,
-        DeliveryCalculator $deliveryCalculator,
-        EntityRepository $shippingMethodRepository
+        protected DeliveryBuilder $builder,
+        protected DeliveryCalculator $deliveryCalculator,
+        protected EntityRepository $shippingMethodRepository
     ) {
-        $this->builder = $builder;
-        $this->deliveryCalculator = $deliveryCalculator;
-        $this->shippingMethodRepository = $shippingMethodRepository;
     }
 
     public static function buildKey(string $shippingMethodId): string

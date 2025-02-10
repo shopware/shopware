@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Strategy\Import;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Strategy\Import\OneByOneImportStrategy;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
@@ -39,6 +40,7 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
         $this->repository->expects(static::once())->method($method)->willReturn($writeResult);
+        $this->eventDispatcher->expects(static::once())->method('dispatch');
 
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
 
@@ -65,6 +67,10 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
                 return $writeResult;
             }
         );
+
+        $this->eventDispatcher->expects(static::once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(ImportExportExceptionImportRecordEvent::class));
 
         $config = new Config(
             mapping: [],

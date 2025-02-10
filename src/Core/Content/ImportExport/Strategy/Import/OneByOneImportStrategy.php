@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Strategy\Import;
 
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
@@ -47,6 +48,9 @@ class OneByOneImportStrategy implements ImportStrategyService
                 // both false isn't possible via admin (but still results in an upsert)
                 $result = $this->repository->upsert([$record], $context);
             }
+
+            $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);
+            $this->eventDispatcher->dispatch($afterRecord);
 
             $progress->addProcessedRecords(1);
 

@@ -11,49 +11,19 @@ class ScheduledTaskEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $scheduledTaskClass;
+    protected string $scheduledTaskClass;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $runInterval;
+    protected int $runInterval;
 
     protected int $defaultRunInterval;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $status;
+    protected string $status;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lastExecutionTime;
+    protected ?\DateTimeInterface $lastExecutionTime = null;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $nextExecutionTime;
+    protected \DateTimeInterface $nextExecutionTime;
 
     public function getName(): string
     {

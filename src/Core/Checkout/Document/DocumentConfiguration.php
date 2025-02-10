@@ -100,7 +100,6 @@ class DocumentConfiguration extends Struct
      */
     protected array $custom = [];
 
-    // TODO: it is possible to rename it? Seems it comes from a jsonField :|
     protected bool $diplayLineItemPosition;
 
     protected bool $displayInCustomerAccount;

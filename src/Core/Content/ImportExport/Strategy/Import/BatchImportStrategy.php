@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Strategy\Import;
 
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
@@ -72,6 +73,11 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
                 // expect that both create and update are true -> upsert
                 // both false isn't possible via admin (but still results in an upsert)
                 $result = $this->repository->upsert($records, $context);
+            }
+
+            foreach ($this->toImport as $data) {
+                $afterRecord = new ImportExportAfterImportRecordEvent($result, $data['record'], $data['original'], $config, $context);
+                $this->eventDispatcher->dispatch($afterRecord);
             }
 
             $progress->addProcessedRecords(\count($this->toImport));

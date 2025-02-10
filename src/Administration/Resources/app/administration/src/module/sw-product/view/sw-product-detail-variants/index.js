@@ -71,28 +71,6 @@ export default {
                 : this.product.properties;
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Unused computed will be removed.
-         */
-        selectedGroups() {
-            if (!this.productEntity.configuratorSettings) {
-                return [];
-            }
-
-            // get groups for selected options
-            const groupIds = this.productEntity.configuratorSettings.reduce((result, element) => {
-                if (result.indexOf(element.option.groupId) < 0) {
-                    result.push(element.option.groupId);
-                }
-
-                return result;
-            }, []);
-
-            return this.groups.filter((group) => {
-                return groupIds.indexOf(group.id) >= 0;
-            });
-        },
-
         currentProductStates() {
             return this.activeTab.split(',');
         },

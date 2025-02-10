@@ -265,11 +265,28 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
             },
         });
 
+        wrapper.vm.isSameBilling = true;
         wrapper.vm.isSameBilling = false;
 
         expect(wrapper.vm.customer.defaultShippingAddressId).toBe('new-shipping-address-id');
         expect(wrapper.vm.customer.addresses.has('new-shipping-address-id')).toBe(true);
         expect(wrapper.vm.defaultSalutationId).toBe('salutationId');
         expect(wrapper.vm.customer.addresses.get('new-shipping-address-id').salutationId).toBe('salutationId');
+    });
+
+    it('should does not change defaultShippingAddressId if newValue is the same as isSameBilling', async () => {
+        await wrapper.setData({
+            customer: {
+                ...wrapper.vm.customer,
+                defaultBillingAddressId: 'billing-address-id',
+                defaultShippingAddressId: 'billing-address-id',
+                isNew: jest.fn(() => false),
+            },
+        });
+
+        const originalShippingAddressId = wrapper.vm.customer.defaultShippingAddressId;
+        wrapper.vm.isSameBilling = true;
+
+        expect(wrapper.vm.customer.defaultShippingAddressId).toBe(originalShippingAddressId);
     });
 });

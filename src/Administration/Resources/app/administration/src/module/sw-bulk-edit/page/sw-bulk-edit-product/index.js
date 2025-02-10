@@ -103,11 +103,6 @@ export default {
             return criteria;
         },
 
-        /** @deprecated tag:v6.7.0 - Will be removed. */
-        currencyCriteria() {
-            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
-        },
-
         taxCriteria() {
             const criteria = new Criteria(1, 500);
             criteria.addSorting(Criteria.sort('position'));

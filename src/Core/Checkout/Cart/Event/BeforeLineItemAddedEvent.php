@@ -12,24 +12,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class BeforeLineItemAddedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
-    protected LineItem $lineItem;
-
-    protected Cart $cart;
-
-    protected SalesChannelContext $salesChannelContext;
-
-    protected bool $merged;
-
     public function __construct(
-        LineItem $lineItem,
-        Cart $cart,
-        SalesChannelContext $salesChannelContext,
-        bool $merged = false
+        protected LineItem $lineItem,
+        protected Cart $cart,
+        protected SalesChannelContext $salesChannelContext,
+        protected bool $merged = false
     ) {
-        $this->lineItem = $lineItem;
-        $this->cart = $cart;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->merged = $merged;
     }
 
     public function getLineItem(): LineItem

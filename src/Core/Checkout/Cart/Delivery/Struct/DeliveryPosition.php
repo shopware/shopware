@@ -10,28 +10,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DeliveryPosition extends Struct
 {
-    protected LineItem $lineItem;
-
-    protected float $quantity;
-
-    protected CalculatedPrice $price;
-
-    protected string $identifier;
-
-    protected DeliveryDate $deliveryDate;
-
     public function __construct(
-        string $identifier,
-        LineItem $lineItem,
-        int $quantity,
-        CalculatedPrice $price,
-        DeliveryDate $deliveryDate
+        protected string $identifier,
+        protected LineItem $lineItem,
+        protected int $quantity,
+        protected CalculatedPrice $price,
+        protected DeliveryDate $deliveryDate
     ) {
-        $this->lineItem = $lineItem;
-        $this->quantity = $quantity;
-        $this->price = $price;
-        $this->identifier = $identifier;
-        $this->deliveryDate = $deliveryDate;
     }
 
     public function getLineItem(): LineItem
@@ -39,7 +24,7 @@ class DeliveryPosition extends Struct
         return $this->lineItem;
     }
 
-    public function getQuantity(): float
+    public function getQuantity(): int
     {
         return $this->quantity;
     }

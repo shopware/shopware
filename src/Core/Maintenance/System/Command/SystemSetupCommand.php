@@ -194,7 +194,11 @@ class SystemSetupCommand extends Command
         );
         $dsn = $dsnWithoutDb . '/' . $dbName;
 
-        $params = ['url' => $dsnWithoutDb, 'charset' => 'utf8mb4'];
+        $params = [
+            'url' => $dsnWithoutDb,
+            'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
+        ];
 
         if ($dbSslCa) {
             $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $dbSslCa;

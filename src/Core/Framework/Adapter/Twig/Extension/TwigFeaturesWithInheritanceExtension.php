@@ -71,7 +71,9 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
         }
 
         if (!$args[0] instanceof AbstractExpression) {
-            throw AdapterException::swBlockInstanceError();
+            throw AdapterException::invalidArgument(
+                'The first argument of the "sw_block" function must be an instance of AbstractExpression.'
+            );
         }
         // sw-fix-end
 

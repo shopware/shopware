@@ -92,15 +92,6 @@ class AdapterException extends HttpException
         );
     }
 
-    public static function swBlockInstanceError(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::INVALID_ARGUMENT,
-            'The first argument of the "sw_block" function must be an instance of AbstractExpression.'
-        );
-    }
-
     public static function renderingTemplateFailed(string $message): self
     {
         if (!Feature::isActive('v6.7.0.0')) {

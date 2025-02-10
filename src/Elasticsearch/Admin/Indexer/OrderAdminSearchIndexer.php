@@ -183,7 +183,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                 LEFT JOIN order_delivery
                     ON `order`.id = order_delivery.order_id AND `order`.version_id = order_delivery.order_version_id
                 LEFT JOIN document
-                    ON `order`.id = document.order_id
+                    ON `order`.id = document.order_id AND document.order_version_id = `order`.version_id
             WHERE `order`.id IN (:ids)
             AND `order`.version_id = :versionId
             GROUP BY `order`.id

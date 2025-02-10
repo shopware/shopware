@@ -35,7 +35,7 @@ Component.register('sw-switch-field', {
 
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
+            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
                 return true;
             }
 

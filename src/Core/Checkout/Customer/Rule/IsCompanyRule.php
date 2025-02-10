@@ -17,12 +17,10 @@ class IsCompanyRule extends Rule
 {
     final public const RULE_NAME = 'customerIsCompany';
 
-    protected bool $isCompany;
-
-    public function __construct(bool $isCompany = true)
-    {
+    public function __construct(
+        protected bool $isCompany = true
+    ) {
         parent::__construct();
-        $this->isCompany = $isCompany;
     }
 
     public function match(RuleScope $scope): bool

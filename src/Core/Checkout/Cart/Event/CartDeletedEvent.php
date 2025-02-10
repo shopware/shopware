@@ -11,11 +11,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('checkout')]
 class CartDeletedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    protected SalesChannelContext $context;
-
-    public function __construct(SalesChannelContext $context)
-    {
-        $this->context = $context;
+    public function __construct(
+        protected SalesChannelContext $context
+    ) {
     }
 
     public function getContext(): Context

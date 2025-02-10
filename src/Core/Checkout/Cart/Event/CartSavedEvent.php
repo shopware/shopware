@@ -12,16 +12,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('checkout')]
 class CartSavedEvent extends Event implements ShopwareSalesChannelEvent, CartEvent
 {
-    protected SalesChannelContext $context;
-
-    protected Cart $cart;
-
     public function __construct(
-        SalesChannelContext $context,
-        Cart $cart
+        protected SalesChannelContext $context,
+        protected Cart $cart
     ) {
-        $this->context = $context;
-        $this->cart = $cart;
     }
 
     public function getContext(): Context

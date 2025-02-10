@@ -5,7 +5,6 @@ import HttpClient from 'src/service/http-client.service';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import ArrowNavigationHelper from 'src/helper/arrow-navigation.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 export default class SearchWidgetPlugin extends Plugin {
 
@@ -144,7 +143,7 @@ export default class SearchWidgetPlugin extends Plugin {
 
         // remove all result popovers
         const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
-        Iterator.iterate(results, result => result.remove());
+        results.forEach(result => result.remove());
 
         this.$emitter.publish('clearSuggestResults');
     }

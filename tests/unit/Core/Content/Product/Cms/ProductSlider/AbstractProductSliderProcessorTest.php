@@ -31,8 +31,8 @@ class AbstractProductSliderProcessorTest extends TestCase
 
     public function testGetSource(): void
     {
-        $handler = new TestAbstractProductSliderProcessor();
-        static::assertSame('test', $handler->getSource());
+        $processor = new TestAbstractProductSliderProcessor();
+        static::assertSame('test', $processor->getSource());
     }
 
     public function testFilterOutOutOfStockHiddenCloseoutProducts(): void
@@ -40,9 +40,9 @@ class AbstractProductSliderProcessorTest extends TestCase
         $products = $this->getProducts();
         static::assertCount(2, $products);
 
-        $handler = new TestAbstractProductSliderProcessor();
+        $processor = new TestAbstractProductSliderProcessor();
 
-        $filteredProducts = $handler->publicFilterOutOutOfStockHiddenCloseoutProducts($products);
+        $filteredProducts = $processor->publicFilterOutOutOfStockHiddenCloseoutProducts($products);
         static::assertCount(1, $filteredProducts);
     }
 }

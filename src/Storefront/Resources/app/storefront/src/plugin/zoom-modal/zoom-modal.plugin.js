@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
-import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import ImageZoomPlugin from 'src/plugin/image-zoom/image-zoom.plugin';
 
@@ -90,7 +89,7 @@ export default class ZoomModalPlugin extends Plugin {
         const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
 
         // Events for normal elements (images)
-        Iterator.iterate(this._triggers, element => {
+        this._triggers.forEach(element => {
             element.removeEventListener(eventType, this._onClick.bind(this));
             element.addEventListener(eventType, this._onClick.bind(this));
 
@@ -102,7 +101,7 @@ export default class ZoomModalPlugin extends Plugin {
         });
 
         // Events for canvas elements (product box)
-        Iterator.iterate(this._triggersCanvas, element => {
+        this._triggersCanvas.forEach(element => {
             element.removeEventListener('mousedown', this._onMouseDown.bind(this));
             element.addEventListener('mousedown', this._onMouseDown.bind(this));
 
@@ -223,7 +222,7 @@ export default class ZoomModalPlugin extends Plugin {
         let loadedCount = 0;
         let errorCount = 0;
 
-        Iterator.iterate(imagesToLoad, img => {
+        imagesToLoad.forEach(img => {
             const src = DomAccess.getDataAttribute(img, this.options.imgDataSrcAttr);
             const srcSet = DomAccess.getDataAttribute(img, this.options.imgDataSrcSetAttr, false);
 

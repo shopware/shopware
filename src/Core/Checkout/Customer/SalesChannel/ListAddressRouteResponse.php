@@ -7,24 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<EntitySearchResult<CustomerAddressCollection>>
+ */
 #[Package('checkout')]
 class ListAddressRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var EntitySearchResult<CustomerAddressCollection>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
-    /**
-     * @param EntitySearchResult<CustomerAddressCollection> $object
-     */
-    public function __construct(EntitySearchResult $object)
-    {
-        parent::__construct($object);
-    }
-
     public function getAddressCollection(): CustomerAddressCollection
     {
         return $this->object->getEntities();

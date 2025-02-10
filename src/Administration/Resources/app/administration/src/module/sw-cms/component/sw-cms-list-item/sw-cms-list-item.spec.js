@@ -147,18 +147,6 @@ describe('module/sw-cms/component/sw-cms-list-item', () => {
             true,
         ],
         [
-            'on-item-click',
-            'onElementClick',
-            true,
-            false,
-        ] /** @deprecated tag:v6.7.0 - `on-item-click` will be removed */,
-        [
-            'on-item-click',
-            'onElementClick',
-            false,
-            true,
-        ] /** @deprecated tag:v6.7.0 - `on-item-click` will be removed */,
-        [
             'element-click',
             'onElementClick',
             true,
@@ -195,6 +183,7 @@ describe('module/sw-cms/component/sw-cms-list-item', () => {
             true,
         ],
     ];
+
     it.each(eventEmitterDataProvider)(
         'should emit the %s event %s, when enabled [disabled: %s]',
         async (eventName, method, disabled, expectedHasBeenEmitted) => {
@@ -206,26 +195,6 @@ describe('module/sw-cms/component/sw-cms-list-item', () => {
             expect(!!wrapper.emitted()?.[eventName]).toBe(expectedHasBeenEmitted);
         },
     );
-
-    it('should remove preview image and save on onRemovePreviewImage call', async () => {
-        const wrapper = await createWrapper();
-
-        const saveSpy = jest.fn();
-        const page = {
-            previewMedia: {
-                id: 'media-id',
-                url: 'media-url',
-            },
-            previewMediaId: 'media-id',
-            save: saveSpy,
-        };
-
-        wrapper.vm.onRemovePreviewImage(page);
-
-        expect(page.previewMediaId).toBeUndefined();
-        expect(page.previewMedia).toBeUndefined();
-        expect(saveSpy).toHaveBeenCalled();
-    });
 
     it('should display whether the cms-page is set as default', async () => {
         const wrapper = await createWrapper();

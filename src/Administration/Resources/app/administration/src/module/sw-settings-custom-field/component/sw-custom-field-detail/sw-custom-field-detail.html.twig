@@ -53,6 +53,20 @@
         {# @deprecated tag:v6.7.0 - Block will be removed without replacement #}
         {% block sw_custom_field_detail_modal_required %}{% endblock %}
 
+        {% block sw_custom_field_detail_modal_allow_cart_expose %}
+        <sw-switch-field
+            v-if="isProductCustomField"
+            v-model:value="currentCustomField.allowCartExpose"
+            v-tooltip="getCartExposeTooltipConfig()"
+            bordered
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
+            class="sw-custom-field-detail__allow-cart-expose"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
+            :disabled="!acl.can('custom_field.editor') || disableCartExpose || undefined"
+        />
+        <div v-else></div>
+        {% endblock %}
+
         {% block sw_custom_field_detail_modal_allow_customer_write %}
         <sw-switch-field
             v-model:value="currentCustomField.allowCustomerWrite"
@@ -64,16 +78,16 @@
         />
         {% endblock %}
 
+        {% block sw_custom_field_detail_modal_store_api_aware %}
         <sw-switch-field
-            v-if="isProductCustomField"
-            v-model:value="currentCustomField.allowCartExpose"
-            v-tooltip="getCartExposeTooltipConfig()"
+            v-model:value="currentCustomField.storeApiAware"
             bordered
-            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
-            class="sw-custom-field-detail__allow-cart-expose"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
-            :disabled="!acl.can('custom_field.editor') || disableCartExpose || undefined"
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipStoreApiAware')"
+            class="sw-custom-field-detail__store-api-aware"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelStoreApiAware')"
+            :disabled="!acl.can('custom_field.editor') || undefined"
         />
+        {% endblock %}
 
         {% block sw_custom_field_detail_modal_snippet_info  %}
         <sw-alert class="sw-custom-field-detail__info">

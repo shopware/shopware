@@ -10,12 +10,8 @@ class PromotionNotEligibleError extends Error
 {
     private const KEY = 'promotion-not-eligible';
 
-    protected string $name;
-
-    public function __construct(string $name)
+    public function __construct(protected string $name)
     {
-        $this->name = $name;
-
         $this->message = \sprintf('Promotion %s not eligible for cart!', $this->name);
 
         parent::__construct($this->message);

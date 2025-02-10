@@ -112,13 +112,11 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('preview-image-change', page);
         },
 
-        /** @deprecated tag:v6.7.0 - `on-item-click` will be removed. Handle `element-click` instead */
         onElementClick() {
             if (this.disabled) {
                 return;
             }
 
-            this.$emit('on-item-click', this.page);
             this.$emit('element-click', this.page);
         },
 
@@ -128,15 +126,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.$emit('item-click', page);
-        },
-
-        /** @deprecated tag:v6.7.0 - `onRemovePreviewImage` will be removed without replacement */
-        onRemovePreviewImage(page: Entity<'cms_page'>) {
-            page.previewMediaId = undefined;
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
-            (page as any).save();
-            page.previewMedia = undefined;
         },
 
         onDelete(page: Entity<'cms_page'>) {

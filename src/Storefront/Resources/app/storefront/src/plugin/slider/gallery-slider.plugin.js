@@ -2,7 +2,6 @@ import deepmerge from 'deepmerge';
 import { tns } from 'tiny-slider';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
-import Iterator from 'src/helper/iterator.helper';
 import BaseSliderPlugin from 'src/plugin/slider/base-slider.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
 
@@ -139,7 +138,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     _setActiveDot() {
         const currentIndex = this.getCurrentSliderIndex();
 
-        Iterator.iterate(this._dots, dot => dot.classList.remove(this.options.dotActiveClass));
+        this._dots.forEach(dot => dot.classList.remove(this.options.dotActiveClass));
 
         const currentDot = this._dots[currentIndex];
         if (!currentDot) {
@@ -158,7 +157,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
             return;
         }
 
-        Iterator.iterate(this._dots, dot => {
+        this._dots.forEach(dot => {
             dot.addEventListener('click', this._onDotClick.bind(this));
         });
 

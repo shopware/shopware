@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Migration;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
-use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,15 +29,8 @@ class MigrationException extends HttpException
     final public const LOGIC_ERROR = 'FRAMEWORK__LOGIC_ERROR';
     final public const MIGRATION_FILE_DOES_NOT_EXIST = 'FRAMEWORK__MIGRATION_FILE_DOES_NOT_EXIST';
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function invalidArgument(string $message): self|\InvalidArgumentException
+    public static function invalidArgument(string $message): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \InvalidArgumentException($message);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ARGUMENT,
@@ -128,15 +118,8 @@ class MigrationException extends HttpException
         return new UnknownMigrationSourceException($name);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function migrationError(string $message, ?\Throwable $previous = null): self|MigrateException
+    public static function migrationError(string $message, ?\Throwable $previous = null): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new MigrateException($message, $previous);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MIGRATION_ERROR,
@@ -146,15 +129,8 @@ class MigrationException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function invalidMigrationClass(string $class, string $path): self|InvalidMigrationClassException
+    public static function invalidMigrationClass(string $class, string $path): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new InvalidMigrationClassException($class, $path);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_MIGRATION,
@@ -172,15 +148,8 @@ class MigrationException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function logicError(string $message): self|\LogicException
+    public static function logicError(string $message): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \LogicException($message);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::LOGIC_ERROR,

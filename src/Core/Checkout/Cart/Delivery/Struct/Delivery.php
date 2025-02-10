@@ -10,28 +10,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class Delivery extends Struct
 {
-    protected DeliveryPositionCollection $positions;
-
-    protected ShippingLocation $location;
-
-    protected DeliveryDate $deliveryDate;
-
-    protected ShippingMethodEntity $shippingMethod;
-
-    protected CalculatedPrice $shippingCosts;
-
     public function __construct(
-        DeliveryPositionCollection $positions,
-        DeliveryDate $deliveryDate,
-        ShippingMethodEntity $shippingMethod,
-        ShippingLocation $location,
-        CalculatedPrice $shippingCosts
+        protected DeliveryPositionCollection $positions,
+        protected DeliveryDate $deliveryDate,
+        protected ShippingMethodEntity $shippingMethod,
+        protected ShippingLocation $location,
+        protected CalculatedPrice $shippingCosts
     ) {
-        $this->location = $location;
-        $this->positions = $positions;
-        $this->deliveryDate = $deliveryDate;
-        $this->shippingMethod = $shippingMethod;
-        $this->shippingCosts = $shippingCosts;
     }
 
     public function getPositions(): DeliveryPositionCollection

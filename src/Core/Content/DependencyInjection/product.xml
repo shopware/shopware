@@ -218,6 +218,7 @@
 
         <service id="Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver">
             <argument type="tagged_iterator" tag="shopware.cms.product_slider.processor"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.cms.data_resolver"/>
         </service>

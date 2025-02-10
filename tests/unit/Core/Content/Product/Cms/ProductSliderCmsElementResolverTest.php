@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
@@ -27,17 +28,20 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
     protected FieldConfigCollection $config;
 
-    private AbstractProductSliderProcessor&MockObject $handler;
+    private AbstractProductSliderProcessor&MockObject $processor;
+
+    private LoggerInterface&MockObject $logger;
 
     /**
      * @var AbstractProductSliderProcessor[]
      */
-    private array $handlers = [];
+    private array $processors = [];
 
     protected function setUp(): void
     {
         $this->config = new FieldConfigCollection();
-        $this->handler = $this->createMock(AbstractProductSliderProcessor::class);
+        $this->processor = $this->createMock(AbstractProductSliderProcessor::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
     }
 
     public function testGetType(): void
@@ -55,12 +59,15 @@ class ProductSliderCmsElementResolverTest extends TestCase
         static::assertNull($collection);
     }
 
-    public function testCollectNoHandlerFound(): void
+    public function testCollectNoProcessorFound(): void
     {
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, 'VALID-VALUE'));
 
-        $this->handler->expects(static::once())->method('getSource')->willReturn('not-existing-handler');
-        $this->handlers[] = $this->handler;
+        $this->logger->expects(static::once())->method('error')
+            ->with('No product slider processor found by provided source: "static"');
+
+        $this->processor->expects(static::once())->method('getSource')->willReturn('not-existing-processor');
+        $this->processors[] = $this->processor;
 
         $slot = $this->getSlot();
         $collection = $this->getResolver()->collect($slot, $this->getResolverContext());
@@ -74,12 +81,12 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $collection = new CriteriaCollection();
         $collection->add('product', ProductDefinition::class, new Criteria());
 
-        $this->handler->method('getSource')->willReturn(FieldConfig::SOURCE_STATIC);
-        $this->handler->expects(static::once())
+        $this->processor->method('getSource')->willReturn(FieldConfig::SOURCE_STATIC);
+        $this->processor->expects(static::once())
             ->method('collect')
             ->willReturn($collection);
 
-        $this->handlers['static'] = $this->handler;
+        $this->processors['static'] = $this->processor;
 
         $slot = $this->getSlot();
         static::assertSame($collection, $this->getResolver()->collect($slot, $this->getResolverContext()));
@@ -92,19 +99,22 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $slot = $this->getSlot();
         $data = new ElementDataCollection();
 
-        $handler = $this->createMock(AbstractProductSliderProcessor::class);
-        $handler->expects(static::never())->method('enrich');
+        $processor = $this->createMock(AbstractProductSliderProcessor::class);
+        $processor->expects(static::never())->method('enrich');
 
         $this->getResolver()->enrich($slot, $this->getResolverContext(), $data);
     }
 
-    public function testEnrichNoHandlerFound(): void
+    public function testEnrichNoProcessorFound(): void
     {
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, 'VALID-VALUE'));
 
-        $this->handler->expects(static::once())->method('getSource')->willReturn('not-existing-handler');
-        $this->handler->expects(static::never())->method('enrich');
-        $this->handlers[] = $this->handler;
+        $this->logger->expects(static::once())->method('error')
+            ->with('No product slider processor found by provided source: "static"');
+
+        $this->processor->expects(static::once())->method('getSource')->willReturn('not-existing-processor');
+        $this->processor->expects(static::never())->method('enrich');
+        $this->processors[] = $this->processor;
 
         $slot = $this->getSlot();
         $data = new ElementDataCollection();
@@ -120,17 +130,17 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $data = new ElementDataCollection();
         $resolverContext = $this->getResolverContext();
 
-        $handler = $this->createMock(AbstractProductSliderProcessor::class);
-        $handler->method('getSource')->willReturn(FieldConfig::SOURCE_STATIC);
-        $handler->expects(static::once())->method('enrich')->with($slot, $data, $resolverContext);
+        $processor = $this->createMock(AbstractProductSliderProcessor::class);
+        $processor->method('getSource')->willReturn(FieldConfig::SOURCE_STATIC);
+        $processor->expects(static::once())->method('enrich')->with($slot, $data, $resolverContext);
 
-        $this->handlers['static'] = $handler;
+        $this->processors['static'] = $processor;
 
         $this->getResolver()->enrich($slot, $this->getResolverContext(), $data);
     }
 
     private function getResolver(): ProductSliderCmsElementResolver
     {
-        return new ProductSliderCmsElementResolver($this->handlers);
+        return new ProductSliderCmsElementResolver($this->processors, $this->logger);
     }
 }

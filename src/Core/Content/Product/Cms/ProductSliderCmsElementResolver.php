@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
@@ -24,8 +25,10 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
      *
      * @internal
      */
-    public function __construct(iterable $processors)
-    {
+    public function __construct(
+        iterable $processors,
+        private readonly LoggerInterface $logger
+    ) {
         foreach ($processors as $processor) {
             $this->processors[$processor->getSource()] = $processor;
         }
@@ -48,7 +51,13 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $source = $productConfig->getSource();
         $processor = $this->processors[$source] ?? null;
 
-        return $processor?->collect($slot, $config, $resolverContext);
+        if (!$processor) {
+            $this->logNoProcessorFoundError($source);
+
+            return null;
+        }
+
+        return $processor->collect($slot, $config, $resolverContext);
     }
 
     public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
@@ -67,9 +76,16 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $processor = $this->processors[$source] ?? null;
 
         if (!$processor) {
+            $this->logNoProcessorFoundError($source);
+
             return;
         }
 
         $processor->enrich($slot, $result, $resolverContext);
+    }
+
+    private function logNoProcessorFoundError(string $source): void
+    {
+        $this->logger->error(\sprintf('No product slider processor found by provided source: "%s"', $source));
     }
 }

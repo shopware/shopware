@@ -5,14 +5,16 @@ namespace Shopware\Core\Framework\Struct;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @implements \ArrayAccess<array-key, mixed>
- * @implements \IteratorAggregate<array-key, mixed>
+ * @template TData of array = array<array-key, mixed>
+ *
+ * @implements \ArrayAccess<key-of<TData>, value-of<TData>>
+ * @implements \IteratorAggregate<key-of<TData>, value-of<TData>>
  */
 #[Package('framework')]
 class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
-     * @param array<array-key, mixed> $data
+     * @param TData $data
      */
     public function __construct(
         protected array $data = [],
@@ -37,6 +39,7 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
 
     public function offsetSet($offset, mixed $value): void
     {
+        /** @phpstan-ignore assign.propertyType (PHPStan cannot recognize the result correctly) */
         $this->data[$offset] = $value;
     }
 
@@ -52,21 +55,23 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
 
     public function set(string|int $key, mixed $value): mixed
     {
+        /** @phpstan-ignore assign.propertyType (PHPStan cannot recognize the result correctly) */
         return $this->data[$key] = $value;
     }
 
     /**
-     * @param array<array-key, mixed> $options
+     * @param TData $options
      */
     public function assign(array $options)
     {
+        /** @phpstan-ignore assign.propertyType (PHPStan cannot recognize the result of the array function correctly) */
         $this->data = array_replace_recursive($this->data, $options);
 
         return $this;
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return TData
      */
     public function all(): array
     {
@@ -93,7 +98,7 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return TData
      */
     public function getVars(): array
     {

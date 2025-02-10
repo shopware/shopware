@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
-use Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
@@ -792,14 +791,7 @@ class CacheInvalidationSubscriber
             return [];
         }
 
-        /** @var string[] $ids */
-        $ids = array_map(NavigationRoute::buildName(...), $ids);
-
-        if (!Feature::isActive('cache_rework')) {
-            $ids[] = CachedNavigationRoute::BASE_NAVIGATION_TAG;
-        }
-
-        return $ids;
+        return array_map(NavigationRoute::buildName(...), $ids);
     }
 
     /**

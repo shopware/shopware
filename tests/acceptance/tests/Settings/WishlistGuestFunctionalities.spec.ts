@@ -8,6 +8,7 @@ test('Guest Customer is able to add and remove products to the wishlist',{ tag: 
     StorefrontWishlist,
     AddProductToCartFromWishlist,
     Login,
+    StorefrontOffCanvasCart,
 }) => {
     await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': true });
     const product1 = await TestDataService.createBasicProduct();
@@ -22,17 +23,19 @@ test('Guest Customer is able to add and remove products to the wishlist',{ tag: 
         await StorefrontHome.page.reload();
     });
 
-    await test.step('Add product1 to the wishlist and verify wishlist count', async () => {
+    await test.step('Add product1 to the wishlist and verify wishlist count updates to 1', async () => {
         await ShopCustomer.attemptsTo(AddProductToWishlist(product1));
         await ShopCustomer.expects(product1Locators.wishlistAddedIcon).toBeVisible();
         await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('1');
     });
 
-    await test.step('Add product1 to the cart from wishlist and verify cart total', async () => {
+    await test.step('Add product1 to the cart from wishlist and verify cart total is same with product price', async () => {
         await ShopCustomer.attemptsTo(AddProductToCartFromWishlist(product1));
         const productPrice = await product1Locators.productPrice.innerText();
-        const offCanvasSubtotal = await StorefrontWishlist.offCanvasSummaryTotalPrice.innerText();
+        const offCanvasSubtotal = await StorefrontOffCanvasCart.subTotalPrice.innerText();
         ShopCustomer.expects(offCanvasSubtotal).toBe(productPrice);
+        const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product1.productNumber);
+        await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).toBeVisible();
     });
 
     await test.step('Login as customer and verify product1 is still in wishlist', async () => {

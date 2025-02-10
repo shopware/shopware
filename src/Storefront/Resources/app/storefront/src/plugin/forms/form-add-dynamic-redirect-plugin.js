@@ -1,36 +1,38 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
 /**
- * This plugin adds redirect parameter to the form before the form is submitted.
+ * This plugin adds dynamic redirect parameters to the form before the form is submitted.
  */
 export default class FormAddDynamicRedirectPlugin extends Plugin {
 
     static options = {
+        /**
+         * Name of the route to redirect to, e.g. 'frontend.detail.page'.
+         * @type {string}
+         */
         redirectTo: window.activeRoute,
-        redirectParameter: JSON.parse(window.activeRouteParameters),
+
+        /**
+         * Additional parameters to add to the redirect, given as JSON string, e.g. {"productId": 0194da86d1cc70beb15bc0660882b87a}.
+         * @type {string}
+         */
+        redirectParameter: window.activeRouteParameters,
     };
 
     init() {
-        this._registerEvents();
-    }
-
-    /**
-     * registers all needed events
-     *
-     * @private
-     */
-    _registerEvents() {
         this.el.addEventListener('submit', this._onSubmit.bind(this));
     }
 
     /**
+     * Adds redirect parameters to the form before it is submitted.
      * @private
      */
     _onSubmit() {
         this._createInputForRedirectTo();
 
-        for (const parameter in this.options.redirectParameter) {
-            const input = this._createInputForRedirectParameter(parameter, this.options.redirectParameter[parameter]);
+        const redirectParameters = JSON.parse(this.options.redirectParameter);
+        for (const parameter in redirectParameters) {
+            const input = this._createInputForRedirectParameter(parameter, redirectParameters[parameter]);
             this.el.appendChild(input);
         }
     }

@@ -100,10 +100,6 @@ class Entity extends Struct
         }
 
         if ($this->has($property)) {
-            if (!isset($this->$property)) { // to cover not set properties without default value
-                return null;
-            }
-
             return $this->$property;
         }
 

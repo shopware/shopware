@@ -46,11 +46,6 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: 'standard',
         },
-        /** @deprecated tag:v6.7.0 - Will be removed. Use `navigationArrows` instead */
-        navigation: {
-            source: 'static',
-            value: true,
-        },
         navigationArrows: {
             source: 'static',
             value: 'outside',

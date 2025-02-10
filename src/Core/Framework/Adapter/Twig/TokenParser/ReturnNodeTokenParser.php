@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-/**
- * @internal
- */
 #[Package('framework')]
 final class ReturnNodeTokenParser extends AbstractTokenParser
 {

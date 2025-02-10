@@ -11,9 +11,6 @@ use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-/**
- * @internal
- */
 #[Package('framework')]
 final class IncludeTokenParser extends AbstractTokenParser
 {

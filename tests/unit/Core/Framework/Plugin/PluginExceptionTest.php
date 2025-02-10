@@ -58,8 +58,8 @@ class PluginExceptionTest extends TestCase
 
     public function testProjectDirNotInContainer(): void
     {
-        static::expectException(PluginException::class);
-        static::expectExceptionMessage('Container parameter "kernel.project_dir" needs to be a string');
+        $this->expectException(PluginException::class);
+        $this->expectExceptionMessage('Container parameter "kernel.project_dir" needs to be a string');
 
         throw PluginException::projectDirNotInContainer();
     }

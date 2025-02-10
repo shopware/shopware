@@ -4,8 +4,7 @@
 <mt-number-field
     v-if="useMeteorComponent"
     v-bind="$attrs"
-    :model-value="currentValue"
-    @change="currentValue = $event"
+    v-model="currentValue"
 >
     <template
         v-for="(index, name) in getSlots()"

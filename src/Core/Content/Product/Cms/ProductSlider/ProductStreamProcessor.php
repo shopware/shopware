@@ -161,10 +161,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
             $finalProductIds[] = $productId ?? $product->getId();
         }
 
-        /** @var list<string> $finalIds */
-        $finalIds = array_unique($finalProductIds);
-
-        return $finalIds;
+        return array_values(array_unique($finalProductIds));
     }
 
     private function addGrouping(Criteria $criteria): void

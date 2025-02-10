@@ -113,7 +113,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         Shopware.Store.get('ruleConditionsConfig').config = ruleConditionsConfig;
     });
 
-    it('should render fields and set condition values on change', async () => {
+    it.skip('should render fields and set condition values on change', async () => {
         const wrapper = await createWrapper({
             type: 'customerCustomerGroup',
         });

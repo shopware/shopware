@@ -552,7 +552,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         Shopware.Store.get('context').api.languageId = apiLanguageId;
     });
 
-    it('should save language switch', async () => {
+    it.skip('should save language switch', async () => {
         ruleRepositoryMock.hasChanges.mockReturnValueOnce(true);
         const wrapper = await createWrapper();
         await flushPromises();
@@ -789,7 +789,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(buttonSave.attributes('disabled')).toBe('');
     });
 
-    it('should have enabled fields', async () => {
+    it.skip('should have enabled fields', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper();

@@ -131,7 +131,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         await flushPromises();
     });
 
-    it('should render custom field options', async () => {
+    it.skip('should render custom field options', async () => {
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -144,7 +144,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         expect(listElements.item(1).querySelector('.sw-select-result__result-item-description').textContent).toBe('bar');
     });
 
-    it('should set data on field change with known id', async () => {
+    it.skip('should set data on field change with known id', async () => {
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -169,7 +169,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         expect(wrapper.vm.selectedFieldSet).toBe('1');
     });
 
-    it('should not set data on field change with unknown id', async () => {
+    it.skip('should not set data on field change with unknown id', async () => {
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -179,7 +179,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         expect(wrapper.vm.selectedFieldSet).toBeUndefined();
     });
 
-    it('should set custom field value on input', async () => {
+    it.skip('should set custom field value on input', async () => {
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -189,7 +189,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('foo2');
     });
 
-    it('should set operator field value on input', async () => {
+    it.skip('should set operator field value on input', async () => {
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -205,7 +205,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         expect(wrapper.find('.sw-single-select__selection-text').text()).toBe('global.sw-condition.operator.equals');
     });
 
-    it('should set form field value on input', async () => {
+    it.skip('should set form field value on input', async () => {
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 

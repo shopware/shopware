@@ -261,7 +261,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnailServiceMock,
             $this->mediaRepository,
             $this->mediaFolderRepository,
-            static::getContainer()->get('messenger.bus.shopware')
+            static::getContainer()->get('messenger.default_bus')
         );
 
         $commandTester = new CommandTester($command);
@@ -284,7 +284,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnailServiceMock,
             $this->mediaRepository,
             $this->mediaFolderRepository,
-            static::getContainer()->get('messenger.bus.shopware')
+            static::getContainer()->get('messenger.default_bus')
         );
 
         $commandTester = new CommandTester($command);

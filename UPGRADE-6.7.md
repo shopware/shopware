@@ -473,6 +473,32 @@ Merchants must review their custom created payment and shipping methods for the 
 ## Required foreign key in mapping definition for many-to-many associations
 If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
 
+## Elasticsearch: Return type of AbstractElasticsearchDefinition::buildTermQuery changed to BuilderInterface
+
+The return type of `\Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition::buildTermQuery()` and `\Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder::build()` changed from BoolQuery to BuilderInterface.
+It is not necessary to wrap the return value in a BoolQuery anymore.
+Before:
+```php
+public function buildTermQuery(Context $context, Criteria $criteria): BuilderInterface
+{
+    $built = $this->searchLogic->build($this->getEntityDefinition()->getEntityName(), $criteria, $context);
+
+    if ($built instanceof BoolQuery) {
+        return $built;
+    }
+
+    return new BoolQuery([BoolQuery::SHOULD => $built]);
+}
+```
+
+After:
+```php
+public function buildTermQuery(Context $context, Criteria $criteria): BuilderInterface
+{
+    return $this->searchLogic->build($this->getEntityDefinition()->getEntityName(), $criteria, $context);
+}
+```
+
 ## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` changed
 * Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` changed to `columnName`
 * Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` changed to `foreignKeyName`
@@ -2435,6 +2461,20 @@ To prepare for migration:
 * `shopware.number_range.config.dsn` -> `shopware.number_range.config.connection`
 * `shopware.cart.redis_url` -> `cart.storage.config.connection`
 * `cart.storage.config.dsn` -> `cart.storage.config.connection`
+
+## Search server now provides OpenSearch/Elasticsearch shards and replicas
+
+Previously we had a default configuration of three shards and three replicas. With 6.7 we removed this default configuration and now the search server is responsible for providing the correct configuration.
+This allows that the indices automatically scale based on your nodes available in the cluster.
+
+You can revert to the old behavior by setting the following configuration in your `config/packages/shopware.yml`:
+
+```yaml
+elasticsearch:
+    index_settings:
+        number_of_shards: 3
+        number_of_replicas: 3
+```
 
 ## Message queue size limit
 

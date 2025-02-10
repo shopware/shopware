@@ -13,7 +13,7 @@ Shopware.Component.extend(
 );
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-number-range', {
@@ -54,14 +54,7 @@ Module.register('sw-settings-number-range', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'general';
-        },
+        group: 'general',
         to: 'sw.settings.number.range.index',
         icon: 'regular-file-signature',
         privilege: 'number_ranges.viewer',

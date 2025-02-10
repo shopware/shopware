@@ -679,10 +679,6 @@ frame-ancestors 'none';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="messenger.bus.shopware" alias="messenger.default_bus">
-            <deprecated package="shopware/core" version="6.7.0.0">tag:v6.7.0 - The %alias_id% service will be removed in v6.7.0.0 use messenger.default_bus instead</deprecated>
-        </service>
-
         <service id="http_kernel" class="Shopware\Core\Framework\Adapter\Kernel\HttpKernel" public="true">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="controller_resolver"/>

@@ -2,9 +2,9 @@
  * @sw-package framework
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
+import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
-import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 
 const { Mixin } = Shopware;
 const {

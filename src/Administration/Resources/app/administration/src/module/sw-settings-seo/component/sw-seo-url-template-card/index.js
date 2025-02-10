@@ -15,8 +15,6 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'seoUrlTemplateService',
         'repositoryFactory',
@@ -172,11 +170,7 @@ export default {
                 },
             );
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.variableStores, id, storeOptions);
-            } else {
-                this.variableStores.id = storeOptions;
-            }
+            this.variableStores.id = storeOptions;
         },
         getVariableOptions(id) {
             if (this.variableStores.hasOwnProperty(id)) {
@@ -282,18 +276,10 @@ export default {
         },
         setErrorMessagesForEntity(entity, value = null) {
             // eslint-disable-next-line no-lonely-if
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.errorMessages, entity.id, value);
-            } else {
-                this.errorMessages[entity.id] = value;
-            }
+            this.errorMessages[entity.id] = value;
         },
         fetchSeoUrlPreview(entity) {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.previewLoadingStates, entity.id, true);
-            } else {
-                this.previewLoadingStates[entity.id] = true;
-            }
+            this.previewLoadingStates[entity.id] = true;
 
             const criteria = this.seoUrlPreviewCriteria[entity.routeName]
                 ? this.seoUrlPreviewCriteria[entity.routeName]
@@ -306,11 +292,7 @@ export default {
                         return elem !== entity.id;
                     });
 
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.previews, entity.id, response);
-                    } else {
-                        this.previews[entity.id] = response;
-                    }
+                    this.previews[entity.id] = response;
 
                     if (response === null) {
                         this.noEntityError.push(entity.id);
@@ -322,11 +304,7 @@ export default {
                 .catch((err) => {
                     this.setErrorMessagesForEntity(entity, err.response.data.errors[0].detail);
 
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.previews, entity.id, []);
-                    } else {
-                        this.previews[entity.id] = [];
-                    }
+                    this.previews[entity.id] = [];
 
                     this.previewLoadingStates[entity.id] = false;
                 });

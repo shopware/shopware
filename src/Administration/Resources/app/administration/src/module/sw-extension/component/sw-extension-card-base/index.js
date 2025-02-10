@@ -10,8 +10,6 @@ const { Utils, Filter } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: [

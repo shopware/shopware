@@ -3,13 +3,11 @@
     <sw-settings-search-search-index
         v-if="!storefrontEsEnable"
         :is-loading="isLoading"
-        v-on="listeners"
     />
 
     {% block sw_settings_search_view_live_search_content_card %}
     <sw-settings-search-live-search
         v-bind="$props"
-        v-on="listeners"
     />
     {% endblock %}
 </div>

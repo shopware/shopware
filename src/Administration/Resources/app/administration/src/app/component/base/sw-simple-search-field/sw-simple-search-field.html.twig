@@ -6,9 +6,7 @@
         :class="fieldClasses"
         :placeholder="placeholder"
         v-bind="$attrs"
-        :value="value"
-        v-on="listeners"
-        @update:value="onInput"
+        :value="value" @update:value="onInput"
     />
     {% endblock %}
 

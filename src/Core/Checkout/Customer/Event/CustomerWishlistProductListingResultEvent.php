@@ -17,29 +17,13 @@ class CustomerWishlistProductListingResultEvent extends NestedEvent implements S
     final public const EVENT_NAME = 'checkout.customer.wishlist_listing_product_result';
 
     /**
-     * @var Request
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $request;
-
-    /**
-     * @var EntitySearchResult<ProductCollection>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $result;
-
-    /**
-     * @param EntitySearchResult<ProductCollection> $wishlistProductListingResult
+     * @param EntitySearchResult<ProductCollection> $result
      */
     public function __construct(
-        Request $request,
-        EntitySearchResult $wishlistProductListingResult,
+        protected Request $request,
+        protected EntitySearchResult $result,
         private SalesChannelContext $context
     ) {
-        $this->request = $request;
-        $this->result = $wishlistProductListingResult;
     }
 
     public function getName(): string

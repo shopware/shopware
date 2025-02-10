@@ -13,6 +13,10 @@ shopware:
         default: true
         major: true
         toggleable: false
+      - name: v6.8.0.0
+        default: false
+        major: true
+        toggleable: false
       - name: ADDRESS_SELECTION_REWORK
         default: true
         major: true
@@ -47,6 +51,10 @@ shopware:
         major: true
         toggleable: false
         description: "TEMPORARY! disable dynamic entity extensions, as it makes problems during the lifecycle"
+      - name: ENABLE_METEOR_COMPONENTS
+        default: false
+        major: false
+        toggleable: false
       - name: FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
         default: false
         major: false

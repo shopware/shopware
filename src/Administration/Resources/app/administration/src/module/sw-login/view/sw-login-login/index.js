@@ -13,8 +13,6 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-login-login', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'loginService',
         'userService',

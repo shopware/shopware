@@ -11,12 +11,7 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class StoreLicenseSubscriptionStruct extends Struct
 {
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $expirationDate;
+    protected \DateTimeInterface $expirationDate;
 
     public function getApiAlias(): string
     {

@@ -10,10 +10,8 @@ abstract class XmlReader
 {
     /**
      * @var string should be set in instance that extends this class
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $xsdFile;
+    protected string $xsdFile;
 
     /**
      * load and validate xml file - parse to array

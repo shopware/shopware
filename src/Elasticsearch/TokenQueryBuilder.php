@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
@@ -29,7 +28,7 @@ use Shopware\Elasticsearch\Product\SearchFieldConfig;
 /**
  * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: float|int}
  *
- * @deprecated tag:v6.7.0 - reason:becomes-final
+ * @final
  */
 #[Package('framework')]
 class TokenQueryBuilder
@@ -45,24 +44,11 @@ class TokenQueryBuilder
 
     /**
      * @param SearchFieldConfig[] $configs
-     * @param Context|string[] $context
-     *
-     * @deprecated tag:v6.7.0 - $context will be typed as Context only
      */
-    public function build(string $entity, string $token, array $configs, array|Context $context): ?BuilderInterface
+    public function build(string $entity, string $token, array $configs, Context $context): ?BuilderInterface
     {
-        $explainMode = false;
-
-        if (\is_array($context)) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The $context is now a Context object');
-        }
-
-        if ($context instanceof Context) {
-            $languageIdChain = $context->getLanguageIdChain();
-            $explainMode = $context->hasState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
-        } else {
-            $languageIdChain = $context;
-        }
+        $languageIdChain = $context->getLanguageIdChain();
+        $explainMode = $context->hasState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
 
         $tokenQueries = [];
 

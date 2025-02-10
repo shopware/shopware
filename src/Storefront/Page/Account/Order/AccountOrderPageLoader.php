@@ -14,11 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,15 +32,13 @@ class AccountOrderPageLoader
 
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractOrderRoute $orderRoute,
         private readonly AccountService $accountService,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 
@@ -58,9 +54,6 @@ class AccountOrderPageLoader
         $this->setMetaInformation($page);
 
         $orders = $this->getOrders($request, $salesChannelContext);
-        if (!Feature::isActive('v6.7.0.0')) {
-            $orders = StorefrontSearchResult::createFrom($orders);
-        }
 
         $page->setOrders($orders);
 
@@ -85,15 +78,13 @@ class AccountOrderPageLoader
             $page->getMetaInformation()->setRobots('noindex,follow');
         }
 
-        if ($this->translator !== null && $page->getMetaInformation() === null) {
+        if ($page->getMetaInformation() === null) {
             $page->setMetaInformation(new MetaInformation());
         }
 
-        if ($this->translator !== null) {
-            $page->getMetaInformation()?->setMetaTitle(
-                $this->translator->trans('account.ordersMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
-            );
-        }
+        $page->getMetaInformation()?->setMetaTitle(
+            $this->translator->trans('account.ordersMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+        );
     }
 
     /**

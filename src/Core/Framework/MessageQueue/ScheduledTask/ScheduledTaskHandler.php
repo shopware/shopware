@@ -7,22 +7,15 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 abstract class ScheduledTaskHandler
 {
-    /**
-     * @deprecated tag:v6.7.0 - exceptionLogger will be required
-     */
     public function __construct(
         protected EntityRepository $scheduledTaskRepository,
-        protected readonly ?LoggerInterface $exceptionLogger = null
+        protected readonly LoggerInterface $exceptionLogger,
     ) {
-        if ($exceptionLogger === null) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Constructor argument exceptionLogger is required.');
-        }
     }
 
     public function __invoke(ScheduledTask $task): void
@@ -51,7 +44,7 @@ abstract class ScheduledTaskHandler
             $this->run();
         } catch (\Throwable $e) {
             if ($task->shouldRescheduleOnFailure()) {
-                $this->exceptionLogger?->error(
+                $this->exceptionLogger->error(
                     'Scheduled task failed with: ' . $e->getMessage(),
                     [
                         'error' => $e,

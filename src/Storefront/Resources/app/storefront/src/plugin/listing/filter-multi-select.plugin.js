@@ -3,7 +3,6 @@
  */
 
 import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 import FilterBasePlugin from 'src/plugin/listing/filter-base.plugin';
 import deepmerge from 'deepmerge';
 
@@ -35,7 +34,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
     _registerEvents() {
         const checkboxes = DomAccess.querySelectorAll(this.el, this.options.checkboxSelector);
 
-        Iterator.iterate(checkboxes, (checkbox) => {
+        checkboxes.forEach((checkbox) => {
             checkbox.addEventListener('change', this._onChangeFilter.bind(this));
         });
     }
@@ -51,7 +50,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
         let selection = [];
 
         if (checkedCheckboxes) {
-            Iterator.iterate(checkedCheckboxes, (checkbox) => {
+            checkedCheckboxes.forEach((checkbox) => {
                 selection.push(checkbox.id);
             });
         } else {
@@ -78,7 +77,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
         let labels = [];
 
         if (activeCheckboxes) {
-            Iterator.iterate(activeCheckboxes, (checkbox) => {
+            activeCheckboxes.forEach((checkbox) => {
                 labels.push({
                     label: checkbox.dataset.label,
                     id: checkbox.id,
@@ -155,7 +154,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
             DomAccess.querySelectorAll(this.el, `${this.options.checkboxSelector}:checked`, false);
 
         if (checkedCheckboxes) {
-            Iterator.iterate(checkedCheckboxes, (checkbox) => {
+            checkedCheckboxes.forEach((checkbox) => {
                 checkbox.checked = false;
             });
         }
@@ -182,7 +181,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
      */
     _disableInactiveFilterOptions(activeItemIds) {
         const checkboxes = DomAccess.querySelectorAll(this.el, this.options.checkboxSelector);
-        Iterator.iterate(checkboxes, (checkbox) => {
+        checkboxes.forEach((checkbox) => {
             if (checkbox.checked === true) {
                 return;
             }
@@ -220,7 +219,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
      */
     enableAllOptions() {
         const checkboxes = DomAccess.querySelectorAll(this.el, this.options.checkboxSelector);
-        Iterator.iterate(checkboxes, (checkbox) => {
+        checkboxes.forEach((checkbox) => {
             this.enableOption(checkbox);
         });
     }

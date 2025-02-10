@@ -5,9 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Order;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -28,8 +27,8 @@ class OrderPersister implements OrderPersisterInterface
     }
 
     /**
-     * @throws CustomerNotLoggedInException
-     * @throws DeliveryWithoutAddressException
+     * @throws CartException
+     * @throws OrderException
      * @throws InvalidCartException
      * @throws InconsistentCriteriaIdsException
      */

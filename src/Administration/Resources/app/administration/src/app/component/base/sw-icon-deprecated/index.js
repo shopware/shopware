@@ -45,8 +45,6 @@ const { Component } = Shopware;
 Component.register('sw-icon-deprecated', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'feature',
     ],
@@ -116,15 +114,6 @@ Component.register('sw-icon-deprecated', {
                 width: size,
                 height: size,
             };
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

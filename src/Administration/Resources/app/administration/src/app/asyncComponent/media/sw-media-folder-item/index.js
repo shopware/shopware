@@ -11,8 +11,6 @@ const { warn } = Shopware.Utils.debug;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: ['repositoryFactory'],
@@ -91,15 +89,6 @@ export default {
 
         dateFilter() {
             return Shopware.Filter.getByName('date');
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

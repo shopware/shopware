@@ -3,7 +3,6 @@
  */
 
 import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin';
-import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import deepmerge from 'deepmerge';
 
@@ -47,7 +46,7 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
 
                 const radios =  DomAccess.querySelectorAll(this.el, this.options.checkboxSelector, false);
                 if (radios) {
-                    Iterator.iterate(radios, (radio) => {
+                    radios.forEach((radio) => {
                         if (radio.value === this.currentRating) {
                             radio.checked = true;
                         }
@@ -110,7 +109,7 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
      */
     _disableInactiveFilterOptions(maxRating) {
         const radios = DomAccess.querySelectorAll(this.el, this.options.checkboxSelector);
-        Iterator.iterate(radios, (radio) => {
+        radios.forEach((radio) => {
             if (radio.checked === true) {
                 return;
             }

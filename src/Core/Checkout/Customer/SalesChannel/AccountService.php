@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,7 +26,6 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Validator\ConstraintViolation;
 
 #[Package('checkout')]
@@ -48,7 +46,7 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotLoggedInException
+     * @throws CartException
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
@@ -58,35 +56,13 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotLoggedInException
+     * @throws CartException
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
     public function setDefaultShippingAddress(string $addressId, SalesChannelContext $context, CustomerEntity $customer): void
     {
         $this->switchDefaultAddressRoute->swap($addressId, AbstractSwitchDefaultAddressRoute::TYPE_SHIPPING, $context, $customer);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed, use `AccountService::loginById` or `AccountService::loginByCredentials` instead
-     *
-     * @throws BadCredentialsException
-     * @throws CustomerNotFoundException
-     */
-    public function login(string $email, SalesChannelContext $context, bool $includeGuest = false): string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method `AccountService::login` will be removed, use `AccountService::loginById` or `AccountService::loginByCredentials` instead');
-
-        if (empty($email)) {
-            throw CustomerException::badCredentials();
-        }
-
-        $event = new CustomerBeforeLoginEvent($context, $email);
-        $this->eventDispatcher->dispatch($event);
-
-        $customer = $this->getCustomerByEmail($email, $context, $includeGuest);
-
-        return $this->loginByCustomer($customer, $context);
     }
 
     /**
@@ -101,12 +77,6 @@ class AccountService
 
         $customer = $this->fetchCustomer(new Criteria([$id]), $context, true);
         if ($customer === null) {
-            // @deprecated tag:v6.7.0 - remove this if block
-            if (!Feature::isActive('v6.7.0.0')) {
-                // @phpstan-ignore-next-line
-                throw new UnauthorizedHttpException('json', CustomerException::customerNotFoundByIdException($id)->getMessage());
-            }
-
             throw CustomerException::customerNotFoundByIdException($id);
         }
 
@@ -191,16 +161,14 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Parameter $includeGuest is unused and will be removed
-     *
      * @throws CustomerNotFoundException
      */
-    private function getCustomerByEmail(string $email, SalesChannelContext $context, bool $includeGuest = false): CustomerEntity
+    private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
 
-        $customer = $this->fetchCustomer($criteria, $context, $includeGuest);
+        $customer = $this->fetchCustomer($criteria, $context);
         if ($customer === null) {
             throw CustomerException::customerNotFound($email);
         }

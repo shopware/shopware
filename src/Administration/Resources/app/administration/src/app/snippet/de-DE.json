@@ -821,7 +821,6 @@
         "customerBirthdayRule": "Kundengeburtstag",
         "customerCreatedByAdminRule": "Kunde vom Administrator erstellt",
         "customerSalutationRule": "Kundenanrede",
-        "customerDefaultPaymentMethodRule": "Kunde mit Standardzahlungsart",
         "lineItemPropertyValueRule": "Position mit Eigenschaftsausprägung",
         "lineItemVariantValueRule": "Position mit Variantenausprägung"
       }
@@ -832,7 +831,7 @@
         "weight": "kg",
         "volume": "mm³",
         "age": "Jahre",
-        "kg": "Killogramm",
+        "kg": "Kilogramm",
         "g": "Gramm",
         "mg": "Milligramm",
         "oz": "Unze",

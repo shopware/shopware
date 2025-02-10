@@ -24,7 +24,12 @@ const createFolderEntity = (options = {}) => {
     });
 };
 
+let repositoryFactoryMock;
 async function createWrapper() {
+    repositoryFactoryMock = {
+        search: jest.fn(() => Promise.resolve([])),
+    };
+
     return mount(await wrapTestComponent('sw-media-modal-move', { sync: true }), {
         props: {
             itemsToMove: [createMediaEntity()],
@@ -34,6 +39,11 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-media-folder-content': true,
                 'sw-button': true,
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => repositoryFactoryMock,
+                },
             },
         },
     });
@@ -70,7 +80,7 @@ describe('components/media/sw-media-modal-move', () => {
         const mockedParent = createFolderEntity();
         const mockedChild = createFolderEntity({ parentId: mockedParent.id });
 
-        wrapper.vm.mediaFolderRepository.search = jest.fn(() =>
+        repositoryFactoryMock.search = jest.fn(() =>
             Promise.resolve([
                 mockedParent,
             ]),
@@ -78,7 +88,7 @@ describe('components/media/sw-media-modal-move', () => {
 
         await wrapper.vm.updateParentFolder(mockedChild);
 
-        expect(wrapper.vm.mediaFolderRepository.search).toHaveBeenCalled();
+        expect(repositoryFactoryMock.search).toHaveBeenCalled();
         expect(wrapper.vm.parentFolder).toMatchObject(mockedParent);
     });
 

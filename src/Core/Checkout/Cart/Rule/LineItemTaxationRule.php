@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class LineItemTaxationRule extends Rule
@@ -22,8 +22,6 @@ class LineItemTaxationRule extends Rule
     final public const RULE_NAME = 'cartLineItemTaxation';
 
     /**
-     * @internal
-     *
      * @param list<string> $taxIds
      */
     public function __construct(

@@ -16,14 +16,11 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'customerGroupRegistrationService',
         'acl',
         'customerValidationService',
-        'feature',
     ],
 
     mixins: [
@@ -104,10 +101,6 @@ export default {
                 .addAssociation('tags')
                 .addAssociation('requestedGroup')
                 .addAssociation('boundSalesChannel');
-
-            if (!this.feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('defaultPaymentMethod');
-            }
 
             criteria.getAssociation('addresses').addSorting(Criteria.sort('firstName'), 'ASC', false);
 

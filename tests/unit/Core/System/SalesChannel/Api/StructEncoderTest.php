@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Api;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
@@ -64,15 +66,9 @@ class StructEncoderTest extends TestCase
             ])
         );
 
-        $registry = new StaticDefinitionInstanceRegistry(
-            [SalesChannelProductDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
 
-        $serializer = new Serializer([new StructNormalizer()], [new JsonEncoder()]);
-
-        $encoded = (new StructEncoder($this->getChainRegistry($registry), $serializer))->encode($product, new ResponseFields(null));
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
 
         static::assertArrayNotHasKey('cheapestPrice', $encoded);
         static::assertArrayHasKey('name', $encoded);
@@ -85,15 +81,10 @@ class StructEncoderTest extends TestCase
         $product->internalSetEntityData('product', new FieldVisibility([]));
 
         $product->setName('test');
-        $registry = new StaticDefinitionInstanceRegistry(
-            [SalesChannelProductDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
 
-        $serializer = new Serializer([new StructNormalizer()], [new JsonEncoder()]);
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
 
-        $encoded = (new StructEncoder($this->getChainRegistry($registry), $serializer))->encode($product, new ResponseFields(null));
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
 
         static::assertArrayNotHasKey('notExposed', $encoded);
         static::assertArrayHasKey('name', $encoded);
@@ -102,12 +93,6 @@ class StructEncoderTest extends TestCase
 
     public function testExtensionAreSupported(): void
     {
-        $registry = new StaticDefinitionInstanceRegistry(
-            [ExtensionDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
-
         $product = new ProductEntity();
         $product->internalSetEntityData('product', new FieldVisibility([]));
 
@@ -119,9 +104,9 @@ class StructEncoderTest extends TestCase
         $product->addExtension('foreignKeys', new ArrayStruct(['exposedFk' => 'exposed', 'notExposedFk' => 'not_exposed'], 'product'));
         $product->addExtension('search', new ArrayEntity(['score' => 2000]));
 
-        $serializer = new Serializer([new StructNormalizer()], [new JsonEncoder()]);
+        $structEncoder = $this->createStructEncoder([ExtensionDefinition::class]);
 
-        $encoded = (new StructEncoder($this->getChainRegistry($registry), $serializer))->encode($product, new ResponseFields(null));
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
 
         static::assertArrayHasKey('extensions', $encoded);
         static::assertArrayHasKey('exposedExtension', $encoded['extensions']);
@@ -144,10 +129,9 @@ class StructEncoderTest extends TestCase
 
         $cart->add($item);
 
-        $serializer = new Serializer([new StructNormalizer()], [new JsonEncoder()]);
+        $structEncoder = $this->createStructEncoder();
 
-        $encoded = (new StructEncoder($this->createMock(DefinitionRegistryChain::class), $serializer))
-            ->encode($cart, new ResponseFields(null));
+        $encoded = $structEncoder->encode($cart, new ResponseFields(null));
 
         static::assertArrayHasKey('lineItems', $encoded);
         static::assertArrayHasKey(0, $encoded['lineItems']);
@@ -155,6 +139,76 @@ class StructEncoderTest extends TestCase
         static::assertIsArray($encoded['lineItems'][0]['payload']);
         static::assertArrayHasKey('foo', $encoded['lineItems'][0]['payload']);
         static::assertArrayNotHasKey('bar', $encoded['lineItems'][0]['payload']);
+    }
+
+    public function testCustomFieldsAreExposed(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setName('test');
+        $product->setCustomFields(['foo' => 'bar', 'bar' => 'foo']);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+
+        $expectedCustomFields = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+
+        static::assertArrayHasKey('customFields', $encoded);
+        static::assertEquals($expectedCustomFields, $encoded['customFields']);
+    }
+
+    public function testCustomFieldsFieldIsBlocked(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setName('test');
+        $product->setCustomFields(['foo' => 'bar', 'bar' => 'foo']);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects(static::once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'entity_name' => 'product',
+                    'name' => 'bar',
+                ],
+            ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+
+        $expectedCustomFields = [
+            'foo' => 'bar',
+        ];
+
+        static::assertArrayHasKey('customFields', $encoded);
+        static::assertEquals($expectedCustomFields, $encoded['customFields']);
+    }
+
+    /**
+     * @param array<int|string, class-string<EntityDefinition>|EntityDefinition> $definitions
+     */
+    private function createStructEncoder(array $definitions = [], ?Connection $connection = null): StructEncoder
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            $definitions,
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $serializer = new Serializer([new StructNormalizer()], [new JsonEncoder()]);
+
+        $connection ??= $this->createMock(Connection::class);
+
+        return new StructEncoder($this->getChainRegistry($registry), $serializer, $connection);
     }
 
     private function getChainRegistry(StaticDefinitionInstanceRegistry $registry): DefinitionRegistryChain

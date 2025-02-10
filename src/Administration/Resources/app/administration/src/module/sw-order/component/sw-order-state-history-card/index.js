@@ -11,15 +11,12 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'orderService',
         'stateMachineService',
         'orderStateMachineService',
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     emits: [

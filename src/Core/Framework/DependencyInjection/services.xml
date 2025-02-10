@@ -668,7 +668,6 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider">
             <argument />  <!-- $serviceLocator will be set in the compiler pass -->
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
         </service>
 
 
@@ -678,10 +677,6 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" class="Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <service id="messenger.bus.shopware" alias="messenger.default_bus">
-            <deprecated package="shopware/core" version="6.7.0.0">tag:v6.7.0 - The %alias_id% service will be removed in v6.7.0.0 use messenger.default_bus instead</deprecated>
         </service>
 
         <service id="http_kernel" class="Shopware\Core\Framework\Adapter\Kernel\HttpKernel" public="true">

@@ -16,8 +16,6 @@ const { Component } = Shopware;
 Component.register('sw-pagination', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['page-change'],
 
     props: {

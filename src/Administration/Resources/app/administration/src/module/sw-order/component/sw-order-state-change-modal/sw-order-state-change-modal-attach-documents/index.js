@@ -9,8 +9,6 @@ import './sw-order-state-change-modal-attach-documents.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['on-confirm'],
 
     props: {

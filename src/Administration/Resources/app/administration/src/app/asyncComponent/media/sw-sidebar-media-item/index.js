@@ -23,8 +23,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     props: {
@@ -73,14 +71,6 @@ export default {
 
         itemsLoaded() {
             return this.mediaItems.length;
-        },
-
-        additionalEventListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

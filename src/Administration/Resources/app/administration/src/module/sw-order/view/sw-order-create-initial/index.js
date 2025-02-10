@@ -11,10 +11,6 @@ const { Criteria } = Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['feature'],
-
     computed: {
         customerRepository() {
             return Service('repositoryFactory').create('customer');
@@ -35,10 +31,6 @@ export default {
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags');
-
-            if (!this.feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('defaultPaymentMethod');
-            }
 
             return criteria;
         },

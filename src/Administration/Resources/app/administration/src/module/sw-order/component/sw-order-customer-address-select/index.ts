@@ -15,11 +15,8 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     props: {

@@ -6,8 +6,6 @@ import ImportExportProfileMappingService from './service/importExportProfileMapp
 import ImportExportProfileUpdateByService from './service/importExportUpdateByMapping.service';
 import './acl';
 
-const { Feature } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('importExport', () => {
     return new ImportExportService(Shopware.Application.getContainer('init').httpClient, Shopware.Service('loginService'));

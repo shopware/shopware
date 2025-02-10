@@ -1,6 +1,6 @@
 import './acl';
 
-const { Module, Component, Feature } = Shopware;
+const { Module, Component } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Component.register('sw-settings-document-list', () => import('./page/sw-settings-document-list'));

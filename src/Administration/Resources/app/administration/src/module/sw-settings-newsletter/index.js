@@ -6,7 +6,7 @@
 Shopware.Component.register('sw-settings-newsletter', () => import('./page/sw-settings-newsletter'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-newsletter', {

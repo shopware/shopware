@@ -36,11 +36,11 @@ Component.register('sw-desktop', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         isStaging() {
-            return Shopware.State.get('context').app.config.settings.enableStagingMode === true;
+            return Shopware.Store.get('context').app.config.settings.enableStagingMode === true;
         },
     },
 
@@ -80,7 +80,7 @@ Component.register('sw-desktop', {
         },
 
         updateShowUrlChangedModal() {
-            if (!Shopware.State.get('context').app.config.settings.appsRequireAppUrl) {
+            if (!Shopware.Store.get('context').app.config.settings.appsRequireAppUrl) {
                 this.urlDiff = null;
                 return;
             }

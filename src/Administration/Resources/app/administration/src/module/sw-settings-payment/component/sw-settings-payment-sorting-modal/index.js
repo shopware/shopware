@@ -15,7 +15,6 @@ export default {
     inject: [
         'acl',
         'repositoryFactory',
-        'feature',
     ],
 
     emits: [

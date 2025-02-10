@@ -64,7 +64,7 @@ Module.register('sw-settings-shipping', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'commerce',
         to: 'sw.settings.shipping.index',
         icon: 'regular-truck',
         privilege: 'shipping.viewer',

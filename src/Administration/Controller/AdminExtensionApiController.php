@@ -4,7 +4,7 @@ namespace Shopware\Administration\Controller;
 
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -28,6 +27,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class AdminExtensionApiController extends AbstractController
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly Executor $executor,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
@@ -45,17 +47,13 @@ class AdminExtensionApiController extends AbstractController
             new EqualsFilter('name', $appName)
         );
 
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
-        if ($app === null) {
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
+        if (!$app) {
             throw AppException::appNotFoundByName($appName);
         }
 
-        if ($app->getAppSecret() === null) {
-            if (Feature::isActive('v6.7.0.0')) {
-                throw AppException::appSecretMissing($app->getName());
-            }
-            throw AppException::secretMissing();
+        if (!$app->getAppSecret()) {
+            throw AppException::appSecretMissing($app->getName());
         }
 
         $targetUrl = $requestDataBag->getString('url');
@@ -92,9 +90,8 @@ class AdminExtensionApiController extends AbstractController
             new EqualsFilter('name', $appName)
         );
 
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
-        if ($app === null) {
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
+        if (!$app) {
             throw AppException::appNotFoundByName($appName);
         }
 

@@ -23,6 +23,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
@@ -124,7 +125,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate($installConfig, $configs, Context::createDefaultContext());
 
-        /** @var EntityRepository $themeRepository */
+        /** @var EntityRepository<ThemeCollection> $themeRepository */
         $themeRepository = static::getContainer()->get('theme.repository');
         $context = Context::createDefaultContext();
         $criteria = new Criteria();

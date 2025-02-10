@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Event\ThemeIndexerEvent;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -23,6 +24,8 @@ class ThemeIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ThemeCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

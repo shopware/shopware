@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\Traits;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition;
@@ -77,6 +78,9 @@ class StateMachineMigrationImporter
         return Uuid::fromBytesToHex($id);
     }
 
+    /**
+     * @return list<array{id: string, technicalName: string}>
+     */
     private function createOrSkipExistingStateMachineState(
         StateMachineMigration $stateMachineMigration,
         string $stateMachineId
@@ -85,11 +89,11 @@ class StateMachineMigrationImporter
 
         foreach ($stateMachineMigration->getStates() as $state) {
             if (!\array_key_exists('technicalName', $state)) {
-                throw new \RuntimeException('Please provide "technicalName" to all states');
+                throw MigrationException::migrationError('Please provide "technicalName" to all states');
             }
 
             if (!\array_key_exists('de', $state) || !\array_key_exists('en', $state)) {
-                throw new \RuntimeException('Please provide "de" and "en" translations to all states');
+                throw MigrationException::migrationError('Please provide "de" and "en" translations to all states');
             }
 
             $technicalName = $state['technicalName'];
@@ -133,6 +137,9 @@ class StateMachineMigrationImporter
         return $inserted;
     }
 
+    /**
+     * @return list<array{id: string, actionName: string, fromStateId: string, toStateId: string}>
+     */
     private function createOrSkipExistingStateMachineStateTransitions(
         StateMachineMigration $stateMachineMigration,
         string $stateMachineId
@@ -141,11 +148,11 @@ class StateMachineMigrationImporter
 
         foreach ($stateMachineMigration->getTransitions() as $transition) {
             if (!\array_key_exists('actionName', $transition)) {
-                throw new \RuntimeException('Please provide "actionName" to all transitions');
+                throw MigrationException::migrationError('Please provide "actionName" to all transitions');
             }
 
             if (!\array_key_exists('from', $transition) || !\array_key_exists('to', $transition)) {
-                throw new \RuntimeException('Please provide "from" and "to" states to all transitions');
+                throw MigrationException::migrationError('Please provide "from" and "to" states to all transitions');
             }
 
             $actionName = $transition['actionName'];
@@ -156,11 +163,11 @@ class StateMachineMigrationImporter
             $toStateId = $this->getStateMachineStateIdByName($stateMachineId, $to);
 
             if (!$fromStateId) {
-                throw new \RuntimeException('State with name "' . $from . '" not found');
+                throw MigrationException::migrationError(\sprintf('State with name "%s" not found', $from));
             }
 
             if (!$toStateId) {
-                throw new \RuntimeException('State with name "' . $to . '" not found');
+                throw MigrationException::migrationError(\sprintf('State with name "%s" not found', $to));
             }
 
             $id = $this->connection->fetchOne(
@@ -221,7 +228,7 @@ class StateMachineMigrationImporter
         $id = $this->getStateMachineStateIdByName($stateMachineId, $stateMachineMigration->getInitialState());
 
         if (!$id) {
-            throw new \RuntimeException('State with name "' . $stateMachineMigration->getTechnicalName() . '" not found');
+            throw MigrationException::migrationError(\sprintf('State with name "%s" not found', $stateMachineMigration->getTechnicalName()));
         }
 
         $this->connection->update(

@@ -109,11 +109,11 @@ class SchemaBuilderTest extends TestCase
 
         static::assertSame('id', $table->getPrimaryKey()?->getColumns()[0]);
 
-        static::assertArrayHasKey('id', $table->getColumns());
-        static::assertArrayHasKey('relation_id', $table->getColumns());
+        static::assertTrue($table->hasColumn('id'));
+        static::assertTrue($table->hasColumn('relation_id'));
 
-        static::assertArrayNotHasKey('runtime', $table->getColumns());
-        static::assertArrayNotHasKey('translated', $table->getColumns());
+        static::assertFalse($table->hasColumn('runtime'));
+        static::assertFalse($table->hasColumn('translated'));
 
         static::assertSame('utf8mb4', $table->getOption('charset'));
         static::assertSame('utf8mb4_unicode_ci', $table->getOption('collate'));
@@ -129,134 +129,134 @@ class SchemaBuilderTest extends TestCase
 
         static::assertSame('id', $table->getPrimaryKey()?->getColumns()[0]);
 
-        static::assertArrayHasKey('id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['id']->getType()));
+        static::assertTrue($table->hasColumn('id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('id')->getType()));
 
-        static::assertArrayHasKey('version_id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['version_id']->getType()));
+        static::assertTrue($table->hasColumn('version_id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('version_id')->getType()));
 
-        static::assertArrayHasKey('created_by_id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['created_by_id']->getType()));
+        static::assertTrue($table->hasColumn('created_by_id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('created_by_id')->getType()));
 
-        static::assertArrayHasKey('updated_by_id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['updated_by_id']->getType()));
+        static::assertTrue($table->hasColumn('updated_by_id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('updated_by_id')->getType()));
 
-        static::assertArrayHasKey('state_id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['state_id']->getType()));
+        static::assertTrue($table->hasColumn('state_id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('state_id')->getType()));
 
-        static::assertArrayHasKey('created_at', $table->getColumns());
-        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumns()['created_at']->getType()));
+        static::assertTrue($table->hasColumn('created_at'));
+        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumn('created_at')->getType()));
 
-        static::assertArrayHasKey('updated_at', $table->getColumns());
-        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumns()['updated_at']->getType()));
+        static::assertTrue($table->hasColumn('updated_at'));
+        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumn('updated_at')->getType()));
 
-        static::assertArrayHasKey('datetime', $table->getColumns());
-        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumns()['datetime']->getType()));
+        static::assertTrue($table->hasColumn('datetime'));
+        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumn('datetime')->getType()));
 
-        static::assertArrayHasKey('date', $table->getColumns());
-        static::assertEquals(Types::DATE_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumns()['date']->getType()));
+        static::assertTrue($table->hasColumn('date'));
+        static::assertEquals(Types::DATE_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumn('date')->getType()));
 
-        static::assertArrayHasKey('cart_price', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['cart_price']->getType()));
+        static::assertTrue($table->hasColumn('cart_price'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('cart_price')->getType()));
 
-        static::assertArrayHasKey('calculated_price', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['calculated_price']->getType()));
+        static::assertTrue($table->hasColumn('calculated_price'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('calculated_price')->getType()));
 
-        static::assertArrayHasKey('price', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['price']->getType()));
+        static::assertTrue($table->hasColumn('price'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('price')->getType()));
 
-        static::assertArrayHasKey('price_definition', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['price_definition']->getType()));
+        static::assertTrue($table->hasColumn('price_definition'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('price_definition')->getType()));
 
-        static::assertArrayHasKey('json', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['json']->getType()));
+        static::assertTrue($table->hasColumn('json'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('json')->getType()));
 
-        static::assertArrayHasKey('list', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['list']->getType()));
+        static::assertTrue($table->hasColumn('list'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('list')->getType()));
 
-        static::assertArrayHasKey('config_json', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['config_json']->getType()));
+        static::assertTrue($table->hasColumn('config_json'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('config_json')->getType()));
 
-        static::assertArrayHasKey('custom_fields', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['custom_fields']->getType()));
+        static::assertTrue($table->hasColumn('custom_fields'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('custom_fields')->getType()));
 
-        static::assertArrayHasKey('breadcrumb', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['breadcrumb']->getType()));
+        static::assertTrue($table->hasColumn('breadcrumb'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('breadcrumb')->getType()));
 
-        static::assertArrayHasKey('cash_rounding_config', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['cash_rounding_config']->getType()));
+        static::assertTrue($table->hasColumn('cash_rounding_config'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('cash_rounding_config')->getType()));
 
-        static::assertArrayHasKey('object', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['object']->getType()));
+        static::assertTrue($table->hasColumn('object'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('object')->getType()));
 
-        static::assertArrayHasKey('tax_free_config', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['tax_free_config']->getType()));
+        static::assertTrue($table->hasColumn('tax_free_config'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('tax_free_config')->getType()));
 
-        static::assertArrayHasKey('tree_breadcrumb', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['tree_breadcrumb']->getType()));
+        static::assertTrue($table->hasColumn('tree_breadcrumb'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('tree_breadcrumb')->getType()));
 
-        static::assertArrayHasKey('variant_listing_config', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['variant_listing_config']->getType()));
+        static::assertTrue($table->hasColumn('variant_listing_config'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('variant_listing_config')->getType()));
 
-        static::assertArrayHasKey('version_data_payload', $table->getColumns());
-        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumns()['version_data_payload']->getType()));
+        static::assertTrue($table->hasColumn('version_data_payload'));
+        static::assertEquals(Types::JSON, Type::getTypeRegistry()->lookupName($table->getColumn('version_data_payload')->getType()));
 
-        static::assertArrayHasKey('child_count', $table->getColumns());
-        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumns()['child_count']->getType()));
+        static::assertTrue($table->hasColumn('child_count'));
+        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumn('child_count')->getType()));
 
-        static::assertArrayHasKey('auto_increment', $table->getColumns());
-        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumns()['auto_increment']->getType()));
+        static::assertTrue($table->hasColumn('auto_increment'));
+        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumn('auto_increment')->getType()));
 
-        static::assertArrayHasKey('int', $table->getColumns());
-        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumns()['int']->getType()));
+        static::assertTrue($table->hasColumn('int'));
+        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumn('int')->getType()));
 
-        static::assertArrayHasKey('auto_increment', $table->getColumns());
-        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumns()['auto_increment']->getType()));
+        static::assertTrue($table->hasColumn('auto_increment'));
+        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumn('auto_increment')->getType()));
 
-        static::assertArrayHasKey('tree_level', $table->getColumns());
-        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumns()['tree_level']->getType()));
+        static::assertTrue($table->hasColumn('tree_level'));
+        static::assertEquals(Types::INTEGER, Type::getTypeRegistry()->lookupName($table->getColumn('tree_level')->getType()));
 
-        static::assertArrayHasKey('bool', $table->getColumns());
-        static::assertEquals(Types::BOOLEAN, Type::getTypeRegistry()->lookupName($table->getColumns()['bool']->getType()));
+        static::assertTrue($table->hasColumn('bool'));
+        static::assertEquals(Types::BOOLEAN, Type::getTypeRegistry()->lookupName($table->getColumn('bool')->getType()));
 
-        static::assertArrayHasKey('locked', $table->getColumns());
-        static::assertEquals(Types::BOOLEAN, Type::getTypeRegistry()->lookupName($table->getColumns()['locked']->getType()));
+        static::assertTrue($table->hasColumn('locked'));
+        static::assertEquals(Types::BOOLEAN, Type::getTypeRegistry()->lookupName($table->getColumn('locked')->getType()));
 
-        static::assertArrayHasKey('password', $table->getColumns());
-        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumns()['password']->getType()));
+        static::assertTrue($table->hasColumn('password'));
+        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumn('password')->getType()));
 
-        static::assertArrayHasKey('string', $table->getColumns());
-        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumns()['string']->getType()));
+        static::assertTrue($table->hasColumn('string'));
+        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumn('string')->getType()));
 
-        static::assertArrayHasKey('timezone', $table->getColumns());
-        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumns()['timezone']->getType()));
+        static::assertTrue($table->hasColumn('timezone'));
+        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumn('timezone')->getType()));
 
-        static::assertArrayHasKey('cron_interval', $table->getColumns());
-        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumns()['cron_interval']->getType()));
+        static::assertTrue($table->hasColumn('cron_interval'));
+        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumn('cron_interval')->getType()));
 
-        static::assertArrayHasKey('date_interval', $table->getColumns());
-        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumns()['date_interval']->getType()));
+        static::assertTrue($table->hasColumn('date_interval'));
+        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumn('date_interval')->getType()));
 
-        static::assertArrayHasKey('email', $table->getColumns());
-        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumns()['email']->getType()));
+        static::assertTrue($table->hasColumn('email'));
+        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumn('email')->getType()));
 
-        static::assertArrayHasKey('remote_address', $table->getColumns());
-        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumns()['remote_address']->getType()));
+        static::assertTrue($table->hasColumn('remote_address'));
+        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumn('remote_address')->getType()));
 
-        static::assertArrayHasKey('number_range', $table->getColumns());
-        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumns()['number_range']->getType()));
+        static::assertTrue($table->hasColumn('number_range'));
+        static::assertEquals(Types::STRING, Type::getTypeRegistry()->lookupName($table->getColumn('number_range')->getType()));
 
-        static::assertArrayHasKey('blob', $table->getColumns());
-        static::assertEquals(Types::BLOB, Type::getTypeRegistry()->lookupName($table->getColumns()['blob']->getType()));
+        static::assertTrue($table->hasColumn('blob'));
+        static::assertEquals(Types::BLOB, Type::getTypeRegistry()->lookupName($table->getColumn('blob')->getType()));
 
-        static::assertArrayHasKey('float', $table->getColumns());
-        static::assertEquals(Types::DECIMAL, Type::getTypeRegistry()->lookupName($table->getColumns()['float']->getType()));
+        static::assertTrue($table->hasColumn('float'));
+        static::assertEquals(Types::DECIMAL, Type::getTypeRegistry()->lookupName($table->getColumn('float')->getType()));
 
-        static::assertArrayHasKey('tree_path', $table->getColumns());
-        static::assertEquals(Types::TEXT, Type::getTypeRegistry()->lookupName($table->getColumns()['tree_path']->getType()));
+        static::assertTrue($table->hasColumn('tree_path'));
+        static::assertEquals(Types::TEXT, Type::getTypeRegistry()->lookupName($table->getColumn('tree_path')->getType()));
 
-        static::assertArrayHasKey('long_text', $table->getColumns());
-        static::assertEquals(Types::TEXT, Type::getTypeRegistry()->lookupName($table->getColumns()['long_text']->getType()));
+        static::assertTrue($table->hasColumn('long_text'));
+        static::assertEquals(Types::TEXT, Type::getTypeRegistry()->lookupName($table->getColumn('long_text')->getType()));
     }
 
     public function testForeignKeys(): void
@@ -269,32 +269,32 @@ class SchemaBuilderTest extends TestCase
 
         static::assertSame('id', $table->getPrimaryKey()?->getColumns()[0]);
 
-        static::assertArrayHasKey('id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['id']->getType()));
+        static::assertTrue($table->hasColumn('id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('id')->getType()));
 
-        static::assertArrayHasKey('version_id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['version_id']->getType()));
+        static::assertTrue($table->hasColumn('version_id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('version_id')->getType()));
 
-        static::assertArrayHasKey('parent_id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['parent_id']->getType()));
+        static::assertTrue($table->hasColumn('parent_id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('parent_id')->getType()));
 
-        static::assertArrayHasKey('parent_version_id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['parent_version_id']->getType()));
+        static::assertTrue($table->hasColumn('parent_version_id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('parent_version_id')->getType()));
 
-        static::assertArrayHasKey('created_at', $table->getColumns());
-        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumns()['created_at']->getType()));
+        static::assertTrue($table->hasColumn('created_at'));
+        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumn('created_at')->getType()));
 
-        static::assertArrayHasKey('updated_at', $table->getColumns());
-        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumns()['updated_at']->getType()));
+        static::assertTrue($table->hasColumn('updated_at'));
+        static::assertEquals(Types::DATETIME_MUTABLE, Type::getTypeRegistry()->lookupName($table->getColumn('updated_at')->getType()));
 
-        static::assertArrayHasKey('association_id', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['association_id']->getType()));
+        static::assertTrue($table->hasColumn('association_id'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('association_id')->getType()));
 
-        static::assertArrayHasKey('association_id2', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['association_id2']->getType()));
+        static::assertTrue($table->hasColumn('association_id2'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('association_id2')->getType()));
 
-        static::assertArrayHasKey('association_id3', $table->getColumns());
-        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumns()['association_id3']->getType()));
+        static::assertTrue($table->hasColumn('association_id3'));
+        static::assertEquals(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('association_id3')->getType()));
 
         static::assertTrue($table->hasForeignKey('fk.test_entity_with_foreign_keys.association_id'));
         static::assertTrue($table->hasForeignKey('fk.test_entity_with_foreign_keys.association_id2'));

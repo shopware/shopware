@@ -1,7 +1,26 @@
 {% sw_extends '@Storefront/storefront/page/account/_page.html.twig' %}
 
 {% block page_account_main_content %}
-    <div class="account-address">
+    {% if feature('ADDRESS_SELECTION_REWORK') %}
+
+        {% block page_account_main_content_header %}
+            <h1>
+                {{ "account.addressModalTitle"|trans|sw_sanitize }}
+            </h1>
+            <p>
+                {{ "account.addressText"|trans|sw_sanitize }}
+            </p>
+        {% endblock %}
+
+        {% block page_account_main_content_address_manager %}
+            {% sw_include '@Storefront/storefront/page/account/addressbook/address-manager.html.twig' with {
+                defaultShippingAddress: context.customer.defaultShippingAddress,
+                defaultBillingAddress: context.customer.defaultBillingAddress
+            } %}
+        {% endblock %}
+
+    {% else %}
+        <div class="account-address">
         {% block page_account_address_welcome %}
             <div class="account-welcome">
                 {% block page_account_address_welcome_headline %}
@@ -200,4 +219,5 @@
             {% endblock %}
         {% endblock %}
     </div>
+    {% endif %}
 {% endblock %}

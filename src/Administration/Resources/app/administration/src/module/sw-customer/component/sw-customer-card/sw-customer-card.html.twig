@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_card %}
 <sw-card
     class="sw-customer-card"
@@ -6,10 +5,8 @@
     :title="title"
     :is-loading="isLoading"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_card_header_right %}
     <template #header-right>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_card_imitate_customer_modal %}
         <sw-customer-imitate-customer-modal
             v-if="showImitateCustomerModal"
@@ -18,7 +15,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_card_action_customer_impersonation %}
         <sw-button
             v-tooltip="{
@@ -45,20 +41,16 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_card_rows %}
     <template #grid>
         <sw-container rows="auto auto">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_card_row_primary %}
             <sw-card-section divider="bottom">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_card_metadata_container %}
                 <sw-container
                     columns="80px 1fr max-content"
                     gap="0px 30px"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_card_avatar %}
                     <sw-avatar
                         size="80px"
@@ -68,12 +60,9 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_card_metadata %}
                     <div class="sw-customer-card__metadata">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_metadata_customer_name %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custsomer_card_metadata_customer_name_label %}
                         <template v-if="!editMode">
                             <div
@@ -93,14 +82,12 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_metadata_customer_name_editor %}
                         <div v-else>
                             <sw-container
                                 columns="1fr 1fr"
                                 gap="10px"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_account_type_field %}
                                 <sw-single-select
                                     v-model:value="customer.accountType"
@@ -112,7 +99,6 @@
                                 />
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_salutation %}
                                 <sw-entity-single-select
                                     v-model:value="customer.salutationId"
@@ -125,7 +111,6 @@
                                 />
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_title %}
                                 <sw-text-field
                                     v-model:value="customer.title"
@@ -140,7 +125,6 @@
                                 columns="1fr 1fr"
                                 gap="10px"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_first_name %}
                                 <sw-text-field
                                     v-model:value="customer.firstName"
@@ -153,7 +137,6 @@
                                 />
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_last_name %}
                                 <sw-text-field
                                     v-model:value="customer.lastName"
@@ -167,7 +150,6 @@
                                 {% endblock %}
                             </sw-container>
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_customer_card_metadata_customer_name_editor_company %}
                             <sw-text-field
                                 v-model:value="customer.company"
@@ -182,7 +164,6 @@
                         {% endblock %}
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_vat_ids %}
                         <sw-text-field
                             v-if="editMode && isBusinessAccountType"
@@ -194,9 +175,7 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_metadata_customer_email %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_metadata_customer_email_label %}
                         <div
                             v-if="customer.email && !editMode"
@@ -209,7 +188,6 @@
                         </div>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_metadata_customer_email_editor %}
                         <sw-email-field
                             v-else
@@ -224,7 +202,6 @@
                         {% endblock %}
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_password %}
                         <sw-password-field
                             v-if="editMode"
@@ -238,7 +215,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_password_confirm %}
                         <sw-password-field
                             v-if="editMode"
@@ -252,7 +228,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_metadata_customer_tag %}
                         <sw-entity-tag-select
                             v-model:entity-collection="customer.tags"
@@ -264,22 +239,18 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_metadata_additional %}
                         <slot name="metadata-additional">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_customer_card_slot_metadata_additional %}{% endblock %}
                         </slot>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_actions %}
                         <div
                             v-if="hasActionSlot"
                             class="sw-customer-card__actions"
                         >
                             <slot name="actions">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_slot_actions %}{% endblock %}
                             </slot>
                         </div>
@@ -292,14 +263,12 @@
             </sw-card-section>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_card_row_secondary %}
             <sw-card-section
                 secondary
                 slim
             >
                 <slot name="default">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_card_slot_default %}{% endblock %}
                 </slot>
             </sw-card-section>

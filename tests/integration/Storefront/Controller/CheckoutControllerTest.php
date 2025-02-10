@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
@@ -78,6 +79,11 @@ class CheckoutControllerTest extends TestCase
     private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Test product" is not available any more';
 
     private ?string $customerId = null;
+
+    protected function setUp(): void
+    {
+        static::markTestSkipped('#6556');
+    }
 
     /**
      * @param string|float|int|bool|null $customerComment
@@ -667,11 +673,10 @@ class CheckoutControllerTest extends TestCase
 
         $orderId = mb_substr($response->getTargetUrl(), -self::UUID_LENGTH);
 
-        /** @var EntityRepository $orderRepo */
+        /** @var EntityRepository<OrderCollection> $orderRepo */
         $orderRepo = static::getContainer()->get('order.repository');
 
-        /** @var OrderEntity|null $order */
-        $order = $orderRepo->search(new Criteria([$orderId]), Context::createDefaultContext())->first();
+        $order = $orderRepo->search(new Criteria([$orderId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($order);
 

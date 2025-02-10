@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
-use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -31,7 +31,7 @@ class LastIdQuery implements IterableQuery
         $query = clone $this->query;
 
         // get first column for distinct selection
-        $select = $query->getQueryPart('select');
+        $select = $query->getSelectParts();
 
         $query->resetOrderBy();
         $query->select('COUNT(DISTINCT ' . array_shift($select) . ')');

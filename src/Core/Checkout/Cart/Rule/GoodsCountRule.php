@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
 class GoodsCountRule extends FilterRule
 {
@@ -18,9 +21,6 @@ class GoodsCountRule extends FilterRule
 
     protected int $count;
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         ?int $count = null

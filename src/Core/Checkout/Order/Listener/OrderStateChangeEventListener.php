@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
@@ -194,7 +193,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             $context->getVersionId(),
             $order->getCurrencyFactor(),
             true,
-            $order->getTaxStatus(),
+            $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
             $itemRounding
         );
 
@@ -241,13 +240,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria->addAssociation('addresses.countryState');
         $criteria->addAssociation('tags');
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $event = new OrderStateChangeCriteriaEvent($orderId, $criteria, $context);
-        } else {
-            $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
-            Feature::callSilentIfInactive('v6.7.0.0', fn () => $event->setContext($context));
-        }
-        $this->eventDispatcher->dispatch($event);
+        $this->eventDispatcher->dispatch(new OrderStateChangeCriteriaEvent($orderId, $criteria, $context));
 
         return $criteria;
     }

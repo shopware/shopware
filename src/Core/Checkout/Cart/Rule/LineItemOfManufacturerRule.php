@@ -13,14 +13,15 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
 class LineItemOfManufacturerRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemOfManufacturer';
 
     /**
-     * @internal
-     *
      * @param list<string> $manufacturerIds
      */
     public function __construct(

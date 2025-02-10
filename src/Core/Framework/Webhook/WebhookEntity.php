@@ -12,46 +12,21 @@ class WebhookEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $eventName;
+    protected string $eventName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $url;
+    protected string $url;
 
     protected bool $onlyLiveVersion;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $appId;
+    protected ?string $appId = null;
 
     protected bool $active;
 
     protected int $errorCount;
 
-    /**
-     * @var AppEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $app;
+    protected ?AppEntity $app = null;
 
     public function getName(): string
     {

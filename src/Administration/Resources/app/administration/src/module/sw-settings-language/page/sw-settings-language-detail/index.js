@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
@@ -165,7 +165,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.languageId) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.Store.get('context').resetLanguageToDefault();
                 this.language = this.languageRepository.create();
 
                 return;

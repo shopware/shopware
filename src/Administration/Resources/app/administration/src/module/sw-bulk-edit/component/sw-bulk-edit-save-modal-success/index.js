@@ -52,11 +52,11 @@ export default {
         },
 
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         downloadOrderDocuments() {
-            return Shopware.State.get('swBulkEdit')?.orderDocuments?.download;
+            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download;
         },
 
         latestDocumentsCriteria() {

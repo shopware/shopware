@@ -35,20 +35,6 @@
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute" decorates="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" decoration-priority="-1000" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute.inner"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument>%shopware.cache.invalidation.shipping_method_route%</argument>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute" decorates="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" decoration-priority="-2000" public="true">
-            <argument type="service" id=".inner"/>
-            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>

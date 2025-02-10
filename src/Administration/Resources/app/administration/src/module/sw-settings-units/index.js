@@ -58,7 +58,7 @@ Module.register('sw-settings-units', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'general',
         to: 'sw.settings.units.index',
         icon: 'regular-balance-scale',
         privilege: 'scale_unit.viewer',

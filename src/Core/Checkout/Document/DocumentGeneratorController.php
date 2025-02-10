@@ -58,7 +58,7 @@ class DocumentGeneratorController extends AbstractController
         $this->dataValidator->validate($documents, $definition);
 
         foreach ($documents as $operation) {
-            $operations[$operation['orderId']] = new DocumentGenerateOperation(
+            $operations[(string) $operation['orderId']] = new DocumentGenerateOperation(
                 $operation['orderId'],
                 $operation['fileType'] ?? PdfRenderer::FILE_EXTENSION,
                 $operation['config'] ?? [],

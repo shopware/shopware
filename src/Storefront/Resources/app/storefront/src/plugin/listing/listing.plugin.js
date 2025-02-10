@@ -4,11 +4,9 @@
 
 import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
-import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import querystring from 'query-string';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
-import HistoryUtil from 'src/utility/history/history.util';
 import Debouncer from 'src/helper/debouncer.helper';
 
 export default class ListingPlugin extends Plugin {
@@ -22,12 +20,8 @@ export default class ListingPlugin extends Plugin {
         cmsProductListingWrapperSelector: '.cms-element-product-listing-wrapper',
         cmsProductListingResultsSelector: '.js-listing-wrapper',
         activeFilterContainerSelector: '.filter-panel-active-container',
-        /** @deprecated tag:v6.7.0 - Option `activeFilterLabelClass` is deprecated. Use `activeFilterLabelClasses` to render the label classes and `activeFilterLabelSelector` as the selector for events. */
-        activeFilterLabelClass: 'filter-active',
         activeFilterLabelClasses: 'filter-active btn',
         activeFilterLabelSelector: '.filter-active',
-        /** @deprecated tag:v6.7.0 - Option `activeFilterLabelRemoveClass` is deprecated. Selector `activeFilterLabelClass` will be used to query the remove button. */
-        activeFilterLabelRemoveClass: 'filter-active-remove',
         activeFilterLabelPreviewClass: 'filter-active-preview',
         resetAllFilterButtonClasses: 'filter-reset-all btn btn-outline-danger',
         resetAllFilterButtonSelector: '.filter-reset-all',
@@ -52,7 +46,7 @@ export default class ListingPlugin extends Plugin {
 
         this.httpClient = new HttpClient();
 
-        this._urlFilterParams = querystring.parse(HistoryUtil.getSearch());
+        this._urlFilterParams = querystring.parse(window.location.search);
 
         this._filterPanel = DomAccess.querySelector(document, this.options.filterPanelSelector, false);
         this._filterPanelActive = !!this._filterPanel;
@@ -252,7 +246,7 @@ export default class ListingPlugin extends Plugin {
     }
 
     _updateHistory(query) {
-        HistoryUtil.push(HistoryUtil.getLocation().pathname, query, {});
+        window.history.pushState({}, '', `${window.location.pathname}?${query}`);
     }
 
     /**
@@ -273,10 +267,7 @@ export default class ListingPlugin extends Plugin {
 
         this.activeFilterContainer.innerHTML = labelHtml;
 
-        /** @deprecated tag:v6.7.0 - The whole button will be click-able to remove a filter instead of the additional remove button `filter-active-remove`. */
-        const resetButtons = window.Feature.isActive('ACCESSIBILITY_TWEAKS')
-            ? DomAccess.querySelectorAll(this.activeFilterContainer, this.options.activeFilterLabelSelector, false)
-            : DomAccess.querySelectorAll(this.activeFilterContainer, `.${this.options.activeFilterLabelRemoveClass}`, false);
+        const resetButtons = DomAccess.querySelectorAll(this.activeFilterContainer, this.options.activeFilterLabelSelector, false);
 
         if (labelHtml.length) {
             this._registerLabelEvents(resetButtons);
@@ -285,7 +276,7 @@ export default class ListingPlugin extends Plugin {
     }
 
     _registerLabelEvents(resetButtons) {
-        Iterator.iterate(resetButtons, (label) => {
+        resetButtons.forEach((label) => {
             label.addEventListener('click', () => this.resetFilter(label));
         });
     }
@@ -343,30 +334,15 @@ export default class ListingPlugin extends Plugin {
      * @returns {string}
      */
     getLabelTemplate(label) {
-        /** @deprecated tag:v6.7.0 - The `filter-active` label will be a Bootstrap button instead of a span element */
-        if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            return `
-            <button
-                class="${this.options.activeFilterLabelClasses}"
-                data-id="${label.id}"
-                aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
-                ${this.getLabelPreviewTemplate(label)}
-                ${label.label}
-                <span aria-hidden="true" class="ms-1 fs-4">&times;</span>
-            </button>
-            `;
-        }
-
         return `
-        <span class="${this.options.activeFilterLabelClass}">
+        <button
+            class="${this.options.activeFilterLabelClasses}"
+            data-id="${label.id}"
+            aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
             ${this.getLabelPreviewTemplate(label)}
-            <span aria-hidden="true">${label.label}</span>
-            <button class="${this.options.activeFilterLabelRemoveClass}"
-                    data-id="${label.id}"
-                    aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
-                &times;
-            </button>
-        </span>
+            ${label.label}
+            <span aria-hidden="true" class="ms-1 fs-4">&times;</span>
+        </button>
         `;
     }
 

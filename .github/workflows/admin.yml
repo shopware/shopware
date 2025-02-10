@@ -2,12 +2,13 @@ name: Admin checks and tests
 
 on:
   pull_request:
+  merge_group:
   workflow_dispatch:
   workflow_call:
 
 env:
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-  COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+  COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
 jobs:
   lint:

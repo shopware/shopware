@@ -9,9 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Framework\Context;
@@ -19,8 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -52,7 +48,6 @@ class PaymentProcessor
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly RouterInterface $router,
         private readonly SystemConfigService $systemConfigService,
-        private readonly PaymentService $paymentService,
     ) {
     }
 
@@ -74,16 +69,6 @@ class PaymentProcessor
             $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($transaction->getPaymentMethodId());
             if (!$paymentHandler) {
                 throw PaymentException::unknownPaymentMethodById($transaction->getPaymentMethodId());
-            }
-
-            // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
-            if (!$paymentHandler instanceof AbstractPaymentHandler) {
-                $result = null;
-                Feature::callSilentIfInactive('v6.7.0.0', function () use ($orderId, $request, $salesChannelContext, $finishUrl, $errorUrl, &$result): void {
-                    $result = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag($request->request->all()), $salesChannelContext, $finishUrl, $errorUrl);
-                });
-
-                return $result;
             }
 
             $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $salesChannelContext->getContext(), $returnUrl);
@@ -124,26 +109,6 @@ class PaymentProcessor
             throw PaymentException::unknownPaymentMethodById($token->getPaymentMethodId());
         }
 
-        // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
-        if (!$paymentHandler instanceof AbstractPaymentHandler) {
-            $paymentToken = $token->getToken();
-            if ($paymentToken === null) {
-                throw PaymentException::invalidToken('');
-            }
-
-            $result = null;
-            Feature::callSilentIfInactive('v6.7.0.0', function () use ($paymentToken, $request, $context, &$result): void {
-                $result = $this->paymentService->finalizeTransaction($paymentToken, $request, $context);
-            });
-
-            if (!$result) {
-                // @phpstan-ignore-next-line
-                throw FeatureException::error('The payment process via interfaces is deprecated, extend the `AbstractPaymentHandler` instead');
-            }
-
-            return $result;
-        }
-
         try {
             $transactionStruct = $this->paymentTransactionStructFactory->build($token->getTransactionId(), $context->getContext());
             $paymentHandler->finalize($request, $transactionStruct, $context->getContext());
@@ -153,11 +118,6 @@ class PaymentProcessor
             } else {
                 $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $token->getTransactionId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
                 $this->transactionStateHandler->fail($token->getTransactionId(), $context->getContext());
-            }
-
-            // @deprecated tag:v6.7.0 - remove, $token will accept Throwable
-            if (!$e instanceof \Exception) {
-                $e = new \Exception($e->getMessage(), $e->getCode(), $e);
             }
 
             $token->setException($e);
@@ -179,10 +139,6 @@ class PaymentProcessor
             $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($salesChannelContext->getPaymentMethod()->getId());
             if (!$paymentHandler) {
                 throw PaymentException::unknownPaymentMethodById($salesChannelContext->getPaymentMethod()->getId());
-            }
-
-            if (!($paymentHandler instanceof PreparedPaymentHandlerInterface) && !($paymentHandler instanceof AbstractPaymentHandler)) {
-                return null;
             }
 
             $struct = $paymentHandler->validate($cart, $dataBag, $salesChannelContext);

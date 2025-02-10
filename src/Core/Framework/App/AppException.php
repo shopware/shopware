@@ -2,22 +2,15 @@
 
 namespace Shopware\Core\Framework\App;
 
-use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
-use Shopware\Administration\Controller\Exception\MissingAppSecretException;
-use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
-use Shopware\Core\Framework\App\Exception\AppFlowException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
-use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\Validation\Error\Error;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -70,19 +63,6 @@ class AppException extends HttpException
             'App {{ name }} is not compatible with this Shopware version',
             ['name' => $pluginName]
         );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed use AppException::createFromXmlFileFlowError instead
-     */
-    public static function errorFlowCreateFromXmlFile(string $xmlFile, string $message): XmlParsingException
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'AppException::createFromXmlFileFlowError')
-        );
-
-        return new AppFlowException($xmlFile, $message);
     }
 
     public static function invalidAppFlowActionVariableException(
@@ -188,19 +168,6 @@ class AppException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, use AppException::appSecretMissing instead
-     */
-    public static function secretMissing(): MissingAppSecretException
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', AppException::class . '::appSecretMissing')
-        );
-
-        return new MissingAppSecretException();
-    }
-
     public static function actionButtonProcessException(string $actionId, string $message, ?\Throwable $e = null): self
     {
         return new self(
@@ -222,15 +189,8 @@ class AppException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function createFromXmlFileFlowError(string $xmlFile, string $message, ?\Throwable $previous = null): self|AppFlowException
+    public static function createFromXmlFileFlowError(string $xmlFile, string $message, ?\Throwable $previous = null): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new AppFlowException($xmlFile, $message);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::XML_PARSE_ERROR,
@@ -240,15 +200,8 @@ class AppException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function xmlParsingException(string $file, string $message): self|XmlParsingException
+    public static function xmlParsingException(string $file, string $message): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new XmlParsingException($file, $message);
-        }
-
         return AppXmlParsingException::cannotParseFile($file, $message);
     }
 
@@ -355,15 +308,8 @@ class AppException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function actionNotFound(): self|ActionNotFoundException
+    public static function actionNotFound(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ActionNotFoundException();
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::APP_ACTION_NOT_FOUND,
@@ -381,15 +327,8 @@ class AppException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function hostNotAllowed(string $host, string $appName): self|UnallowedHostException
+    public static function hostNotAllowed(string $host, string $appName): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new UnallowedHostException($host, [], $appName);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::APP_UNALLOWED_HOST,
@@ -398,27 +337,13 @@ class AppException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function appNotFoundByName(mixed $appName): self|AppByNameNotFoundException
+    public static function appNotFoundByName(mixed $appName): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new AppByNameNotFoundException($appName);
-        }
-
         return self::notFoundByField($appName, 'name');
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function invalidArgument(string $string): self|\InvalidArgumentException
+    public static function invalidArgument(string $string): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \InvalidArgumentException('Ids must be an array');
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_ARGUMENT,

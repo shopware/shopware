@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_cross_selling %}
 <div v-if="isLoading">
     <sw-skeleton />
@@ -9,10 +8,8 @@
     v-else
     class="sw-product-detail-cross-selling"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_cross_selling_items_wrapper %}
     <template v-if="showCrossSellingCard">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_restore_inheritance %}
         <sw-button
             v-if="isChild"
@@ -29,7 +26,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_items %}
         <ul class="sw-product-detail-cross-selling__cross-selling-list">
             <sw-product-cross-selling-form
@@ -41,7 +37,6 @@
         </ul>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_add %}
         <sw-button
             v-tooltip="{
@@ -60,23 +55,17 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_cross_selling_empty_state_card %}
-    {# @deprecated tag:v6.7.0 - Block will be removed. Use `sw_product_detail_cross_selling_empty_state_card` instead. #}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_product_detail_empty_state %}
     <sw-card
         v-else
         position-identifier="sw-product-detail-cross-selling-empty-state"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_empty_state %}
         <sw-empty-state
             :title="$tc('sw-product.crossselling.cardTitleCrossSelling')"
             :absolute="false"
             empty-module
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_cross_selling_empty_state_icon %}
             <template #icon>
                 <img
@@ -87,18 +76,14 @@
             {% endblock %}
 
             <template #default>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_cross_selling_empty_state_content %}
                 <template v-if="isChild">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_cross_selling_empty_state_content_child %}
                     <template v-if="isInherited">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_detail_cross_selling_empty_state_content_child_inherited %}
                         <p>{{ $tc('sw-product.crossselling.inheritedEmptyStateDescription') }}</p>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_detail_cross_selling_empty_state_content_child_inherited_link %}
                         <router-link
                             v-if="isChild && isInherited"
@@ -115,7 +100,6 @@
                     </template>
 
                     <template v-else>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_detail_cross_selling_empty_state_content_child_not_inherited %}
                         <p>{{ $tc('sw-product.crossselling.notInheritedEmptyStateDescription') }}</p>
                         {% endblock %}
@@ -124,14 +108,12 @@
                 </template>
 
                 <template v-else>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_cross_selling_empty_state_content_empty %}
                     <p>{{ $tc('sw-product.crossselling.emptyStateDescription') }}</p>
                     {% endblock %}
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_cross_selling_empty_state_inherit_switch %}
                 <template v-if="isChild">
                     <div
@@ -159,13 +141,8 @@
                 {% endblock %}
             </template>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_cross_selling_empty_state_actions %}
-            {# @deprecated tag:v6.7.0 - Block will be removed. Use `sw_product_detail_cross_selling_empty_state_actions` instead. #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_empty_state_cross_selling_add %}
             <template #actions>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_cross_selling_empty_state_actions_add %}
                 <sw-button
                     v-tooltip="{
@@ -182,14 +159,11 @@
                 {% endblock %}
             </template>
             {% endblock %}
-            {% endblock %}
         </sw-empty-state>
         {% endblock %}
     </sw-card>
     {% endblock %}
-    {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_cross_selling_modal_restore_inheritance %}
     <sw-modal
         v-if="showRestoreInheritanceModal"
@@ -198,17 +172,14 @@
         class="sw-product-detail-cross-selling__restore-inheritance-modal"
         @modal-close="onCloseRestoreInheritanceModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_modal_restore_inheritance_text %}
         <p>
             {{ $tc('sw-product.crossselling.restoreInheritanceConfirmText') }}
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_modal_restore_inheritance_footer %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_cancel %}
             <sw-button
                 size="small"
@@ -218,7 +189,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_restore %}
             <sw-button
                 class="sw-product-detail-cross-selling__restore-button"

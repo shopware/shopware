@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import extensionStore from 'src/module/sw-extension/store/extensions.store';
 
 const userInfo = {
     avatarUrl: 'https://avatar.url',
@@ -62,12 +61,12 @@ async function createWrapper() {
                                 return Promise.reject();
                             }
 
-                            Shopware.State.get('shopwareExtensions').userInfo = userInfo;
+                            Shopware.Store.get('shopwareExtensions').userInfo = userInfo;
 
                             return Promise.resolve();
                         },
                         logout: () => {
-                            Shopware.State.get('shopwareExtensions').userInfo = null;
+                            Shopware.Store.get('shopwareExtensions').userInfo = null;
 
                             return Promise.resolve();
                         },
@@ -82,12 +81,8 @@ async function createWrapper() {
  * @sw-package checkout
  */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
-    beforeAll(async () => {
-        Shopware.State.registerModule('shopwareExtensions', extensionStore);
-    });
-
     beforeEach(async () => {
-        Shopware.State.get('shopwareExtensions').userInfo = null;
+        Shopware.Store.get('shopwareExtensions').userInfo = null;
     });
 
     it('should show the login fields when not logged in', async () => {
@@ -133,7 +128,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     });
 
     it('should show the logged in view when logged in', async () => {
-        Shopware.State.get('shopwareExtensions').userInfo = userInfo;
+        Shopware.Store.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
         const wrapper = await createWrapper();
@@ -147,7 +142,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     });
 
     it('should logout when user clicks logout button', async () => {
-        Shopware.State.get('shopwareExtensions').userInfo = userInfo;
+        Shopware.Store.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
         const wrapper = await createWrapper();

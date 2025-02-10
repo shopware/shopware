@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_rule_detail_base %}
 <div class="sw-settings-rule-detail-base">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_base_content_card %}
     <sw-card
         position-identifier="sw-settings-rule-detail-base-content"
@@ -11,7 +9,6 @@
     >
         <template v-if="rule">
             <div style="display: grid; grid-template-columns: 2fr 1fr; grid-column-gap: 32px">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_name %}
                 <sw-text-field
                     v-model:value="rule.name"
@@ -24,7 +21,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_priority %}
                 <sw-number-field
                     v-model:value="rule.priority"
@@ -38,7 +34,6 @@
                 {% endblock %}
             </div>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_base_content_card_field_description %}
             <sw-textarea-field
                 v-model:value="rule.description"
@@ -50,7 +45,6 @@
             {% endblock %}
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 32px">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_type %}
                 <sw-multi-select
                     v-if="rule"
@@ -73,7 +67,6 @@
                 </sw-multi-select>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_tags %}
                 <sw-entity-tag-select
                     v-if="rule"
@@ -91,7 +84,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_base_conditions_card %}
     <sw-card
         class="sw-settings-rule-detail__condition_container"
@@ -121,7 +113,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_custom_field_sets %}
     <sw-card
         v-if="showCustomFields"

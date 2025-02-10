@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 
 #[Package('framework')]
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-final - Will be considered final
+ */
 class SystemConfigChangedHook implements Hookable
 {
     public const EVENT_NAME = 'app.config.changed';
@@ -18,7 +21,8 @@ class SystemConfigChangedHook implements Hookable
      */
     public function __construct(
         private readonly array $values,
-        private readonly array $appMapping
+        private readonly array $appMapping,
+        public readonly ?string $salesChannelId = null
     ) {
     }
 
@@ -35,6 +39,7 @@ class SystemConfigChangedHook implements Hookable
         if ($app === null) {
             return [
                 'changes' => array_keys($this->values),
+                'salesChannelId' => $this->salesChannelId,
             ];
         }
 
@@ -48,6 +53,7 @@ class SystemConfigChangedHook implements Hookable
 
         return [
             'changes' => $values,
+            'salesChannelId' => $this->salesChannelId,
         ];
     }
 

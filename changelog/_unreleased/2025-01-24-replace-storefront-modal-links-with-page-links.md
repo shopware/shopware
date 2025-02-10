@@ -8,18 +8,12 @@ author_github: @bschulzebaek
 ---
 # Storefront
 * Changed links loading content into modals to be native links loading the content as a new page. This affects the following templates 
-  * `src/Storefront/Resources/views/storefront/component/buy-widget/buy-widget.html.twig`
-  * `src/Storefront/Resources/views/storefront/component/privacy-notice.html.twig`
-  * `src/Storefront/Resources/views/storefront/component/product/card/price-unit.html.twig`
-  * `src/Storefront/Resources/views/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/cookie/cookie-configuration.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/cookie/cookie-permission.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig`
-  * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail.html.twig`
-  * `src/Storefront/Resources/views/storefront/page/checkout/confirm/index.html.twig`
 ___
 # Upgrade Information
-To make internal links more accessible, we are replacing links that load content into modals with links loading the content as a new page. See above for a list of affected templates.
+To make some internal links more accessible and avoid duplicate overlays/modals, we are replacing links that load content into modals with links loading the content as a new page. See above for a list of affected templates.
 This is achieved by providing a new controller action (`Shopware\Storefront\Controller\CmsController::pageFull`), which renders CMS layouts as full pages instead of partial widgets. This is using the CMS layouts already assigned to Storefronts in the "Settings > Basic Information" module.
 
 Generally, this change is replacing calls to the controller action `frontend.cms.page` with `frontend.cms.page.full` and replacing elements using the modal data attributes (see below) with native links. See the following examples for reference.

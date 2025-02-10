@@ -1,6 +1,6 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
-import swBulkEditState from '../../state/sw-bulk-edit.state';
+import '../../store/sw-bulk-edit.store';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -19,7 +19,6 @@ export default {
     inject: [
         'bulkEditApiFactory',
         'repositoryFactory',
-        'feature',
         'orderDocumentApiService',
     ],
 
@@ -52,7 +51,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         stateMachineStateRepository() {
@@ -248,16 +247,8 @@ export default {
         },
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    },
-
     created() {
         this.createdComponent();
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swBulkEdit');
     },
 
     methods: {
@@ -598,7 +589,7 @@ export default {
         },
 
         onChangeDocument(type, isChanged) {
-            Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+            Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
                 type,
                 isChanged,
             });

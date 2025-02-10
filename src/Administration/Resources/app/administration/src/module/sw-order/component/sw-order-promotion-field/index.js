@@ -5,9 +5,8 @@ import template from './sw-order-promotion-field.html.twig';
  * @sw-package checkout
  */
 
-const { Component } = Shopware;
+const { Store } = Shopware;
 const { ChangesetGenerator } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -68,10 +67,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swOrderDetail', [
-            'order',
-            'versionContext',
-        ]),
+        order: () => Store.get('swOrderDetail').order,
+
+        versionContext: () => Store.get('swOrderDetail').versionContext,
 
         orderLineItemRepository() {
             return this.repositoryFactory.create('order_line_item');

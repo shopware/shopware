@@ -21,7 +21,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(CurrencyFormatter::class)]
 class CurrencyFormatterTest extends TestCase
 {

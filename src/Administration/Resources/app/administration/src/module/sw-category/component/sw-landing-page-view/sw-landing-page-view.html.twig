@@ -1,18 +1,15 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_landing_page_view %}
 <sw-card-view
     class="sw-landing_page-view"
     position-identifier="sw-landing-page-view"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_landing_page_view_language_info %}
     <sw-language-info
         :entity-description="placeholder(landingPage, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_landing_page_view_tabs %}
     <sw-tabs
         v-if="!isLoading"
@@ -20,7 +17,6 @@
         position-identifier="sw-landing-page-view"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_landing_page_view_tabs_general %}
         <sw-tabs-item
             class="sw-category-detail__tab-base"
@@ -31,7 +27,6 @@
         </sw-tabs-item>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_landing_page_view_tabs_cms %}
         <sw-tabs-item
             v-tooltip="{
@@ -51,7 +46,6 @@
     </sw-tabs>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_landing_page_view_content %}
     <router-view
         v-slot="{ Component }"

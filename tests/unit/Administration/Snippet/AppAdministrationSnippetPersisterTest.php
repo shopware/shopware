@@ -240,7 +240,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
             'The following snippet file must always be provided when providing snippets: en-GB',
         ];
 
-        yield 'Test it throws an exception when the locale does not exists' => [
+        yield 'Test it throws an exception when the locale does not exist' => [
             [
                 [
                     'id' => 'en-GB',
@@ -252,7 +252,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                 'en-GB' => \json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
                 'foo-bar' => \json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
             ],
-            'The locale foo-bar does not exists.',
+            'The locale foo-bar does not exist.',
         ];
     }
 
@@ -269,6 +269,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
      * @param array<int, array<string, string>> $snippetsFromApp
      * @param array<int, array<string, string>> $newSnippets
      * @param array<int, array<string, string>> $deletesSnippetIds
+     *
+     * @return EntityRepository<AppAdministrationSnippetCollection>
      */
     private function getAppAdministrationSnippetRepository(array $snippetsFromApp = [], array $newSnippets = [], array $deletesSnippetIds = [], bool $updatedSnippets = false): EntityRepository
     {
@@ -322,6 +324,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
 
     /**
      * @param array<int, array{id: string, code: string}> $locales
+     *
+     * @return EntityRepository<LocaleCollection>
      */
     private function getLocaleRepository(array $locales = []): EntityRepository
     {

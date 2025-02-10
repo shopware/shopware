@@ -1,8 +1,8 @@
 {% block cms_form_privacy_opt_in %}
     {% set identifierTemplate = 'form-privacy-opt-in-%s' %}
-    {% set generalPrivacyNoticeSnippet = feature('ACCESSIBILITY_TWEAKS') ? 'general.privacyNoticeTextPage' : 'general.privacyNoticeText' %}
-    {% set contactPrivacyNoticeSnippet = feature('ACCESSIBILITY_TWEAKS') ? 'contact.privacyNoticeTextPage' : 'contact.privacyNoticeText' %}
-    {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+    {% set generalPrivacyNoticeSnippet = 'general.privacyNoticeText' %}
+    {% set contactPrivacyNoticeSnippet = 'contact.privacyNoticeText' %}
+    {% set cmsPath = 'frontend.cms.page' %}
 
     {# The previous url can be set if the privacy notice link is opened from within an already opened AjaxModal. #}
     {# The url is then used to render a back button to return to the previous modal. #}
@@ -26,9 +26,8 @@
                 '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
             })|raw %}
         {% else %}
-            {% set dataProtectionLabel = generalPrivacyNoticeSnippet|trans({
+            {% set dataProtectionLabel = contactPrivacyNoticeSnippet|trans({
                 '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
-                '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage')} ),
                 '%prevUrl%': prevUrl
             })|raw %}
         {% endif %}
@@ -63,7 +62,6 @@
                 {% else %}
                     {{ contactPrivacyNoticeSnippet|trans({
                         '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
-                        '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage')} ),
                         '%prevUrl%': prevUrl,
                     })|raw }}
                 {% endif %}

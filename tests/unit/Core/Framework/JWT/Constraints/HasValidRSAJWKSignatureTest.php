@@ -9,10 +9,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\JWT\Constraints\HasValidRSAJWKSignature;
 use Shopware\Core\Framework\JWT\JWTException;
 use Shopware\Core\Framework\JWT\Struct\JWKCollection;
+use Shopware\Core\Framework\JWT\Struct\JWKStruct;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type JSONWebKey from JWKStruct
  */
 #[Package('checkout')]
 #[CoversClass(HasValidRSAJWKSignature::class)]
@@ -60,25 +63,68 @@ class HasValidRSAJWKSignatureTest extends TestCase
         static::assertIsString($jwt);
         $jwt = \trim($jwt);
 
-        $this->validate($jwt, '{"keys":[{"kty":"ABCDEF","n":"6irjzX6gF6Q3l2wC6VPVpPQ48-n48aIxQ2RjYKRY-1uxpRcnyE1X7aCEFFypY6XFVZ5_wvyj84sKPwnB8vGKyPENFAwn4HLlNYU71J-ruPsbFteHNtYMD1WaO6f-pouqnsdkeIpwiM5fc0SXpdMpNBbqNWzdPEQKmQrI3BQ6RP6TsRVrjzDt4ucCzwgRGWezsHHrLIWTuRR1hvm8FIr8-0ZRsYu9gkgwvsJzpdJzfRJrOb6-NWcWM6QowWyVl1v4Nu7Tcb-qTrAUG-e71duaI3erfE0YFFx130BOZzelHgUdRhqnHVpSkWLz9aTT6-xtDd5Y2iMi7Em-LGzdvQAkDw","e":"AQAB","kid":"ce86f11b0bebb0b711394663c17f0013","use":"sig","alg":"RS256"}]}');
+        $jwks = $this->getValidJwks();
+        $jwks['keys'][0]['kty'] = 'ABCDEF';
+
+        $this->validate($jwt, $jwks);
     }
 
-    private function validate(string $token, ?string $jwks = null): void
+    public function testAssertInvalidBase64UrlEncodedE(): void
+    {
+        self::expectException(JWTException::class);
+        self::expectExceptionMessage('Invalid JWK: Invalid base64 characters detected');
+
+        $jwt = \file_get_contents(__DIR__ . '/../_fixtures/valid-jwt.txt');
+        static::assertIsString($jwt);
+        $jwt = \trim($jwt);
+
+        $jwks = $this->getValidJwks();
+        $jwks['keys'][0]['e'] = 'ABCD%EF';
+
+        $this->validate($jwt, $jwks);
+    }
+
+    public function testAssertInvalidBase64UrlEncodedN(): void
+    {
+        self::expectException(JWTException::class);
+        self::expectExceptionMessage('Invalid JWK: Invalid base64 characters detected');
+
+        $jwt = \file_get_contents(__DIR__ . '/../_fixtures/valid-jwt.txt');
+        static::assertIsString($jwt);
+        $jwt = \trim($jwt);
+
+        $jwks = $this->getValidJwks();
+        $jwks['keys'][0]['n'] = 'ABCD%EF';
+
+        $this->validate($jwt, $jwks);
+    }
+
+    /**
+     * @param array{keys: array<int, JSONWebKey>}|null $jwks
+     */
+    private function validate(string $token, ?array $jwks = null): void
     {
         static::assertNotEmpty($token);
 
-        if (!$jwks) {
-            $jwks = file_get_contents(__DIR__ . '/../_fixtures/valid-jwks.json');
-            static::assertIsString($jwks);
-        }
-        $jwks = json_decode($jwks, true, 512, \JSON_THROW_ON_ERROR);
-        $jwks = JWKCollection::fromArray($jwks);
+        $jwks ??= $this->getValidJwks();
 
-        $validator = new HasValidRSAJWKSignature($jwks);
+        $validator = new HasValidRSAJWKSignature(JWKCollection::fromArray($jwks));
 
         $parser = new Parser(new JoseEncoder());
 
         $validator->assert($parser->parse($token));
+    }
+
+    /**
+     * @return array{keys: array<int, JSONWebKey>}
+     */
+    private function getValidJwks(): array
+    {
+        $jwks = file_get_contents(__DIR__ . '/../_fixtures/valid-jwks.json');
+        static::assertIsString($jwks);
+        $jwks = json_decode($jwks, true, 512, \JSON_THROW_ON_ERROR);
+
+        return $jwks;
     }
 
     private function getInvalidJwt(string $index): string

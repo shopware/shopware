@@ -29,292 +29,90 @@ class OrderEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderNumber;
+    protected ?string $orderNumber = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyFactor;
+    protected float $currencyFactor;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $billingAddressId;
+    protected string $billingAddressId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $billingAddressVersionId;
+    protected string $billingAddressVersionId;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderDateTime;
+    protected \DateTimeInterface $orderDateTime;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderDate;
+    protected \DateTimeInterface $orderDate;
 
-    /**
-     * @var CartPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
+    protected CartPrice $price;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $amountTotal;
+    protected float $amountTotal;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $amountNet;
+    protected float $amountNet;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $positionPrice;
+    protected float $positionPrice;
 
-    /**
-     * @deprecated tag:v6.7.0 - Type will be nullable. Also, it will be natively typed to enforce strict data type checking.
-     *
-     * @var string|null
-     */
-    protected $taxStatus;
+    protected ?string $taxStatus = null;
 
-    /**
-     * @var CalculatedPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingCosts;
+    protected CalculatedPrice $shippingCosts;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingTotal;
+    protected float $shippingTotal;
 
-    /**
-     * @var OrderCustomerEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderCustomer;
+    protected ?OrderCustomerEntity $orderCustomer = null;
 
-    /**
-     * @var CurrencyEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var LanguageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var OrderAddressCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $addresses;
+    protected ?OrderAddressCollection $addresses = null;
 
-    /**
-     * @var OrderAddressEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $billingAddress;
+    protected ?OrderAddressEntity $billingAddress = null;
 
-    /**
-     * @var OrderDeliveryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deliveries;
+    protected ?OrderDeliveryCollection $deliveries = null;
 
-    /**
-     * @var OrderLineItemCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lineItems;
+    protected ?OrderLineItemCollection $lineItems = null;
 
-    /**
-     * @var OrderTransactionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $transactions;
+    protected ?OrderTransactionCollection $transactions = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deepLinkCode;
+    protected ?string $deepLinkCode = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $autoIncrement;
+    protected int $autoIncrement;
 
-    /**
-     * @var StateMachineStateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachineState;
+    protected ?StateMachineStateEntity $stateMachineState = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateId;
+    protected string $stateId;
 
-    /**
-     * @var DocumentCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documents;
+    protected ?DocumentCollection $documents = null;
 
-    /**
-     * @var TagCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $affiliateCode;
+    protected ?string $affiliateCode = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $campaignCode;
+    protected ?string $campaignCode = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerComment;
+    protected ?string $customerComment = null;
 
     /**
      * @var array<string>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $ruleIds = [];
+    protected ?array $ruleIds = [];
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $createdById;
+    protected ?string $createdById = null;
 
-    /**
-     * @var UserEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $createdBy;
+    protected ?UserEntity $createdBy = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $updatedById;
+    protected ?string $updatedById = null;
 
-    /**
-     * @var UserEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $updatedBy;
+    protected ?UserEntity $updatedBy = null;
 
-    /**
-     * @var CashRoundingConfig|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $itemRounding;
+    protected ?CashRoundingConfig $itemRounding = null;
 
-    /**
-     * @var CashRoundingConfig|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalRounding;
+    protected ?CashRoundingConfig $totalRounding = null;
 
     protected ?string $source = null;
 
@@ -403,18 +201,9 @@ class OrderEntity extends Entity
         return $this->positionPrice;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will also return null
-     * return type will be ?string in v6.7.0.0
-     */
-    public function getTaxStatus(): string
+    public function getTaxStatus(): ?string
     {
-        /**
-         * @deprecated tag:v6.7.0
-         * remove the null-check
-         * return $this->taxStatus;
-         */
-        return $this->taxStatus ?? '';
+        return $this->taxStatus;
     }
 
     public function getShippingCosts(): CalculatedPrice

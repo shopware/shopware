@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import orderStore from 'src/module/sw-order/state/order.store';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 
 /**
@@ -92,17 +91,14 @@ const contextResponse = {
     },
 };
 
-const contextState = {
-    namespaced: true,
-    state: {
+const contextStore = {
+    id: 'context',
+    state: () => ({
         api: {
             languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
             systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
         },
-    },
-    mutations: {
-        setLanguageId: jest.fn(),
-    },
+    }),
 };
 
 async function createWrapper() {
@@ -184,7 +180,7 @@ async function createWrapper() {
                 'sw-number-field': {
                     template: `
                         <div class="sw-number-field">
-                            <input type="number" :value="value" @input="$emit('change', Number($event.target.value))" />
+                            <input type="number" :value="value" @input="$emit('change', Number($event.target.value))"/>
                             <slot name="suffix"></slot>
                         </div>
                     `,
@@ -197,9 +193,10 @@ async function createWrapper() {
                         'item',
                         'index',
                     ],
-                    template: `<li class="sw-select-result" @click.stop="onClickResult">
-                                    <slot></slot>
-                            </li>`,
+                    template: `
+                        <li class="sw-select-result" @click.stop="onClickResult">
+                            <slot></slot>
+                        </li>`,
                     methods: {
                         onClickResult() {
                             Shopware.Utils.EventBus.emit('item-select', this.item);
@@ -229,23 +226,15 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             };
         });
 
-        Shopware.State.registerModule('swOrder', {
-            ...orderStore,
-            state: {
-                ...orderStore.state,
-                customer: {
-                    ...customerData,
-                },
-                cart,
-                context,
-            },
-        });
+        Shopware.Store.get('swOrder').setCart(cart);
+        Shopware.Store.get('swOrder').setContext(context);
+        Shopware.Store.get('swOrder').setCustomer(customerData);
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', contextState);
+        Shopware.Store.register(contextStore);
     });
 
     it('should show address option correctly', async () => {
@@ -443,7 +432,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             },
         });
 
-        expect(contextState.mutations.setLanguageId).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('context').api.languageId).toBe(contextStore.state().api.languageId);
 
         await wrapper.setProps({
             context: {
@@ -452,6 +441,6 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             },
         });
 
-        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
+        expect(Shopware.Store.get('context').api.languageId).toBe('1234');
     });
 });

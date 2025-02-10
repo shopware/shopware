@@ -3,10 +3,8 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { createStore } from 'vuex';
-import productStore from 'src/module/sw-product/page/sw-product-detail/state';
-
-const { Utils } = Shopware;
+import 'src/module/sw-product/page/sw-product-detail/store';
+import { nextTick } from 'vue';
 
 describe('module/sw-product/component/sw-product-category-form', () => {
     const defaultSalesChannelData = {};
@@ -23,6 +21,27 @@ describe('module/sw-product/component/sw-product-category-form', () => {
             id: 'productId',
             ...parentProductOverride,
         };
+        const store = Shopware.Store.get('swProductDetail');
+        store.$reset();
+        store.product = productEntity;
+        store.parentProduct = parentProduct;
+        store.advancedModeSetting = {
+            value: {
+                settings: [
+                    {
+                        key: 'visibility_structure',
+                        label: 'sw-product.detailBase.cardTitleVisibilityStructure',
+                        enabled: true,
+                        name: 'general',
+                    },
+                ],
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
+        };
+        store.creationStates = 'is-physical';
 
         return mount(await wrapTestComponent('sw-product-category-form', { sync: true }), {
             global: {
@@ -33,39 +52,6 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                             id: 1,
                         },
                     },
-                    $store: createStore({
-                        modules: {
-                            swProductDetail: {
-                                ...productStore,
-                                state: {
-                                    ...productStore.state,
-                                    product: productEntity,
-                                    parentProduct,
-                                    loading: {
-                                        product: false,
-                                        media: false,
-                                    },
-                                    advancedModeSetting: {
-                                        value: {
-                                            settings: [
-                                                {
-                                                    key: 'visibility_structure',
-                                                    label: 'sw-product.detailBase.cardTitleVisibilityStructure',
-                                                    enabled: true,
-                                                    name: 'general',
-                                                },
-                                            ],
-                                            advancedMode: {
-                                                enabled: true,
-                                                label: 'sw-product.general.textAdvancedMode',
-                                            },
-                                        },
-                                    },
-                                },
-                                creationStates: 'is-physical',
-                            },
-                        },
-                    }),
                 },
                 stubs: {
                     'sw-container': {
@@ -134,9 +120,9 @@ describe('module/sw-product/component/sw-product-category-form', () => {
     it('should hide Visibility Structure item fields when advanced mode is off', async () => {
         wrapper = await createWrapper();
         await flushPromises();
-        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
+        const advancedModeSetting = Shopware.Store.get('swProductDetail').advancedModeSetting;
 
-        await wrapper.vm.$store.commit('swProductDetail/setAdvancedModeSetting', {
+        Shopware.Store.get('swProductDetail').advancedModeSetting = {
             value: {
                 ...advancedModeSetting.value,
                 advancedMode: {
@@ -144,12 +130,14 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                     label: 'sw-product.general.textAdvancedMode',
                 },
             },
-        });
+        };
 
         const structureFieldsClassName = [
             '.sw-product-category-form__tag-field-wrapper',
             '.sw-product-category-form__search-keyword-field',
         ];
+
+        await nextTick();
 
         structureFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(false);

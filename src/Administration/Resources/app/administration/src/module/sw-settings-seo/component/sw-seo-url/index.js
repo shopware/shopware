@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import swSeoUrlState from './state';
+import './store';
 import template from './sw-seo-url.html.twig';
 
 const Criteria = Shopware.Data.Criteria;
@@ -70,19 +70,19 @@ export default {
 
     computed: {
         seoUrlCollection() {
-            return Shopware.State.get('swSeoUrl').seoUrlCollection;
+            return Shopware.Store.get('swSeoUrl').seoUrlCollection;
         },
 
         currentSeoUrl() {
-            if (!Shopware.State.get('swSeoUrl')) {
+            if (!Shopware.Store.get('swSeoUrl')) {
                 return {};
             }
 
-            return Shopware.State.get('swSeoUrl').currentSeoUrl;
+            return Shopware.Store.get('swSeoUrl').currentSeoUrl;
         },
 
         defaultSeoUrl() {
-            return Shopware.State.get('swSeoUrl').defaultSeoUrl;
+            return Shopware.Store.get('swSeoUrl').defaultSeoUrl;
         },
 
         seoUrlRepository() {
@@ -94,15 +94,15 @@ export default {
         },
 
         isHeadlessSalesChannel() {
-            if (!Shopware.State.get('swSeoUrl')) {
+            if (!Shopware.Store.get('swSeoUrl')) {
                 return true;
             }
 
-            if (Shopware.State.get('swSeoUrl').salesChannelCollection === null) {
+            if (Shopware.Store.get('swSeoUrl').salesChannelCollection === null) {
                 return true;
             }
 
-            const salesChannel = Shopware.State.get('swSeoUrl').salesChannelCollection.find((entry) => {
+            const salesChannel = Shopware.Store.get('swSeoUrl').salesChannelCollection.find((entry) => {
                 return entry.id === this.currentSalesChannelId;
             });
 
@@ -130,13 +130,6 @@ export default {
         },
     },
 
-    beforeCreate() {
-        // register a new module only if doesn't exist
-        if (!Shopware.State.list().includes('swSeoUrl')) {
-            Shopware.State.registerModule('swSeoUrl', swSeoUrlState);
-        }
-    },
-
     created() {
         if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
             this.$root.$on('seo-url-save-finish', this.clearDefaultSeoUrls);
@@ -153,8 +146,6 @@ export default {
         } else {
             Shopware.Utils.EventBus.off('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
         }
-
-        Shopware.State.unregisterModule('swSeoUrl');
     },
 
     methods: {
@@ -171,7 +162,7 @@ export default {
             salesChannelCriteria.addAssociation('type');
 
             this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
-                Shopware.State.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);
+                Shopware.Store.get('swSeoUrl').salesChannelCollection = salesChannelCollection;
             });
         },
 
@@ -195,7 +186,7 @@ export default {
             const defaultSeoUrlEntity = this.seoUrlRepository.create();
             Object.assign(defaultSeoUrlEntity, defaultSeoUrlData);
             seoUrlCollection.add(defaultSeoUrlEntity);
-            Shopware.State.commit('swSeoUrl/setDefaultSeoUrl', defaultSeoUrlEntity);
+            Shopware.Store.get('swSeoUrl').defaultSeoUrl = defaultSeoUrlEntity;
 
             this.urls.forEach((entityData) => {
                 const entity = this.seoUrlRepository.create();
@@ -204,12 +195,12 @@ export default {
                 seoUrlCollection.add(entity);
             });
 
-            if (!Shopware.State.get('swSeoUrl').defaultSeoUrl) {
+            if (!Shopware.Store.get('swSeoUrl').defaultSeoUrl) {
                 this.showEmptySeoUrlError = true;
             }
 
-            Shopware.State.commit('swSeoUrl/setSeoUrlCollection', seoUrlCollection);
-            Shopware.State.commit('swSeoUrl/setOriginalSeoUrls', this.urls);
+            Shopware.Store.get('swSeoUrl').seoUrlCollection = seoUrlCollection;
+            Shopware.Store.get('swSeoUrl').originalSeoUrls = this.urls;
             this.clearDefaultSeoUrls();
         },
 
@@ -250,12 +241,12 @@ export default {
 
                 this.seoUrlCollection.add(entity);
 
-                Shopware.State.commit('swSeoUrl/setCurrentSeoUrl', entity);
+                Shopware.Store.get('swSeoUrl').currentSeoUrl = entity;
 
                 return;
             }
 
-            Shopware.State.commit('swSeoUrl/setCurrentSeoUrl', currentSeoUrl);
+            Shopware.Store.get('swSeoUrl').currentSeoUrl = currentSeoUrl;
         },
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;

@@ -48,516 +48,163 @@ class SalesChannelEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $typeId;
+    protected string $typeId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethodId;
+    protected string $paymentMethodId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethodId;
+    protected string $shippingMethodId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $countryId;
+    protected string $countryId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $navigationCategoryId;
+    protected string $navigationCategoryId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $navigationCategoryVersionId;
+    protected string $navigationCategoryVersionId;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $navigationCategoryDepth;
+    protected int $navigationCategoryDepth;
 
     /**
      * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $homeSlotConfig;
+    protected ?array $homeSlotConfig = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeCmsPageId;
+    protected ?string $homeCmsPageId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeCmsPageVersionId;
+    protected ?string $homeCmsPageVersionId = null;
 
-    /**
-     * @var CmsPageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeCmsPage;
+    protected ?CmsPageEntity $homeCmsPage = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeEnabled;
+    protected bool $homeEnabled;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeName;
+    protected ?string $homeName = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeMetaTitle;
+    protected ?string $homeMetaTitle = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeMetaDescription;
+    protected ?string $homeMetaDescription = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeKeywords;
+    protected ?string $homeKeywords = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $footerCategoryId;
+    protected ?string $footerCategoryId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $footerCategoryVersionId;
+    protected ?string $footerCategoryVersionId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $serviceCategoryId;
+    protected ?string $serviceCategoryId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $serviceCategoryVersionId;
+    protected ?string $serviceCategoryVersionId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shortName;
+    protected ?string $shortName = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $accessKey;
+    protected string $accessKey;
 
-    /**
-     * @var CurrencyCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencies;
+    protected ?CurrencyCollection $currencies = null;
 
-    /**
-     * @var LanguageCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languages;
+    protected ?LanguageCollection $languages = null;
 
     /**
      * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $configuration;
+    protected ?array $configuration = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $maintenance;
+    protected bool $maintenance;
 
     /**
      * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $maintenanceIpWhitelist;
+    protected ?array $maintenanceIpWhitelist = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxCalculationType;
+    protected string $taxCalculationType;
 
-    /**
-     * @var SalesChannelTypeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected ?SalesChannelTypeEntity $type = null;
 
-    /**
-     * @var CurrencyEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
-    /**
-     * @var LanguageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var PaymentMethodEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethod;
+    protected ?PaymentMethodEntity $paymentMethod = null;
 
-    /**
-     * @var ShippingMethodEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethod;
+    protected ?ShippingMethodEntity $shippingMethod = null;
 
-    /**
-     * @var CountryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $country;
+    protected ?CountryEntity $country = null;
 
-    /**
-     * @var OrderCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orders;
+    protected ?OrderCollection $orders = null;
 
-    /**
-     * @var CustomerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customers;
+    protected ?CustomerCollection $customers = null;
 
-    /**
-     * @var CountryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $countries;
+    protected ?CountryCollection $countries = null;
 
-    /**
-     * @var PaymentMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethods;
+    protected ?PaymentMethodCollection $paymentMethods = null;
 
-    /**
-     * @var ShippingMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods = null;
 
-    /**
-     * @var SalesChannelTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?SalesChannelTranslationCollection $translations = null;
 
-    /**
-     * @var SalesChannelDomainCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $domains;
+    protected ?SalesChannelDomainCollection $domains = null;
 
-    /**
-     * @var SystemConfigCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $systemConfigs;
+    protected ?SystemConfigCollection $systemConfigs = null;
 
-    /**
-     * @var CategoryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $navigationCategory;
+    protected ?CategoryEntity $navigationCategory = null;
 
-    /**
-     * @var CategoryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $footerCategory;
+    protected ?CategoryEntity $footerCategory = null;
 
-    /**
-     * @var CategoryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $serviceCategory;
+    protected ?CategoryEntity $serviceCategory = null;
 
-    /**
-     * @var ProductVisibilityCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productVisibilities;
+    protected ?ProductVisibilityCollection $productVisibilities = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mailHeaderFooterId;
+    protected ?string $mailHeaderFooterId = null;
 
-    /**
-     * @var NumberRangeSalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $numberRangeSalesChannels;
+    protected ?NumberRangeSalesChannelCollection $numberRangeSalesChannels = null;
 
-    /**
-     * @var MailHeaderFooterEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mailHeaderFooter;
+    protected ?MailHeaderFooterEntity $mailHeaderFooter = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerGroupId;
+    protected string $customerGroupId;
 
-    /**
-     * @var CustomerGroupEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerGroup;
+    protected ?CustomerGroupEntity $customerGroup = null;
 
-    /**
-     * @var NewsletterRecipientCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $newsletterRecipients;
+    protected ?NewsletterRecipientCollection $newsletterRecipients = null;
 
-    /**
-     * @var PromotionSalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotionSalesChannels;
+    protected ?PromotionSalesChannelCollection $promotionSalesChannels = null;
 
-    /**
-     * @var DocumentBaseConfigDefinition|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentBaseConfigSalesChannels;
+    protected ?DocumentBaseConfigDefinition $documentBaseConfigSalesChannels = null;
 
-    /**
-     * @var ProductReviewCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productReviews;
+    protected ?ProductReviewCollection $productReviews = null;
 
-    /**
-     * @var SeoUrlCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $seoUrls;
+    protected ?SeoUrlCollection $seoUrls = null;
 
-    /**
-     * @var SeoUrlTemplateCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $seoUrlTemplates;
+    protected ?SeoUrlTemplateCollection $seoUrlTemplates = null;
 
-    /**
-     * @var MainCategoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mainCategories;
+    protected ?MainCategoryCollection $mainCategories = null;
 
     /**
      * @var array<string>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $paymentMethodIds;
+    protected ?array $paymentMethodIds = null;
 
-    /**
-     * @var ProductExportCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productExports;
+    protected ?ProductExportCollection $productExports = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $hreflangActive;
+    protected bool $hreflangActive;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $hreflangDefaultDomainId;
+    protected ?string $hreflangDefaultDomainId = null;
 
-    /**
-     * @var SalesChannelDomainEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $hreflangDefaultDomain;
+    protected ?SalesChannelDomainEntity $hreflangDefaultDomain = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $analyticsId;
+    protected ?string $analyticsId = null;
 
-    /**
-     * @var SalesChannelAnalyticsEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $analytics;
+    protected ?SalesChannelAnalyticsEntity $analytics = null;
 
-    /**
-     * @var CustomerGroupCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerGroupsRegistrations;
+    protected ?CustomerGroupCollection $customerGroupsRegistrations = null;
 
-    /**
-     * @var CustomerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $boundCustomers;
+    protected ?CustomerCollection $boundCustomers = null;
 
-    /**
-     * @var CustomerWishlistCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $wishlists;
+    protected ?CustomerWishlistCollection $wishlists = null;
 
-    /**
-     * @var LandingPageCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $landingPages;
+    protected ?LandingPageCollection $landingPages = null;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {

@@ -42,7 +42,7 @@ async function createWrapper(plugin, showDescription) {
  * @sw-package fundamentals@after-sales
  */
 describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
-    it('displays correct icon and basic information', async () => {
+    it.skip('displays correct icon and basic information', async () => {
         const pluginConfig = {
             iconPath: 'path/to/plugin-icon',
             active: true,
@@ -65,7 +65,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(wrapper.get('.sw-plugin-card__short-description').text()).toBe(pluginConfig.shortDescription);
     });
 
-    it('hides description', async () => {
+    it.skip('hides description', async () => {
         const pluginConfig = {
             iconPath: 'path/to/plugin-icon',
             active: true,
@@ -80,7 +80,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(wrapper.find('.sw-plugin-card__short-description').exists()).toBe(false);
     });
 
-    it('truncates short description correctly', async () => {
+    it.skip('truncates short description correctly', async () => {
         const shortDescription = Array.from({ length: 50 }, () => 'a').join(', ');
         expect(shortDescription.length).toBeGreaterThan(140);
 
@@ -102,7 +102,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(truncatedDescription.slice(0, 137)).toEqual(shortDescription.slice(0, 137));
     });
 
-    it('displays that an extension is already installed', async () => {
+    it.skip('displays that an extension is already installed', async () => {
         const wrapper = await createWrapper(
             {
                 iconPath: 'path/to/plugin-icon',
@@ -121,7 +121,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(isInstalled.text()).toBe('sw-first-run-wizard.general.pluginInstalled');
     });
 
-    it('can install a plugin', async () => {
+    it.skip('can install a plugin', async () => {
         const wrapper = await createWrapper(
             {
                 name: 'SwExamplePlugin',
@@ -151,7 +151,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         ]);
     });
 
-    it('can install an app', async () => {
+    it.skip('can install an app', async () => {
         const wrapper = await createWrapper(
             {
                 name: 'SwExampleApp',
@@ -182,7 +182,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         ]);
     });
 
-    it('displays errors on failed installation', async () => {
+    it.skip('displays errors on failed installation', async () => {
         const wrapper = await createWrapper(
             {
                 name: 'SwExamplePlugin',

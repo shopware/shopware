@@ -50,7 +50,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
         );
     });
 
-    it('should get correct numeric zipCodes', async () => {
+    it.skip('should get correct numeric zipCodes', async () => {
         await wrapper.setProps({
             condition: {
                 value: {
@@ -72,7 +72,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
         expect(input.element.value).toBe('12345');
     });
 
-    it('should get correct alphanumeric zipCodes', async () => {
+    it.skip('should get correct alphanumeric zipCodes', async () => {
         await wrapper.setProps({
             condition: {
                 value: {

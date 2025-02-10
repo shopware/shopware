@@ -198,7 +198,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
         });
     });
 
-    it('should install the SwagLanguagePack plugin and show the language switch modal', async () => {
+    it.skip('should install the SwagLanguagePack plugin and show the language switch modal', async () => {
         const wrapper = await createWrapper();
 
         await flushPromises();

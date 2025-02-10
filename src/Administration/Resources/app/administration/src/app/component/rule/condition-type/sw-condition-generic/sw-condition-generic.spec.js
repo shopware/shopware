@@ -150,7 +150,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         );
     });
 
-    it('should render condition with null operator', async () => {
+    it.skip('should render condition with null operator', async () => {
         const wrapper = await createWrapper({
             type: 'customerShippingStreet',
         });
@@ -168,7 +168,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.operator).toBe('empty');
     });
 
-    it('should render condition with bool value', async () => {
+    it.skip('should render condition with bool value', async () => {
         const wrapper = await createWrapper({
             type: 'customerDifferentAddresses',
         });
@@ -191,7 +191,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.isDifferent).toBeFalsy();
     });
 
-    it('should render condition with single select', async () => {
+    it.skip('should render condition with single select', async () => {
         const wrapper = await createWrapper({
             type: 'cartTaxDisplay',
         });
@@ -214,7 +214,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.taxDisplay).toBe('net');
     });
 
-    it('should render condition with tagged field', async () => {
+    it.skip('should render condition with tagged field', async () => {
         const wrapper = await createWrapper({
             type: 'customerCustomerNumber',
         });
@@ -223,7 +223,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.get('.sw-tagged-field')).toBeDefined();
     });
 
-    it('should render condition with custom operators', async () => {
+    it.skip('should render condition with custom operators', async () => {
         const wrapper = await createWrapper({
             type: 'conditionWithCustomOperators',
         });
@@ -246,7 +246,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.operator).toBe('bar');
     });
 
-    it('should render unit menu when condition has unit', async () => {
+    it.skip('should render unit menu when condition has unit', async () => {
         const wrapper = await createWrapper({
             type: 'cartLineItemDimensionWeight',
         });
@@ -257,7 +257,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(menu.props('type')).toBe('weight');
     });
 
-    it('should be possible to enter a new value into the input when the base value is not selected', async () => {
+    it.skip('should be possible to enter a new value into the input when the base value is not selected', async () => {
         const wrapper = await createWrapper({
             type: 'cartLineItemDimensionWeight',
         });

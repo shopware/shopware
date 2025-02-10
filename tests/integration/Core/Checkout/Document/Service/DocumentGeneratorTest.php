@@ -121,7 +121,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document->getDocumentType());
         static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
-        static::assertSame(FileTypes::PDF, $document->getDocumentA11yMediaFile()?->getFileExtension());
+        static::assertSame(FileTypes::PDF, $document->getDocumentMediaFile()?->getFileExtension());
     }
 
     public function testGenerateEmpty(): void

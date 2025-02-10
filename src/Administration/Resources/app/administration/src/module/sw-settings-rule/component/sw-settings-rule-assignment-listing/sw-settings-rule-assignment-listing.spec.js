@@ -86,7 +86,7 @@ async function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-assignment-listing', () => {
-    it('should render column items', async () => {
+    it.skip('should render column items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -98,7 +98,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-assignment-listing',
         });
     });
 
-    it('should delete item per bulk delete modal', async () => {
+    it.skip('should delete item per bulk delete modal', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 

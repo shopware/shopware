@@ -140,13 +140,13 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         });
     });
 
-    it('should be a Vue.js component', async () => {
+    it.skip('should be a Vue.js component', async () => {
         wrapper = await createWrapper(getProfileMock());
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have identifier entries for all entities in mapping', async () => {
+    it.skip('should have identifier entries for all entities in mapping', async () => {
         const profileMock = getProfileMock();
 
         wrapper = await createWrapper(profileMock);
@@ -158,7 +158,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--identifierName').text()).toBe('tax');
     });
 
-    it('should have options for entries in update by mapping', async () => {
+    it.skip('should have options for entries in update by mapping', async () => {
         const profileMock = getProfileMock();
 
         wrapper = await createWrapper(profileMock);

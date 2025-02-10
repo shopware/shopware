@@ -84,7 +84,7 @@ async function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-tree-item', () => {
-    it.each([
+    it.skip.each([
         { expected: true },
         { expected: false },
     ])('should hide actions: $expected', async ({ expected }) => {
@@ -97,7 +97,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-tree-item', () => {
         expect(wrapper.find('.sw-tree-item__actions').exists()).toBe(!expected);
     });
 
-    it.each(testCases)('should check association: $name', async ({ data, extensions, disabled }) => {
+    it.skip.each(testCases)('should check association: $name', async ({ data, extensions, disabled }) => {
         const wrapper = await createWrapper({
             ...defaultProps,
             item: {

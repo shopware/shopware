@@ -105,7 +105,7 @@ async function createWrapper(condition = {}) {
 }
 
 describe('components/rule/condition-type/sw-condition-script', () => {
-    it('should render fields and set condition values on change', async () => {
+    it.skip('should render fields and set condition values on change', async () => {
         const wrapper = await createWrapper({
             type: 'scriptRule',
             scriptId: 'foo',

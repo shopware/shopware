@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
@@ -1152,7 +1151,7 @@ class EntityAggregatorTest extends TestCase
      */
     public static function dateHistogramProvider(): array
     {
-        return array_filter([
+        return [
             [
                 new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
                     '2019-01-01 10:11:00' => 1,
@@ -1234,8 +1233,7 @@ class EntityAggregatorTest extends TestCase
                     'Wednesday 11th Dec, 2024' => 1,
                 ], 'l dS M, Y'),
             ],
-            // This case works only when timezone support is enabled
-            EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', 0) ? [
+            [
                 new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
                     '2019-01-01 00:00:00' => 2,
                     '2019-06-15 00:00:00' => 1,
@@ -1243,9 +1241,8 @@ class EntityAggregatorTest extends TestCase
                     '2021-12-10 00:00:00' => 1,
                     '2024-12-12 00:00:00' => 1,
                 ], null, 'Europe/Berlin'),
-            ] : [],
-            // This case works only when timezone support is enabled, test time zone aliases can be used
-            EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', 0) ? [
+            ],
+            [
                 new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
                     '2019-01-01 00:00:00' => 2,
                     '2019-06-15 00:00:00' => 1,
@@ -1253,8 +1250,8 @@ class EntityAggregatorTest extends TestCase
                     '2021-12-10 00:00:00' => 1,
                     '2024-12-12 00:00:00' => 1,
                 ], null, 'Asia/Saigon'),
-            ] : [],
-        ]);
+            ],
+        ];
     }
 
     public function testDateHistogramWithNestedAvg(): void

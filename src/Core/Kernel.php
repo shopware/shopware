@@ -365,24 +365,13 @@ class Kernel extends HttpKernel
 
         try {
             $setSessionVariables = (bool) EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true);
-            $connectionVariables = [];
-
-            /**
-             * @deprecated tag:v6.7.0 - remove if clause and enforce timezone setting
-             */
-            $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', Feature::isActive('v6.7.0.0'));
-            if ($timeZoneSupportEnabled && $setSessionVariables) {
-                $connectionVariables[] = 'SET @@session.time_zone = "+00:00"';
-            }
+            $connectionVariables = ['SET @@session.time_zone = "+00:00"'];
 
             if ($setSessionVariables) {
                 $connectionVariables[] = 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)';
                 $connectionVariables[] = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))';
             }
 
-            if (empty($connectionVariables)) {
-                return;
-            }
             $connection->executeQuery(implode(';', $connectionVariables));
         } catch (\Throwable) {
         }

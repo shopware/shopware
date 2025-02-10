@@ -19,6 +19,6 @@ class KernelTest extends TestCase
     {
         $c = static::getContainer()->get(Connection::class);
 
-        static::assertSame($c->fetchOne('SELECT @@session.time_zone'), '+00:00');
+        static::assertSame('+00:00', $c->fetchOne('SELECT @@session.time_zone'));
     }
 }

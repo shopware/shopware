@@ -126,7 +126,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
             static::getContainer()->get(SalesChannelContextFactory::class),
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get('product_export.repository'),
-            static::getContainer()->get('messenger.bus.shopware')
+            static::getContainer()->get('messenger.default_bus')
         );
     }
 

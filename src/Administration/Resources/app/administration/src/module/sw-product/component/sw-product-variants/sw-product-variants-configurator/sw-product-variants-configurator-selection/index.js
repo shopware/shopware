@@ -26,14 +26,6 @@ export default {
             type: Object,
             required: true,
         },
-        /**
-         * @deprecated tag:v6.7.0 - The disabled props will be removed.
-         */
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
     },
 
     watch: {

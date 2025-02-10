@@ -9,7 +9,7 @@
                 <form method="post"
                       action="{{ path('frontend.checkout.switch-language') }}"
                       class="language-form"
-                      data-active-route-redirect="true">
+                      data-form-add-dynamic-redirect="true">
                     {% block layout_header_actions_language_widget_content %}
                         {% set isoCode = context.languageInfo.localeCode|lower|split('-') %}
                         {% set language = isoCode[0] %}

@@ -3,7 +3,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 /**
  * This plugin adds redirect parameter to the form before the form is submitted.
  */
-export default class ActiveRouteRedirectPlugin extends Plugin {
+export default class FormAddDynamicRedirectPlugin extends Plugin {
 
     static options = {
         redirectTo: window.activeRoute,

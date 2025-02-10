@@ -1201,16 +1201,6 @@ parameters:
 			path: src/Core/Content/Product/Events/CrossSellingRouteCacheTagsEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductGatewayCriteriaEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/ProductGatewayCriteriaEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductGatewayCriteriaEvent\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/ProductGatewayCriteriaEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductListingResolvePreviewEvent\\:\\:__construct\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Events/ProductListingResolvePreviewEvent.php
@@ -1349,21 +1339,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\Event\\\\SeoUrlUpdateEvent\\:\\:getSeoUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/Event/SeoUrlUpdateEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\HreflangLoaderParameter\\:\\:__construct\\(\\) has parameter \\$routeParameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/HreflangLoaderParameter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\HreflangLoaderParameter\\:\\:getRouteParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/HreflangLoaderParameter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Seo\\\\HreflangLoaderParameter\\:\\:\\$routeParameters type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/HreflangLoaderParameter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlMapping\\:\\:__construct\\(\\) has parameter \\$infoPathContext with no value type specified in iterable type array\\.$#"

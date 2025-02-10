@@ -1,4 +1,332 @@
-# 6.7.0.0 Upgrade Guide
+# 6.7.0.0
+## Introduced in 6.6.10.0
+## Removed EntityExtension::getDefinitionClass 
+The method `EntityExtension::getDefinitionClass` has been removed. It is replaced by `EntityExtension::getEntityName`, which needs to return the entity name.
+
+Before:
+
+```php
+<?php
+
+namespace Examples\Extension;
+
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
+
+class MyEntityExtension extends EntityExtension
+{
+    public function getDefinitionClass(): string
+    { 
+        return ProductDefinition::class;
+    }
+}
+```
+
+After:
+
+```php
+<?php
+
+namespace Examples\Extension;
+
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
+
+class MyEntityExtension extends EntityExtension
+{
+    public function getEntityName() : string
+    {
+        return ProductDefinition::ENTITY_NAME;
+    }
+}
+```
+## Exception type in ElasticsearchIndexer
+Method `Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer::handleIndexingMessage` will throw `Shopware\Elasticsearch\ElasticsearchException` if the provided message contains no ids for indexing.
+Before, the method was calling OpenSearch client which throws `OpenSearch\Common\Exceptions\BadRequest400Exception` in such case. If your code catches the exception, you need to change the type of the exception to `Shopware\Elasticsearch\ElasticsearchException`.
+## setTwig in Storefront Controller removed
+
+The method `Shopware\Storefront\Controller\StorefrontController::setTwig` has been removed, you can remove the `setTwig` call from your DI config, no further change is required.
+## Removal of deprecated constants
+The following constants are removed from `Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber`. Use the ones with the same name from `Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber` instead.
+* `STATE_LOGGED_IN`
+* `STATE_CART_FILLED`
+
+The following constants are removed from `Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber`. Use the ones with the same name from `Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator` instead.
+* `CURRENCY_COOKIE`
+* `CONTEXT_CACHE_COOKIE`
+* `SYSTEM_STATE_COOKIE`
+* `INVALIDATION_STATES_HEADER`
+
+The following constants are removed from `Shopware\Core\Framework\Script\Api\ScriptStoreApiRoute`. Use the one with the same name from `Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator` instead.
+* `INVALIDATION_STATES_HEADER`
+## Removed `messenger.bus.shopware` service
+Use `messenger.default_bus` instead.
+## Payment & shipping method display in Shopware 6.7
+The payment and shipping method selection in the checkout in the Storefront has been improved for accessibility.
+There are now all methods listed instead of only 5, which makes the `CollapseCheckoutConfirmMethodsPlugin` unnecessary and will be removed.
+Also, the payment and shipping method descriptions are now only shown for the selected method.
+To clean up the collapse logic, the following templates will be removed:
+* `Resources/views/storefront/component/payment/payment-fields.html.twig`, integrated into `Resources/views/storefront/component/payment/payment-form.html.twig`
+* `Resources/views/storefront/component/shipping/shipping-fields.html.twig`, integrated into `Resources/views/storefront/component/shipping/shipping-form.html.twig`
+The `address-editor-modal.html.twig`, `address-editor-modal-list.html.twig`, `address-editor-modal-create-address.html.twig` and `address-editor.plugin.js` has been removed.
+The `src/Storefront/Resources/views/storefront/page/account/addressbook/index.html.twig` page content is updated
+## Default listing layouts with `h1` tag 
+The default layouts `Default listing layout` and `Default listing layout with sidebar` now include a `h1` HTML element for better SEO and accessibility.
+## Removal of ReverseProxyCacheClearer
+
+The `\Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer` was removed.
+
+Use the `cache:clear:http` command to clear the HTTP cache explicitly, as it is no longer done with the `cache:clear` command.
+## Storefront accessibility: The `filter-active` span element is changed to a button:
+* The `filter-active` element that displays an active listing filter is changed from `<span>` to `<button>`.
+* The `filter-active` and `filter-reset-all` are now Bootstrap buttons using `--bs-btn-*` variables.
+* The method `getLabelTemplate` of JS-plugin `ListingPlugin` will return the updated HTML-structure.
+* The option `activeFilterLabelClass` of JS-plugin `ListingPlugin` is removed. Use `activeFilterLabelClasses` to render the label classes and `activeFilterLabelSelector` as the selector for events.
+
+If you are overriding `getLabelTemplate` of JS-plugin `ListingPlugin`, the new structure should be considered:
+
+change
+```js 
+class MyListing extends Listing {
+    getLabelTemplate(label) {
+        return `
+        <span class="${this.options.activeFilterLabelClass}" data-my-extra-attr="something">
+            ${this.getLabelPreviewTemplate(label)}
+            <span aria-hidden="true">${label.label}</span>
+            <button class="${this.options.activeFilterLabelRemoveClass}"
+                    data-id="${label.id}"
+                    aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
+                &times;
+            </button>
+        </span>
+        `;
+    }
+}
+```
+to
+```js
+class MyListing extends Listing {
+    getLabelTemplate(label) {
+        return `
+        <button 
+            data-my-extra-attr="something"
+            class="${this.options.activeFilterLabelClasses}" <!-- Use activeFilterLabelClasses to render the classes -->
+            data-id="${label.id}"
+            aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
+            ${this.getLabelPreviewTemplate(label)}
+            ${label.label}
+            <span aria-hidden="true" class="ms-1 fs-4">&times;</span> <!-- The activeFilterLabelRemoveClass is removed because no special styling is needed. -->
+        </button>
+        `;
+    }
+}
+```
+## New local form handling
+To make forms more accessible, we overhauled the form handling in the Storefront, which includes local form validation and best-practices for user feedback.
+
+### New validation service and form handler plugin
+There is a new central form validation class that is also available as a default instance under `window.formValidation`. This is used by a new form handler plugin that will automatically implement the necessary events and handling on a form element. It can be activated with the `data-form-handler="true"` attribute on a form element.
+
+**Example:**
+```HTML
+<form action="/newsletter" method="post" data-form-handler="true">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" data-validation="required,email">
+    
+
+    <button type="submit">Submit</button>
+</form>
+```
+The form validation works with an associated `data-validation` attribute on the form fields. You can pass a comma separated list of validator keys. Their priority is defined by their order. Only the validation message of the highest applying validator is shown to the user for relevant feedback.
+
+These validators are available by default:
+
+| Key      | Description |
+| -------- | ------- |
+| `required` | Checks if the field is not empty. |
+| `email` | Checks the value of the field to be a valid email address. |
+| `conformation` | Checks if the value of a confirmation field matches the value of the original field. Make sure to use the right ID naming for the validator to work. As an example, the orginal field has the ID `email` and the confirmation field has the ID `emailConfirmation`. The `confirmation` validator should be added to the confirmation field. Note that unnecessary inputs are seen as not accessible and should be avoided wherever possible. |
+| `minLength` | Checks the value of the field for a minimum length. If available the validator will use the `minlength` attribute of the field to validate against. Otherwise, it will use the default configuration of eight characters. | 
+
+You can add your own custom validators via the global `formValidation` class.
+
+```JavaScript
+window.formValidation.addValidator('custom', (value, field) => {
+    // You custom validation. Should return a boolean.
+}, 'Your custom validation message.');
+```
+
+You can take a look at the reference documentation of the service and the plugin for further information.
+
+### New form field components in Twig
+To make it easier to implement all best practices without recreating a lot of boilerplate code for every form field, we created new templates for different field types which can be used for easy form field rendering. You can find them in `views/storefront/components/form/`. These components work in association with the described local form handling but also the additional server-side validation.
+
+**Example usage:**
+```TWIG
+<form action="/newsletter" method="post" data-form-handler="true">
+
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        type: 'email',
+        label: 'account.personalMailLabel'|trans|sw_sanitize,
+        id: 'personalMail',
+        name: 'email',
+        value: data.get('email'),
+        autocomplete: 'section-personal email',
+        violationPath: '/email',
+        validationRules: 'required,email',
+        additionalClass: 'col-sm-6',
+    } %}
+
+    <button type="submit">Submit</button>
+</form>
+```
+
+### Updated Shopware standard forms
+The existing forms in the Shopware Storefront are already reworked to use the described practices and services. 
+
+**Forms that are affected by the changes:**
+* Login
+* Guest Login
+* Registration
+* Custom Registration
+* Customer profile
+* Change email
+* Change password
+* Recover password
+* Reset password
+* Address creation
+* Address editing
+* Product reviews
+* Newsletter registration (CMS)
+* Contact form (CMS)
+## Bulletproofing Plugin Migrations
+### Creation timestamp is now validated
+The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647` (the `max_int` value on 32-bit systems). This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number, 
+that will silently be treated as max_int, leading to multiple migrations having the same creation timestamp, thus the execution order becomes random, which might lead to hard to debug errors while executing migrations.
+### Plugin migrations are now removed before calling `uninstall()`
+When `keepUserData` is set to false during plugin uninstall, the plugin is expected to clean up all DB tables the plugin created in the `unistall` method.
+Now we are cleaning up the plugin migrations from the migration table before calling the `uninstall` method, so in case of an error, the plugin can be reinstalled and the migrations can be rerun.
+## Removal of Generator::createSalesChannelContext()
+* The current static `Generator::createSalesChannelContext()` function lacks support for some SalesChannelContext components (e.g. ShippingLocation)
+* To allow a complete dynamic and simple creation of the SalesChannelContext with the Generator we added the new `Generator::generateSalesChannelContext()` function, which supports all SalesChannelContext components out of the box and additionally has a `overrides` parameter to further directly customize the SalesChannelContext fields
+
+change
+```php 
+Generator::createSalesChannelContext()
+```
+to
+```php
+Generator::generateSalesChannelContext()
+```
+## Removal of Twig variable
+The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+
+## FooterPagelet changes
+The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
+Make sure to pass it to the constructor.
+## Delayed Cache Invalidation
+In the next major version, the cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
+This will lead to better cache hit rates and way less (duplicated) cache invalidations, which will improve efficiency and scalability of the system.
+As this feature is now active by default the previous `shopware.cache.invalidation.delay` configuration is removed.
+
+The default interval is 5 min, this can be changed by adjusting the run interval of the `shopware.invalidate_cache` scheduled task.
+
+If you sent an API request with critical information, where the cache should be invalidated immediately, you can set the `sw-force-cache-invalidate` header on your request.
+```
+POST /api/product
+sw-force-cache-invalidate: 1
+```
+
+To manually clear all the stale caches you can either run the `cache:clear:delayed` command or use the `/api/_action/cache-delayed` API endpoint.
+```
+bin/console cache:clear:delayed
+```
+```
+DELETE /api/_action/cache-delayed
+```
+
+For debugging there is the `cache:watch:delayed` command available, to watch the cache tags that are stored in the delayed cache invalidation queue.
+```
+bin/console cache:watch:delayed
+```
+## Cache ID loaded by Database is removed
+
+Prior Shopware 6.7, the cache ID was loaded by the database from the `app_config` table and created complete different caches using that. This was used in earlier Shopware versions to clear the cache rapidly without having to clear the whole cache.
+You can still set `SHOPWARE_CACHE_ID` as an environment variable to set the cache ID.
+## OffsetQuery & LastIdQuery signature changes
+OffsetQuery && LastIdQuery now accept `Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder` instead of `Doctrine\DBAL\Query\QueryBuilder`.
+If you are creating those classes manually, you need to change creating code:
+```php
+$queryBuilder = $this->connection->createQueryBuilder();
+$lastIdQuery = new LastIdQuery($queryBuilder);
+$offsetQuery = new OffsetQuery($queryBuilder);
+```
+to
+```php
+$queryBuilder = new \Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder($this->connection);
+$lastIdQuery = new LastIdQuery($queryBuilder);
+$offsetQuery = new OffsetQuery($queryBuilder);
+```
+
+## IterableQuery::getQuery signature changes
+`Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery::getQuery` will return `Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder` instead of `Doctrine\DBAL\Query\QueryBuilder`.
+Implementations of IterableQuery should be updated to return the correct type.
+## Introduction of ESI for header and footer
+The header and footer are now loaded via ESI.
+This allows to cache the header and footer separately from the rest of the page.
+Two new routes `\header` and `\footer` were added to receive the rendered header and footer.
+The rendered header and footer are included into the page with the Twig function `render_esi`, which calls the previously mentioned routes.
+Two new templates `src/Storefront/Resources/views/storefront/layout/header.html.twig` and `src/Storefront/Resources/views/storefront/layout/footer.html.twig` were introduced as new entry points for the header and footer.
+Make sure to adjust your template extensions to be compatible with the new structure.
+The block names are still the same, so it just should be necessary to extend from the new templates.
+
+### Removals
+* The properties `header` and `footer` and their getter and setter Methods in `\Shopware\Storefront\Framework\Twig\ErrorTemplateStruct` were removed.
+* The loading of header, footer, payment methods and shipping methods in `\Shopware\Storefront\Page\GenericPageLoader` is removed.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
+* The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` were removed.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+* The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` were removed.
+  Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+* The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` was removed.
+* The `setNavigation` method in `\Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPagelet` was removed.
+* The option `tiggerEvent` in `OffcanvasMenuPlugin` JavaScript plugin was removed, use `triggerEvent` instead.
+* The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/header.html.twig`.
+  * `base_header`
+  * `base_header_inner`
+  * `base_navigation`
+  * `base_navigation_inner`
+  * `base_offcanvas_navigation`
+  * `base_offcanvas_navigation_inner`
+* The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/footer.html.twig`.
+  * `base_footer`
+  * `base_footer_inner`
+* The template variable `page` in following templates was removed. Provide `header` or `footer` directly.
+  * `src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/actions/language-widget.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/top-bar.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig`
+* The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` were removed.
+* The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` was removed.
+* The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` was removed.
+## Rule classes becoming internal
+* Rule classes are marked internal, and direct extensions are not supported.
+* The preferred approach is to define **new** rule classes to encapsulate custom logic.
+* Ensure any dependencies on existing rule classes are replaced with standalone implementations to maintain compatibility.
+## Changes to the import/export functionality
+The following classes are now marked as internal:
+* `\Shopware\Core\Content\ImportExport\ImportExport`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipeFactory`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\ChainPipe`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\EntityPipe`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\PipeFactory`
+
+This method is removed without replacement `\Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe::getDecorated()` cause the `AbstractPipe` class is now marked as internal.
+
+Upgrade Guide
 **NOTE:** All the breaking changes described here can be already opted in by activating the `v6.7.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
 
 # Notable Changes

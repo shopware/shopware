@@ -211,7 +211,29 @@ class PromotionCalculatorTest extends TestCase
         }
     }
 
-    private function getPromotionId(bool $preventCombination = false, int $priority = 1, bool $useCodes = true): string
+    public function testFixedUnitPricePromotionisNotEligible(): void
+    {
+        $promotionId = $this->getPromotionId(type: PromotionDiscountEntity::TYPE_FIXED_UNIT);
+        $discountItem = $this->getDiscountItem($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT);
+
+        $discountItems = new LineItemCollection([$discountItem]);
+        $original = new Cart(Uuid::randomHex());
+
+        $productLineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $productLineItem->setPrice(new CalculatedPrice(8, 8, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $productLineItem->setStackable(true);
+
+        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate->add($productLineItem);
+        $toCalculate->setPrice(new CartPrice(8, 8, 8, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $this->promotionCalculator->calculate($discountItems, $original, $toCalculate, $this->salesChannelContext, new CartBehavior());
+
+        static::assertNotNull($toCalculate->getErrors()->first());
+        static::assertSame('Promotion PHPUnit not eligible for cart!', $toCalculate->getErrors()->first()->getMessage());
+    }
+
+    private function getPromotionId(bool $preventCombination = false, int $priority = 1, bool $useCodes = true, string $type = PromotionDiscountEntity::TYPE_ABSOLUTE): string
     {
         $promotionId = Uuid::randomHex();
 
@@ -229,7 +251,7 @@ class PromotionCalculatorTest extends TestCase
             'discounts' => [
                 [
                     'scope' => PromotionDiscountEntity::SCOPE_CART,
-                    'type' => PromotionDiscountEntity::TYPE_ABSOLUTE,
+                    'type' => $type,
                     'value' => 10.0,
                     'considerAdvancedRules' => false,
                 ],
@@ -250,12 +272,12 @@ class PromotionCalculatorTest extends TestCase
         return $promotionId;
     }
 
-    private function getDiscountItem(string $promotionId): LineItem
+    private function getDiscountItem(string $promotionId, string $typen = PromotionDiscountEntity::TYPE_ABSOLUTE): LineItem
     {
         $discountItemToBeExcluded = new LineItem(Uuid::randomHex(), PromotionProcessor::LINE_ITEM_TYPE);
         $discountItemToBeExcluded->setRequirement(null);
         $discountItemToBeExcluded->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_CART);
-        $discountItemToBeExcluded->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discountItemToBeExcluded->setPayloadValue('discountType', $typen);
         $discountItemToBeExcluded->setPayloadValue('exclusions', []);
         $discountItemToBeExcluded->setPayloadValue('promotionId', $promotionId);
         $discountItemToBeExcluded->setReferencedId($promotionId);

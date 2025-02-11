@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_6\Migration1738661307AddMediaIndices;
 
@@ -25,8 +26,14 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testTimestamp()
+    {
+        self::assertSame(1738661307, (new Migration1738661307AddMediaIndices())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
+        $this->undoMigration();
         // Test multiple execution
         $this->migrate();
         $this->migrate();
@@ -40,6 +47,17 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
     private function migrate(): void
     {
         (new Migration1738661307AddMediaIndices())->update($this->connection);
+    }
+
+    private function undoMigration(): void
+    {
+        if ($this->hasColumn('file_hash')) {
+            $this->connection->executeStatement(
+                <<<SQL
+                ALTER TABLE `{$this->tableName}` DROP COLUMN `file_hash`;
+                SQL
+            );
+        }
     }
 
     /**
@@ -56,9 +74,6 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
 
     private function hasColumn(string $columnName): bool
     {
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableColumns($this->tableName);
-
-        return \array_key_exists($columnName, $columns);
+        return EntityDefinitionQueryHelper::columnExists($this->connection, $this->tableName, $columnName);
     }
 }

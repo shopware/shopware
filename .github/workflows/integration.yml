@@ -16,24 +16,24 @@ on:
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:acceptance') }}
     strategy:
       fail-fast: false
       matrix:
         name:
-          - 'Platform'
-          - 'Install'
+          - "Platform"
+          - "Install"
         major:
-          - ''
+          - ""
         php-version:
-          - '8.2'
-          - '8.4'
+          - "8.2"
+          - "8.4"
         include:
-          - name: 'Platform'
-            major: 'major'
+          - name: "Platform"
+            major: "major"
             php-version: 8.2
-          - name: 'Platform'
-            major: 'major'
+          - name: "Platform"
+            major: "major"
             php-version: 8.4
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
@@ -76,7 +76,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
-          mysql-version: 'skip'
+          mysql-version: "skip"
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install: ${{ matrix.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
@@ -142,10 +142,10 @@ jobs:
 
   phpunit-matrix:
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:phpunit') }}
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
-    steps: 
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
       - id: generate-matrix
@@ -158,8 +158,8 @@ jobs:
 
   phpunit:
     name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
-    if: ${{ github.event_name != 'pull_request' }}
-    needs: 
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:phpunit') }}
+    needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
     strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
@@ -194,7 +194,7 @@ jobs:
         uses: shopware/setup-shopware@main
         with:
           php-version: ${{ matrix.php }}
-          mysql-version: 'skip'
+          mysql-version: "skip"
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
@@ -322,7 +322,7 @@ jobs:
   tested-update-versions:
     name: tested-versions
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:acceptance') }}
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
@@ -336,7 +336,7 @@ jobs:
   acceptance-update:
     needs: tested-update-versions
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:acceptance') }}
     strategy:
       fail-fast: false
       matrix:
@@ -498,19 +498,20 @@ jobs:
   check:
     if: always()
     needs:
-    - acceptance
-    - phpunit
-    - win-checkout
-    - code-ql
-    - acceptance-update
-    - blue-green-66-67
+      - acceptance
+      - phpunit
+      - win-checkout
+      - code-ql
+      - acceptance-update
+      - blue-green-66-67
 
     runs-on: Ubuntu-latest
     steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@release/v1
-      with:
-        # allowed-failures: docs, linters
-        # allow all jobs to be skipped in case of a PR run
-        allowed-skips: acceptance, phpunit, win-checkout, code-ql, acceptance-update, blue-green-66-67
-        jobs: ${{ toJSON(needs) }}
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          # allowed-failures: docs, linters
+          # allow all jobs to be skipped in case of a PR run
+          allowed-skips: acceptance, phpunit, win-checkout, code-ql, acceptance-update, blue-green-66-67
+          jobs: ${{ toJSON(needs) }}
+

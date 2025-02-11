@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\LandingPage\Event;
 
+use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class LandingPageRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
+    /**
+     * @param array<string|null> $tags
+     * @param LandingPageRouteResponse $response
+     */
     public function __construct(
         protected string $landingPageId,
         array $tags,

@@ -3,9 +3,7 @@
 {% block sw_button %}
 <mt-button
     v-if="useMeteorComponent"
-    v-bind="$attrs"
-    v-on="listeners"
-    @click="onClick"
+    v-bind="$attrs" @click="onClick"
 >
     <slot></slot>
 </mt-button>
@@ -18,7 +16,6 @@
     v-else
     v-bind="$attrs"
     :router-link="routerLink"
-    v-on="listeners"
 >
     <slot></slot>
 </sw-button-deprecated>

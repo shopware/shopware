@@ -51,3 +51,7 @@ shopware:
         major: true
         toggleable: false
         description: "TEMPORARY! disable dynamic entity extensions, as it makes problems during the lifecycle"
+      - name: ENABLE_METEOR_COMPONENTS
+        default: false
+        major: false
+        toggleable: false

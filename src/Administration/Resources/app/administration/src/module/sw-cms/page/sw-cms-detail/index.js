@@ -18,8 +18,6 @@ const debounceTimeout = 800;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'entityFactory',

@@ -10,8 +10,6 @@ import './sw-first-run-wizard-finish.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['firstRunWizardService'],
 
     emits: [

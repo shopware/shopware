@@ -21,8 +21,6 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-language-info', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     props: {
@@ -137,11 +135,7 @@ Component.register('sw-language-info', {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$emit('on-change-language-clicked', this.parentLanguage.id);
-            } else {
-                Shopware.Utils.EventBus.emit('on-change-language-clicked', this.parentLanguage.id);
-            }
+            Shopware.Utils.EventBus.emit('on-change-language-clicked', this.parentLanguage.id);
         },
     },
 });

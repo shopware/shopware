@@ -17,8 +17,6 @@ const { snakeCase } = utils.string;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'flowBuilderService',
@@ -229,11 +227,7 @@ export default {
             this.currentSequence = {};
             this.selectedAction = '';
             this.isAppAction = false;
-            if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                this.$delete(this.sequence, 'propsAppFlowAction');
-            } else {
-                delete this.sequence.propsAppFlowAction;
-            }
+            delete this.sequence.propsAppFlowAction;
         },
 
         addAction(action) {

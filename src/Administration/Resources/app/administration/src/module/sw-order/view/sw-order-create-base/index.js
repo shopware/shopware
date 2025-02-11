@@ -12,8 +12,6 @@ const { get, format, array } = Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['error'],
 
     mixins: [

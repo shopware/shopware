@@ -9,8 +9,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     shortcuts: {
         'SYSTEMKEY+c': 'openModal',
     },

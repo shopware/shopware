@@ -33,7 +33,7 @@ describe('src/app/component/base/sw-loader', () => {
     });
 
     it('should render the mt-loader when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['v6.7.0.0'];
+        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
 
         const wrapper = await createWrapper();
 

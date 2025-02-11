@@ -1191,11 +1191,6 @@ parameters:
 			path: src/Core/Content/Product/DataAbstractionLayer/RatingAverageUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\CrossSellingRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/CrossSellingRouteCacheTagsEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductListingResolvePreviewEvent\\:\\:__construct\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Events/ProductListingResolvePreviewEvent.php

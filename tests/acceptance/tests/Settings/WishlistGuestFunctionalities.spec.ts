@@ -56,7 +56,6 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
         await ShopCustomer.expects(StorefrontWishlist.wishListHeader).toBeVisible();
         const firstProductInListing = StorefrontWishlist.productListItems.first();
         const firstProductName = await firstProductInListing.locator('.product-name').innerText();
-        const expectedProductName = await product2Locators.productName.innerText();
-        ShopCustomer.expects(firstProductName).toBe(expectedProductName);
+        ShopCustomer.expects(firstProductName).toBe(product2.name);
     });
 });

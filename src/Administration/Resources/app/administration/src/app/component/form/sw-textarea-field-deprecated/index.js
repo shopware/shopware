@@ -19,8 +19,6 @@ Component.register('sw-textarea-field-deprecated', {
 
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: [

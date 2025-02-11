@@ -20,8 +20,6 @@ const defaultMailerSettings = {
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['systemConfigApiService'],
 
     mixins: ['notification'],

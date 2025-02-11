@@ -8,8 +8,6 @@ import './sw-settings-country-currency-hamburger-menu.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     emits: ['currency-change'],

@@ -11,8 +11,6 @@ const { Component } = Shopware;
 Component.register('sw-data-grid-inline-edit', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'feature',
     ],

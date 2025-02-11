@@ -21,7 +21,7 @@ jobs:
   rufus:
     name: Rufus
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request }}
+    if: ${{ !github.event.pull_request && github.event_name != 'merge_group'}}
     steps:
       - name: Rufus
         uses: shopware/github-actions/downstream@main
@@ -46,7 +46,7 @@ jobs:
           repo: shopware/SwagCommercial
           workflow: Downstream
           ref: .auto
-          timeout: 40m
+          timeout: 60m
           token-scope: shopware
           identity: ShopwareDownstream
           env:

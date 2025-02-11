@@ -79,7 +79,15 @@ const $refsMock = {
     },
 };
 
+let repositoryFactoryCreateResult;
+
 async function createWrapper() {
+    repositoryFactoryCreateResult = {
+        search: () => {
+            return Promise.resolve({ total: 0 });
+        },
+    };
+
     return mount(await wrapTestComponent('sw-product-properties', { sync: true }), {
         global: {
             stubs: {
@@ -163,11 +171,7 @@ async function createWrapper() {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve({ total: 0 });
-                        },
-                    }),
+                    create: () => repositoryFactoryCreateResult,
                 },
             },
         },
@@ -238,14 +242,14 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
+        repositoryFactoryCreateResult.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
 
         Store.get('swProductDetail').product = productMock;
         await nextTick();
         await wrapper.vm.getGroupIds();
-        wrapper.vm.getProperties();
+        await wrapper.vm.getProperties();
 
         expect(wrapper.vm.properties).toEqual(expect.arrayContaining(propertiesMock));
         wrapper.vm.propertyGroupRepository.search.mockRestore();

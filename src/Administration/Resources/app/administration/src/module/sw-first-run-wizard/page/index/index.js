@@ -7,6 +7,4 @@ import template from './sw-first-run-wizard.html.twig';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

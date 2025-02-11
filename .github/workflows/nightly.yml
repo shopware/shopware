@@ -147,3 +147,16 @@ jobs:
     uses: ./.github/workflows/05-prepare-release.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware'
+
+  nightly-6-6-x:
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
+    steps:
+      - name: Delay
+        run: sleep 20m
+      - uses: octo-sts/action@v1.0.0
+        id: sts
+        with:
+          scope: shopware
+          identity: ShopwareNightly
+      - run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "6.6.x"

@@ -9,8 +9,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         smartBarHeading() {
             return this.productSortingEntity && this.productSortingEntity.label

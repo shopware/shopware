@@ -141,8 +141,7 @@ export function loadExtensions(): ExtensionDefinition[] {
                     'meteor-app',
                 );
 
-                return definition.administration?.path
-                    && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
+                return definition.administration?.path && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
             },
         )
         .map(

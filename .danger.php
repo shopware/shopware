@@ -363,7 +363,10 @@ return (new Config())
         }
 
         foreach ($composerFiles as $composerFile) {
-            if ($composerFile->status === File::STATUS_REMOVED || str_contains((string) $composerFile->name, 'src/WebInstaller') || str_contains((string) $composerFile->name, 'src/Core/DevOps/StaticAnalyze/PHPStan')) {
+            if ($composerFile->status === File::STATUS_REMOVED
+                || str_contains((string) $composerFile->name, 'src/WebInstaller')
+                || str_contains((string) $composerFile->name, '/Test/')
+            ) {
                 continue;
             }
 

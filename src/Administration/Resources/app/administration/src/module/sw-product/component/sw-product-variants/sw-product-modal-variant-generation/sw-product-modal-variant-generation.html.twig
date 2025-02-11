@@ -82,7 +82,6 @@
 
     {% block sw_product_modal_variant_generation_main %}
     <div class="sw-product-modal-variant-generation__main">
-        {# @deprecated tag:v6.7.0 - The property :disabled will be removed, use isAddOnly instead #}
         {% block sw_product_modal_variant_generation_main_configurator_selection %}
         <sw-product-variants-configurator-selection
             v-show="activeTab == 'options'"
@@ -90,7 +89,6 @@
             :options="product.configuratorSettings"
             :overlay="false"
             :collapsible="false"
-            :disabled="isAddOnly"
             :is-add-only="isAddOnly"
             @variations-finish-generate="$emit('variations-finish-generate')"
             @option-select="calcVariantsNumber()"

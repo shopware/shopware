@@ -91,7 +91,7 @@ class CacheControllerTest extends TestCase
     public function testCacheIndexEndpointWithSkipParameter(): void
     {
         /** @var TraceableMessageBus $bus */
-        $bus = static::getContainer()->get('messenger.bus.shopware');
+        $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
         $this->getBrowser()->request(
@@ -122,7 +122,7 @@ class CacheControllerTest extends TestCase
     public function testCacheIndexEndpointWithOnlyParameter(): void
     {
         /** @var TraceableMessageBus $bus */
-        $bus = static::getContainer()->get('messenger.bus.shopware');
+        $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
         $this->getBrowser()->request(

@@ -490,10 +490,18 @@ class PluginLifecycleServiceTest extends TestCase
 
         $pluginWithExecuteComposer = $this->pluginService->getPluginByName('SwagTestExecuteComposerCommands', $this->context);
 
-        // Expected fail on executing the composer command, as the plugin is not in the default plugin directory and could therefore not be found
-        $this->expectException(PluginComposerRequireException::class);
-        $this->expectExceptionMessageMatches('/Your requirements could not be resolved to an installable set of packages/');
-        $this->pluginLifecycleService->installPlugin($pluginWithExecuteComposer, $this->context);
+        $exceptionWasThrown = false;
+
+        try {
+            // Expected fail on executing the composer command, as the plugin is not in the default plugin directory and could therefore not be found
+            $this->pluginLifecycleService->installPlugin($pluginWithExecuteComposer, $this->context);
+        } catch (PluginComposerRequireException $exception) {
+            $exceptionWasThrown = true;
+            static::assertStringContainsString('Your requirements could not be resolved to an installable set of packages', $exception->getMessage());
+        }
+
+        static::assertTrue($exceptionWasThrown);
+        \ComposerAutoloaderInit04843bd693b1d8a5a811fc7265ceb190::getLoader()->unregister();
     }
 
     private function installNotSupportedPlugin(string $name): PluginEntity

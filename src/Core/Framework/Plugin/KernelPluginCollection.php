@@ -29,6 +29,20 @@ class KernelPluginCollection
     }
 
     /**
+     * @internal only used for testing purposes
+     */
+    public function remove(Plugin $plugin): void
+    {
+        $class = $plugin::class;
+
+        if (!$this->has($class)) {
+            return;
+        }
+
+        unset($this->plugins[$class]);
+    }
+
+    /**
      * @param list<Plugin> $plugins
      */
     public function addList(array $plugins): void

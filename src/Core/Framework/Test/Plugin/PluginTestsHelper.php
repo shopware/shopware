@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Plugin;
 
+use PHPUnit\Framework\Attributes\After;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin;
@@ -15,6 +16,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait PluginTestsHelper
 {
+    /**
+     * @var list<Plugin>
+     */
+    private array $addedPlugins = [];
+
+    #[After]
+    public function resetAddedPlugins(): void
+    {
+        foreach ($this->addedPlugins as $plugin) {
+            static::getContainer()->get(KernelPluginCollection::class)->remove($plugin);
+            static::getContainer()->get(KernelPluginLoader::class)->getPluginInstances()->remove($plugin);
+        }
+
+        $this->addedPlugins = [];
+    }
+
     protected function createPluginService(
         string $pluginDir,
         string $projectDir,
@@ -63,6 +80,9 @@ trait PluginTestsHelper
         $class = '\\' . $pluginName . '\\' . $pluginName;
         $plugin = new $class($active, $testPluginBaseDir);
         static::assertInstanceOf(Plugin::class, $plugin);
+
+        $this->addedPlugins[] = $plugin;
+
         static::getContainer()->get(KernelPluginCollection::class)->add($plugin);
 
         static::getContainer()->get(KernelPluginLoader::class)->getPluginInstances()->add($plugin);

@@ -32,8 +32,6 @@ const { dom } = Shopware.Utils;
 Component.register('sw-grid', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     provide() {
         return {
             swGridInlineEditStart: this.inlineEditingStart,
@@ -220,12 +218,6 @@ Component.register('sw-grid', {
 
         registerInlineEditingEvents() {
             // New way is using the provide/inject
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
-            }
         },
 
         inlineEditingStart(id) {

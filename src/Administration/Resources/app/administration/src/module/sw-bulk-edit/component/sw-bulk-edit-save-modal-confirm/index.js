@@ -8,8 +8,6 @@ import './sw-bulk-edit-save-modal-confirm.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'title-set',
         'buttons-update',

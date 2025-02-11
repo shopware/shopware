@@ -9,8 +9,6 @@ import './sw-customer-default-addresses.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['customSnippetApiService'],
 
     props: {

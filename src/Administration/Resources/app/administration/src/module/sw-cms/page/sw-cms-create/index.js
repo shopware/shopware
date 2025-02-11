@@ -10,8 +10,6 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: [
         Mixin.getByName('placeholder'),
     ],

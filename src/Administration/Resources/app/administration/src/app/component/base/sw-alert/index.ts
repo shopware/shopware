@@ -12,8 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-alert', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
@@ -29,16 +27,6 @@ Component.register('sw-alert', {
             );
 
             return false;
-        },
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-        listeners(): Record<string, Function | Function[]> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 });

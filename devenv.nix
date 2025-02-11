@@ -146,9 +146,6 @@ in {
   env.CYPRESS_dbPassword = lib.mkDefault "shopware";
   env.CYPRESS_dbName = lib.mkDefault "shopware";
 
-  # Disable session variables setting in kernel
-  env.SQL_SET_DEFAULT_SESSION_VARIABLES = lib.mkDefault "0";
-
   scripts.build-updater.exec = ''
       ${pkgs.phpPackages.box}/bin/box compile -d src/WebInstaller
       mv src/WebInstaller/shopware-installer.phar.php shop/public/shopware-installer.phar.php

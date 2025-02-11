@@ -13,8 +13,6 @@ const { cloneDeep, merge, get } = Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'cmsService',

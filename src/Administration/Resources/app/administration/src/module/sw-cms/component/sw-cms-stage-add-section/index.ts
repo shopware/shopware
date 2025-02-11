@@ -8,8 +8,6 @@ import './sw-cms-stage-add-section.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['stage-section-add'],
 
     props: {

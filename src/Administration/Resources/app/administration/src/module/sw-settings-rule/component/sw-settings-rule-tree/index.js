@@ -3,8 +3,6 @@
  * @sw-package fundamentals@after-sales
  */
 export default {
-    compatConfig: Shopware.compatConfig,
-
     emits: ['check-item'],
 
     data() {

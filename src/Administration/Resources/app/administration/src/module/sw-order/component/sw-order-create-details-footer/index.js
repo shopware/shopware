@@ -18,8 +18,6 @@ export default {
         },
     },
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['loading-change'],
 
     props: {

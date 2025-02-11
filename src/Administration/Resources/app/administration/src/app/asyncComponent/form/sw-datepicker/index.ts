@@ -11,8 +11,6 @@ import template from './sw-datepicker.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         value: {
             type: String,
@@ -36,7 +34,7 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
+            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
                 return true;
             }
 
@@ -59,27 +57,11 @@ export default Shopware.Component.wrapComponentConfig({
                 this.$emit('update:modelValue', value);
             },
         },
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-        listeners(): Record<string, Function | Function[]> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

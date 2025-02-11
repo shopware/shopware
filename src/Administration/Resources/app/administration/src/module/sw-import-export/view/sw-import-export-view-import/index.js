@@ -10,8 +10,6 @@ import './sw-import-export-view-import.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     metaInfo() {
         return {
             title: this.$createTitle(),

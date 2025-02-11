@@ -112,7 +112,26 @@ const inactiveStorefront = {
     },
 };
 
+let repositoryFactoryMock;
+
 async function createWrapper(salesChannels = []) {
+    repositoryFactoryMock = {
+        search: jest.fn((criteria, context) => {
+            const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
+
+            return Promise.resolve(
+                new EntityCollection(
+                    'sales-channel',
+                    'sales_channel',
+                    context,
+                    criteria,
+                    salesChannelsWithLimit,
+                    salesChannels.length,
+                    null,
+                ),
+            );
+        }),
+    };
     const router = createRouter({
         history: createWebHistory(),
         routes: [
@@ -166,23 +185,7 @@ async function createWrapper(salesChannels = []) {
                     getDomainLink: getDomainLink,
                 },
                 repositoryFactory: {
-                    create: () => ({
-                        search: jest.fn((criteria, context) => {
-                            const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
-
-                            return Promise.resolve(
-                                new EntityCollection(
-                                    'sales-channel',
-                                    'sales_channel',
-                                    context,
-                                    criteria,
-                                    salesChannelsWithLimit,
-                                    salesChannels.length,
-                                    null,
-                                ),
-                            );
-                        }),
-                    }),
+                    create: () => repositoryFactoryMock,
                 },
             },
         },

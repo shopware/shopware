@@ -9,6 +9,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
+const cloneMock = jest.fn(() => Promise.resolve());
 
 async function createWrapper(
     privileges = [
@@ -127,7 +128,7 @@ async function createWrapper(
 
                             return {
                                 search: () => Promise.resolve(),
-                                clone: jest.fn(() => Promise.resolve()),
+                                clone: cloneMock,
                             };
                         },
                     },
@@ -1144,16 +1145,16 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await wrapper.find('.sw-cms-list__context-menu-item-duplicate').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.pageRepository.clone).toHaveBeenCalledTimes(1);
+        expect(cloneMock).toHaveBeenCalledTimes(1);
 
-        const cloneMock = wrapper.vm.pageRepository.clone.mock.calls[0];
+        const cloneMockLastCall = wrapper.vm.pageRepository.clone.mock.lastCall;
 
-        expect(cloneMock[0]).toBe('1a');
-        expect(cloneMock[1]).toStrictEqual({
+        expect(cloneMockLastCall[0]).toBe('1a');
+        expect(cloneMockLastCall[1]).toStrictEqual({
             overwrites: {
                 name: 'CMS Page 1 - global.default.copy',
             },
         });
-        expect(cloneMock[2]).toStrictEqual(Shopware.Context.api);
+        expect(cloneMockLastCall[2]).toStrictEqual(Shopware.Context.api);
     });
 });

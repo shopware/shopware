@@ -7,6 +7,4 @@ import './sw-cms-preview-product-listing.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

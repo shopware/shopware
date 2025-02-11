@@ -15,8 +15,6 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'bulkEditApiFactory',
         'repositoryFactory',
@@ -179,17 +177,12 @@ export default {
         },
 
         setRouteMetaModule() {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.$route.meta.$module, 'color', '#F88962');
-                this.$set(this.$route.meta.$module, 'icon', 'regular-users');
-            } else {
-                if (!this.$route.meta.$module) {
-                    this.$route.meta.$module = {};
-                }
-
-                this.$route.meta.$module.color = '#F88962';
-                this.$route.meta.$module.icon = 'regular-users';
+            if (!this.$route.meta.$module) {
+                this.$route.meta.$module = {};
             }
+
+            this.$route.meta.$module.color = '#F88962';
+            this.$route.meta.$module.icon = 'regular-users';
         },
 
         defineBulkEditData(name, value = null, type = 'overwrite', isChanged = false) {
@@ -197,19 +190,11 @@ export default {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditData, name, {
-                    isChanged: isChanged,
-                    type: type,
-                    value: value,
-                });
-            } else {
-                this.bulkEditData[name] = {
-                    isChanged: isChanged,
-                    type: type,
-                    value: value,
-                };
-            }
+            this.bulkEditData[name] = {
+                isChanged: isChanged,
+                type: type,
+                value: value,
+            };
         },
 
         loadBulkEditData() {
@@ -224,17 +209,10 @@ export default {
                 });
             });
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditData, 'customFields', {
-                    type: 'overwrite',
-                    value: null,
-                });
-            } else {
-                this.bulkEditData.customFields = {
-                    type: 'overwrite',
-                    value: null,
-                };
-            }
+            this.bulkEditData.customFields = {
+                type: 'overwrite',
+                value: null,
+            };
         },
 
         loadCustomFieldSets() {

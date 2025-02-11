@@ -13,8 +13,6 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'repositoryFactory',

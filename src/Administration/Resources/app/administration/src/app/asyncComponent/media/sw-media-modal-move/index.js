@@ -19,8 +19,6 @@ const {
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     provide() {

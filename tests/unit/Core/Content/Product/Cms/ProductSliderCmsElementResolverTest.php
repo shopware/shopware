@@ -46,7 +46,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
@@ -310,11 +309,6 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.categories.id', $category->getUniqueIdentifier()));
-        if (!Feature::isActive('v6.7.0.0')) {
-            $criteria->addAssociation('options.group');
-            $criteria->addAssociation('manufacturer');
-        }
-
         static::assertNotNull($collection);
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
     }
@@ -351,11 +345,6 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.parent.id', $product->getUniqueIdentifier()));
-        if (!Feature::isActive('v6.7.0.0')) {
-            $criteria->addAssociation('options.group');
-            $criteria->addAssociation('manufacturer');
-        }
-
         static::assertNotNull($collection);
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
     }

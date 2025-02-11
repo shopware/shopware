@@ -13,21 +13,14 @@ class TreeItem extends Struct
     /**
      * @internal public to allow AfterSort::sort()
      */
-    public ?string $afterId;
+    public ?string $afterId = null;
 
-    /**
-     * @var CategoryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $category;
+    protected ?CategoryEntity $category = null;
 
     /**
      * @var TreeItem[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $children;
+    protected array $children;
 
     /**
      * @param TreeItem[] $children

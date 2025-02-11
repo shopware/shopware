@@ -421,21 +421,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionExclusionUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlotTranslation\\\\CmsSlotTranslationEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Aggregate/CmsSlotTranslation/CmsSlotTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlotTranslation\\\\CmsSlotTranslationEntity\\:\\:setConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Aggregate/CmsSlotTranslation/CmsSlotTranslationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlotTranslation\\\\CmsSlotTranslationEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Aggregate/CmsSlotTranslation/CmsSlotTranslationEntity.php
-
-		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/Content/Cms/SalesChannel/CmsRoute.php
@@ -941,36 +926,6 @@ parameters:
 			path: src/Core/Content/LandingPage/Aggregate/LandingPageTranslation/LandingPageTranslationEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:__construct\\(\\) has parameter \\$skip with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:\\$ids type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageRouteCacheTagsEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\LandingPageEntity\\:\\:getSlotConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/LandingPage/LandingPageEntity.php
@@ -1236,11 +1191,6 @@ parameters:
 			path: src/Core/Content/Product/DataAbstractionLayer/RatingAverageUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\CrossSellingRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/CrossSellingRouteCacheTagsEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductGatewayCriteriaEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Events/ProductGatewayCriteriaEvent.php
@@ -1264,11 +1214,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/Content/Product/Events/ProductListingResolvePreviewEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductListingRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/ProductListingRouteCacheTagsEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Exception\\\\VariantNotFoundException\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
@@ -1579,26 +1524,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 2
 			path: src/Core/Framework/Adapter/Cache/CacheValueCompressor.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheTagsEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheTagsEvent\\:\\:addTags\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheTagsEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheTagsEvent\\:\\:getTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheTagsEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheTagsEvent\\:\\:setTags\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheTagsEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\AdapterFactoryInterface\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
@@ -2698,17 +2623,7 @@ parameters:
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 2
-			path: src/Core/Framework/Plugin/Composer/CommandExecutor.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
 			path: src/Core/Framework/Plugin/Composer/PackageProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Exception\\\\PluginComposerJsonInvalidException\\:\\:__construct\\(\\) has parameter \\$errors with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Exception/PluginComposerJsonInvalidException.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -2724,16 +2639,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 3
 			path: src/Core/Framework/Plugin/PluginExtractor.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 12
-			path: src/Core/Framework/Plugin/PluginLifecycleService.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginService.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -3409,11 +3314,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelType\\\\SalesChannelTypeEntity\\:\\:\\$screenshotUrls type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Aggregate/SalesChannelType/SalesChannelTypeEntity.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 4
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
 
 		-
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelException, got Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderException$#"

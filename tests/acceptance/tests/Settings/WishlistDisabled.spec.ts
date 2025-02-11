@@ -4,7 +4,9 @@ test('Wishlist state is not set when disabled', { tag: '@Wishlist' }, async ({
     TestDataService,
     ShopCustomer,
     StorefrontHome,
-    StorefrontProductDetail
+    StorefrontProductDetail,
+    AddProductToCart,
+    StorefrontOffCanvasCart,
 }) => {
     const product1 = await TestDataService.createBasicProduct();
     const product1Locators = await StorefrontHome.getListingItemByProductId(product1.id);
@@ -28,5 +30,12 @@ test('Wishlist state is not set when disabled', { tag: '@Wishlist' }, async ({
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product1));
         await ShopCustomer.expects(StorefrontProductDetail.wishlistAddedButton).not.toBeVisible();
         await ShopCustomer.expects(StorefrontProductDetail.wishlistNotAddedButton).not.toBeVisible();
+    })
+
+    await test.step('Wishlist Icon is Not Displayed on Product Detail', async () => {
+        await ShopCustomer.attemptsTo(AddProductToCart(product1));
+        const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product1.productNumber);
+        await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).not.toBeVisible();
+        await ShopCustomer.expects(offcanvasItem.wishlistNotAddedButton).not.toBeVisible();
     })
 });

@@ -68,19 +68,15 @@ copy_assets() {
 }
 
 # Returns a list of mandatory assets for the Administration package.
-admin_assets_list() {
-  cat <<EOF | tr -d '[:blank:]'
-    ${PLATFORM_DIR}/repos/administration/Resources/public/static/js/app.js
-    ${PLATFORM_DIR}/repos/administration/Resources/public/static/css/app.css
-EOF
+check_admin_assets() {
+  [[ "$(find ${PLATFORM_DIR}/repos/administration/Resources/public -iname "*.js"  | wc -l)" -gt 0 ]]
+  [[ "$(find ${PLATFORM_DIR}/repos/administration/Resources/public -iname "*.css"  | wc -l)" -gt 0 ]]
 }
 
 # Returns a list of mandatory assets for the Storefront package.
 storefront_assets_list() {
   cat <<EOF | tr -d '[:blank:]'
     ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/dist/storefront/storefront.js
-    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/js/storefront.js
-    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/css/storefront.css
     ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/vendor/bootstrap/package.json
 EOF
 }
@@ -92,10 +88,11 @@ check_assets() {
 
   if [[ ${package} == "" || ${package} == "storefront" ]]; then
     stat -t $(storefront_assets_list) > /dev/null
+    check_admin_assets
   fi
 
   if [[ ${package} == "" || ${package} == "administration" ]]; then
-    stat -t $(admin_assets_list) > /dev/null
+    check_admin_assets
   fi
 }
 

@@ -76,7 +76,7 @@ class SalesChannelTypeEntity extends Entity
         $this->descriptionLong = $descriptionLong;
     }
 
-    public function getCoverUrl(): string
+    public function getCoverUrl(): ?string
     {
         return $this->coverUrl;
     }
@@ -86,7 +86,7 @@ class SalesChannelTypeEntity extends Entity
         $this->coverUrl = $coverUrl;
     }
 
-    public function getIconName(): string
+    public function getIconName(): ?string
     {
         return $this->iconName;
     }
@@ -96,11 +96,17 @@ class SalesChannelTypeEntity extends Entity
         $this->iconName = $iconName;
     }
 
-    public function getScreenshotUrls(): array
+    /**
+     * @return list<string>|null
+     */
+    public function getScreenshotUrls(): ?array
     {
         return $this->screenshotUrls;
     }
 
+    /**
+     * @param list<string> $screenshotUrls
+     */
     public function setScreenshotUrls(array $screenshotUrls): void
     {
         $this->screenshotUrls = $screenshotUrls;

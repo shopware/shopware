@@ -125,7 +125,6 @@ const coreConfig = {
                             env: {
                                 mode: 'entry',
                                 coreJs: '3.34.0',
-                                debug: true,
                                 // .browserlistrc is not found by swc-loader, so we load it manually: https://github.com/swc-project/swc/issues/3365
                                 targets: require('browserslist').loadConfig({
                                     path: './',

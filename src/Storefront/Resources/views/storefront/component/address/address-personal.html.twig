@@ -144,7 +144,7 @@
                 {# New implementation, setting of "violationPath" #}
                 {% if formViolations.getViolations("/#{prefix}/firstName") is not empty %}
                     {% set violationPath = "/#{prefix}/firstName" %}
-                {% elseif formViolations.getViolations("/firstName") is not empty and not prefix %}
+                {% elseif formViolations.getViolations("/firstName") is not empty and prefix === 'address' %}
                     {% set violationPath = "/firstName" %}
                 {% else %}
                     {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
@@ -169,7 +169,7 @@
 
                 {% if formViolations.getViolations("/#{prefix}/lastName") is not empty %}
                     {% set violationPath = "/#{prefix}/lastName" %}
-                {% elseif formViolations.getViolations("/lastName") is not empty and not prefix %}
+                {% elseif formViolations.getViolations("/lastName") is not empty and prefix === 'address' %}
                     {% set violationPath = "/lastName" %}
                 {% else %}
                     {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}

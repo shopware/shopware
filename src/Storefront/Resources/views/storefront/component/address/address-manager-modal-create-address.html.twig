@@ -7,7 +7,8 @@
 <div class="js-pseudo-modal-template-root-element address-manager-modal">
     <div class="modal-header pb-0 align-items-start">
         {% block address_manager_modal_address_title %}
-            {% if postedAddress.has('id') and postedAddress.id != null %}
+
+            {% if postedAddress.has('id') and postedAddress.get('id') != null %}
                 <h1>{{ 'account.addressEditWelcome'|trans|sw_sanitize }}</h1>
             {% else %}
                 {% if changeShipping %}
@@ -25,12 +26,7 @@
                 method="post"
                 action="{{ url('frontend.account.addressmanager', { addressId: postedAddress.id, type }) }}"
                 id="address-manager-modal-address-form"
-                {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
-                {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
-                {% if not feature('ACCESSIBILITY_TWEAKS') %}
-                    data-form-validation="true"
-                    data-form-submit-loader="true"
-                {% endif %}
+                data-form-handler="true"
             >
                 {% block address_manager_modal_address_form_create_personal %}
                     {% if postedAddress.has('accountType') %}

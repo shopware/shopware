@@ -33,7 +33,7 @@
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     data: data.get('address'),
                                     prefix: 'address',
-                                    accountType: data.get('accountType')
+                                    accountType: data.get('address').get('accountType')
                                 } %}
                             {% endblock %}
 

@@ -26,19 +26,18 @@
                                 {% endif %}
 
                                 {# This field is only rendered in the account address editing, if the account type is "commercial". #}
+                                {% set companyValidationRules = (prefix != 'shippingAddress' and accountTypeRequired) ? 'required' : '' %}
 
-                                    {% set companyValidationRules = (prefix != 'shippingAddress' and accountTypeRequired) ? 'required' : '' %}
-
-                                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                                        label: 'address.companyNameLabel'|trans|sw_sanitize,
-                                        id: idPrefix ~ prefix ~ '-company',
-                                        name: prefix ~ '[company]',
-                                        value: data.get('company'),
-                                        autocomplete: 'organization',
-                                        violationPath: violationPath,
-                                        validationRules: companyValidationRules,
-                                        additionalClass: 'col-sm-6',
-                                    } %}
+                                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                    label: 'address.companyNameLabel'|trans|sw_sanitize,
+                                    id: idPrefix ~ prefix ~ '-company',
+                                    name: prefix ~ '[company]',
+                                    value: data.get('company'),
+                                    autocomplete: 'organization',
+                                    violationPath: violationPath,
+                                    validationRules: companyValidationRules,
+                                    additionalClass: 'col-sm-6',
+                                } %}
                             {% endblock %}
 
                             {% block component_address_form_company_department %}
@@ -48,16 +47,15 @@
                                     {% set violationPath = "/#{prefix}/department" %}
                                 {% endif %}
 
-
-                                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                                        label: 'address.companyDepartmentLabel'|trans|sw_sanitize,
-                                        id: idPrefix ~ prefix ~ '-department',
-                                        name: prefix ~ '[department]',
-                                        value: data.get('department'),
-                                        autocomplete: 'organization',
-                                        violationPath: violationPath,
-                                        additionalClass: 'col-sm-6',
-                                    } %}
+                                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                    label: 'address.companyDepartmentLabel'|trans|sw_sanitize,
+                                    id: idPrefix ~ prefix ~ '-department',
+                                    name: prefix ~ '[department]',
+                                    value: data.get('department'),
+                                    autocomplete: 'organization',
+                                    violationPath: violationPath,
+                                    additionalClass: 'col-sm-6',
+                                } %}
                             {% endblock %}
 
                             {# ludtwig-ignore twig-block-name-snake-case #}

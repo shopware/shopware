@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -372,7 +371,6 @@ class AddressControllerTest extends TestCase
 
         /** @var RedirectResponse $response */
         $response = $controller->switchDefaultAddress('foo', $customer->getDefaultBillingAddressId(), $context, $customer);
-
 
         static::assertSame(
             ['danger' => [static::getContainer()->get('translator')->trans('account.addressDefaultNotChanged')]],
@@ -801,29 +799,6 @@ class AddressControllerTest extends TestCase
         return $newBillingAddressId;
     }
 
-    private function getDataBag(string $type): RequestDataBag
-    {
-        return new RequestDataBag([
-            'changeableAddresses' => new RequestDataBag([
-                'changeBilling' => ($type === 'billing') ? '1' : '',
-                'changeShipping' => ($type === 'shipping') ? '1' : '',
-            ]),
-            'addressId' => '',
-            'accountType' => '',
-            'address' => new RequestDataBag([
-                'salutationId' => $this->getValidSalutationId(),
-                'firstName' => 'not',
-                'lastName' => 'not',
-                'company' => 'not',
-                'department' => 'not',
-                'street' => 'not',
-                'zipcode' => 'not',
-                'city' => 'not',
-                'countryId' => $this->getValidCountryId(),
-            ]),
-        ]);
-    }
-
     private function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
         /** @var EntityRepository<CountryCollection> $repository */
@@ -838,14 +813,5 @@ class AddressControllerTest extends TestCase
         }
 
         return (string) $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
-    }
-
-    private function setPostalCodeOfTheCountryToBeRequired(): void
-    {
-        static::getContainer()->get(Connection::class)
-            ->executeStatement('UPDATE `country` SET `postal_code_required` = 1
-                 WHERE id = :id', [
-                'id' => Uuid::fromHexToBytes($this->getValidCountryId()),
-            ]);
     }
 }

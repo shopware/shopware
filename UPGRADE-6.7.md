@@ -221,9 +221,6 @@ Generator::generateSalesChannelContext()
 ## Removal of Twig variable
 The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
 
-## FooterPagelet changes
-The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
-Make sure to pass it to the constructor.
 ## Delayed Cache Invalidation
 In the next major version, the cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
 This will lead to better cache hit rates and way less (duplicated) cache invalidations, which will improve efficiency and scalability of the system.
@@ -2588,6 +2585,10 @@ After:
 We made some changes in the Storefront, which might affect your plugins and themes.
 <details>
   <summary>Detailed Changes</summary>
+
+## Additions due to the introduction of ESI for header and footer
+The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
+Make sure to pass it to the constructor.
 
 ## Removals due to the introduction of ESI for header and footer
 * The properties `header` and `footer` and their getter and setter Methods in `\Shopware\Storefront\Framework\Twig\ErrorTemplateStruct` were removed.

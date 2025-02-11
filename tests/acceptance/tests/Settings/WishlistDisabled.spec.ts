@@ -15,25 +15,24 @@ test('Wishlist state is not set when disabled', { tag: '@Wishlist' }, async ({
         await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': false });
     });
 
-    await test.step('Wishlist Icon is Not Displayed in the Header', async () => {
+    await test.step('Wishlist icon is not displayed in the header', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.expects(StorefrontHome.wishlistBasket).not.toBeVisible();
     });
 
-    await test.step('Wishlist Icon is Not Displayed on Product Listings', async () => {
-        console.log(product1Locators);
+    await test.step('Wishlist icon is not displayed on Product Listings', async () => {
         await ShopCustomer.expects(product1Locators.wishlistAddedIcon).not.toBeVisible();
         await ShopCustomer.expects(product1Locators.wishlistNotAddedIcon).not.toBeVisible();
 
     });
 
-    await test.step('Wishlist Icon is Not Displayed on Product Detail', async () => {
+    await test.step('Wishlist icon is not displayed on Product Detail', async () => {
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product1));
         await ShopCustomer.expects(StorefrontProductDetail.wishlistAddedButton).not.toBeVisible();
         await ShopCustomer.expects(StorefrontProductDetail.wishlistNotAddedButton).not.toBeVisible();
     })
 
-    await test.step('Wishlist Icon is Not Displayed on Product Detail', async () => {
+    await test.step('Wishlist icon is not displayed on Off-Canvas Cart', async () => {
         await ShopCustomer.attemptsTo(AddProductToCart(product1));
         const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product1.productNumber);
         await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).not.toBeVisible();

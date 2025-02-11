@@ -21,6 +21,9 @@ class ProductGatewayCriteriaEvent extends NestedEvent implements ShopwareSalesCh
 
     protected SalesChannelContext $context;
 
+    /**
+     * @param array<string> $ids
+     */
     public function __construct(
         array $ids,
         Criteria $criteria,

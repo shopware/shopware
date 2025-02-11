@@ -9,7 +9,7 @@ test('Wishlist state is not set when disabled', { tag: '@Wishlist' }, async ({
     StorefrontOffCanvasCart,
 }) => {
     const product1 = await TestDataService.createBasicProduct();
-    const product1Locators = await StorefrontHome.getListingItemByProductId(product1.id);
+    const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
 
     await test.step('Disable wishlist in system settings', async () => {
         await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': false });
@@ -21,6 +21,7 @@ test('Wishlist state is not set when disabled', { tag: '@Wishlist' }, async ({
     });
 
     await test.step('Wishlist Icon is Not Displayed on Product Listings', async () => {
+        console.log(product1Locators);
         await ShopCustomer.expects(product1Locators.wishlistAddedIcon).not.toBeVisible();
         await ShopCustomer.expects(product1Locators.wishlistNotAddedIcon).not.toBeVisible();
 

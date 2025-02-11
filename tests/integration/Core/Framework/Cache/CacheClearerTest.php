@@ -121,7 +121,7 @@ class CacheClearerTest extends TestCase
             $cacheDir,
             'test',
             false,
-            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('logger')
         );
 
@@ -163,7 +163,7 @@ class CacheClearerTest extends TestCase
             $this->getKernel()->getCacheDir(),
             'test',
             true,
-            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('logger')
         );
 

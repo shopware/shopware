@@ -12,8 +12,6 @@ import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
-// @ts-expect-error - compatUtils is not typed
-import { compatUtils } from '@vue/compat';
 
 import * as MeteorImport from '@shopware-ag/meteor-component-library';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
@@ -127,18 +125,6 @@ export default class VueAdapter extends ViewAdapter {
         this.app.use(router);
         this.app.use(vuexRoot);
         this.app.use(i18n);
-
-        // Custom compatUtils check on component basis
-        this.app.use({
-            install: (app) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                app.config.globalProperties.isCompatEnabled = function (key: string) {
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
-                    return this.$options.compatConfig?.[key] ?? compatUtils.isCompatEnabled(key);
-                };
-            },
-        });
 
         // Add global properties to root view instance
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
@@ -276,17 +262,6 @@ export default class VueAdapter extends ViewAdapter {
             'MtFloatingUi',
             'MtPopover',
         ];
-
-        // Disable compat for meteor components
-        meteorComponents.forEach((componentName) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, max-len
-            MeteorImport[componentName].compatConfig = Object.fromEntries(
-                Object.keys(Shopware.compatConfig).map((key) => [
-                    key,
-                    false,
-                ]),
-            );
-        });
 
         meteorComponents.forEach((componentName) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);

@@ -15,9 +15,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class PaymentPayload implements PaymentPayloadInterface
 {
     use CloneTrait;
-    use JsonSerializableTrait {
-        jsonSerialize as protected traitJsonSerialize;
-    }
+    use JsonSerializableTrait;
     use RemoveAppTrait;
 
     protected Source $source;
@@ -79,17 +77,5 @@ class PaymentPayload implements PaymentPayloadInterface
     public function setSource(Source $source): void
     {
         $this->source = $source;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        $payload = $this->traitJsonSerialize();
-
-        unset($payload['queryParameters']);
-
-        return $payload;
     }
 }

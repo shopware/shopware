@@ -168,6 +168,8 @@
         <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain"/>
             <argument type="service" id="serializer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\DataAbstractionLayer\SalesChannelIndexer">

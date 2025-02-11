@@ -15,8 +15,6 @@ Component.register('sw-entity-multi-id-select', {
 
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: ['update:value'],
@@ -66,24 +64,6 @@ Component.register('sw-entity-multi-id-select', {
         return {
             collection: null,
         };
-    },
-
-    computed: {
-        getListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                const listeners = {};
-
-                Object.keys(this.$listeners).forEach((listener) => {
-                    if (listener !== 'change') {
-                        listeners[listener] = this.$listeners[listener];
-                    }
-                });
-
-                return listeners;
-            }
-
-            return {};
-        },
     },
 
     watch: {

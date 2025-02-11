@@ -11,8 +11,6 @@ const { dom, format } = Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'mediaService',
         'repositoryFactory',

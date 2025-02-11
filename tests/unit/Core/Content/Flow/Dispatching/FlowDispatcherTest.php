@@ -141,63 +141,6 @@ class FlowDispatcherTest extends TestCase
         $this->flowDispatcher->dispatch($event);
     }
 
-    public function testNestedTransactionExceptionsAreRethrownWhenSavePointsAreNotEnabled(): void
-    {
-        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
-
-        $this->dispatcher->method('dispatch')->willReturnOnConsecutiveCalls(
-            $event,
-            new FlowLogEvent(FlowLogEvent::NAME, $event),
-        );
-
-        $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
-        $this->flowFactory->method('create')->willReturn($flow);
-
-        $flowLoader = $this->createMock(FlowLoader::class);
-        $flowLoader->method('load')->willReturn([
-            'state_enter.order.state.in_progress' => [
-                [
-                    'id' => 'flow-1',
-                    'name' => 'Order enters status in progress',
-                    'payload' => new Flow(Uuid::randomHex()),
-                ],
-            ],
-        ]);
-
-        $internalException = FlowException::transactionFailed(new TableNotFoundException(
-            new DbalPdoException('Table not found', null, 1146),
-            null
-        ));
-
-        $flowExecutor = $this->createMock(FlowExecutor::class);
-        $flowExecutor->expects(static::once())
-            ->method('execute')
-            ->willThrowException(new ExecuteSequenceException(
-                'flow-1',
-                'sequence-1',
-                $internalException->getMessage(),
-                0,
-                $internalException
-            ));
-
-        $this->container->set(FlowLoader::class, $flowLoader);
-        $this->container->set(FlowExecutor::class, $flowExecutor);
-
-        $this->expectException(FlowException::class);
-        $this->expectExceptionMessage('Flow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found');
-
-        $this->logger->expects(static::once())
-            ->method('warning')
-            ->with(
-                "Could not execute flow with error message:\nFlow name: Order enters status in progress\nFlow id: flow-1\nSequence id: sequence-1\nFlow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found\nError Code: 0\n",
-                static::callback(static function (array $context) {
-                    return $context['exception'] instanceof ExecuteSequenceException;
-                })
-            );
-
-        $this->flowDispatcher->dispatch($event);
-    }
-
     public function testExceptionsAreLoggedAndExecutionContinuesWhenNestedTransactionsWithSavePointsIsEnabled(): void
     {
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
@@ -239,9 +182,6 @@ class FlowDispatcherTest extends TestCase
 
         $this->container->set(FlowLoader::class, $flowLoader);
         $this->container->set(FlowExecutor::class, $flowExecutor);
-
-        $this->connection->method('getTransactionNestingLevel')->willReturn(1);
-        $this->connection->method('getNestTransactionsWithSavepoints')->willReturn(true);
 
         $this->logger->expects(static::once())
             ->method('warning')

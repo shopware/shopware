@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
-use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -68,7 +67,6 @@ class CartOrderRouteTest extends TestCase
             $this->orderPersister,
             $this->createMock(AbstractCartPersister::class),
             $this->eventDispatcher,
-            $this->createMock(PreparedPaymentService::class),
             $this->createMock(PaymentProcessor::class),
             $this->createMock(TaxProviderProcessor::class),
             $this->createMock(AbstractCheckoutGatewayRoute::class),

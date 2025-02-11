@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
@@ -199,12 +198,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $id = $customer->getLastPaymentMethodId();
 
-        if ($id === null) {
-            Feature::callSilentIfInactive('v6.7.0.0', static function () use ($customer, &$id): void {
-                $id = $customer->getDefaultPaymentMethodId();
-            });
-        }
-
         if ($id === null || $id === $context->getPaymentMethod()->getId()) {
             return $context->getPaymentMethod();
         }
@@ -235,10 +228,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = new Criteria([$customerId]);
         $criteria->setTitle('context-factory::customer');
         $criteria->addAssociation('salutation');
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $criteria->addAssociation('defaultPaymentMethod');
-        }
 
         $source = $context->getSource();
         \assert($source instanceof SalesChannelApiSource);

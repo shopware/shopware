@@ -4,10 +4,32 @@ import settingCustomerGroupDetailCreateOverride from 'src/module/sw-settings-cus
 
 Shopware.Component.override('sw-settings-customer-group-detail', settingCustomerGroupDetailCreateOverride);
 
+let repositoryFactoryMock;
+
 /**
  * @sw-package discovery
  */
 async function createWrapper() {
+    repositoryFactoryMock = {
+        create: () => {
+            return {
+                id: 'aNiceId',
+                name: '',
+                displayGross: true,
+                registrationSalesChannels: [],
+                isNew: () => true,
+            };
+        },
+
+        save: () => {
+            return Promise.resolve();
+        },
+
+        get: () => {
+            return Promise.resolve();
+        },
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-customer-group-detail', {
             sync: true,
@@ -96,25 +118,7 @@ async function createWrapper() {
 
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            create: () => {
-                                return {
-                                    id: 'aNiceId',
-                                    name: '',
-                                    displayGross: true,
-                                    registrationSalesChannels: [],
-                                    isNew: () => true,
-                                };
-                            },
-
-                            save: () => {
-                                return Promise.resolve();
-                            },
-
-                            get: () => {
-                                return Promise.resolve();
-                            },
-                        }),
+                        create: () => repositoryFactoryMock,
                     },
                     acl: {
                         can: () => {

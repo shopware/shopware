@@ -15,12 +15,9 @@ const discountHandler = new DiscountHandler();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
         'ruleConditionDataProviderService',
     ],
 

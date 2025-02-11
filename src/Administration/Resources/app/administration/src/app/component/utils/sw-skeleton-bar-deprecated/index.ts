@@ -12,6 +12,4 @@ const { Component } = Shopware;
  */
 Component.register('sw-skeleton-bar-deprecated', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 });

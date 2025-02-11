@@ -5,19 +5,16 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
-use Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,14 +45,11 @@ class AccountServiceEventTest extends TestCase
 
     private LogoutRoute $logoutRoute;
 
-    private ChangePaymentMethodRoute $changePaymentMethodRoute;
-
     protected function setUp(): void
     {
         $this->accountService = static::getContainer()->get(AccountService::class);
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->logoutRoute = static::getContainer()->get(LogoutRoute::class);
-        $this->changePaymentMethodRoute = static::getContainer()->get(ChangePaymentMethodRoute::class);
         $this->loginRoute = static::getContainer()->get(LoginRoute::class);
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
@@ -161,42 +155,6 @@ class AccountServiceEventTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function testChangeDefaultPaymentMethod(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $email = 'info@example.com';
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-
-        $listenerClosure = $this->getCustomerListenerClosure($eventDidRun);
-        $this->addEventListener($dispatcher, CustomerChangedPaymentMethodEvent::class, $listenerClosure);
-
-        $customer = $this->customerRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('email', $email)),
-            $this->salesChannelContext->getContext()
-        )->getEntities()->first();
-
-        $this->salesChannelContext->assign(['customer' => $customer]);
-
-        static::assertNotNull($customer = $this->salesChannelContext->getCustomer());
-        static::assertSame($email, $customer->getEmail());
-
-        $this->changePaymentMethodRoute->change(
-            $customer->getDefaultPaymentMethodId(),
-            new RequestDataBag(),
-            $this->salesChannelContext,
-            $customer
-        );
-        static::assertTrue($eventDidRun, 'Event "' . CustomerChangedPaymentMethodEvent::class . '" did not run');
-
-        $dispatcher->removeListener(CustomerChangedPaymentMethodEvent::class, $listenerClosure);
-    }
-
-    /**
      * @return callable(CustomerBeforeLoginEvent): void
      */
     private function getEmailListenerClosure(bool &$eventDidRun): callable
@@ -208,11 +166,11 @@ class AccountServiceEventTest extends TestCase
     }
 
     /**
-     * @return callable(CustomerLoginEvent|CustomerLogoutEvent|CustomerChangedPaymentMethodEvent): void
+     * @return callable(CustomerLoginEvent|CustomerLogoutEvent): void
      */
     private function getCustomerListenerClosure(bool &$eventDidRun): callable
     {
-        return static function (CustomerLoginEvent|CustomerLogoutEvent|CustomerChangedPaymentMethodEvent $event) use (&$eventDidRun): void {
+        return static function (CustomerLoginEvent|CustomerLogoutEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertSame('info@example.com', $event->getCustomer()->getEmail());
         };

@@ -1,9 +1,30 @@
 import { mount } from '@vue/test-utils';
 
+let repositoryFactoryMock;
+
 /**
  * @sw-package inventory
  */
 async function createWrapper(privileges = []) {
+    repositoryFactoryMock = {
+        search() {
+            return Promise.resolve([
+                {
+                    id: '1a2b3c',
+                    name: 'Gramm',
+                    shortCode: 'g',
+                },
+            ]);
+        },
+        save(unit) {
+            if (unit.id !== 'success') {
+                return Promise.reject();
+            }
+
+            return Promise.resolve();
+        },
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-units-list', {
             sync: true,
@@ -24,24 +45,7 @@ async function createWrapper(privileges = []) {
                 },
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            search() {
-                                return Promise.resolve([
-                                    {
-                                        id: '1a2b3c',
-                                        name: 'Gramm',
-                                        shortCode: 'g',
-                                    },
-                                ]);
-                            },
-                            save(unit) {
-                                if (unit.id !== 'success') {
-                                    return Promise.reject();
-                                }
-
-                                return Promise.resolve();
-                            },
-                        }),
+                        create: () => repositoryFactoryMock,
                     },
                     acl: {
                         can: (identifier) => {

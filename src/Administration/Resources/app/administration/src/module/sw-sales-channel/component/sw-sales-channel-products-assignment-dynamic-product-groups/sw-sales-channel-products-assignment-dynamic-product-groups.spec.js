@@ -41,7 +41,18 @@ const productsMock = [
     },
 ];
 
+let repositoryFactoryMock;
+
 async function createWrapper() {
+    repositoryFactoryMock = {
+        search: () => {
+            return Promise.resolve();
+        },
+        get: () => {
+            return Promise.resolve();
+        },
+    };
+
     return mount(await wrapTestComponent('sw-sales-channel-products-assignment-dynamic-product-groups', { sync: true }), {
         global: {
             stubs: {
@@ -58,14 +69,7 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => {
-                        return {
-                            search: () => {
-                                return Promise.resolve();
-                            },
-                            get: () => {
-                                return Promise.resolve();
-                            },
-                        };
+                        return repositoryFactoryMock;
                     },
                 },
             },

@@ -16,75 +16,25 @@ class OrderDeliveryPositionEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderDeliveryId;
+    protected string $orderDeliveryId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderLineItemId;
+    protected string $orderLineItemId;
 
-    /**
-     * @var CalculatedPrice|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
+    protected ?CalculatedPrice $price = null;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $unitPrice;
+    protected float $unitPrice;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalPrice;
+    protected float $totalPrice;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $quantity;
+    protected int $quantity;
 
-    /**
-     * @var OrderLineItemEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderLineItem;
+    protected ?OrderLineItemEntity $orderLineItem = null;
 
-    /**
-     * @var OrderDeliveryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderDelivery;
+    protected ?OrderDeliveryEntity $orderDelivery = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderDeliveryVersionId;
+    protected string $orderDeliveryVersionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderLineItemVersionId;
+    protected string $orderLineItemVersionId;
 
     public function getOrderDeliveryId(): string
     {

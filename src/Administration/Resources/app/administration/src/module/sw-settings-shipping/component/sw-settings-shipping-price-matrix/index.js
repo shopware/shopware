@@ -15,11 +15,8 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     emits: [
@@ -186,10 +183,6 @@ export default {
                 ]),
             );
 
-            if (!Shopware.Feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('conditions');
-            }
-
             return criteria;
         },
 
@@ -201,10 +194,6 @@ export default {
                     Criteria.equals('rule.moduleTypes', null),
                 ]),
             );
-
-            if (!Shopware.Feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('conditions');
-            }
 
             return criteria;
         },

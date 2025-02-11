@@ -8,8 +8,6 @@ import './sw-cms-stage-section-selection.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['section-select'],
 
     methods: {

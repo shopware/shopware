@@ -22,8 +22,6 @@ const DEFAULT_MAX_LINES = 10 as number;
 Component.register('sw-multi-snippet-drag-and-drop', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     props: {
@@ -140,19 +138,6 @@ Component.register('sw-multi-snippet-drag-and-drop', {
 
         isMinLines(): boolean {
             return this.totalLines <= DEFAULT_MIN_LINES;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed.
-         */
-        listeners() {
-            let listeners = {};
-
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                listeners = this.$listeners;
-            }
-
-            return listeners;
         },
     },
 

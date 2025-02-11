@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductSuggestRouteCacheKeyEvent;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\CachedProductSuggestRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRouteResponse;
@@ -89,7 +89,7 @@ class CachedProductSuggestRouteTest extends TestCase
             ->method('get')
             ->willReturn(
                 CacheValueCompressor::compress(
-                    new ProductSuggestRouteResponse(new ProductEntity())
+                    new ProductSuggestRouteResponse($this->createMock(ProductListingResult::class))
                 )
             );
         $this->eventDispatcher->addListener(

@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductSearchRouteCacheKeyEvent;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Search\CachedProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
@@ -58,7 +58,7 @@ class CachedProductSearchRouteTest extends TestCase
             salesChannel: $salesChannel
         );
         $this->response = new ProductSearchRouteResponse(
-            new ProductEntity()
+            $this->createMock(ProductListingResult::class),
         );
 
         $this->cachedRoute = new CachedProductSearchRoute(

@@ -9,8 +9,6 @@ import './sw-cms-block-layout-config.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         block: {
             type: Object as PropType<Entity<'cms_block'>>,

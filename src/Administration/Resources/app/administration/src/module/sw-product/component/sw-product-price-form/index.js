@@ -12,8 +12,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: [
         Mixin.getByName('placeholder'),
     ],
@@ -165,16 +163,6 @@ export default {
             this.product.price = prices;
 
             this.displayMaintainCurrencies = false;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed without replacement
-         */
-        keymonitor(event) {
-            if (event.key === ',') {
-                const value = event.currentTarget.value;
-                event.currentTarget.value = value.replace(/.$/, '.');
-            }
         },
 
         getTaxLabel(tax) {

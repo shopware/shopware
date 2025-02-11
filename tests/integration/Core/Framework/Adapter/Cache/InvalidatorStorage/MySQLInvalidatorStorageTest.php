@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorSto
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -166,6 +167,10 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
 
+        $connection
+            ->method('getTransactionIsolation')
+            ->willReturn(TransactionIsolationLevel::READ_COMMITTED);
+
         $connection->expects(static::once())
             ->method('fetchAllAssociative')
             ->willReturn([['id' => 'id1', 'tag1'], ['id' => 'id2', 'tag2']]);
@@ -176,10 +181,6 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $statement
             ->method('executeStatement')
-            ->with([
-                'firstTagId' => 'id1',
-                'lastTagId' => 'id2',
-            ])
             ->willThrowException($e);
 
         $connection->expects(static::once())

@@ -15,11 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -433,7 +433,6 @@ class PluginLifecycleServiceTest extends TestCase
     #[DataProvider('themeProvideData')]
     public function testThemeRemovalOnUninstall(bool $keepUserData): void
     {
-        static::markTestSkipped('This test needs the storefront bundle installed.');
         $this->addTestPluginToKernel(
             $this->fixturePath . 'plugins/SwagTestTheme',
             'SwagTestTheme'
@@ -473,9 +472,32 @@ class PluginLifecycleServiceTest extends TestCase
         ];
     }
 
+    public function testInstallationOfPluginWhichExecutesComposerCommandsWithPreviouslyInstalledPluginThatShipsVendorDirectory(): void
+    {
+        $this->addTestPluginToKernel(
+            $this->fixturePath . 'plugins/SwagTestShipsVendorDirectory',
+            'SwagTestShipsVendorDirectory'
+        );
+        $this->addTestPluginToKernel(
+            $this->fixturePath . 'plugins/SwagTestExecuteComposerCommands',
+            'SwagTestExecuteComposerCommands'
+        );
+
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $pluginWithVendor = $this->pluginService->getPluginByName('SwagTestShipsVendorDirectory', $this->context);
+        $this->pluginLifecycleService->installPlugin($pluginWithVendor, $this->context);
+
+        $pluginWithExecuteComposer = $this->pluginService->getPluginByName('SwagTestExecuteComposerCommands', $this->context);
+
+        // Expected fail on executing the composer command, as the plugin is not in the default plugin directory and could therefore not be found
+        $this->expectException(PluginComposerRequireException::class);
+        $this->expectExceptionMessageMatches('/Your requirements could not be resolved to an installable set of packages/');
+        $this->pluginLifecycleService->installPlugin($pluginWithExecuteComposer, $this->context);
+    }
+
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
-        /** @var EntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = static::getContainer()->get('plugin.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
@@ -633,7 +655,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $plugin = $this->getPlugin($context);
 
-        static::expectException(PluginNotInstalledException::class);
+        $this->expectException(PluginNotInstalledException::class);
         $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }

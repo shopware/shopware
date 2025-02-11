@@ -17,8 +17,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'mediaService',
         'repositoryFactory',

@@ -1,6 +1,8 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want to continue shopping without accepting the cookies in the storefront.', { tag: '@Settings' }, async ({
+test.fixme('As a shop customer, I want to continue shopping without accepting the cookies in the storefront. ' +
+    'Blocked by accessibility flag: https://shopware.atlassian.net/browse/NEXT-40635',
+    { tag: '@Settings' }, async ({
     ShopCustomer,
     StorefrontHome,
     TestDataService,

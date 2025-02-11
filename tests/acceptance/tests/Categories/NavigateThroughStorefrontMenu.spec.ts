@@ -1,7 +1,8 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test(
-    'As a customer, I want breadcrumb to update when I select a category to understand my location on the site.',
+test.fixme(
+    'As a customer, I want breadcrumb to update when I select a category to understand my location on the site. ' +
+    'Blocked by accessibility flag: https://shopware.atlassian.net/browse/NEXT-40634',
     { tag: '@Categories' },
     async ({ ShopCustomer, StorefrontHome, TestDataService, InstanceMeta }) => {
         test.skip(InstanceMeta.features['V6_7_0_0'], 'Blocked by https://shopware.atlassian.net/browse/NEXT-40154');

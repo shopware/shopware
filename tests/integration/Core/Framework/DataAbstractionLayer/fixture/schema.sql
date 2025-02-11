@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS `attribute_entity`;
 CREATE TABLE `attribute_entity` (
     `id` BINARY(16) NOT NULL,
     `string` VARCHAR(255) NOT NULL,
-    `emptyString` VARCHAR(255) DEFAULT '' NOT NULL,
+    `empty_string` VARCHAR(255) DEFAULT '' NOT NULL,
     `text` LONGTEXT NULL,
     `int` INT(11) NULL,
     `float` DOUBLE NULL,

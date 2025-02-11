@@ -13,8 +13,8 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
     await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': true });
     const product1 = await TestDataService.createBasicProduct();
     const product2 = await TestDataService.createBasicProduct();
-    const product1Locators = await StorefrontHome.getListingItemByProductId(product1.id);
-    const product2Locators = await StorefrontHome.getListingItemByProductId(product2.id);
+    const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
+    const product2Locators = await StorefrontHome.getListingItemByProductName(product2.name);
 
     await test.step('Accept all cookies and reload page', async () => {
         await TestDataService.setSystemConfig({ 'core.basicInformation.acceptAllCookies': true });

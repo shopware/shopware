@@ -13,8 +13,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-login-recovery-recovery', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'userRecoveryService',
     ],

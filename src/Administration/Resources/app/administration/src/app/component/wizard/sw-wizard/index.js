@@ -30,8 +30,6 @@ const { Component } = Shopware;
 Component.register('sw-wizard', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     provide() {

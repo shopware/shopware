@@ -9,8 +9,6 @@ const { Component } = Shopware;
 Component.register('sw-settings-shopware-updates-requirements', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         updateInfo: {
             type: Object,

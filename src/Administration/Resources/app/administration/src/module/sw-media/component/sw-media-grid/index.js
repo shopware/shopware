@@ -8,8 +8,6 @@ import './sw-media-grid.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['media-grid-selection-clear'],
 
     props: {

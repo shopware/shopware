@@ -14,8 +14,6 @@ const { warn } = Shopware.Utils.debug;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'ruleConditionDataProviderService',
         'repositoryFactory',

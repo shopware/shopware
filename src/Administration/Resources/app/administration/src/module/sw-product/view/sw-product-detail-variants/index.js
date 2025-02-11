@@ -12,8 +12,6 @@ const { uniqBy } = Shopware.Utils.array;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',

@@ -13,8 +13,6 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'systemConfigApiService',

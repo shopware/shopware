@@ -77,9 +77,7 @@ export default Shopware.Mixin.register(
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                         const propValue = mapInheritance[prop];
 
-                        if (typeof propValue === 'function') {
-                            this.setFunctionsForEvents(prop, propValue as () => void);
-                        } else if (typeof propValue === 'boolean') {
+                        if (typeof propValue === 'boolean') {
                             this.setAttributesForProps(prop, propValue);
                         }
                     });
@@ -96,9 +94,6 @@ export default Shopware.Mixin.register(
         methods: {
             handleRestoreInheritance() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    return;
-                }
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
                 if (!this.mapInheritance?.restoreInheritance) {
@@ -111,9 +106,6 @@ export default Shopware.Mixin.register(
 
             handleRemoveInheritance() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    return;
-                }
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
                 if (!this.mapInheritance?.removeInheritance) {
@@ -126,34 +118,6 @@ export default Shopware.Mixin.register(
 
             beforeDestroyComponent() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    // remove event listener
-                    this.$off('inheritance-restore');
-                    this.$off('inheritance-remove');
-                }
-            },
-
-            setFunctionsForEvents(prop: string, propValue: () => void) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    switch (prop) {
-                        case 'restoreInheritance': {
-                            this.$off('inheritance-restore');
-                            this.$on('inheritance-restore', propValue);
-                            break;
-                        }
-
-                        case 'removeInheritance': {
-                            this.$off('inheritance-remove');
-                            this.$on('inheritance-remove', propValue);
-                            break;
-                        }
-
-                        default: {
-                            break;
-                        }
-                    }
-                }
             },
 
             setAttributesForProps(prop: string, propValue: boolean) {

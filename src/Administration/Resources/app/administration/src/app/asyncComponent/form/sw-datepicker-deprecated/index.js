@@ -47,8 +47,6 @@ export default {
     template,
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'update:value',
         'inheritance-restore',
@@ -167,33 +165,6 @@ export default {
             return this.noCalendar || this.dateType === 'datetime';
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed. Event listeners are bound via additionalAttrs
-         */
-        additionalEventListeners() {
-            const listeners = {};
-
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                /**
-                 * Do not pass "change" or "input" event listeners to the form elements
-                 * because the component implements its own listeners for this event types.
-                 * The callback methods will emit the corresponding event to the parent.
-                 */
-                Object.keys(this.$listeners).forEach((key) => {
-                    if (
-                        ![
-                            'change',
-                            'input',
-                        ].includes(key)
-                    ) {
-                        listeners[key] = this.$listeners[key];
-                    }
-                });
-            }
-
-            return listeners;
-        },
-
         additionalAttrs() {
             const attrs = {};
 
@@ -210,6 +181,33 @@ export default {
                     attrs[key] = this.$attrs[key];
                 }
             });
+
+            /**
+             * Convert the events for the date picker to another format:
+             * from: 'on-month-change' to: { camelCase: 'onMonthChange', kebabCase: 'on-month-change' }
+             * So this can be used as a parameter to flatpickr to specify which events will be thrown
+             * and also emit the right event from vue.
+             */
+            Object.entries(attrs).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    // Check if the key is an event, e.g. starts with "on-"
+                    if (!key.startsWith('on-')) {
+                        return;
+                    }
+
+                    // Remove the "on-" prefix
+                    const eventName = key.replace('on-', '');
+                    // Convert the kebab-case to camelCase
+                    const camelCase = this.kebabToCamel(eventName);
+                    // Add the new event name to the object
+                    attrs[camelCase] = value;
+                    // Remove the old event name from the object
+                    delete attrs[key];
+                },
+            );
 
             return attrs;
         },
@@ -483,7 +481,11 @@ export default {
          */
         getEventNames() {
             const events = [];
-            Object.keys(this.additionalEventListeners).forEach((event) => {
+            Object.keys(this.additionalAttrs).forEach((event) => {
+                // Check if the key is an event, e.g. starts with "on-"
+                if (!event.startsWith('on-')) {
+                    return;
+                }
                 events.push({
                     kebabCase: event,
                     camelCase: this.kebabToCamel(event),

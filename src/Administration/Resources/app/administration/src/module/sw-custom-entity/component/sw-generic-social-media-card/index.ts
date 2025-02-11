@@ -17,8 +17,6 @@ const createId = Shopware.Utils.createId;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
     ],

@@ -10,8 +10,6 @@ const { Component } = Shopware;
 Component.register('sw-inactivity-login', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'loginService',
         'feature',

@@ -59,15 +59,7 @@ export default defineConfig(({ command }) => {
                 AssetPathPlugin(),
 
                 svgLoader(),
-                vue({
-                    template: {
-                        compilerOptions: {
-                            compatConfig: {
-                                MODE: 2,
-                            },
-                        },
-                    },
-                }),
+                vue(),
             ];
 
             if (isDev) {
@@ -110,7 +102,7 @@ export default defineConfig(({ command }) => {
             alias: [
                 {
                     find: /^vue$/,
-                    replacement: '@vue/compat/dist/vue.esm-bundler.js',
+                    replacement: 'vue/dist/vue.esm-bundler.js',
                 },
                 {
                     find: /^src\//,

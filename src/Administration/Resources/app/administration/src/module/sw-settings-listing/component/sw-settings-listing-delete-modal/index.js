@@ -8,8 +8,6 @@ import './sw-settings-listing-delete-modal.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'cancel',
         'delete',

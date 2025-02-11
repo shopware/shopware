@@ -15,8 +15,6 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-entity-single-select', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'feature',
@@ -220,15 +218,6 @@ Component.register('sw-entity-single-select', {
             }
 
             return this.searchTerm;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

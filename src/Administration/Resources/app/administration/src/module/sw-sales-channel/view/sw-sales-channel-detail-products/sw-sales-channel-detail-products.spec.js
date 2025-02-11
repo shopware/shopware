@@ -92,7 +92,11 @@ const productMock = {
     ],
 };
 
+let repositoryFactoryDeleteMock;
+
 async function createWrapper({ salesChannel, products } = {}) {
+    repositoryFactoryDeleteMock = jest.fn(async () => {});
+
     return mount(
         await wrapTestComponent('sw-sales-channel-detail-products', {
             sync: true,
@@ -180,7 +184,7 @@ async function createWrapper({ salesChannel, products } = {}) {
 
                                     return [];
                                 },
-                                delete: async () => {},
+                                delete: repositoryFactoryDeleteMock,
                                 syncDeleted: async () => {},
                                 saveAll: async () => {},
                             };

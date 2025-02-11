@@ -13,8 +13,6 @@ const { debounce, get, flow } = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: [

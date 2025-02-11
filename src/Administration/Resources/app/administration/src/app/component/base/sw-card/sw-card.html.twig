@@ -4,7 +4,6 @@
 <mt-card
     v-if="useMeteorComponent"
     v-bind="$attrs"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -26,7 +25,6 @@
 <sw-card-deprecated
     v-else
     v-bind="$attrs"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

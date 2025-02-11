@@ -136,7 +136,6 @@ export default class AppCmsService {
 
         const component = {
             name: componentName,
-            compatConfig: Shopware.compatConfig,
 
             render(createElement) {
                 const slotEntries = Object.entries(block.slots);

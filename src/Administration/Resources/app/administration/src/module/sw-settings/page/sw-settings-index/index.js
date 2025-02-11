@@ -10,8 +10,6 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'feature',

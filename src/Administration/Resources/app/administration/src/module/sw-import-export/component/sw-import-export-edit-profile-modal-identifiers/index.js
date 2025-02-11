@@ -12,8 +12,6 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'importExportUpdateByMapping',
@@ -109,7 +107,7 @@ export default {
                     propertyNames: [],
                 };
 
-                const value = path !== '' ? mapping.key.replace(new RegExp(`^(${path}\.)`), '') : mapping.key;
+                const value = path !== '' ? mapping.key.replace(new RegExp(`^(${path}.)`), '') : mapping.key;
 
                 identifiers[entity].options.push({ label: value, value });
 

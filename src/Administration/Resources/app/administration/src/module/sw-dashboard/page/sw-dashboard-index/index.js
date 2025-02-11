@@ -9,8 +9,6 @@ import './sw-dashboard-index.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     data() {
         return {
             cachedHeadlineGreetingKey: null,

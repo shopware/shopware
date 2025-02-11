@@ -22,8 +22,6 @@ const { Criteria, EntityCollection } = Shopware.Data;
 Component.register('sw-many-to-many-assignment-card', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: [
@@ -168,15 +166,6 @@ Component.register('sw-many-to-many-assignment-card', {
 
         originalFilters() {
             return this.criteria.filters;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

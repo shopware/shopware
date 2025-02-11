@@ -18,8 +18,6 @@ const insertIdIntoRoute = (to, from, next) => {
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     beforeRouteEnter: insertIdIntoRoute,
 
     beforeRouteUpdate: insertIdIntoRoute,

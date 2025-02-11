@@ -8,8 +8,6 @@ import './sw-ai-copilot-badge.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         label: {
             type: Boolean,

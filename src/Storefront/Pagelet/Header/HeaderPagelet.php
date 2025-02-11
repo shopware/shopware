@@ -15,8 +15,6 @@ class HeaderPagelet extends NavigationPagelet
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - Parameter `serviceMenu` will be removed as it is unused
      */
     public function __construct(
         Tree $navigation,

@@ -51,7 +51,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
     public function __construct(
         private readonly HttpKernelInterface $httpKernel,
         private readonly SalesChannelContextServiceInterface $contextService,
-        private readonly bool $kernelDebug,
+        private bool $kernelDebug, // Do not change to readonly, as it is used in tests
         private readonly CacheInterface $cache,
         private readonly EntityCacheKeyGenerator $generator,
         private readonly CacheInvalidator $cacheInvalidator,

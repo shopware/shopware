@@ -184,9 +184,6 @@
             <argument type="service" id="shopware.api.authorization_server"/>
             <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <argument type="service" id="shopware.rate_limiter"/>
-            <argument type="service" id="user.repository"/>
-            <argument type="service" id="Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService" on-invalid="null"/>
-            <argument type="service" id="http_client"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -309,6 +306,8 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="Shopware\Administration\Login\UserService\UserService"/>
+            <argument type="service" id="Shopware\Administration\Login\TokenService\ExternalTokenService"/>
             <argument type="string">%shopware.api.access_token_ttl%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 

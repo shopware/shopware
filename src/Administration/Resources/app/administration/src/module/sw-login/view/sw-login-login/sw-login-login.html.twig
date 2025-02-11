@@ -83,19 +83,16 @@
             {% endblock %}
         </template>
 
-        <template v-for="loginType in loginConfig.ssoProviders" :key="loginType.key">
-            <div>
-                <a
-                    class="sw-button"
-                    :class="loginType.class"
-                    :disabled="isLoading"
-                    :href="loginType.url"
-                >
-                    {{ $tc(loginType.snippet_key) }}
-                    <sw-icon :name="loginType.icon"/>
-                </a>
-            </div>
-        </template>
+        <div v-if="loginConfig.url">
+            <a
+                class="sw-button sw-button--primary sw-button--small"
+                :disabled="isLoading"
+                :href="loginConfig.url"
+            >
+                {{ $tc('sw-login.index.buttonSsoLogin') }}
+                <sw-icon name="regular-shopware"/>
+            </a>
+        </div>
     </div>
     <div v-else>
         <sw-loader/>

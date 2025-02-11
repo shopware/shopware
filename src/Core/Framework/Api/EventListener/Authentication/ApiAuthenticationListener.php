@@ -8,6 +8,9 @@ use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
+use Shopware\Administration\Login\ShopwareGrantType;
+use Shopware\Administration\Login\TokenService\ExternalTokenService;
+use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Api\OAuth\BearerTokenValidator;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Feature;
@@ -41,6 +44,8 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         private readonly UserRepositoryInterface $userRepository,
         private readonly RefreshTokenRepositoryInterface $refreshTokenRepository,
         private readonly RouteScopeRegistry $routeScopeRegistry,
+        private readonly UserService $userService,
+        private readonly ExternalTokenService $tokenService,
         private readonly string $accessTokenTtl = 'PT10M',
         private readonly string $refreshTokenTtl = 'P1W'
     ) {
@@ -73,9 +78,13 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
         $refreshTokenGrant->setRefreshTokenTTL($refreshTokenInterval);
 
+        $shopwareGrant = new ShopwareGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService);
+        $shopwareGrant->setRefreshTokenTTL($refreshTokenInterval);
+
         $this->authorizationServer->enableGrantType($passwordGrant, $accessTokenInterval);
         $this->authorizationServer->enableGrantType($refreshTokenGrant, $accessTokenInterval);
         $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $accessTokenInterval);
+        $this->authorizationServer->enableGrantType($shopwareGrant, $accessTokenInterval);
     }
 
     public function validateRequest(ControllerEvent $event): void

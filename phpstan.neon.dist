@@ -276,3 +276,7 @@ parameters:
             message: '#Property Shopware\\Tests\\Integration\\Core\\Framework\\DataAbstractionLayer\\fixture\\AttributeEntityUnionEnum::\$enum has unresolvable native type.#'
             paths:
                 - tests/integration/Core/Framework/DataAbstractionLayer/fixture/AttributeEntityUnionEnum.php
+
+        - # For testing we need to provide different array data than expected to ensure the validation is working correct
+            message: '#Parameter \#1 \$rawConfig of class Shopware\\Administration\\Login\\Config\\LoginConfigService constructor expects array\{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string\}, array\{\} given.#'
+            path: tests/unit/Administration/Login/Config/LoginConfigServiceTest.php

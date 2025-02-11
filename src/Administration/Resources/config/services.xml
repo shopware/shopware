@@ -19,6 +19,18 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Administration\Controller\AdminAuthController" public="true">
+            <argument type="service" id="shopware.api.authorization_server"/>
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
+            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
+            <argument type="service" id="Shopware\Administration\Login\LoginResponseService"/>
+            <argument type="service" id="Shopware\Administration\Login\StateValidator"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Administration\Controller\AdminExtensionApiController" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Executor"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
@@ -47,7 +59,7 @@
             <argument type="service" id="parameter_bag"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.asset"/>
-            <argument type="service" id="Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService"/>
+            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
             <call method="setContainer">
@@ -187,19 +199,26 @@
             <argument type="service" id="assets.packages"/>
         </service>
 
-        <service id="Shopware\Administration\LoginConfig\ConfigBuilder\LoginConfigService">
-            <argument>%shopware.admin_login%</argument>
-            <argument type="tagged_iterator" tag="shopware.login.config.handler" index-by="key"/>
+        <service id="Shopware\Administration\Login\UserService\UserService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Administration\LoginConfig\ConfigBuilder\Handler\AbstractLoginConfigHandler" abstract="true">
-            <argument>%env(APP_URL)%</argument>
+        <service id="Shopware\Administration\Login\TokenService\ExternalTokenService">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
+        </service>
+
+        <service id="Shopware\Administration\Login\Config\LoginConfigService">
+            <argument>%shopware.admin_login%</argument>
+            <argument>%APP_URL%</argument>
             <argument>%shopware_administration.path_name%</argument>
         </service>
 
-        <service id="Shopware\Administration\LoginConfig\ConfigBuilder\Handler\ShopwareSso"
-                 parent="Shopware\Administration\LoginConfig\ConfigBuilder\Handler\AbstractLoginConfigHandler">
-            <tag name="shopware.login.config.handler" key="swsso"/>
+        <service id="Shopware\Administration\Login\LoginResponseService">
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
         </service>
+
+        <service id="Shopware\Administration\Login\StateValidator" />
+
     </services>
 </container>

@@ -50,6 +50,7 @@
     "style-loader": "3.3.3",
     "stylelint-junit-formatter": "0.2.2",
     "swc-loader": "^0.2.3",
+    "terser-webpack-plugin": "5.3.10",
     "three": "^0.155.0",
     "tiny-slider": "2.9.4",
     "typescript": "5.1.6",

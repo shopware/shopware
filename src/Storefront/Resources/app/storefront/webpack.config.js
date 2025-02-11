@@ -7,6 +7,7 @@ const { merge } = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
+const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -124,6 +125,7 @@ const coreConfig = {
                             env: {
                                 mode: 'entry',
                                 coreJs: '3.34.0',
+                                debug: true,
                                 // .browserlistrc is not found by swc-loader, so we load it manually: https://github.com/swc-project/swc/issues/3365
                                 targets: require('browserslist').loadConfig({
                                     path: './',
@@ -132,10 +134,6 @@ const coreConfig = {
                             jsc: {
                                 parser: {
                                     syntax: 'typescript',
-                                },
-                                // TODO: dev<>prod
-                                minify: {
-                                    compress: true,
                                 },
                                 transform: {
                                     // NEXT-30535 - Restore babel option to not use defineProperty for class fields.
@@ -230,6 +228,23 @@ const coreConfig = {
     optimization: {
         moduleIds: 'deterministic',
         chunkIds: false, // chunk name is set by FilenameToChunkNamePlugin
+        ...(() => {
+            if (isProdMode) {
+                return {
+                    minimizer: [
+                        new TerserPlugin({
+                            minify: TerserPlugin.swcMinify,
+                            terserOptions: {
+                                compress: true,
+                            },
+                            parallel: true,
+                        }),
+                    ],
+                };
+            }
+
+            return {};
+        })(),
     },
     output: {
         path: path.resolve(__dirname, 'dist'),

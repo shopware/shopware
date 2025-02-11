@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Guest Customer is able to add and remove products to the wishlist',{ tag: '@Wishlist' }, async ({ 
+test('Guest customer is able to add and remove products to the wishlist',{ tag: '@Wishlist' }, async ({ 
     TestDataService,
     ShopCustomer,
     StorefrontHome,

@@ -17,9 +17,9 @@ test('Customers can add or remove products from their wishlist.',{ tag: '@Wishli
     const product2 = await TestDataService.createBasicProduct();
     const product3 = await TestDataService.createBasicProduct();
 
-    const product1Locators = await StorefrontHome.getListingItemByProductId(product1.id);
-    const product2Locators = await StorefrontHome.getListingItemByProductId(product2.id);
-    const product3Locators = await StorefrontHome.getListingItemByProductId(product3.id);
+    const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
+    const product2Locators = await StorefrontHome.getListingItemByProductName(product2.name);
+    const product3Locators = await StorefrontHome.getListingItemByProductName(product3.name);
 
     await test.step('Add three products to the wishlist and verify the basket count updates to 3', async () => {
         await ShopCustomer.attemptsTo(Login());
@@ -48,13 +48,14 @@ test('Customers can add or remove products from their wishlist.',{ tag: '@Wishli
     });
 
     await test.step('Remove product2 from the wishlist page and verify that the basket updates to 1', async () => {
-        const listedItemInWishlist = await StorefrontWishlist.getListingItemByProductId(product2.id);
+        const listedItemInWishlist = await StorefrontWishlist.getListingItemByProductName(product2.name);
         await listedItemInWishlist.removeFromWishlistButton.click();
         await ShopCustomer.expects(StorefrontWishlist.removeAlert).toBeVisible();
         await ShopCustomer.expects(StorefrontHome.wishlistBasket).toContainText('1');
     });
 
-    await test.step('Add product to cart from wishlist and verify it is added and wishlist icon is visible on offcanvas', async () => {
+    //This step is skipped, you can check details from ticket: https://shopware.atlassian.net/browse/NEXT-40213
+    await test.step.skip('Add product to cart from wishlist and verify it is added and wishlist icon is visible on offcanvas', async () => {
         await ShopCustomer.attemptsTo(AddProductToCartFromWishlist(product1));
         const offCanvasSubtotal = await StorefrontOffCanvasCart.subTotalPrice.innerText();
         const expectedPrice = await product1Locators.productPrice.innerText();

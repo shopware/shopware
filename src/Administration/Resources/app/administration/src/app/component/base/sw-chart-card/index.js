@@ -25,8 +25,6 @@ const defaultRanges = [
 Shopware.Component.register('sw-chart-card', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['sw-chart-card-range-update'],
 
     props: {

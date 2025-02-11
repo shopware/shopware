@@ -9,9 +9,7 @@
         :entity-collection="collection"
         :local-mode="localMode"
         advanced-selection-component="sw-advanced-selection-rule"
-        :advanced-selection-parameters="advanceSelectionParameters"
-        v-on="listeners"
-        @update:entity-collection="onChange"
+        :advanced-selection-parameters="advanceSelectionParameters" @update:entity-collection="onChange"
     >
 
         <template #before-item-list>

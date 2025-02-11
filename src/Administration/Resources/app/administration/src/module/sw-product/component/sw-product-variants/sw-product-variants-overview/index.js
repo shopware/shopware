@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -536,11 +534,7 @@ export default {
             });
 
             if (foundVariantIndex >= 0) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(variant.price, foundVariantIndex);
-                } else {
-                    delete variant.price[foundVariantIndex];
-                }
+                delete variant.price[foundVariantIndex];
             }
 
             if (variant.price.length <= 0 || Object.keys(variant.price).length <= 0) {
@@ -576,11 +570,7 @@ export default {
             };
 
             // add new price currency to variant
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(variant.price, variant.price.length, newPrice);
-            } else {
-                variant.price.push(newPrice);
-            }
+            variant.price.push(newPrice);
         },
 
         onMediaInheritanceRestore(variant, isInlineEdit) {

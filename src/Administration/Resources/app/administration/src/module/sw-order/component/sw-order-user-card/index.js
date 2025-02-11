@@ -14,8 +14,6 @@ const format = Shopware.Utils.format;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'customSnippetApiService',
         'orderService',

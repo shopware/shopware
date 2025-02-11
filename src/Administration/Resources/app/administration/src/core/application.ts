@@ -608,12 +608,16 @@ class ApplicationBootstrapper {
             'login',
             'baseComponents',
             'locale',
-            'apiServices',
             'coreDirectives',
+        ];
+        const loginPreInitializer = [
+            'apiServices',
             'store',
         ];
 
         const initContainer = this.getContainer('init');
+        const initPreContainer = this.getContainer('init-pre');
+
         loginInitializer.forEach((key) => {
             const exists = initContainer.hasOwnProperty(key);
 
@@ -622,13 +626,22 @@ class ApplicationBootstrapper {
             }
         });
 
+        loginPreInitializer.forEach((key) => {
+            const exists = initPreContainer.hasOwnProperty(key);
+
+            if (!exists) {
+                console.error(`The initializer "${key}" does not exist`);
+            }
+        });
+
         this.$container.digest(loginInitializer.map((key) => `init.${key}`));
+        this.$container.digest(loginPreInitializer.map((key) => `init-pre.${key}`));
 
         let asyncInitializers = [];
         if (window._features_.ADMIN_VITE) {
-            asyncInitializers = this.getAsyncInitializersVite(loginInitializer);
+            asyncInitializers = this.getAsyncInitializersVite([...loginPreInitializer, ...loginInitializer]);
         } else {
-            asyncInitializers = this.getAsyncInitializers(loginInitializer);
+            asyncInitializers = this.getAsyncInitializers([...loginPreInitializer, ...loginInitializer]);
         }
 
         return Promise.all(asyncInitializers);

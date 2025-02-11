@@ -28,8 +28,6 @@ const dom = Shopware.Utils.dom;
 Component.register('sw-tabs-deprecated', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     provide() {
@@ -122,12 +120,7 @@ Component.register('sw-tabs-deprecated', {
         sliderLength() {
             const children = Shopware.Utils.VueHelper.getCompatChildren();
 
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                if (this.$children[this.activeItem]) {
-                    const activeChildren = this.$children[this.activeItem];
-                    return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
-                }
-            } else if (children[this.activeItem]) {
+            if (children[this.activeItem]) {
                 const activeChildren = children[this.activeItem];
                 return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
             }
@@ -136,18 +129,10 @@ Component.register('sw-tabs-deprecated', {
         },
 
         activeTabHasErrors() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                return this.$children[this.activeItem]?.hasError ?? false;
-            }
-
             return this.registeredTabItems[this.activeItem]?.hasError ?? false;
         },
 
         activeTabHasWarnings() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                return this.$children[this.activeItem]?.hasWarning ?? false;
-            }
-
             return this.registeredTabItems[this.activeItem]?.hasWarning ?? false;
         },
 
@@ -159,9 +144,7 @@ Component.register('sw-tabs-deprecated', {
         },
 
         sliderMovement() {
-            const children = this.isCompatEnabled('INSTANCE_CHILDREN')
-                ? this.$children
-                : Shopware.Utils.VueHelper.getCompatChildren();
+            const children = Shopware.Utils.VueHelper.getCompatChildren();
 
             if (children[this.activeItem]) {
                 const activeChildren = children[this.activeItem];
@@ -338,37 +321,20 @@ Component.register('sw-tabs-deprecated', {
 
         updateActiveItem() {
             this.$nextTick().then(() => {
-                if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                    const children = this.$children;
+                const firstActiveTabItem = this.registeredTabItems.find((child) => {
+                    return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
+                });
 
-                    const firstActiveTabItem = children.find((child) => {
-                        return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
-                    });
-
-                    if (!firstActiveTabItem) {
-                        return;
-                    }
-
-                    this.activeItem = children.indexOf(firstActiveTabItem);
-                    if (!this.firstScroll) {
-                        this.scrollToItem(firstActiveTabItem);
-                    }
-                    this.firstScroll = true;
-                } else {
-                    const firstActiveTabItem = this.registeredTabItems.find((child) => {
-                        return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
-                    });
-
-                    if (!firstActiveTabItem) {
-                        return;
-                    }
-
-                    this.activeItem = this.registeredTabItems.indexOf(firstActiveTabItem);
-                    if (!this.firstScroll) {
-                        this.scrollToItem(firstActiveTabItem);
-                    }
-                    this.firstScroll = true;
+                if (!firstActiveTabItem) {
+                    return;
                 }
+
+                this.activeItem = this.registeredTabItems.indexOf(firstActiveTabItem);
+
+                if (!this.firstScroll) {
+                    this.scrollToItem(firstActiveTabItem);
+                }
+                this.firstScroll = true;
             });
         },
 

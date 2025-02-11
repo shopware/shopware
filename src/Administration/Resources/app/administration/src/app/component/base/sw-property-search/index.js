@@ -15,8 +15,6 @@ const utils = Shopware.Utils;
 Component.register('sw-property-search', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['option-select'],
@@ -150,9 +148,6 @@ Component.register('sw-property-search', {
             }
 
             // Info: there is no component available with this event so it can be removed safely
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$on('options-load', this.addOptionCount);
-            }
         },
 
         destroyedComponent() {
@@ -321,11 +316,7 @@ Component.register('sw-property-search', {
                     return option.groupId === group.id && !option.isDeleted;
                 });
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(group, 'optionCount', optionCount.length);
-                } else {
-                    group.optionCount = optionCount.length;
-                }
+                group.optionCount = optionCount.length;
             });
         },
     },

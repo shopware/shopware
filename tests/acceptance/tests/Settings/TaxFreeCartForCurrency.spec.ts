@@ -20,7 +20,8 @@ test(
 }) => {
 
     test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0 Ticket already created: https://shopware.atlassian.net/browse/NEXT-40119');
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'Blocked by accessibility flag: https://shopware.atlassian.net/browse/NEXT-40636');
+    test.skip(InstanceMeta.features['ACCESSIBILITY_TWEAKS'], 'Blocked by accessibility flag: https://shopware.atlassian.net/browse/NEXT-40636');
+
     const product = await TestDataService.createBasicProduct();
     const currency = await TestDataService.createCurrency({ taxFreeFrom: 5 });
     const customer = await TestDataService.createCustomer();

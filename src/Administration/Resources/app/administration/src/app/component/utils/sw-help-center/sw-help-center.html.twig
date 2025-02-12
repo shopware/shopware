@@ -34,10 +34,9 @@
 
             <div>
                 <h4>{{ $tc('global.sw-help-center.documentation.headline') }}</h4>
-
-                <sw-external-link :href="$tc('global.sw-help-center.documentation.linkUrl')">
+                <mt-external-link :href="$tc('global.sw-help-center.documentation.linkUrl')">
                     {{ $tc('global.sw-help-center.documentation.linkText') }}
-                </sw-external-link>
+                </mt-external-link>
             </div>
         </div>
 
@@ -48,9 +47,9 @@
 
             {# @internal - Do NOT use this block - it will be removed without replacement #}
             {% block sw_help_center_support_request_item_link %}
-            <sw-external-link :href="$tc('global.sw-help-center.support.linkUrl')">
+            <mt-external-link :href="$tc('global.sw-help-center.support.linkUrl')">
                 {{ $tc('global.sw-help-center.support.linkText') }}
-            </sw-external-link>
+            </mt-external-link>
             {% endblock %}
         </div>
         {% endblock %}

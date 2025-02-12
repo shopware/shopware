@@ -97,7 +97,6 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 'sw-media-modal-replace': true,
                 'sw-help-text': true,
                 'sw-media-modal-delete': true,
-                'sw-external-link': true,
                 'sw-media-quickinfo-usage': true,
                 'sw-media-modal-move': true,
                 'sw-inheritance-switch': true,

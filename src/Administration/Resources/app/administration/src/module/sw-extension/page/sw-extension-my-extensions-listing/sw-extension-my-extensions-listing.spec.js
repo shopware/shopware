@@ -73,7 +73,6 @@ async function createWrapper() {
                         sync: true,
                     }),
                     'sw-skeleton': true,
-                    'sw-external-link': true,
                     'sw-alert-deprecated': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

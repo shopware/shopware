@@ -53,9 +53,9 @@
                             :key="`helpcardContent-${index}`"
                             class="sw-dashboard-index__card-list-item"
                         >
-                            <sw-external-link :href="$tc(`sw-dashboard.helpcard.${key}Link`)">
+                            <mt-external-link :href="$tc(`sw-dashboard.helpcard.${key}Link`)">
                                 {{ $tc(`sw-dashboard.helpcard.${key}`) }}
-                            </sw-external-link>
+                            </mt-external-link>
                         </li>
                     </ul>
                     {% endblock %}
@@ -80,12 +80,12 @@
                     {% endblock %}
 
                     {% block sw_dashboard_index_content_feedback_link %}
-                    <sw-external-link
+                    <mt-external-link
                         class="sw-dashboard-index__card-button"
                         :href="$tc('sw-dashboard.feedbackCard.feedbackLink')"
                     >
                         {{ $tc('sw-dashboard.feedbackCard.feedback') }}
-                    </sw-external-link>
+                    </mt-external-link>
                     {% endblock %}
                     {% endblock %}
                 </div>

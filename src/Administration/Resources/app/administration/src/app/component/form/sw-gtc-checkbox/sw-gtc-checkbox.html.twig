@@ -10,15 +10,14 @@
             {{ $tc('global.sw-gtc-checkbox.label') }}
 
             {% block sw_gtc_checkbox_input_label_link %}
-            <sw-external-link
+            <mt-external-link
                 class="sw-external-link"
                 :href="$tc('global.sw-gtc-checkbox.url')"
             >
                 {% block sw_gtc_checkbox_input_label_text %}
                 {{ $tc('global.sw-gtc-checkbox.link') }}
                 {% endblock %}
-
-            </sw-external-link>
+            </mt-external-link>
             {% endblock %}
             {% endblock %}
         </template>

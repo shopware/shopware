@@ -172,9 +172,9 @@
             class="sw-usage-data-consent-banner__content-details-description"
         >
             <template #link>
-                <sw-external-link :href="$tc('sw-usage-data-consent-banner.privacyPolicyLink')">
+                <mt-external-link :href="$tc('sw-usage-data-consent-banner.privacyPolicyLink')">
                     {{ $tc('sw-usage-data-consent-banner.privacyPolicy') }}
-                </sw-external-link>
+                </mt-external-link>
             </template>
             <template #fullDetailsDescriptionNotAccepted>
                 {{ isAccepted ? '' : $tc('sw-usage-data-consent-banner.fullDetailsDescriptionNotAccepted') }}

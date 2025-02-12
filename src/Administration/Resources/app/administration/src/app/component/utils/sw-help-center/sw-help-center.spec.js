@@ -14,7 +14,6 @@ async function createWrapper() {
                 'sw-popover': {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
-                'sw-external-link': true,
             },
         },
     });

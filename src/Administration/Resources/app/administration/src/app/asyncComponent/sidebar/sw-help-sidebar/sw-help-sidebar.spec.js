@@ -36,7 +36,6 @@ async function createWrapper() {
             stubs: {
                 'sw-extension-component-section': true,
                 'sw-icon': true,
-                'sw-external-link': true,
                 'sw-button': await wrapTestComponent('sw-button', {
                     sync: true,
                 }),

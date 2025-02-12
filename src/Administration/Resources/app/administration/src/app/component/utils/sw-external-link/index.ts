@@ -4,31 +4,14 @@ const { Component } = Shopware;
 
 /**
  * @sw-package framework
+ * @deprecated tag:6.8.0 - Will be removed. Use mt-external-link instead.
  *
  * @private
  * @status ready
- * @description Wrapper component for sw-external-link and mt-external-link. Autoswitches between the two components.
+ * @description Wrapper component for mt-external-link.
  */
 Component.register('sw-external-link', {
     template,
-
-    computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-external-link',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-external-link" is deprecated and will be removed in v6.7.0.0. Please use "mt-external-link" instead.',
-            );
-
-            return false;
-        },
-    },
 
     methods: {
         getSlots() {

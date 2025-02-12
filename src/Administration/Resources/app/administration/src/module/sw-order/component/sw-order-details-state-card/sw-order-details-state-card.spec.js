@@ -108,7 +108,6 @@ async function createWrapper() {
             },
             stubs: {
                 'sw-order-state-select-v2': true,
-                'sw-external-link': { template: '<a href="#"></a>' },
                 'sw-order-state-change-modal': true,
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,

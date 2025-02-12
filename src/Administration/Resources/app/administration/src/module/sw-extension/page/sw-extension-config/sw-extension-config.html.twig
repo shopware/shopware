@@ -22,13 +22,13 @@
         <span v-if="extension.producerWebsite && extension.producerName">
             {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }}
 
-            <sw-external-link
+            <mt-external-link
                 small
                 :href="extension.producerWebsite"
                 class="sw-extension-config__producer-link"
             >
                 {{ extension.producerName }}
-            </sw-external-link>
+            </mt-external-link>
         </span>
 
         <span v-else-if="extension.producerName">

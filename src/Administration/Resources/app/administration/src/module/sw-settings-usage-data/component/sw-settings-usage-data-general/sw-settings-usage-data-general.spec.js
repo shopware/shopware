@@ -29,7 +29,6 @@ async function createWrapper() {
                     'sw-internal-link': true,
                     'i18n-t': true,
                     'sw-help-text': true,
-                    'sw-external-link': true,
                     'sw-button': true,
                 },
             },

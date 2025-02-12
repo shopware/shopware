@@ -5,6 +5,7 @@ const { Component } = Shopware;
 
 /**
  * @sw-package framework
+ * @deprecated tag:6.8.0 - Will be removed. Use mt-external-link instead.
  *
  * @private
  * @description Link to another website outside the admin, that opens in a new browser tab

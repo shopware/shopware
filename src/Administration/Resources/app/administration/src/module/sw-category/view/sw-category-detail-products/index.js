@@ -143,10 +143,10 @@ export default {
 
             return `${helpText}
                     <br>
-                    <sw-external-link
+                    <mt-external-link
                         href="${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl')}">
                         ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoLink')}
-                    </sw-external-link>`;
+                    </mt-external-link>`;
         },
 
         assetFilter() {

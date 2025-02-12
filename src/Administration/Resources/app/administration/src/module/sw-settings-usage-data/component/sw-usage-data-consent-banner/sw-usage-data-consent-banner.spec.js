@@ -28,7 +28,6 @@ async function createWrapper(canBeHidden = false, isPrivileged = true) {
                         sync: true,
                     }),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                    'sw-external-link': true,
                     'sw-internal-link': true,
                     'sw-help-text': true,
                     i18n: true,

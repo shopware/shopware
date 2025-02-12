@@ -22,9 +22,6 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-meteor-page': await wrapTestComponent('sw-meteor-page', { sync: true }),
                     'sw-system-config': await wrapTestComponent('sw-system-config', { sync: true }),
                     'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
-                    'sw-external-link': {
-                        template: '<a><slot></slot></a>',
-                    },
                     'sw-button': {
                         inheritAttrs: false,
                         template: '<button :class="$attrs.class" @click="$emit(\'click\', $event)"><slot></slot></button>',

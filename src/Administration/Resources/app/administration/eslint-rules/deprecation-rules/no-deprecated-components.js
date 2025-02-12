@@ -125,6 +125,10 @@ module.exports = {
                         'sw-progress-bar'
                     ];
 
+                    const preventDisableFixForFixedComponents = [
+                        'sw-external-link',
+                    ];
+
                     // Handle other deprecated components
                     if (deprecatedComponents.includes(node.name)) {
                         const componentName = node.name;
@@ -135,7 +139,7 @@ module.exports = {
                             loc: node.loc,
                             message: `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
                             *fix(fixer) {
-                                if (context.options.includes('disableFix')) return;
+                                if (context.options.includes('disableFix') && !preventDisableFixForFixedComponents.includes(componentName)) return;
 
                                 const isSelfClosing = node.startTag.selfClosing;
 

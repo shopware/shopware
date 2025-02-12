@@ -124,7 +124,7 @@ class PromotionException extends HttpException
         );
     }
 
-    public static function invalidPriceDefinition(string $label, ?string $code): self
+    public static function invalidPriceDefinition(string $label, ?string $code): self|ShopwareHttpException
     {
         if (!Feature::isActive('v6.7.0.0')) {
             return new InvalidPriceDefinitionException($label, $code);

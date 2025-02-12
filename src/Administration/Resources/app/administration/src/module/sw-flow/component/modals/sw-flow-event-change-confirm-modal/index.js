@@ -17,8 +17,6 @@ export default {
         'modal-close',
     ],
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         ...mapState(() => Store.get('swFlow'), ['sequences']),
     },

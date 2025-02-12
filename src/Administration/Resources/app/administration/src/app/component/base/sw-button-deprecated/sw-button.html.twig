@@ -12,7 +12,6 @@
         :class="buttonClasses"
         v-bind="$attrs"
         @click="navigate($event)"
-        v-on="disabled ? {} : listeners"
     >
         {% block sw_button_router_link_content %}
         <span class="sw-button__content">
@@ -49,7 +48,6 @@
     class="sw-button"
     :class="buttonClasses"
     v-bind="$attrs"
-    v-on="disabled ? {} : listeners"
 >
     {% block sw_button_link_content %}
     <span class="sw-button__content">
@@ -68,7 +66,6 @@
     :class="buttonClasses"
     :disabled="disabled || isLoading"
     v-bind="filteredAttributes"
-    v-on="disabled ? {} : listeners"
 >
     {% block sw_button_button_content %}
     <sw-loader

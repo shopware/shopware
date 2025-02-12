@@ -4,69 +4,81 @@
 import initializeApiServices from 'src/app/init-pre/api-services.init';
 
 describe('src/app/init-pre/api-services.init.ts', () => {
-    /**
-     * [
-     *         'aclApiService',
-     *         'appActionButtonService',
-     *         'appCmsBlocks',
-     *         'appModulesService',
-     *         'appUrlChangeService',
-     *         'businessEventService',
-     *         'cacheApiService',
-     *         'calculate-price',
-     *         'cartStoreService',
-     *         'checkoutStoreService',
-     *         'configService',
-     *         'customSnippetApiService',
-     *         'customerGroupRegistrationService',
-     *         'customerValidationService',
-     *         'documentService',
-     *         'excludedSearchTermService',
-     *         'extensionSdkService',
-     *         'firstRunWizardService',
-     *         'flowActionService',
-     *         'importExportService',
-     *         'integrationService',
-     *         'knownIpsService',
-     *         'languagePluginService',
-     *         'mailService',
-     *         'mediaFolderService',
-     *         'mediaService',
-     *         'messageQueueService',
-     *         'notificationsService',
-     *         'numberRangeService',
-     *         'orderDocumentApiService',
-     *         'orderStateMachineService',
-     *         'orderService',
-     *         'productExportService',
-     *         'productStreamPreviewService',
-     *         'promotionSyncService',
-     *         'recommendationsService',
-     *         'ruleConditionsConfigApiService',
-     *         'salesChannelService',
-     *         'scheduledTaskService',
-     *         'searchService',
-     *         'seoUrlTemplateService',
-     *         'seoUrlService',
-     *         'snippetSetService',
-     *         'snippetService',
-     *         'stateMachineService',
-     *         'contextStoreService',
-     *         'storeService',
-     *         'syncService',
-     *         'systemConfigApiService',
-     *         'tagApiService',
-     *         'updateService',
-     *         'userActivityApiService',
-     *         'userConfigService',
-     *         'userInputSanitizeService',
-     *         'userRecoveryService',
-     *         'userValidationService',
-     *         'userService'
-     *       ]
-     */
+    beforeEach(() => {
+        Shopware._private.ApiServices = jest.fn(() => {
+            const services = [];
+            const serviceNames = [
+                'aclApiService',
+                'appActionButtonService',
+                'appCmsBlocks',
+                'appModulesService',
+                'appUrlChangeService',
+                'businessEventService',
+                'cacheApiService',
+                'calculate-price',
+                'cartStoreService',
+                'checkoutStoreService',
+                'configService',
+                'customSnippetApiService',
+                'customerGroupRegistrationService',
+                'customerValidationService',
+                'documentService',
+                'excludedSearchTermService',
+                'extensionSdkService',
+                'firstRunWizardService',
+                'flowActionService',
+                'importExportService',
+                'integrationService',
+                'knownIpsService',
+                'languagePluginService',
+                'mailService',
+                'mediaFolderService',
+                'mediaService',
+                'messageQueueService',
+                'notificationsService',
+                'numberRangeService',
+                'orderDocumentApiService',
+                'orderStateMachineService',
+                'orderService',
+                'productExportService',
+                'productStreamPreviewService',
+                'promotionSyncService',
+                'recommendationsService',
+                'ruleConditionsConfigApiService',
+                'salesChannelService',
+                'scheduledTaskService',
+                'searchService',
+                'seoUrlTemplateService',
+                'seoUrlService',
+                'snippetSetService',
+                'snippetService',
+                'stateMachineService',
+                'contextStoreService',
+                'storeService',
+                'syncService',
+                'systemConfigApiService',
+                'tagApiService',
+                'updateService',
+                'userActivityApiService',
+                'userConfigService',
+                'userInputSanitizeService',
+                'userRecoveryService',
+                'userValidationService',
+                'userService',
+            ];
 
-    it('should initialize the api services', () => {
+            serviceNames.forEach((serviceName) => {
+                const MockApiService = jest.fn().mockImplementation(function () {
+                    this.name = serviceName;
+                });
+                services.push(() => Promise.resolve({ default: MockApiService }));
+            });
+
+            return services;
+        });
+    });
+
+    it('should initialize the api services', async () => {
         expect(Shopware.Service('aclApiService')).toBeUndefined();
         expect(Shopware.Service('appActionButtonService')).toBeUndefined();
         expect(Shopware.Service('appCmsBlocks')).toBeUndefined();
@@ -125,7 +137,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('userValidationService')).toBeUndefined();
         expect(Shopware.Service('userService')).toBeUndefined();
 
-        initializeApiServices();
+        await initializeApiServices();
 
         expect(Shopware.Service('aclApiService')).toBeDefined();
         expect(Shopware.Service('appActionButtonService')).toBeDefined();

@@ -10,8 +10,6 @@ import type CmsVisibility from '../../shared/CmsVisibility';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         visibility: {
             type: Object as PropType<CmsVisibility>,

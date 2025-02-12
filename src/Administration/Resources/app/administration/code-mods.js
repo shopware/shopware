@@ -3,7 +3,7 @@ const process = require('process');
 const commandLineArgs = require('command-line-args');
 const getUsage = require('command-line-usage');
 const fs = require('fs');
-const chalk = require('chalk');
+const colors = require('picocolors');
 const path = require('path');
 
 // Available Shopware versions
@@ -93,13 +93,13 @@ const sections = [
 
     const shopwareVersion = options['shopware-version'];
     if (shopwareVersion && !shopwareVersions.includes(shopwareVersion)) {
-        console.error(chalk.red('Invalid Shopware version. Available: 6.6, 6.7'));
+        console.error(colors.red('Invalid Shopware version. Available: 6.6, 6.7'));
         process.exit(1);
     }
 
     const pluginName = options['plugin-name'];
     if (!pluginName) {
-        console.error(chalk.red('You have to specify your plugin name.'));
+        console.error(colors.red('You have to specify your plugin name.'));
         process.exit(1);
     }
 
@@ -116,7 +116,7 @@ const sections = [
     const src = options.src || ['src/Resources/app/administration/src'];
     if (!src.length) {
         // eslint-disable-next-line no-console
-        console.log(chalk.red('You need to specify at least one src folder or use the default!'));
+        console.log(colors.red('You need to specify at least one src folder or use the default!'));
         process.exit();
     }
 
@@ -130,7 +130,7 @@ const sections = [
     }
 
     if (!pluginFound) {
-        console.error(chalk.red(`Unable to locate "${pluginName}" in "${customPluginsPath}"!`));
+        console.error(colors.red(`Unable to locate "${pluginName}" in "${customPluginsPath}"!`));
         process.exit(1);
     }
 
@@ -142,8 +142,8 @@ const sections = [
     }
 
     if (!pluginIsGitRepository && !options['ignore-git']) {
-        console.error(chalk.red('Plugin is no git repository. Make sure your plugin is in git and has a clean work space!'));
-        console.error(chalk.red('If you feel adventurous you can ignore this with -G... You where warned!'));
+        console.error(colors.red('Plugin is no git repository. Make sure your plugin is in git and has a clean work space!'));
+        console.error(colors.red('If you feel adventurous you can ignore this with -G... You where warned!'));
         process.exit(1);
     }
 
@@ -160,7 +160,7 @@ const sections = [
         }
 
         if (!srcFound) {
-            console.error(chalk.red(`Unable to locate folder "${folder}" in "${pluginFolder}"!`));
+            console.error(colors.red(`Unable to locate folder "${folder}" in "${pluginFolder}"!`));
             process.exit(1);
         }
 

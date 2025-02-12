@@ -8,8 +8,6 @@ import './sw-custom-field-type-select.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     data() {
         return {
             multiSelectSwitch: false,
@@ -35,11 +33,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.currentCustomField.config.hasOwnProperty('options')) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.currentCustomField.config, 'options', []);
-                } else {
-                    this.currentCustomField.config.options = [];
-                }
+                this.currentCustomField.config.options = [];
 
                 this.addOption();
                 this.addOption();
@@ -66,11 +60,7 @@ export default {
                 return option;
             });
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.currentCustomField.config, 'options', options);
-            } else {
-                this.currentCustomField.config.options = options;
-            }
+            this.currentCustomField.config.options = options;
         },
 
         addOption() {

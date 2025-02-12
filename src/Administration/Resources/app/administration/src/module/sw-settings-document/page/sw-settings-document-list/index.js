@@ -13,8 +13,6 @@ const {
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     mixins: [
@@ -60,14 +58,6 @@ export default {
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
-        },
-    },
-
-    methods: {
-        onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
-
-            this.getList();
         },
     },
 };

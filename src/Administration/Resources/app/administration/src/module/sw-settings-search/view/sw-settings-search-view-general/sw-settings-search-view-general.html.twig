@@ -11,16 +11,13 @@
     <sw-settings-search-searchable-content
         :product-search-configs="productSearchConfigs"
         :search-config-id="searchConfigId"
-        v-on="listeners"
     />
     {% endblock %}
 
     {% block sw_settings_search_excluded_search_terms_card %}
     <sw-settings-search-excluded-search-terms
         :search-configs="productSearchConfigs"
-        :is-excluded-terms-loading="isLoading"
-        v-on="listeners"
-        @data-load="loadData"
+        :is-excluded-terms-loading="isLoading" @data-load="loadData"
     />
     {% endblock %}
 </div>

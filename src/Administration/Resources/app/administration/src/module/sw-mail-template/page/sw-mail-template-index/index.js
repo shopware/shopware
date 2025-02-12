@@ -8,8 +8,6 @@ import './sw-mail-template-index.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     data() {

@@ -2,16 +2,12 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
-use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
-use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,15 +32,12 @@ class CacheStore implements StoreInterface
     /**
      * @internal
      *
-     * @param AbstractCacheTracer<StoreApiResponse<Struct>> $tracer
      * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
         private readonly TagAwareAdapterInterface $cache,
         private readonly CacheStateValidator $stateValidator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        // @deprecated tag:v6.7.0 - remove
-        private readonly AbstractCacheTracer $tracer,
         private readonly HttpCacheKeyGenerator $cacheKeyGenerator,
         private readonly MaintenanceModeResolver $maintenanceResolver,
         array $sessionOptions,
@@ -95,7 +88,7 @@ class CacheStore implements StoreInterface
             return $key;
         }
 
-        $tags = $this->getTags($request);
+        $tags = $this->collector->get($request);
 
         if ($response->headers->has(self::TAG_HEADER)) {
             /** @var string $tagHeader */
@@ -125,19 +118,11 @@ class CacheStore implements StoreInterface
         $item->expiresAt($cacheResponse->getExpires());
         $item->tag($tags);
 
-        if (Feature::isActive('cache_rework')) {
-            $this->eventDispatcher->dispatch(
-                new HttpCacheStoreEvent($item, $tags, $request, $response)
-            );
+        $this->eventDispatcher->dispatch(
+            new HttpCacheStoreEvent($item, $tags, $request, $response)
+        );
 
-            $this->cache->save($item);
-        } else {
-            $this->cache->save($item);
-
-            $this->eventDispatcher->dispatch(
-                new HttpCacheStoreEvent($item, $tags, $request, $response)
-            );
-        }
+        $this->cache->save($item);
 
         return $key;
     }
@@ -192,7 +177,7 @@ class CacheStore implements StoreInterface
     }
 
     /**
-     * Returns whether or not a lock exists.
+     * Returns whether a lock exists.
      */
     public function isLocked(Request $request): bool
     {
@@ -222,36 +207,5 @@ class CacheStore implements StoreInterface
     private function getLockKey(Request $request): string
     {
         return 'http_lock_' . $this->cacheKeyGenerator->generate($request);
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function getTags(Request $request): array
-    {
-        if (Feature::isActive('cache_rework')) {
-            return $this->collector->get($request);
-        }
-
-        $tags = array_merge($this->tracer->get('all'), $this->collector->get($request));
-
-        return array_filter($tags, static function (string $tag): bool {
-            // remove tag for global theme cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'theme-config')) {
-                return false;
-            }
-
-            // remove tag for global config cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'system-config')) {
-                return false;
-            }
-
-            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'translation.catalog.')) {
-                return false;
-            }
-
-            return true;
-        });
     }
 }

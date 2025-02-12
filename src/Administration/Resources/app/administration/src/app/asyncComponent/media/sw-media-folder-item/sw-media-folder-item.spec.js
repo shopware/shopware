@@ -37,6 +37,38 @@ const ID_PRODUCTS_FOLDER = '0e6b005ca7a1440b8e87ac3d45ed5c9f';
 const ID_CONTENT_FOLDER = '08bc82b315c54cb097e5c3fb30f6ff16';
 
 async function createWrapper(defaultFolderId, privileges = []) {
+    const repositoryFactoryMock = {
+        create: () =>
+            Promise.resolve({
+                isNew: () => true,
+            }),
+        search: () =>
+            Promise.resolve({
+                isNew: () => false,
+            }),
+        get: (folderId) => {
+            switch (folderId) {
+                case ID_PRODUCTS_FOLDER:
+                    return {
+                        entity: 'product',
+                        isNew: () => false,
+                    };
+                case ID_CONTENT_FOLDER:
+                    return {
+                        entity: 'cms_page',
+                        isNew: () => false,
+                    };
+                case ID_MAILTEMPLATE_FOLDER:
+                    return {
+                        entity: 'mail_template',
+                        isNew: () => false,
+                    };
+                default:
+                    return null;
+            }
+        },
+    };
+
     return mount(await wrapTestComponent('sw-media-folder-item', { sync: true }), {
         props: {
             item: {
@@ -74,37 +106,7 @@ async function createWrapper(defaultFolderId, privileges = []) {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        create: () =>
-                            Promise.resolve({
-                                isNew: () => true,
-                            }),
-                        search: () =>
-                            Promise.resolve({
-                                isNew: () => false,
-                            }),
-                        get: (folderId) => {
-                            switch (folderId) {
-                                case ID_PRODUCTS_FOLDER:
-                                    return {
-                                        entity: 'product',
-                                        isNew: () => false,
-                                    };
-                                case ID_CONTENT_FOLDER:
-                                    return {
-                                        entity: 'cms_page',
-                                        isNew: () => false,
-                                    };
-                                case ID_MAILTEMPLATE_FOLDER:
-                                    return {
-                                        entity: 'mail_template',
-                                        isNew: () => false,
-                                    };
-                                default:
-                                    return null;
-                            }
-                        },
-                    }),
+                    create: () => repositoryFactoryMock,
                 },
                 acl: {
                     can: (identifier) => {

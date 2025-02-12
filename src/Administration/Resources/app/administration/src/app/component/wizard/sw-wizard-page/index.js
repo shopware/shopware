@@ -15,8 +15,6 @@ const { Component } = Shopware;
 Component.register('sw-wizard-page', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'feature',
         'swWizardPageAdd',
@@ -65,19 +63,11 @@ Component.register('sw-wizard-page', {
 
     methods: {
         createdComponent() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.$parent.$emit('page-add', this);
-            } else {
-                this.swWizardPageAdd(this);
-            }
+            this.swWizardPageAdd(this);
         },
 
         destroyedComponent() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.$parent.$emit('page-remove', this);
-            } else {
-                this.swWizardPageRemove(this);
-            }
+            this.swWizardPageRemove(this);
         },
     },
 });

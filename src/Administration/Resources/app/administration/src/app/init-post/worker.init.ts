@@ -1,5 +1,9 @@
-import SharedAdminWorker from 'src/core/worker/admin-worker.shared-worker';
-import AdminWorker from 'src/core/worker/admin-worker.worker';
+// The eslint import resolver vite does not support shared worker imports
+/* eslint-disable import/no-unresolved */
+import SharedAdminWorker from 'src/core/worker/admin-worker.shared-worker?sharedworker';
+import AdminWorker from 'src/core/worker/admin-worker.worker?worker';
+/* eslint-enable import/no-unresolved */
+
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
@@ -24,6 +28,7 @@ let enabledNotification = false;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeWorker() {
     const loginService = Shopware.Service('loginService');
+    const context = Shopware.Context.app;
     const workerNotificationFactory = Shopware.Application.getContainer('factory').workerNotification;
     const configService = Shopware.Service('configService');
 
@@ -51,7 +56,6 @@ export default function initializeWorker() {
                 enableNotificationWorker(loginService);
             }
 
-            const context = Shopware.Context.app;
             if (context.config.adminWorker?.enableAdminWorker && !enabled) {
                 enableAdminWorker(loginService, Shopware.Context.api, context.config.adminWorker);
             }
@@ -65,7 +69,11 @@ export default function initializeWorker() {
     return loginService.addOnLoginListener(getConfig);
 }
 
-function enableAdminWorker(loginService: LoginService, context: ApiContext, config: ContextAppConfig['adminWorker']) {
+function enableAdminWorker(
+    loginService: LoginService,
+    context: ApiContext,
+    config: ContextStore['app']['config']['adminWorker'],
+) {
     // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
     const transports = (JSON.parse(JSON.stringify(config))?.transports || []) as string[];
 
@@ -121,15 +129,14 @@ function getWorker(): SharedWorker {
     // SharedWorker is not supported in all browsers, especially on mobile devices
     if (typeof SharedWorker === 'undefined') {
         // @ts-expect-error
-        worker = new AdminWorker() as Worker;
+        worker = new AdminWorker();
 
         // hack to make the worker api like a shared worker
         // @ts-expect-error
         worker.port = worker;
         worker.port.start = () => {};
     } else {
-        // @ts-expect-error
-        worker = new SharedAdminWorker() as SharedWorker;
+        worker = new SharedAdminWorker();
     }
 
     worker.port.start();

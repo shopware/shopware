@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import uuid from 'src/../test/_helper_/uuid';
+import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**

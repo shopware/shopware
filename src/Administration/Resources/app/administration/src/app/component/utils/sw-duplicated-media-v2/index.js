@@ -17,8 +17,6 @@ const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection'
 Component.register('sw-duplicated-media-v2', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'mediaService',

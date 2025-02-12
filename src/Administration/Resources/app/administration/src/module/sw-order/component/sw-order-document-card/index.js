@@ -1,6 +1,5 @@
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
-import { getCurrentInstance } from 'vue';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 
@@ -14,8 +13,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'documentService',
@@ -102,7 +99,7 @@ export default {
         documentModal() {
             const subComponentName = this.currentDocumentType.technicalName.replace(/_/g, '-');
 
-            if (`sw-order-document-settings-${subComponentName}-modal` in getCurrentInstance().appContext.components) {
+            if (this.$.appContext.components[`sw-order-document-settings-${subComponentName}-modal`]) {
                 return `sw-order-document-settings-${subComponentName}-modal`;
             }
 

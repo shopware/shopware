@@ -43,7 +43,7 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
     });
 
     it('should be able to get document types', async () => {
-        wrapper.vm.documentTypeRepository.search = jest.fn(() => {
+        const spy = jest.spyOn(wrapper.vm.documentTypeRepository, 'search').mockImplementation(() => {
             return Promise.resolve([
                 {
                     id: 1,
@@ -72,6 +72,6 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
                 }),
             ]),
         );
-        wrapper.vm.documentTypeRepository.search.mockRestore();
+        spy.mockRestore();
     });
 });

@@ -13,26 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class CmsPageLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var Request
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $request;
+    protected Request $request;
 
-    /**
-     * @var Criteria
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $criteria;
+    protected Criteria $criteria;
 
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelContext;
+    protected SalesChannelContext $salesChannelContext;
 
     public function __construct(
         Request $request,

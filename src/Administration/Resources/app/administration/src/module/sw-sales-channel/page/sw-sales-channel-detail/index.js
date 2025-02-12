@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'exportTemplateService',
@@ -321,11 +319,7 @@ export default {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
 
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    this.$root.$emit('sales-channel-change');
-                } else {
-                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
-                }
+                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
                 this.loadEntityData();
             } catch (error) {
                 this.isLoading = false;

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\VariablesAccessTrait;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @template TResponseObject of Struct
+ */
 #[Package('framework')]
 class StoreApiResponse extends Response
 {
@@ -14,18 +17,16 @@ class StoreApiResponse extends Response
     use VariablesAccessTrait;
 
     /**
-     * @var Struct
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @param TResponseObject $object
      */
-    protected $object;
-
-    public function __construct(Struct $object)
+    public function __construct(protected Struct $object)
     {
         parent::__construct();
-        $this->object = $object;
     }
 
+    /**
+     * @return TResponseObject
+     */
     public function getObject(): Struct
     {
         return $this->object;

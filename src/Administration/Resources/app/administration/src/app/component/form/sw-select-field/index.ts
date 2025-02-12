@@ -12,8 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-select-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         options: {
             type: Array,
@@ -24,7 +22,7 @@ Component.register('sw-select-field', {
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
+            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
                 return true;
             }
 
@@ -37,26 +35,11 @@ Component.register('sw-select-field', {
 
             return false;
         },
-
-        listeners(): { [key: string]: unknown } {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

@@ -19,8 +19,6 @@ const { Component } = Shopware;
 Component.register('sw-context-button', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: ['on-open-change'],

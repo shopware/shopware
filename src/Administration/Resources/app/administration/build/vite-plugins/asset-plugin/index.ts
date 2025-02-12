@@ -5,7 +5,7 @@ import type { Plugin } from 'vite';
 import { copyDir } from '../utils';
 
 /**
- * @package framework
+ * @sw-package framework
  * @private
  *
  * This plugin simply copies the static folder into public for production and

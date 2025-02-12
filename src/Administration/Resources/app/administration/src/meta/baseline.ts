@@ -457,11 +457,8 @@ const missingTests = [
     'src/module/sw-users-permissions/index.js',
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',
-    // Doubled vite files
-    'src/app/main.vite.ts',
-    'src/index.vite.ts',
-    'src/app/init-post/index.vite.ts',
-    'src/app/init-post/worker.init.vite.ts',
+    // unable to test because of es module <-> cjs conflicts lazy import statements
+    'src/app/init/component.init.ts',
 ];
 
 /**

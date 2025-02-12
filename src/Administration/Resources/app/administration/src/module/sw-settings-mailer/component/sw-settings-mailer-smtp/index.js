@@ -8,8 +8,6 @@ import './sw-settings-mailer-smtp.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'host-changed',
         'port-changed',

@@ -25,8 +25,6 @@ Component.register('sw-file-input', {
 
     inject: ['feature'],
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['update:value'],
 
     mixins: [

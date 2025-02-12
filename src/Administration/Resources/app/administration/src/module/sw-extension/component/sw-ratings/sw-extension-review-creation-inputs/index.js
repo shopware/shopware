@@ -8,8 +8,6 @@ import './sw-extension-review-creation-inputs.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['changed'],
 
     props: {

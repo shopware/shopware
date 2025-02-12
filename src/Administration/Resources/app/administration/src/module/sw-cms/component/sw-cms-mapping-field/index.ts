@@ -9,8 +9,6 @@ import './sw-cms-mapping-field.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['cmsService'],
 
     props: {
@@ -65,10 +63,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasPreview() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return typeof this.$scopedSlots.preview !== 'undefined';
-            }
-
             return this.$slots.preview !== undefined;
         },
 

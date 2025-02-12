@@ -62,13 +62,5 @@ Component.register('sw-context-menu-item', {
                 'sw-context-menu-item--icon': this.icon,
             };
         },
-
-        contextListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.disabled || this.variant === 'headline' ? {} : this.$listeners;
-            }
-
-            return {};
-        },
     },
 });

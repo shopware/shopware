@@ -77,7 +77,7 @@ class SalesChannelTypeEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
      */
     public function getCoverUrl(): string
     {
@@ -94,7 +94,7 @@ class SalesChannelTypeEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
      */
     public function getIconName(): string
     {
@@ -113,7 +113,7 @@ class SalesChannelTypeEntity extends Entity
     /**
      * @return list<string>
      *
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
      */
     public function getScreenshotUrls(): array
     {

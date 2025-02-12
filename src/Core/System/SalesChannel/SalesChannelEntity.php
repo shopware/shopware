@@ -67,7 +67,7 @@ class SalesChannelEntity extends Entity
     protected int $navigationCategoryDepth;
 
     /**
-     * @var array<mixed>|null
+     * @var array<string, mixed>|null
      */
     protected ?array $homeSlotConfig = null;
 
@@ -182,7 +182,7 @@ class SalesChannelEntity extends Entity
     protected ?MainCategoryCollection $mainCategories = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $paymentMethodIds = null;
 
@@ -549,7 +549,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return array<mixed>|null
+     * @return array<string, mixed>|null
      */
     public function getHomeSlotConfig(): ?array
     {
@@ -557,7 +557,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @param array<mixed>|null $homeSlotConfig
+     * @param array<string, mixed>|null $homeSlotConfig
      */
     public function setHomeSlotConfig(?array $homeSlotConfig): void
     {
@@ -785,7 +785,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getPaymentMethodIds(): ?array
     {
@@ -793,7 +793,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @param array<string> $paymentMethodIds
+     * @param list<string> $paymentMethodIds
      */
     public function setPaymentMethodIds(array $paymentMethodIds): void
     {

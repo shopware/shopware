@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Node\Expression\AbstractExpression;
+use Twig\Source;
 
 #[Package('checkout')]
 class AdapterException extends HttpException
@@ -16,6 +17,7 @@ class AdapterException extends HttpException
     public const UNEXPECTED_TWIG_EXPRESSION = 'FRAMEWORK__UNEXPECTED_TWIG_EXPRESSION';
     public const MISSING_EXTENDING_TWIG_TEMPLATE = 'FRAMEWORK__MISSING_EXTENDING_TWIG_TEMPLATE';
     public const TEMPLATE_SCOPE_DEFINITION_ERROR = 'FRAMEWORK__TEMPLATE_SCOPE_DEFINITION_ERROR';
+    public const TEMPLATE_SW_USE_SYNTAX_ERROR = 'FRAMEWORK__TEMPLATE_SW_USE_SYNTAX_ERROR';
     public const MISSING_DEPENDENCY_ERROR_CODE = 'FRAMEWORK__FILESYSTEM_ADAPTER_DEPENDENCY_MISSING';
     public const INVALID_TEMPLATE_SYNTAX = 'FRAMEWORK__INVALID_TEMPLATE_SYNTAX';
     public const REDIS_UNKNOWN_CONNECTION = 'FRAMEWORK__REDIS_UNKNOWN_CONNECTION';
@@ -77,6 +79,16 @@ class AdapterException extends HttpException
             self::INVALID_TEMPLATE_SYNTAX,
             'Failed rendering Twig string template due syntax error: "{{ message }}"',
             ['message' => $message]
+        );
+    }
+
+    public static function swUseSyntaxError(int $line, Source $context): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::TEMPLATE_SW_USE_SYNTAX_ERROR,
+            'The template references in a "sw_use" statement must be a string.',
+            ['line' => $line, 'context' => $context]
         );
     }
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Maintenance\System\Command;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Tools\DsnParser;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -194,7 +195,13 @@ class SystemSetupCommand extends Command
         );
         $dsn = $dsnWithoutDb . '/' . $dbName;
 
-        $params = ['url' => $dsnWithoutDb, 'charset' => 'utf8mb4'];
+        $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
+        $params = $dsnParser->parse($dsnWithoutDb);
+
+        $params = array_merge([
+            'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
+        ], $params); // adding parameters that are not in the DSN
 
         if ($dbSslCa) {
             $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $dbSslCa;

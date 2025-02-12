@@ -4,19 +4,19 @@
 
 import { defineConfig, loadEnv } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgLoader from 'vite-svg-loader';
 import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
 import * as fs from 'fs';
 import symfonyPlugin from 'vite-plugin-symfony';
 import colors from 'picocolors';
+import { loadExtensions } from './build/vite-plugins/utils';
 import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 
-console.log('╔════════════════════════════════════════════════╗');
-console.log('║               EXPERIMENTAL VITE BUILD          ║');
-console.log('╚════════════════════════════════════════════════╝');
+console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
 process.env = { ...process.env, ...loadEnv('', process.cwd()) };
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '/../../../../../');
@@ -36,10 +36,30 @@ export default defineConfig(({ command }) => {
     const isProd = command === 'build';
     const isDev = !isProd;
     const base = isProd ? '/bundles/administration/administration' : undefined;
+    const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+    const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
+
+    if (isProd) {
+        console.log(colors.yellow('# Production mode activated 🚀'));
+    }
+
+    // We only load extensions here to display the successfull injection
+    const extensions = loadExtensions();
+    extensions.forEach((extension) => {
+        console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));
+    });
+
+    // print new line
+    console.log('');
 
     return {
         base,
+
+        logLevel: isProd ? 'warn' : 'info',
+
         server: {
+            open: openBrowserForWatch,
+            host: process.env.HOST ? process.env.HOST : 'localhost',
             proxy: {
                 '/api': {
                     target: process.env.APP_URL,
@@ -58,6 +78,11 @@ export default defineConfig(({ command }) => {
                 AssetPlugin(isProd, __dirname),
                 AssetPathPlugin(),
 
+                // Twig.JS loads node modules, so we need to polyfill them
+                nodePolyfills({
+                    // To add only specific polyfills, add them here. If no option is passed, adds all polyfills
+                    include: ['path', 'events'],
+                }),
                 svgLoader(),
                 vue(),
             ];
@@ -75,7 +100,7 @@ export default defineConfig(({ command }) => {
                          * the original tags need to be deleted
                          * @default src/main.ts
                          */
-                        entry: 'src/index.vite.ts',
+                        entry: 'src/index.ts',
 
                         /**
                          * Data that needs to be injected into the index.html ejs template
@@ -107,6 +132,10 @@ export default defineConfig(({ command }) => {
                 {
                     find: /^src\//,
                     replacement: '/src/',
+                },
+                {
+                    find: /^test\//,
+                    replacement: '/test/',
                 },
                 {
                     // this is required for the SCSS modules
@@ -158,11 +187,11 @@ export default defineConfig(({ command }) => {
 
             // generate .vite/manifest.json in outDir
             manifest: true,
-            sourcemap: true,
+            sourcemap: useSourceMap,
             rollupOptions: {
                 // overwrite default .html entry
                 input: {
-                    administration: 'src/index.vite.ts',
+                    administration: 'src/index.ts',
                 },
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',

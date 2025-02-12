@@ -21,11 +21,6 @@ class AddressHasher
     ) {
     }
 
-    public function isMatching(string $hash, CustomerAddressEntity|OrderAddressEntity $address): bool
-    {
-        return $hash === $this->generate($address);
-    }
-
     public function generate(CustomerAddressEntity|OrderAddressEntity $address): string
     {
         $event = new AddressHashEvent(AddressHashStruct::createFromAddress($address));

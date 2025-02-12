@@ -32,13 +32,6 @@ class AddressHasherTest extends TestCase
         $this->hasher = new AddressHasher($this->eventDispatcher);
     }
 
-    #[DataProvider('generateProvider')]
-    public function testIsMatching(CustomerAddressEntity|OrderAddressEntity $address, string $expectedHash): void
-    {
-        static::assertTrue($this->hasher->isMatching($expectedHash, $address));
-        static::assertFalse($this->hasher->isMatching('invalid-hash', $address));
-    }
-
     /**
      * @param array<string, string|null> $expectedStruct
      */

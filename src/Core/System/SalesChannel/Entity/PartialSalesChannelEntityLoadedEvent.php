@@ -11,13 +11,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PartialSalesChannelEntityLoadedEvent extends SalesChannelEntityLoadedEvent
 {
     /**
-     * @var PartialEntity[]
+     * @param PartialEntity[] $entities
      */
-    protected array $entities;
-
     public function __construct(
         EntityDefinition $definition,
-        array $entities,
+        protected array $entities,
         SalesChannelContext $context
     ) {
         parent::__construct($definition, $entities, $context);

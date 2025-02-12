@@ -8,8 +8,6 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 #[Package('framework')]
 class IterateEntityIndexerMessage implements AsyncMessageInterface
 {
-    protected string $indexer;
-
     /**
      * @internal
      *
@@ -17,11 +15,10 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface
      * @param array<string> $skip
      */
     public function __construct(
-        string $indexer,
+        protected string $indexer,
         protected ?array $offset,
         protected array $skip = []
     ) {
-        $this->indexer = $indexer;
     }
 
     public function getIndexer(): string

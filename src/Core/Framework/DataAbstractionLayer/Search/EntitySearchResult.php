@@ -24,10 +24,6 @@ class EntitySearchResult extends EntityCollection
 
     protected AggregationResultCollection $aggregations;
 
-    protected Criteria $criteria;
-
-    protected Context $context;
-
     protected int $page;
 
     protected ?int $limit = null;
@@ -40,11 +36,9 @@ class EntitySearchResult extends EntityCollection
         protected int $total,
         protected EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
-        Criteria $criteria,
-        Context $context
+        protected Criteria $criteria,
+        protected Context $context
     ) {
-        $this->criteria = $criteria;
-        $this->context = $context;
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());

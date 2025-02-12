@@ -12,18 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EntityIdSearchResultLoadedEvent extends NestedEvent implements GenericEvent
 {
-    protected IdSearchResult $result;
-
-    protected EntityDefinition $definition;
-
     protected string $name;
 
     public function __construct(
-        EntityDefinition $definition,
-        IdSearchResult $result
+        protected EntityDefinition $definition,
+        protected IdSearchResult $result
     ) {
-        $this->result = $result;
-        $this->definition = $definition;
         $this->name = $this->definition->getEntityName() . '.id.search.result.loaded';
     }
 

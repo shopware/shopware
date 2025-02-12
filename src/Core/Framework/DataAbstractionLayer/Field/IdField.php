@@ -8,13 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class IdField extends Field implements StorageAware
 {
-    protected string $storageName;
-
     public function __construct(
-        string $storageName,
+        protected string $storageName,
         string $propertyName
     ) {
-        $this->storageName = $storageName;
         parent::__construct($propertyName);
     }
 

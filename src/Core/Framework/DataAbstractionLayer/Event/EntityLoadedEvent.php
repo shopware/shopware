@@ -16,28 +16,16 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EntityLoadedEvent extends NestedEvent implements GenericEvent, \IteratorAggregate
 {
-    /**
-     * @var Entity[]
-     */
-    protected array $entities;
-
-    protected EntityDefinition $definition;
-
-    protected Context $context;
-
     protected string $name;
 
     /**
      * @param Entity[] $entities
      */
     public function __construct(
-        EntityDefinition $definition,
-        array $entities,
-        Context $context
+        protected EntityDefinition $definition,
+        protected array $entities,
+        protected Context $context
     ) {
-        $this->entities = $entities;
-        $this->definition = $definition;
-        $this->context = $context;
         $this->name = $this->definition->getEntityName() . '.loaded';
     }
 

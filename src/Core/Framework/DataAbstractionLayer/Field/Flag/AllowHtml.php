@@ -10,11 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AllowHtml extends Flag
 {
-    protected bool $sanitized;
-
-    public function __construct(bool $sanitized = true)
+    public function __construct(protected bool $sanitized = true)
     {
-        $this->sanitized = $sanitized;
     }
 
     public function parse(): \Generator

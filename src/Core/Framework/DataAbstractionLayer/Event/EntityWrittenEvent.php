@@ -17,16 +17,7 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
 
     protected NestedEventCollection $events;
 
-    protected array $errors;
-
-    protected Context $context;
-
     protected ?array $payloads = null;
-
-    /**
-     * @var EntityWriteResult[]
-     */
-    protected array $writeResults;
 
     /**
      * @var EntityExistence[]
@@ -35,21 +26,16 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
 
     protected string $name;
 
-    protected string $entityName;
-
+    /**
+     * @param EntityWriteResult[] $writeResults
+     */
     public function __construct(
-        string $entityName,
-        array $writeResults,
-        Context $context,
-        array $errors = []
+        protected string $entityName,
+        protected array $writeResults,
+        protected Context $context,
+        protected array $errors = []
     ) {
         $this->events = new NestedEventCollection();
-        $this->context = $context;
-        $this->errors = $errors;
-
-        $this->writeResults = $writeResults;
-
-        $this->entityName = $entityName;
         $this->name = $this->entityName . '.written';
     }
 

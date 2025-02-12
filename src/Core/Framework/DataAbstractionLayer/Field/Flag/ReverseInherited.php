@@ -7,11 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ReverseInherited extends Flag
 {
-    protected string $propertyName;
-
-    public function __construct(string $propertyName)
+    public function __construct(protected string $propertyName)
     {
-        $this->propertyName = $propertyName;
     }
 
     public function getReversedPropertyName(): string

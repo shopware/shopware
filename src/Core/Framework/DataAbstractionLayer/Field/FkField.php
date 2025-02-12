@@ -12,27 +12,18 @@ class FkField extends Field implements StorageAware
 {
     final public const PRIORITY = 70;
 
-    protected string $storageName;
-
-    protected string $referenceClass;
-
     protected ?EntityDefinition $referenceDefinition = null;
-
-    protected string $referenceField;
 
     protected ?DefinitionInstanceRegistry $registry = null;
 
     private ?string $referenceEntity = null;
 
     public function __construct(
-        string $storageName,
+        protected string $storageName,
         string $propertyName,
-        string $referenceClass,
-        string $referenceField = 'id'
+        protected string $referenceClass,
+        protected string $referenceField = 'id'
     ) {
-        $this->referenceClass = $referenceClass;
-        $this->storageName = $storageName;
-        $this->referenceField = $referenceField;
         parent::__construct($propertyName);
     }
 

@@ -13,6 +13,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class AddressHasher
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {

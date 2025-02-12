@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 #[Package('checkout')]
 class AddressHashSubscriber implements EventSubscriberInterface
 {

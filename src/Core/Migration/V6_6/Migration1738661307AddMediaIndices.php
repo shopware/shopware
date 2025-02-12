@@ -46,6 +46,11 @@ class Migration1738661307AddMediaIndices extends MigrationStep
         }
 
         $this->dropIndexIfExists($connection, 'media', 'idx.media.file_hash');
-        $connection->executeStatement(/** @lang MySQL */ 'CREATE INDEX `idx.media.file_hash` ON `media` (`file_hash`);');
+        $connection->executeStatement(
+            <<<SQL
+            CREATE INDEX `idx.media.file_hash`
+                ON `media` (`file_hash`);
+            SQL
+        );
     }
 }

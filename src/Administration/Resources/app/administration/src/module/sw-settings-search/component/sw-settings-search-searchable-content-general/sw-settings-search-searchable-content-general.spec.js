@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 
 // Turn off known errors
-import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+import { missingGetListMethod } from 'test/_helper_/allowedErrors';
 
 global.allowedErrors.push(missingGetListMethod);
 

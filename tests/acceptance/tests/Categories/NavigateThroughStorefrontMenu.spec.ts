@@ -4,7 +4,8 @@ test(
     'As a customer, I want breadcrumb to update when I select a category to understand my location on the site.',
     { tag: '@Categories' },
     async ({ ShopCustomer, StorefrontHome, TestDataService, InstanceMeta }) => {
-        test.skip(InstanceMeta.features['V6_7_0_0'], 'Blocked by https://shopware.atlassian.net/browse/NEXT-40154');
+        test.skip(InstanceMeta.features['ACCESSIBILITY_TWEAKS'], 'Blocked by https://shopware.atlassian.net/browse/NEXT-40154, ' +
+            'https://shopware.atlassian.net/browse/NEXT-40634');
 
         const category1 = await TestDataService.createCategory({ type: 'folder' });
         const category2 = await TestDataService.createCategory({ type: 'page' });

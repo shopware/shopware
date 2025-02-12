@@ -144,19 +144,9 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
-        if (Feature::isActive('cache_rework')) {
-            $this->cacheInvalidator->invalidate([
-                CachedResolvedConfigLoader::buildName($themeId),
-            ]);
-
-            return;
-        }
-
-        // Reset cache buster state for improving performance in getMetadata
         $this->cacheInvalidator->invalidate([
-            'theme-metaData',
-            'theme_scripts_' . $themePrefix,
-        ], true);
+            CachedResolvedConfigLoader::buildName($themeId),
+        ]);
     }
 
     /**

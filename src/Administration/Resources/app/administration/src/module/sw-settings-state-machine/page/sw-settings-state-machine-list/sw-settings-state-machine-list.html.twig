@@ -1,0 +1,83 @@
+{% block sw_settings_state_machine_list %}
+<sw-page class="sw-settings-state-machine-list">
+    {% block sw_settings_state_machine_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_state_machine_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_state_machine_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="regular-chevron-right-xs"
+                small
+            />
+            {{ $tc('sw-settings-state-machine.general.mainMenuItemGeneral') }}
+            {% endblock %}
+
+            {% block sw_settings_state_machine_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_state_machine_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_state_machine_list_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_settings_state_machine_list_content_card %}
+            <sw-card
+                position-identifier="sw-settings-state-machine-list-content"
+                :is-loading="isLoading"
+            >
+                {% block sw_settings_state_machine_list_content_card_grid %}
+                <template #grid>
+                    <sw-data-grid
+                        class="sw-settings-state-machine-list-grid"
+                        :is-loading="isLoading"
+                        :data-source="stateMachines"
+                        :columns="stateMachineColumns"
+                        :show-selection="false"
+                        :allow-inline-edit="acl.can('state_machine.editor')"
+                        :skeleton-item-amount="stateMachines.length"
+                        @inline-edit-save="onInlineEditSave"
+                        @inline-edit-cancel="onInlineEditCancel"
+                    >
+                        {% block sw_settings_state_machine_list_content_card_grid_actions %}
+                        <template #actions="{ item }">
+                            {% block sw_settings_state_machine_list_content_card_grid_actions_edit %}
+                            <sw-context-menu-item
+                                class="sw-settings-state-machine__edit-action"
+                                :disabled="!acl.can('state_machine.editor')"
+                                :router-link="{
+                                    name: 'sw.settings.state.machine.detail',
+                                    params: { id: item.id }
+                                }"
+                            >
+                                {{ $tc('global.default.edit') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-data-grid>
+                </template>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

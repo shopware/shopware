@@ -1,5 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
-import { getFlowId, compareFlowTemplateWithFlow } from "@shopware-ag/acceptance-test-suite";
+import { getFlowId, compareFlowTemplateWithFlow } from '@shopware-ag/acceptance-test-suite';
 
 test('As an admin, I want to create new flows from templates, so that I can easily create new ones based on the default flows.', { tag: '@Flow' }, async ({
         ShopAdmin,
@@ -10,7 +10,7 @@ test('As an admin, I want to create new flows from templates, so that I can easi
         AdminApiContext,
 
     }) => {
-
+    //test.setTimeout(40_000);
     // change flowTemplateName to test different flows/templates
     const flowTemplateName = 'Order placed';
 
@@ -23,6 +23,7 @@ test('As an admin, I want to create new flows from templates, so that I can easi
     // await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url(`?limit=25&page=1&term=${flowTemplateSearchTerm}&sortBy=createdAt&sortDirection=DESC&naturalSorting=false`));
     // todo: the line above replaces the following two lines as soon as NEXT-40094 is resolved
         await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
+        await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
         await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
         const adminFlowBuilderTemplatesRow = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
         await adminFlowBuilderTemplatesRow.templateDetailLink.click();

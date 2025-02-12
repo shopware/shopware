@@ -257,11 +257,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service id="Shopware\Storefront\Controller\CountryStateController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader"/>
             <call method="setContainer">

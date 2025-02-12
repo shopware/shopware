@@ -12,26 +12,10 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 abstract class PageletLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelContext;
-
-    /**
-     * @var Request
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $request;
-
     public function __construct(
-        SalesChannelContext $salesChannelContext,
-        Request $request
+        protected SalesChannelContext $salesChannelContext,
+        protected Request $request,
     ) {
-        $this->salesChannelContext = $salesChannelContext;
-        $this->request = $request;
     }
 
     /**

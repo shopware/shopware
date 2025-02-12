@@ -117,7 +117,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
                         <slot name="smart-bar-header"></slot>
-                        <slot name="language-switch"></slot>
                         <slot name="smart-bar-actions"></slot>
                         <slot name="side-content"></slot>
                         <slot name="content"></slot>
@@ -138,7 +137,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                     'sw-card': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
-                    'sw-language-switch': true,
                     'sw-checkbox-field': {
                         template: `
                     <div class="sw-field--checkbox">

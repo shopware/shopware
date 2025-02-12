@@ -1,0 +1,51 @@
+{
+  "sw-settings-state-machine": {
+    "general": {
+      "mainMenuItemGeneral": "State machines"
+    },
+    "list": {
+      "grid": {
+        "columnName": "Name",
+        "columnTechnicalName": "Technical name"
+      }
+    },
+    "detail": {
+      "stateMachineCardTitle": "State machine",
+      "fieldLabels": {
+        "name": "Name",
+        "technicalName": "Technical name"
+      }
+    },
+    "notification": {
+      "successMessage": "State machine has been saved.",
+      "errorMessage": "State machine could not be saved. Please fill in all required fields."
+    },
+    "state": {
+      "list": {
+        "stateMachineStateCardTitle": "States",
+        "grid": {
+          "columnName": "Name",
+          "columnTechnicalName": "Technical name"
+        }
+      },
+      "detail": {
+        "stateMachineStateCardTitle": "State machine state",
+        "labelName": "Name",
+        "labelTechnicalName": "Technical name",
+        "buttonCancel": "Cancel",
+        "buttonSave": "Save"
+      },
+      "notification": {
+        "successMessage": "State machine state has been saved.",
+        "errorMessage": "State machine state could not be saved. Please fill in all required fields."
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "state_machine": {
+        "label": "State machines"
+      }
+    }
+  }
+}

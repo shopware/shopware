@@ -15,13 +15,8 @@ All blocks of this template are available in the template which renders this tem
     <div class="letter-header">
         <div class="recipient-address-container" tabindex="0">
             {% block document_recipient %}
-                {# @deprecated tag:v6.7.0 - companyAddress will be replaced with single fields. companyStreet, companyZipcode, companyCity #}
                 {% set address %}
-                    {% if feature('v6.7.0.0') %}
-                        <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
-                    {% else %}
-                        <span class="company-address-small">{{ config.companyName }} {{ config.companyAddress }}</span><br><br>
-                    {% endif %}
+                    <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
                 {% endset %}
 
                 {% if config.displayCompanyAddress and address is not empty %}

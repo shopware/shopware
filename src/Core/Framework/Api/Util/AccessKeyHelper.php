@@ -16,10 +16,8 @@ class AccessKeyHelper
 
     /**
      * @var array<string, string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    public static $mapping = [
+    public static array $mapping = [
         self::USER_IDENTIFIER => 'user',
         self::INTEGRATION_IDENTIFIER => 'integration',
         self::SALES_CHANNEL_IDENTIFIER => 'sales-channel',

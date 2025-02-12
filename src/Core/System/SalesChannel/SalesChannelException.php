@@ -5,11 +5,9 @@ namespace Shopware\Core\System\SalesChannel;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -182,15 +180,8 @@ class SalesChannelException extends HttpException
         return CartException::customerNotLoggedIn();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function contextPermissionsLocked(): self|ContextPermissionsLockedException
+    public static function contextPermissionsLocked(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ContextPermissionsLockedException();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED,

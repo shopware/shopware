@@ -1,9 +1,17 @@
 /**
  * @sw-package framework
- *
- * This is the initial start file for the whole administration. It loads
- * the Shopware Core with the Shopware object. And then starts to execute
- * the application.
  */
-import 'src/core/shopware';
-import 'src/app/main';
+import './app/assets/scss/all.scss';
+
+// Import the Shopware instance
+void import('src/core/shopware').then(async ({ ShopwareInstance }) => {
+    // Set the global Shopware instance
+    window.Shopware = ShopwareInstance;
+
+    // Import the main file
+    await import('src/app/main');
+
+    // Start the main application and fingers crossed
+    // that everything works as expected
+    window.startApplication();
+});

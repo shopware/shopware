@@ -51,10 +51,14 @@ class ProductExportRenderer implements ProductExportRendererInterface
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
         } catch (AdapterException $exception) {
-            $renderHeaderException = ProductExportException::renderHeaderException($exception->getMessage());
-            $this->logException($salesChannelContext->getContext(), $renderHeaderException);
+            if ($exception->getErrorCode() === AdapterException::STRING_TEMPLATE_RENDERING_FAILED) {
+                $renderHeaderException = ProductExportException::renderHeaderException($exception->getMessage());
+                $this->logException($salesChannelContext->getContext(), $renderHeaderException);
 
-            throw $renderHeaderException;
+                throw $renderHeaderException;
+            }
+
+            throw $exception;
         }
     }
 

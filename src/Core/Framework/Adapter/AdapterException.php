@@ -21,6 +21,7 @@ class AdapterException extends HttpException
     public const REDIS_UNKNOWN_CONNECTION = 'FRAMEWORK__REDIS_UNKNOWN_CONNECTION';
     public const INVALID_ASSET_URL = 'FRAMEWORK__INVALID_ASSET_URL';
     final public const INVALID_ARGUMENT = 'FRAMEWORK__INVALID_ARGUMENT_EXCEPTION';
+    final public const STRING_TEMPLATE_RENDERING_FAILED = 'FRAMEWORK__STRING_TEMPLATE_RENDERING_FAILED';
 
     public static function unexpectedTwigExpression(AbstractExpression $expression): self
     {
@@ -94,7 +95,7 @@ class AdapterException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            'FRAMEWORK__STRING_TEMPLATE_RENDERING_FAILED',
+            self::STRING_TEMPLATE_RENDERING_FAILED,
             'Failed rendering string template using Twig: {{ message }}',
             ['message' => $message]
         );

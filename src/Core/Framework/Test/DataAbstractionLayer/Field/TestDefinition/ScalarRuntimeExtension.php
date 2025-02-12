@@ -20,11 +20,6 @@ class ScalarRuntimeExtension extends EntityExtension
         );
     }
 
-    public function getDefinitionClass(): string
-    {
-        return ExtendableDefinition::class;
-    }
-
     public function getEntityName(): string
     {
         return 'extendable';

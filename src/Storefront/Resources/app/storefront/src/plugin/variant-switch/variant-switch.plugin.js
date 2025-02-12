@@ -92,7 +92,7 @@ export default class VariantSwitchPlugin extends Plugin {
         };
 
         if (this._elementId && this._pageType !== 'product_detail') {
-            const url = this.options.url + '?' + new URLSearchParams({ ...query, elementId: this._elementId }).toString();
+            const url = `${this.options.url}?${new URLSearchParams({...query, elementId: this._elementId}).toString()}`;
             document.$emitter.publish('updateBuyWidget', { url, elementId: this._elementId });
 
             return;

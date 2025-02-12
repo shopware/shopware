@@ -468,4 +468,40 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(createNewVersionIdMock).toHaveBeenCalled();
         expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(false);
     });
+
+    it('should ask for saving confirmation before continuing', async () => {
+        wrapper = await createWrapper();
+        const onSaveEditsSpy = jest.fn();
+        wrapper.vm.onSaveEdits = onSaveEditsSpy;
+
+        let promise = wrapper.vm.askAndSaveEdits();
+
+        expect(wrapper.vm.askForSaveBeforehand).toBeFalsy();
+        expect(await promise).toBe(true);
+        expect(onSaveEditsSpy).not.toHaveBeenCalled();
+
+        wrapper.vm.hasOrderDeepEdit = true;
+        await flushPromises();
+
+        promise = wrapper.vm.askAndSaveEdits();
+        expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
+
+        wrapper.vm.onAskAndSaveEditsProceed();
+        expect(await promise).toBe(true);
+        expect(onSaveEditsSpy).not.toHaveBeenCalled();
+
+        promise = wrapper.vm.askAndSaveEdits();
+        expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
+
+        wrapper.vm.onAskAndSaveEditsCancel();
+        expect(await promise).toBe(false);
+        expect(onSaveEditsSpy).not.toHaveBeenCalled();
+
+        promise = wrapper.vm.askAndSaveEdits();
+        expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
+
+        wrapper.vm.onAskAndSaveEditsConfirm();
+        expect(await promise).toBe(true);
+        expect(onSaveEditsSpy).toHaveBeenCalled();
+    });
 });

@@ -302,6 +302,13 @@
       "confirmButton": "Leave page",
       "cancelButton": "Stay on page"
     },
+    "saveChangesBeforehandModal": {
+      "headline": "Warning",
+      "description": "There are unsaved changes. These should be saved before continuing in order to avoid inconsistencies.",
+      "confirmButton": "Save changes",
+      "proceedButton": "Proceed anyway",
+      "cancelButton": "Cancel"
+    },
     "stateCard": {
       "cardTitle": "Status",
       "headlineOrderState": "Order status",

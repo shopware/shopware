@@ -290,6 +290,13 @@
       "confirmButton": "Seite verlassen",
       "cancelButton": "Auf Seite bleiben"
     },
+    "saveEditsBeforehandModal": {
+      "headline": "Warnung",
+      "description": "Es existieren ungespeicherte Änderungen. Diese sollten vor dem Fortfahren gespeichert werden, um Inkonsistenzen zu vermeiden.",
+      "confirmButton": "Änderungen speichern",
+      "proceedButton": "Trotzdem fortfahren",
+      "cancelButton": "Abbrechen"
+    },
     "detailDeliveries": {
       "cardTitleItems": "Lieferung {count}",
       "labelShippingMethod": "Versandart",

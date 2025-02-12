@@ -101,7 +101,7 @@
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
             <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
-            <argument>%shopware.cache.tagging.each_theme_config%</argument>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">
@@ -183,7 +183,6 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument>%kernel.debug%</argument>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="event_dispatcher"/>
@@ -259,11 +258,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\GenericPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
@@ -440,11 +435,6 @@
             <argument type="service" id="Shopware\Storefront\Page\Cms\DefaultMediaResolver.inner"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
             <argument type="service" id="assets.packages"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\CacheTracer" decorates="Shopware\Core\Framework\Adapter\Cache\CacheTracer" lazy="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTracer.inner"/>
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">

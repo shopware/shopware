@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -17,39 +16,12 @@ class ThemeConfigValueAccessor
     private array $themeConfig = [];
 
     /**
-     * @var array<string, bool>
-     */
-    private array $keys = ['all' => true];
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, cache tags are collected via events
-     *
-     * @var array<string, array<string, bool>>
-     */
-    private array $traces = [];
-
-    /**
      * @internal
      */
     public function __construct(
         private readonly AbstractResolvedConfigLoader $themeConfigLoader,
-        private readonly bool $fineGrainedCache,
         private readonly EventDispatcherInterface $dispatcher
     ) {
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, use \Shopware\Storefront\Theme\CachedResolvedConfigLoader::buildName
-     */
-    public static function buildName(string $key): string
-    {
-        // fix with #6556
-        // Feature::triggerDeprecationOrThrow(
-        //     'v6.7.0.0',
-        //     Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
-        // );
-
-        return 'theme.' . $key;
     }
 
     /**
@@ -57,58 +29,9 @@ class ThemeConfigValueAccessor
      */
     public function get(string $key, SalesChannelContext $context, ?string $themeId)
     {
-        // @deprecated tag:v6.7.0 - remove full IF condition, tagging is done in `getThemeConfig`
-        if (!Feature::isActive('cache_rework')) {
-            if ($this->fineGrainedCache) {
-                foreach (array_keys($this->keys) as $trace) {
-                    $this->traces[$trace]['theme.' . $key] = true;
-                }
-            } else {
-                foreach (array_keys($this->keys) as $trace) {
-                    $this->traces[$trace]['shopware.theme'] = true;
-                }
-            }
-        }
-
         $config = $this->getThemeConfig($context, $themeId);
 
-        if (\array_key_exists($key, $config)) {
-            return $config[$key];
-        }
-
-        return null;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed, cache tags are collected via events
-     *
-     * @template TReturn of mixed
-     *
-     * @param \Closure(): TReturn $param
-     *
-     * @return TReturn All kind of data could be cached
-     */
-    public function trace(string $key, \Closure $param)
-    {
-        $this->traces[$key] = [];
-        $this->keys[$key] = true;
-
-        $result = $param();
-
-        unset($this->keys[$key]);
-
-        return $result;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    public function getTrace(string $key): array
-    {
-        $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
-        unset($this->traces[$key]);
-
-        return $trace;
+        return $config[$key] ?? null;
     }
 
     /**

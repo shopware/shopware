@@ -28,11 +28,8 @@ class Context extends Struct
 
     protected bool $rulesLocked = false;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     #[Ignore]
-    protected $extensions = [];
+    protected array $extensions = [];
 
     /**
      * @param non-empty-list<string> $languageIdChain

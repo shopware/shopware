@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -128,42 +127,6 @@ class InfoController extends AbstractController
         $events = $this->eventCollector->collect($context);
 
         return new JsonResponse($events);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0. Use api.info.stoplightio instead
-     */
-    #[Route(
-        path: '/api/_info/swagger.html',
-        name: 'api.info.swagger',
-        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
-        methods: ['GET']
-    )]
-    public function infoHtml(Request $request): Response
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            'Route "/api/_info/swagger.html" is deprecated. Use "/api/_info/stoplightio.html" instead.'
-        );
-
-        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON);
-        $response = $this->render(
-            '@Framework/swagger.html.twig',
-            [
-                'schemaUrl' => 'api.info.openapi3',
-                'cspNonce' => $nonce,
-                'apiType' => $apiType,
-            ]
-        );
-
-        $cspTemplate = trim($this->params->get('shopware.security.csp_templates')['administration'] ?? '');
-        if ($cspTemplate !== '') {
-            $csp = str_replace(['%nonce%', "\n", "\r"], [$nonce, ' ', ' '], $cspTemplate);
-            $response->headers->set('Content-Security-Policy', $csp);
-        }
-
-        return $response;
     }
 
     #[Route(

@@ -60,6 +60,7 @@ export default defineConfig(({ command }) => {
         server: {
             open: openBrowserForWatch,
             host: process.env.HOST ? process.env.HOST : 'localhost',
+            port: Number(process.env.ADMIN_PORT) || 5173,
             proxy: {
                 '/api': {
                     target: process.env.APP_URL,

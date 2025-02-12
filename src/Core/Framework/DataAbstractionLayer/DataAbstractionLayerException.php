@@ -27,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedAr
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
@@ -799,15 +798,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function hookInjectionException(Hook $hook, string $class, string $required): self|HookInjectionException
+    public static function hookInjectionException(Hook $hook, string $class, string $required): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new HookInjectionException($hook, $class, $required);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::HOOK_INJECTION_EXCEPTION,

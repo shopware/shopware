@@ -22,8 +22,6 @@ Shopware.Component.register('sw-error-boundary', {
 
     inject: ['repositoryFactory'],
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         logEntryRepository() {
             return this.repositoryFactory.create('log_entry', null, {

@@ -11,8 +11,6 @@ const { Component } = Shopware;
 Component.register('sw-data-grid-column-boolean', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['update:value'],
 
     props: {

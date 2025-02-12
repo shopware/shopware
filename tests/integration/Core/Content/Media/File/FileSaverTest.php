@@ -611,7 +611,7 @@ class FileSaverTest extends TestCase
             static::getContainer()->get(ThumbnailService::class),
             static::getContainer()->get(MetadataLoader::class),
             static::getContainer()->get(TypeDetector::class),
-            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(MediaLocationBuilder::class),
             static::getContainer()->get(AbstractMediaPathStrategy::class),

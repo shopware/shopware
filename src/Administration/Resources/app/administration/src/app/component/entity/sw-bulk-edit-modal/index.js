@@ -13,8 +13,6 @@ const { Component } = Shopware;
 Component.register('sw-bulk-edit-modal', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'modal-close',
         'edit-items',
@@ -69,9 +67,6 @@ Component.register('sw-bulk-edit-modal', {
 
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots;
-            }
 
             return this.$slots;
         },

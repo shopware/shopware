@@ -6,16 +6,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @extends StoreApiResponse<ArrayStruct<array{redirectUrl: string|null}>>
+ */
 #[Package('framework')]
 class ContextTokenResponse extends StoreApiResponse
 {
-    /**
-     * @var ArrayStruct<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
     public function __construct(
         string $token,
         ?string $redirectUrl = null

@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: [
@@ -205,20 +203,12 @@ export default {
             );
 
             Object.values(this.toBeAdded[this.selectedAssignment]).forEach((toBeAdded) => {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(selection, toBeAdded.id, toBeAdded);
-                } else {
-                    selection[toBeAdded.id] = toBeAdded;
-                }
+                selection[toBeAdded.id] = toBeAdded;
             });
 
             Object.values(this.toBeDeleted[this.selectedAssignment]).forEach((toBeDeleted) => {
                 if (selection.hasOwnProperty(toBeDeleted.id)) {
-                    if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                        this.$delete(selection, toBeDeleted.id);
-                    } else {
-                        delete selection[toBeDeleted.id];
-                    }
+                    delete selection[toBeDeleted.id];
                 }
             });
 
@@ -435,21 +425,13 @@ export default {
         countIncrease(propertyName) {
             if (this.counts.hasOwnProperty(propertyName)) {
                 this.counts[propertyName] += 1;
-            } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.counts, propertyName, 1);
-            } else {
-                this.counts[propertyName] = 1;
-            }
+            } else this.counts[propertyName] = 1;
         },
 
         countDecrease(propertyName) {
             if (this.counts.hasOwnProperty(propertyName) && this.counts[propertyName] !== 0) {
                 this.counts[propertyName] -= 1;
-            } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.counts, propertyName, 0);
-            } else {
-                this.counts[propertyName] = 0;
-            }
+            } else this.counts[propertyName] = 0;
 
             if (!this.showSelected) {
                 return;

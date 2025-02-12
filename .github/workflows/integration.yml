@@ -16,24 +16,24 @@ on:
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:acceptance') }}
     strategy:
       fail-fast: false
       matrix:
         name:
-          - 'Platform'
-          - 'Install'
+          - "Platform"
+          - "Install"
         major:
-          - ''
+          - ""
         php-version:
-          - '8.2'
-          - '8.4'
+          - "8.2"
+          - "8.4"
         include:
-          - name: 'Platform'
-            major: 'major'
+          - name: "Platform"
+            major: "major"
             php-version: 8.2
-          - name: 'Platform'
-            major: 'major'
+          - name: "Platform"
+            major: "major"
             php-version: 8.4
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
@@ -76,7 +76,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
-          mysql-version: 'skip'
+          mysql-version: "skip"
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install: ${{ matrix.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
@@ -119,17 +119,19 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run your tests with reporting
-        if: ${{ contains(github.workflow_ref, 'nightly') }}
+        if: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' }}
         working-directory: tests/acceptance
+        env:
+          CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major }}"
         run: |-
           npx pwc \
-            --ci-build-id "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major }}" \
+            --ci-build-id ${CURRENTS_BUILD_ID} \
             --project-id ${{ secrets.CURRENTS_PROJECT_ID }} \
             --key ${{ secrets.CURRENTS_RECORD_KEY }} \
             -- --project ${{ matrix.name }} --trace=on
 
       - name: Run your tests
-        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        if: ${{ inputs.nightly != 'true' || matrix.php-version != '8.4'  }}
         working-directory: tests/acceptance
         run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
 
@@ -142,10 +144,10 @@ jobs:
 
   phpunit-matrix:
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:phpunit') }}
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
-    steps: 
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
       - id: generate-matrix
@@ -158,8 +160,8 @@ jobs:
 
   phpunit:
     name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
-    if: ${{ github.event_name != 'pull_request' }}
-    needs: 
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:phpunit') }}
+    needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
     strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
@@ -194,7 +196,7 @@ jobs:
         uses: shopware/setup-shopware@main
         with:
           php-version: ${{ matrix.php }}
-          mysql-version: 'skip'
+          mysql-version: "skip"
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
@@ -322,7 +324,7 @@ jobs:
   tested-update-versions:
     name: tested-versions
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:acceptance') }}
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
@@ -336,7 +338,7 @@ jobs:
   acceptance-update:
     needs: tested-update-versions
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:acceptance') }}
     strategy:
       fail-fast: false
       matrix:
@@ -498,19 +500,20 @@ jobs:
   check:
     if: always()
     needs:
-    - acceptance
-    - phpunit
-    - win-checkout
-    - code-ql
-    - acceptance-update
-    - blue-green-66-67
+      - acceptance
+      - phpunit
+      - win-checkout
+      - code-ql
+      - acceptance-update
+      - blue-green-66-67
 
     runs-on: Ubuntu-latest
     steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@release/v1
-      with:
-        # allowed-failures: docs, linters
-        # allow all jobs to be skipped in case of a PR run
-        allowed-skips: acceptance, phpunit, win-checkout, code-ql, acceptance-update, blue-green-66-67
-        jobs: ${{ toJSON(needs) }}
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          # allowed-failures: docs, linters
+          # allow all jobs to be skipped in case of a PR run
+          allowed-skips: acceptance, phpunit, win-checkout, code-ql, acceptance-update, blue-green-66-67
+          jobs: ${{ toJSON(needs) }}
+

@@ -7,6 +7,4 @@ import './sw-cms-block-image-text-gallery.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

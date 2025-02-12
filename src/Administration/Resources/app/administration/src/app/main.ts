@@ -3,7 +3,7 @@
  */
 
 /** Initializer */
-import initializers from 'src/app/init';
+import initializers from 'src/app/init/';
 import preInitializer from 'src/app/init-pre/';
 import postInitializer from 'src/app/init-post/';
 
@@ -57,9 +57,6 @@ import 'src/app/decorator';
 /** Import Meteor Component Library styles */
 import '@shopware-ag/meteor-component-library/dist/style.css';
 
-/** Import global styles */
-import 'src/app/assets/scss/all.scss';
-
 import ChangesetGenerator from '../core/data/changeset-generator.data';
 import ErrorResolver from '../core/data/error-resolver.data';
 
@@ -73,23 +70,36 @@ const adapter = new VueAdapter(Application);
 
 Application.setViewAdapter(adapter);
 
-// Merge all initializer
-const allInitializers = {
-    ...preInitializer,
-    ...initializers,
-    ...postInitializer,
-};
+// Add pre-initializers to application
+Object.keys(preInitializer).forEach((key) => {
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const initializer = preInitializer[key];
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    Application.addInitializer(key, initializer, '-pre');
+});
 
 // Add initializers to application
-Object.entries(allInitializers).forEach(
-    ([
-        key,
-        initializer,
-    ]) => {
-        // @ts-expect-error
-        Application.addInitializer(key, initializer);
-    },
-);
+Object.keys(initializers).forEach((key) => {
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const initializer = initializers[key];
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    Application.addInitializer(key, initializer);
+});
+
+// Add post-initializers to application
+Object.keys(postInitializer).forEach((key) => {
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const initializer = postInitializer[key];
+
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    Application.addInitializer(key, initializer, '-post');
+});
 
 // Add service providers
 Application.addServiceProvider('feature', () => {

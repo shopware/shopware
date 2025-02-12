@@ -13,8 +13,6 @@ const { Component } = Shopware;
 Component.register('sw-skeleton', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         variant: {
             type: String,

@@ -10,12 +10,8 @@ class PromotionNotFoundError extends Error
 {
     private const KEY = 'promotion-not-found';
 
-    protected string $promotionCode;
-
-    public function __construct(string $promotionCode)
+    public function __construct(protected string $promotionCode)
     {
-        $this->promotionCode = $promotionCode;
-
         $this->message = \sprintf('Promotion with code %s not found!', $this->promotionCode);
 
         parent::__construct($this->message);

@@ -34,14 +34,14 @@ async function createWrapper() {
                     'sw-one-to-many-grid': {
                         props: ['collection'],
                         template: `
-                    <div>
+                    <table>
                         <tbody>
                             <td v-for="item in collection">
                                 <slot name="column-lastName" v-bind="{ item }"></slot>
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </td>
                         </tbody>
-                    </div>
+                    </table>
                 `,
                     },
                     'sw-context-menu-item': {

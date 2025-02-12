@@ -9,8 +9,6 @@ import './sw-product-restriction-selection.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['restriction-delete'],
 
     props: {

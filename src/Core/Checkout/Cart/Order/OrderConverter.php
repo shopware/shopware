@@ -266,14 +266,13 @@ class OrderConverter
         }
 
         $customerId = $order->getOrderCustomer()->getCustomerId();
-        /** @var CustomerEntity|null $customer */
         $customer = null;
 
         if ($customerId) {
             $customerCriteria = new Criteria([$customerId]);
             $customerCriteria->addAssociation('addresses');
 
-            $customer = $this->customerRepository->search($customerCriteria, $context)->first();
+            $customer = $this->customerRepository->search($customerCriteria, $context)->getEntities()->first();
             \assert($customer?->getAddresses() !== null);
         }
 

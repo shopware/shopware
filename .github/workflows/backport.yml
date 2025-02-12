@@ -7,8 +7,7 @@ on:
       - labeled
 
 permissions:
-  contents: write
-  pull-requests: write
+  id-token: write
 
 jobs:
   backport:
@@ -24,8 +23,14 @@ jobs:
         )
       )
     steps:
+      - uses: octo-sts/action@v1.0.0
+        id: sts-shopware-backport
+        with:
+          scope: shopware
+          identity: ShopwareBackport
       - name: Backporting
         uses: kiegroup/git-backporting@main
         with:
+          auth: ${{ steps.sts-shopware-backport.outputs.token }}
           target-branch-pattern: "^backport-(?<target>([^ ]+))$"
           pull-request: ${{ github.event.pull_request.url }}

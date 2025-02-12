@@ -137,7 +137,7 @@ class SalesChannelTypeEntity extends Entity
         return $this->salesChannels;
     }
 
-    public function setSalesChannels(?SalesChannelCollection $salesChannels): void
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
     }
@@ -147,7 +147,7 @@ class SalesChannelTypeEntity extends Entity
         return $this->translations;
     }
 
-    public function setTranslations(?SalesChannelTypeTranslationCollection $translations): void
+    public function setTranslations(SalesChannelTypeTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

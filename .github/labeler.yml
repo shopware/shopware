@@ -32,3 +32,4 @@ labels:
     body: "Extension:Showroom-Theme"
   - label: "Extension:Social-Shopping"
     body: "Extension:Social-Shopping"
+  - label: "needs-triage"

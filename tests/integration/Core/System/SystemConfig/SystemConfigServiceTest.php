@@ -38,12 +38,11 @@ class SystemConfigServiceTest extends TestCase
             static::getContainer()->get(SystemConfigLoader::class),
             static::getContainer()->get('event_dispatcher'),
             new SymfonySystemConfigService([]),
-            false
         );
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed}>
      */
     public static function differentTypesProvider(): array
     {
@@ -61,10 +60,10 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|bool|int|float|string|null $expected
+     * @param float|bool|int|string|array<mixed>|null $expected
      */
     #[DataProvider('differentTypesProvider')]
-    public function testSetGetDifferentTypes($expected): void
+    public function testSetGetDifferentTypes(array|float|bool|int|string|null $expected): void
     {
         $this->systemConfigService->set('foo.bar', $expected);
         $actual = $this->systemConfigService->get('foo.bar');
@@ -72,7 +71,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed, string}>
      */
     public static function getStringProvider(): array
     {
@@ -105,7 +104,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed, int}>
      */
     public static function getIntProvider(): array
     {
@@ -123,10 +122,10 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|bool|int|float|string|null $writtenValue
+     * @param float|bool|int|string|array<mixed>|null $writtenValue
      */
     #[DataProvider('getIntProvider')]
-    public function testGetInt($writtenValue, int $expected): void
+    public function testGetInt(array|float|bool|int|string|null $writtenValue, int $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
@@ -138,7 +137,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed, float}>
      */
     public static function getFloatProvider(): array
     {
@@ -156,10 +155,10 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|bool|int|float|string|null $writtenValue
+     * @param float|bool|int|string|array<mixed>|null $writtenValue
      */
     #[DataProvider('getFloatProvider')]
-    public function testGetFloat($writtenValue, float $expected): void
+    public function testGetFloat(array|float|bool|int|string|null $writtenValue, float $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
@@ -171,7 +170,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed, bool}>
      */
     public static function getBoolProvider(): array
     {
@@ -190,10 +189,10 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|bool|int|float|string|null $writtenValue
+     * @param float|bool|int|string|array<mixed>|null $writtenValue
      */
     #[DataProvider('getBoolProvider')]
-    public function testGetBool($writtenValue, bool $expected): void
+    public function testGetBool(array|float|bool|int|string|null $writtenValue, bool $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         $actual = $this->systemConfigService->getBool('foo.bar');

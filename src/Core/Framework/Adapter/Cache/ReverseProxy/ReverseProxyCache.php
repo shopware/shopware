@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\ReverseProxy;
 
-use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,11 +23,9 @@ class ReverseProxyCache implements StoreInterface
      * @internal
      *
      * @param string[] $states
-     * @param AbstractCacheTracer<TCachedContent> $tracer
      */
     public function __construct(
         private readonly AbstractReverseProxyGateway $gateway,
-        private readonly AbstractCacheTracer $tracer,
         private readonly array $states,
         private readonly CacheTagCollector $collector
     ) {
@@ -52,7 +48,7 @@ class ReverseProxyCache implements StoreInterface
 
     public function write(Request $request, Response $response): string
     {
-        $tags = $this->getTags($request);
+        $tags = $this->collector->get($request);
 
         if ($response->headers->has(CacheStore::TAG_HEADER)) {
             /** @var string $tagHeader */
@@ -114,36 +110,5 @@ class ReverseProxyCache implements StoreInterface
      */
     public function cleanup(): void
     {
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function getTags(Request $request): array
-    {
-        if (Feature::isActive('cache_rework')) {
-            return $this->collector->get($request);
-        }
-
-        $tags = array_merge($this->tracer->get('all'), $this->collector->get($request));
-
-        return \array_values(array_filter($tags, static function (string $tag): bool {
-            // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
-            if (str_contains($tag, 'theme-config')) {
-                return false;
-            }
-
-            // remove tag for global config cache, http cache will be invalidate for each key which gets accessed in the request
-            if (str_contains($tag, 'system-config')) {
-                return false;
-            }
-
-            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'translation.catalog.')) {
-                return false;
-            }
-
-            return true;
-        }));
     }
 }

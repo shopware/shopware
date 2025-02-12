@@ -133,6 +133,7 @@ class AttributeEntityIntegrationTest extends TestCase
             [
                 'id' => $ids->create('first-key'),
                 'string' => 'string',
+                'emptyString' => '',
                 'transString' => 'transString',
                 'differentName' => 'storageString',
             ],
@@ -360,6 +361,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
             'follow' => self::currency($ids->get('currency-1'), 'ABC'),
         ];
@@ -412,6 +414,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
             'aggs' => [
                 ['id' => $ids->get('agg-1'), 'number' => 'agg-1'],
@@ -478,6 +481,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
             'currency' => self::currency($ids->get('currency-1'), 'ABC'),
         ];
@@ -563,6 +567,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
             'currencies' => [
                 self::currency($ids->get('currency-1'), 'ABC'),
@@ -623,6 +628,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
             'stateId' => $stateId,
         ];
@@ -698,6 +704,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => [
                 'en-GB' => 'transString',
                 'de-DE' => 'transString-de',
@@ -753,6 +760,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
         ];
 
@@ -799,6 +807,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
             'orders' => [
                 self::order($ids->get('order-1'), $this->getStateMachineState(), $this->getValidCountryId()),

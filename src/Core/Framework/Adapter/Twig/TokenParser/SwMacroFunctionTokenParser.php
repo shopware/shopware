@@ -17,7 +17,6 @@ use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 use Twig\TokenParser\MacroTokenParser;
 
-#[Package('framework')]
 /**
  * @internal
  *
@@ -26,6 +25,7 @@ use Twig\TokenParser\MacroTokenParser;
  *
  * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
  */
+#[Package('framework')]
 class SwMacroFunctionTokenParser extends AbstractTokenParser
 {
     public function parse(Token $token): Node

@@ -1,8 +1,6 @@
 /**
  * @sw-package inventory
  */
-import './page/sw-settings-units-list';
-import './page/sw-settings-units-detail';
 import './acl';
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */

@@ -10,7 +10,6 @@
     },
     "types": [
       "vite/client",
-      "@types/webpack-env",
       "jest"
     ],
     "resolveJsonModule": true,
@@ -24,6 +23,7 @@
     "noErrorTruncation": false,
   },
   "include": [
+    "build.ts",
     "./src/**/*",
     "./scripts/**/*",
     "./vite.config.mts",

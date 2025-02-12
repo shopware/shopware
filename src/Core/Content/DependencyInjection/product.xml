@@ -217,10 +217,23 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver">
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="tagged_iterator" tag="shopware.cms.product_slider.processor"/>
+            <argument type="service" id="logger"/>
+
             <tag name="shopware.cms.data_resolver"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="shopware.cms.product_slider.processor"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor">
+            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+
+            <tag name="shopware.cms.product_slider.processor"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ProductNameCmsElementResolver">

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  *
  * MatchAllLineItemsRule returns true, if all rules are true for all line items
  */

@@ -576,20 +576,6 @@ export default {
             });
         },
 
-        abortOnLanguageChange() {
-            return this.documentBaseConfigRepository.hasChanges(this.documentConfig);
-        },
-
-        saveOnLanguageChange() {
-            return this.onSave();
-        },
-
-        onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
-
-            return this.loadEntityData();
-        },
-
         async saveFinish() {
             if (this.documentConfig.isNew()) {
                 await this.$router.replace({

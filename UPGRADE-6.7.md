@@ -2469,6 +2469,11 @@ After:
 const paramsObj = Object.fromEntries(new URLSearchParams(window.location.search).entries());
 ```
 
+## Added new functions and tokens to complete the Twig integration 
+New functions: `sw_block`, `sw_source`, `sw_include` and new tokens: `sw_use`, `sw_embed`, `sw_from` and `sw_import`. 
+
+You can find further details on the use on the documentation page [Shopware's twig functions](https://developer.shopware.com/docs/resources/references/storefront-reference/twig-function-reference.html).
+
 </details>
 
 # App System

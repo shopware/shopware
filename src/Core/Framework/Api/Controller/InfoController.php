@@ -28,7 +28,6 @@ use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,7 +49,6 @@ class InfoController extends AbstractController
         private readonly DefinitionService $definitionService,
         private readonly ParameterBagInterface $params,
         private readonly Kernel $kernel,
-        private readonly Packages $packages,
         private readonly BusinessEventCollector $eventCollector,
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly Connection $connection,
@@ -272,7 +270,6 @@ class InfoController extends AbstractController
     private function getBundles(): array
     {
         $assets = [];
-        $package = $this->packages->getPackage('asset');
 
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
@@ -284,41 +281,19 @@ class InfoController extends AbstractController
                 throw ApiException::unableGenerateBundle($bundle->getName());
             }
 
-            $viteEntryPoints = [];
-            if (Feature::isActive('ADMIN_VITE')) {
-                try {
-                    $viteEntryPoints = \json_decode(
-                        $this->filesystem->read(\sprintf('bundles/%s/administration/.vite/%s', $bundleDirectoryName, ViteFileAccessorDecorator::FILES[ViteFileAccessorDecorator::ENTRYPOINTS])),
-                        true,
-                        flags: \JSON_THROW_ON_ERROR
-                    );
-                } catch (FilesystemException|\JsonException $e) {
-                    // ignore
-                }
+            try {
+                $viteEntryPoints = \json_decode(
+                    $this->filesystem->read(\sprintf('bundles/%s/administration/.vite/%s', $bundleDirectoryName, ViteFileAccessorDecorator::FILES[ViteFileAccessorDecorator::ENTRYPOINTS])),
+                    true,
+                    flags: \JSON_THROW_ON_ERROR
+                );
+            } catch (FilesystemException|\JsonException $e) {
+                // ignore
             }
 
-            $styles = [];
-            if (Feature::isActive('ADMIN_VITE') && !empty($viteEntryPoints)) {
-                $styles = $viteEntryPoints['entryPoints'][$this->getTechnicalBundleName($bundle)]['css'] ?? [];
-            } else {
-                $styles = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
-                    $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
-
-                    return $package->getUrl($url);
-                }, $this->getAdministrationStyles($bundle));
-            }
-
-            $scripts = [];
-            if (Feature::isActive('ADMIN_VITE') && !empty($viteEntryPoints)) {
-                $scripts = $viteEntryPoints['entryPoints'][$this->getTechnicalBundleName($bundle)]['js'] ?? [];
-            } else {
-                $scripts = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
-                    $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
-
-                    return $package->getUrl($url);
-                }, $this->getAdministrationScripts($bundle));
-            }
-
+            $technicalBundleName = $this->getTechnicalBundleName($bundle);
+            $styles = $this->normalizeAssetPath($viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? []);
+            $scripts = $this->normalizeAssetPath($viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? []);
             $baseUrl = $this->getBaseUrl($bundle);
 
             if (empty($styles) && empty($scripts) && $baseUrl === null) {
@@ -348,36 +323,6 @@ class InfoController extends AbstractController
         return $assets;
     }
 
-    /**
-     * @return list<string>
-     */
-    private function getAdministrationStyles(Bundle $bundle): array
-    {
-        $path = \sprintf('administration/css/%s.css', $this->getTechnicalBundleName($bundle));
-        $bundlePath = $bundle->getPath();
-
-        if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-css')) {
-            return [];
-        }
-
-        return [$path];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getAdministrationScripts(Bundle $bundle): array
-    {
-        $path = \sprintf('administration/js/%s.js', $this->getTechnicalBundleName($bundle));
-        $bundlePath = $bundle->getPath();
-
-        if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-js')) {
-            return [];
-        }
-
-        return [$path];
-    }
-
     private function getBaseUrl(Bundle $bundle): ?string
     {
         if (!$bundle instanceof Plugin) {
@@ -388,16 +333,11 @@ class InfoController extends AbstractController
             return $bundle->getAdminBaseUrl();
         }
 
-        $defaultEntryFile = 'administration/index.html';
-        $bundlePath = $bundle->getPath();
-
-        if (!Feature::isActive('ADMIN_VITE') && !file_exists($bundlePath . '/Resources/public/' . $defaultEntryFile)) {
-            return null;
-        }
-
-        if (Feature::isActive('ADMIN_VITE')
-            && !$this->filesystem->fileExists(\sprintf('bundles/%s/meteor-app/index.html', mb_strtolower($bundle->getName())))
-        ) {
+        try {
+            if (!$this->filesystem->fileExists(\sprintf('bundles/%s/meteor-app/index.html', mb_strtolower($bundle->getName())))) {
+                return null;
+            }
+        } catch (FilesystemException $e) {
             return null;
         }
 
@@ -465,5 +405,22 @@ WHERE app.active = 1 AND app.base_app_url is not null');
     private function getTechnicalBundleName(Bundle $bundle): string
     {
         return str_replace('_', '-', $bundle->getContainerPrefix());
+    }
+
+    /**
+     * Makes the asset path absolute respecting the asset server configuration.
+     *
+     * @param array<string> $relativeAssetString
+     *
+     * @return list<string>
+     */
+    private function normalizeAssetPath(array $relativeAssetString): array
+    {
+        $assets = [];
+        foreach ($relativeAssetString as $asset) {
+            $assets[] = $this->filesystem->publicUrl($asset);
+        }
+
+        return $assets;
     }
 }

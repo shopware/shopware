@@ -76,38 +76,58 @@ class SalesChannelTypeEntity extends Entity
         $this->descriptionLong = $descriptionLong;
     }
 
-    public function getCoverUrl(): ?string
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable
+     */
+    public function getCoverUrl(): string
     {
+        if ($this->coverUrl === null) {
+            return '';
+        }
+
         return $this->coverUrl;
     }
 
-    public function setCoverUrl(string $coverUrl): void
+    public function setCoverUrl(?string $coverUrl): void
     {
         $this->coverUrl = $coverUrl;
     }
 
-    public function getIconName(): ?string
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable
+     */
+    public function getIconName(): string
     {
+        if ($this->iconName === null) {
+            return '';
+        }
+
         return $this->iconName;
     }
 
-    public function setIconName(string $iconName): void
+    public function setIconName(?string $iconName): void
     {
         $this->iconName = $iconName;
     }
 
     /**
-     * @return list<string>|null
+     * @return list<string>
+     *
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable
      */
-    public function getScreenshotUrls(): ?array
+    public function getScreenshotUrls(): array
     {
+        if ($this->screenshotUrls === null) {
+            return [];
+        }
+
         return $this->screenshotUrls;
     }
 
     /**
-     * @param list<string> $screenshotUrls
+     * @param list<string>|null $screenshotUrls
      */
-    public function setScreenshotUrls(array $screenshotUrls): void
+    public function setScreenshotUrls(?array $screenshotUrls): void
     {
         $this->screenshotUrls = $screenshotUrls;
     }
@@ -117,7 +137,7 @@ class SalesChannelTypeEntity extends Entity
         return $this->salesChannels;
     }
 
-    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    public function setSalesChannels(?SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
     }
@@ -127,7 +147,7 @@ class SalesChannelTypeEntity extends Entity
         return $this->translations;
     }
 
-    public function setTranslations(SalesChannelTypeTranslationCollection $translations): void
+    public function setTranslations(?SalesChannelTypeTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

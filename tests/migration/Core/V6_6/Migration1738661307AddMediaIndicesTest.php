@@ -56,6 +56,16 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
                 SQL
             );
         }
+
+        foreach (['idx.media.file_extension', 'idx.media.file_name', 'idx.media.file_hash'] as $indexName) {
+            if ($this->hasIndex($indexName)) {
+                $this->connection->executeStatement(
+                    <<<SQL
+                    ALTER TABLE `media` DROP INDEX `$indexName`;
+                    SQL
+                );
+            }
+        }
     }
 
     /**

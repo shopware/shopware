@@ -2,7 +2,6 @@
 <mt-banner
     v-if="useMeteorComponent"
     v-bind="$attrs"
-    v-on="listeners"
 >
     <template #default>
         <slot></slot>
@@ -14,7 +13,6 @@
 <sw-alert-deprecated
     v-else
     v-bind="$attrs"
-    v-on="listeners"
 >
     <slot></slot>
     <template #actions>

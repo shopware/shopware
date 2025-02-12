@@ -4,7 +4,7 @@
 
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import RepositoryData from 'src/core/data/repository.data';
-import IdCollection from 'src/../test/_helper_/id.collection';
+import IdCollection from 'test/_helper_/id.collection';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 

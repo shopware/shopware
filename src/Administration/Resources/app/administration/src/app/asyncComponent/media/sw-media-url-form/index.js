@@ -13,8 +13,6 @@ import template from './sw-media-url-form.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'media-url-form-submit',
         'modal-close',
@@ -79,15 +77,6 @@ export default {
 
         isValid() {
             return this.urlObject !== null && this.fileExtension;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerRemoveException;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
@@ -37,6 +39,9 @@ class PluginException extends HttpException
     public const PLUGIN_INVALID_CONTAINER_PARAMETER = 'FRAMEWORK__PLUGIN_INVALID_CONTAINER_PARAMETER';
     public const PLUGIN_KERNEL_REBOOT_FAILED = 'FRAMEWORK__PLUGIN_KERNEL_REBOOT_FAILED';
     public const PLUGIN_WRONG_BASE_CLASS = 'FRAMEWORK__PLUGIN_WRONG_BASE_CLASS';
+    public const COULD_NOT_DETECT_COMPOSER_VERSION = 'FRAMEWORK__PLUGIN_COULD_NOT_DETECT_COMPOSER_VERSION';
+    public const PLUGIN_COMPOSER_REQUIRE = 'FRAMEWORK__PLUGIN_COMPOSER_REQUIRE';
+    public const PLUGIN_COMPOSER_REMOVE = 'FRAMEWORK__PLUGIN_COMPOSER_REMOVE';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -201,6 +206,66 @@ class PluginException extends HttpException
             self::PLUGIN_WRONG_BASE_CLASS,
             '"{{ baseClass }}" in the container should be an instance of ' . Plugin::class,
             ['baseClass' => $pluginBaseClassString]
+        );
+    }
+
+    /**
+     * @param array<string, string> $checkedComposerPaths
+     */
+    public static function couldNotDetectComposerVersion(array $checkedComposerPaths): self
+    {
+        $checkedPaths = \PHP_EOL;
+        foreach ($checkedComposerPaths as $rootPackageName => $composerPath) {
+            $checkedPaths .= $rootPackageName . ': ' . $composerPath . \PHP_EOL;
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::COULD_NOT_DETECT_COMPOSER_VERSION,
+            'Could not detect the installed composer version. Checked paths: {{ checkedPaths }}',
+            ['checkedPaths' => $checkedPaths]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function pluginComposerRequire(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRequireException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new PluginComposerRequireException($pluginName, $pluginComposerName, $output);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PLUGIN_COMPOSER_REQUIRE,
+            \sprintf('Could not execute "composer require" for plugin "{{ pluginName }} ({{ pluginComposerName }}). Output:%s{{ output }}', \PHP_EOL),
+            [
+                'pluginName' => $pluginName,
+                'pluginComposerName' => $pluginComposerName,
+                'output' => $output,
+            ]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function pluginComposerRemove(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRemoveException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new PluginComposerRemoveException($pluginName, $pluginComposerName, $output);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PLUGIN_COMPOSER_REMOVE,
+            \sprintf('Could not execute "composer remove" for plugin "{{ pluginName }} ({{ pluginComposerName }}). Output:%s{{ output }}', \PHP_EOL),
+            [
+                'pluginName' => $pluginName,
+                'pluginComposerName' => $pluginComposerName,
+                'output' => $output,
+            ]
         );
     }
 }

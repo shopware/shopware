@@ -1,4 +1,4 @@
-{# v-on="listeners" needed becaues vue/compat removes them from $attrs #}
+{# needed becaues vue/compat removes them from $attrs #}
 {# New mt-tabs component #}
 {% block sw_tabs %}
 <template v-if="useMeteorComponent">
@@ -6,7 +6,6 @@
         v-bind="$attrs"
         ref="tabComponent"
         :items="itemsBackwardCompatible"
-        v-on="listeners"
         @new-item-active="onNewItemActive"
     />
 
@@ -26,7 +25,6 @@
     v-else
     v-bind="$attrs"
     ref="tabComponent"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

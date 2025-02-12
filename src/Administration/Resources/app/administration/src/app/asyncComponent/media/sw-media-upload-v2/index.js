@@ -25,8 +25,6 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'mediaService',
@@ -210,9 +208,6 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
-            }
             return !!this.onMediaUploadSidebarOpen;
         },
 

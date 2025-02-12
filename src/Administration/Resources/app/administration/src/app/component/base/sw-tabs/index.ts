@@ -14,8 +14,6 @@ const { Component } = Shopware;
 Component.register('sw-tabs', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         /**
          * Only used for new mt-tabs component
@@ -144,16 +142,6 @@ Component.register('sw-tabs', {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return items;
         },
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-        listeners(): Record<string, Function | Function[]> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     data(): {
@@ -175,12 +163,6 @@ Component.register('sw-tabs', {
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

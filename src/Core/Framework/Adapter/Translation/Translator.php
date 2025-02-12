@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
@@ -74,7 +73,6 @@ class Translator extends AbstractTranslator
         private readonly Connection $connection,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly SnippetService $snippetService,
-        private readonly bool $fineGrainedCache,
         private readonly EventDispatcherInterface $dispatcher
     ) {
     }
@@ -151,18 +149,6 @@ class Translator extends AbstractTranslator
     {
         if ($domain === null) {
             $domain = 'messages';
-        }
-
-        if (!Feature::isActive('cache_rework')) {
-            if ($this->fineGrainedCache) {
-                foreach (array_keys($this->keys) as $trace) {
-                    $this->traces[$trace][self::buildName($id)] = true;
-                }
-            } else {
-                foreach (array_keys($this->keys) as $trace) {
-                    $this->traces[$trace]['shopware.translator'] = true;
-                }
-            }
         }
 
         $catalogue = $this->getCatalogue($locale);
@@ -343,14 +329,9 @@ class Translator extends AbstractTranslator
         $key = \sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId);
 
         return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $fallbackLocale) {
-            if (Feature::isActive('cache_rework')) {
-                $item->tag(self::ALL_CACHE_TAG);
-                $item->tag(self::tag($snippetSetId));
-                $item->tag(self::tag($this->salesChannelId ?: 'DEFAULT'));
-            } else {
-                $item->tag('translation.catalog.' . $snippetSetId);
-                $item->tag(\sprintf('translation.catalog.%s', $this->salesChannelId ?: 'DEFAULT'));
-            }
+            $item->tag(self::ALL_CACHE_TAG);
+            $item->tag(self::tag($snippetSetId));
+            $item->tag(self::tag($this->salesChannelId ?: 'DEFAULT'));
 
             return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale, $this->salesChannelId);
         });

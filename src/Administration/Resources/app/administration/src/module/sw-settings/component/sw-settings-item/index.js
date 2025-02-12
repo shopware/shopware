@@ -8,8 +8,6 @@ import './sw-settings-item.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         label: {
             required: true,

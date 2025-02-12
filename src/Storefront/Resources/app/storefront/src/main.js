@@ -85,6 +85,7 @@ PluginManager.register('FormPreserver', () => import('src/plugin/forms/form-pres
 if (Feature.isActive('ACCESSIBILITY_TWEAKS')) {
     PluginManager.register('FormAjaxPagination', () => import('src/plugin/forms/form-ajax-pagination.plugin'), '[data-form-ajax-pagination]');
 }
+PluginManager.register('FormAddDynamicRedirect', () => import('src/plugin/forms/form-add-dynamic-redirect-plugin'), '[data-form-add-dynamic-redirect]');
 PluginManager.register('AccountMenu', () => import('src/plugin/header/account-menu.plugin'), '[data-account-menu]');
 PluginManager.register('OffCanvasTabs', () => import('src/plugin/offcanvas-tabs/offcanvas-tabs.plugin'), '[data-off-canvas-tabs]');
 PluginManager.register('BaseSlider', () => import('src/plugin/slider/base-slider.plugin'), '[data-base-slider]');

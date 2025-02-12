@@ -13,8 +13,6 @@ const { Component } = Shopware;
 Component.register('sw-base-filter', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['filter-reset'],
 
     props: {

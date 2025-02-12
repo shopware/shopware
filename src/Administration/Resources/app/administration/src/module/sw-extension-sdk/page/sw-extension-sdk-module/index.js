@@ -11,8 +11,6 @@ import './sw-extension-sdk-module.scss';
 Shopware.Component.register('sw-extension-sdk-module', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         id: {
             type: String,

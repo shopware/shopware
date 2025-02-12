@@ -370,7 +370,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should show correct config when there is system config data', async () => {
-        wrapper.vm.salesChannelRepository.search = jest.fn(() => {
+        await flushPromises();
+        await wrapper.unmount();
+
+        wrapper = await createWrapper(() => {
             return Promise.resolve([
                 {
                     id: '98432def39fc4624b33213a56b8c944d',

@@ -9,8 +9,6 @@ import './sw-product-settings-mode.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'settings-change',
         'settings-item-change',

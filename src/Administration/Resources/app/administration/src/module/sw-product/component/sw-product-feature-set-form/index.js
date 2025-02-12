@@ -9,8 +9,6 @@ import './sw-product-feature-set-form.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         allowEdit: {
             type: Boolean,

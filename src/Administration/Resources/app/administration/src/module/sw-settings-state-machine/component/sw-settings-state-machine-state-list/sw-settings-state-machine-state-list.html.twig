@@ -1,0 +1,44 @@
+{% block sw_settings_state_machine_state_list %}
+<sw-card
+    position-identifier="sw-settings-state-machine-state-list"
+    :title="$tc('sw-settings-state-machine.state.list.stateMachineStateCardTitle')"
+>
+    {% block sw_settings_state_machine_state_list_grid %}
+    <template #grid>
+        <sw-data-grid
+            class="sw-settings-state-machine-state-list-grid"
+            :is-loading="isLoading"
+            :data-source="stateMachineStates"
+            :columns="stateMachineStateColumns"
+            :show-selection="false"
+            :allow-inline-edit="acl.can('state_machine.editor')"
+            :skeleton-item-amount="stateMachineStates.length"
+            @inline-edit-save="onInlineEditSave"
+            @inline-edit-cancel="onInlineEditCancel"
+        >
+            {% block sw_settings_state_machine_state_list_grid_actions %}
+            <template #actions="{ item }">
+                {% block sw_settings_state_machine_state_list_grid_actions_edit %}
+                <sw-context-menu-item
+                    class="sw-settings-state-machine-state__edit-action"
+                    :disabled="!acl.can('state_machine.editor')"
+                    @click="showModal(item)"
+                >
+                    {{ $tc('global.default.edit') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </sw-data-grid>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_state_machine_state_list_detail %}
+    <sw-settings-state-machine-state-detail
+        v-if="currentStateMachineState !== null"
+        :current-state-machine-state="currentStateMachineState"
+        @modal-close="onModalClose"
+    />
+    {% endblock %}
+</sw-card>
+{% endblock %}

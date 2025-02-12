@@ -14,8 +14,6 @@ const { Store, Mixin, Filter } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'systemConfigApiService',
         'shopwareExtensionService',

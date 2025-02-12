@@ -14,8 +14,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'mailService',
         'entityMappingService',
@@ -649,11 +647,7 @@ export default {
 
         addVariables(variables) {
             variables.forEach((variable) => {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.availableVariables, variable.id, variable);
-                } else {
-                    this.availableVariables[variable.id] = variable;
-                }
+                this.availableVariables[variable.id] = variable;
             });
         },
 

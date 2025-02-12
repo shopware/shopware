@@ -19,7 +19,7 @@ class Migration1739355802FixVatHandling extends MigrationStep
      * @return array<string, string>
      */
     private const VAT_PATTERNS = [
-        'BE' => 'BE(\d{10}$|^0\d{9})',
+        'BE' => 'BE\d{10}',
         'GR' => '(EL|GR)\d{9}',
         'HR' => 'HR\d{11}',
         'IE' => 'IE(\d[A-Z0-9]\d{5}[A-Za-z]$|^\d{7}[A-W][A-I])', // pre and post 2013 pattern

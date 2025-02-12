@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
+namespace Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
@@ -100,7 +100,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
             'included' => [
@@ -153,7 +153,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
         ];

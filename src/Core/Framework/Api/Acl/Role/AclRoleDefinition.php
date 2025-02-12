@@ -75,17 +75,15 @@ class AclRoleDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
-            (new ListField('privileges', 'privileges'))->addFlags(new Required()),
+            (new ListField('privileges', 'privileges', StringField::class))->addFlags(new Required()),
             new DateTimeField('deleted_at', 'deletedAt'),
             new ManyToManyAssociationField('users', UserDefinition::class, AclUserRoleDefinition::class, 'acl_role_id', 'user_id'),
             (new OneToOneAssociationField('app', 'id', 'acl_role_id', AppDefinition::class, false))->addFlags(new RestrictDelete()),
             new ManyToManyAssociationField('integrations', IntegrationDefinition::class, IntegrationRoleDefinition::class, 'acl_role_id', 'integration_id'),
         ]);
-
-        return $collection;
     }
 }

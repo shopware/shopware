@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
+namespace Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -12,12 +12,11 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
+class TestBasicWithToManyRelationships extends SerializationFixture
 {
     public function getInput(): EntityCollection|Entity
     {
-        $mediaCollection = new MediaCollection();
-        $userId = 'f343a3c119cf42a7841aa0ac5094908c';
+        $userId = '6f51622eb3814c75ae0263cece27ce72';
 
         $user = new UserEntity();
         $user->setId($userId);
@@ -32,18 +31,17 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
         $user->internalSetEntityData('user', new FieldVisibility([]));
 
         $media = new MediaEntity();
-        $media->setId('3e352be2d85846dd97529c0f6b544870');
-        $media->setUser(clone $user);
+        $media->setId('548faa1f7846436c85944f4aea792d96');
         $media->setUserId($userId);
         $media->setMimeType('image/jpg');
         $media->setFileExtension('jpg');
-        $media->setFileSize(18921);
-        $media->setCreatedAt(new \DateTime('2012-08-15T00:00:00.000+00:00'));
+        $media->setFileSize(93889);
+        $media->setTitle('2');
+        $media->setCreatedAt(new \DateTime('2012-08-31T00:00:00.000+00:00'));
         $media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
-        $media->setTitle('Lagerkorn-5,0klein');
+        $media->setUser(clone $user);
         $media->internalSetEntityData('media', new FieldVisibility([]));
-
-        $mediaCollection->add($media);
+        $mediaCollection = new MediaCollection([$media]);
         $user->setMedia($mediaCollection);
 
         return $user;
@@ -56,7 +54,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
     {
         return [
             'data' => [
-                'id' => 'f343a3c119cf42a7841aa0ac5094908c',
+                'id' => '6f51622eb3814c75ae0263cece27ce72',
                 'type' => 'user',
                 'attributes' => [
                     'localeId' => null,
@@ -73,83 +71,83 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                     'title' => null,
                 ],
                 'links' => [
-                    'self' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c', $baseUrl),
+                    'self' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
                 ],
                 'relationships' => [
                     'locale' => [
                         'data' => null,
                         'links' => [
-                            'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/locale', $baseUrl),
+                            'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/locale', $baseUrl),
                         ],
                     ],
                     'avatarMedia' => [
                         'data' => null,
                         'links' => [
-                            'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/avatar-media', $baseUrl),
+                            'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/avatar-media', $baseUrl),
                         ],
                     ],
                     'media' => [
                         'data' => [
                             [
                                 'type' => 'media',
-                                'id' => '3e352be2d85846dd97529c0f6b544870',
+                                'id' => '548faa1f7846436c85944f4aea792d96',
                             ],
                         ],
                         'links' => [
-                            'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/media', $baseUrl),
+                            'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/media', $baseUrl),
                         ],
                     ],
                     'accessKeys' => [
                         'data' => [],
                         'links' => [
-                            'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/access-keys', $baseUrl),
+                            'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/access-keys', $baseUrl),
                         ],
                     ],
                     'stateMachineHistoryEntries' => [
                         'data' => [],
                         'links' => [
-                            'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/state-machine-history-entries', $baseUrl),
+                            'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries', $baseUrl),
                         ],
                     ],
                     'importExportLogEntries' => [
                         'data' => [],
                         'links' => [
-                            'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/import-export-log-entries', $baseUrl),
+                            'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/import-export-log-entries', $baseUrl),
                         ],
                     ],
                     'recoveryUser' => [
                         'data' => null,
                         'links' => [
-                            'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/recovery-user', $baseUrl),
+                            'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/recovery-user', $baseUrl),
                         ],
                     ],
                     'aclRoles' => [
                         'data' => [],
                         'links' => [
-                            'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/acl-roles', $baseUrl),
+                            'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/acl-roles', $baseUrl),
                         ],
                     ],
                 ],
-                'meta' => null,
+                'meta' => [],
             ],
             'included' => [
                 [
-                    'id' => '3e352be2d85846dd97529c0f6b544870',
+                    'id' => '548faa1f7846436c85944f4aea792d96',
                     'type' => 'media',
                     'attributes' => [
-                        'userId' => 'f343a3c119cf42a7841aa0ac5094908c',
+                        'userId' => '6f51622eb3814c75ae0263cece27ce72',
                         'mediaFolderId' => null,
                         'mimeType' => 'image/jpg',
                         'fileExtension' => 'jpg',
                         'uploadedAt' => null,
                         'fileName' => null,
-                        'fileSize' => 18921,
+                        'fileSize' => 93889,
                         'metaData' => null,
                         'mediaType' => null,
-                        'createdAt' => '2012-08-15T00:00:00.000+00:00',
+                        'createdAt' => '2012-08-31T00:00:00.000+00:00',
                         'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'alt' => null,
-                        'title' => 'Lagerkorn-5,0klein',
+                        'title' => '2',
                         'url' => '',
                         'customFields' => null,
                         'hasFile' => false,
@@ -157,134 +155,134 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                         'private' => false,
                     ],
                     'links' => [
-                        'self' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870', $baseUrl),
+                        'self' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96', $baseUrl),
                     ],
                     'relationships' => [
                         'user' => [
                             'data' => [
                                 'type' => 'user',
-                                'id' => 'f343a3c119cf42a7841aa0ac5094908c',
+                                'id' => '6f51622eb3814c75ae0263cece27ce72',
                             ],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/user', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/user', $baseUrl),
                             ],
                         ],
                         'categories' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/categories', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/categories', $baseUrl),
                             ],
                         ],
                         'productManufacturers' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-manufacturers', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/product-manufacturers', $baseUrl),
                             ],
                         ],
                         'productMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-media', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/product-media', $baseUrl),
                             ],
                         ],
                         'avatarUsers' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/avatar-users', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/avatar-users', $baseUrl),
                             ],
                         ],
                         'translations' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/translations', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/translations', $baseUrl),
                             ],
                         ],
                         'thumbnails' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/thumbnails', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/thumbnails', $baseUrl),
                             ],
                         ],
                         'mediaFolder' => [
                             'data' => null,
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/media-folder', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/media-folder', $baseUrl),
                             ],
                         ],
                         'propertyGroupOptions' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/property-group-options', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/property-group-options', $baseUrl),
                             ],
                         ],
                         'tags' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/tags', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/tags', $baseUrl),
                             ],
                         ],
                         'mailTemplateMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/mail-template-media', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/mail-template-media', $baseUrl),
                             ],
                         ],
                         'documentBaseConfigs' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/document-base-configs', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/document-base-configs', $baseUrl),
                             ],
                         ],
                         'shippingMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/shipping-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/shipping-methods', $baseUrl),
                             ],
                         ],
                         'paymentMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/payment-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/payment-methods', $baseUrl),
                             ],
                         ],
                         'productConfiguratorSettings' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-configurator-settings', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/product-configurator-settings', $baseUrl),
                             ],
                         ],
                         'orderLineItems' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/order-line-items', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/order-line-items', $baseUrl),
                             ],
                         ],
                         'cmsBlocks' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-blocks', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/cms-blocks', $baseUrl),
                             ],
                         ],
                         'cmsSections' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-sections', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/cms-sections', $baseUrl),
                             ],
                         ],
                         'cmsPages' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-pages', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/cms-pages', $baseUrl),
                             ],
                         ],
                         'documents' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/documents', $baseUrl),
+                                'related' => \sprintf('%s/media/548faa1f7846436c85944f4aea792d96/documents', $baseUrl),
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
         ];
@@ -296,7 +294,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
     protected function getJsonFixtures(): array
     {
         return [
-            'id' => 'f343a3c119cf42a7841aa0ac5094908c',
+            'id' => '6f51622eb3814c75ae0263cece27ce72',
             'localeId' => null,
             'avatarId' => null,
             'username' => 'user1',
@@ -304,25 +302,32 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
             'lastName' => '',
             'email' => 'user1@shop.de',
             'active' => true,
-            'locale' => null,
-            'avatarMedia' => null,
-            'apiAlias' => 'user',
+            'customFields' => null,
+            'createdAt' => '2018-01-15T08:01:16.000+00:00',
+            'updatedAt' => null,
             'media' => [
                 [
-                    'id' => '3e352be2d85846dd97529c0f6b544870',
-                    'userId' => 'f343a3c119cf42a7841aa0ac5094908c',
+                    'id' => '548faa1f7846436c85944f4aea792d96',
+                    'userId' => '6f51622eb3814c75ae0263cece27ce72',
+                    'mediaFolderId' => null,
                     'mimeType' => 'image/jpg',
                     'fileExtension' => 'jpg',
-                    'fileSize' => 18921,
-                    'title' => 'Lagerkorn-5,0klein',
+                    'uploadedAt' => null,
+                    'fileName' => null,
+                    'fileSize' => 93889,
                     'metaData' => null,
                     'mediaType' => null,
-                    'uploadedAt' => null,
+                    'createdAt' => '2012-08-31T00:00:00.000+00:00',
+                    'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                     'alt' => null,
+                    'title' => '2',
                     'url' => '',
-                    'fileName' => null,
+                    'customFields' => null,
+                    'hasFile' => false,
+                    'translated' => [],
+                    'private' => false,
                     'user' => [
-                        'id' => 'f343a3c119cf42a7841aa0ac5094908c',
+                        'id' => '6f51622eb3814c75ae0263cece27ce72',
                         'localeId' => null,
                         'avatarId' => null,
                         'username' => 'user1',
@@ -338,7 +343,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                         'importExportLogEntries' => null,
                         'recoveryUser' => null,
                         'customFields' => null,
-                        '_uniqueIdentifier' => 'f343a3c119cf42a7841aa0ac5094908c',
+                        '_uniqueIdentifier' => '6f51622eb3814c75ae0263cece27ce72',
                         'versionId' => null,
                         'translated' => [],
                         'createdAt' => '2018-01-15T08:01:16.000+00:00',
@@ -355,13 +360,9 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                     'productMedia' => null,
                     'avatarUsers' => null,
                     'thumbnails' => null,
-                    'mediaFolderId' => null,
                     'mediaFolder' => null,
-                    'hasFile' => false,
-                    'private' => false,
                     'propertyGroupOptions' => null,
                     'mailTemplateMedia' => null,
-                    'customFields' => null,
                     'tags' => null,
                     'documentBaseConfigs' => null,
                     'shippingMethods' => null,
@@ -372,29 +373,26 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                     'cmsSections' => null,
                     'cmsPages' => null,
                     'documents' => null,
-                    '_uniqueIdentifier' => '3e352be2d85846dd97529c0f6b544870',
+                    '_uniqueIdentifier' => '548faa1f7846436c85944f4aea792d96',
                     'versionId' => null,
-                    'translated' => [],
-                    'createdAt' => '2012-08-15T00:00:00.000+00:00',
-                    'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                     'extensions' => [],
                     'apiAlias' => 'media',
                 ],
             ],
+            'locale' => null,
+            'avatarMedia' => null,
             'accessKeys' => null,
             'stateMachineHistoryEntries' => null,
             'importExportLogEntries' => null,
             'recoveryUser' => null,
-            'customFields' => null,
-            '_uniqueIdentifier' => 'f343a3c119cf42a7841aa0ac5094908c',
+            '_uniqueIdentifier' => '6f51622eb3814c75ae0263cece27ce72',
             'versionId' => null,
             'translated' => [],
-            'createdAt' => '2018-01-15T08:01:16.000+00:00',
-            'updatedAt' => null,
             'extensions' => [],
             'admin' => true,
             'title' => null,
             'aclRoles' => null,
+            'apiAlias' => 'user',
         ];
     }
 
@@ -408,8 +406,6 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
         unset(
             $fixtures['data']['relationships']['recoveryUser'],
             $fixtures['data']['relationships']['aclRoles'],
-            $fixtures['included'][0]['attributes']['userId'],
-            $fixtures['included'][0]['attributes']['userId'],
             $fixtures['included'][0]['attributes']['userId'],
             $fixtures['included'][0]['attributes']['mediaType'],
             $fixtures['included'][0]['attributes']['mediaFolderId'],
@@ -450,10 +446,10 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
             $fixtures['media'][0]['user'],
             $fixtures['media'][0]['avatarUsers'],
             $fixtures['media'][0]['mediaType'],
-            $fixtures['media'][0]['mediaFolderId'],
             $fixtures['media'][0]['categories'],
             $fixtures['media'][0]['productManufacturers'],
             $fixtures['media'][0]['productMedia'],
+            $fixtures['media'][0]['mediaFolderId'],
             $fixtures['media'][0]['mediaFolder'],
             $fixtures['media'][0]['propertyGroupOptions'],
             $fixtures['media'][0]['mailTemplateMedia'],

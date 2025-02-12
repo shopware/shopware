@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
+namespace Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -54,7 +54,7 @@ class TestBasicWithToManyExtension extends SerializationFixture
                         ],
                     ],
                 ],
-                'meta' => null,
+                'meta' => [],
             ],
             'included' => [
                 [
@@ -83,7 +83,7 @@ class TestBasicWithToManyExtension extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
                 [
                     'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
@@ -109,7 +109,7 @@ class TestBasicWithToManyExtension extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
         ];

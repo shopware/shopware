@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
+namespace Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -222,7 +222,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ], [
                     'id' => 'f1ad1d0c02454a40abf250f764d16248',
                     'type' => 'media',
@@ -374,7 +374,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
             'included' => [
@@ -448,7 +448,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                             ],
                         ],
                     ],
-                    'meta' => null,
+                    'meta' => [],
                 ],
             ],
         ];

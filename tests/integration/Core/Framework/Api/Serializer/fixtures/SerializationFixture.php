@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
+namespace Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -12,7 +12,6 @@ abstract class SerializationFixture
 {
     public const API_BASE_URL = 'http://localhost/api';
     public const SALES_CHANNEL_API_BASE_URL = 'http://localhost/store-api';
-    public const API_VERSION = 1;
 
     /**
      * @return EntityCollection<Entity>|Entity

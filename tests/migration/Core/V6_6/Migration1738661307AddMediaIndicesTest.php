@@ -19,8 +19,6 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
 
     private Connection $connection;
 
-    private string $tableName = 'media';
-
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
@@ -54,7 +52,7 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
         if ($this->hasColumn('file_hash')) {
             $this->connection->executeStatement(
                 <<<SQL
-                ALTER TABLE `{$this->tableName}` DROP COLUMN `file_hash`;
+                ALTER TABLE `media` DROP COLUMN `file_hash`;
                 SQL
             );
         }
@@ -66,7 +64,7 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
     private function hasIndex(string $indexName, array $spansColumns = []): bool
     {
         $manager = $this->connection->createSchemaManager();
-        $indices = $manager->listTableIndexes($this->tableName);
+        $indices = $manager->listTableIndexes('media');
 
         return \array_key_exists($indexName, $indices)
             && $indices[$indexName]->spansColumns($spansColumns);
@@ -74,6 +72,6 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
 
     private function hasColumn(string $columnName): bool
     {
-        return EntityDefinitionQueryHelper::columnExists($this->connection, $this->tableName, $columnName);
+        return EntityDefinitionQueryHelper::columnExists($this->connection, 'media', $columnName);
     }
 }

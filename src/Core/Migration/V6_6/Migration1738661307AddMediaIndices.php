@@ -20,10 +20,20 @@ class Migration1738661307AddMediaIndices extends MigrationStep
     public function update(Connection $connection): void
     {
         $this->dropIndexIfExists($connection, 'media', 'idx.media.file_extension');
-        $connection->executeStatement(/** @lang MySQL */ 'CREATE INDEX `idx.media.file_extension` ON `media` (`file_extension`);');
+        $connection->executeStatement(
+            <<<SQL
+            CREATE INDEX `idx.media.file_extension`
+                ON `media` (`file_extension`);
+            SQL
+        );
 
         $this->dropIndexIfExists($connection, 'media', 'idx.media.file_name');
-        $connection->executeStatement(/** @lang MySQL */ 'CREATE INDEX `idx.media.file_name` ON `media` (`file_name`(768));');
+        $connection->executeStatement(
+            <<<'SQL'
+            CREATE INDEX `idx.media.file_name`
+                ON `media` (`file_name`(768));
+            SQL
+        );
 
         if (!$this->columnExists($connection, 'media', 'file_hash')) {
             $connection->executeStatement(

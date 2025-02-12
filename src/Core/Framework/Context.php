@@ -144,15 +144,13 @@ class Context extends Struct
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
-     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $callback
      *
      * @return TReturn the return value of the provided callback function
      */
-    public function scope(string $scope, \Closure $callback)
+    public function scope(string $scope, \Closure $callback): mixed
     {
         $currentScope = $this->getScope();
         $this->scope = $scope;
@@ -213,15 +211,13 @@ class Context extends Struct
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
-     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $function
      *
      * @return TReturn
      */
-    public function enableInheritance(\Closure $function)
+    public function enableInheritance(\Closure $function): mixed
     {
         $previous = $this->considerInheritance;
         $this->considerInheritance = true;
@@ -232,15 +228,13 @@ class Context extends Struct
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
-     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $function
      *
      * @return TReturn
      */
-    public function disableInheritance(\Closure $function)
+    public function disableInheritance(\Closure $function): mixed
     {
         $previous = $this->considerInheritance;
         $this->considerInheritance = false;

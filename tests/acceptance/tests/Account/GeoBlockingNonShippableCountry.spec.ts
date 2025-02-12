@@ -15,16 +15,9 @@ test(
         const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
         const nonShippableCountry = await TestDataService.createCountry({ shippingAvailable: false });
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, nonShippableCountry.id);
-        const shippableCountry = await TestDataService.createCountry({
-            states: [
-                {
-                    name: 'California',
-                    shortCode: 'CA',
-                },
-            ],
-        });
+        const shippableCountry = await TestDataService.getCountry('de');
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, shippableCountry.id);
-        const defaultRegistrationData = {
+        const registrationData = {
             salutation: 'Mr.',
             firstName: 'Jeff',
             lastName: 'Goldblum',
@@ -33,37 +26,39 @@ test(
             street: 'Ebbinghof 10',
             city: 'Schöppingen',
             country: `${nonShippableCountry.name} (Delivery not possible)`,
+            state: 'Hamburg',
             postalCode: '48624',
         };
 
         await test.step('Customer cannot select non-shippable country for shipping address during registration', async () => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-            await StorefrontAccountLogin.countryInput.selectOption({ label: defaultRegistrationData.country });
+            await StorefrontAccountLogin.countryInput.selectOption({ label: registrationData.country });
             await ShopCustomer.expects(
-                await StorefrontAccountLogin.getShippingCountryLocatorByName(defaultRegistrationData.country)
+                await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country)
             ).toBeDisabled();
         });
 
         await test.step('Customer submits the registration form successfully with a shippable country', async () => {
-            await StorefrontAccountLogin.salutationSelect.selectOption(defaultRegistrationData.salutation);
-            await StorefrontAccountLogin.firstNameInput.fill(defaultRegistrationData.firstName);
-            await StorefrontAccountLogin.lastNameInput.fill(defaultRegistrationData.lastName);
+            await StorefrontAccountLogin.salutationSelect.selectOption(registrationData.salutation);
+            await StorefrontAccountLogin.firstNameInput.fill(registrationData.firstName);
+            await StorefrontAccountLogin.lastNameInput.fill(registrationData.lastName);
             await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
-            await StorefrontAccountLogin.registerPasswordInput.fill(defaultRegistrationData.password);
-            await StorefrontAccountLogin.streetAddressInput.fill(defaultRegistrationData.street);
-            await StorefrontAccountLogin.postalCodeInput.fill(defaultRegistrationData.postalCode);
-            await StorefrontAccountLogin.cityInput.fill(defaultRegistrationData.city);
+            await StorefrontAccountLogin.registerPasswordInput.fill(registrationData.password);
+            await StorefrontAccountLogin.streetAddressInput.fill(registrationData.street);
+            await StorefrontAccountLogin.postalCodeInput.fill(registrationData.postalCode);
+            await StorefrontAccountLogin.cityInput.fill(registrationData.city);
+            await StorefrontAccountLogin.countryInput.selectOption({ label: shippableCountry.name });
             await StorefrontAccountLogin.differentShippingAddressCheckbox.check();
             await StorefrontAccountLogin.shippingAddressSalutationSelect.selectOption(
-                defaultRegistrationData.salutation
+                registrationData.salutation
             );
+            await StorefrontAccountLogin.shippingAddressFirstNameInput.fill(registrationData.firstName);
+            await StorefrontAccountLogin.shippingAddressLastNameInput.fill(registrationData.lastName);
+            await StorefrontAccountLogin.shippingAddressStreetAddressInput.fill(registrationData.street);
+            await StorefrontAccountLogin.shippingAddressPostalCodeInput.fill(registrationData.postalCode);
+            await StorefrontAccountLogin.shippingAddressCityInput.fill(registrationData.city);
             await StorefrontAccountLogin.shippingAddressCountryInput.selectOption({ label: shippableCountry.name });
-            await ShopCustomer.expects(StorefrontAccountLogin.shippingAddressStateInput).toBeVisible();
-            await StorefrontAccountLogin.shippingAddressFirstNameInput.fill(defaultRegistrationData.firstName);
-            await StorefrontAccountLogin.shippingAddressLastNameInput.fill(defaultRegistrationData.lastName);
-            await StorefrontAccountLogin.shippingAddressStreetAddressInput.fill(defaultRegistrationData.street);
-            await StorefrontAccountLogin.shippingAddressPostalCodeInput.fill(defaultRegistrationData.postalCode);
-            await StorefrontAccountLogin.shippingAddressCityInput.fill(defaultRegistrationData.city);
+            await StorefrontAccountLogin.shippingAddressStateInput.selectOption({ label: registrationData.state });
             await StorefrontAccountLogin.registerButton.click();
             const customerId = (await TestDataService.getCustomerByEmail(customer.email)).id;
             TestDataService.addCreatedRecord('customer', customerId);
@@ -89,24 +84,9 @@ test(
         Register,
         InstanceMeta,
     }) => {
-        const nonShippableCountry = await TestDataService.createCountry({
-            shippingAvailable: false,
-            states: [
-                {
-                    name: 'California',
-                    shortCode: 'CA',
-                },
-            ],
-        });
+        const nonShippableCountry = await TestDataService.createCountry({ shippingAvailable: false});
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, nonShippableCountry.id);
-        const shippableCountry = await TestDataService.createCountry({
-            states: [
-                {
-                    name: 'California',
-                    shortCode: 'CA',
-                },
-            ],
-        });
+        const shippableCountry = await TestDataService.getCountry('de');
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, shippableCountry.id);
 
         const address = {

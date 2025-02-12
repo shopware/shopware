@@ -15,11 +15,7 @@
 
     {% block administration_templates %}{% endblock %}
 
-    {% if feature('ADMIN_VITE') %}
-        {{ vite_entry_script_tags('administration', { attr: { nonce: cspNonce } }) }}
-    {% else %}
-        <script nonce="{{ cspNonce }}" src="{{ asset('static/js/app.js', '@Administration') }}"></script>
-    {% endif %}
+    {{ vite_entry_script_tags('administration', { attr: { nonce: cspNonce } }) }}
 
     {% block administration_login_scripts %}{% endblock %}
 
@@ -47,9 +43,6 @@
         basePath:           /next/web
         pathInfo:           /admin
         #}
-
-        {% if feature('ADMIN_VITE') %}
-        {# window.startApplication is called in index.vite.ts #}
         window.startApplication = () => {
             Shopware.Application.start({
                 apiContext: {
@@ -77,33 +70,5 @@
                 }
             });
         };
-        {% else %}
-        Shopware.Application.start({
-            apiContext: {
-                host: '{{ app.request.host }}',
-                port: {{ app.request.port }},
-                scheme: '{{ app.request.scheme }}',
-                schemeAndHttpHost: '{{ app.request.schemeAndHttpHost }}',
-                uri: '{{ app.request.uri }}',
-                basePath: '{{ app.request.basePath }}',
-                pathInfo: '{{ app.request.pathInfo }}',
-                liveVersionId: '{{ liveVersionId }}',
-                systemLanguageId: '{{ systemLanguageId }}',
-                apiVersion: {{ apiVersion }},
-                assetPath: '{{ asset('', 'asset') }}',
-                refreshTokenTtl: {{ refreshTokenTtl }},
-            },
-            appContext: {
-                features: window._features_,
-                firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
-                systemCurrencyId: '{{ systemCurrencyId }}',
-                systemCurrencyISOCode: '{{ systemCurrencyISOCode }}',
-                // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
-                disableExtensions: {{ disableExtensions ? 'true' : 'false' }},
-                adminEsEnable: {{ adminEsEnable ? 'true' : 'false' }},
-                storefrontEsEnable: {{ storefrontEsEnable ? 'true' : 'false' }},
-            }
-        });
-        {% endif %}
     </script>
 {% endblock %}

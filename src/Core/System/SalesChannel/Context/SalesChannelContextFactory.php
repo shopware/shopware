@@ -122,7 +122,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $customer,
             $itemRounding,
             $totalRounding,
-            [],
             $base->getLanguageInfo(),
         );
 

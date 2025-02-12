@@ -8,7 +8,7 @@ import swAdminMenuExtension from 'src/module/sw-sales-channel/component/structur
 import createMenuService from 'src/app/service/menu.service';
 
 // Turn off known errors
-import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+import { missingGetListMethod } from 'test/_helper_/allowedErrors';
 
 Shopware.Component.register('sw-admin-menu-extension', swAdminMenuExtension);
 

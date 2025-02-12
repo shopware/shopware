@@ -13,5 +13,10 @@
         </nav>
     {% endblock %}
 
-    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig' with { navigation: navigation } %}
+    {# Categories are loaded via OffcanvasMenuPlugin #}
+    {% block layout_navigation_offcanvas_navigation_placeholder %}
+        <div class="navigation-offcanvas-container js-navigation-offcanvas">
+            <div class="navigation-offcanvas-overlay-content js-navigation-offcanvas-overlay-content"></div>
+        </div>
+    {% endblock %}
 {% endblock %}

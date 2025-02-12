@@ -11,6 +11,7 @@ use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\FlowLogEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -49,6 +50,12 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
         if (($event instanceof StoppableEventInterface && $event->isPropagationStopped())
             || $event->getContext()->hasState(Context::SKIP_TRIGGER_FLOW)
         ) {
+            return $event;
+        }
+
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
+            $this->container->get(BufferedFlowQueue::class)->queueFlow($event);
+
             return $event;
         }
 
@@ -110,6 +117,7 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
             FlowFactory::class,
             FlowExecutor::class,
             FlowLoader::class,
+            BufferedFlowQueue::class,
         ];
     }
 

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
@@ -41,7 +40,6 @@ class CacheStoreTest extends TestCase
             $cache,
             $this->createMock(CacheStateValidator::class),
             new EventDispatcher(),
-            $this->createMock(AbstractCacheTracer::class),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $this->createMock(MaintenanceModeResolver::class),
             [],
@@ -72,7 +70,6 @@ class CacheStoreTest extends TestCase
             $cache,
             $stateValidator,
             new EventDispatcher(),
-            $this->createMock(AbstractCacheTracer::class),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $this->createMock(MaintenanceModeResolver::class),
             [],

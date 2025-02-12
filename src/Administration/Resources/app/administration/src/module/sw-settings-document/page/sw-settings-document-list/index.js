@@ -60,12 +60,4 @@ export default {
             return criteria;
         },
     },
-
-    methods: {
-        onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
-
-            this.getList();
-        },
-    },
 };

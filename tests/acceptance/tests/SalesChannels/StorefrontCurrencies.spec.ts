@@ -9,9 +9,9 @@ test ('Shop customers should be able to view products in different currencies.',
     const salesChannelId = TestDataService.defaultSalesChannel.id;
     const currency = await TestDataService.createCurrency();
     await TestDataService.assignSalesChannelCurrency(salesChannelId, currency.id);
-    
+
     const product = await TestDataService.createBasicProduct();
-    const productListing = await StorefrontHome.getListingItemByProductId(product.id);
+    const productListing = await StorefrontHome.getListingItemByProductName(product.name);
 
     await test.step('Customer can view currencies menu', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());

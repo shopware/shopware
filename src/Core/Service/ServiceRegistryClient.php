@@ -46,42 +46,69 @@ class ServiceRegistryClient implements ResetInterface
             return $this->services;
         }
 
-        try {
-            $response = $this->client->request('GET', $this->registryUrl, [
-                'headers' => [
-                    'Accept' => 'application/json',
-                ],
-            ]);
+        $rawServices = [];
+        $page = 1;
 
-            if ($response->getStatusCode() !== 200) {
-                return [];
+        do {
+            $response = $this->fetchServices($page);
+            if ($response === null) {
+                break;
             }
 
-            $content = $response->toArray();
+            $rawServices = array_merge($rawServices, $response['services']);
+            ++$page;
+        } while ($page <= ($response['pagination']['pages'] ?? 1));
 
-            if (!$this->validateResponse($content)) {
-                return [];
-            }
+        $this->services = array_map(
+            static fn (array $service) => new ServiceRegistryEntry(
+                $service['name'],
+                $service['label'],
+                $service['host'],
+                $service['app-endpoint'],
+                (bool) ($service['activate-on-install'] ?? true),
+                $service['license-sync-endpoint'] ?? null
+            ),
+            $rawServices
+        );
 
-            return $this->services = array_map(
-                static fn (array $service) => new ServiceRegistryEntry(
-                    $service['name'],
-                    $service['label'],
-                    $service['host'],
-                    $service['app-endpoint'],
-                    (bool) ($service['activate-on-install'] ?? true),
-                    $service['license-sync-endpoint'] ?? null
-                ),
-                $content['services']
-            );
-        } catch (ExceptionInterface $e) {
-            return [];
-        }
+        return $this->services;
     }
 
     public function reset(): void
     {
         $this->services = null;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function fetchServices(int $page): ?array
+    {
+        try {
+            $response = $this->client->request('GET', $this->registryUrl, [
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+                'query' => [
+                    'page' => $page,
+                    'limit' => 10,
+                ],
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                return null;
+            }
+
+            $content = $response->toArray();
+
+            if (!$this->validateResponse($content)) {
+                return null;
+            }
+
+            return $content;
+        } catch (ExceptionInterface $e) {
+            return null;
+        }
     }
 
     /**

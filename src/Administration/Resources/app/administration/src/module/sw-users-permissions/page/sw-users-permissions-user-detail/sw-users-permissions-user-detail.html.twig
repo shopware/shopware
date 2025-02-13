@@ -11,12 +11,13 @@
     {% block sw_settings_user_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_user_detail_actions_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_user_detail_actions_save %}
@@ -234,14 +235,15 @@
                     {% block sw_settings_user_detail_grid_toolbar %}
                     <template #toolbar>
                         {% block sw_settings_user_detail_grid_add_key %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             variant="primary"
                             size="small"
                             :disabled="!$route.params.id || !acl.can('users_and_permissions.editor') || undefined"
                             @click="addAccessKey"
                         >
                             {{ $tc('sw-users-permissions.users.user-detail.addAccessKey') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                     {% endblock %}
@@ -324,19 +326,21 @@
 
             {% block sw_settings_user_detail_grid_inner_slot_delete_modal_footer %}
             <template #modal-footer>
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="onCloseDeleteModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
-                <sw-button
+                </mt-button>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
-                    variant="danger"
+                    variant="critical"
                     @click="onConfirmDelete(showDeleteModal)"
                 >
                     {{ $tc('sw-users-permissions.users.user-detail.modal.buttonDelete') }}
-                </sw-button>
+                </mt-button>
             </template>
             {% endblock %}
         </sw-modal>
@@ -388,15 +392,16 @@
             {% endblock %}
 
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="!showSecretAccessKey"
                 class="sw-settings-user-detail__secret-help-text-button sw-field"
-                variant="danger"
+                variant="critical"
                 :block="true"
                 @click="addAccessKey"
             >
                 {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCreateNewApiKeys') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_settings_user_detail_detail_modal_inner_field_help_text %}
@@ -423,17 +428,19 @@
             {% block sw_settings_user_detail_detail_modal_inner_footer %}
             <template #modal-footer>
                 {% block sw_settings_user_detail_detail_modal_inner_footer_cancel %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     :disabled="isModalLoading || undefined"
                     @click="onCloseDetailModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_settings_user_detail_detail_modal_inner_footer_apply %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     class="sw-settings-user-detail__save-action"
                     :disabled="isModalLoading && !!currentIntegration.label || undefined"
@@ -441,7 +448,7 @@
                     @click="onSaveIntegration"
                 >
                     {{ showSecretAccessKey ? $tc('sw-users-permissions.users.user-detail.modal.buttonApply') : $tc('sw-users-permissions.users.user-detail.modal.buttonApplyEdit') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
             {% endblock %}

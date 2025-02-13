@@ -142,7 +142,6 @@ async function createWrapper() {
                     </div>`,
                 },
                 'sw-container': true,
-                'sw-button': true,
                 'sw-loader': true,
                 'sw-search-bar': true,
                 'sw-icon': true,

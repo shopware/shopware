@@ -11,12 +11,13 @@
         <p>{{ $tc('sw-extension.sw-extension-app-module-error-page.error.phrase') }}</p>
         <p>{{ $tc('sw-extension.sw-extension-app-module-error-page.error.info') }}</p>
 
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             @click="goBack"
         >
             {{ $tc('sw-extension.sw-extension-app-module-error-page.error.lblBackButton') }}
-        </sw-button>
+        </mt-button>
     </div>
 </div>
 {% endblock %}

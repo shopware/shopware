@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
 const updateExtensionDataSpy = jest.fn(() => Promise.resolve({}));
@@ -8,10 +9,6 @@ async function createWrapper(userConfig = {}) {
     const wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-icon': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
@@ -105,7 +102,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         // fileInput has not been clicked before
         expect(fileInput.element.click).not.toHaveBeenCalled();
 
-        const continueButton = warningModal.get('.sw-button--primary');
+        const continueButton = findByText(warningModal, 'button', 'global.default.confirm');
         await continueButton.trigger('click');
 
         // expect that the input gets clicked

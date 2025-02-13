@@ -63,12 +63,13 @@
     <template #modal-footer>
         <div>
             {% block sw_customer_imitate_customer_modal_footer_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCancel"
             >
                 {{ $tc('sw-customer.imitateCustomerModal.labelCancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
     </template>

@@ -10,13 +10,14 @@
     {% block sw_settings_payment_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_payment_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_payment_detail_actions_save %}
@@ -242,13 +243,15 @@
                     </mt-banner>
 
                     <div class="sw-settings-payment-detail-delete__container">
-                        <sw-button
-                            variant="ghost-danger"
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
+                            variant="critical"
+                            ghost
                             :disabled="forbidDelete || !acl.can('payment.deleter') || undefined"
                             @click="showDeleteModal = true"
                         >
                             {{ $tc('sw-settings-payment.detail.delete.textButton') }}
-                        </sw-button>
+                        </mt-button>
                     </div>
                 </sw-card>
                 {% endblock %}
@@ -272,23 +275,25 @@
                     {% block sw_settings_payment_detail_delete_modal_footer %}
                     <template #modal-footer>
                         {% block sw_settings_payment_detail_reset_modal_cancel %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             size="small"
                             @click="showDeleteModal = false"
                         >
                             {{ $tc('global.default.cancel') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_settings_payment_detail_reset_modal_confirm %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             :disabled="deletionInProcess || undefined"
-                            variant="danger"
+                            variant="critical"
                             size="small"
                             @click="deletePaymentMethod"
                         >
                             {{ $tc('sw-settings-payment.detail.delete.modal.buttonDelete') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                     {% endblock %}

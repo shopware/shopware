@@ -59,7 +59,6 @@ async function createWrapper(privileges = [], props = {}) {
                     'sw-page': {
                         template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-sidebar': true,
                     'sw-sidebar-media-item': true,

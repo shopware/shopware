@@ -145,9 +145,6 @@ async function createWrapper(
                     },
                 },
                 stubs: {
-                    'sw-button': {
-                        template: '<div class="sw-button" @click="$emit(`click`)"></div>',
-                    },
                     'sw-sidebar': true,
                     'sw-sidebar-item': {
                         template: '<div class="sw-sidebar-item"><slot /></div>',

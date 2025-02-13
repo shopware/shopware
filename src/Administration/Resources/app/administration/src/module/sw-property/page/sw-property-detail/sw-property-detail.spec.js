@@ -39,7 +39,6 @@ async function createWrapper() {
                             <slot name="smart-bar-actions"></slot>
                         </div>`,
                 },
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-language-switch': true,
                 'sw-card-view': true,

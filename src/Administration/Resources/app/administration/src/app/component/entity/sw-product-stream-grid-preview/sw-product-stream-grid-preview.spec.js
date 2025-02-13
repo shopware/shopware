@@ -70,7 +70,6 @@ const createWrapper = async () => {
                     'sw-context-button': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
-                    'sw-button': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,

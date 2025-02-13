@@ -26,24 +26,26 @@
     <template #modal-footer>
         {% block sw_extension_deactivation_modal_footer %}
         {% block sw_extension_deactivation_modal_footer_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             :disabled="isLoading"
             @click="emitClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_extension_deactivation_modal_footer_deactivate %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             size="small"
             :is-loading="isLoading"
             @click="emitDeactivate"
         >
             {{ $tc('sw-extension-store.component.sw-extension-deactivation-modal.deactivateLabel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

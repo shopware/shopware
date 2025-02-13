@@ -157,9 +157,6 @@ async function createWrapper(customField = customNormalField) {
                         </div>
                     `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-loader': true,
                     'sw-label': true,
                     'sw-icon': true,

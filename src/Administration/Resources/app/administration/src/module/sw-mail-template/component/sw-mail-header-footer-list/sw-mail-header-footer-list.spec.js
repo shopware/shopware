@@ -102,7 +102,6 @@ const createWrapper = async (privileges = []) => {
                 },
                 'sw-context-menu-item': true,
                 'sw-empty-state': true,
-                'sw-button': true,
             },
         },
     });

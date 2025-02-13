@@ -156,8 +156,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'router-link': {
                             template: '<a></a>',
                         },
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-color-badge': await wrapTestComponent('sw-color-badge'),
                         'sw-app-actions': true,
                         'sw-extension-component-section': true,
@@ -207,7 +205,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     });
 
     it('should disable the button if one requirement is not met', async () => {
-        const button = wrapper.find('.smart-bar__actions .sw-button');
+        const button = wrapper.findByText('button', 'sw-settings-shopware-updates.infos.startUpdate');
 
         expect(button.attributes('disabled')).toBeDefined();
     });

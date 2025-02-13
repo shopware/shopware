@@ -11,7 +11,8 @@
     {% block sw_product_detail_cross_selling_items_wrapper %}
     <template v-if="showCrossSellingCard">
         {% block sw_product_detail_cross_selling_restore_inheritance %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="isChild"
             class="sw-product-detail-cross-selling__restore-inheritance-btn"
             :disabled="!acl.can('product.editor')"
@@ -23,7 +24,7 @@
                 size="16px"
             />
             {{ $tc('sw-product.crossselling.buttonRestoreCrossSellingInheritance') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_product_detail_cross_selling_items %}
@@ -38,19 +39,20 @@
         {% endblock %}
 
         {% block sw_product_detail_cross_selling_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: onAddCrossSellingTooltipMessage,
                 disabled: acl.can('product.editor') && isSystemDefaultLanguage,
                 showOnDisabledElements: true
             }"
             class="sw-product-detail-cross-selling__add-btn"
-            variant="ghost"
+            ghost
             :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
             @click="onAddCrossSelling"
         >
             {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -144,18 +146,19 @@
             {% block sw_product_detail_cross_selling_empty_state_actions %}
             <template #actions>
                 {% block sw_product_detail_cross_selling_empty_state_actions_add %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-tooltip="{
                         message: onAddCrossSellingTooltipMessage,
                         disabled: acl.can('product.editor') && isSystemDefaultLanguage,
                         showOnDisabledElements: true
                     }"
-                    variant="ghost"
+                    ghost
                     :disabled="isInherited || !acl.can('product.editor') || !isSystemDefaultLanguage"
                     @click="onAddCrossSelling"
                 >
                     {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
             {% endblock %}
@@ -181,23 +184,25 @@
         {% block sw_product_detail_cross_selling_modal_restore_inheritance_footer %}
         <template #modal-footer>
             {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCloseRestoreInheritanceModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_restore %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-product-detail-cross-selling__restore-button"
                 size="small"
-                variant="danger"
+                variant="critical"
                 @click="onConfirmRestoreInheritance"
             >
                 {{ $tc('sw-product.crossselling.restoreInheritanceButtonRestore') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

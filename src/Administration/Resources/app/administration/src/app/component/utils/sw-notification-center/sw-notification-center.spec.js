@@ -15,8 +15,6 @@ async function createWrapper() {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-notification-center-item': await wrapTestComponent('sw-notification-center-item'),
                 'sw-time-ago': await wrapTestComponent('sw-time-ago'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-popover': {
@@ -89,7 +87,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         // opening the delete modal this way, because doing it via the DOM closes the context menu
         await wrapper.vm.openDeleteModal();
 
-        await wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.findByText('button', 'global.default.delete').trigger('click');
         await flushPromises();
 
         // re-opening the context menu, happens only in test

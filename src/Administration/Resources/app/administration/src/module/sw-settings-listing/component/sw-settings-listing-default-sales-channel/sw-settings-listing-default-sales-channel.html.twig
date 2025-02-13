@@ -67,13 +67,14 @@
             />
 
             <template #modal-footer>
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     variant="primary"
                     size="small"
                     @click="closeAdvancedVisibility"
                 >
                     {{ $tc('global.default.apply') }}
-                </sw-button>
+                </mt-button>
             </template>
         </sw-modal>
         {% endblock %}

@@ -19,7 +19,8 @@
     {% block sw_flow_sequence_selector_actions %}
     <div class="sw-flow-sequence-selector__actions">
         {% block sw_flow_sequence_selector_if_condition %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-flow-sequence-selector__add-condition"
             :disabled="disabled"
             @click="addIfCondition"
@@ -33,11 +34,12 @@
             {% endblock %}
 
             {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_flow_sequence_selector_then_action %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-flow-sequence-selector__add-action"
             :disabled="disabled"
             @click="addThenAction"
@@ -51,7 +53,7 @@
             {% endblock %}
 
             {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_flow_sequence_selector_extension_options %}{% endblock %}

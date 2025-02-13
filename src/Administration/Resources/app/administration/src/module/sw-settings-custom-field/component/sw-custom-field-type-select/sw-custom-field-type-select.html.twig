@@ -23,13 +23,14 @@
     {% endblock %}
 
     {% block sw_custom_field_type_select_options_delete %}
-    <sw-button
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button
         class="sw-custom-field-type-select__delete-option-button"
         size="small"
         @click="onDeleteOption(index)"
     >
         {{ $tc('sw-settings-custom-field.customField.detail.labelDeleteOption') }}
-    </sw-button>
+    </mt-button>
     {% endblock %}
 
     {% block sw_custom_field_type_select_options_container %}
@@ -62,13 +63,14 @@
 {% endblock %}
 
 {% block sw_custom_field_type_select_add_option %}
-<sw-button
+<!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+<mt-button
     v-if="isOptionAddable"
     size="small"
     class="sw-custom-field-type-select__button-add"
     @click="onClickAddOption"
 >
     {{ $tc('sw-settings-custom-field.customField.detail.buttonAddOption') }}
-</sw-button>
+</mt-button>
     {% endblock %}
 {% endblock %}

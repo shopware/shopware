@@ -84,6 +84,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-field-error': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
+                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-highlight-text': {
                             props: ['text'],
@@ -96,7 +97,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-data-grid-column-boolean': true,
                         'sw-data-grid-inline-edit': true,
                         'router-link': true,
-                        'sw-button': true,
                         'sw-data-grid-skeleton': true,
                         'sw-loader': true,
                         'sw-inheritance-switch': true,
@@ -140,13 +140,13 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         });
     });
 
-    it.skip('should be a Vue.js component', async () => {
+    it('should be a Vue.js component', async () => {
         wrapper = await createWrapper(getProfileMock());
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it.skip('should have identifier entries for all entities in mapping', async () => {
+    it('should have identifier entries for all entities in mapping', async () => {
         const profileMock = getProfileMock();
 
         wrapper = await createWrapper(profileMock);
@@ -158,7 +158,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--identifierName').text()).toBe('tax');
     });
 
-    it.skip('should have options for entries in update by mapping', async () => {
+    it('should have options for entries in update by mapping', async () => {
         const profileMock = getProfileMock();
 
         wrapper = await createWrapper(profileMock);

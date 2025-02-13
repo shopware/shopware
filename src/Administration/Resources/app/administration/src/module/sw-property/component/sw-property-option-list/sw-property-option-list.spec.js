@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 function getOptions() {
     const options = [
@@ -96,9 +97,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-button': {
-                    template: '<button class="sw-button" @click="$emit(`click`)"></button>',
-                },
                 'sw-simple-search-field': {
                     template: '<div></div>',
                 },
@@ -200,7 +198,7 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         await modal.get('.sw-number-field-stub').setValue(0);
         await modal.get('.sw-colorpicker-stub').setValue('#000000');
 
-        await modal.find('button[variant="primary"]').trigger('click');
+        await findByText(modal, 'button', 'global.default.apply').trigger('click');
 
         // waiting for the modal to disappear
         await wrapper.vm.$nextTick();

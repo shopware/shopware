@@ -11,14 +11,15 @@
     {% block sw_newsletter_recipient_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_newsletter_recipient_detail_actions_edit %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-newsletter-recipient-detail__open-edit-mode-action"
             variant="primary"
             :disabled="isLoading || !acl.can('newsletter_recipient.editor')"
             @click="onClickSave"
         >
             {{ $tc('sw-newsletter-recipient.general.buttonSave') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

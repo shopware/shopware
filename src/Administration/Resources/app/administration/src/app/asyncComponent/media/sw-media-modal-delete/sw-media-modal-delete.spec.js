@@ -35,7 +35,6 @@ describe('components/media/sw-media-modal-delete', () => {
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-modal': true,
-                    'sw-button': true,
                     'sw-media-quickinfo-usage': {
                         template: '<div class="sw-media-quickinfo-usage"></div>',
                     },

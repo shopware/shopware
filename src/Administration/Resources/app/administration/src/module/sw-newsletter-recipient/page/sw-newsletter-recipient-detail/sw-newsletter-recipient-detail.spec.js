@@ -69,10 +69,6 @@ async function createWrapper() {
                         template: '<div class="sw-field"></div>',
                         props: ['disabled'],
                     },
-                    'sw-button': {
-                        template: '<div id="save-btn"></div>',
-                        props: ['disabled'],
-                    },
                     'sw-loader': true,
                     'sw-card': {
                         template: '<div><slot name="toolbar">TOOLBAR</slot><slot>CONTENT</slot></div>',
@@ -111,7 +107,9 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
         await wrapper.vm.$nextTick();
 
         // check if the save-action-btn is disabled
-        expect(wrapper.getComponent('#save-btn').props('disabled')).toBe(true);
+        expect(
+            wrapper.findByText('button', 'sw-newsletter-recipient.general.buttonSave').attributes('disabled'),
+        ).toBeDefined();
 
         const fields = wrapper.findAllComponents('.sw-field');
         expect(fields).toHaveLength(11);
@@ -127,7 +125,9 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
         await wrapper.vm.$nextTick();
 
         // check if the save-action-btn is enabled
-        expect(wrapper.getComponent('#save-btn').props('disabled')).toBeFalsy();
+        expect(
+            wrapper.findByText('button', 'sw-newsletter-recipient.general.buttonSave').attributes('disabled'),
+        ).toBeUndefined();
 
         const fields = wrapper.findAllComponents('.sw-field');
         expect(fields).toHaveLength(11);

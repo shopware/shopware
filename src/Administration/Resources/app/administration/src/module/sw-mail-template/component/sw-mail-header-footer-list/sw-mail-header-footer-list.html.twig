@@ -52,23 +52,25 @@
             </template>
 
             <template #bulk-modal-delete-items>
-                <sw-button
-                    variant="danger"
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
+                    variant="critical"
                     size="small"
                     @click="onMultipleDelete"
                 >
                     {{ $tc('global.default.delete') }}
-                </sw-button>
+                </mt-button>
             </template>
 
             <template #delete-modal-delete-item="{ item }">
-                <sw-button
-                    variant="danger"
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
+                    variant="critical"
                     size="small"
                     @click="onDelete(item)"
                 >
                     {{ $tc('global.default.delete') }}
-                </sw-button>
+                </mt-button>
             </template>
 
             <template #more-actions="{ item }">

@@ -59,16 +59,18 @@
     {% block sw_property_option_detail_footer %}
     <template #modal-footer>
         {% block sw_property_option_detail_footer_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_property_option_detail_footer_save %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('property.editor'),
@@ -80,7 +82,7 @@
             @click="onSave"
         >
             {{ $tc('global.default.apply') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

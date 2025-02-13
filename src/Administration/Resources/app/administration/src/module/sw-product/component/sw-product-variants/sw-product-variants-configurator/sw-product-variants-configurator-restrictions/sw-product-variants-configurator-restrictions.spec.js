@@ -104,8 +104,6 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     'sw-icon': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
@@ -228,7 +226,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
     });
 
     it('should add an empty restriction combination', async () => {
-        await wrapper.find('.sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.addNewRestriction').trigger('click');
         expect(wrapper.vm.actualRestriction).toEqual({
             id: expect.any(String),
             values: [
@@ -242,20 +240,21 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
     });
 
     it('should test cancelAddRestriction', async () => {
-        await wrapper.find('.sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.addNewRestriction').trigger('click');
         await flushPromises();
 
-        await wrapper.findAll('.sw-button').at(2).trigger('click');
+        await wrapper.findByText('button', 'global.default.cancel').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.actualRestriction).toEqual({});
     });
 
     it('should test method addEmptyRestriction', async () => {
-        await wrapper.find('.sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.addNewRestriction').trigger('click');
         await flushPromises();
-
-        await wrapper.find('.sw-product-variants-configurator-restrictions__button-new-restriction').trigger('click');
+        await wrapper
+            .findByText('button', 'sw-product.variations.configuratorModal.singleRestrictionSeperation')
+            .trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.actualRestriction).toEqual({
@@ -340,14 +339,14 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
     });
 
     it('should save restriction', async () => {
-        await wrapper.find('.sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.addNewRestriction').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-select-selection-list').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-select-option--0').trigger('click');
-        await wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.save').trigger('click');
 
         expect(wrapper.vm.product.variantRestrictions).toEqual([
             {

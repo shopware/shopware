@@ -4,7 +4,6 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-file-input';
-import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 
 async function createWrapper(customOptions = {}) {
@@ -14,9 +13,6 @@ async function createWrapper(customOptions = {}) {
                 'sw-icon': {
                     template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
                 },
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'mt-button': true,
-                'sw-button-deprecated': true,
             },
         },
         ...customOptions,

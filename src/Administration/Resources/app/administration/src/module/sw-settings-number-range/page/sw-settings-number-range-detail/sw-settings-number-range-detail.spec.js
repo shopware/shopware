@@ -58,10 +58,6 @@ async function createWrapper() {
                         <slot />
                     </div>`,
                     },
-                    'sw-button': {
-                        template: '<div class="sw-button"><slot /></div>',
-                        props: ['disabled'],
-                    },
                     'sw-button-process': {
                         template: '<div class="sw-button-process"><slot /></div>',
                         props: ['disabled'],

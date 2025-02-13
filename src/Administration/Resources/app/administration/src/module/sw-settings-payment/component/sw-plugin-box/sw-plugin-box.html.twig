@@ -33,15 +33,16 @@
         </sw-container>
         {% endblock %}
         {% block sw_plugin_box_container_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="hasPluginConfig"
-            variant="ghost"
+            ghost
             size="small"
             class="sw-plugin-box__button"
-            :router-link="{ name: 'sw.extension.config', params: { namespace: plugin.name } }"
+            @click="$router.push({ name: 'sw.extension.config', params: { namespace: plugin.name } })"
         >
             {{ $tc('sw-plugin-box.buttonPluginSettings') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </sw-container>
     {% endblock %}

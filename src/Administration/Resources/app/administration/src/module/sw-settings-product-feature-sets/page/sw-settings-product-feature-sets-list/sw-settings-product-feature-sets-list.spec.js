@@ -33,7 +33,6 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     'sw-language-switch': true,
                     'sw-search-bar': true,
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing', {
                         sync: true,
                     }),
@@ -184,7 +183,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
-        expect(createButton.attributes().disabled).toBe('true');
+        expect(createButton.attributes('disabled')).toBeDefined();
 
         const entityListing = wrapper.findComponent('.sw-settings-product-feature-sets-list-grid');
         expect(entityListing.props().allowInlineEdit).toBe(false);
@@ -207,7 +206,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
-        expect(createButton.attributes().disabled).toBe('true');
+        expect(createButton.attributes('disabled')).toBeDefined();
 
         const entityListing = wrapper.findComponent('.sw-settings-product-feature-sets-list-grid');
         expect(entityListing.props().allowInlineEdit).toBe(true);
@@ -251,7 +250,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         await flushPromises();
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
-        expect(createButton.attributes().disabled).toBe('true');
+        expect(createButton.attributes('disabled')).toBeDefined();
 
         const entityListing = wrapper.findComponent('.sw-settings-product-feature-sets-list-grid');
         expect(entityListing.props().allowInlineEdit).toBe(false);

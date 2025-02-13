@@ -19,13 +19,14 @@
         {% endblock %}
 
         {% block sw_extension_adding_success_back_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             block
             @click="$emit('close')"
         >
             {{ $tc('global.default.close') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}

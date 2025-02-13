@@ -62,7 +62,6 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-button': true,
                 'sw-label': true,
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                     sync: true,
@@ -140,7 +139,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         wrapper = await createWrapper();
         const addButton = wrapper.find('.sw-order-list__add-order');
 
-        expect(addButton.attributes().disabled).toBe('true');
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should not have an disabled add button', async () => {

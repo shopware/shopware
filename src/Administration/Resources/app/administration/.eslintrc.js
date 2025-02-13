@@ -254,6 +254,7 @@ module.exports = {
                         maxArgs: 2,
                     },
                 ],
+                'jest/no-disabled-tests': 'warn',
                 'func-names': 'off',
             },
             extends: [

@@ -71,9 +71,8 @@ describe('components/sw-import-export-exporter', () => {
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
-
+                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                         'sw-import-export-exporter': await wrapTestComponent('sw-import-export-exporter', { sync: true }),
-                        'sw-button': true,
                         'sw-product-variant-info': true,
                         'sw-inheritance-switch': true,
                         'sw-ai-copilot-badge': true,
@@ -116,15 +115,15 @@ describe('components/sw-import-export-exporter', () => {
         await flushPromises();
     });
 
-    it.skip('should be a Vue.js component', async () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it.skip('should not show the warning when nothing is selected', async () => {
+    it('should not show the warning when nothing is selected', async () => {
         expect(wrapper.find('.sw-import-export-exporter__variants-warning').exists()).toBeFalsy();
     });
 
-    it.skip('should not show the warning when a product profile without variants is selected', async () => {
+    it('should not show the warning when a product profile without variants is selected', async () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -138,7 +137,7 @@ describe('components/sw-import-export-exporter', () => {
         expect(wrapper.find('.sw-import-export-exporter__variants-warning').exists()).toBeFalsy();
     });
 
-    it.skip('should not show the warning when a product profile should not export variants', async () => {
+    it('should not show the warning when a product profile should not export variants', async () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -155,7 +154,7 @@ describe('components/sw-import-export-exporter', () => {
         expect(variantsWarning.exists()).toBeFalsy();
     });
 
-    it.skip('should show the warning when a product profile should also export variants', async () => {
+    it('should show the warning when a product profile should also export variants', async () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -182,7 +181,7 @@ describe('components/sw-import-export-exporter', () => {
         expect(variantsWarning.text()).toContain('sw-import-export.exporter.variantsWarning');
     });
 
-    it.skip('should show a warning which contains an open modal link', async () => {
+    it('should show a warning which contains an open modal link', async () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -207,7 +206,7 @@ describe('components/sw-import-export-exporter', () => {
         expect(variantsWarningLink.at(1).text()).toContain('sw-import-export.exporter.directExportPropertiesLabel');
     });
 
-    it.skip('should show a modal which only contains configurator settings profiles', async () => {
+    it('should show a modal which only contains configurator settings profiles', async () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -232,7 +231,7 @@ describe('components/sw-import-export-exporter', () => {
         expect(modalExporter.props().sourceEntity).toBe('product_configurator_setting');
     });
 
-    it.skip('should show all profiles when sourceEntity is empty', async () => {
+    it('should show all profiles when sourceEntity is empty', async () => {
         await wrapper.setProps({ sourceEntity: '' });
 
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
@@ -248,7 +247,7 @@ describe('components/sw-import-export-exporter', () => {
         expect(resultNames).toContain('Default media');
     });
 
-    it.skip('should show only matching profiles when sourceEntity property is set', async () => {
+    it('should show only matching profiles when sourceEntity property is set', async () => {
         await wrapper.setProps({
             sourceEntity: 'product_configurator_setting',
         });
@@ -267,7 +266,7 @@ describe('components/sw-import-export-exporter', () => {
         expect(resultNames).not.toContain('Default media');
     });
 
-    it.skip('should throw an warning if the import fails hard', async () => {
+    it('should throw an warning if the import fails hard', async () => {
         await wrapper.setData({
             selectedProfileId: 'a1b2c3d4e5',
             config: {

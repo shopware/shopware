@@ -75,7 +75,6 @@ async function createWrapper(privileges = []) {
                 'sw-language-info': true,
                 'sw-empty-state': true,
                 'sw-container': await wrapTestComponent('sw-container'),
-                'sw-button': true,
                 'sw-skeleton': true,
                 'sw-language-switch': true,
                 'sw-context-menu-item': true,

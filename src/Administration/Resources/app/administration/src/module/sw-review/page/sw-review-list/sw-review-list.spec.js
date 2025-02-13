@@ -53,7 +53,6 @@ async function createWrapper() {
                         <slot></slot>
                     </div>`,
                 },
-                'sw-button': true,
                 'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-entity-listing': true,

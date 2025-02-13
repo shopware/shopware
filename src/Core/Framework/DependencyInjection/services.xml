@@ -254,17 +254,9 @@ frame-ancestors 'none';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
-            <argument>%shopware.cache.tagging.each_snippet%</argument>
             <argument type="service" id="event_dispatcher"/>
 
             <tag name="monolog.logger"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Translation\TranslatorCacheInvalidate">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Snippets -->
@@ -706,7 +698,6 @@ frame-ancestors 'none';
             <argument type="service" id="cache.http"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%session.storage.options%</argument>

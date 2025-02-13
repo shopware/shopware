@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -121,7 +119,7 @@ export default {
                 .then(() => {
                     if (this.selectedDefaultTaxRateId === this.defaultTaxRateId) {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
+                            message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
                         });
 
                         return;
@@ -135,7 +133,7 @@ export default {
                             this.defaultTaxRateId = this.selectedDefaultTaxRateId;
 
                             this.createNotificationSuccess({
-                                message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
+                                message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
                             });
                         })
                         .catch(() => {

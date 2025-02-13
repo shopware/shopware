@@ -5,7 +5,6 @@
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :options="options"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -30,7 +29,6 @@
     v-else
     v-bind="$attrs"
     :options="options"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

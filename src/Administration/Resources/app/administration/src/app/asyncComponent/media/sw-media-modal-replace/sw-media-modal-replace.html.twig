@@ -23,7 +23,7 @@
         class="sw-media-modal-replace__file-extension-warning"
         variant="warning"
     >
-        {{ $tc('global.sw-media-modal-replace.warningFileExtension', 0, { extension: newFileExtension }) }}
+        {{ $tc('global.sw-media-modal-replace.warningFileExtension', { extension: newFileExtension }, 0) }}
     </sw-alert>
 
     {% block sw_media_modal_replace_modal_footer %}

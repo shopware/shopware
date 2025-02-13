@@ -26,7 +26,6 @@ use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -350,7 +349,6 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $this->createMock(CustomEntityPersister::class),
             $this->createMock(CustomEntitySchemaUpdater::class),
-            $this->createMock(CustomEntityLifecycleService::class),
             $this->createMock(PluginService::class),
             $this->createMock(VersionSanitizer::class),
         );

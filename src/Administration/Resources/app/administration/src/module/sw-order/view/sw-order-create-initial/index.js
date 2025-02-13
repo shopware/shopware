@@ -11,8 +11,6 @@ const { Criteria } = Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         customerRepository() {
             return Service('repositoryFactory').create('customer');

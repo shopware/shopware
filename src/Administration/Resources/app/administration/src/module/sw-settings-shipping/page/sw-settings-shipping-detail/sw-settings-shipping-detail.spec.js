@@ -4,6 +4,8 @@ import { mount } from '@vue/test-utils';
  * @sw-package checkout
  */
 
+let repositoryFactoryMock;
+
 async function createWrapper(privileges = [], props = {}) {
     const shippingMethod = {};
     shippingMethod.technicalName = 'shipping_standard';
@@ -12,6 +14,14 @@ async function createWrapper(privileges = [], props = {}) {
     shippingMethod.prices = {
         add: () => {},
         forEach: () => [],
+    };
+    repositoryFactoryMock = {
+        create: () => {
+            return shippingMethod;
+        },
+        search: () => Promise.resolve([]),
+        get: () => Promise.resolve(shippingMethod),
+        save: () => Promise.resolve(),
     };
 
     return mount(
@@ -27,14 +37,7 @@ async function createWrapper(privileges = [], props = {}) {
                         getRestrictedRules: () => Promise.resolve([]),
                     },
                     repositoryFactory: {
-                        create: () => ({
-                            create: () => {
-                                return shippingMethod;
-                            },
-                            search: () => Promise.resolve([]),
-                            get: () => Promise.resolve(shippingMethod),
-                            save: () => Promise.resolve(),
-                        }),
+                        create: () => repositoryFactoryMock,
                     },
                     acl: {
                         can: (identifier) => {

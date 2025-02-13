@@ -45,13 +45,7 @@ const { dom } = Shopware.Utils;
 Component.register('sw-page', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     provide() {
-        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-            return {};
-        }
-
         return {
             setSwPageSidebarOffset: this.setSidebarOffset,
             removeSwPageSidebarOffset: this.removeSidebarOffset,
@@ -161,14 +155,6 @@ Component.register('sw-page', {
             };
         },
 
-        additionalEventListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-
         smartBarContentStyle() {
             const rowNumber = this.showSearchBar ? 2 : 1;
 
@@ -197,13 +183,6 @@ Component.register('sw-page', {
 
     methods: {
         createdComponent() {
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('mount', this.setSidebarOffset);
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('destroy', this.removeSidebarOffset);
-            }
-
             window.addEventListener('resize', this.readScreenWidth);
         },
 

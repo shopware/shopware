@@ -9,14 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class PipeFactory extends AbstractPipeFactory
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly SerializerRegistry $serializerRegistry,

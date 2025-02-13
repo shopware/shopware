@@ -117,7 +117,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
                         <slot name="smart-bar-header"></slot>
-                        <slot name="language-switch"></slot>
                         <slot name="smart-bar-actions"></slot>
                         <slot name="side-content"></slot>
                         <slot name="content"></slot>
@@ -138,7 +137,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                     'sw-card': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
-                    'sw-language-switch': true,
                     'sw-checkbox-field': {
                         template: `
                     <div class="sw-field--checkbox">
@@ -400,34 +398,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 },
             }),
         );
-    });
-
-    /* @deprecated: tag:v6.7.0 - Remove this test */
-    // eslint-disable-next-line max-len
-    it('should be have countries in country select when have toggle display intra-community delivery checkbox', async () => {
-        const wrapper = await createWrapper({}, ['document.editor']);
-
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            isShowDisplayNoteDelivery: true,
-            documentConfig: {
-                config: {
-                    deliveryCountries: [
-                        '0110c22a5a92481aa8722a782dfc2573',
-                        '0143d24eb0264eb89cc34f50d427b828',
-                    ],
-                },
-            },
-        });
-
-        const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
-            '.sw-settings-document-detail__field_additional_note_delivery input',
-        );
-
-        await displayAdditionalNoteDeliveryCheckbox.setChecked();
-
-        expect(displayAdditionalNoteDeliveryCheckbox.element.checked).toBe(true);
-        expect(wrapper.vm.documentConfig.config.deliveryCountries).toHaveLength(2);
     });
 
     it('should have assignment card at the top of the page', async () => {

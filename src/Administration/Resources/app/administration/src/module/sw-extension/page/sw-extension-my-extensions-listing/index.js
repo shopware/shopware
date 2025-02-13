@@ -8,8 +8,6 @@ import './sw-extension-my-extensions-listing.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['shopwareExtensionService'],
 
     data() {

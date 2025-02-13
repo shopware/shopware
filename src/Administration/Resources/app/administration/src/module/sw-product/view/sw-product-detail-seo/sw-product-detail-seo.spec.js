@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import uuid from 'src/../test/_helper_/uuid';
+import uuid from 'test/_helper_/uuid';
 
 const classes = {
     cardSeoAdditional: 'sw-seo-url__card-seo-additional',

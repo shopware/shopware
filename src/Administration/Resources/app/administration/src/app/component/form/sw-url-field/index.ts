@@ -58,25 +58,11 @@ Component.register('sw-url-field', {
                 this.$emit('update:modelValue', value);
             },
         },
-
-        listeners() {
-            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return {};
-            }
-
-            return this.$listeners;
-        },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

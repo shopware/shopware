@@ -19,8 +19,6 @@ interface PromotionCodeItem {
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('cart-notification'),

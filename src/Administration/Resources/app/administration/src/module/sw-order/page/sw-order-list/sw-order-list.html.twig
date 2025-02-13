@@ -263,7 +263,7 @@
                     >
                         {% block sw_order_list_delete_modal_confirm_delete_text %}
                         <p class="sw-order-list__confirm-delete-text">
-                            {{ $tc('sw-order.list.textDeleteConfirm', 0, { orderNumber: `${item.orderNumber}` }) }}
+                            {{ $tc('sw-order.list.textDeleteConfirm', { orderNumber: `${item.orderNumber}` }, 0) }}
                         </p>
                         {% endblock %}
 

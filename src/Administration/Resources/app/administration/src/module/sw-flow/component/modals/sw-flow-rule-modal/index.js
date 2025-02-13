@@ -12,8 +12,6 @@ const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
@@ -283,7 +281,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }),
+                message: this.$tc('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
             });
         },
 

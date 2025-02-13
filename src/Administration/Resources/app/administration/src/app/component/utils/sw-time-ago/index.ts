@@ -16,8 +16,6 @@ const { Component } = Shopware;
 Component.register('sw-time-ago', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         date: {
             type: [
@@ -129,7 +127,7 @@ Component.register('sw-time-ago', {
                 }
 
                 if (this.lessThanOneHour) {
-                    return this.$tc('global.sw-time-ago.minutesAgo', minutesAgo, { minutesAgo });
+                    return this.$tc('global.sw-time-ago.minutesAgo', { minutesAgo }, minutesAgo);
                 }
             } else {
                 if (this.lessThanOneMinuteFromNow) {
@@ -138,7 +136,7 @@ Component.register('sw-time-ago', {
 
                 if (this.lessThanOneHourFromNow) {
                     const minutesFromNow = Math.abs(minutesAgo);
-                    return this.$tc('global.sw-time-ago.minutesFromNow', minutesFromNow, { minutesFromNow });
+                    return this.$tc('global.sw-time-ago.minutesFromNow', { minutesFromNow }, minutesFromNow);
                 }
             }
 

@@ -10,19 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class HeaderPageletLoadedEvent extends PageletLoadedEvent
 {
-    /**
-     * @var HeaderPagelet
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pagelet;
-
     public function __construct(
-        HeaderPagelet $pagelet,
+        protected HeaderPagelet $pagelet,
         SalesChannelContext $salesChannelContext,
         Request $request
     ) {
-        $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }
 

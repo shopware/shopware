@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing\NotFound;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Kernel;
@@ -40,7 +39,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             true,
             $this->createMock(CacheInterface::class),
-            $this->createMock(AbstractCacheTracer::class),
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             new EventDispatcher()
@@ -65,12 +63,6 @@ class NotFoundSubscriberTest extends TestCase
             ->method('handle')
             ->willReturn(new Response());
 
-        $cacheTracer = $this->createMock(AbstractCacheTracer::class);
-        $cacheTracer
-            ->expects(static::once())
-            ->method('trace')
-            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
-
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
 
@@ -79,7 +71,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $cacheTracer,
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             new EventDispatcher()
@@ -111,12 +102,6 @@ class NotFoundSubscriberTest extends TestCase
             ->method('handle')
             ->willReturn($response);
 
-        $cacheTracer = $this->createMock(AbstractCacheTracer::class);
-        $cacheTracer
-            ->expects(static::once())
-            ->method('trace')
-            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
-
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
 
@@ -126,7 +111,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter($arrayAdapter, $arrayAdapter),
-            $cacheTracer,
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             new EventDispatcher(),
@@ -165,11 +149,6 @@ class NotFoundSubscriberTest extends TestCase
             ->method('handle')
             ->willReturn(new Response());
 
-        $cacheTracer = $this->createMock(AbstractCacheTracer::class);
-        $cacheTracer
-            ->expects(static::never())
-            ->method('trace');
-
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
 
@@ -178,7 +157,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $cacheTracer,
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             new EventDispatcher()
@@ -224,7 +202,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $this->createMock(AbstractCacheTracer::class),
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             $eventDispatcher,
@@ -256,7 +233,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             true,
             $this->createMock(CacheInterface::class),
-            $this->createMock(AbstractCacheTracer::class),
             $this->createMock(EntityCacheKeyGenerator::class),
             $cacheInvalidator,
             new EventDispatcher()

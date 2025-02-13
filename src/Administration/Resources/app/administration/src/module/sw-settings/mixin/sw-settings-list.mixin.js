@@ -66,9 +66,13 @@ Mixin.register('sw-settings-list', {
                     });
                 }
 
-                return this.$tc('global.notification.messageDeleteSuccess', 0, {
-                    name: name,
-                });
+                return this.$tc(
+                    'global.notification.messageDeleteSuccess',
+                    {
+                        name: name,
+                    },
+                    0,
+                );
             }
             return '';
         },

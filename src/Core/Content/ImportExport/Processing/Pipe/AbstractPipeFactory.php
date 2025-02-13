@@ -6,7 +6,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 abstract class AbstractPipeFactory

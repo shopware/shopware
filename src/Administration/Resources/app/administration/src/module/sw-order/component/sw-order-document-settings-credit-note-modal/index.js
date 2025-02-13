@@ -9,8 +9,6 @@ import './sw-order-document-settings-credit-note-modal.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['loading-document'],
 
     data() {

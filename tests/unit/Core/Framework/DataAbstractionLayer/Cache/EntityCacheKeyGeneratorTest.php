@@ -158,7 +158,6 @@ class DummyContext extends SalesChannelContext
             new CustomerEntity(),
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
-            [],
             new LanguageInfo('English', 'en-GB'),
         );
     }

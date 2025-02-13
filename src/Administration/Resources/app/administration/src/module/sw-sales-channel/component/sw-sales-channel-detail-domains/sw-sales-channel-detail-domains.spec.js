@@ -223,9 +223,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(
             languages.first().id,
         );
-        expect(
-            wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results,
-        ).toStrictEqual(languages);
+        expect([
+            ...wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results,
+        ]).toStrictEqual([...languages]);
     });
 
     it('should only display available currencies', async () => {
@@ -253,9 +253,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(
             currencies.first().id,
         );
-        expect(
-            wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results,
-        ).toStrictEqual(currencies);
+        expect([
+            ...wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results,
+        ]).toStrictEqual([...currencies]);
     });
 
     it('verifyUrl › returns false, if the url exists either locally, or in the database', async () => {

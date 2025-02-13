@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 import template from './sw-sales-channel-switch.html.twig';
 
@@ -18,8 +18,6 @@ const { debug } = Shopware.Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-switch', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['change-sales-channel-id'],
 

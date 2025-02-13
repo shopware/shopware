@@ -21,7 +21,7 @@ class SCSSValidatorTest extends TestCase
      * @param array<string, string> $data
      */
     #[DataProvider('sanitizeDataProvider')]
-    public function testValidateSanitize(array $data, string $expected): void
+    public function testValidateSanitize(array $data, ?string $expected): void
     {
         $returned = SCSSValidator::validate(new ScssPhpCompiler(), $data, [], true);
 
@@ -32,7 +32,7 @@ class SCSSValidatorTest extends TestCase
      * @param array<string, string> $data
      */
     #[DataProvider('validateDataProvider')]
-    public function testValidateNoSanitize(array $data, string $expected, bool $throwsException = false): void
+    public function testValidateNoSanitize(array $data, ?string $expected, bool $throwsException = false): void
     {
         if ($throwsException) {
             self::expectException(ThemeException::class);
@@ -173,7 +173,50 @@ class SCSSValidatorTest extends TestCase
             ],
             'rgba(4, 4, 4, 0.5)',
         ];
-        // incorrect but valid(no error in compilation)
+        // Empty values (are valid and will be set to null)
+        yield 'color empty' => [
+            [
+                'type' => 'color',
+                'value' => '',
+            ],
+            null,
+        ];
+        yield 'color value missing' => [
+            [
+                'type' => 'color',
+            ],
+            null,
+        ];
+        yield 'font family empty' => [
+            [
+                'type' => 'fontFamily',
+                'value' => '',
+            ],
+            null,
+        ];
+        // Zero values
+        yield 'color with "0" value is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => '0',
+            ],
+            '#ffffff00',
+        ];
+        yield 'color with 0 value is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => 0,
+            ],
+            '#ffffff00',
+        ];
+        yield 'text with "0" value is not sanitized' => [
+            [
+                'type' => 'text',
+                'value' => '0',
+            ],
+            '0',
+        ];
+        // incorrect but valid (no error in compilation)
         yield 'color incorrect but valid hex 3' => [
             [
                 'type' => 'color',
@@ -529,6 +572,51 @@ class SCSSValidatorTest extends TestCase
                 'value' => 'rgba(4, 4, 4, 5)',
             ],
             '#040404',
+        ];
+        // Empty values (are valid and will be set to null)
+        yield 'color empty' => [
+            [
+                'type' => 'color',
+                'value' => '',
+            ],
+            null,
+        ];
+        yield 'color value missing' => [
+            [
+                'type' => 'color',
+            ],
+            null,
+        ];
+        yield 'font family empty' => [
+            [
+                'type' => 'fontFamily',
+                'value' => '',
+            ],
+            null,
+        ];
+        // Zero values
+        yield 'color with "0" value is not valid' => [
+            [
+                'type' => 'color',
+                'value' => '0',
+            ],
+            '',
+            true,
+        ];
+        yield 'color with 0 value is not valid' => [
+            [
+                'type' => 'color',
+                'value' => 0,
+            ],
+            '',
+            true,
+        ];
+        yield 'text with "0" value is valid' => [
+            [
+                'type' => 'text',
+                'value' => '0',
+            ],
+            '0',
         ];
         // Incorrect and sanitized
         yield 'color incorrect name' => [

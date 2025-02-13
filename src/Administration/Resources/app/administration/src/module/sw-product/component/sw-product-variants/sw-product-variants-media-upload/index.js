@@ -12,8 +12,6 @@ const { isEmpty } = Shopware.Utils.types;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'mediaDefaultFolderService',

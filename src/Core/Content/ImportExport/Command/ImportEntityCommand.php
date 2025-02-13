@@ -103,7 +103,6 @@ class ImportEntityCommand extends Command
 
         $doRollback = $rollbackOnError && !$dryRun;
         if ($doRollback) {
-            $this->connection->setNestTransactionsWithSavepoints(true);
             $this->connection->beginTransaction();
         }
 

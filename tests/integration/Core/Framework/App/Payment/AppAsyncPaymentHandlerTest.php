@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -108,7 +107,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
-        $this->assertOrderTransactionState(Feature::isActive('v6.7.0.0') ? OrderTransactionStates::STATE_OPEN : OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $transactionId);
     }
 
     public function testPayWithUnsignedResponse(): void
@@ -270,15 +269,11 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
         static::assertArrayHasKey('requestData', $content);
         static::assertIsArray($content['requestData']);
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::assertArrayHasKey('queryParameters', $content);
-            static::assertIsArray($content['queryParameters']);
-        }
         static::assertArrayHasKey('recurring', $content);
         static::assertNull($content['recurring']);
         static::assertArrayHasKey('validateStruct', $content);
         static::assertNull($content['validateStruct']);
-        static::assertCount(Feature::isActive('v6.7.0.0') ? 7 : 8, $content);
+        static::assertCount(7, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_AUTHORIZED, $data['transactionId']);
     }
 
@@ -328,7 +323,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $return = $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         static::assertNull($return->getException());
-        $this->assertOrderTransactionState(Feature::isActive('v6.7.0.0') ? OrderTransactionStates::STATE_OPEN : OrderTransactionStates::STATE_UNCONFIRMED, $data['transactionId']);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $data['transactionId']);
     }
 
     /**
@@ -388,10 +383,6 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayNotHasKey('password', $content['order']['orderCustomer']['customer']);
         static::assertArrayHasKey('requestData', $content);
         static::assertIsArray($content['requestData']);
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::assertArrayHasKey('queryParameters', $content);
-            static::assertIsArray($content['queryParameters']);
-        }
         static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
         static::assertArrayHasKey('orderTransaction', $content);
         static::assertIsArray($content['orderTransaction']);
@@ -399,9 +390,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertNull($content['recurring']);
         static::assertArrayHasKey('validateStruct', $content);
         static::assertIsArray($content['validateStruct']);
-        static::assertCount(Feature::isActive('v6.7.0.0') ? 7 : 8, $content);
+        static::assertCount(7, $content);
 
-        $this->assertOrderTransactionState(Feature::isActive('v6.7.0.0') ? OrderTransactionStates::STATE_OPEN : OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $transactionId);
 
         return [
             'token' => $token,

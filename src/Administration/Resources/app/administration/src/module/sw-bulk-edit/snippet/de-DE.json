@@ -363,10 +363,6 @@
           "label": "Ändern: Kundengruppe",
           "placeholder": "Kundengruppe auswählen ..."
         },
-        "defaultPaymentMethod": {
-          "label": "Ändern: Standard-Zahlungsart",
-          "placeholder": "Standard-Zahlungsart auswählen ..."
-        },
         "status": {
           "label": "Ändern: Kontostatus"
         },

@@ -5,12 +5,10 @@ import CMS from '../../constant/sw-cms.constant';
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['cmsService'],
 

@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -147,15 +145,9 @@ export default {
             ].includes(this.sortBy);
             const sorting = Criteria.sort(this.sortBy, this.sortDirection, naturalSort);
 
-            if (this.assignmentProperties.includes(this.sortBy)) {
-                sorting.field += '.id';
-                sorting.type = 'count';
-            }
             criteria.addSorting(sorting);
 
             criteria.addAssociation('tags');
-
-            this.setAggregations(criteria);
 
             this.filterCriteria.forEach((filter) => {
                 criteria.addFilter(filter);
@@ -187,38 +179,6 @@ export default {
     },
 
     methods: {
-        setAggregations(criteria) {
-            Object.keys(this.getRuleDefinition.properties).forEach((propertyName) => {
-                if (propertyName === 'conditions' || propertyName === 'tags') {
-                    return;
-                }
-
-                const property = this.getRuleDefinition.properties[propertyName];
-
-                if (property.relation === 'many_to_many' || property.relation === 'one_to_many') {
-                    criteria.addAggregation(
-                        Criteria.terms(
-                            propertyName,
-                            'id',
-                            null,
-                            null,
-                            Criteria.count(propertyName, `rule.${propertyName}.id`),
-                        ),
-                    );
-                }
-            });
-        },
-
-        getCounts(propertyName, id) {
-            const countBucket = this.rules.aggregations[propertyName].buckets.find((bucket) => bucket.key === id);
-
-            if (!countBucket || !countBucket[propertyName] || !countBucket[propertyName].count) {
-                return 0;
-            }
-
-            return countBucket[propertyName].count;
-        },
-
         async getList() {
             this.isLoading = true;
 
@@ -241,7 +201,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.getList();
         },
 
@@ -337,18 +297,6 @@ export default {
                     visible: false,
                 },
             ];
-
-            this.assignmentProperties.forEach((propertyName) => {
-                const labelPostfix = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
-                columns.push({
-                    property: `${propertyName}`,
-                    label: `sw-settings-rule.list.column${labelPostfix}`,
-                    width: '250px',
-                    allowResize: true,
-                    sortable: true,
-                    visible: false,
-                });
-            });
 
             return columns;
         },

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -305,35 +304,5 @@ class PaymentException extends HttpException
             'The technical name "{{ technicalName }}" is not unique.',
             ['technicalName' => $technicalName]
         );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function getRefundId(): string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
-
-        return $this->getParameter('refundId') ?? '';
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function getOrderTransactionId(): ?string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
-
-        return $this->getParameter('orderTransactionId');
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function getOrderId(): ?string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
-
-        return $this->getParameter('orderId');
     }
 }

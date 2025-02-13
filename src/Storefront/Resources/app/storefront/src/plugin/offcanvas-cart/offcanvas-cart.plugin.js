@@ -4,7 +4,6 @@ import HttpClient from 'src/service/http-client.service';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
-import Iterator from 'src/helper/iterator.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 import Debouncer from 'src/helper/debouncer.helper';
@@ -89,7 +88,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     _registerRemoveProductTriggerEvents() {
         const forms = DomAccess.querySelectorAll(document, this.options.removeProductTriggerSelector, false);
         if (forms) {
-            Iterator.iterate(forms, form => form.addEventListener('submit', this._onRemoveProductFromCart.bind(this)));
+            forms.forEach(form => form.addEventListener('submit', this._onRemoveProductFromCart.bind(this)));
         }
     }
 
@@ -103,11 +102,11 @@ export default class OffCanvasCartPlugin extends Plugin {
         const numberInputs = DomAccess.querySelectorAll(document, this.options.changeProductQuantityTriggerNumberSelector, false);
 
         if (selects) {
-            Iterator.iterate(selects, select => select.addEventListener('change', this._onChangeProductQuantity.bind(this)));
+            selects.forEach(select => select.addEventListener('change', this._onChangeProductQuantity.bind(this)));
         }
 
         if (numberInputs) {
-            Iterator.iterate(numberInputs, (input) => {
+            numberInputs.forEach((input) => {
                 input.addEventListener('change', Debouncer.debounce(
                     this._onChangeProductQuantity.bind(this),
                     this.options.changeQuantityInputDelay,
@@ -125,7 +124,7 @@ export default class OffCanvasCartPlugin extends Plugin {
         const forms = DomAccess.querySelectorAll(document, this.options.addPromotionTriggerSelector, false);
 
         if (forms) {
-            Iterator.iterate(forms, form => form.addEventListener('submit', this._onAddPromotionToCart.bind(this)));
+            forms.forEach(form => form.addEventListener('submit', this._onAddPromotionToCart.bind(this)));
         }
     }
 
@@ -275,7 +274,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _fetchCartWidgets() {
         const CartWidgetPluginInstances = window.PluginManager.getPluginInstances('CartWidget');
-        Iterator.iterate(CartWidgetPluginInstances, instance => instance.fetch());
+        CartWidgetPluginInstances.forEach(instance => instance.fetch());
 
         this.$emitter.publish('fetchCartWidgets');
     }

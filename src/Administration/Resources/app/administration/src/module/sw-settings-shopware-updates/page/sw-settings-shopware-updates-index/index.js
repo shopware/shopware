@@ -10,8 +10,6 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-settings-shopware-updates-index', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['updateService'],
 
     mixins: [

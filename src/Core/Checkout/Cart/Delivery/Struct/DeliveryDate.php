@@ -10,19 +10,9 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 #[Package('checkout')]
 class DeliveryDate extends Struct
 {
-    /**
-     * @var \DateTimeImmutable
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $earliest;
+    protected \DateTimeImmutable $earliest;
 
-    /**
-     * @var \DateTimeImmutable
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $latest;
+    protected \DateTimeImmutable $latest;
 
     public function __construct(
         \DateTimeInterface $earliest,

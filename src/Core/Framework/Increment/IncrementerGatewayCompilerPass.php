@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Framework\Increment;
 
-use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -90,12 +88,6 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
 
                 if (\array_key_exists('connection', $config)) {
                     $connectionDefinition->setFactory([new Reference(RedisConnectionProvider::class), 'getConnection'])->addArgument($config['connection']);
-                } elseif (\array_key_exists('url', $config)) { // @deprecated tag:v6.7.0 - remove this elseif block
-                    $connectionDefinition->setFactory([new Reference(RedisConnectionFactory::class), 'create'])->addArgument($config['url']);
-                    Feature::triggerDeprecationOrThrow(
-                        'v6.7.0.0',
-                        'Parameter "shopware.increment.pool_name.config.url" for redis is deprecated and will be removed. Please use "shopware.increment.pool_name.config.connection" instead.'
-                    );
                 } else {
                     return $gatewayServiceName;
                 }

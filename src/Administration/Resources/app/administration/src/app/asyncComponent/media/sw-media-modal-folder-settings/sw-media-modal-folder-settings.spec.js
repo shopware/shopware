@@ -1,9 +1,19 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
+let repositoryFactoryCreateMock;
+let repositoryFactorySearchMock;
+let repositoryFactorySearchIdsMock;
+let repositoryFactorySaveMock;
+
 async function createWrapper() {
+    repositoryFactoryCreateMock = jest.fn(() => Promise.resolve());
+    repositoryFactorySearchMock = jest.fn(() => Promise.resolve([]));
+    repositoryFactorySearchIdsMock = jest.fn(() => Promise.resolve([]));
+    repositoryFactorySaveMock = jest.fn(() => Promise.resolve());
+
     return mount(
         await wrapTestComponent('sw-media-modal-folder-settings', {
             sync: true,
@@ -41,18 +51,10 @@ async function createWrapper() {
                     repositoryFactory: {
                         create: (entity) => {
                             return {
-                                create: () => {
-                                    return Promise.resolve();
-                                },
-                                search: () => {
-                                    return Promise.resolve([]);
-                                },
-                                searchIds: () => {
-                                    return Promise.resolve([]);
-                                },
-                                save: () => {
-                                    return Promise.resolve();
-                                },
+                                create: repositoryFactoryCreateMock,
+                                search: repositoryFactorySearchMock,
+                                searchIds: repositoryFactorySearchIdsMock,
+                                save: repositoryFactorySaveMock,
                                 get: () => {
                                     switch (entity) {
                                         case 'media_folder_configuration':
@@ -132,12 +134,12 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
     });
 
     it('should update thumbnail sizes correctly', async () => {
-        wrapper.vm.mediaThumbnailSizeRepository.searchIds = jest.fn(() => {
+        repositoryFactorySearchIdsMock = jest.fn(() => {
             return Promise.resolve({
                 data: ['12345'],
             });
         });
-        wrapper.vm.mediaThumbnailSizeRepository.search = jest.fn(() => {
+        repositoryFactorySearchMock = jest.fn(() => {
             return Promise.resolve([
                 {
                     id: '12345',
@@ -172,11 +174,8 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
     });
 
     it('should be able to add a new thumbnail size', async () => {
-        const create = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'create').mockImplementation(() => {
+        repositoryFactoryCreateMock = jest.fn(() => {
             return { _isNew: true };
-        });
-        const save = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'save').mockImplementation(() => {
-            return Promise.resolve();
         });
 
         await wrapper.setData({
@@ -198,8 +197,8 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
             height: 30,
         });
 
-        expect(create).toHaveBeenCalled();
-        expect(save).toHaveBeenCalledWith(
+        expect(repositoryFactoryCreateMock).toHaveBeenCalled();
+        expect(repositoryFactorySaveMock).toHaveBeenCalledWith(
             expect.objectContaining({
                 _isNew: true,
                 width: 30,

@@ -4,13 +4,10 @@
 import template from './sw-bulk-edit-product-visibility.html.twig';
 
 const { Context } = Shopware;
-const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -33,9 +30,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
         productVisibilityRepository() {
             return this.repositoryFactory.create(this.product.visibilities.entity);

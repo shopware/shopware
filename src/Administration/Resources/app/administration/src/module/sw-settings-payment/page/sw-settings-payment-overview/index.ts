@@ -1,6 +1,6 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
-import type { PaymentOverviewCard } from '../../state/overview-cards.store';
+import type { PaymentOverviewCard } from '../../store/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
 
@@ -25,8 +25,6 @@ const { cloneDeep } = Shopware.Utils.object;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -57,7 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customCards(): PaymentOverviewCard[] {
-            return Shopware.State.get('paymentOverviewCardState').cards ?? [];
+            return Shopware.Store.get('paymentOverviewCard').cards ?? [];
         },
 
         paymentMethodRepository(): Repository<'payment_method'> {
@@ -152,7 +150,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.loadPaymentMethods();
         },
 

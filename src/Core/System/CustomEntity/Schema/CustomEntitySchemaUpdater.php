@@ -5,7 +5,6 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
@@ -58,8 +57,14 @@ class CustomEntitySchemaUpdater
 
     private function applyNewSchema(Schema $update): void
     {
-        $baseSchema = $this->connection->createSchemaManager()->introspectSchema();
-        $queries = $this->getPlatform()->getAlterSchemaSQL((new Comparator())->compareSchemas($baseSchema, $update));
+        $schemaManager = $this->connection->createSchemaManager();
+        $baseSchema = $schemaManager->introspectSchema();
+        $queries = $this->getPlatform()->getAlterSchemaSQL($schemaManager->createComparator()->compareSchemas($baseSchema, $update));
+
+        // Store the current value of foreign key checks and disable them
+        // This is a temporary fix until there is answer for https://github.com/doctrine/dbal/issues/6706
+        $currentForeignKeyChecks = $this->connection->fetchOne('SELECT @@FOREIGN_KEY_CHECKS');
+        $this->connection->executeQuery('SET FOREIGN_KEY_CHECKS = 0');
 
         foreach ($queries as $query) {
             try {
@@ -68,20 +73,20 @@ class CustomEntitySchemaUpdater
                 // there seems to be a timing issue in sql when dropping a foreign key which relates to an index.
                 // Sometimes the index exists no more when doctrine tries to drop it after dropping the foreign key.
                 if (!\str_contains($e->getMessage(), 'An exception occurred while executing \'DROP INDEX IDX_')) {
+                    // Restore the original value of foreign key checks
+                    $this->connection->executeQuery('SET FOREIGN_KEY_CHECKS = ' . $currentForeignKeyChecks);
+
                     throw $e;
                 }
             }
         }
+        // Restore the original value of foreign key checks
+        $this->connection->executeQuery('SET FOREIGN_KEY_CHECKS = ' . $currentForeignKeyChecks);
     }
 
     private function getPlatform(): AbstractPlatform
     {
-        $platform = $this->connection->getDatabasePlatform();
-        if (!$platform instanceof AbstractPlatform) {
-            throw new \RuntimeException('Database platform can not be detected');
-        }
-
-        return $platform;
+        return $this->connection->getDatabasePlatform();
     }
 
     private function cleanup(Schema $schema): void

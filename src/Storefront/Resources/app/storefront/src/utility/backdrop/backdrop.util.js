@@ -1,5 +1,4 @@
 import DeviceDetection from 'src/helper/device-detection.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 const SELECTOR_CLASS = 'modal-backdrop';
 const BACKDROP_OPEN_CLASS = 'modal-backdrop-open';
@@ -62,7 +61,7 @@ class BackdropSingleton {
     remove(delay = REMOVE_BACKDROP_DELAY) {
         // remove open class to make any css animation effects possible
         const backdrops = this._getBackdrops();
-        Iterator.iterate(backdrops, backdrop => backdrop.classList.remove(BACKDROP_OPEN_CLASS));
+        backdrops.forEach(backdrop => backdrop.classList.remove(BACKDROP_OPEN_CLASS));
 
         // wait before removing backdrop to let css animation effects take place
         setTimeout(this._removeExistingBackdrops.bind(this), delay);
@@ -101,7 +100,7 @@ class BackdropSingleton {
     _removeExistingBackdrops() {
         if (this._exists() === false) return;
         const backdrops = this._getBackdrops();
-        Iterator.iterate(backdrops, backdrop => backdrop.remove());
+        backdrops.forEach(backdrop => backdrop.remove());
     }
 
     /**

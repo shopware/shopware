@@ -186,8 +186,6 @@ class EntityHydrator
      */
     protected function hydrateFields(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context, iterable $fields): Entity
     {
-        /** @var ArrayStruct<string, mixed> $foreignKeys */
-        $foreignKeys = $entity->getExtension(EntityReader::FOREIGN_KEYS);
         $isPartial = self::$partial !== [];
 
         foreach ($fields as $field) {
@@ -273,6 +271,8 @@ class EntityHydrator
             $decoded = $definition->decode($property, $value);
 
             if ($field->is(Extension::class)) {
+                $foreignKeys = $entity->getExtension(EntityReader::FOREIGN_KEYS);
+                \assert($foreignKeys instanceof ArrayStruct);
                 $foreignKeys->set($property, $decoded);
             } else {
                 $entity->assign([$property => $decoded]);
@@ -303,8 +303,10 @@ class EntityHydrator
 
         $ids = array_map('strtolower', array_filter($ids));
 
-        /** @var ArrayStruct<string, mixed> $mapping */
         $mapping = $entity->getExtension(EntityReader::INTERNAL_MAPPING_STORAGE);
+        if (!$mapping instanceof ArrayStruct) {
+            return;
+        }
 
         $mapping->set($field->getPropertyName(), $ids);
     }

@@ -6,10 +6,17 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-type State array{id?: string, technicalName: string}
+ * @phpstan-type Transition array{id?: string, actionName: string, fromStateId?: string, from?: string, toStateId?: string, to?: string}
  */
 #[Package('framework')]
-class StateMachineMigration
+readonly class StateMachineMigration
 {
+    /**
+     * @param list<State> $states
+     * @param list<Transition> $transitions
+     */
     public function __construct(
         private string $technicalName,
         private string $de,
@@ -20,11 +27,17 @@ class StateMachineMigration
     ) {
     }
 
+    /**
+     * @return array{technicalName: string, de: string, en: string}
+     */
     public static function state(string $technicalName, string $de, string $en): array
     {
         return ['technicalName' => $technicalName, 'de' => $de, 'en' => $en];
     }
 
+    /**
+     * @return array{actionName: string, from: string, to: string}
+     */
     public static function transition(string $actionName, string $from, string $to): array
     {
         return ['actionName' => $actionName, 'from' => $from, 'to' => $to];
@@ -35,19 +48,9 @@ class StateMachineMigration
         return $this->technicalName;
     }
 
-    public function setTechnicalName(string $technicalName): void
-    {
-        $this->technicalName = $technicalName;
-    }
-
     public function getDe(): string
     {
         return $this->de;
-    }
-
-    public function setDe(string $de): void
-    {
-        $this->de = $de;
     }
 
     public function getEn(): string
@@ -55,38 +58,24 @@ class StateMachineMigration
         return $this->en;
     }
 
-    public function setEn(string $en): void
-    {
-        $this->en = $en;
-    }
-
+    /**
+     * @return list<State>
+     */
     public function getStates(): array
     {
         return $this->states;
     }
 
-    public function setStates(array $states): void
-    {
-        $this->states = $states;
-    }
-
+    /**
+     * @return list<Transition>
+     */
     public function getTransitions(): array
     {
         return $this->transitions;
     }
 
-    public function setTransitions(array $transitions): void
-    {
-        $this->transitions = $transitions;
-    }
-
     public function getInitialState(): ?string
     {
         return $this->initialState;
-    }
-
-    public function setInitialState(?string $initialState): void
-    {
-        $this->initialState = $initialState;
     }
 }

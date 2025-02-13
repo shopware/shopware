@@ -6,21 +6,12 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<CustomerAddressEntity>
+ */
 #[Package('checkout')]
 class UpsertAddressRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var CustomerAddressEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
-    public function __construct(CustomerAddressEntity $address)
-    {
-        parent::__construct($address);
-    }
-
     public function getAddress(): CustomerAddressEntity
     {
         return $this->object;

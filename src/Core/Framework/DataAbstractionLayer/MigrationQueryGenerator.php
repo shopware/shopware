@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -28,7 +27,7 @@ class MigrationQueryGenerator
      */
     public function generateQueries(EntityDefinition $entityDefinition): array
     {
-        $tableExists = $this->connection->createSchemaManager()->tablesExist($entityDefinition->getEntityName());
+        $tableExists = $this->connection->createSchemaManager()->tablesExist([$entityDefinition->getEntityName()]);
 
         if ($tableExists) {
             return $this->getAlterTableQueries($entityDefinition);
@@ -42,7 +41,8 @@ class MigrationQueryGenerator
      */
     private function getAlterTableQueries(EntityDefinition $definition): array
     {
-        $originalTableSchema = $this->connection->createSchemaManager()->introspectTable($definition->getEntityName());
+        $schemaManager = $this->connection->createSchemaManager();
+        $originalTableSchema = $schemaManager->introspectTable($definition->getEntityName());
 
         // Indexes are not supported, so we remove them from both tables
         $this->dropIndexes($originalTableSchema);
@@ -51,7 +51,7 @@ class MigrationQueryGenerator
 
         $this->dropIndexes($tableSchema);
 
-        return $this->getPlatform()->getAlterTableSQL((new Comparator())->compareTables($originalTableSchema, $tableSchema));
+        return $this->getPlatform()->getAlterTableSQL($schemaManager->createComparator()->compareTables($originalTableSchema, $tableSchema));
     }
 
     /**
@@ -63,18 +63,12 @@ class MigrationQueryGenerator
 
         $this->dropIndexes($tableSchema);
 
-        return $this->getPlatform()->getCreateTableSQL($tableSchema, AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS);
+        return $this->getPlatform()->getCreateTableSQL($tableSchema);
     }
 
     private function getPlatform(): AbstractPlatform
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if (!$platform instanceof AbstractPlatform) {
-            throw DataAbstractionLayerException::databasePlatformInvalid();
-        }
-
-        return $platform;
+        return $this->connection->getDatabasePlatform();
     }
 
     private function dropIndexes(Table $table): void

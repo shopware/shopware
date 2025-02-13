@@ -179,6 +179,10 @@ class ProductSearchTermInterpreterTest extends TestCase
                 '1000',
                 ['10000', '10001', '10002', '10007'],
             ],
+            [
+                '9000',
+                ['SW-9000'],
+            ],
             'test it uses only first 8 keywords' => [
                 '10',
                 ['10', '100', '101', '102', '103', '10000', '10001', '10002'],
@@ -447,6 +451,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             'netzwerkspieler',
             'schwarzweiß',
             'netzwerkprotokolle',
+            'SW-9000',
             '10100',
             '10000',
             '10001',

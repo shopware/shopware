@@ -5,7 +5,7 @@
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { kebabCase } from 'lodash';
-import uuid from 'src/../test/_helper_/uuid';
+import uuid from 'test/_helper_/uuid';
 import 'src/app/filter/media-name.filter';
 import 'src/app/filter/unicode-uri';
 
@@ -749,7 +749,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
     });
 
     it('should return ShopwareError when has error', async () => {
-        await Shopware.State.dispatch('error/addApiError', {
+        Shopware.Store.get('error').addApiError({
             expression: 'SYSTEM_CONFIG.null.dummyKey',
             error: new ShopwareError({ code: 'dummyCode' }),
         });

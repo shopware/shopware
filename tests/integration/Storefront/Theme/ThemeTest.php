@@ -672,7 +672,7 @@ class ThemeTest extends TestCase
             ),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(SystemConfigService::class),
-            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get(NotificationService::class)
         );
         $themeService->updateTheme(

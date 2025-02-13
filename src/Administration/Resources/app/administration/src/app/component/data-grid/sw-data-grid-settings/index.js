@@ -11,8 +11,6 @@ const { Component } = Shopware;
 Component.register('sw-data-grid-settings', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'change-compact-mode',
         'change-preview-images',

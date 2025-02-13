@@ -14,10 +14,7 @@ class CustomerWishlistProductExceptionHandler implements ExceptionHandlerInterfa
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
-    /**
-     * @param \Exception $e - @deprecated tag:v6.7.0 - in v6.7.0 parameter type will be changed to \Throwable
-     */
-    public function matchException(\Exception $e): ?\Exception
+    public function matchException(\Throwable $e): ?\Throwable
     {
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.customer_wishlist.sales_channel_id__customer_id\'/', $e->getMessage())) {
             return CustomerException::duplicateWishlistProduct();

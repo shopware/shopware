@@ -2,7 +2,6 @@ import template from './sw-language-info.html.twig';
 import './sw-language-info.scss';
 
 const { Component } = Shopware;
-const { mapState } = Shopware.Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
 
 /**
@@ -21,8 +20,6 @@ const { warn } = Shopware.Utils.debug;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-language-info', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -52,11 +49,17 @@ Component.register('sw-language-info', {
     },
 
     computed: {
-        ...mapState('context', {
-            languageId: (state) => state.api.languageId,
-            systemLanguageId: (state) => state.api.systemLanguageId,
-            language: (state) => state.api.language,
-        }),
+        languageId() {
+            return Shopware.Store.get('context').api.languageId;
+        },
+
+        systemLanguageId() {
+            return Shopware.Store.get('context').api.systemLanguageId;
+        },
+
+        language() {
+            return Shopware.Store.get('context').api.language;
+        },
 
         languageRepository() {
             return this.repositoryFactory.create('language');
@@ -132,11 +135,7 @@ Component.register('sw-language-info', {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$emit('on-change-language-clicked', this.parentLanguage.id);
-            } else {
-                Shopware.Utils.EventBus.emit('on-change-language-clicked', this.parentLanguage.id);
-            }
+            Shopware.Utils.EventBus.emit('on-change-language-clicked', this.parentLanguage.id);
         },
     },
 });

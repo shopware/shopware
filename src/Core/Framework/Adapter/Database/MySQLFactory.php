@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Tools\DsnParser;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 
@@ -31,14 +32,17 @@ class MySQLFactory
 
         $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
 
-        $parameters = [
-            'url' => $url,
+        $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
+        $parameters = $dsnParser->parse($url);
+
+        $parameters = array_merge([
             'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
                 \PDO::ATTR_TIMEOUT => 5, // 5s connection timeout
             ],
-        ];
+        ], $parameters); // adding parameters that are not in the DSN
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;

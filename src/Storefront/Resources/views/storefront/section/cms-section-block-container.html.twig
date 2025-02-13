@@ -53,11 +53,15 @@
          style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %};">
 
         {% block section_content_block_background_image %}
-            {% set backgroundImageUrl = null %}
-
             {% if block.backgroundMedia %}
-                {% set backgroundImageUrl = block.backgroundMedia.url %}
-            {% else %}
+                {% sw_thumbnails 'cms-block-background' with {
+                    media: block.backgroundMedia,
+                    autoColumnSizes: false,
+                    attributes: {
+                        class: 'cms-block-background media-mode--' ~ block.backgroundMediaMode
+                    }
+                } %}
+            {% elseif (block.type == 'text-on-image') %}
                 {% set defaultMediaUrl = null %}
 
                 {% for slot in block.slots.elements %}
@@ -67,11 +71,11 @@
                         {% break %}
                     {% endif %}
                 {% endfor %}
-            {% endif %}
 
-            {% if backgroundImageUrl %}
-                <img src="{{ backgroundImageUrl }}"
-                     class="cms-block-background media-mode--{{ block.backgroundMediaMode|default('cover') }}">
+                {% if backgroundImageUrl %}
+                    <img src="{{ backgroundImageUrl }}"
+                         class="cms-block-background media-mode--{{ block.backgroundMediaMode|default('cover') }}">
+                {% endif %}
             {% endif %}
         {% endblock %}
 

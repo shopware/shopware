@@ -61,11 +61,7 @@
         </service>
 
         <service id="shopware.number_range.redis" class="Redis">
-            <!-- @deprecated tag:v6.7.0 - Replace factory method with getConnection on the next line -->
-            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getOrCreateFromDsn"/>
             <argument>%shopware.number_range.config.connection%</argument>
-            <!-- @deprecated tag:v6.7.0 - remove next line (dsn argument) -->
-            <argument>%shopware.number_range.config.dsn%</argument>
         </service>
 
         <service class="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator"

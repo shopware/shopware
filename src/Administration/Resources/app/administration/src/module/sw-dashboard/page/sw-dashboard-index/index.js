@@ -9,8 +9,6 @@ import './sw-dashboard-index.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     data() {
         return {
             cachedHeadlineGreetingKey: null,
@@ -46,7 +44,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         greetingName() {
-            const { currentUser } = Shopware.State.get('session');
+            const { currentUser } = Shopware.Store.get('session');
 
             // if currentUser?.firstName returns a loose falsy value
             // like `""`, `0`, `false`, `null`, `undefined`

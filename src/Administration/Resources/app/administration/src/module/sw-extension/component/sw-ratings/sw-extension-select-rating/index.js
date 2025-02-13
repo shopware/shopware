@@ -8,8 +8,6 @@ export default {
     template,
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     emits: ['update:value'],
 
     methods: {

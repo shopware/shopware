@@ -1,5 +1,5 @@
 /**
- * @package framework
+ * @sw-package framework
  */
 import AssetPlugin from './index';
 

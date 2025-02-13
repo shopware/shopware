@@ -13,8 +13,6 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-login-login', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'loginService',
         'userService',
@@ -49,7 +47,7 @@ Component.register('sw-login-login', {
 
     created() {
         if (!localStorage.getItem('sw-admin-locale')) {
-            Shopware.State.dispatch('setAdminLocale', navigator.language);
+            Shopware.Store.get('session').setAdminLocale(navigator.language);
         }
     },
 

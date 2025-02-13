@@ -44,19 +44,28 @@ class DatabaseConnectionInformationTest extends TestCase
         $info->validate();
 
         static::assertSame([
-            'url' => 'mysql://root:root@localhost:3306/shopware',
+            'host' => 'localhost',
+            'port' => 3306,
             'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
             ],
+            'dbname' => 'shopware',
+            'user' => 'root',
+            'password' => 'root',
         ], $info->toDBALParameters());
 
         static::assertSame([
-            'url' => 'mysql://root:root@localhost:3306',
+            'host' => 'localhost',
+            'port' => 3306,
             'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
             ],
+            'user' => 'root',
+            'password' => 'root',
         ], $info->toDBALParameters(true));
     }
 
@@ -91,8 +100,10 @@ class DatabaseConnectionInformationTest extends TestCase
         $info->validate();
 
         static::assertSame([
-            'url' => 'mysql://root:root@localhost:3306/shopware',
+            'host' => 'localhost',
+            'port' => 3306,
             'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
                 \PDO::MYSQL_ATTR_SSL_CA => '/ca-path',
@@ -100,6 +111,9 @@ class DatabaseConnectionInformationTest extends TestCase
                 \PDO::MYSQL_ATTR_SSL_KEY => '/cert-key-path',
                 \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             ],
+            'dbname' => 'shopware',
+            'user' => 'root',
+            'password' => 'root',
         ], $info->toDBALParameters());
     }
 
@@ -131,21 +145,30 @@ class DatabaseConnectionInformationTest extends TestCase
         $info->validate();
 
         static::assertSame([
-            'url' => 'mysql://root:root@localhost:3307/shopware',
+            'host' => 'localhost',
+            'port' => 3307,
             'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
                 \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             ],
+            'dbname' => 'shopware',
+            'user' => 'root',
+            'password' => 'root',
         ], $info->toDBALParameters());
 
         static::assertSame([
-            'url' => 'mysql://root:root@localhost:3307',
+            'host' => 'localhost',
+            'port' => 3307,
             'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
                 \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             ],
+            'user' => 'root',
+            'password' => 'root',
         ], $info->toDBALParameters(true));
     }
 

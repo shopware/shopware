@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
+import { createPinia, setActivePinia } from 'pinia';
 
 /**
  * @sw-package checkout
@@ -250,9 +250,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             },
         });
 
-        Shopware.State.registerModule('swOrderDetail', {
-            ...orderDetailStore,
-        });
+        setActivePinia(createPinia());
     });
 
     it('should be a Vue.js component', async () => {
@@ -659,7 +657,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         ];
         wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrderDetail/setEditing', true);
+        Shopware.Store.get('swOrderDetail').editing = true;
         await wrapper.vm.$nextTick();
 
         const buttonCreate = wrapper.findComponent('.sw-order-document-grid-button');

@@ -5,14 +5,11 @@ import template from './sw-bulk-edit-product-media.html.twig';
 
 const { Context, Utils, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Shopware.Component.getComponentHelper();
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -36,9 +33,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
         productMediaRepository() {
             return this.repositoryFactory.create('product_media');

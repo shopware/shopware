@@ -1,8 +1,6 @@
 /**
  * @sw-package inventory
  */
-import './page/sw-settings-units-list';
-import './page/sw-settings-units-detail';
 import './acl';
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
@@ -58,7 +56,7 @@ Module.register('sw-settings-units', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'general',
         to: 'sw.settings.units.index',
         icon: 'regular-balance-scale',
         privilege: 'scale_unit.viewer',

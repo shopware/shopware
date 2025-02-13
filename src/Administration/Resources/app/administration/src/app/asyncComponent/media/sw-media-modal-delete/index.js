@@ -16,8 +16,6 @@ const { Context, Mixin, Filter } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: [
@@ -216,7 +214,7 @@ export default {
             };
 
             if (this.notificationId !== null) {
-                await Shopware.State.dispatch('notification/updateNotification', {
+                await Shopware.Store.get('notification').updateNotification({
                     uuid: this.notificationId,
                     ...notification,
                 });
@@ -228,7 +226,7 @@ export default {
                 return;
             }
 
-            const newNotificationId = await Shopware.State.dispatch('notification/createNotification', {
+            const newNotificationId = await Shopware.Store.get('notification').createNotification({
                 variant: 'success',
                 ...notification,
             });

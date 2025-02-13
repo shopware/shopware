@@ -105,12 +105,11 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
                 'normal' => [],
                 'reversed' => [],
             ];
-            $token = (string) $token;
             $slopSize = mb_strlen($token) > 4 ? 2 : 1;
             $length = mb_strlen($token);
 
             // is too short
-            if (mb_strlen($token) <= 2) {
+            if ($length <= 2) {
                 $slops['normal'][] = $token . '%';
                 $slops['reversed'][] = $token . '%';
                 $tokenSlops[$token] = $slops;
@@ -120,7 +119,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
             // looks like a number
             if (\preg_match('/\d/', $token) === 1) {
-                $slops['normal'][] = $token . '%';
+                $slops['normal'][] = '%' . $token . '%';
                 $tokenSlops[$token] = $slops;
 
                 continue;

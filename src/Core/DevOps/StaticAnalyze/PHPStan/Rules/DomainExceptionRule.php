@@ -14,14 +14,17 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
-use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Kernel;
+use Shopware\Core\Migration\Traits\StateMachineMigrationImporter;
+use Shopware\Core\Migration\V6_4\Migration1632721037OrderDocumentMailTemplate;
+use Shopware\Core\Migration\V6_5\Migration1672931011ReviewFormMailTemplate;
 
 /**
  * @internal
@@ -33,12 +36,18 @@ class DomainExceptionRule implements Rule
 {
     use InTestClassTrait;
 
+    /**
+     * @var list<string>
+     */
     private const VALID_SUB_DOMAINS = [
         'Cart',
         'Payment',
         'Order',
     ];
 
+    /**
+     * @var list<string>
+     */
     private const EXCLUDED_NAMESPACES = [
         'Shopware\Core\DevOps\StaticAnalyze\\',
     ];
@@ -51,11 +60,9 @@ class DomainExceptionRule implements Rule
         Framework::class => FrameworkException::class,
         VarnishReverseProxyGateway::class => ReverseProxyException::class,
         FastlyReverseProxyGateway::class => ReverseProxyException::class,
-        RedisReverseProxyGateway::class => ReverseProxyException::class,
-    ];
-
-    private const GLOBAL_EXCEPTIONS = [
-        'Shopware\Core\Framework\FrameworkException::extensionResultNotSet',
+        Migration1672931011ReviewFormMailTemplate::class => MigrationException::class,
+        Migration1632721037OrderDocumentMailTemplate::class => MigrationException::class,
+        StateMachineMigrationImporter::class => MigrationException::class,
     ];
 
     /**
@@ -168,13 +175,6 @@ class DomainExceptionRule implements Rule
         if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
             $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
             if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
-                return [];
-            }
-        }
-
-        if (method_exists($node->name, 'toString')) {
-            $full = $exceptionClass . '::' . $node->name->toString();
-            if (\in_array($full, self::GLOBAL_EXCEPTIONS, true)) {
                 return [];
             }
         }

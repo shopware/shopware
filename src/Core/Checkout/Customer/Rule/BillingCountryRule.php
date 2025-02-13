@@ -11,14 +11,15 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Country\CountryDefinition;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
 class BillingCountryRule extends Rule
 {
     final public const RULE_NAME = 'customerBillingCountry';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $countryIds
      */
     public function __construct(

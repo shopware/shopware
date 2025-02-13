@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package after-sales
  */
 
 import template from './sw-mail-header-footer-detail.html.twig';
@@ -16,8 +16,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'entityMappingService',

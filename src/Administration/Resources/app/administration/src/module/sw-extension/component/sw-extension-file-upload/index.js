@@ -14,8 +14,6 @@ const USER_CONFIG_KEY = 'extension.plugin_upload';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'extensionStoreActionService',
         'repositoryFactory',
@@ -40,7 +38,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userConfigCriteria() {

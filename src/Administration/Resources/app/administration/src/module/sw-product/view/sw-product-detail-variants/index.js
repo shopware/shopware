@@ -7,13 +7,10 @@ import './sw-product-detail-variants.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 const { uniqBy } = Shopware.Utils.array;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -38,18 +35,21 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'variants',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapState('context', {
-            contextLanguageId: (state) => state.api.languageId,
-        }),
+        variants() {
+            return Shopware.Store.get('swProductDetail').variants;
+        },
 
-        ...mapGetters('swProductDetail', {
-            isStoreLoading: 'isLoading',
-        }),
+        isStoreLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        contextLanguageId() {
+            return Shopware.Store.get('context').api.languageId;
+        },
 
         productRepository() {
             return this.repositoryFactory.create('product');
@@ -67,28 +67,6 @@ export default {
             return this.isChild && this.product?.properties?.length <= 0
                 ? this.parentProduct.properties
                 : this.product.properties;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Unused computed will be removed.
-         */
-        selectedGroups() {
-            if (!this.productEntity.configuratorSettings) {
-                return [];
-            }
-
-            // get groups for selected options
-            const groupIds = this.productEntity.configuratorSettings.reduce((result, element) => {
-                if (result.indexOf(element.option.groupId) < 0) {
-                    result.push(element.option.groupId);
-                }
-
-                return result;
-            }, []);
-
-            return this.groups.filter((group) => {
-                return groupIds.indexOf(group.id) >= 0;
-            });
         },
 
         currentProductStates() {

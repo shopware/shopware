@@ -10,8 +10,6 @@ const { Utils, Filter } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: [
@@ -149,7 +147,7 @@ export default {
         },
 
         extensionMainModule() {
-            return Shopware.State.get('extensionMainModules').mainModules.find(
+            return Shopware.Store.get('extensionMainModules').mainModules.find(
                 (mainModule) => mainModule.extensionName === this.extension.name,
             );
         },
@@ -192,7 +190,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
 
         showContextMenu() {

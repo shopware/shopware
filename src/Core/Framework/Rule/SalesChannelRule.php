@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
 class SalesChannelRule extends Rule
 {

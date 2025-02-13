@@ -4,12 +4,10 @@ import './sw-cms-missing-element-modal.scss';
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'modal-close',

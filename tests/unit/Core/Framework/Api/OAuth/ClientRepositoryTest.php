@@ -35,11 +35,8 @@ class ClientRepositoryTest extends TestCase
         $this->clientRepository->validateClient('clientIdentifier', 'clientSecret', 'unsupportGrantType');
     }
 
-    /**
-     * @param string $clientIdentifier
-     */
     #[DataProvider('validateClientDataProvider')]
-    public function testValidateClient(string $grantType, $clientIdentifier, string $clientSecret, bool $expectedResult): void
+    public function testValidateClient(string $grantType, string $clientIdentifier, string $clientSecret, bool $expectedResult): void
     {
         $this->connection->method('fetchAssociative')->willReturnCallback(function () use ($clientIdentifier, $clientSecret) {
             if ($clientIdentifier === 'SWUAADMIN' && $clientSecret === 'shopware') {
@@ -90,7 +87,10 @@ class ClientRepositoryTest extends TestCase
     }
 
     #[DataProvider('getClientEntityDataProvider')]
-    public function testGetClientEntity(mixed $clientIdentifier, ?ClientEntityInterface $expectedResult): void
+    /**
+     * @param non-empty-string $clientIdentifier
+     */
+    public function testGetClientEntity(string $clientIdentifier, ?ClientEntityInterface $expectedResult): void
     {
         $this->connection->method('fetchAssociative')->willReturnCallback(function () use ($clientIdentifier) {
             if ($clientIdentifier === 'SWUAUSERCORRECT') {
@@ -125,6 +125,7 @@ class ClientRepositoryTest extends TestCase
             ->expects(static::never())
             ->method('update');
 
+        \assert($clientIdentifier !== '');
         $clientEntity = $this->clientRepository->getClientEntity($clientIdentifier);
 
         if (!$expectedResult instanceof ClientEntityInterface) {
@@ -145,7 +146,6 @@ class ClientRepositoryTest extends TestCase
     {
         yield 'password grant type' => ['password', 'administration', 'shopware', true];
         yield 'refresh_token grant type' => ['refresh_token', 'administration', 'shopware', true];
-        yield 'client_credentials grant type with invalid clientIdentifier' => ['client_credentials', true, 'shopware', false];
         yield 'client_credentials grant type with incorrect clientIdentifier' => ['client_credentials', 'SWUAJOHNDOE', 'shopware', false];
         yield 'client_credentials grant type with correct clientIdentifier' => ['client_credentials', 'SWUAADMIN', 'shopware', true];
     }
@@ -155,8 +155,6 @@ class ClientRepositoryTest extends TestCase
      */
     public static function getClientEntityDataProvider(): iterable
     {
-        yield 'null clientIdentifier' => [null, null];
-        yield 'bool clientIdentifier' => [false, null];
         yield 'user origin clientIdentifier' => ['SWUAUSERCORRECT', new ApiClient('SWUAUSERCORRECT', true, 'foo')];
         yield 'user origin clientIdentifier invalid' => ['SWUAUSERINVALID', null];
         yield 'integration origin clientIdentifier' => ['SWIAINTEGRATION', new ApiClient('SWIAINTEGRATION', true, 'foo')];

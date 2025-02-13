@@ -7,24 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<EntitySearchResult<ProductReviewCollection>>
+ */
 #[Package('after-sales')]
 class ProductReviewRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var EntitySearchResult<ProductReviewCollection>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
-    /**
-     * @param EntitySearchResult<ProductReviewCollection> $object
-     */
-    public function __construct(EntitySearchResult $object)
-    {
-        parent::__construct($object);
-    }
-
     /**
      * @return EntitySearchResult<ProductReviewCollection>
      */

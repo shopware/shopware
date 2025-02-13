@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'languagePluginService',
         'userService',
@@ -54,7 +52,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.State.get('session').languageId;
+            return Shopware.Store.get('session').languageId;
         },
 
         languageCriteria() {
@@ -115,7 +113,7 @@ export default {
         },
 
         updateButtons() {
-            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
             const nextRoute = disabledExtensionManagement ? 'defaults' : 'data-import';
 
             const buttonConfig = [
@@ -140,7 +138,7 @@ export default {
         },
 
         getLanguagePlugins() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 this.languagePlugins = [];
                 return;
             }

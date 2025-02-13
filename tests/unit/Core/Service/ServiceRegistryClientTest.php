@@ -50,7 +50,7 @@ class ServiceRegistryClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://www.shopware.com', $client);
 
         static::assertSame([], $registryClient->getAll());
-        static::assertSame('https://www.shopware.com/services.json', $response->getRequestUrl());
+        static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
     }
 
     public function testFailRequestReturnsEmptyListOfServices(): void
@@ -62,7 +62,7 @@ class ServiceRegistryClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://www.shopware.com', $client);
 
         static::assertSame([], $registryClient->getAll());
-        static::assertSame('https://www.shopware.com/services.json', $response->getRequestUrl());
+        static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
     }
 
     public function testSuccessfulRequestReturnsListOfServices(): void
@@ -93,7 +93,7 @@ class ServiceRegistryClientTest extends TestCase
         static::assertSame('My Cool Service 2', $entries[1]->description);
         static::assertSame('https://coolservice2.com', $entries[1]->host);
         static::assertSame('/app-endpoint', $entries[1]->appEndpoint);
-        static::assertSame('https://www.shopware.com/services.json', $response->getRequestUrl());
+        static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
         static::assertSame('/license-sync-endpoint', $entries[1]->licenseSyncEndPoint);
     }
 
@@ -154,5 +154,60 @@ class ServiceRegistryClientTest extends TestCase
 
         $entries2 = $registryClient->getAll();
         static::assertCount(3, $entries2);
+    }
+
+    public function testPaginationWorks(): void
+    {
+        $servicesPage1 = [
+            'services' => [['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint']],
+            'pagination' => ['page' => 1, 'pages' => 2, 'total' => 2, 'limit' => 10],
+        ];
+
+        $servicesPage2 = [
+            'services' => [['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint']],
+            'pagination' => ['page' => 2, 'pages' => 2, 'total' => 2, 'limit' => 10],
+        ];
+
+        $client = new MockHttpClient([
+            $response1 = new MockResponse((string) json_encode($servicesPage1)),
+            $response2 = new MockResponse((string) json_encode($servicesPage2)),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com/', $client);
+        $entries = $registryClient->getAll();
+
+        static::assertCount(2, $entries);
+        static::assertSame('MyCoolService1', $entries[0]->name);
+        static::assertSame('My Cool Service 1', $entries[0]->description);
+        static::assertSame('https://coolservice1.com', $entries[0]->host);
+        static::assertSame('/app-endpoint', $entries[0]->appEndpoint);
+        static::assertSame('MyCoolService2', $entries[1]->name);
+        static::assertSame('My Cool Service 2', $entries[1]->description);
+        static::assertSame('https://coolservice2.com', $entries[1]->host);
+        static::assertSame('/app-endpoint', $entries[1]->appEndpoint);
+        static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response1->getRequestUrl());
+        static::assertSame('https://www.shopware.com/api/service/?page=2&limit=10', $response2->getRequestUrl());
+    }
+
+    public function testExtraBackslashDoesntBreakApp(): void
+    {
+        $service = [
+            'services' => [
+                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
+            ],
+        ];
+        $servicePayload = (string) json_encode($service);
+        $expectedUrl = 'https://www.shopware.com/api/service/?page=1&limit=10';
+        $clientWithSlash = new MockHttpClient([$responseWithSlash = new MockResponse($servicePayload)]);
+        $registryClientWithSlash = new ServiceRegistryClient('https://www.shopware.com/', $clientWithSlash);
+        $entriesWithSlash = $registryClientWithSlash->getAll();
+        static::assertCount(1, $entriesWithSlash);
+        static::assertSame($expectedUrl, $responseWithSlash->getRequestUrl());
+
+        $clientWithoutSlash = new MockHttpClient([$responseWithoutSlash = new MockResponse($servicePayload)]);
+        $registryClientWithoutSlash = new ServiceRegistryClient('https://www.shopware.com', $clientWithoutSlash);
+        $entriesWithoutSlash = $registryClientWithoutSlash->getAll();
+        static::assertCount(1, $entriesWithoutSlash);
+        static::assertSame($expectedUrl, $responseWithoutSlash->getRequestUrl());
     }
 }

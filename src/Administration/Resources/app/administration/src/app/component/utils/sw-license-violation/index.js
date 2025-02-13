@@ -11,8 +11,6 @@ import './sw-license-violation.scss';
 Shopware.Component.register('sw-license-violation', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'cacheApiService',
         'extensionStoreActionService',

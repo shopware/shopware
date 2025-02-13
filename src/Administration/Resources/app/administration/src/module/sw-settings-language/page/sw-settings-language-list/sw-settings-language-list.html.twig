@@ -146,7 +146,7 @@
 
             {% block sw_settings_language_list_content_list_delete_confirm_action %}
             <template #delete-confirm-text="{ item }">
-                {{ $tc('sw-settings-language.list.textDeleteConfirm', 1, { name: item.name } ) }}
+                {{ $tc('sw-settings-language.list.textDeleteConfirm', { name: item.name }, 1 ) }}
             </template>
             {% endblock %}
             {% endblock %}

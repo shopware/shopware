@@ -13,8 +13,6 @@ const { get, format } = Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'on-save-item',
         'on-remove-items',
@@ -319,10 +317,14 @@ export default {
             });
 
             const decorateTaxes = sortTaxes.map((taxItem) => {
-                return this.$tc('sw-order.createBase.taxDetail', 0, {
-                    taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.currency.isoCode),
-                });
+                return this.$tc(
+                    'sw-order.createBase.taxDetail',
+                    {
+                        taxRate: taxItem.taxRate,
+                        tax: format.currency(taxItem.tax, this.currency.isoCode),
+                    },
+                    0,
+                );
             });
 
             return {

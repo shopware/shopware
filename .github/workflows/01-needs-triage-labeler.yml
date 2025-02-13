@@ -1,0 +1,15 @@
+name: Add needs-triage label to new PullRequests and Issues
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+
+jobs:
+  label:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: srvaroa/labeler@v1.13.0
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          config_path: .github/labeler-needs-triage.yml

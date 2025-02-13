@@ -8,8 +8,6 @@ import template from './sw-product-detail-specifications.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'feature',

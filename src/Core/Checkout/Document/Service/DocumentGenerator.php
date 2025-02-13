@@ -48,17 +48,12 @@ class DocumentGenerator
     ) {
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Parameter $fileType will be added - reason:new-optional-parameter
-     */
     public function readDocument(
         string $documentId,
         Context $context,
         string $deepLinkCode = '',
-        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
+        string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
-        $fileType = \func_get_args()[3] ?? PdfRenderer::FILE_EXTENSION;
-
         $criteria = new Criteria([$documentId]);
 
         if ($deepLinkCode !== '') {
@@ -109,12 +104,6 @@ class DocumentGenerator
 
         if (!$document instanceof RenderedDocument) {
             throw DocumentException::generationError($rendered->getOrderError($operation->getOrderId())?->getMessage());
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $document->setContent($this->fileRendererRegistry->render($document));
-
-            $this->rendererRegistry->finalize($documentType, $operation, $context, $config, $rendered);
         }
 
         return $document;

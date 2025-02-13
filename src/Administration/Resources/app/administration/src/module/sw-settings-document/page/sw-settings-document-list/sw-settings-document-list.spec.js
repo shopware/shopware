@@ -68,7 +68,6 @@ async function createWrapper(privileges = []) {
                     'sw-icon': true,
                     'sw-search-bar': true,
                     'router-link': true,
-                    'sw-language-switch': true,
                     'sw-checkbox-field': true,
                 },
                 provide: {

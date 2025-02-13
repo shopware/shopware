@@ -33,7 +33,7 @@ async function createWrapper(propsOverride) {
                     cmsService: Shopware.Service('cmsService'),
                 },
                 stubs: {
-                    'sw-text-editor': true,
+                    'mt-text-editor': true,
                 },
             },
         },

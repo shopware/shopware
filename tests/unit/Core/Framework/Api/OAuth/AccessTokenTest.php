@@ -2,16 +2,13 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\OAuth;
 
-use League\OAuth2\Server\CryptKey;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\AccessToken;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
 use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -42,27 +39,5 @@ class AccessTokenTest extends TestCase
         $token->setExpiryDateTime(new \DateTimeImmutable());
 
         static::assertNotEmpty($token->toString());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - test will be removed
-     */
-    #[DoesNotPerformAssertions]
-    #[DisabledFeatures(features: ['v6.7.0.0'])]
-    public function testTokenWithOldKey(): void
-    {
-        $client = new ApiClient('administration', true, 'test');
-        $token = new AccessToken(
-            $client,
-            [],
-            'test'
-        );
-
-        $privateKey = $this->createMock(CryptKey::class);
-        $privateKey->method('getKeyContents')->willReturn('test');
-
-        $token->setPrivateKey($privateKey);
-
-        $token->initJwtConfiguration();
     }
 }

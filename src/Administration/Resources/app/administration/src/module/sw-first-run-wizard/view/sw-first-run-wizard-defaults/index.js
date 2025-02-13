@@ -9,8 +9,6 @@ import './sw-first-run-wizard-defaults.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: [

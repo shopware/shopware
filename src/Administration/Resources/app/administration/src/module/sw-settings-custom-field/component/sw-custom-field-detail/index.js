@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'customFieldDataProviderService',
@@ -103,19 +101,11 @@ export default {
             this.fieldTypes = this.customFieldDataProviderService.getTypes();
 
             if (!this.currentCustomField.config) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.currentCustomField, 'config', {});
-                } else {
-                    this.currentCustomField.config = {};
-                }
+                this.currentCustomField.config = {};
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('customFieldType')) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.currentCustomField.config, 'customFieldType', '');
-                } else {
-                    this.currentCustomField.config.customFieldType = '';
-                }
+                this.currentCustomField.config.customFieldType = '';
             }
 
             if (!this.currentCustomField.name) {
@@ -123,11 +113,7 @@ export default {
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('customFieldPosition')) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.currentCustomField.config, 'customFieldPosition', 1);
-                } else {
-                    this.currentCustomField.config.customFieldPosition = 1;
-                }
+                this.currentCustomField.config.customFieldPosition = 1;
             }
 
             if (!this.currentCustomField.allowCartExpose) {

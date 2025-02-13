@@ -40,7 +40,6 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
         $this->repository->expects(static::once())->method($method)->willReturn($writeResult);
-
         $this->eventDispatcher->expects(static::once())->method('dispatch');
 
         $progress = new Progress('logId', Progress::STATE_PROGRESS);

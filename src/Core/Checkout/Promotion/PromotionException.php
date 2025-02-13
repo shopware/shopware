@@ -106,6 +106,19 @@ class PromotionException extends HttpException
         );
     }
 
+    /**
+     * @param list<string> $codes
+     */
+    public static function promotionCodesNotFound(array $codes): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROMOTION_CODE_NOT_FOUND,
+            'None of the promotion codes "{{ code }}" have not been found!',
+            ['code' => \implode(', ', $codes)]
+        );
+    }
+
     public static function invalidPriceDefinition(string $label, ?string $code): self
     {
         if ($code === null) {

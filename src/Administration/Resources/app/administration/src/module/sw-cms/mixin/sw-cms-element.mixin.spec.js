@@ -25,7 +25,7 @@ async function createWrapper(element = defaultElement) {
                 cmsService: Shopware.Service('cmsService'),
             },
             stubs: {
-                'sw-text-editor': true,
+                'mt-text-editor': true,
             },
         },
     });

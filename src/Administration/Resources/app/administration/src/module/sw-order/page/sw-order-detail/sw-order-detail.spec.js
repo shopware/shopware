@@ -6,6 +6,15 @@ import { nextTick } from 'vue';
  */
 
 async function createWrapper(order = {}) {
+    const repositoryFactoryMock = {
+        search: () => Promise.resolve([]),
+        hasChanges: () => false,
+        deleteVersion: () => Promise.resolve([]),
+        createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
+        get: () => Promise.resolve(order),
+        save: () => Promise.resolve({}),
+    };
+
     return mount(await wrapTestComponent('sw-order-detail', { sync: true }), {
         global: {
             mocks: {
@@ -67,14 +76,7 @@ async function createWrapper(order = {}) {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve([]),
-                        hasChanges: () => false,
-                        deleteVersion: () => Promise.resolve([]),
-                        createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
-                        get: () => Promise.resolve(order),
-                        save: () => Promise.resolve({}),
-                    }),
+                    create: () => repositoryFactoryMock,
                 },
                 orderService: {},
             },

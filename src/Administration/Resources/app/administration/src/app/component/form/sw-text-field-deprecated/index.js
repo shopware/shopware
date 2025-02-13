@@ -18,8 +18,6 @@ Component.register('sw-text-field-deprecated', {
 
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: [
@@ -83,40 +81,11 @@ Component.register('sw-text-field-deprecated', {
 
     computed: {
         hasPrefix() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.hasOwnProperty('prefix');
-            }
-
             return this.$slots.hasOwnProperty('prefix');
         },
 
         hasSuffix() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.hasOwnProperty('suffix');
-            }
-
             return this.$slots.hasOwnProperty('suffix');
-        },
-
-        additionalListeners() {
-            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return {};
-            }
-
-            const additionalListeners = { ...this.$listeners };
-
-            delete additionalListeners.input;
-            delete additionalListeners.change;
-
-            return additionalListeners;
-        },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
 
         filteredInputAttributes() {

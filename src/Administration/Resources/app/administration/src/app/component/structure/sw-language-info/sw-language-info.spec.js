@@ -18,7 +18,7 @@ describe('src/app/component/structure/sw-language-info', () => {
         wrapper = mount(await wrapTestComponent('sw-language-info', { sync: true }), {
             global: {
                 mocks: {
-                    $tc: (snippetKey, count, args) => {
+                    $tc: (snippetKey, args, count) => {
                         let value = `|${snippetKey}|${count}|`;
 
                         if (typeof args !== 'object') {

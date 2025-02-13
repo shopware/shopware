@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -36,8 +35,6 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
-use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
-use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
@@ -47,7 +44,6 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
-use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -88,7 +84,6 @@ class PluginLifecycleService
         private readonly SystemConfigService $systemConfigService,
         private readonly CustomEntityPersister $customEntityPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
     ) {
@@ -144,10 +139,6 @@ class PluginLifecycleService
 
             $pluginBaseClass->install($installContext);
 
-            if (!Feature::isActive('v6.7.0.0')) {
-                $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
-            }
-
             $this->runMigrations($installContext);
 
             $installDate = new \DateTime();
@@ -179,7 +170,7 @@ class PluginLifecycleService
         bool $keepUserData = false
     ): UninstallContext {
         if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($plugin->getName());
+            throw PluginException::notInstalled($plugin->getName());
         }
 
         if ($plugin->getActive()) {
@@ -205,7 +196,7 @@ class PluginLifecycleService
             $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
         }
 
-        if (!$uninstallContext->keepUserData() && Feature::isActive('v6.7.0.0')) {
+        if (!$uninstallContext->keepUserData()) {
             // plugin->uninstall() will remove the tables etc of the plugin,
             // we drop the migrations before, so we can recover in case of errors by rerunning the migrations
             $pluginBaseClass->removeMigrations();
@@ -214,9 +205,6 @@ class PluginLifecycleService
         $pluginBaseClass->uninstall($uninstallContext);
 
         if (!$uninstallContext->keepUserData()) {
-            if (!Feature::isActive('v6.7.0.0')) {
-                $pluginBaseClass->removeMigrations();
-            }
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
         }
 
@@ -237,23 +225,7 @@ class PluginLifecycleService
         }
 
         if ($pluginBaseClass->executeComposerCommands()) {
-            if (\PHP_SAPI === 'cli') {
-                // only remove the plugin composer dependency directly when running in CLI
-                // otherwise do it async in kernel.response
-                $this->removePluginComposerDependency($plugin, $shopwareContext);
-            // @codeCoverageIgnoreStart -> code path can not be executed in unit tests as SAPI will always be CLI
-            } else {
-                self::$pluginToBeDeleted = [
-                    'plugin' => $plugin,
-                    'context' => $shopwareContext,
-                ];
-                // @codeCoverageIgnoreEnd
-
-                if (!self::$registeredListener) {
-                    $this->eventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
-                    self::$registeredListener = true;
-                }
-            }
+            $this->executeComposerRemoveCommand($plugin, $shopwareContext);
         }
 
         $this->eventDispatcher->dispatch(new PluginPostUninstallEvent($plugin, $uninstallContext));
@@ -267,7 +239,7 @@ class PluginLifecycleService
     public function updatePlugin(PluginEntity $plugin, Context $shopwareContext): UpdateContext
     {
         if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($plugin->getName());
+            throw PluginException::notInstalled($plugin->getName());
         }
 
         $pluginBaseClassString = $plugin->getBaseClass();
@@ -285,6 +257,10 @@ class PluginLifecycleService
         if ($pluginBaseClass->executeComposerCommands()) {
             $this->executeComposerRequireWhenNeeded($plugin, $pluginBaseClass, $updateContext->getUpdatePluginVersion(), $shopwareContext);
         } else {
+            if ($plugin->getManagedByComposer()) {
+                // If the plugin was previously managed by composer, but should no longer due to the update, we need to remove the composer dependency
+                $this->executeComposerRemoveCommand($plugin, $shopwareContext);
+            }
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'update');
         }
 
@@ -314,10 +290,6 @@ class PluginLifecycleService
 
         if ($plugin->getActive() && !$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
         }
 
         $this->runMigrations($updateContext);
@@ -350,7 +322,7 @@ class PluginLifecycleService
     public function activatePlugin(PluginEntity $plugin, Context $shopwareContext, bool $reactivate = false): ActivateContext
     {
         if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($plugin->getName());
+            throw PluginException::notInstalled($plugin->getName());
         }
 
         $pluginBaseClassString = $plugin->getBaseClass();
@@ -420,14 +392,14 @@ class PluginLifecycleService
     public function deactivatePlugin(PluginEntity $plugin, Context $shopwareContext): DeactivateContext
     {
         if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($plugin->getName());
+            throw PluginException::notInstalled($plugin->getName());
         }
 
         if ($plugin->getActive() === false) {
-            throw new PluginNotActivatedException($plugin->getName());
+            throw PluginException::notActivated($plugin->getName());
         }
 
-        $dependantPlugins = $this->getEntities($this->pluginCollection->all(), $shopwareContext)->getEntities()->getElements();
+        $dependantPlugins = array_values($this->getEntities($this->pluginCollection->all(), $shopwareContext)->getEntities()->getElements());
 
         $dependants = $this->requirementValidator->resolveActiveDependants(
             $plugin,
@@ -435,7 +407,7 @@ class PluginLifecycleService
         );
 
         if (\count($dependants) > 0) {
-            throw new PluginHasActiveDependantsException($plugin->getName(), $dependants);
+            throw PluginException::hasActiveDependants($plugin->getName(), $dependants);
         }
 
         $pluginBaseClassString = $plugin->getBaseClass();
@@ -528,7 +500,7 @@ class PluginLifecycleService
 
         $pluginComposerName = $plugin->getComposerName();
         if ($pluginComposerName === null) {
-            throw new PluginComposerJsonInvalidException(
+            throw PluginException::composerJsonInvalid(
                 $plugin->getPath() . '/composer.json',
                 ['No name defined in composer.json']
             );
@@ -551,7 +523,7 @@ class PluginLifecycleService
         $baseClass = $this->pluginCollection->get($pluginBaseClassString);
 
         if ($baseClass === null) {
-            throw new PluginBaseClassNotFoundException($pluginBaseClassString);
+            throw PluginException::baseClassNotFound($pluginBaseClassString);
         }
 
         // set container because the plugin has not been initialized yet and therefore has no container set
@@ -616,7 +588,7 @@ class PluginLifecycleService
 
         $pluginDir = $kernel->getContainer()->getParameter('kernel.plugin_dir');
         if (!\is_string($pluginDir)) {
-            throw new \RuntimeException('Container parameter "kernel.plugin_dir" needs to be a string');
+            throw PluginException::invalidContainerParameter('kernel.plugin_dir', 'string');
         }
 
         $pluginLoader = $this->container->get(KernelPluginLoader::class);
@@ -640,7 +612,7 @@ class PluginLifecycleService
             $newContainer = $kernel->getContainer();
         } catch (\LogicException) {
             // If symfony throws an exception when calling getContainer on a not booted kernel and catch it here
-            throw new \RuntimeException('Failed to reboot the kernel');
+            throw PluginException::failedKernelReboot();
         }
 
         $this->container = $newContainer;
@@ -652,7 +624,7 @@ class PluginLifecycleService
         if ($this->container->has($pluginBaseClassString)) {
             $containerPlugin = $this->container->get($pluginBaseClassString);
             if (!$containerPlugin instanceof Plugin) {
-                throw new \RuntimeException($pluginBaseClassString . ' in the container should be an instance of ' . Plugin::class);
+                throw PluginException::wrongBaseClass($pluginBaseClassString);
             }
 
             return $containerPlugin;
@@ -693,7 +665,7 @@ class PluginLifecycleService
 
         $pluginComposerName = $plugin->getComposerName();
         if ($pluginComposerName === null) {
-            throw new PluginComposerJsonInvalidException(
+            throw PluginException::composerJsonInvalid(
                 $pluginBaseClass->getPath() . '/composer.json',
                 ['No name defined in composer.json']
             );
@@ -721,5 +693,26 @@ class PluginLifecycleService
         $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
 
         return true;
+    }
+
+    private function executeComposerRemoveCommand(PluginEntity $plugin, Context $shopwareContext): void
+    {
+        if (\PHP_SAPI === 'cli') {
+            // only remove the plugin composer dependency directly when running in CLI
+            // otherwise do it async in kernel.response
+            $this->removePluginComposerDependency($plugin, $shopwareContext);
+        /* @codeCoverageIgnoreStart -> code path can not be executed in unit tests as SAPI will always be CLI */
+        } else {
+            self::$pluginToBeDeleted = [
+                'plugin' => $plugin,
+                'context' => $shopwareContext,
+            ];
+
+            if (!self::$registeredListener) {
+                $this->eventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
+                self::$registeredListener = true;
+            }
+        }
+        /* @codeCoverageIgnoreEnd */
     }
 }

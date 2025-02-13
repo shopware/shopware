@@ -145,21 +145,12 @@ class AdministrationController extends AbstractController
     {
         try {
             $publicAssetBaseUrl = $this->fileSystem->publicUrl('/');
-
-            if (Feature::isActive('ADMIN_VITE')) {
-                $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
-            } else {
-                $webpackIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/administration/index.html');
-            }
+            $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
         } catch (FilesystemException $e) {
             return new Response('Plugin index.html not found', Response::HTTP_NOT_FOUND);
         }
 
-        if (Feature::isActive('ADMIN_VITE')) {
-            $indexHtml = str_replace('__$ASSET_BASE_PATH$__', \sprintf('%sbundles/%s/meteor-app/', $publicAssetBaseUrl, $pluginName), $viteIndexHtml);
-        } else {
-            $indexHtml = str_replace('__$ASSET_BASE_PATH$__', $publicAssetBaseUrl, $webpackIndexHtml);
-        }
+        $indexHtml = str_replace('__$ASSET_BASE_PATH$__', \sprintf('%sbundles/%s/meteor-app/', $publicAssetBaseUrl, $pluginName), $viteIndexHtml);
 
         $response = new Response($indexHtml, Response::HTTP_OK, [
             'Content-Type' => 'text/html',

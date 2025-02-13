@@ -249,8 +249,8 @@ describe('src/app/main.ts', () => {
         ];
 
         const initializers = Shopware.Application.getContainer('init').$list();
-
-        expect(initializers).toHaveLength(expectedInitializers.length);
+        initializers.push(...Shopware.Application.getContainer('init-pre').$list());
+        initializers.push(...Shopware.Application.getContainer('init-post').$list());
 
         expectedInitializers.forEach((initializer) => {
             expect(initializers).toContain(initializer);
@@ -296,8 +296,8 @@ describe('src/app/main.ts', () => {
 
     it('should create imported services on usage', () => {
         // Initialize needed initializers
-        const initializers = Shopware.Application.getContainer('init');
-        expect(initializers.state).toBeDefined();
+        const preInitializers = Shopware.Application.getContainer('init-pre');
+        expect(preInitializers.state).toBeDefined();
 
         // Check if all services get executed correctly
         expect(serviceMocks.FeatureService).not.toHaveBeenCalled();

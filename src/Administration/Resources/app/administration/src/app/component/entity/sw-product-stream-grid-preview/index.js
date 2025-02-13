@@ -14,8 +14,6 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-stream-grid-preview', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'productStreamPreviewService',

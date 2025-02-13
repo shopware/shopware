@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
-use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -28,7 +27,6 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         static::assertTrue($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertTrue($container->has(ReverseProxyCache::class));
-        static::assertTrue($container->has(ReverseProxyCacheClearer::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
         /** @var DummyService $dummy */
@@ -48,7 +46,6 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         static::assertTrue($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertTrue($container->has(ReverseProxyCache::class));
-        static::assertTrue($container->has(ReverseProxyCacheClearer::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
         static::assertInstanceOf(PluginService::class, $container->get(FastlyReverseProxyGateway::class));
@@ -67,7 +64,6 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         static::assertTrue($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertTrue($container->has(ReverseProxyCache::class));
-        static::assertTrue($container->has(ReverseProxyCacheClearer::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
         /** @var DummyService $dummy */
@@ -85,7 +81,6 @@ class ReverseProxyCompilerPassTest extends TestCase
         static::assertFalse($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertFalse($container->has(ReverseProxyCache::class));
         static::assertFalse($container->has(FastlyReverseProxyGateway::class));
-        static::assertFalse($container->has(ReverseProxyCacheClearer::class));
         static::assertFalse($container->has(FastlyReverseProxyGateway::class));
     }
 
@@ -123,10 +118,6 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         $container
             ->register(VarnishReverseProxyGateway::class, VarnishService::class)
-            ->setPublic(true);
-
-        $container
-            ->register(ReverseProxyCacheClearer::class)
             ->setPublic(true);
 
         $container

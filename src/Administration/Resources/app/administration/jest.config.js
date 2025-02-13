@@ -43,6 +43,8 @@ module.exports = {
 
     testRunner: 'jest-jasmine2',
 
+    resolver: '<rootDir>/jest-resolver.js',
+
     runner: 'groups',
 
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
@@ -76,7 +78,7 @@ module.exports = {
     },
 
     transformIgnorePatterns: [
-        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|@vue/compat|other)/)',
+        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
     ],
 
     moduleNameMapper: {
@@ -84,7 +86,7 @@ module.exports = {
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
         '^lodash-es$': 'lodash',
-        vue$: '@vue/compat/dist/vue.cjs.js',
+        vue$: 'vue/dist/vue.cjs.js',
     },
 
     reporters: isCi ? [

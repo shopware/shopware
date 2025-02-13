@@ -3,6 +3,8 @@
  */
 import { mount } from '@vue/test-utils';
 
+let productSortingRepositoryMock;
+
 describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create', () => {
     function getProductSortings() {
         return [
@@ -80,6 +82,34 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     }
 
     async function createWrapper() {
+        productSortingRepositoryMock = {
+            search: (param) => {
+                let response = null;
+
+                getProductSortings().forEach((element) => {
+                    if (element[param.filters.field]) {
+                        response = element;
+                    }
+                });
+
+                return Promise.resolve({
+                    first: () => {
+                        return response;
+                    },
+                });
+            },
+            create: () => getProductSortings()[0],
+            save: jest.fn(() =>
+                Promise.resolve({
+                    config: {
+                        data: JSON.stringify({
+                            id: 'asdfaf',
+                        }),
+                    },
+                }),
+            ),
+        };
+
         return mount(
             await wrapTestComponent('sw-settings-listing-option-create', {
                 sync: true,
@@ -93,32 +123,7 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                         repositoryFactory: {
                             create: (repository) => {
                                 if (repository === 'product_sorting') {
-                                    return {
-                                        search: (param) => {
-                                            let response = null;
-
-                                            getProductSortings().forEach((element) => {
-                                                if (element[param.filters.field]) {
-                                                    response = element;
-                                                }
-                                            });
-
-                                            return Promise.resolve({
-                                                first: () => {
-                                                    return response;
-                                                },
-                                            });
-                                        },
-                                        create: () => getProductSortings()[0],
-                                        save: () =>
-                                            Promise.resolve({
-                                                config: {
-                                                    data: JSON.stringify({
-                                                        id: 'asdfaf',
-                                                    }),
-                                                },
-                                            }),
-                                    };
+                                    return productSortingRepositoryMock;
                                 }
                                 return {
                                     search: () => Promise.resolve(),
@@ -218,7 +223,7 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     it('should transform customField fields onSave', async () => {
         wrapper.vm.$router.push = jest.fn();
 
-        wrapper.vm.productSortingRepository.save = jest.fn().mockResolvedValue({
+        productSortingRepositoryMock.save = jest.fn().mockResolvedValue({
             config: {
                 data: JSON.stringify([]),
             },
@@ -226,8 +231,9 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
         wrapper.vm.transformCustomFieldCriterias = jest.fn();
 
         await wrapper.vm.onSave();
+        await flushPromises();
 
-        expect(wrapper.vm.productSortingRepository.save).toHaveBeenCalled();
+        expect(productSortingRepositoryMock.save).toHaveBeenCalled();
         expect(wrapper.vm.transformCustomFieldCriterias).toHaveBeenCalled();
     });
 });

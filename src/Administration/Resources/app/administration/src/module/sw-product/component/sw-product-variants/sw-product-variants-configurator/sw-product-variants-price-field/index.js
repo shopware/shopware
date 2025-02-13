@@ -12,8 +12,6 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'price-lock-change',
         'change',

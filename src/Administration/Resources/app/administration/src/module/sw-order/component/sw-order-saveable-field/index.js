@@ -9,8 +9,6 @@ import './sw-order-saveable-field.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['value-change'],
 
     props: {
@@ -74,17 +72,6 @@ export default {
                 default:
                     return 'sw-text-field';
             }
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

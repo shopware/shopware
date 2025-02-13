@@ -8,8 +8,6 @@ import './sw-promotion-v2-empty-state-hero.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         title: {
             type: String,
@@ -49,10 +47,6 @@ export default {
         },
 
         actionSlotsAvailable() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return !!this.$slots.actions || !!this.$scopedSlots.actions;
-            }
-
             return !!this.$slots.actions;
         },
     },

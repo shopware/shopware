@@ -8,8 +8,6 @@ import './sw-bulk-edit-custom-fields.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['change'],
 
     props: {
@@ -46,16 +44,8 @@ export default {
 
         toggleItemCheck($event, item) {
             if ($event) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
-                } else {
-                    this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
-                }
-            } else if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                this.$delete(this.selectedCustomFields, item.name);
-            } else {
-                delete this.selectedCustomFields[item.name];
-            }
+                this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
+            } else delete this.selectedCustomFields[item.name];
         },
 
         updateCustomField(item) {
@@ -66,11 +56,7 @@ export default {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
-            } else {
-                this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
-            }
+            this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
         },
     },
 };

@@ -4,12 +4,12 @@ namespace Shopware\Tests\Integration\Core\Content\Seo\SalesChannel\FixturesPhp;
 
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -34,7 +34,7 @@ class StoreApiSeoResolverTestRoute
             methods: [Request::METHOD_GET]
         )
     ]
-    public function noAuthRequiredAction(Request $request): StoreApiResponse
+    public function noAuthRequiredAction(Request $request): CategoryRouteResponse
     {
         $salesChannelId = $request->get('sales-channel-id');
 

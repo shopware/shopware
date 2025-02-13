@@ -10,12 +10,7 @@ class AdminSalesChannelApiSource extends SalesChannelApiSource
 {
     public string $type = 'admin-sales-channel-api';
 
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $originalContext;
+    protected Context $originalContext;
 
     public function __construct(
         string $salesChannelId,

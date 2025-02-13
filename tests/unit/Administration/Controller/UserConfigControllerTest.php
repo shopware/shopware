@@ -10,14 +10,12 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
-use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,25 +56,11 @@ class UserConfigControllerTest extends TestCase
         static::assertJsonStringEqualsJsonString('{"data":[]}', $response->getContent());
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Remove in 6.7
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testGetConfigMeThrowsExpectedUserHttpExceptionWhenNoUserId(): void
-    {
-        $this->expectExceptionObject(new ExpectedUserHttpException());
-
-        $response = $this->userConfigController->getConfigMe(Context::createDefaultContext(new AdminApiSource(null)), new Request());
-
-        static::assertNotFalse($response->getContent());
-        static::assertJsonStringEqualsJsonString('{"data":[]}', $response->getContent());
-    }
-
     public function testGetConfigMeThrowsApiExceptionWhenNoUserId(): void
     {
         $this->expectExceptionObject(ApiException::userNotLoggedIn());
 
-        $response = $this->userConfigController->getConfigMe(Context::createDefaultContext(new AdminApiSource(null)), new Request());
+        $this->userConfigController->getConfigMe(Context::createDefaultContext(new AdminApiSource(null)), new Request());
     }
 
     public function testGetConfigMeThrowsInvalidContextSourceExceptionWhenWrongSource(): void

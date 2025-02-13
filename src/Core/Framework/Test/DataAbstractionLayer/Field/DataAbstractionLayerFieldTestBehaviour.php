@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
@@ -150,9 +151,8 @@ trait DataAbstractionLayerFieldTestBehaviour
     {
         foreach ($extensionsClasses as $extensionsClass) {
             $extension = new $extensionsClass();
-            if (!isset($this->extensionDefinitionMap[$extensionsClass])) {
-                throw new \RuntimeException(\sprintf('Trying to remove not registered extension "%s".', $extensionsClass));
-            }
+            TestCase::assertArrayHasKey($extensionsClass, $this->extensionDefinitionMap, \sprintf('Trying to remove not registered extension "%s".', $extensionsClass));
+
             $definitionClass = $this->extensionDefinitionMap[$extensionsClass];
             if (static::getContainer()->has($definitionClass)) {
                 /** @var EntityDefinition $definition */

@@ -24,7 +24,7 @@ class MediaFolderEntity extends Entity
 
     protected int $childCount;
 
-    protected MediaCollection $media;
+    protected ?MediaCollection $media = null;
 
     protected ?string $configurationId = null;
 
@@ -80,8 +80,15 @@ class MediaFolderEntity extends Entity
         $this->childCount = $childCount;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getMedia(): MediaCollection
     {
+        if ($this->media === null) {
+            $this->media = new MediaCollection();
+        }
+
         return $this->media;
     }
 

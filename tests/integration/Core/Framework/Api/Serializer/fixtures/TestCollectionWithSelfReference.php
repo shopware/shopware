@@ -25,6 +25,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
         $parent->setCreatedAt(new \DateTime('2012-08-15T00:00:00.000+00:00'));
         $parent->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $parent->internalSetEntityData('media_folder', new FieldVisibility([]));
+        $parent->setName('parent');
 
         $child = new MediaFolderEntity();
         $child->setId('5846dd97529c0f6b5448713e352be2d8');
@@ -34,6 +35,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
         $child->setCreatedAt(new \DateTime('2012-08-15T00:00:00.000+00:00'));
         $child->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $child->internalSetEntityData('media_folder', new FieldVisibility([]));
+        $child->setName('child');
         $parent->setChildren(new MediaFolderCollection([$child]));
 
         return new MediaFolderCollection([$parent]);
@@ -55,7 +57,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
                         'defaultFolderId' => null,
                         'parentId' => null,
                         'childCount' => 1,
-                        'name' => null,
+                        'name' => 'parent',
                         'createdAt' => '2012-08-15T00:00:00.000+00:00',
                         'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'customFields' => null,
@@ -113,7 +115,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
                         'defaultFolderId' => null,
                         'parentId' => '3e352be2d85846dd97529c0f6b544870',
                         'childCount' => 1,
-                        'name' => null,
+                        'name' => 'child',
                         'createdAt' => '2012-08-15T00:00:00.000+00:00',
                         'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'customFields' => null,
@@ -167,7 +169,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
         return [
             [
                 'id' => '3e352be2d85846dd97529c0f6b544870',
-                'name' => null,
+                'name' => 'parent',
                 'parentId' => null,
                 'parent' => null,
                 'childCount' => 1,
@@ -178,7 +180,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
                 'children' => [
                     [
                         'id' => '5846dd97529c0f6b5448713e352be2d8',
-                        'name' => null,
+                        'name' => 'child',
                         'parentId' => '3e352be2d85846dd97529c0f6b544870',
                         'parent' => null,
                         'childCount' => 1,

@@ -1,8 +1,3 @@
-{# @deprecated tag:v6.7.0 - Fallback will be removed, add header directly #}
-{% if not feature('cache_rework') and not header is defined and page is defined %}
-    {% set header = page.header %}
-{% endif %}
-
 {% block layout_header_top_bar %}
     <div class="top-bar d-none d-lg-block">
         {% block layout_header_top_bar_inner %}

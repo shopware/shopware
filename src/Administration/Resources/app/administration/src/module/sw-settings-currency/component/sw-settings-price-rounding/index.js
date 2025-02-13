@@ -8,8 +8,6 @@ import './sw-settings-price-rounding.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         itemRounding: {
             type: Object,

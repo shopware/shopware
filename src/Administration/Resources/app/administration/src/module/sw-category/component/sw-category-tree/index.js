@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'syncService',
@@ -295,11 +293,7 @@ export default {
 
                 // reload to remove selection
                 ids.forEach((deleted) => {
-                    if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                        this.$delete(this.loadedCategories, deleted);
-                    } else {
-                        delete this.loadedCategories[deleted];
-                    }
+                    delete this.loadedCategories[deleted];
                 });
                 this.$nextTick(() => {
                     this.addCategories(categories);
@@ -321,11 +315,7 @@ export default {
 
         onDeleteCategory({ data: category, children, checked }) {
             if (category.isNew()) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.loadedCategories, category.id);
-                } else {
-                    delete this.loadedCategories[category.id];
-                }
+                delete this.loadedCategories[category.id];
                 return Promise.resolve();
             }
 
@@ -513,20 +503,12 @@ export default {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.loadedCategories, category.id, category);
-            } else {
-                this.loadedCategories[category.id] = category;
-            }
+            this.loadedCategories[category.id] = category;
         },
 
         addCategories(categories) {
             categories.forEach((category) => {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.loadedCategories, category.id, category);
-                } else {
-                    this.loadedCategories[category.id] = category;
-                }
+                this.loadedCategories[category.id] = category;
             });
         },
 
@@ -537,11 +519,7 @@ export default {
             });
 
             deletedIds.forEach((deleted) => {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.loadedCategories, deleted);
-                } else {
-                    delete this.loadedCategories[deleted];
-                }
+                delete this.loadedCategories[deleted];
             });
         },
 

@@ -31,8 +31,6 @@ Component.register('sw-boolean-radio-group', {
 
     inject: ['feature'],
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['update:value'],
 
     props: {

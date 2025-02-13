@@ -8,6 +8,9 @@ use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\IncludeNode;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 #[YieldReady]
 class SwInclude extends IncludeNode

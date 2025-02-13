@@ -11,8 +11,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'usageDataService',

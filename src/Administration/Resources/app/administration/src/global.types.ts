@@ -29,7 +29,6 @@ import type UserApiService from 'src/core/service/api/user.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type { ComponentInternalInstance } from 'vue';
 import type { I18n } from 'vue-i18n';
-import type { Slots } from '@vue/runtime-core';
 import type {
     Store,
     mapActions as mapVuexActions,
@@ -458,24 +457,7 @@ declare module 'bottlejs' {
     }
 }
 
-/**
- * @deprecated tag:v6.7.0 - will be removed when Vue compat gets removed
- */
-interface LegacyPublicProperties {
-    $set(target: object, key: string, value: any): void;
-    $delete(target: object, key: string): void;
-    $mount(el?: string | Element): this;
-    $destroy(): void;
-    $scopedSlots: Slots;
-    $on(event: string | string[], fn: Function): this;
-    $once(event: string, fn: Function): this;
-    $off(event?: string | string[], fn?: Function): this;
-    $children: LegacyPublicProperties[];
-    $listeners: Record<string, Function | Function[]>;
-    isCompatEnabled: (key: string) => boolean;
-}
-
-interface CustomProperties extends ServiceContainer, LegacyPublicProperties {
+interface CustomProperties extends ServiceContainer {
     $createTitle: (identifier?: string | null) => string;
     $router: Router;
     $store: Store<VuexRootState>;

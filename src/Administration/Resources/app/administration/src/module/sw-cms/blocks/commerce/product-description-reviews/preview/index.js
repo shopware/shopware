@@ -7,6 +7,4 @@ import './sw-cms-preview-product-description-reviews.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

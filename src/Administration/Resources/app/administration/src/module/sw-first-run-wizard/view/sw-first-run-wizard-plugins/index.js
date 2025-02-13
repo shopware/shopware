@@ -8,8 +8,6 @@ import './sw-first-run-wizard-plugins.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['recommendationsService'],
 
     emits: [

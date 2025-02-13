@@ -12,8 +12,6 @@ const domUtils = Shopware.Utils.dom;
 Component.register('sw-field-copyable', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: [
         Mixin.getByName('notification'),
     ],

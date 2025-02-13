@@ -11,8 +11,6 @@ const { Component } = Shopware;
 Component.register('sw-sidebar-navigation-item', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['item-click'],
 
     props: {

@@ -13,8 +13,6 @@ Component.register('sw-block-field', {
     template,
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         size: {
             type: String,
@@ -53,15 +51,6 @@ Component.register('sw-block-field', {
                 },
                 this.swBlockSize,
             ];
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

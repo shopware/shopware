@@ -14,8 +14,6 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-notification-center', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     mixins: [
@@ -46,21 +44,13 @@ Component.register('sw-notification-center', {
 
     created() {
         this.unsubscribeFromStore = Shopware.Store.get('notification').$onAction(this.createNotificationFromSystemError);
-        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-            this.$root.$on('on-change-notification-center-visibility', this.changeVisibility);
-        } else {
-            Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
-        }
+        Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     beforeDestroyed() {
         this.unsubscribeFromStore?.();
 
-        if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-            this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
-        } else {
-            Shopware.Utils.EventBus.$off('on-change-notification-center-visibility', this.changeVisibility);
-        }
+        this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     methods: {

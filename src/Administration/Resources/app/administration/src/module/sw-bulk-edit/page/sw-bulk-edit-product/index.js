@@ -16,8 +16,6 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'feature',
         'bulkEditApiFactory',
@@ -811,11 +809,7 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.visibilities, 'value', productVisibilities);
-                } else {
-                    this.bulkEditProduct.visibilities.value = productVisibilities;
-                }
+                this.bulkEditProduct.visibilities.value = productVisibilities;
             },
         },
         'bulkEditProduct.isPriceInherited.isChanged': {
@@ -824,17 +818,10 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.price, 'isChanged', isChanged);
-                    this.$set(this.bulkEditProduct.purchasePrices, 'isChanged', isChanged);
-                    this.$set(this.bulkEditProduct.listPrice, 'isChanged', isChanged);
-                    this.$set(this.bulkEditProduct.regulationPrice, 'isChanged', isChanged);
-                } else {
-                    this.bulkEditProduct.price.isChanged = isChanged;
-                    this.bulkEditProduct.purchasePrices.isChanged = isChanged;
-                    this.bulkEditProduct.listPrice.isChanged = isChanged;
-                    this.bulkEditProduct.regulationPrice.isChanged = isChanged;
-                }
+                this.bulkEditProduct.price.isChanged = isChanged;
+                this.bulkEditProduct.purchasePrices.isChanged = isChanged;
+                this.bulkEditProduct.listPrice.isChanged = isChanged;
+                this.bulkEditProduct.regulationPrice.isChanged = isChanged;
             },
         },
         'bulkEditProduct.isPriceInherited.isInherited': {
@@ -843,17 +830,10 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.price, 'isInherited', isInherited);
-                    this.$set(this.bulkEditProduct.purchasePrices, 'isInherited', isInherited);
-                    this.$set(this.bulkEditProduct.listPrice, 'isInherited', isInherited);
-                    this.$set(this.bulkEditProduct.regulationPrice, 'isInherited', isInherited);
-                } else {
-                    this.bulkEditProduct.price.isInherited = isInherited;
-                    this.bulkEditProduct.purchasePrices.isInherited = isInherited;
-                    this.bulkEditProduct.listPrice.isInherited = isInherited;
-                    this.bulkEditProduct.regulationPrice.isInherited = isInherited;
-                }
+                this.bulkEditProduct.price.isInherited = isInherited;
+                this.bulkEditProduct.purchasePrices.isInherited = isInherited;
+                this.bulkEditProduct.listPrice.isInherited = isInherited;
+                this.bulkEditProduct.regulationPrice.isInherited = isInherited;
             },
         },
         'product.listPrice': {
@@ -869,11 +849,7 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.price.value[0], 'listPrice', listPrice[0]);
-                } else {
-                    this.bulkEditProduct.price.value[0].listPrice = listPrice[0];
-                }
+                this.bulkEditProduct.price.value[0].listPrice = listPrice[0];
             },
         },
         'product.regulationPrice': {
@@ -889,11 +865,7 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.price.value[0], 'regulationPrice', regulationPrice[0]);
-                } else {
-                    this.bulkEditProduct.price.value[0].regulationPrice = regulationPrice[0];
-                }
+                this.bulkEditProduct.price.value[0].regulationPrice = regulationPrice[0];
             },
         },
     },
@@ -936,22 +908,13 @@ export default {
         },
 
         setRouteMetaModule() {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.$route.meta.$module, 'color', '#57D9A3');
-                this.$set(this.$route.meta.$module, 'icon', 'regular-products');
-            } else {
-                this.$route.meta.$module.color = '#57D9A3';
-                this.$route.meta.$module.icon = 'regular-products';
-            }
+            this.$route.meta.$module.color = '#57D9A3';
+            this.$route.meta.$module.icon = 'regular-products';
         },
 
         setBulkEditProductValue() {
             Object.keys(this.bulkEditProduct).forEach((key) => {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct[key], 'value', cloneDeep(this.parentProduct?.[key]));
-                } else {
-                    this.bulkEditProduct[key].value = cloneDeep(this.parentProduct?.[key]);
-                }
+                this.bulkEditProduct[key].value = cloneDeep(this.parentProduct?.[key]);
 
                 if (key === 'searchKeywords') {
                     this.setProductSearchKeywords();
@@ -984,39 +947,21 @@ export default {
             }
 
             if (name === 'stock') {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct, name, {
-                        value,
-                        type,
-                        isChanged,
-                        isInherited: false,
-                    });
-                } else {
-                    this.bulkEditProduct[name] = {
-                        value,
-                        type,
-                        isChanged,
-                        isInherited: false,
-                    };
-                }
+                this.bulkEditProduct[name] = {
+                    value,
+                    type,
+                    isChanged,
+                    isInherited: false,
+                };
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditProduct, name, {
-                    isChanged: isChanged,
-                    type: type,
-                    value: value,
-                    isInherited: this.isChild,
-                });
-            } else {
-                this.bulkEditProduct[name] = {
-                    isChanged: isChanged,
-                    type: type,
-                    value: value,
-                    isInherited: this.isChild,
-                };
-            }
+            this.bulkEditProduct[name] = {
+                isChanged: isChanged,
+                type: type,
+                value: value,
+                isInherited: this.isChild,
+            };
         },
 
         loadBulkEditData() {
@@ -1076,13 +1021,8 @@ export default {
             }
 
             if (this.isChild && !types.isEmpty(this.parentProduct)) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'price', this.parentProduct.price);
-                    this.$set(this.product, 'purchasePrices', this.parentProduct.purchasePrices);
-                } else {
-                    this.product.price = this.parentProduct.price;
-                    this.product.purchasePrices = this.parentProduct.purchasePrices;
-                }
+                this.product.price = this.parentProduct.price;
+                this.product.purchasePrices = this.parentProduct.purchasePrices;
                 this.setProductPrice('listPrice');
                 this.setProductPrice('regulationPrice');
 
@@ -1137,15 +1077,7 @@ export default {
             ];
 
             if (!types.isEmpty(this.parentProduct.price?.[0][price])) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, `${price}`, [
-                        this.parentProduct.price[0][price],
-                    ]);
-                } else {
-                    this.product[price] = [this.parentProduct.price[0][price]];
-                }
-            } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.product, `${price}`, emptyPrice);
+                this.product[price] = [this.parentProduct.price[0][price]];
             } else {
                 this.product[price] = emptyPrice;
             }
@@ -1163,11 +1095,7 @@ export default {
             }
 
             if (value && typeof value !== 'boolean') {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, `${item}`, [value]);
-                } else {
-                    this.product[item] = [value];
-                }
+                this.product[item] = [value];
             }
         },
 
@@ -1267,11 +1195,7 @@ export default {
             });
 
             if (priceField) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(priceField.value[0], 'listPrice', this.product?.listPrice[0]);
-                } else {
-                    priceField.value[0].listPrice = this.product?.listPrice[0];
-                }
+                priceField.value[0].listPrice = this.product?.listPrice[0];
             }
         },
 
@@ -1281,11 +1205,7 @@ export default {
             });
 
             if (priceField) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(priceField.value[0], 'regulationPrice', this.product?.regulationPrice[0]);
-                } else {
-                    priceField.value[0].regulationPrice = this.product?.regulationPrice[0];
-                }
+                priceField.value[0].regulationPrice = this.product?.regulationPrice[0];
             }
         },
 
@@ -1401,32 +1321,18 @@ export default {
         onInheritanceRestore(item) {
             const parentProductFrozen = JSON.parse(this.parentProductFrozen);
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditProduct[item.name], 'isInherited', true);
-                this.$set(this.bulkEditProduct[item.name], 'value', parentProductFrozen[item.name]);
-            } else {
-                this.bulkEditProduct[item.name].isInherited = true;
-                this.bulkEditProduct[item.name].value = parentProductFrozen[item.name];
-            }
+            this.bulkEditProduct[item.name].isInherited = true;
+            this.bulkEditProduct[item.name].value = parentProductFrozen[item.name];
 
             if (item.name === 'taxId') {
                 this.taxRate = parentProductFrozen.tax;
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'taxId', parentProductFrozen.taxId);
-                } else {
-                    this.product.taxId = parentProductFrozen.taxId;
-                }
+                this.product.taxId = parentProductFrozen.taxId;
                 return;
             }
             if (item.name === 'isPriceInherited') {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product?.price, 0, parentProductFrozen.price[0]);
-                    this.$set(this.product?.purchasePrices, 0, parentProductFrozen.purchasePrices[0]);
-                } else {
-                    this.product.price[0] = parentProductFrozen.price[0];
-                    this.product.purchasePrices[0] = parentProductFrozen.purchasePrices[0];
-                }
+                this.product.price[0] = parentProductFrozen.price[0];
+                this.product.purchasePrices[0] = parentProductFrozen.purchasePrices[0];
 
                 const listPrice = !types.isEmpty(parentProductFrozen.price[0].listPrice)
                     ? parentProductFrozen.price[0].listPrice
@@ -1436,13 +1342,8 @@ export default {
                           linked: true,
                           gross: null,
                       };
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'listPrice', [listPrice]);
-                    this.$set(this.product?.price[0], 'listPrice', listPrice);
-                } else {
-                    this.product.listPrice = [listPrice];
-                    this.product.price[0].listPrice = listPrice;
-                }
+                this.product.listPrice = [listPrice];
+                this.product.price[0].listPrice = listPrice;
 
                 const regulationPrice = !types.isEmpty(parentProductFrozen.price[0].regulationPrice)
                     ? parentProductFrozen.price[0].regulationPrice
@@ -1452,15 +1353,8 @@ export default {
                           linked: true,
                           gross: null,
                       };
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'regulationPrice', [
-                        regulationPrice,
-                    ]);
-                    this.$set(this.product?.price[0], 'regulationPrice', regulationPrice);
-                } else {
-                    this.product.regulationPrice = [regulationPrice];
-                    this.product.price[0].regulationPrice = regulationPrice;
-                }
+                this.product.regulationPrice = [regulationPrice];
+                this.product.price[0].regulationPrice = regulationPrice;
 
                 return;
             }
@@ -1469,11 +1363,7 @@ export default {
                 return;
             }
             if (item.name === 'media') {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'media', parentProductFrozen.media);
-                } else {
-                    this.product.media = parentProductFrozen.media;
-                }
+                this.product.media = parentProductFrozen.media;
                 return;
             }
             if (item.name === 'prices') {
@@ -1502,33 +1392,19 @@ export default {
                 this.setProductAssociation(item.name);
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditProduct[item.name], 'isInherited', false);
-            } else {
-                this.bulkEditProduct[item.name].isInherited = false;
-            }
+            this.bulkEditProduct[item.name].isInherited = false;
         },
 
         setProductSearchKeywords() {
             if (types.isEmpty(this.parentProduct?.customSearchKeywords)) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.searchKeywords, 'value', []);
-                    this.$set(this.product, 'searchKeywords', []);
-                } else {
-                    this.bulkEditProduct.searchKeywords.value = [];
-                    this.product.searchKeywords = [];
-                }
+                this.bulkEditProduct.searchKeywords.value = [];
+                this.product.searchKeywords = [];
 
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditProduct.searchKeywords, 'value', this.parentProduct.customSearchKeywords);
-                this.$set(this.product, 'searchKeywords', this.parentProduct.customSearchKeywords);
-            } else {
-                this.bulkEditProduct.searchKeywords.value = this.parentProduct.customSearchKeywords;
-                this.product.searchKeywords = this.parentProduct.customSearchKeywords;
-            }
+            this.bulkEditProduct.searchKeywords.value = this.parentProduct.customSearchKeywords;
+            this.product.searchKeywords = this.parentProduct.customSearchKeywords;
         },
 
         setProductAssociation(entityName, parentProduct = null) {
@@ -1536,11 +1412,7 @@ export default {
             ids.forEach((id) => this.product[entityName].remove(id));
 
             if (!parentProduct) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct[entityName], 'value', []);
-                } else {
-                    this.bulkEditProduct[entityName].value = [];
-                }
+                this.bulkEditProduct[entityName].value = [];
                 return;
             }
 

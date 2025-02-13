@@ -151,6 +151,8 @@ jobs:
   nightly-6-6-x:
     runs-on: ubuntu-24.04
     if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
+    permissions:
+      id-token: write
     steps:
       - name: Delay
         run: sleep 20m
@@ -159,4 +161,6 @@ jobs:
         with:
           scope: shopware
           identity: ShopwareNightly
-      - run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "6.6.x"
+      - env:
+          GH_TOKEN: ${{ steps.sts.outputs.token }}
+        run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "6.6.x"

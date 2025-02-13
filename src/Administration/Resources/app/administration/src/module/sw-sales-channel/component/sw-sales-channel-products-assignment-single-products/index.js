@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-products-assignment-single-products', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['selection-change'],

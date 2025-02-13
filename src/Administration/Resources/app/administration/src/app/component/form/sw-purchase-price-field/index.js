@@ -12,8 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-purchase-price-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['update:value'],
 
     props: {

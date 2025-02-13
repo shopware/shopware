@@ -8,7 +8,7 @@ type Options = {
 };
 
 /**
- * @package framework
+ * @sw-package framework
  * @private - Only to be used by shopware directly
  *
  * Creates a Vite plugin that automatically imports all *.override.vue files

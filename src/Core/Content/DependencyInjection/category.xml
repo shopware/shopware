@@ -32,26 +32,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000" public="true">
-            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute.inner"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument>%shopware.cache.invalidation.navigation_route%</argument>
-        </service>
-
         <service id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-2000" public="true">
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute.inner"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute" decorates="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" decoration-priority="-1000" public="true">
-            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute.inner"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument>%shopware.cache.invalidation.category_route%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" public="true">

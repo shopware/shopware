@@ -11,8 +11,6 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'process-finish',
         'modal-close',

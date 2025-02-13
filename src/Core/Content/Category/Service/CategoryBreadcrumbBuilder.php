@@ -267,12 +267,12 @@ class CategoryBreadcrumbBuilder
     private function loadSeoUrls(array $categoryIds, Context $context, SalesChannelEntity $salesChannel): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(HEX(id)) as id',
             'LOWER(HEX(foreign_key)) as categoryId',
             'path_info as pathInfo',
             'seo_path_info as seoPathInfo',
-        ]);
+        );
         $query->from('seo_url');
         $query->where('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.route_name = :routeName');

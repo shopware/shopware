@@ -14,6 +14,7 @@ function createEntityCollection(entities = []) {
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;
     let routes;
+    const searchIdsSpy = jest.fn();
 
     async function createWrapper(isResponseError = false) {
         // delete global $router and $routes mocks
@@ -143,7 +144,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
                             if (entity === 'state_machine_state') {
                                 return {
-                                    searchIds: jest.fn(),
+                                    searchIds: searchIdsSpy,
                                 };
                             }
 
@@ -672,7 +673,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const orderStateCriteria = new Criteria(1, null);
         const { liveVersionId } = Shopware.Context.api;
 
-        expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenCalledTimes(6);
+        expect(searchIdsSpy).toHaveBeenCalledTimes(6);
 
         orderStateCriteria.addFilter(
             Criteria.multi('AND', [

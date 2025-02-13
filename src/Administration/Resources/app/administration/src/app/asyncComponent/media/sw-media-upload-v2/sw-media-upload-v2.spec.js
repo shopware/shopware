@@ -4,7 +4,14 @@
 import { mount } from '@vue/test-utils';
 import FileValidationService from 'src/app/service/file-validation.service';
 
+let repositoryFactoryMock;
 async function createWrapper(customOptions = {}) {
+    repositoryFactoryMock = {
+        create: () => ({}),
+        save: () => Promise.resolve({}),
+        saveAll: () => Promise.resolve({}),
+    };
+
     return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {
         attachTo: document.body,
         props: {
@@ -48,11 +55,7 @@ async function createWrapper(customOptions = {}) {
                 fileValidationService: new FileValidationService(),
                 validationService: {},
                 repositoryFactory: {
-                    create: () => ({
-                        create: () => ({}),
-                        save: () => Promise.resolve({}),
-                        saveAll: () => Promise.resolve({}),
-                    }),
+                    create: () => repositoryFactoryMock,
                 },
                 mediaService: {
                     addListener: () => {},

@@ -3,7 +3,6 @@ import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.util';
 import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @sw-package framework
@@ -13,8 +12,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
     static options = {
         navigationUrl: window.router['frontend.menu.offcanvas'],
         position: 'left',
-        /** @deprecated tag:v6.7.0 - property "tiggerEvent" will be removed. Use "triggerEvent" instead */
-        tiggerEvent: 'click',
         triggerEvent: 'click',
 
         additionalOffcanvasClass: 'navigation-offcanvas',
@@ -40,10 +37,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
         this._client = new HttpClient();
         this._content = LoadingIndicator.getTemplate();
 
-        /** @deprecated tag:v6.7.0 - Remove if condition completely, as "tiggerEvent" will be removed */
-        if (this.options.tiggerEvent !== this.options.triggerEvent) {
-            this.options.triggerEvent = this.options.tiggerEvent;
-        }
         this._registerEvents();
     }
 
@@ -59,9 +52,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
         if (OffCanvas.exists()) {
             const offCanvasElements = OffCanvas.getOffCanvas();
 
-            Iterator.iterate(offCanvasElements, offcanvas => {
+            offCanvasElements.forEach(offcanvas => {
                 const links = offcanvas.querySelectorAll(this.options.linkSelector);
-                Iterator.iterate(links, link => {
+                links.forEach(link => {
                     OffcanvasMenuPlugin._resetLoader(link);
                     link.addEventListener('click', (event) => {
                         this._getLinkEventHandler(event, link);
@@ -97,26 +90,16 @@ export default class OffcanvasMenuPlugin extends Plugin {
             const initialContentElement = DomAccess.querySelector(document, this.options.initialContentSelector);
             this._content = initialContentElement.innerHTML;
 
-            if (window.Feature.isActive('CACHE_REWORK')) {
-                const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
+            const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
 
-                return this._fetchMenu(url, (htmlResponse) => {
-                    const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);
-                    navigationContainer.innerHTML = htmlResponse;
+            return this._fetchMenu(url, (htmlResponse) => {
+                const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);
+                navigationContainer.innerHTML = htmlResponse;
 
-                    this._content = initialContentElement.innerHTML;
+                this._content = initialContentElement.innerHTML;
 
-                    return this._openMenu(event);
-                });
-            } else {
-                if (initialContentElement.classList.contains('is-root')) {
-                    this._cache[this.options.navigationUrl] = this._content;
-                } else {
-                    // fetch home menu to warm the cache
-                    this._fetchMenu(this.options.navigationUrl);
-                }
                 return this._openMenu(event);
-            }
+            });
         }
 
         OffcanvasMenuPlugin._stopEvent(event);

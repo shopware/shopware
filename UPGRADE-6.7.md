@@ -473,6 +473,32 @@ Merchants must review their custom created payment and shipping methods for the 
 ## Required foreign key in mapping definition for many-to-many associations
 If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
 
+## Elasticsearch: Return type of AbstractElasticsearchDefinition::buildTermQuery changed to BuilderInterface
+
+The return type of `\Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition::buildTermQuery()` and `\Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder::build()` changed from BoolQuery to BuilderInterface.
+It is not necessary to wrap the return value in a BoolQuery anymore.
+Before:
+```php
+public function buildTermQuery(Context $context, Criteria $criteria): BuilderInterface
+{
+    $built = $this->searchLogic->build($this->getEntityDefinition()->getEntityName(), $criteria, $context);
+
+    if ($built instanceof BoolQuery) {
+        return $built;
+    }
+
+    return new BoolQuery([BoolQuery::SHOULD => $built]);
+}
+```
+
+After:
+```php
+public function buildTermQuery(Context $context, Criteria $criteria): BuilderInterface
+{
+    return $this->searchLogic->build($this->getEntityDefinition()->getEntityName(), $criteria, $context);
+}
+```
+
 ## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` changed
 * Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` changed to `columnName`
 * Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` changed to `foreignKeyName`
@@ -535,6 +561,10 @@ The `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute::order` met
 * Removed class `Shopware\Core\Content\MailTemplate\MailTemplateActions` without replacement
 * Removed service `Shopware\Core\Content\MailTemplate\Service\AttachmentLoader` without replacement.
 * Removed event `Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent` without replacement.
+
+## Unification of Cache constants
+* Removed constants `Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber::{STATE_LOGGED_IN,STATE_CART_FILLED}` use `Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::{STATE_LOGGED_IN,STATE_CART_FILLED}` instead
+* Removed constants `Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber::{CURRENCY_COOKIE,CONTEXT_CACHE_COOKIE,SYSTEM_STATE_COOKIE,INVALIDATION_STATES_HEADER}` use `Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::{CURRENCY_COOKIE,CONTEXT_CACHE_COOKIE,SYSTEM_STATE_COOKIE,INVALIDATION_STATES_HEADER}` instead
 
 ## Domain Exception Handling
 We have changed/removed some exception classes in accordance with the [domain exception handling ADR](./adr/2022-02-24-domain-exceptions.md).
@@ -2389,6 +2419,61 @@ After:
     </div>
 </div>
 ```
+
+## Update polyfills and browser-support
+
+With v6.7.0, the supported browsers in the `.browserslist` file will be updated to `defaults`. This is a recommended setting including browsers with `>0.5%` global usage statistic.
+This saves JS bundle size because polyfills for older browser like Chrome 60 or Firefox 60 are no longer included and the native implementation can be used instead.
+
+* [v6.7.0 - Updated browser support](https://browsersl.ist/#q=defaults)
+* [v6.6.x - Previous browser support](https://browsersl.ist/#q=%3E%3D+0.5%25%0Alast+2+major+versions%0Anot+dead%0AChrome+%3E%3D+60%0AFirefox+%3E%3D+60%0AFirefox+ESR%0AiOS+%3E%3D+12%0ASafari+%3E%3D+12%0Anot+Explorer+%3C%3D+11)
+
+If you want to restore the previous browser support in your project or want to adjust it, you can use environment variable `BROWSERSLIST` in your `.env`.
+
+```dotenv
+# Adjust .browserslist for JS build process
+BROWSERSLIST='>= 0.5%, last 2 major versions, not dead, Chrome >= 60, Firefox >= 60, Firefox ESR, iOS >= 12, Safari >= 12, not Explorer <= 11'
+```
+
+## Removal of NPM packages
+
+With v6.7.0 the following NPM packages will be removed.
+
+### Removed NPM package `query-string`. Native `URLSearchParams` is used instead.
+
+**Creating a query string from object:**
+
+Before:
+```js
+import queryString from 'query-string';
+
+const paramsString = queryString.stringify({ key: 'value', elementId: 'some-id' })
+```
+
+After:
+```js
+const paramsString = new URLSearchParams({ key: 'value', elementId: 'some-id' }).toString();
+```
+
+**Creating an object from queryString:**
+
+Before:
+```js
+import queryString from 'query-string';
+
+const paramsObj = querystring.parse(window.location.search);
+```
+
+After:
+```js
+const paramsObj = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+```
+
+## Added new functions and tokens to complete the Twig integration 
+New functions: `sw_block`, `sw_source`, `sw_include` and new tokens: `sw_use`, `sw_embed`, `sw_from` and `sw_import`. 
+
+You can find further details on the use on the documentation page [Shopware's twig functions](https://developer.shopware.com/docs/resources/references/storefront-reference/twig-function-reference.html).
+
 </details>
 
 # App System
@@ -2431,6 +2516,20 @@ To prepare for migration:
 * `shopware.number_range.config.dsn` -> `shopware.number_range.config.connection`
 * `shopware.cart.redis_url` -> `cart.storage.config.connection`
 * `cart.storage.config.dsn` -> `cart.storage.config.connection`
+
+## Search server now provides OpenSearch/Elasticsearch shards and replicas
+
+Previously we had a default configuration of three shards and three replicas. With 6.7 we removed this default configuration and now the search server is responsible for providing the correct configuration.
+This allows that the indices automatically scale based on your nodes available in the cluster.
+
+You can revert to the old behavior by setting the following configuration in your `config/packages/shopware.yml`:
+
+```yaml
+elasticsearch:
+    index_settings:
+        number_of_shards: 3
+        number_of_replicas: 3
+```
 
 ## Message queue size limit
 

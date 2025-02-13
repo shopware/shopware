@@ -45,7 +45,6 @@
     "postcss-loader": "8.1.1",
     "postcss-pxtorem": "6.1.0",
     "qrcode": "^1.5.4",
-    "query-string": "7.1.3",
     "sass": "1.83.4",
     "sass-loader": "16.0.4",
     "style-loader": "4.0.0",

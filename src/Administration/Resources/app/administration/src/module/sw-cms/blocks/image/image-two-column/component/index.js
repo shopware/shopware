@@ -7,6 +7,4 @@ import './sw-cms-block-image-two-column.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

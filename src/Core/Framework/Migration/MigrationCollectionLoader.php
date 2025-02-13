@@ -36,11 +36,6 @@ class MigrationCollectionLoader
         self::VERSION_SELECTION_SAFE,
     ];
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed. Use VALID_VERSION_SELECTION_VALUES instead
-     */
-    public const VALID_VERSION_SELECTION_SAFE_VALUES = self::VALID_VERSION_SELECTION_VALUES;
-
     private const SW_MAJOR_VERSION_WHICH_INTRODUCED_MIGRATION_NAMESPACES = 3;
     private const BEFORE_PREVIOUS_MAJOR_VERSION_SUBTRAHEND = 2;
     private const FIRST_MINOR_VERSION = 1;

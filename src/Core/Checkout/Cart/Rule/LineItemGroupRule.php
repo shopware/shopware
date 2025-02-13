@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -16,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class LineItemGroupRule extends FilterRule
@@ -35,8 +33,6 @@ class LineItemGroupRule extends FilterRule
 
     /**
      * @throws CartException
-     * @throws LineItemGroupPackagerNotFoundException
-     * @throws LineItemGroupSorterNotFoundException
      */
     public function match(RuleScope $scope): bool
     {

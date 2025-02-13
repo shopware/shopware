@@ -18,6 +18,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'null', includesDigital: '0' },
         },
+        customMocks = {
+            productRepositoryMock: undefined,
+        },
     ) {
         const productEntity = productEntityOverride === undefined ? { metaTitle: 'test' } : productEntityOverride;
 
@@ -209,6 +212,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                             }
 
                             if (entity === 'product') {
+                                if (customMocks.productRepositoryMock) {
+                                    return customMocks.productRepositoryMock;
+                                }
+
                                 return {
                                     create: () => ({
                                         isNew: () => true,
@@ -946,15 +953,15 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should get parent product successful', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.productRepository.get = jest.fn((productId) => {
-            if (productId === 'productId') {
-                return Promise.resolve({
-                    id: 'productId',
-                    name: 'productName',
-                });
-            }
-            return Promise.reject();
+        const wrapper = await createWrapper(undefined, undefined, {
+            productRepositoryMock: {
+                get: jest.fn(() => {
+                    return Promise.resolve({
+                        id: 'productId',
+                        name: 'productName',
+                    });
+                }),
+            },
         });
 
         await wrapper.vm.$router.push({

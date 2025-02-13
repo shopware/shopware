@@ -19,8 +19,6 @@ const {
 Component.register('sw-snippet-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'snippetSetService',
         'repositoryFactory',

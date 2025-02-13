@@ -70,19 +70,19 @@ class RequirementsValidator
     /**
      * resolveActiveDependants returns all active dependants of the given plugin.
      *
-     * @param PluginEntity[] $dependants the plugins to check for a dependency on the given plugin
+     * @param list<PluginEntity> $dependants the plugins to check for a dependency on the given plugin
      *
-     * @return PluginEntity[]
+     * @return list<PluginEntity>
      */
     public function resolveActiveDependants(PluginEntity $dependency, array $dependants): array
     {
-        return array_filter($dependants, function (PluginEntity $dependant) use ($dependency) {
+        return array_values(array_filter($dependants, function (PluginEntity $dependant) use ($dependency) {
             if (!$dependant->getActive()) {
                 return false;
             }
 
             return $this->dependsOn($dependant, $dependency);
-        });
+        }));
     }
 
     /**

@@ -16,110 +16,35 @@ class OrderCustomerEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $email;
+    protected string $email;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderId;
+    protected string $orderId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutationId;
+    protected ?string $salutationId = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $firstName;
+    protected string $firstName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lastName;
+    protected string $lastName;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $title;
+    protected ?string $title = null;
 
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $vatIds;
+    protected ?array $vatIds = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $company;
+    protected ?string $company = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerNumber;
+    protected ?string $customerNumber = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerId;
+    protected ?string $customerId = null;
 
-    /**
-     * @var CustomerEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customer;
+    protected ?CustomerEntity $customer = null;
 
-    /**
-     * @var SalutationEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutation;
+    protected ?SalutationEntity $salutation = null;
 
-    /**
-     * @var OrderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
+    protected ?OrderEntity $order = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $remoteAddress;
+    protected ?string $remoteAddress = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderVersionId;
+    protected string $orderVersionId;
 
     public function getEmail(): string
     {

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class CustomerTagRule extends Rule
@@ -21,8 +21,6 @@ class CustomerTagRule extends Rule
     final public const RULE_NAME = 'customerTag';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $identifiers
      */
     public function __construct(

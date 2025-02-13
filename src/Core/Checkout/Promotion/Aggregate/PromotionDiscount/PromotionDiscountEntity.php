@@ -64,96 +64,31 @@ class PromotionDiscountEntity extends Entity
      */
     final public const TYPE_FIXED = 'fixed';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotionId;
+    protected string $promotionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $scope;
+    protected string $scope;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $value;
+    protected float $value;
 
-    /**
-     * @var PromotionEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotion;
+    protected ?PromotionEntity $promotion = null;
 
-    /**
-     * @var RuleCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $discountRules;
+    protected ?RuleCollection $discountRules = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $considerAdvancedRules;
+    protected bool $considerAdvancedRules;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $maxValue;
+    protected ?float $maxValue = null;
 
-    /**
-     * @var PromotionDiscountPriceCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotionDiscountPrices;
+    protected ?PromotionDiscountPriceCollection $promotionDiscountPrices = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sorterKey;
+    protected string $sorterKey;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $applierKey;
+    protected string $applierKey;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $usageKey;
+    protected string $usageKey;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pickerKey;
+    protected ?string $pickerKey = null;
 
     public function getPromotionId(): string
     {
@@ -240,10 +175,6 @@ class PromotionDiscountEntity extends Entity
 
     public function isConsiderAdvancedRules(): bool
     {
-        if ($this->considerAdvancedRules === null) {
-            return false;
-        }
-
         return $this->considerAdvancedRules;
     }
 
@@ -299,10 +230,6 @@ class PromotionDiscountEntity extends Entity
 
     public function getSorterKey(): string
     {
-        if ($this->sorterKey === null) {
-            return '';
-        }
-
         return $this->sorterKey;
     }
 
@@ -313,10 +240,6 @@ class PromotionDiscountEntity extends Entity
 
     public function getApplierKey(): string
     {
-        if ($this->applierKey === null) {
-            return '';
-        }
-
         return $this->applierKey;
     }
 
@@ -327,10 +250,6 @@ class PromotionDiscountEntity extends Entity
 
     public function getUsageKey(): string
     {
-        if ($this->usageKey === null) {
-            return '';
-        }
-
         return $this->usageKey;
     }
 

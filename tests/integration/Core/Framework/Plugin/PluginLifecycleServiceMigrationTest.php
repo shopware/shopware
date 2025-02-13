@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -187,7 +186,6 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(SystemConfigService::class),
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityLifecycleService::class),
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
         );

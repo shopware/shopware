@@ -24,292 +24,93 @@ class CategoryEntity extends Entity
 
     protected ?string $afterCategoryId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $autoIncrement;
+    protected int $autoIncrement;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaId;
+    protected ?string $mediaId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
     /**
      * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $breadcrumb;
+    protected ?array $breadcrumb = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $path;
+    protected ?string $path = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $level;
+    protected int $level;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $childCount;
+    protected int $childCount;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $visibleChildCount = 0;
+    protected int $visibleChildCount = 0;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayNestedProducts;
+    protected bool $displayNestedProducts;
 
-    /**
-     * @var CategoryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parent;
+    protected ?CategoryEntity $parent = null;
 
-    /**
-     * @var CategoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $children;
+    protected ?CategoryCollection $children = null;
 
-    /**
-     * @var CategoryTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?CategoryTranslationCollection $translations = null;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
-    /**
-     * @var ProductCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
-    /**
-     * @var ProductCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $nestedProducts;
+    protected ?ProductCollection $nestedProducts = null;
 
-    /**
-     * @var TagCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsPageId;
+    protected ?string $cmsPageId = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsPageIdSwitched = false;
+    protected bool $cmsPageIdSwitched = false;
 
-    /**
-     * @var CmsPageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productStreamId;
+    protected ?string $productStreamId = null;
 
-    /**
-     * @var ProductStreamEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
     /**
      * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $slotConfig;
+    protected ?array $slotConfig = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $navigationSalesChannels;
+    protected ?SalesChannelCollection $navigationSalesChannels = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $footerSalesChannels;
+    protected ?SalesChannelCollection $footerSalesChannels = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $serviceSalesChannels;
+    protected ?SalesChannelCollection $serviceSalesChannels = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $linkType;
+    protected ?string $linkType = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $linkNewTab;
+    protected ?bool $linkNewTab = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $internalLink;
+    protected ?string $internalLink = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $externalLink;
+    protected ?string $externalLink = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $visible;
+    protected bool $visible;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productAssignmentType;
+    protected string $productAssignmentType;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaTitle;
+    protected ?string $metaTitle = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaDescription;
+    protected ?string $metaDescription = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $keywords;
+    protected ?string $keywords = null;
 
-    /**
-     * @var MainCategoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mainCategories;
+    protected ?MainCategoryCollection $mainCategories = null;
 
-    /**
-     * @var SeoUrlCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $seoUrls;
+    protected ?SeoUrlCollection $seoUrls = null;
 
-    /**
-     * @var ?string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customEntityTypeId;
+    protected ?string $customEntityTypeId = null;
 
     public function getParentId(): ?string
     {

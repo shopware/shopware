@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -231,13 +230,9 @@ class CustomerProfileValidationFactoryTest extends TestCase
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('accountType', new Choice($this->accountTypes))
-            ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]));
-
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            $definition
-                ->add('firstName', new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
-                ->add('lastName', new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]));
-        }
+            ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]))
+            ->add('firstName', new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
+            ->add('lastName', new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]));
     }
 
     private function addConstraintsBirthday(DataValidationDefinition $definition): void

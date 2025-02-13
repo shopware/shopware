@@ -10,12 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class AccountProfilePageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var AccountProfilePage
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
+    protected AccountProfilePage $page;
 
     public function __construct(
         AccountProfilePage $page,

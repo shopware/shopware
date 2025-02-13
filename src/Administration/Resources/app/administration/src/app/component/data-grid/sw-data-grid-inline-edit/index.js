@@ -11,8 +11,6 @@ const { Component } = Shopware;
 Component.register('sw-data-grid-inline-edit', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'feature',
     ],
@@ -60,16 +58,10 @@ Component.register('sw-data-grid-inline-edit', {
         this.createdComponent();
     },
 
-    beforeUnmount() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
         createdComponent() {
             this.currentValue = this.value;
         },
-
-        beforeDestroyComponent() {},
 
         emitInput() {
             this.$emit('update:value', this.currentValue);

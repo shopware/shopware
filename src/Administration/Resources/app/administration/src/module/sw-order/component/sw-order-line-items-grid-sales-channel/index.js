@@ -13,10 +13,6 @@ const { get, format } = Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['feature'],
-
     emits: [
         'on-save-item',
         'on-remove-items',

@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -119,23 +118,8 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
                 ++$customerDeletedEventCount;
                 static::assertSame($customer, $event->getCustomer());
 
-                if (Feature::isActive('v6.7.0.0')) {
-                    static::assertSame([
-                        'customer' => $serializedCustomer,
-                    ], $event->getValues());
-
-                    return;
-                }
-
                 static::assertSame([
                     'customer' => $serializedCustomer,
-                    'customerId' => $customer->getId(),
-                    'customerNumber' => $customer->getCustomerNumber(),
-                    'customerEmail' => $customer->getEmail(),
-                    'customerFirstName' => $customer->getFirstName(),
-                    'customerLastName' => $customer->getLastName(),
-                    'customerCompany' => $customer->getCompany(),
-                    'customerSalutationId' => $customer->getSalutationId(),
                 ], $event->getValues());
             }
         );

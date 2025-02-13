@@ -11,8 +11,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'syncService',
@@ -157,13 +155,8 @@ export default {
                     property,
                 ]) => {
                     if (property.relation === 'many_to_many') {
-                        if (this.isCompatEnabled('INSTANCE_SET')) {
-                            this.$set(this.assignmentsToBeAdded, propertyName, {});
-                            this.$set(this.assignmentsToBeDeleted, propertyName, {});
-                        } else {
-                            this.assignmentsToBeAdded[propertyName] = {};
-                            this.assignmentsToBeDeleted[propertyName] = {};
-                        }
+                        this.assignmentsToBeAdded[propertyName] = {};
+                        this.assignmentsToBeDeleted[propertyName] = {};
                     }
                 },
             );
@@ -234,38 +227,22 @@ export default {
 
         addAssignment(assignment, id, item) {
             if (this.assignmentsToBeDeleted[assignment].hasOwnProperty(id)) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.assignmentsToBeDeleted[assignment], id);
-                } else {
-                    delete this.assignmentsToBeDeleted[assignment][id];
-                }
+                delete this.assignmentsToBeDeleted[assignment][id];
 
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.assignmentsToBeAdded[assignment], id, item);
-            } else {
-                this.assignmentsToBeAdded[assignment][id] = item;
-            }
+            this.assignmentsToBeAdded[assignment][id] = item;
         },
 
         removeAssignment(assignment, id, item) {
             if (this.assignmentsToBeAdded[assignment].hasOwnProperty(id)) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.assignmentsToBeAdded[assignment], id);
-                } else {
-                    delete this.assignmentsToBeAdded[assignment][id];
-                }
+                delete this.assignmentsToBeAdded[assignment][id];
 
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.assignmentsToBeDeleted[assignment], id, item);
-            } else {
-                this.assignmentsToBeDeleted[assignment][id] = item;
-            }
+            this.assignmentsToBeDeleted[assignment][id] = item;
         },
     },
 };

@@ -119,10 +119,10 @@ class ProductUrlProvider extends AbstractUrlProvider
 
         $showAfterCloseout = !$this->systemConfigService->get(self::CONFIG_HIDE_AFTER_CLOSEOUT, $context->getSalesChannelId());
 
-        $query->addSelect([
+        $query->addSelect(
             '`product`.created_at as created_at',
             '`product`.updated_at as updated_at',
-        ]);
+        );
 
         $query->leftJoin('`product`', '`product`', 'parent', '`product`.parent_id = parent.id');
         $query->innerJoin('`product`', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');

@@ -29,8 +29,6 @@ type SlotConfigErrorObject = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'cmsService',
         'repositoryFactory',

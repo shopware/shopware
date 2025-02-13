@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString as AllowEmptyStringAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields as CustomFieldsAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
@@ -34,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field as DalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -286,6 +288,10 @@ class AttributeEntityCompiler
         if ($inherited = $this->getAttribute($property, Inherited::class)) {
             $instance = $inherited->newInstance();
             $flags[Inherited::class] = ['class' => Inherited::class, 'args' => ['reversed' => $instance->reversed]];
+        }
+
+        if ($this->getAttribute($property, AllowEmptyStringAttr::class)) {
+            $flags[AllowEmptyString::class] = ['class' => AllowEmptyString::class];
         }
 
         if ($field->api !== false) {

@@ -16,8 +16,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: ['sales-channel-change'],

@@ -18,103 +18,33 @@ class LandingPageEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var LandingPageTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?LandingPageTranslationCollection $translations = null;
 
-    /**
-     * @var TagCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsPageId;
+    protected ?string $cmsPageId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsPageVersionId;
+    protected ?string $cmsPageVersionId = null;
 
-    /**
-     * @var CmsPageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaTitle;
+    protected ?string $metaTitle = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaDescription;
+    protected ?string $metaDescription = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $keywords;
+    protected ?string $keywords = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $url;
+    protected ?string $url = null;
 
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $slotConfig;
+    protected ?array $slotConfig = null;
 
-    /**
-     * @var SeoUrlCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $seoUrls;
+    protected ?SeoUrlCollection $seoUrls = null;
 
     public function isActive(): bool
     {

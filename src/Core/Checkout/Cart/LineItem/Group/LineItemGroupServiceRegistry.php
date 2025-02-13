@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -35,7 +33,7 @@ class LineItemGroupServiceRegistry
     /**
      * Gets the packager for the provided key, if registered.
      *
-     * @throws LineItemGroupPackagerNotFoundException|CartException
+     * @throws CartException
      */
     public function getPackager(string $key): LineItemGroupPackagerInterface
     {
@@ -62,7 +60,7 @@ class LineItemGroupServiceRegistry
     /**
      * Gets the sorter for the provided key, if registered.
      *
-     * @throws LineItemGroupSorterNotFoundException|CartException
+     * @throws CartException
      */
     public function getSorter(string $key): LineItemGroupSorterInterface
     {

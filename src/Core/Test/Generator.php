@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
@@ -119,6 +120,9 @@ class Generator extends TestCase
         if (!$paymentMethod) {
             $paymentMethod = new PaymentMethodEntity();
             $paymentMethod->setId(self::PAYMENT_METHOD);
+            $paymentMethod->setHandlerIdentifier(DefaultPayment::class);
+            $paymentMethod->setName('Generated Payment');
+            $paymentMethod->setActive(true);
         }
 
         $salesChannel->setPaymentMethodIds([$paymentMethod->getId()]);
@@ -128,6 +132,8 @@ class Generator extends TestCase
         if (!$shippingMethod) {
             $shippingMethod = new ShippingMethodEntity();
             $shippingMethod->setId(self::SHIPPING_METHOD);
+            $shippingMethod->setName('Generated Shipping');
+            $shippingMethod->setActive(true);
         }
 
         $salesChannel->setShippingMethodId($shippingMethod->getId());
@@ -177,21 +183,21 @@ class Generator extends TestCase
         $languageInfo ??= new LanguageInfo(self::LANGUAGE_INFO_NAME, self::LANGUAGE_INFO_LOCALE_CODE);
 
         $salesChannelContext = new SalesChannelContext(
-            baseContext: $baseContext,
-            token: $token,
-            domainId: $domainId,
-            salesChannel: $salesChannel,
-            currency: $currency,
-            currentCustomerGroup: $currentCustomerGroup,
-            taxRules: $taxRules,
-            paymentMethod: $paymentMethod,
-            shippingMethod: $shippingMethod,
-            shippingLocation: $shippingLocation,
-            customer: $customer,
-            itemRounding: $itemRounding,
-            totalRounding: $totalRounding,
-            areaRuleIds: $areaRuleIds,
-            languageInfo: $languageInfo,
+            $baseContext,
+            $token,
+            $domainId,
+            $salesChannel,
+            $currency,
+            $currentCustomerGroup,
+            $taxRules,
+            $paymentMethod,
+            $shippingMethod,
+            $shippingLocation,
+            $customer,
+            $itemRounding,
+            $totalRounding,
+            $languageInfo,
+            $areaRuleIds,
         );
 
         if ($overrides) {

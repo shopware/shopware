@@ -1,6 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a merchant, I would be able to adjust free tax for defined currency', { tag: '@Settings' }, async ({
+test(
+    'As a merchant, I would be able to adjust free tax for defined currency.', { tag: '@Settings' }, async ({
     ShopCustomer,
     TestDataService,
     DefaultSalesChannel,
@@ -16,7 +17,6 @@ test('As a merchant, I would be able to adjust free tax for defined currency', {
     SelectStandardShippingOption,
     SubmitOrder,
 }) => {
-
     const product = await TestDataService.createBasicProduct();
     const currency = await TestDataService.createCurrency({ taxFreeFrom: 5 });
     const customer = await TestDataService.createCustomer();

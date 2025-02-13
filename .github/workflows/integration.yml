@@ -208,11 +208,18 @@ jobs:
 
       - name: Run PHPUnit testsuite
         if: ${{ matrix.test.testsuite != '' }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.test.testsuite }}"
+        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "${{ matrix.test.testsuite }}"
 
       - name: Run PHPUnit path
         if: ${{ matrix.test.path != '' }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit -- tests/integration/${{ matrix.test.path }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml -- tests/integration/${{ matrix.test.path }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
 
   win-checkout:
     runs-on: windows-latest

@@ -6,10 +6,7 @@ use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
-use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -61,11 +58,6 @@ class KernelFactory
         $pluginLoader = $pluginLoader ?? new DbalKernelPluginLoader($classLoader, null, $connection);
 
         $cacheId = EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', '');
-
-        if ($cacheId === '' && !Feature::isActive('v6.7.0.0')) {
-            $storage = new MySQLKeyValueStorage($connection);
-            $cacheId = (new CacheIdLoader($storage))->load();
-        }
 
         /** @var KernelInterface $kernel */
         $kernel = new static::$kernelClass(

@@ -46,15 +46,6 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute" decorates="Shopware\Core\System\Language\SalesChannel\LanguageRoute" decoration-priority="-1000" public="true">
-            <argument type="service" id="Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute.inner"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument>%shopware.cache.invalidation.language_route%</argument>
-        </service>
-
         <service id="Shopware\Core\System\Language\Rule\LanguageRule">
             <tag name="shopware.rule.definition"/>
         </service>

@@ -47,15 +47,6 @@ class PropertyNativeTypeRule implements Rule
 
             $docComment = $property->getDocComment();
             if ($docComment instanceof Doc) {
-                /**
-                 * Will be natively typed with the next major version
-                 *
-                 * @deprecated tag:v6.7.0 Remove this if condition, as from then on, every property should have a type
-                 */
-                if (str_contains($docComment->getText(), '@deprecated tag:v6.7.0')) {
-                    continue;
-                }
-
                 // resource and callable cannot be typed natively
                 if (str_contains($docComment->getText(), '@var resource')
                     || str_contains($docComment->getText(), '@var callable')

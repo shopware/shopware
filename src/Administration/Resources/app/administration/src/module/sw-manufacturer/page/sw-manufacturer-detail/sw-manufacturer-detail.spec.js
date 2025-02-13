@@ -57,8 +57,8 @@ async function createWrapper(privileges = []) {
                     template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
                 },
                 'sw-media-upload-v2': true,
-                'sw-text-editor': {
-                    template: '<div class="sw-text-editor"/>',
+                'mt-text-editor': {
+                    template: '<div class="mt-text-editor"/>',
                 },
                 'sw-card': {
                     template: '<div class="sw-card"><slot /></div>',
@@ -155,7 +155,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(elements).toHaveLength(2);
         elements.forEach((el) => expect(el.attributes().disabled).toBeUndefined());
 
-        const textEditor = wrapper.find('.sw-text-editor');
+        const textEditor = wrapper.find('.mt-text-editor');
         expect(textEditor.exists()).toBeTruthy();
         expect(textEditor.attributes().disabled).toBeUndefined();
     });
@@ -172,7 +172,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(elements).toHaveLength(2);
         elements.forEach((el) => expect(el.attributes().disabled).toBe('true'));
 
-        const textEditor = wrapper.find('.sw-text-editor');
+        const textEditor = wrapper.find('.mt-text-editor');
         expect(textEditor.exists()).toBeTruthy();
         expect(textEditor.attributes().disabled).toBeTruthy();
     });

@@ -83,10 +83,14 @@ export default {
             const formattedTaxes = `${calcTaxes
                 .map(
                     (calcTax) =>
-                        `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
-                            taxRate: calcTax.taxRate,
-                            tax: format.currency(calcTax.tax, this.order.currency.isoCode),
-                        })}`,
+                        `${this.$tc(
+                            'sw-order.detailBase.shippingCostsTax',
+                            {
+                                taxRate: calcTax.taxRate,
+                                tax: format.currency(calcTax.tax, this.order.currency.isoCode),
+                            },
+                            0,
+                        )}`,
                 )
                 .join('<br>')}`;
 

@@ -101,7 +101,7 @@
             >
                 {% block sw_users_permissions_role_listing_grid_actions_modals_modal_delete_text %}
                 <p class="sw-users-permissions-role-listing__confirm-delete-text">
-                    {{ $tc('sw-users-permissions.roles.role-grid.textModalDelete', 0, { name: item.name }) }}
+                    {{ $tc('sw-users-permissions.roles.role-grid.textModalDelete', { name: item.name }, 0) }}
                 </p>
                 {% endblock %}
 

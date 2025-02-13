@@ -17,7 +17,7 @@ const { Component } = Shopware;
  * </sw-external-link>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-external-link-deprecated', {
+Component.register('sw-external-link', {
     template,
 
     inheritAttrs: false,

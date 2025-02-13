@@ -171,9 +171,13 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                            entityName: this.role.name,
-                        }),
+                        message: this.$tc(
+                            'global.notification.notificationSaveErrorMessage',
+                            {
+                                entityName: this.role.name,
+                            },
+                            0,
+                        ),
                     });
 
                     this.role.privileges = this.privileges.filterPrivilegesRoles(this.role.privileges);

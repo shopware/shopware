@@ -292,9 +292,8 @@
     },
     "saveEditsBeforehandModal": {
       "headline": "Warnung",
-      "description": "Es existieren ungespeicherte Änderungen. Diese sollten vor dem Fortfahren gespeichert werden, um Inkonsistenzen zu vermeiden.",
+      "statusDescription": "Bevor der Status geändert werden kann, müssen die Änderungen der Bestellung gespeichert werden. Möchtest du jetzt deine Änderungen speichern?",
       "confirmButton": "Änderungen speichern",
-      "proceedButton": "Trotzdem fortfahren",
       "cancelButton": "Abbrechen"
     },
     "detailDeliveries": {

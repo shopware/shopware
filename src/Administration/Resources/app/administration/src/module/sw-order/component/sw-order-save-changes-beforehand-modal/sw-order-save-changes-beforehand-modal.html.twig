@@ -6,7 +6,7 @@
 >
 
     {% block sw_order_save_changes_beforehand_modal_content %}
-    {{ $tc('sw-order.saveChangesBeforehandModal.description') }}
+    {{ reasonDescription }}
     {% endblock %}
 
     <template #modal-footer>
@@ -17,16 +17,6 @@
             @click="onCancel"
         >
             {{ $tc('sw-order.saveChangesBeforehandModal.cancelButton') }}
-        </sw-button>
-        {% endblock %}
-
-        {% block sw_order_save_changes_beforehand_modal_action_proceed %}
-        <sw-button
-            variant="contrast"
-            size="small"
-            @click="onProceed"
-        >
-            {{ $tc('sw-order.saveChangesBeforehandModal.proceedButton') }}
         </sw-button>
         {% endblock %}
 

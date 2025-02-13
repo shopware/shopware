@@ -304,9 +304,8 @@
     },
     "saveChangesBeforehandModal": {
       "headline": "Warning",
-      "description": "There are unsaved changes. These should be saved before continuing in order to avoid inconsistencies.",
+      "statusDescription": "Before changing the status, your changes need to be saved. Do you want to save the changes now?",
       "confirmButton": "Save changes",
-      "proceedButton": "Proceed anyway",
       "cancelButton": "Cancel"
     },
     "stateCard": {

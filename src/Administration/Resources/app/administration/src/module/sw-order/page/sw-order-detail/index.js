@@ -554,24 +554,19 @@ export default {
          * @returns Promise<bool> - `true` if it's safe to proceed (e.g. edits were saved)
          *  or `false` if the user wants to cancel the action.
          */
-        askAndSaveEdits() {
+        askAndSaveEdits(reason = 'status') {
             if (!this.isOrderEditing) {
                 return Promise.resolve(true);
             }
 
             return new Promise((resolve, reject) => {
-                this.askForSaveBeforehand = { resolve, reject };
+                this.askForSaveBeforehand = { reason, resolve, reject };
             });
         },
 
         async onAskAndSaveEditsConfirm() {
             await this.onSaveEdits();
             this.askForSaveBeforehand.resolve(Store.get('swOrderDetail').savedSuccessful);
-            this.askForSaveBeforehand = null;
-        },
-
-        onAskAndSaveEditsProceed() {
-            this.askForSaveBeforehand.resolve(true);
             this.askForSaveBeforehand = null;
         },
 

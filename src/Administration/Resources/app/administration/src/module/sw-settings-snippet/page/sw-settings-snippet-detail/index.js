@@ -14,8 +14,6 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'snippetSetService',
         'repositoryFactory',
@@ -218,7 +216,7 @@ export default {
             if (!this.isSaveable) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-snippet.detail.messageSaveError', 0, { key: this.translationKey }),
+                    message: this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0),
                 });
 
                 return;
@@ -265,7 +263,7 @@ export default {
                     }
                     this.createNotificationError({
                         message:
-                            this.$tc('sw-settings-snippet.detail.messageSaveError', 0, { key: this.translationKey }) +
+                            this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0) +
                             errormsg,
                     });
                 });

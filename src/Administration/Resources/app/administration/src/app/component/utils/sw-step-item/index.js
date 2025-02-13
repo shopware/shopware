@@ -20,8 +20,6 @@ const { Component } = Shopware;
 Component.register('sw-step-item', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'feature',
         'addStep',

@@ -12,8 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-login-recovery-info', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['is-not-loading'],
 
     computed: {

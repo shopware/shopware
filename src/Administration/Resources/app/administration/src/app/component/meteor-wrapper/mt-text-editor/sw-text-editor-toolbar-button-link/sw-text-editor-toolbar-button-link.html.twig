@@ -1,0 +1,140 @@
+<mt-text-editor-toolbar-button
+    :button="button"
+    :editor="editor"
+    :disabled="disabled"
+    @click="openLinkModal"
+/>
+
+<!-- Link modal -->
+<mt-modal-root
+    :is-open="showLinkModal"
+    @change="($event) => (showLinkModal = $event)"
+>
+    <mt-modal
+        width="s"
+        :title="$t('sw-text-editor-toolbar-button-link.modalTitle')"
+        class="sw-text-editor-toolbar-button-link__modal"
+    >
+        <template #default>
+            <mt-loader v-if="isLoading" />
+
+            <div v-else class="sw-text-editor__link-modal">
+                <mt-select
+                    :label="$t('sw-text-editor-toolbar-button-link.linkType')"
+                    :options="linkOptions"
+                    :model-value="linkType"
+                    @update:model-value="onSelectFieldChange"
+                />
+
+                <mt-text-field
+                    v-if="linkType === 'link'"
+                    v-model="linkHref"
+                    :label="$t('sw-text-editor-toolbar-button-link.linkUrl')"
+                    placeholder="https://example.com"
+                    required
+                />
+
+                <mt-text-field
+                    v-if="linkType === 'phone'"
+                    v-model="linkHref"
+                    :label="$t('sw-text-editor-toolbar-button-link.linkPhone')"
+                    placeholder="+123456789"
+                    required
+                >
+                    <template #prefix>
+                        {{ $t('sw-text-editor-toolbar-button-link.linkPhonePrefix') }}
+                    </template>
+                </mt-text-field>
+
+                <mt-email-field
+                    v-if="linkType === 'email'"
+                    v-model="linkHref"
+                    :label="$t('sw-text-editor-toolbar-button-link.linkEmail')"
+                    :placeholder="$t('sw-text-editor-toolbar-button-link.linkEmailPlaceholder')"
+                />
+
+                <sw-entity-single-select
+                    v-if="linkType === 'detail'"
+                    v-model:value="linkHref"
+                    entity="product"
+                    should-show-active-state
+                    :criteria="productEntityFilter"
+                    :label="$t('sw-text-editor-toolbar-button-link.linkDetail')"
+                    :placeholder="$t('sw-text-editor-toolbar-button-link.detailPlaceholder')"
+                    show-clearable-button
+                    display-variants
+                />
+
+                <sw-category-tree-field
+                    v-if="linkType === 'navigation'"
+                    :label="$tc('sw-text-editor-toolbar-button-link.linkTo')"
+                    :placeholder="$tc('sw-text-editor-toolbar-button-link.categoryPlaceholder')"
+                    :categories-collection="categoryCollection"
+                    single-select
+                    @selection-add="replaceCategorySelection"
+                    @selection-remove="removeCategorySelection"
+                />
+
+                <sw-media-field
+                    v-if="linkType === 'media'"
+                    v-model:value="linkHref"
+                    :label="$tc('sw-text-editor-toolbar-button-link.linkTo')"
+                    :criteria="entityFilter"
+                    single-select
+                />
+
+                <mt-switch
+                    v-if="showOpenInNewTabToggle"
+                    :label="$t('sw-text-editor-toolbar-button-link.openInNewTab')"
+                    :checked="linkTarget === '_blank'"
+                    :aria-label="$t('sw-text-editor-toolbar-button-link.openInNewTab')"
+                    class="sw-text-editor-toolbar-button-link__open-in-new-tab-switch"
+                    @change="
+                        (checked) => {
+                            linkTarget = checked ? '_blank' : null;
+                        }
+                    "
+                />
+
+                <mt-switch
+                    :checked="displayAsButton"
+                    :label="$tc('sw-text-editor-toolbar-button-link.displayAsButton')"
+                    class="sw-text-editor-toolbar-button-link__display-as-button-switch"
+                    @change="displayAsButton = !displayAsButton"
+                />
+
+                <mt-select
+                    v-if="displayAsButton"
+                    v-model="buttonVariant"
+                    :options="buttonVariantList"
+                />
+            </div>
+        </template>
+        <template #footer>
+            <div class="sw-text-editor__link-modal-footer">
+                <div class="sw-text-editor__link-modal-footer-left">
+                    <mt-button
+                        variant="critical"
+                        :disabled="!isLink()"
+                        @click="removeLink"
+                    >
+                        {{ $t("sw-text-editor-toolbar-button-link.removeLink") }}
+                    </mt-button>
+                </div>
+
+                <div class="sw-text-editor__link-modal-footer-right">
+                    <mt-modal-close as="mt-button" variant="secondary">
+                        {{ $t("global.default.cancel") }}
+                    </mt-modal-close>
+
+                    <mt-button
+                        variant="primary"
+                        @click="applyLink"
+                    >
+                        {{ $t("sw-text-editor-toolbar-button-link.applyLink") }}
+                    </mt-button>
+                </div>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>

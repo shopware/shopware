@@ -13,10 +13,10 @@ import Entity from 'src/core/data/entity.data';
 
 interface scopeInterface {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    $set(target: object, key: string, value: any): void;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $watch(path: string, callback: (value: any) => void, options: { deep: boolean; immediate: boolean }): () => void;
-    $once(event: string, callback: () => void): void;
+    $: {
+        uid: number;
+    };
 }
 interface publishOptions {
     id: string;
@@ -42,8 +42,6 @@ type ParsedPath = {
     pathToLastSegment: string;
     lastSegment: string;
 };
-
-type vueWithUid = Partial<App<Element>> & { _uid: number };
 
 // This is used by the Vue devtool extension plugin
 let publishedDataSets: dataset[] = [];
@@ -197,17 +195,15 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
     }
     const registeredDataSet = publishedDataSets.find((s) => s.id === id);
 
-    // @ts-expect-error
     // Dataset registered from different scope? Prevent update.
-    if (registeredDataSet && registeredDataSet.scope !== (scope as vueWithUid)._uid) {
+    if (registeredDataSet && registeredDataSet.scope !== scope?.$?.uid) {
         console.error(`The dataset id "${id}" you tried to publish is already registered.`);
 
         return () => {};
     }
 
-    // @ts-expect-error
     // Dataset registered from same scope? Update.
-    if (registeredDataSet && registeredDataSet.scope === (scope as vueWithUid)._uid) {
+    if (registeredDataSet && registeredDataSet.scope === scope?.$?.uid) {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         register({ id: id, data: get(scope, path) }).catch(() => {});
 
@@ -264,20 +260,9 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
                     return;
                 }
 
-                // @ts-expect-error - This is added in the vue.adapter.ts
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                if (scope.isCompatEnabled('INSTANCE_SET')) {
-                    scope.$set(
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
-                        parsedPath.lastSegment,
-                        transferObject[property],
-                    );
-                } else {
-                    // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
-                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment)[parsedPath.lastSegment] =
-                        transferObject[property];
-                }
+                // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
+                Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment)[parsedPath.lastSegment] =
+                    transferObject[property];
             });
         }
 
@@ -311,27 +296,14 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
                 return;
             }
 
-            // @ts-expect-error - This is added in the vue.adapter.ts
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (scope.isCompatEnabled('INSTANCE_SET')) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
-            } else {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                Shopware.Utils.object.get(scope, newPath)[lastPath] = value.data;
-            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            Shopware.Utils.object.get(scope, newPath)[lastPath] = value.data;
 
             return;
         }
 
-        // @ts-expect-error - This is added in the vue.adapter.ts
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        if (scope.isCompatEnabled('INSTANCE_SET')) {
-            scope.$set(scope, path, value.data);
-        } else {
-            // @ts-expect-error
-            scope[path] = value.data;
-        }
+        // @ts-expect-error
+        scope[path] = value.data;
     });
 
     // Watch for Changes on the Reactive Vue property and automatically publish them
@@ -361,8 +333,7 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
             publishedDataSets.push({
                 id,
                 data: clonedValue,
-                // @ts-expect-error
-                scope: (scope as vueWithUid)._uid,
+                scope: scope?.$?.uid,
                 deprecated,
                 deprecationMessage,
             });

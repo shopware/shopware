@@ -13,7 +13,6 @@ import parentsInjectionKey from '../sw-block/parents-injection-key';
  *
  */
 Shopware.Component.register('sw-block-parent', {
-    compatConfig: Shopware.compatConfig,
     setup() {
         const parent = inject(parentsInjectionKey, null)?.value.pop();
 

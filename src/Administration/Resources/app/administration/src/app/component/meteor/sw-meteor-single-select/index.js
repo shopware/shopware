@@ -14,8 +14,6 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-meteor-single-select', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: [

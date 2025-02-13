@@ -235,41 +235,6 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         ]);
     });
 
-    it('should return an empty array if product has no configurator settings', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            productEntity: {
-                configuratorSettings: null,
-            },
-        });
-
-        expect(wrapper.vm.selectedGroups).toEqual([]);
-    });
-
-    it('should return an array of group ids if the product has configurator settings', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            groups: [
-                {
-                    id: 'second-group',
-                },
-            ],
-            productEntity: {
-                configuratorSettings: [
-                    { option: { groupId: 'first-group' } },
-                    { option: { groupId: 'second-group' } },
-                    { option: { groupId: 'second-group' } },
-                ],
-            },
-        });
-
-        expect(wrapper.vm.selectedGroups).toEqual([
-            {
-                id: 'second-group',
-            },
-        ]);
-    });
-
     it('should be able to load configuration setting with group ids', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({

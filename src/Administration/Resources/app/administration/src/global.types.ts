@@ -29,7 +29,6 @@ import type UserApiService from 'src/core/service/api/user.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type { ComponentInternalInstance } from 'vue';
 import type { I18n } from 'vue-i18n';
-import type { Slots } from '@vue/runtime-core';
 import type {
     Store,
     mapActions as mapVuexActions,
@@ -40,6 +39,11 @@ import type {
 import type { mapActions, mapState } from 'pinia';
 import type * as mapErrors from 'src/app/service/map-errors.service';
 import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// Needed for the Editor types
+import type { Editor as CoreEditor, EditorOptions } from '@tiptap/core';
+import type Link from '@tiptap/extension-link';
+/* eslint-enable @typescript-eslint/no-unused-vars */
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
@@ -458,29 +462,13 @@ declare module 'bottlejs' {
     }
 }
 
-/**
- * @deprecated tag:v6.7.0 - will be removed when Vue compat gets removed
- */
-interface LegacyPublicProperties {
-    $set(target: object, key: string, value: any): void;
-    $delete(target: object, key: string): void;
-    $mount(el?: string | Element): this;
-    $destroy(): void;
-    $scopedSlots: Slots;
-    $on(event: string | string[], fn: Function): this;
-    $once(event: string, fn: Function): this;
-    $off(event?: string | string[], fn?: Function): this;
-    $children: LegacyPublicProperties[];
-    $listeners: Record<string, Function | Function[]>;
-    isCompatEnabled: (key: string) => boolean;
-}
-
-interface CustomProperties extends ServiceContainer, LegacyPublicProperties {
+interface CustomProperties extends ServiceContainer {
     $createTitle: (identifier?: string | null) => string;
     $router: Router;
     $store: Store<VuexRootState>;
     $route: RouteLocationNormalizedLoaded;
-    $tc: I18n<{}, {}, {}, string, true>['global']['tc'];
+    $te: I18n<{}, {}, {}, string, true>['global']['te'];
+    $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
     $dataScope: () => ComponentInternalInstance['proxy'];
 }

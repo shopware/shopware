@@ -11,8 +11,6 @@ const { Component } = Shopware;
 Component.register('sw-hidden-iframes', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         extensions() {
             return Shopware.Store.get('extensions').privilegedExtensions;

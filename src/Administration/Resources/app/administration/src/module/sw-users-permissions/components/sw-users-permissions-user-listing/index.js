@@ -11,8 +11,6 @@ const { Criteria } = Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'userService',
         'loginService',
@@ -141,13 +139,17 @@ export default {
             const titleDeleteSuccess = this.$tc('global.default.success');
             const messageDeleteSuccess = this.$tc(
                 'sw-users-permissions.users.user-grid.notification.deleteSuccess.message',
-                0,
                 { name: username },
+                0,
             );
             const titleDeleteError = this.$tc('global.default.error');
-            const messageDeleteError = this.$tc('sw-users-permissions.users.user-grid.notification.deleteError.message', 0, {
-                name: username,
-            });
+            const messageDeleteError = this.$tc(
+                'sw-users-permissions.users.user-grid.notification.deleteError.message',
+                {
+                    name: username,
+                },
+                0,
+            );
             if (user.id === this.currentUser.id) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),

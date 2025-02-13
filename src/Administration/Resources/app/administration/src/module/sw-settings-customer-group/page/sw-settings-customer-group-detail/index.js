@@ -15,8 +15,6 @@ const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',

@@ -46,7 +46,6 @@ jobs:
       matrix:
         test-type:
           - unit
-          - unit:disabled-compat
     env:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root

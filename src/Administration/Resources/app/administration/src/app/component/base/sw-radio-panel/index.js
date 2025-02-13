@@ -25,8 +25,6 @@ const utils = Shopware.Utils;
 Component.register('sw-radio-panel', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: ['update:modelValue'],

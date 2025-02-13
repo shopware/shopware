@@ -8,8 +8,6 @@ import './sw-plugin-box.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'systemConfigApiService',
         'repositoryFactory',

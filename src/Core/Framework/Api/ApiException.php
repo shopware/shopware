@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\Api;
 
-use Shopware\Administration\Notification\Exception\NotificationThrottledException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
@@ -14,16 +12,13 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
-use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException as SymfonyHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -326,19 +321,8 @@ class ApiException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:exception-change - Will return status code 403 instead of 500
-     */
     public static function invalidAccessKey(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                self::API_INVALID_ACCESS_KEY_EXCEPTION,
-                'Access key is invalid and could not be identified.',
-            );
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::API_INVALID_ACCESS_KEY_EXCEPTION,
@@ -374,15 +358,8 @@ class ApiException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function unsupportedEncoderInput(): self|UnsupportedEncoderInputException
+    public static function unsupportedEncoderInput(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new UnsupportedEncoderInputException();
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_UNSUPPORTED_ENCODER_INPUT,
@@ -404,15 +381,8 @@ class ApiException extends HttpException
         return new InvalidContextSourceException(AdminApiSource::class, $actual);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function userNotLoggedIn(): self|ExpectedUserHttpException
+    public static function userNotLoggedIn(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ExpectedUserHttpException();
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::API_EXPECTED_USER,
@@ -420,15 +390,8 @@ class ApiException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function invalidScopeAccessToken(string $identifier): self|AccessDeniedHttpException
+    public static function invalidScopeAccessToken(string $identifier): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', $identifier));
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::API_INVALID_SCOPE_ACCESS_TOKEN,
@@ -437,15 +400,8 @@ class ApiException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function notificationThrottled(int $waitTime, \Throwable $e): self|NotificationThrottledException
+    public static function notificationThrottled(int $waitTime, \Throwable $e): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new NotificationThrottledException($waitTime, $e);
-        }
-
         return new self(
             Response::HTTP_TOO_MANY_REQUESTS,
             self::API_NOTIFICATION_THROTTLED,

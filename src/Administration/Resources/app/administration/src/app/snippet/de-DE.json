@@ -204,7 +204,7 @@
     "sw-gtc-checkbox": {
       "label": "Ich akzeptiere die",
       "link": "AGB.",
-      "url": "https://www.shopware.com/de/gtc"
+      "url": "https://www.shopware.com/de/agb"
     },
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",
@@ -831,7 +831,7 @@
         "weight": "kg",
         "volume": "mm³",
         "age": "Jahre",
-        "kg": "Killogramm",
+        "kg": "Kilogramm",
         "g": "Gramm",
         "mg": "Milligramm",
         "oz": "Unze",
@@ -1083,6 +1083,41 @@
     "sw-page": {
       "backButton": "Zurückgehen"
     }
+  },
+  "mt-text-editor-toolbar-button-link": {
+    "label": "Link"
+  },
+  "sw-text-editor-toolbar-button-link": {
+    "modalTitle": "Link einfügen oder bearbeiten",
+    "linkTo": "Link zu",
+    "linkUrl": "URL",
+    "linkPhone": "Telefonnummer",
+    "linkPhonePrefix": "tel:",
+    "linkDetail": "Produkt",
+    "linkEmail": "E-Mail-Adresse",
+    "linkEmailPlaceholder": "E-Mail-Adresse eingeben ...",
+    "detailPlaceholder": "Produkt auswählen ...",
+    "categoryPlaceholder": "Kategorie auswählen ...",
+    "displayAsButton": "Link als Button darstellen",
+    "openInNewTab": "In neuem Tab öffnen",
+    "applyLink": "Link einfügen",
+    "linkType": "Link-Typ",
+    "removeLink": "Link entfernen",
+    "linkOptions": {
+      "link": "URL",
+      "product": "Produkt",
+      "category": "Kategorie",
+      "media": "Datei",
+      "email": "E-Mail-Adresse",
+      "phoneNumber": "Telefonnummer"
+    },
+    "buttonVariantPrimary": "Primär",
+    "buttonVariantSecondary": "Sekundär",
+    "buttonVariantPrimarySmall": "Primär (klein)",
+    "buttonVariantSecondarySmall": "Sekundär (klein)"
+  },
+  "sw-text-editor-toolbar-button-cms-data-mapping": {
+    "label": "Variable einfügen"
   },
   "sw-text-editor-toolbar": {
     "link": {

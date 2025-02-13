@@ -5,7 +5,6 @@
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :name="name"
-    v-on="listeners"
 >
     <slot></slot>
 </mt-icon>
@@ -18,7 +17,6 @@
     v-else
     v-bind="$attrs"
     :name="name"
-    v-on="listeners"
 >
     <slot></slot>
 </sw-icon-deprecated>

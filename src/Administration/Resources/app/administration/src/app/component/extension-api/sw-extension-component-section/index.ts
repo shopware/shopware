@@ -14,8 +14,6 @@ import template from './sw-extension-component-section.html.twig';
 Shopware.Component.register('sw-extension-component-section', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     extensionApiDevtoolInformation: {
         property: 'ui.componentSection',
         method: 'add',

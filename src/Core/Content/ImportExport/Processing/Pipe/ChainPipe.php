@@ -6,7 +6,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class ChainPipe extends AbstractPipe

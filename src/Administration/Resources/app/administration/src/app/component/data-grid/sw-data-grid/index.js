@@ -31,8 +31,6 @@ const utils = Shopware.Utils;
 Component.register('sw-data-grid', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'repositoryFactory',
@@ -506,11 +504,7 @@ Component.register('sw-data-grid', {
         findPreviewSlots() {
             let scopedSlots = [];
 
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                scopedSlots = Array.from(Object.keys(this.$scopedSlots));
-            } else {
-                scopedSlots = Object.keys(this.$slots);
-            }
+            scopedSlots = Object.keys(this.$slots);
 
             this.hasPreviewSlots = scopedSlots.some((scopedSlot) => {
                 return scopedSlot.includes('preview-');
@@ -696,11 +690,7 @@ Component.register('sw-data-grid', {
         },
 
         selectAll(selected) {
-            if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                this.$delete(this.selection);
-            } else {
-                this.selection = {};
-            }
+            this.selection = {};
 
             this.records.forEach((item) => {
                 if (this.isSelected(item[this.itemIdentifierProperty]) !== selected) {

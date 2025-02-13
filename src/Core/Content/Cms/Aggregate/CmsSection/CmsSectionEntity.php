@@ -16,117 +16,40 @@ class CmsSectionEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var CmsBlockCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $blocks;
+    protected ?CmsBlockCollection $blocks = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pageId;
+    protected string $pageId;
 
-    /**
-     * @var CmsPageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
+    protected ?CmsPageEntity $page = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sizingMode;
+    protected ?string $sizingMode = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mobileBehavior;
+    protected ?string $mobileBehavior = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $backgroundColor;
+    protected ?string $backgroundColor = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $backgroundMediaId;
+    protected ?string $backgroundMediaId = null;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $backgroundMedia;
+    protected ?MediaEntity $backgroundMedia = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $backgroundMediaMode;
+    protected ?string $backgroundMediaMode = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cssClass;
+    protected ?string $cssClass = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $locked;
+    protected bool $locked;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsPageVersionId;
+    protected ?string $cmsPageVersionId = null;
 
     /**
      * @var array<string, bool>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $visibility;
+    protected ?array $visibility = null;
 
     public function getType(): string
     {

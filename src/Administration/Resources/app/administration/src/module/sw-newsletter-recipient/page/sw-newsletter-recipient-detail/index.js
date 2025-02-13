@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -81,9 +79,13 @@ export default {
         onClickSave() {
             this.newsletterRecipientStore.save(this.newsletterRecipient, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-newsletter-recipient.detail.messageSaveSuccess', 0, {
-                        key: this.newsletterRecipient.email,
-                    }),
+                    message: this.$tc(
+                        'sw-newsletter-recipient.detail.messageSaveSuccess',
+                        {
+                            key: this.newsletterRecipient.email,
+                        },
+                        0,
+                    ),
                 });
             });
         },

@@ -13,8 +13,6 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'mailService',
         'entityMappingService',
@@ -122,7 +120,7 @@ export default {
 
                     this.createNotificationError({
                         message:
-                            this.$tc('sw-mail-template.detail.messageSaveError', 0, { subject: mailTemplateSubject }) +
+                            this.$tc('sw-mail-template.detail.messageSaveError', { subject: mailTemplateSubject }, 0) +
                             errorMsg,
                     });
                 });

@@ -14,8 +14,6 @@ const { Component } = Shopware;
 Component.register('sw-login', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         hash: {
             type: String,

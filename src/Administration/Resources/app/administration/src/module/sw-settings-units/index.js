@@ -1,8 +1,6 @@
 /**
  * @sw-package inventory
  */
-import './page/sw-settings-units-list';
-import './page/sw-settings-units-detail';
 import './acl';
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
@@ -10,7 +8,7 @@ Shopware.Component.register('sw-settings-units-list', () => import('./page/sw-se
 Shopware.Component.register('sw-settings-units-detail', () => import('./page/sw-settings-units-detail'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-units', {
@@ -58,14 +56,7 @@ Module.register('sw-settings-units', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'general';
-        },
+        group: 'general',
         to: 'sw.settings.units.index',
         icon: 'regular-balance-scale',
         privilege: 'scale_unit.viewer',

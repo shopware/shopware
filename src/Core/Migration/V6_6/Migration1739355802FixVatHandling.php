@@ -22,8 +22,8 @@ class Migration1739355802FixVatHandling extends MigrationStep
         'BE' => 'BE\d{10}',
         'GR' => '(EL|GR)\d{9}',
         'HR' => 'HR\d{11}',
-        'IE' => 'IE(\d[A-Z0-9]\d{5}[A-Za-z]$|^\d{7}[A-W][A-I])', // pre and post 2013 pattern
-        'LT' => 'LT(\d{9}|\d{12})',
+        'IE' => 'IE(\d{7}[A-Z]{1,2}|(\d{1}[A-Z]{1}\d{5}[A-Z]{1}))', // pre and post 2013 pattern
+        'LT' => 'LT(\d{12}|\d{9})',
         'RO' => 'RO(?!0)\d{1,10}',
     ];
 

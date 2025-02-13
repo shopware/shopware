@@ -4,11 +4,11 @@ namespace Shopware\Core\Checkout\Customer\Subscriber;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
-use Shopware\Core\Checkout\Customer\Service\AddressHasher;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -17,11 +17,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('checkout')]
 class AddressHashSubscriber implements EventSubscriberInterface
 {
-    public function __construct(
-        private readonly AddressHasher $addressHasher,
-    ) {
-    }
-
     public static function getSubscribedEvents(): array
     {
         return [
@@ -32,10 +27,22 @@ class AddressHashSubscriber implements EventSubscriberInterface
 
     public function generateAddressHash(EntityLoadedEvent $event): void
     {
-        /** @var CustomerAddressEntity|OrderAddressEntity $entity */
-        foreach ($event->getEntities() as $entity) {
-            $hash = $this->addressHasher->generate($entity);
-            $entity->setHash($hash);
+        /** @var CustomerAddressEntity|OrderAddressEntity $address */
+        foreach ($event->getEntities() as $address) {
+            $address->setHash(Hasher::hash([
+                'firstName' => $address->getFirstName(),
+                'lastName' => $address->getLastName(),
+                'zipcode' => $address->getZipcode(),
+                'city' => $address->getCity(),
+                'company' => $address->getCompany(),
+                'department' => $address->getDepartment(),
+                'title' => $address->getTitle(),
+                'street' => $address->getStreet(),
+                'additionalAddressLine1' => $address->getAdditionalAddressLine1(),
+                'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
+                'countryId' => $address->getCountryId(),
+                'countryStateId' => $address->getCountryStateId(),
+            ], 'sha256'));
         }
     }
 }

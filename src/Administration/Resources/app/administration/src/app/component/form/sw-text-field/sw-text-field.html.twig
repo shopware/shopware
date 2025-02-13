@@ -5,8 +5,7 @@
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :model-value="compatValue"
-    v-on="listeners"
-    @update:modelValue="handleUpdateModelValue"
+    @update:model-value="handleUpdateModelValue"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -29,7 +28,6 @@
     v-else
     v-bind="$attrs"
     :value="value"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

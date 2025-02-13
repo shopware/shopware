@@ -39,13 +39,10 @@
                 :label="$tc('sw-cms.elements.text.config.label.content')"
                 value-types="string"
             >
-                <sw-text-editor
-                    :value="element.config.content.value"
-                    :allow-inline-data-mapping="true"
-                    :sanitize-info-warn="true"
-                    enable-transparent-background
-                    @update:value="onInput"
-                    @blur="onBlur"
+                <mt-text-editor
+                    :model-value="element.config.content.value"
+                    :custom-buttons="customTextEditorButtons"
+                    @update:model-value="onInput"
                 />
 
                 <template #preview="{ demoValue }">

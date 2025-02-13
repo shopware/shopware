@@ -11,8 +11,6 @@ const { Component } = Shopware;
 Component.register('sw-data-grid-skeleton', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         currentColumns: {
             type: Array,

@@ -8,8 +8,6 @@ import './sw-media-display-options.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'media-sorting-change',
         'media-presentation-change',

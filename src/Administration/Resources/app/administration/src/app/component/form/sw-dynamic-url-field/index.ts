@@ -16,8 +16,6 @@ type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'ph
 Component.register('sw-dynamic-url-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
     ],

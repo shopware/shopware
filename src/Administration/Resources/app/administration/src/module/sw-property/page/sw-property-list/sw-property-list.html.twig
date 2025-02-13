@@ -175,7 +175,7 @@
                         @modal-close="onCloseDeleteModal"
                     >
                         <p class="sw-property-list__confirm-delete-text">
-                            {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
+                            {{ $tc('sw-property.list.textDeleteConfirm', { name: item.translated.name }, 0) }}
                         </p>
 
                         <template #modal-footer>

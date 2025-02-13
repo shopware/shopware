@@ -14,8 +14,6 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'userService',
         'loginService',
@@ -411,8 +409,8 @@ export default {
                         const titleSaveError = this.$tc('global.default.error');
                         const messageSaveError = this.$tc(
                             'sw-users-permissions.users.user-detail.notification.saveError.message',
-                            0,
                             { name: this.fullName },
+                            0,
                         );
 
                         return this.userRepository
@@ -461,19 +459,11 @@ export default {
 
         setPassword(password) {
             if (typeof password === 'string' && password.length <= 0) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.user, 'password');
-                } else {
-                    delete this.user.password;
-                }
+                delete this.user.password;
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.user, 'password', password);
-            } else {
-                this.user.password = password;
-            }
+            this.user.password = password;
         },
 
         onShowDetailModal(id) {

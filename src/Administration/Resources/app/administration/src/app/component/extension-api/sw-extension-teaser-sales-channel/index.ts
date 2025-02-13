@@ -31,8 +31,6 @@ interface TeaserSalesChannelConfig {
 Shopware.Component.register('sw-extension-teaser-sales-channel', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         teaserSalesChannels(): TeaserSalesChannelConfig[] {
             return Shopware.Store.get('teaserPopover').salesChannels || [];

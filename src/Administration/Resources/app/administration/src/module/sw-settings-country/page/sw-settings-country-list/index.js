@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -82,7 +80,7 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, { name: country.name }),
+                        message: this.$tc('sw-settings-country.detail.messageSaveSuccess', { name: country.name }, 0),
                     });
                 })
                 .catch(() => {

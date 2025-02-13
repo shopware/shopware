@@ -3,14 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +34,6 @@ class CacheInvalidatorTest extends TestCase
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            0,
             [
                 $tagAwareAdapter,
             ],
@@ -64,7 +61,6 @@ class CacheInvalidatorTest extends TestCase
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            0,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
@@ -90,7 +86,6 @@ class CacheInvalidatorTest extends TestCase
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            0,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
@@ -119,7 +114,6 @@ class CacheInvalidatorTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE, '1');
 
         $invalidator = new CacheInvalidator(
-            0,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
@@ -144,7 +138,6 @@ class CacheInvalidatorTest extends TestCase
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            1,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
@@ -154,70 +147,6 @@ class CacheInvalidatorTest extends TestCase
         );
 
         $invalidator->invalidate(['foo']);
-    }
-
-    #[DataProvider('dataProviderInvalidation')]
-    #[DisabledFeatures(['cache_rework'])]
-    /**
-     * @deprecated tag:v6.7.0 - can be removed as it tests only deprecated functionality
-     */
-    public function testInvalidation(bool $enableDelay, bool $directInvalidate, bool $backgroundInvalidate, bool $force): void
-    {
-        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
-        $tagAwareAdapter
-            ->expects($directInvalidate ? static::once() : static::never())
-            ->method('invalidateTags')
-            ->with(['foo']);
-
-        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
-        $redisInvalidatorStorage
-            ->expects($backgroundInvalidate ? static::once() : static::never())
-            ->method('store');
-
-        $invalidator = new CacheInvalidator(
-            (int) $enableDelay,
-            [
-                $tagAwareAdapter,
-            ],
-            $redisInvalidatorStorage,
-            new EventDispatcher(),
-            new NullLogger(),
-            new RequestStack([new Request()]),
-            'prod'
-        );
-
-        $invalidator->invalidate(['foo'], $force);
-    }
-
-    public static function dataProviderInvalidation(): \Generator
-    {
-        yield 'no delay' => [
-            false,
-            true,
-            false,
-            false,
-        ];
-
-        yield 'no delay, with force' => [
-            false,
-            true,
-            false,
-            true,
-        ];
-
-        yield 'with delay, no force' => [
-            true,
-            false,
-            true,
-            false,
-        ];
-
-        yield 'with delay, force' => [
-            true,
-            true,
-            false,
-            true,
-        ];
     }
 
     public function testInvalidateExpiredEmpty(): void
@@ -234,7 +163,6 @@ class CacheInvalidatorTest extends TestCase
             ->willReturn([]);
 
         $invalidator = new CacheInvalidator(
-            0,
             [
                 $tagAwareAdapter,
             ],
@@ -263,7 +191,6 @@ class CacheInvalidatorTest extends TestCase
             ->willReturn(['foo']);
 
         $invalidator = new CacheInvalidator(
-            0,
             [
                 $tagAwareAdapter,
             ],

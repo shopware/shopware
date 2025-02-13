@@ -12,8 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-number-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         /**
          * For providing backwards compatibility with the old sw-number-field component
@@ -62,27 +60,11 @@ Component.register('sw-number-field', {
                 this.$emit('change', value);
             },
         },
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-        listeners(): Record<string, Function | Function[]> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

@@ -12,8 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-skeleton-bar', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
@@ -29,15 +27,6 @@ Component.register('sw-skeleton-bar', {
             );
 
             return false;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 });

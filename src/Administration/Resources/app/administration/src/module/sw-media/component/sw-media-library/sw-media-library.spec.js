@@ -42,6 +42,9 @@ class Repository {
 }
 
 async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5], folderAmount: [5] }) {
+    const mediaRepositoryMock = new Repository('media', mediaAmount);
+    const folderRepositoryMock = new Repository('media_folder', folderAmount);
+
     return mount(await wrapTestComponent('sw-media-library', { sync: true }), {
         props: {
             selection: [],
@@ -66,9 +69,9 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                     create: (repositoryName) => {
                         switch (repositoryName) {
                             case 'media':
-                                return new Repository('media', mediaAmount);
+                                return mediaRepositoryMock;
                             case 'media_folder':
-                                return new Repository('folder', folderAmount);
+                                return folderRepositoryMock;
                             case 'media_folder_configuration':
                                 return {};
                             default:

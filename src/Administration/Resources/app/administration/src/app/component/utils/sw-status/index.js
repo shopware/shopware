@@ -23,8 +23,6 @@ const { Component } = Shopware;
 Component.register('sw-status', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         color: {
             type: String,

@@ -86,6 +86,35 @@ const mockBusinessEvents = [
     },
 ];
 
+const flowSequenceRepositorySyncDeletedMock = jest.fn((sequencesIds) => {
+    const ids = [];
+    sequencesIds.forEach((sequenceId) => {
+        ids.push(sequenceId);
+    });
+
+    // eslint-disable-next-line jest/no-standalone-expect
+    expect(ids).toEqual([
+        '2',
+        '4',
+    ]);
+});
+
+const flowSequenceRepositorySyncMock = jest.fn((sequences) => {
+    // eslint-disable-next-line jest/no-standalone-expect
+    expect(sequences).toHaveLength(2);
+
+    const ids = [];
+    sequences.forEach((sequence) => {
+        ids.push(sequence.id);
+    });
+
+    // eslint-disable-next-line jest/no-standalone-expect
+    expect(ids).toEqual([
+        '1',
+        '3',
+    ]);
+});
+
 async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}) {
     return mount(
         await wrapTestComponent('sw-flow-detail', {
@@ -102,30 +131,8 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                         create: (entity) => {
                             if (entity === 'flow_sequence') {
                                 return {
-                                    sync: jest.fn((sequences) => {
-                                        expect(sequences).toHaveLength(2);
-
-                                        const ids = [];
-                                        sequences.forEach((sequence) => {
-                                            ids.push(sequence.id);
-                                        });
-
-                                        expect(ids).toEqual([
-                                            '1',
-                                            '3',
-                                        ]);
-                                    }),
-                                    syncDeleted: jest.fn((sequencesIds) => {
-                                        const ids = [];
-                                        sequencesIds.forEach((sequenceId) => {
-                                            ids.push(sequenceId);
-                                        });
-
-                                        expect(ids).toEqual([
-                                            '2',
-                                            '4',
-                                        ]);
-                                    }),
+                                    sync: flowSequenceRepositorySyncMock,
+                                    syncDeleted: flowSequenceRepositorySyncDeletedMock,
                                     create: () => {
                                         return {};
                                     },

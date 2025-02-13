@@ -7,8 +7,6 @@ import template from './sw-extension-store-recommendation.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     data() {
         return {
             isLoading: true,

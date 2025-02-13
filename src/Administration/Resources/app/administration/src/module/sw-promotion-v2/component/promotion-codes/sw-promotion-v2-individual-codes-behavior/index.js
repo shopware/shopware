@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'repositoryFactory',
@@ -240,7 +238,7 @@ export default {
 
         createRoutingErrorNotification(name) {
             this.createNotificationError({
-                message: this.$tc('sw-promotion-v2.detail.base.codes.individual.routingError', 0, { name }),
+                message: this.$tc('sw-promotion-v2.detail.base.codes.individual.routingError', { name }, 0),
             });
         },
     },

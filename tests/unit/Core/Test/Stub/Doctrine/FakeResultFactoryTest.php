@@ -28,7 +28,6 @@ class FakeResultFactoryTest extends TestCase
 
         static::assertSame(2, $result->rowCount());
         static::assertSame(3, $result->columnCount());
-        static::assertSame('description', $result->getColumnName(2));
         static::assertSame($data, $result->fetchAllAssociative());
     }
 }

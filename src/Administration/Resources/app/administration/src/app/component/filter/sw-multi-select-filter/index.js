@@ -13,8 +13,6 @@ const { Criteria, EntityCollection } = Shopware.Data;
 Component.register('sw-multi-select-filter', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: [

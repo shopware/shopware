@@ -35,7 +35,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -100,9 +99,7 @@ class InvoiceRendererTest extends TestCase
             $orderRepositoryMock,
             $documentConfigLoaderMock,
             $this->createMock(EventDispatcherInterface::class),
-            $documentTemplateRenderer,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            '',
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );
@@ -190,9 +187,7 @@ class InvoiceRendererTest extends TestCase
             $orderRepositoryMock,
             new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
             $this->createMock(EventDispatcherInterface::class),
-            $documentTemplateRenderer,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            '',
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );
@@ -208,8 +203,6 @@ class InvoiceRendererTest extends TestCase
 
     public function testDoNotForceDocumentCreation(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $context = Context::createDefaultContext();
 
         $document = new DocumentEntity();
@@ -249,9 +242,7 @@ class InvoiceRendererTest extends TestCase
             $orderRepositoryMock,
             $documentConfigLoaderMock,
             $this->createMock(EventDispatcherInterface::class),
-            $documentTemplateRenderer,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            '',
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );

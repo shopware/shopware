@@ -20,8 +20,6 @@ Component.register('sw-checkbox-field-deprecated', {
 
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: [

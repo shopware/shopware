@@ -61,7 +61,6 @@ class DocumentFileRendererRegistryTest extends TestCase
 
         $registry = new DocumentFileRendererRegistry([]);
 
-        // @deprecated tag:v6.7.0 - html argument will be removed
         $registry->render(new RenderedDocument(
             '',
             '1001',

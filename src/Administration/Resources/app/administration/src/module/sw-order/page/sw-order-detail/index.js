@@ -560,7 +560,11 @@ export default {
             }
 
             return new Promise((resolve, reject) => {
-                this.askForSaveBeforehand = { reason, resolve, reject };
+                this.askForSaveBeforehand = {
+                    reason: this.$tc(`sw-order.saveChangesBeforehandModal.${reason}Description`),
+                    resolve,
+                    reject,
+                };
             });
         },
 

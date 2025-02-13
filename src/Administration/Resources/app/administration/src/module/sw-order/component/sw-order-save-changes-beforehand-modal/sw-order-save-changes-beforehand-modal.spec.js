@@ -21,9 +21,6 @@ async function createWrapper(reason = 'status') {
                     template: '<button @click="$emit(\'click\')"><slot></slot></button>',
                 },
             },
-            mocks: {
-                $t: (t) => t,
-            },
         },
     });
 }
@@ -32,14 +29,6 @@ describe('src/module/sw-order/component/sw-order-save-changes-beforehand-modal',
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should have reason description', async () => {
-        let wrapper = await createWrapper();
-        expect(wrapper.vm.reasonDescription).toBe('sw-order.saveChangesBeforehandModal.statusDescription');
-
-        wrapper = await createWrapper('invalid');
-        expect(wrapper.vm.reasonDescription).toBe('sw-order.saveChangesBeforehandModal.invalidDescription');
     });
 
     it('should emit right event on button click', async () => {

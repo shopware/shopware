@@ -55,7 +55,6 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
         await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('2');
         await ShopCustomer.expects(StorefrontWishlist.wishListHeader).toBeVisible();
         const firstProductInListing = StorefrontWishlist.productListItems.first();
-        const firstProductName = await firstProductInListing.locator('.product-name').innerText();
-        ShopCustomer.expects(firstProductName).toBe(product2.name);
+        await ShopCustomer.expects(firstProductInListing.locator('.product-name')).toContainText(product2.name);
     });
 });

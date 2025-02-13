@@ -221,7 +221,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $tagAssignments = [];
 
         if (!empty($tags)) {
-            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->numberBetween(1, \count($tags)));
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(

@@ -12,12 +12,18 @@ describe('NavbarPlugin', () => {
         mockLink.classList.add('main-navigation-link');
         mockElement.appendChild(mockLink);
 
-        // Spy on addEventListener method
+        // Spy on addEventListener method and window open method
         jest.spyOn(mockLink, 'addEventListener');
+        jest.spyOn(window, 'open').mockImplementation(() => {});
 
         // Instantiate the NavbarPlugin with only one top-level link
         navbarPlugin = new NavbarPlugin(mockElement, {}, false); // Pass false to prevent init from being called
         navbarPlugin._topLevelLinks = [mockLink];
+    });
+
+    afterEach(() => {
+        // Clear the mock for window.open
+        window.open.mockRestore();
     });
 
     test('init should initialize _topLevelLinks', () => {
@@ -47,19 +53,25 @@ describe('NavbarPlugin', () => {
         expect(navbarPlugin._toggleNavbar).toHaveBeenCalledWith(mockLink, mockEventLeave);
     });
 
-    test('_navigateToLinkOnClick should prevent default action on click', () => {
-        const mockEvent = {type: 'click', pageX: 1, preventDefault: jest.fn(), stopPropagation: jest.fn()};
+    test('_navigateToLinkOnClick should open in new window when target blank is set', () => {
+        const mockEventClick = { type: 'click', pageX: 99 };
+        const mockLink = { href: 'https://example.com', target: '_blank' };
 
-        navbarPlugin._navigateToLinkOnClick(mockLink, mockEvent);
-        expect(mockEvent.preventDefault).toHaveBeenCalled();
-        expect(mockEvent.stopPropagation).toHaveBeenCalled();
+        navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
+
+        expect(window.open).toHaveBeenCalledWith(mockLink.href, '_blank', 'noopener, noreferrer');
     });
 
-    test('_navigateToLinkOnClick should handle click event with pageX not equal to 0', () => {
-        const mockEvent = {type: 'click', pageX: 1, preventDefault: jest.fn(), stopPropagation: jest.fn()};
-        navbarPlugin._navigateToLinkOnClick(mockLink, mockEvent);
-        expect(mockEvent.preventDefault).toHaveBeenCalled();
-        expect(mockEvent.stopPropagation).toHaveBeenCalled();
+    test('_navigateToLinkOnClick should set window.location.href if not target _blank', () => {
+        delete window.location;
+        window.location = new URL('https://www.example.com');
+
+        const mockEventClick = { type: 'click', pageX: 99 };
+        const mockLink = { href: 'https://example.com/abc', target: '_self' };
+
+        navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
+
+        expect(window.location.href).toBe(mockLink.href);
     });
 
     test('_closeAllDropdowns should close all dropdowns', () => {

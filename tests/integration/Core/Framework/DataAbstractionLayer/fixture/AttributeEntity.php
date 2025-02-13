@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
@@ -164,4 +166,8 @@ class AttributeEntity extends EntityStruct
      */
     #[Translations]
     public ?array $translations = null;
+
+    #[Field(type: FieldType::STRING)]
+    #[AllowHtml]
+    public string $htmlString;
 }

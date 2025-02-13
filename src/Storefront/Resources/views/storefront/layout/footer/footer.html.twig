@@ -1,8 +1,3 @@
-{# @deprecated tag:v6.7.0 - Fallback will be removed, add footer directly #}
-{% if not feature('cache_rework') and not footer is defined and page is defined %}
-    {% set footer = page.footer %}
-{% endif %}
-
 {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
 
 {% block layout_footer_inner_container %}

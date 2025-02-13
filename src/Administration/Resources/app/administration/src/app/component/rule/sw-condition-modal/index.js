@@ -11,8 +11,6 @@ const { EntityCollection } = Shopware.Data;
 Component.register('sw-condition-modal', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: [

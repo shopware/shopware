@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -84,7 +82,7 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currency.name }),
+                        message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', { name: currency.name }, 0),
                     });
                 })
                 .catch(() => {

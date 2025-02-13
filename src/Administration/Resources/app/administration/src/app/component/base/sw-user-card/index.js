@@ -51,8 +51,6 @@ const { Component } = Shopware;
 Component.register('sw-user-card', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         user: {
             type: Object,

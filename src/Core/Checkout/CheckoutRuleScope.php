@@ -10,11 +10,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class CheckoutRuleScope extends RuleScope
 {
-    protected SalesChannelContext $context;
-
-    public function __construct(SalesChannelContext $context)
-    {
-        $this->context = $context;
+    public function __construct(
+        protected SalesChannelContext $context
+    ) {
     }
 
     public function getSalesChannelContext(): SalesChannelContext

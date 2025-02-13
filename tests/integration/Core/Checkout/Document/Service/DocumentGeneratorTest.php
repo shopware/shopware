@@ -69,7 +69,6 @@ class DocumentGeneratorTest extends TestCase
     protected function setUp(): void
     {
         static::markTestSkipped('#6556');
-
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
@@ -121,7 +120,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document->getDocumentType());
         static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
-        static::assertSame(FileTypes::PDF, $document->getFileType());
+        static::assertSame(FileTypes::PDF, $document->getDocumentMediaFile()?->getFileExtension());
     }
 
     public function testGenerateEmpty(): void
@@ -354,7 +353,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document->getDocumentType());
         static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
-        static::assertSame(FileTypes::PDF, $document->getFileType());
+        static::assertSame(FileTypes::PDF, $document->getDocumentMediaFile()?->getFileExtension());
     }
 
     public function testCreateStornoBillReferencingInvoice(): void
@@ -575,7 +574,7 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertNotNull($document->getDocumentType());
         static::assertSame(InvoiceRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
-        static::assertSame(FileTypes::PDF, $document->getFileType());
+        static::assertSame(FileTypes::PDF, $document->getDocumentMediaFile()?->getFileExtension());
     }
 
     public function testGenerateWithInvalidType(): void
@@ -624,7 +623,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($invoiceDoc);
         static::assertInstanceOf(DocumentEntity::class, $invoiceDoc);
         static::assertSame($orderId, $invoiceDoc->getOrderId());
-        static::assertSame(FileTypes::PDF, $invoiceDoc->getFileType());
+        static::assertSame(FileTypes::PDF, $invoiceDoc->getDocumentMediaFile()?->getFileExtension());
 
         $deliveryDoc = $documents->filter(function (DocumentEntity $doc) {
             $type = $doc->getDocumentType();
@@ -636,7 +635,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($deliveryDoc);
         static::assertInstanceOf(DocumentEntity::class, $deliveryDoc);
         static::assertSame($orderId, $deliveryDoc->getOrderId());
-        static::assertSame(FileTypes::PDF, $deliveryDoc->getFileType());
+        static::assertSame(FileTypes::PDF, $deliveryDoc->getDocumentMediaFile()?->getFileExtension());
     }
 
     public function testGenerateDuplicatedDocumentNumber(): void

@@ -9,81 +9,67 @@ author_github: @s.kalicki
 # Administration
 * Changed `settings-item.store.js` to extend the state for supporting the reorganized menu structure on the settings page.
 * Changed `sw-settings-index.html.twig` to implement the new groups and reflect the updated menu structure.
-
+* Deprecated blocks in `sw-settings-index.html.twig
+  `:`sw_settings_content_tab_shop`, `sw_settings_content_tab_system`, `sw_settings_content_tab_plugins`, `sw_settings_content_card`, `sw_settings_content_header`, `sw_settings_content_card_content`
+* Added new blocks in `sw-settings-index.html.twig`: `sw_settings_content_card_content_grid`, `sw_settings_content_card_view`, `sw_settings_content_card_view_header`
 ___
 
 # Upgrade Information
 ## Updated Menu Structure in Settings Page
-The settings page has been reorganized into groups for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
+The settings page has been changed from tab structure into a grid structure. New grouping has been added for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
 
-### Details:
-* Changed settings-item.store.js to extend the state for supporting the reorganized menu structure on the settings page.
-* Changed sw-settings-index.html.twig to implement the new groups and reflect the updated menu structure.
+The current menu structure is as follows:
+* General
+* Customer
+* Automation
+* Localization
+* Content
+* Commerce
+* System
+* Account
+* Extensions
 
-### Code Updates:
-In `settings-item.store.js`, the state has been extended with the following `settingsGroups` object:
-```javascript
-settingsGroups: {
-    general: [],
-    customer: [],
-    automation: [],
-    localization: [],
-    content: [],
-    commerce: [],
-    system: [],
-    plugins: [],
-    shop: [],
-},
+To add a new menu item for your module you can define which group it should belong to like this:
+```
+Module.register('sw-settings-custom', {
+    ...
+    settingsItem: {
+        group: 'general',
+        ...    
+    },
+});
 ```
 
-Additionally, the `addItem` function has been updated to allow dynamic addition of items to the appropriate group:
-```javascript
-addItem(state, { group, item }) {
-    let group = settingsItem.group;
+Available groups are: general, customer, automation, localization, content, commerce, system, account, plugins.
 
-    if (typeof group === 'function') {
-        group = group();
-    }
-
-    if (!group || typeof group !== 'string') {
-        throw new Error('Group is undefined or invalid');
-    }
-    // ...
-}
-```
-The Twig Template file has also been updated:
-```html
-<div v-for="(settingsItems, settingsGroup) in settingsGroups"
-     :key="settingsGroup"
-     class="sw-settings__content-group"
->
-    <h2>{{ getGroupLabel(settingsGroup) }}</h2>
-
-    <sw-settings-item
-        v-for="settingsItem in settingsItems"
-        :id="settingsItem.id"
-        :key="settingsItem.name"
-        :label="getLabel(settingsItem)"
-        :to="getRouteConfig(settingsItem)"
-        :background-enabled="settingsItem.backgroundEnabled"
-    >
-        <template #icon>
-            <component
-                :is="settingsItem.iconComponent"
-                v-if="settingsItem.iconComponent"
-            />
-            <sw-icon
-                v-else
-                :name="settingsItem.icon"
-            />
-        </template>
-    </sw-settings-item>
-</div>
-```
-
-## Required Adjustments for Custom Plugins
-If your plugin extends `sw-settings-index.html.twig`, you must update the overridden templates to align with the new menu group structure. Add support for groups by wrapping items within the required group tags.
+### Required Adjustments for Custom Plugins
+If your plugin extends `sw-settings-index.html.twig`, you must update the overridden templates to align with the new menu group structure.
 
 # Next Major Version Changes
-## Deprecation of Legacy Menu Structure
-The old menu structure in the settings page is deprecated and will be removed in `v6.7.0.0`.
+## Settings Menu Structure was changed 
+The menu structure on the settings page has changed from tab structure to a grid structure. The new structure groups settings into different categories for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
+
+The new settings groups are:
+* General
+* Customer
+* Automation
+* Localization
+* Content
+* Commerce
+* System
+* Account
+* Extensions
+
+As a result blocks have been removed in `sw-settings-index.html.twig`:
+* `sw_settings_content_tab_shop`
+* `sw_settings_content_tab_system`
+* `sw_settings_content_tab_plugins`
+* `sw_settings_content_card`
+* `sw_settings_content_header`
+* `sw_settings_content_card_content`
+
+New blocks have been added in `sw-settings-index.html.twig`:
+* `sw_settings_content_card_content_grid`
+* `sw_settings_content_card_view`
+* `sw_settings_content_card_view_header`
+

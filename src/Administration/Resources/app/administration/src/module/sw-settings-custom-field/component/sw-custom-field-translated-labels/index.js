@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     mixins: [
@@ -67,20 +65,14 @@ export default {
         initializeConfiguration() {
             Object.keys(this.propertyNames).forEach((property) => {
                 if (!this.config.hasOwnProperty(property)) {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.config, property, {
-                            [this.fallbackLocale]: null,
-                        });
-                    } else {
-                        this.config[property] = { [this.fallbackLocale]: null };
-                    }
+                    this.config[property] = { [this.fallbackLocale]: null };
                 }
             });
         },
 
         getLabel(label, locale) {
             const snippet = this.getInlineSnippet(label);
-            const language = this.$tc(`locale.${locale}`);
+            const language = this.$tc(`locale.${locale.value ?? locale}`);
 
             return `${snippet} (${language})`;
         },

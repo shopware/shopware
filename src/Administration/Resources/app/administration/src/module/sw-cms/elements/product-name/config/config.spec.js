@@ -53,7 +53,7 @@ async function createWrapper(propsOverride) {
                         sync: true,
                     }),
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
-                    'sw-text-editor': {
+                    'mt-text-editor': {
                         props: ['value'],
                         emits: [
                             'blur',

@@ -1,5 +1,5 @@
 /**
- * @package framework
+ * @sw-package framework
  */
 import OverrideComponentRegisterPlugin from './index';
 import path from 'path';

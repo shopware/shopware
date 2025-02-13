@@ -13,25 +13,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class AfterLineItemRemovedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
-     * @var LineItem[]
-     */
-    protected array $lineItems;
-
-    protected Cart $cart;
-
-    protected SalesChannelContext $salesChannelContext;
-
-    /**
      * @param LineItem[] $lineItems
      */
     public function __construct(
-        array $lineItems,
-        Cart $cart,
-        SalesChannelContext $salesChannelContext
+        protected array $lineItems,
+        protected Cart $cart,
+        protected SalesChannelContext $salesChannelContext
     ) {
-        $this->lineItems = $lineItems;
-        $this->cart = $cart;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     /**

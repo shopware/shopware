@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: [
         Mixin.getByName('cms-element'),
         Mixin.getByName('placeholder'),
@@ -71,11 +69,7 @@ export default {
 
     watch: {
         pageType(newPageType) {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element, 'locked', newPageType === 'product_detail');
-            } else {
-                this.element.locked = newPageType === 'product_detail';
-            }
+            this.element.locked = newPageType === 'product_detail';
         },
     },
 
@@ -88,11 +82,7 @@ export default {
             this.initElementConfig('buy-box');
             this.initElementData('buy-box');
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element, 'locked', this.isProductPageType);
-            } else {
-                this.element.locked = this.isProductPageType;
-            }
+            this.element.locked = this.isProductPageType;
         },
     },
 };

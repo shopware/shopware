@@ -10,8 +10,6 @@ const { Store } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'save-and-reload',
         'update-loading',

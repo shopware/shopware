@@ -29,24 +29,5 @@ class MessengerMiddlewareCompilerPass implements CompilerPassInterface
                 ...$middlewares->getValues(),
             ])
         );
-
-        // @deprecated tag:v6.7.0 - remove all code below, overwrites are now handled via shopware.messenger.routing_overwrites
-        $config = $this->getConfig($container, 'framework');
-
-        if (!\array_key_exists('messenger', $config)) {
-            return;
-        }
-
-        $mapped = [];
-        foreach ($config['messenger']['routing'] as $message => $transports) {
-            if (!\array_key_exists('senders', $transports)) {
-                continue;
-            }
-            $mapped[$message] = array_shift($transports['senders']);
-        }
-
-        $container
-            ->getDefinition(RoutingOverwriteMiddleware::class)
-            ->replaceArgument(1, $mapped);
     }
 }

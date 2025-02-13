@@ -108,7 +108,7 @@
             @modal-close="onRemindPaymentModalClose"
         >
             {% block sw_order_create_remind_payment_modal_content %}
-            <p>{{ $tc('sw-order.create.remindPaymentModal.text', 0, {paymentMethodName: paymentMethodName }) }}</p>
+            <p>{{ $tc('sw-order.create.remindPaymentModal.text', {paymentMethodName: paymentMethodName }, 0) }}</p>
             {% endblock %}
 
             <template #modal-footer>

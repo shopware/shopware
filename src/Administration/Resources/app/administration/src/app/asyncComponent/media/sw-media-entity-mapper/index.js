@@ -5,8 +5,6 @@
 export default {
     functional: true,
 
-    compatConfig: Shopware.compatConfig,
-
     render(createElement, context) {
         function mapEntity() {
             const entityMapping = {

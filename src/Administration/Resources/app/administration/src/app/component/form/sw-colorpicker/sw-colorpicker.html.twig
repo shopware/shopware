@@ -5,7 +5,6 @@
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :model-value="currentValue"
-    v-on="listeners"
     @change="currentValue = $event"
 >
     <template
@@ -29,7 +28,6 @@
     v-else
     v-bind="$attrs"
     :value="value"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

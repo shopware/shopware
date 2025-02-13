@@ -30,15 +30,15 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
-                'sw-text-editor': {
-                    props: ['value'],
+                'mt-text-editor': {
+                    props: ['modelValue'],
                     emits: [
                         'blur',
-                        'update:value',
+                        'update:model-value',
                         'change',
                     ],
                     template:
-                        '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
+                        '<input type="text" :value="modelValue" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:model-value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                 },
                 'sw-select-field': true,
                 'sw-icon': true,

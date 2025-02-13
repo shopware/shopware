@@ -33,6 +33,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
@@ -330,27 +331,14 @@ class RecalculationServiceTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart)['orderId'];
 
+        static::expectException(OrderException::class);
+        static::expectExceptionMessage("Order with id $orderId can not be recalculated because it is in the live version. Please create a new version");
+
         $service = static::getContainer()->get(RecalculationService::class);
 
-        /** @var OrderEntity|null $order */
-        $order = (new \ReflectionClass($service))
+        (new \ReflectionClass($service))
             ->getMethod('fetchOrder')
             ->invoke($service, $orderId, $this->context);
-
-        static::assertNotNull($order);
-
-        static::assertNotNull($order->getLineItems());
-        $lineItem = $order->getLineItems()->first();
-        static::assertNotNull($lineItem);
-        static::assertNotNull($lineItem->getDownloads());
-
-        static::assertNotNull($order->getDeliveries());
-        $delivery = $order->getDeliveries()->first();
-        static::assertNotNull($delivery);
-        static::assertNotNull($delivery->getShippingMethod());
-        static::assertNotNull($delivery->getShippingMethod()->getTax());
-        static::assertNotNull($delivery->getShippingOrderAddress());
-        static::assertNotNull($delivery->getShippingOrderAddress()->getCountry());
     }
 
     public function testRecalculationWithDeletedCustomer(): void

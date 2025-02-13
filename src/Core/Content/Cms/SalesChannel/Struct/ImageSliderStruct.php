@@ -8,19 +8,12 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ImageSliderStruct extends Struct
 {
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $navigation;
+    protected ?array $navigation = null;
 
     /**
      * @var ImageSliderItemStruct[]|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $sliderItems = [];
+    protected ?array $sliderItems = [];
 
     /**
      * @return ImageSliderItemStruct[]|null

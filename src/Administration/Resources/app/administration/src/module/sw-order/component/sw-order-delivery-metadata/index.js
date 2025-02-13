@@ -9,8 +9,6 @@ import './sw-order-delivery-metadata.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['customSnippetApiService'],
 
     props: {

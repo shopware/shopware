@@ -35,6 +35,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorter
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
@@ -305,6 +306,10 @@ class PromotionCalculator
         };
 
         $result = $calculator->calculate($discount, $packages, $context);
+
+        if ($discount->getType() === PromotionDiscountEntity::TYPE_FIXED_UNIT && $result->getCompositionItems() === []) {
+            $calculatedCart->addErrors(new PromotionNotEligibleError($discount->getLabel()));
+        }
 
         // now aggregate any composition items
         // which might be duplicated due to separate packages

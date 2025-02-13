@@ -1,5 +1,5 @@
 /**
- * @package framework
+ * @sw-package framework
  */
 import TwigjsPlugin from './index';
 

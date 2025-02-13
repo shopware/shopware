@@ -31,32 +31,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
     /**
-     * @deprecated tag:v6.7.0 - Will be removed, use CacheStateSubscriber::STATE_LOGGED_IN instead
-     */
-    final public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, use CacheStateSubscriber::STATE_CART_FILLED instead
-     */
-    final public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, use HttpCacheKeyGenerator::CURRENCY_COOKIE instead
-     */
-    final public const CURRENCY_COOKIE = HttpCacheKeyGenerator::CURRENCY_COOKIE;
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, use HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE instead
-     */
-    final public const CONTEXT_CACHE_COOKIE = HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE;
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, use HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE instead
-     */
-    final public const SYSTEM_STATE_COOKIE = HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE;
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, use HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER instead
-     */
-    final public const INVALIDATION_STATES_HEADER = HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER;
-
-    /**
      * @param array<string> $cookies
      *
      * @internal

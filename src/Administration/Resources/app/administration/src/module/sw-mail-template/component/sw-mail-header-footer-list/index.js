@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -195,7 +193,7 @@ export default {
 
         showDeleteErrorNotification(item) {
             return this.createNotificationError({
-                message: this.$tc('sw-mail-header-footer.list.messageDeleteError', 0, { name: item.name }),
+                message: this.$tc('sw-mail-header-footer.list.messageDeleteError', { name: item.name }, 0),
             });
         },
 

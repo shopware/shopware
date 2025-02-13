@@ -7,6 +7,4 @@ import './sw-cms-block-preview-category-navigation.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

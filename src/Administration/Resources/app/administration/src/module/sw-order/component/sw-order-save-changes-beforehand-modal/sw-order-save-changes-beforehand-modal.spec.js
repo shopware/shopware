@@ -50,10 +50,10 @@ describe('src/module/sw-order/component/sw-order-save-changes-beforehand-modal',
 
         await buttons[0].trigger('click');
 
-        expect(wrapper.emitted('cancel')).toBeDefined();
-        expect(wrapper.emitted('confirm')).not.toBeDefined();
+        expect(wrapper.emitted('cancel')).toBeTruthy();
+        expect(wrapper.emitted('confirm')).toBeFalsy();
 
         await buttons[1].trigger('click');
-        expect(wrapper.emitted('confirm')).toBeDefined();
+        expect(wrapper.emitted('confirm')).toBeTruthy();
     });
 });

@@ -1,5 +1,4 @@
-import { mount } from '@vue/test-utils';
-import { TotalCountMode } from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
+import {mount} from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -221,6 +220,6 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.productCriteria;
 
-        expect(criteria.totalCountMode).toBe(TotalCountMode.NO_TOTAL_COUNT);
+        expect(criteria.totalCountMode).toBe(0);
     });
 });

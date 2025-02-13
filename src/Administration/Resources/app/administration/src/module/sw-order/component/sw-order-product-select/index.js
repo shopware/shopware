@@ -1,7 +1,6 @@
 import template from './sw-order-product-select.html.twig';
 import { LineItemType, PriceType } from '../../order.types';
 import './sw-order-product-select.scss';
-import { TotalCountMode } from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 
 /**
  * @sw-package checkout
@@ -79,7 +78,7 @@ export default {
 
             criteria.addFilter(Criteria.equals('visibilities.salesChannelId', this.salesChannelId));
             criteria.addFilter(Criteria.equals('active', true));
-            criteria.setTotalCountMode(TotalCountMode.NO_TOTAL_COUNT);
+            criteria.setTotalCountMode(0);
 
             return criteria;
         },

@@ -38,16 +38,6 @@
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute" decorates="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute" decoration-priority="-1000" public="true">
-            <argument type="service" id="Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute.inner"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument>%shopware.cache.invalidation.sitemap_route%</argument>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-        </service>
-
         <!-- UrlProviders -->
         <service id="Shopware\Core\Content\Sitemap\Provider\HomeUrlProvider">
             <tag name="shopware.sitemap_url_provider"/>

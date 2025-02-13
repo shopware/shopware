@@ -9,13 +9,13 @@ use Twig\Node\CaptureNode;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\MacroNode;
 
-#[Package('framework')]
-#[YieldReady]
 /**
  * @internal
  *
  * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
  */
+#[Package('framework')]
+#[YieldReady]
 class MacroOverrideNode extends MacroNode
 {
     public function compile(Compiler $compiler): void

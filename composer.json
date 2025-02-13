@@ -53,10 +53,10 @@
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
-            "phpstan/extension-installer": true,
             "cweagans/composer-patches": true,
-            "symfony/runtime": true,
-            "php-http/discovery": false
+            "php-http/discovery": false,
+            "phpstan/extension-installer": true,
+            "symfony/runtime": true
         }
     },
     "require": {

@@ -2,14 +2,10 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[Package('framework')]
 class RoutingException extends HttpException
@@ -63,19 +59,8 @@ class RoutingException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `CustomerNotLoggedInRoutingException` in the future
-     */
-    public static function customerNotLoggedIn(): CustomerNotLoggedInRoutingException|CustomerNotLoggedInException
+    public static function customerNotLoggedIn(): CustomerNotLoggedInRoutingException
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new CustomerNotLoggedInException(
-                Response::HTTP_FORBIDDEN,
-                CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
-                'Customer is not logged in.'
-            );
-        }
-
         return new CustomerNotLoggedInRoutingException(
             Response::HTTP_FORBIDDEN,
             self::CUSTOMER_NOT_LOGGED_IN_CODE,
@@ -83,17 +68,8 @@ class RoutingException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function accessDeniedForXmlHttpRequest(): self|AccessDeniedHttpException
+    public static function accessDeniedForXmlHttpRequest(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new AccessDeniedHttpException(
-                'PageController can\'t be requested via XmlHttpRequest.'
-            );
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::ACCESS_DENIED_FOR_XML_HTTP_REQUEST,

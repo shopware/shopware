@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import chalk from 'chalk';
+import colors from 'picocolors';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -34,14 +34,14 @@ Object.keys(packageJson.devDependencies).forEach((devDependency) => {
 
 const invalidDependencyCount = invalidDependencies.dependencies.length + invalidDependencies.devDependencies.length;
 if (invalidDependencyCount >= 1) {
-    console.log(chalk.red('Using pre-release package versions is prohibited!'));
+    console.log(colors.red('Using pre-release package versions is prohibited!'));
 
     invalidDependencies.dependencies.forEach((name) => {
-        console.log(chalk.red(`Found dependency "${name}" with version constraint "${packageJson.dependencies[name]}"`));
+        console.log(colors.red(`Found dependency "${name}" with version constraint "${packageJson.dependencies[name]}"`));
     })
 
     invalidDependencies.devDependencies.forEach((name) => {
-        console.log(chalk.red(`Found devDependency "${name}" with version constraint "${packageJson.devDependencies[name]}"`));
+        console.log(colors.red(`Found devDependency "${name}" with version constraint "${packageJson.devDependencies[name]}"`));
     })
 
     throw new Error('See output above!')

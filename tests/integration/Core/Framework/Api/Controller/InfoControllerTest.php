@@ -15,6 +15,7 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
@@ -36,7 +37,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
@@ -373,9 +373,8 @@ class InfoControllerTest extends TestCase
     public function testBundlePaths(): void
     {
         $kernelMock = $this->createMock(Kernel::class);
-        $packagesMock = $this->createMock(Packages::class);
         $eventCollector = $this->createMock(FlowActionCollector::class);
-        $fileSystemOperatorMock = $this->createMock(FilesystemOperator::class);
+        $fileSystemOperatorMock = $this->createMock(PrefixFilesystem::class);
         $infoController = new InfoController(
             $this->createMock(DefinitionService::class),
             new ParameterBag([
@@ -392,7 +391,6 @@ class InfoControllerTest extends TestCase
                 'shopware.deployment.runtime_extension_management' => true,
             ]),
             $kernelMock,
-            $packagesMock,
             $this->createMock(BusinessEventCollector::class),
             static::getContainer()->get('shopware.increment.gateway.registry'),
             $this->connection,
@@ -407,15 +405,11 @@ class InfoControllerTest extends TestCase
 
         $infoController->setContainer($this->createMock(Container::class));
 
-        $assetPackage = $this->createMock(Package::class);
-        $packagesMock
-            ->expects(static::exactly(1))
-            ->method('getPackage')
-            ->willReturn($assetPackage);
-        $assetPackage
-            ->expects(static::exactly(1))
-            ->method('getUrl')
-            ->willReturnArgument(0);
+        $fileSystemOperatorMock->expects(static::exactly(1))
+            ->method('read')
+            ->willReturn('{"entryPoints": { "some-functionality-bundle": {"js": ["foo.js"]}}}');
+        $fileSystemOperatorMock->method('publicUrl')
+            ->willReturn('http://example.com/foo.js');
 
         $kernelMock
             ->expects(static::exactly(1))
@@ -432,74 +426,7 @@ class InfoControllerTest extends TestCase
 
         $jsFilePath = explode('?', (string) $config['bundles']['SomeFunctionalityBundle']['js'][0])[0];
         static::assertEquals(
-            'bundles/somefunctionality/administration/js/some-functionality-bundle.js',
-            $jsFilePath
-        );
-    }
-
-    public function testBundlePathsWithMarkerOnly(): void
-    {
-        $kernelMock = $this->createMock(Kernel::class);
-        $packagesMock = $this->createMock(Packages::class);
-        $eventCollector = $this->createMock(FlowActionCollector::class);
-        $fileSystemOperatorMock = $this->createMock(FilesystemOperator::class);
-        $infoController = new InfoController(
-            $this->createMock(DefinitionService::class),
-            new ParameterBag([
-                'kernel.shopware_version' => 'shopware-version',
-                'kernel.shopware_version_revision' => 'shopware-version-revision',
-                'shopware.admin_worker.enable_admin_worker' => 'enable-admin-worker',
-                'shopware.admin_worker.enable_queue_stats_worker' => 'enable-queue-stats-worker',
-                'shopware.admin_worker.enable_notification_worker' => 'enable-notification-worker',
-                'shopware.admin_worker.transports' => 'transports',
-                'shopware.filesystem.private_allowed_extensions' => ['png'],
-                'shopware.html_sanitizer.enabled' => true,
-                'shopware.media.enable_url_upload_feature' => true,
-                'shopware.staging.administration.show_banner' => false,
-                'shopware.deployment.runtime_extension_management' => true,
-            ]),
-            $kernelMock,
-            $packagesMock,
-            $this->createMock(BusinessEventCollector::class),
-            static::getContainer()->get('shopware.increment.gateway.registry'),
-            $this->connection,
-            static::getContainer()->get(AppUrlVerifier::class),
-            static::getContainer()->get('router'),
-            $eventCollector,
-            static::getContainer()->get(SystemConfigService::class),
-            static::getContainer()->get(ApiRouteInfoResolver::class),
-            static::getContainer()->get(InAppPurchase::class),
-            $fileSystemOperatorMock,
-        );
-
-        $infoController->setContainer($this->createMock(Container::class));
-
-        $assetPackage = $this->createMock(Package::class);
-        $packagesMock
-            ->expects(static::exactly(1))
-            ->method('getPackage')
-            ->willReturn($assetPackage);
-        $assetPackage
-            ->expects(static::exactly(1))
-            ->method('getUrl')
-            ->willReturnArgument(0);
-
-        $kernelMock
-            ->expects(static::exactly(1))
-            ->method('getBundles')
-            ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/Fixtures/InfoControllerWithMarker')]);
-
-        $appUrl = EnvironmentHelper::getVariable('APP_URL');
-        static::assertIsString($appUrl);
-
-        $content = $infoController->config(Context::createDefaultContext(), Request::create($appUrl))->getContent();
-        static::assertNotFalse($content);
-        $config = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayHasKey('SomeFunctionalityBundle', $config['bundles']);
-
-        $jsFilePath = explode('?', (string) $config['bundles']['SomeFunctionalityBundle']['js'][0])[0];
-        static::assertEquals(
-            'bundles/somefunctionality/administration/js/some-functionality-bundle.js',
+            'http://example.com/foo.js',
             $jsFilePath
         );
     }

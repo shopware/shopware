@@ -18,42 +18,42 @@ class PluginExceptionTest extends TestCase
     {
         $e = PluginException::cannotDeleteManaged('MyPlugin');
 
-        static::assertEquals(PluginException::CANNOT_DELETE_COMPOSER_MANAGED, $e->getErrorCode());
+        static::assertSame(PluginException::CANNOT_DELETE_COMPOSER_MANAGED, $e->getErrorCode());
     }
 
     public function testCannotExtractNoSuchFile(): void
     {
         $e = PluginException::cannotExtractNoSuchFile('/some/file/that/does/not/exist.zip');
 
-        static::assertEquals(PluginException::CANNOT_EXTRACT_ZIP_FILE_DOES_NOT_EXIST, $e->getErrorCode());
+        static::assertSame(PluginException::CANNOT_EXTRACT_ZIP_FILE_DOES_NOT_EXIST, $e->getErrorCode());
     }
 
     public function testCannotExtractInvalidZipFile(): void
     {
         $e = PluginException::cannotExtractInvalidZipFile('/some/invalid.zip');
 
-        static::assertEquals(PluginException::CANNOT_EXTRACT_ZIP_INVALID_ZIP, $e->getErrorCode());
+        static::assertSame(PluginException::CANNOT_EXTRACT_ZIP_INVALID_ZIP, $e->getErrorCode());
     }
 
     public function testCannotExtractZipOpenError(): void
     {
         $e = PluginException::cannotExtractZipOpenError('/some/problematic.zip');
 
-        static::assertEquals(PluginException::CANNOT_EXTRACT_ZIP, $e->getErrorCode());
+        static::assertSame(PluginException::CANNOT_EXTRACT_ZIP, $e->getErrorCode());
     }
 
     public function testNoPluginFoundInZip(): void
     {
         $e = PluginException::noPluginFoundInZip('/no/plugin.zip');
 
-        static::assertEquals(PluginException::NO_PLUGIN_IN_ZIP, $e->getErrorCode());
+        static::assertSame(PluginException::NO_PLUGIN_IN_ZIP, $e->getErrorCode());
     }
 
     public function testStoreNotAvailable(): void
     {
         $e = PluginException::storeNotAvailable();
 
-        static::assertEquals(PluginException::STORE_NOT_AVAILABLE, $e->getErrorCode());
+        static::assertSame(PluginException::STORE_NOT_AVAILABLE, $e->getErrorCode());
     }
 
     public function testProjectDirNotInContainer(): void
@@ -68,6 +68,26 @@ class PluginExceptionTest extends TestCase
     {
         $e = PluginException::cannotDeleteShopwareMigrations();
 
-        static::assertEquals(PluginException::CANNOT_DELETE_SHOPWARE_MIGRATIONS, $e->getErrorCode());
+        static::assertSame(PluginException::CANNOT_DELETE_SHOPWARE_MIGRATIONS, $e->getErrorCode());
+    }
+
+    public function testCouldNotDetectComposerVersion(): void
+    {
+        $e = PluginException::couldNotDetectComposerVersion(['foo/bar' => '/var/www/shopware/custom/plugins/fooBar/vendor/composer/../../']);
+
+        static::assertSame(PluginException::COULD_NOT_DETECT_COMPOSER_VERSION, $e->getErrorCode());
+        static::assertSame("Could not detect the installed composer version. Checked paths: \nfoo/bar: /var/www/shopware/custom/plugins/fooBar/vendor/composer/../../\n", $e->getMessage());
+    }
+
+    public function testPluginComposerRequire(): void
+    {
+        $e = PluginException::pluginComposerRequire('FooBar', 'foo/bar:1.0.0', 'wrong version');
+        static::assertSame("Could not execute \"composer require\" for plugin \"FooBar (foo/bar:1.0.0). Output:\nwrong version", $e->getMessage());
+    }
+
+    public function testPluginComposerRemove(): void
+    {
+        $e = PluginException::pluginComposerRemove('FooBar', 'foo/bar:1.0.0', 'wrong version');
+        static::assertSame("Could not execute \"composer remove\" for plugin \"FooBar (foo/bar:1.0.0). Output:\nwrong version", $e->getMessage());
     }
 }

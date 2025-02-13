@@ -2420,10 +2420,60 @@ After:
 </div>
 ```
 
+## Update polyfills and browser-support
+
+With v6.7.0, the supported browsers in the `.browserslist` file will be updated to `defaults`. This is a recommended setting including browsers with `>0.5%` global usage statistic.
+This saves JS bundle size because polyfills for older browser like Chrome 60 or Firefox 60 are no longer included and the native implementation can be used instead.
+
+* [v6.7.0 - Updated browser support](https://browsersl.ist/#q=defaults)
+* [v6.6.x - Previous browser support](https://browsersl.ist/#q=%3E%3D+0.5%25%0Alast+2+major+versions%0Anot+dead%0AChrome+%3E%3D+60%0AFirefox+%3E%3D+60%0AFirefox+ESR%0AiOS+%3E%3D+12%0ASafari+%3E%3D+12%0Anot+Explorer+%3C%3D+11)
+
+If you want to restore the previous browser support in your project or want to adjust it, you can use environment variable `BROWSERSLIST` in your `.env`.
+
+```dotenv
+# Adjust .browserslist for JS build process
+BROWSERSLIST='>= 0.5%, last 2 major versions, not dead, Chrome >= 60, Firefox >= 60, Firefox ESR, iOS >= 12, Safari >= 12, not Explorer <= 11'
+```
+
+## Removal of NPM packages
+
+With v6.7.0 the following NPM packages will be removed.
+
+### Removed NPM package `query-string`. Native `URLSearchParams` is used instead.
+
+**Creating a query string from object:**
+
+Before:
+```js
+import queryString from 'query-string';
+
+const paramsString = queryString.stringify({ key: 'value', elementId: 'some-id' })
+```
+
+After:
+```js
+const paramsString = new URLSearchParams({ key: 'value', elementId: 'some-id' }).toString();
+```
+
+**Creating an object from queryString:**
+
+Before:
+```js
+import queryString from 'query-string';
+
+const paramsObj = querystring.parse(window.location.search);
+```
+
+After:
+```js
+const paramsObj = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+```
+
 ## Added new functions and tokens to complete the Twig integration 
 New functions: `sw_block`, `sw_source`, `sw_include` and new tokens: `sw_use`, `sw_embed`, `sw_from` and `sw_import`. 
 
 You can find further details on the use on the documentation page [Shopware's twig functions](https://developer.shopware.com/docs/resources/references/storefront-reference/twig-function-reference.html).
+
 </details>
 
 # App System

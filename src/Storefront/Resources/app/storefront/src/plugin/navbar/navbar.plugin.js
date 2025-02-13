@@ -68,9 +68,11 @@ export default class NavbarPlugin extends Plugin {
      */
     _navigateToLinkOnClick(topLevelLink, event) {
         if (event.type === 'click' && event.pageX !== 0) {
-            event.preventDefault();
-            event.stopPropagation();
-            window.location.replace(topLevelLink.href);
+            if (topLevelLink.target === '_blank') {
+                window.open(topLevelLink.href, '_blank', 'noopener, noreferrer');
+                return;
+            }
+            window.location.href = topLevelLink.href;
         }
     }
 

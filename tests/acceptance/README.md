@@ -168,6 +168,34 @@ With every test scenario our goal is to create a well-structured and comprehensi
 
 We achieve this by using a lightweight actor pattern on top of Playwright which enables us to write test scenarios in a readable way, that non-tech people are able to understand. We describe the concept in more detail in the following section.
 
+#### Write meaningful test descriptions
+Playwright already comes with a great feature to write meaningful test descriptions. 
+You can use the `test.step` method to describe the test steps in a human-readable way. This will help you to understand the test scenario and also to debug failing tests.
+- Descriptive Names: Use clear and descriptive names for each step. Each step's name should explain what the step is doing and/or what it's verifying.
+- Logical Grouping: Group related actions and assertions into a single step. This could be navigating to a page, filling out a form, or verifying a set of conditions.
+- Keep Steps Focused: Try to keep each step focused on a single task or assertion. If a step is doing too much, consider breaking it into smaller steps.
+- Error Localization: Steps help in localizing where a test might be failing, making it easier to diagnose issues.
+- Consistency: Use steps consistently across your test suite. This helps in maintaining a uniform structure and makes it easier for others to understand your tests.
+
+```JavaScript
+test('As a customer, I must be able to change my email via account.', { tag: '@Account' }, async ({ }) => {
+
+    const customer = {email: IdProvider.getIdPair().uuid + '@test.com', password: IdProvider.getIdPair().uuid};
+
+    await test.step('Register a valid account', async () => {
+        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await ShopCustomer.attemptsTo(Register(customer));
+        await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, {exact: true})).toBeVisible();
+    });
+
+    await test.step('Attempt to change email', async () => {
+        await ShopCustomer.goesTo(StorefrontAccountProfile.url());
+        await StorefrontAccountProfile.changeEmailButton.click();
+        await ShopCustomer.expects(StorefrontAccountProfile.emailAddressInput).toBeVisible();
+    });
+});
+```
+
 ### The Actor Pattern
 
 With the actor pattern we create tests in a readable language that follows a user-centric approach where a specific user / persona, called actor, performs several specific actions, called tasks. In addition, we use other types of artifacts that help to extract the actual test logic and make it reusable. There are these different artifacts that we use to simplify the test scenario:

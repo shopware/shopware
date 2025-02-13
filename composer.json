@@ -90,6 +90,7 @@
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
+        "horstoeko/zugferd": "^1.0.104",
         "lcobucci/clock": "^3.1.0",
         "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.10.3",

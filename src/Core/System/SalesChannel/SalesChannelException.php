@@ -34,9 +34,10 @@ class SalesChannelException extends HttpException
     public const INVALID_TYPE = 'FRAMEWORK__INVALID_TYPE';
     final public const CURRENCY_INVALID_EXCEPTION = 'SYSTEM__CURRENCY_INVALID_EXCEPTION';
     final public const COUNTRY_INVALID_EXCEPTION = 'SYSTEM__COUNTRY_INVALID_EXCEPTION';
-
     final public const COUNTRY_STATE_INVALID_EXCEPTION = 'SYSTEM__COUNTRY_STATE_INVALID_EXCEPTION';
     final public const SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED = 'SYSTEM__SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED';
+    final public const ENCODING_INVALID_STRUCT_EXCEPTION = 'SYSTEM__ENCODING_INVALID_STRUCT_EXCEPTION';
+    final public const ENCODING_MISSING_AGGREGATION_EXCEPTION = 'SYSTEM__ENCODING_MISSING_AGGREGATION_EXCEPTION';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
     public static function salesChannelNotFound(string $salesChannelId): self
@@ -232,6 +233,26 @@ class SalesChannelException extends HttpException
             self::SHIPPING_METHOD_DOES_NOT_EXISTS_EXCEPTION,
             self::$couldNotFindMessage,
             ['entity' => 'shipping method', 'field' => 'id', 'value' => $shippingMethodId]
+        );
+    }
+
+    public static function encodingInvalidStructException(string $context): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ENCODING_INVALID_STRUCT_EXCEPTION,
+            'Invalid struct: "{{ context }}"',
+            ['context' => $context]
+        );
+    }
+
+    public static function encodingMissingAggregationException(int|string $key, int $index): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ENCODING_MISSING_AGGREGATION_EXCEPTION,
+            'Can not find encoded aggregation "{{ key }}" for data index "{{ index }}"',
+            ['key' => $key, 'index' => $index]
         );
     }
 }

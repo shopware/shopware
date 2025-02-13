@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -112,13 +113,15 @@ class DocumentGenerator
 
         if (!Feature::isActive('v6.7.0.0')) {
             $document->setContent($this->fileRendererRegistry->render($document));
+
+            $this->rendererRegistry->finalize($documentType, $operation, $context, $config, $rendered);
         }
 
         return $document;
     }
 
     /**
-     * @param DocumentGenerateOperation[] $operations
+     * @param array<string, DocumentGenerateOperation> $operations
      */
     public function generate(string $documentType, array $operations, Context $context): DocumentGenerationResult
     {
@@ -153,14 +156,14 @@ class DocumentGenerator
                 $deepLinkCode = Random::getAlphanumericString(32);
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-                $mediaId = $this->resolveMediaId($operation, $context, $document);
+                $mediaId = $this->resolveMediaId($operation, $context, $document, $documentType, $rendered);
                 $mediaIdForHtmlA11y = $this->resolveMediaIdForA11y($operation, $context, $document);
 
                 $records[] = [
                     'id' => $id,
                     'documentTypeId' => $documentTypeId,
                     'fileType' => $operation->getFileType(),
-                    'orderId' => $orderId,
+                    'orderId' => $operation->getOrderId(),
                     'orderVersionId' => $operation->getOrderVersionId(),
                     'static' => $operation->isStatic(),
                     'documentMediaFileId' => $mediaId,
@@ -325,24 +328,30 @@ class DocumentGenerator
         return $document;
     }
 
-    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
+    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document, ?string $documentType = null, ?RendererResult $result = null): ?string
     {
         if ($operation->isStatic()) {
             return null;
         }
 
         try {
-            $blob = $this->fileRendererRegistry->render($document);
+            $document->setContent($this->fileRendererRegistry->render($document));
+
+            if (!Feature::isActive('v6.7.0.0')) {
+                if ($documentType && $result) {
+                    $this->rendererRegistry->finalize($documentType, $operation, $context, new DocumentRendererConfig(), $result);
+                }
+            }
         } catch (\Throwable) {
             return null;
         }
 
-        if ($blob === '') {
+        if ($document->getContent() === '') {
             return null;
         }
 
         return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveFile(
-            $blob,
+            $document->getContent(),
             $document->getFileExtension(),
             $document->getContentType(),
             $document->getName(),

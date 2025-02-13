@@ -351,18 +351,21 @@ class AddressController extends StorefrontController
             $params['postedAddress'] = $this->getById($addressId, $context, $customer);
         }
 
+        /** @var RequestDataBag|null $addressData */
+        $addressData = $dataBag->get('address');
+
         try {
             // if there is no data in the dataBag, the create form will be rendered
-            if ($dataBag->count() !== 0) {
-                $dataBag->set('id', $addressId);
-                $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
+            if ($addressData !== null && $addressData->count() !== 0) {
+                $addressData->set('id', $addressId);
+                $this->handleAddressCreation($viewData, $addressData, $context, $customer);
                 $this->addFlash(self::SUCCESS, $this->trans('account.addressSaved'));
 
                 return new NoContentResponse();
             }
         } catch (ConstraintViolationException $formViolations) {
             $params['formViolations'] = $formViolations;
-            $params['postedAddress'] = $dataBag;
+            $params['postedAddress'] = $addressData;
         } catch (\Throwable) {
             $viewData->setSuccess(false);
             $viewData->setMessages([

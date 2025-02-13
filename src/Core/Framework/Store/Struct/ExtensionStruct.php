@@ -157,6 +157,11 @@ class ExtensionStruct extends Struct
     protected bool $inAppFeaturesAvailable = false;
 
     /**
+     * @var list<string>
+     */
+    protected array $inAppPurchases = [];
+
+    /**
      * @param array<string, mixed> $data
      *
      * @throws \InvalidArgumentException
@@ -614,5 +619,21 @@ class ExtensionStruct extends Struct
     public function setInAppFeaturesAvailable(bool $inAppFeaturesAvailable): void
     {
         $this->inAppFeaturesAvailable = $inAppFeaturesAvailable;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getInAppPurchases(): array
+    {
+        return $this->inAppPurchases;
+    }
+
+    /**
+     * @param list<string> $inAppPurchases
+     */
+    public function setInAppPurchases(array $inAppPurchases): void
+    {
+        $this->inAppPurchases = $inAppPurchases;
     }
 }

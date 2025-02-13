@@ -53,12 +53,7 @@
 
                             {% block component_account_register_personal_fields %}
                                 {% block component_account_register_personal_address_fields %}
-                                    {% if feature('ADDRESS_SELECTION_REWORK') %}
-                                        {% set prefix = 'billingAddress' %}
-                                    {% endif %}
-
                                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
-                                        prefix: prefix,
                                         showBirthdayField: config('core.loginRegistration.showBirthdayField'),
                                         accountType: data.get('accountType')
                                     } %}

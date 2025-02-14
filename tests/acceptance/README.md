@@ -171,11 +171,11 @@ We achieve this by using a lightweight actor pattern on top of Playwright which 
 #### Write meaningful test descriptions
 Playwright provides a powerful feature, `test.step`, to write meaningful and structured test descriptions.
 This method allows you to describe test steps in a human-readable way, making it easier to understand test scenarios and debug failures.
-- Descriptive Names: Use clear and descriptive names for each step. Each step's name should explain what the step is doing and/or what it's verifying.
-- Logical Grouping: Group related actions and assertions into a single step. This could be navigating to a page, filling out a form, or verifying a set of conditions.
-- Keep Steps Focused: Try to keep each step focused on a single task or assertion. If a step is doing too much, consider breaking it into smaller steps.
-- Error Localization: Steps help in localizing where a test might be failing, making it easier to diagnose issues.
-- Consistency: Use steps consistently across your test suite. This helps in maintaining a uniform structure and makes it easier for others to understand your tests.
+- **Use Descriptive Names**: Clearly describe each step’s purpose. The name should explain what the step does or what it's verifying.  
+- **Group Related Actions**: Combine logically related actions and assertions into a single step. For example, navigating to a page, filling out a form, or verifying multiple conditions.  
+- **Keep Steps Focused**: Each step should perform a single, well-defined task. If a step is too complex, break it into smaller steps.  
+- **Improve Error Localization**: Well-defined steps help pinpoint exactly where a test is failing, making debugging more efficient.  
+- **Maintain Consistency**: Use `test.step` consistently across your test suite to ensure a uniform structure, making tests easier to read and maintain.
 
 ```JavaScript
 test('As a customer, I must be able to change my email via account.', { tag: '@Account' }, async ({ }) => {

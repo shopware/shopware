@@ -43,6 +43,8 @@ module.exports = {
 
     testRunner: 'jest-jasmine2',
 
+    resolver: '<rootDir>/jest-resolver.js',
+
     runner: 'groups',
 
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
@@ -76,15 +78,16 @@ module.exports = {
     },
 
     transformIgnorePatterns: [
-        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|@vue/compat|other)/)',
+        '/node_modules/(?!(@shopware-ag/meteor-component-library|@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
     ],
 
     moduleNameMapper: {
         '^test(.*)$': '<rootDir>/test$1',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
+        '^@shopware-ag/meteor-component-library$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/index.js',
         '^lodash-es$': 'lodash',
-        vue$: '@vue/compat/dist/vue.cjs.js',
+        vue$: 'vue/dist/vue.cjs.js',
     },
 
     reporters: isCi ? [
@@ -110,7 +113,9 @@ module.exports = {
         '<rootDir>/src/**/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
+        '<rootDir>/build/vite-plugins/**/*.spec.js',
         '!<rootDir>/src/**/*.spec.vue2.js',
+        '<rootDir>/scripts/**/*.spec.ts',
     ],
 
     testEnvironmentOptions: {

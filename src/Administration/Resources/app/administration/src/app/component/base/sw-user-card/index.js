@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-user-card.html.twig';
@@ -50,8 +50,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-user-card', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         user: {

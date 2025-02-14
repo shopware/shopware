@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Installer extends Bundle
 {
     /**

@@ -9,28 +9,12 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class Transaction extends Struct
 {
-    /**
-     * @var CalculatedPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $amount;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethodId;
-
     protected ?Struct $validationStruct = null;
 
     public function __construct(
-        CalculatedPrice $amount,
-        string $paymentMethodId
+        protected CalculatedPrice $amount,
+        protected string $paymentMethodId
     ) {
-        $this->amount = $amount;
-        $this->paymentMethodId = $paymentMethodId;
     }
 
     public function getAmount(): CalculatedPrice

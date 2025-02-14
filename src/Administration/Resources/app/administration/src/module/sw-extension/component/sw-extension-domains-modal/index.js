@@ -2,13 +2,11 @@ import template from './sw-extension-domains-modal.html.twig';
 import './sw-extension-domains-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['modal-close'],
 
@@ -29,15 +27,6 @@ export default {
             return this.$t('sw-extension-store.component.sw-extension-domains-modal.modalTitle', {
                 extensionLabel: this.extensionLabel,
             });
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

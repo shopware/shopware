@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package admin
  */
 
 const path = require('path');
@@ -28,10 +28,10 @@ const baseRules = {
             'sw-extension-component-section',
         ],
     }],
-    'sw-core-rules/require-package-annotation': ['warn'],
+    'sw-core-rules/require-package-annotation': ['error'],
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
-    'filename-rules/match': [2, /^(?!.*\.spec\.ts$).*(?:\.js|\.ts|\.html|\.html\.twig)$/],
+    'filename-rules/match': [2, /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/],
     'vue/multi-word-component-names': ['error', {
         ignores: ['index.html'],
     }],
@@ -73,21 +73,30 @@ module.exports = {
     settings: {
         'import/resolver': {
             node: {},
-            webpack: {
-                config: {
-                    // Sync with webpack.config.js
+
+            // This plugin supports to load the actual vite config
+            // But the import resolver is not able to resolve the alias find regex
+            // It only works with strings, so we need to manually add the aliases
+            // @see: https://github.com/pzmosquito/eslint-import-resolver-vite/blob/main/index.js#L13
+            vite: {
+                viteConfig: {
                     resolve: {
                         extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
-                        alias: {
-                            vue$: 'vue/dist/vue.esm.js',
-                            src: path.join(__dirname, 'src'),
-                            module: path.join(__dirname, 'src/module'),
-                            scss: path.join(__dirname, 'src/app/assets/scss'),
-                            assets: path.join(__dirname, 'static'),
-                            // Alias for externals
-                            Shopware: path.join(__dirname, 'src/core/shopware'),
-                            '@administration': path.join(__dirname, 'src'),
-                        },
+
+                        alias: [
+                            {
+                                find: 'vue',
+                                replacement: '@vue/compat/dist/vue.esm-bundler.js',
+                            },
+                            {
+                                find: 'src',
+                                replacement: path.join(__dirname, 'src'),
+                            },
+                            {
+                                find: 'test',
+                                replacement: path.join(__dirname, 'test'),
+                            },
+                        ],
                     },
                 },
             },
@@ -106,7 +115,7 @@ module.exports = {
                 'prettier',
             ],
             files: ['**/*.js'],
-            excludedFiles: ['*.spec.js', '*.spec.vue3.js'],
+            excludedFiles: ['*.spec.js'],
             rules: {
                 ...baseRules,
                 'sw-core-rules/require-explicit-emits': 'error',
@@ -144,7 +153,7 @@ module.exports = {
                 'vue/no-deprecated-events-api': 'error',
                 'vue/require-slots-as-functions': 'error',
                 'vue/no-deprecated-props-default-this': 'error',
-                'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
+                'sw-deprecation-rules/no-compat-conditions': ['error'],
                 'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
                 'sw-deprecation-rules/no-vue-options-api': 'off',
             },
@@ -191,7 +200,6 @@ module.exports = {
                 'vue/attributes-order': 'error',
                 'vue/no-deprecated-slot-attribute': ['error'],
                 'vue/no-deprecated-slot-scope-attribute': ['error'],
-                'sw-deprecation-rules/no-twigjs-blocks': 'error',
                 // @deprecated v.6.7.0.0 - will be error in v.6.7
                 'sw-deprecation-rules/no-deprecated-components': ['warn', 'disableFix'],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7
@@ -218,7 +226,7 @@ module.exports = {
                 'vuejs-accessibility/media-has-caption': 'off',
             },
         }, {
-            files: ['**/*.spec.js', '**/*.spec.ts', '**/*.spec.vue3.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
+            files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
                 'sw-test-rules/await-async-functions': 'error',
                 'max-len': 0,
@@ -289,8 +297,12 @@ module.exports = {
                 'no-void': 'off',
                 // Disable the base rule as it can report incorrect errors
                 'no-unused-vars': 'off',
-                '@typescript-eslint/no-unused-vars': 'error',
-                'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
+                '@typescript-eslint/no-unused-vars': [
+                    'error',
+                    { caughtErrors: 'none' },
+                ],
+                '@typescript-eslint/prefer-promise-reject-errors': 'warn',
+                'sw-deprecation-rules/no-compat-conditions': ['error'],
                 'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
                 'sw-deprecation-rules/no-vue-options-api': 'off',
             },

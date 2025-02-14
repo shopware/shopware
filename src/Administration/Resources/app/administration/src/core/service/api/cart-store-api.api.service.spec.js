@@ -12,7 +12,7 @@ function createCartStoreServiceService() {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('cartStoreService', () => {
     it('is registered correctly', async () => {

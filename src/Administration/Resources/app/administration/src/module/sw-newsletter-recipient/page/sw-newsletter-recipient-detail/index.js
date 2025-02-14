@@ -2,7 +2,7 @@ import template from './sw-newsletter-recipient-detail.html.twig';
 import './sw-newsletter-recipient-detail.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 
 const { Mixin } = Shopware;
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -81,9 +79,13 @@ export default {
         onClickSave() {
             this.newsletterRecipientStore.save(this.newsletterRecipient, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-newsletter-recipient.detail.messageSaveSuccess', 0, {
-                        key: this.newsletterRecipient.email,
-                    }),
+                    message: this.$tc(
+                        'sw-newsletter-recipient.detail.messageSaveSuccess',
+                        {
+                            key: this.newsletterRecipient.email,
+                        },
+                        0,
+                    ),
                 });
             });
         },

@@ -4,7 +4,7 @@ import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const mockItem = {
@@ -88,6 +88,7 @@ async function createWrapper() {
                 'sw-sidebar': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 stateStyleDataProviderService: {
@@ -401,7 +402,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.affiliateCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: expect.any(Array),
                 }),
                 'campaign-code-filter': expect.objectContaining({
                     property: 'campaignCode',
@@ -410,7 +410,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.campaignCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: expect.any(Array),
                 }),
                 'promotion-code-filter': expect.objectContaining({
                     property: 'lineItems.payload.code',
@@ -419,7 +418,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.promotionCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: expect.any(Array),
                 }),
             }),
         );

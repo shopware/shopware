@@ -15,7 +15,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[Group('slow')]
 class AdditionalPermissionValidationTest extends TestCase
 {

@@ -11,11 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterException::class)]
 class NewsletterExceptionTest extends TestCase
 {
-    public function testRecipientNotFoundn(): void
+    public function testRecipientNotFound(): void
     {
         $exception = NewsletterException::recipientNotFound('id-1', 'value-1');
 

@@ -17,7 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'theme:compile',
     description: 'Compile the theme',
 )]
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeCompileCommand extends Command
 {
     private SymfonyStyle $io;

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class CopyBatchInput
 {
     /**

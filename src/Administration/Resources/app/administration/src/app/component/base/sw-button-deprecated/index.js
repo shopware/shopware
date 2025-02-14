@@ -4,7 +4,7 @@ import template from './sw-button.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -20,12 +20,6 @@ Component.register('sw-button-deprecated', {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: {
-        ...Shopware.compatConfig,
-        // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
-        INSTANCE_ATTRS_CLASS_STYLE: false,
-    },
 
     props: {
         disabled: {
@@ -120,15 +114,6 @@ Component.register('sw-button-deprecated', {
             return {
                 'is--hidden': this.isLoading,
             };
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
 
         filteredAttributes() {

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ReverseProxyCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -17,7 +17,6 @@ class ReverseProxyCompilerPass implements CompilerPassInterface
             $container->removeDefinition(ReverseProxyCache::class);
             $container->removeDefinition(AbstractReverseProxyGateway::class);
             $container->removeDefinition(FastlyReverseProxyGateway::class);
-            $container->removeDefinition(ReverseProxyCacheClearer::class);
             $container->removeDefinition(FastlyReverseProxyGateway::class);
 
             return;

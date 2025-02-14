@@ -10,14 +10,14 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
 class AdminSalesChannelSourceRule extends Rule
 {
     final public const RULE_NAME = 'adminSalesChannelSource';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $hasAdminSalesChannelSource = false)
     {
         parent::__construct();

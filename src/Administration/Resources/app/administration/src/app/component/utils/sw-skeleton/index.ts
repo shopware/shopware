@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-skeleton.html.twig';
 import './sw-skeleton.scss';
 
@@ -8,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-skeleton', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         variant: {

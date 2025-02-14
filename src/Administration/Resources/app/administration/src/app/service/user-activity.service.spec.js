@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import UserActivityService from './user-activity.service';
 

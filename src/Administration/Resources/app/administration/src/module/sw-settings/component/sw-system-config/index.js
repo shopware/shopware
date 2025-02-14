@@ -1,7 +1,8 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
+import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -26,8 +27,6 @@ const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['systemConfigApiService'],
 
@@ -168,11 +167,7 @@ export default {
             try {
                 const values = await this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId);
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.actualConfigData, this.currentSalesChannelId, values);
-                } else {
-                    this.actualConfigData[this.currentSalesChannelId] = values;
-                }
+                this.actualConfigData[this.currentSalesChannelId] = values;
             } finally {
                 this.isLoading = false;
             }
@@ -258,7 +253,11 @@ export default {
         },
 
         getInheritedValue(element) {
-            const value = this.actualConfigData.null[element.name];
+            let value = this.actualConfigData.null[element.name];
+
+            if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+                value = deepCloneWithEntity(value);
+            }
 
             if (value) {
                 return value;

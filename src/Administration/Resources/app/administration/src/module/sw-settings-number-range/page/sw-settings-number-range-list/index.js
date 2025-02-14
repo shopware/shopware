@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import template from './sw-settings-number-range-list.html.twig';
 import './sw-settings-number-range-list.scss';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -135,9 +133,13 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-number-range.detail.messageSaveSuccess', 0, {
-                            name: numberRange.name,
-                        }),
+                        message: this.$tc(
+                            'sw-settings-number-range.detail.messageSaveSuccess',
+                            {
+                                name: numberRange.name,
+                            },
+                            0,
+                        ),
                     });
                 })
                 .catch(() => {

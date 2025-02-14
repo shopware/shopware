@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Mail;
 
-use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -12,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class MailException extends HttpException
 {
     final public const GIVEN_OPTION_INVALID = 'MAIL__GIVEN_OPTION_INVALID';
@@ -70,12 +68,8 @@ class MailException extends HttpException
         );
     }
 
-    public static function mailTransportFailedException(?\Throwable $e = null): self|MailTransportFailedException
+    public static function mailTransportFailedException(?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new MailTransportFailedException([], $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::MAIL_TRANSPORT_FAILED,

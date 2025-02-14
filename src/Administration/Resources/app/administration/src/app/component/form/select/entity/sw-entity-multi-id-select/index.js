@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-entity-multi-id-select.html.twig';
 
 const { Component, Context, Mixin } = Shopware;
@@ -10,8 +14,6 @@ Component.register('sw-entity-multi-id-select', {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -62,24 +64,6 @@ Component.register('sw-entity-multi-id-select', {
         return {
             collection: null,
         };
-    },
-
-    computed: {
-        getListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                const listeners = {};
-
-                Object.keys(this.$listeners).forEach((listener) => {
-                    if (listener !== 'change') {
-                        listeners[listener] = this.$listeners[listener];
-                    }
-                });
-
-                return listeners;
-            }
-
-            return {};
-        },
     },
 
     watch: {

@@ -1,3 +1,4 @@
+{% block sw_extension_config %}
 <sw-meteor-page
     class="sw-extension-config"
     :from-link="fromLink"
@@ -6,7 +7,7 @@
         <sw-extension-icon
             class="sw-extension-config__extension-icon"
             :src="image"
-            :alt="$tc('sw-extension-store.component.sw-extension-config.imageDescription', 0, { extensionName: extensionLabel})"
+            :alt="$tc('sw-extension-store.component.sw-extension-config.imageDescription', { extensionName: extensionLabel}, 0)"
         />
     </template>
 
@@ -54,3 +55,4 @@
         />
     </template>
 </sw-meteor-page>
+{% endblock %}

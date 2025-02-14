@@ -11,8 +11,9 @@
             type="text"
             class="d-none grecaptcha-v2-input"
             name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER') }}"
-            data-skip-report-validity="true"
-            required>
+            {% if feature('ACCESSIBILITY_TWEAKS') %}data-validation="required" data-validate-hidden="true"{% endif %}
+            {% if not feature('ACCESSIBILITY_TWEAKS') %}data-skip-report-validity="true"{% endif %}
+            {% if not feature('ACCESSIBILITY_TWEAKS') %}required{% endif %}>
 
         <div class="grecaptcha-v2-container"></div>
 

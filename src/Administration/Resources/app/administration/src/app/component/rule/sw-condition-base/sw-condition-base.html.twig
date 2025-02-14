@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_base %}
 <div class="sw-condition">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_base_content %}
     <div
         class="sw-condition__container"
         :class="conditionClasses"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_base_field_condition %}
         <sw-condition-type-select
             v-bind="{ condition, availableTypes, hasError, availableGroups }"
@@ -16,11 +13,9 @@
         {% endblock %}
 
         <div class="sw-condition__value-content">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_value_before_content %}
 
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_value_content %}
             <sw-text-field
                 class="sw-condition__placeholder"
@@ -31,13 +26,11 @@
             {% endblock %}
         </div>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_base_field_actions %}
         <sw-context-button
             class="sw-condition__context-button"
             :disabled="disabled || undefined"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_base_field_create_before_action %}
             <sw-context-menu-item
                 class="sw-condition__create-before-action"
@@ -48,7 +41,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_base_field_create_after_action %}
             <sw-context-menu-item
                 class="sw-condition__create-after-action"
@@ -59,7 +51,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_base_field_delete_action %}
             <sw-context-menu-item
                 :disabled="disabled || undefined"
@@ -74,7 +65,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_base_error %}
     <sw-field-error :error="currentError" />
     {% endblock %}

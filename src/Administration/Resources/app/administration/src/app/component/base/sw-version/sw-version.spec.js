@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -8,7 +8,7 @@ describe('components/base/sw-version', () => {
     let wrapper;
 
     async function createWrapper(version) {
-        Shopware.State.commit('context/setAppConfigVersion', version);
+        Shopware.Store.get('context').app.config.version = version;
 
         wrapper = mount(await wrapTestComponent('sw-version', { sync: true }), {
             global: {

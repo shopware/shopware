@@ -5,12 +5,10 @@ const { Component } = Shopware;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.register('sw-condition-type-select', {
     template: template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'removeNodeFromTree',

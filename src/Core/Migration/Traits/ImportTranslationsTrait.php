@@ -7,16 +7,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('framework')]
 trait ImportTranslationsTrait
 {
     protected function importTranslation(string $table, Translations $translations, Connection $connection): TranslationWriteResult
     {
         $germanIds = $this->getLanguageIds($connection, 'de-DE');
-        $englishIds = array_diff(
+        $englishIds = array_unique(array_diff(
             array_merge($this->getLanguageIds($connection, 'en-GB'), [Defaults::LANGUAGE_SYSTEM]),
             $germanIds
-        );
+        ));
 
         $columns = [];
         $values = [];

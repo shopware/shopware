@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 import template from './sw-settings-mailer.html.twig';
 import './sw-settings-mailer.scss';
@@ -19,8 +19,6 @@ const defaultMailerSettings = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['systemConfigApiService'],
 

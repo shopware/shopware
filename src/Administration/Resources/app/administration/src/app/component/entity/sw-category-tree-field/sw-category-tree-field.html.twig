@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_tree_field %}
 <div
     ref="swCategoryTreeField"
@@ -9,10 +8,8 @@
     <sw-contextual-field
         v-bind="$attrs"
         class="sw-category-tree-field__main-wrapper"
-        v-on="listeners"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_tree_field_input %}
         <template #sw-field-input="{ identification, error, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
             <sw-loader
@@ -20,7 +17,6 @@
                 class="sw-cms-layout-assignment-modal__loader"
             />
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_tree_field_input_labels %}
             <sw-label
                 v-for="selectedCategory in visibleTags"
@@ -34,7 +30,6 @@
                 @dismiss="removeItem(selectedCategory)"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_tree_field_input_labels_property %}
                 <span class="sw-category-tree-field__label-property">
                     <slot name="labelProperty">
@@ -43,7 +38,6 @@
                 </span>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_tree_field_input_labels_dismiss_icon %}
                 <template #dismiss-icon>
                     <sw-icon name="regular-times-s" />
@@ -53,7 +47,6 @@
             </sw-label>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_tree_field_input_labels_hidden_tag %}
             <sw-label
                 v-if="numberOfHiddenTags > 0"
@@ -68,7 +61,6 @@
             </sw-label>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_tree_field_input_field %}
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
@@ -83,9 +75,7 @@
             >
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_tree_field_input_transition %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_tree_field_input_results %}
             <sw-popover
                 v-if="isExpanded"
@@ -95,7 +85,6 @@
                 :resize-width="true"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_tree_field_input_results_tree %}
                 <sw-tree
                     v-if="term.length <= 0 && categories.length > 0"
@@ -106,19 +95,16 @@
                     @get-tree-items="getTreeItems"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_tree_field_input_results_tree_headline %}
                     <template #headline>
                         <span></span></template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_tree_field_input_results_tree_search %}
                     <template #search>
                         <span></span></template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_tree_field_input_results_tree_items %}
                     <template
                         #items="{
@@ -158,14 +144,12 @@
                 </sw-tree>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_tree_field_input_results_search_results %}
                 <ul
                     v-else-if="searchResult.length > 0 && term.length > 0"
                     class="sw-category-tree-field__search-results"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_tree_field_input_results_search_results_item %}
                     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
                     <li
@@ -176,7 +160,6 @@
                         @click.stop="onCheckSearchItem(item)"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_category_tree_field_input_results_search_results_item_checkbox %}
                         <sw-checkbox-field
                             :value="isSearchItemChecked(item.id)"
@@ -184,13 +167,11 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_category_tree_field_input_results_search_results_item_folder %}
                         <div
                             v-if="item.childCount > 0"
                             class="sw-category-tree-field__search-results-icon"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_category_tree_field_input_results_search_results_item_folder_icon %}
                             <sw-icon
                                 name="regular-folder"
@@ -200,13 +181,11 @@
                         </div>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_category_tree_field_input_results_search_results_item_endpoint %}
                         <div
                             v-else
                             class="sw-category-tree-field__search-results-icon"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_category_tree_field_input_results_search_results_item_endpoint_icon %}
                             <sw-icon
                                 name="regular-circle-xxs"
@@ -216,10 +195,8 @@
                         </div>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_category_tree_field_input_results_search_results_item_name %}
                         <span class="sw-category-tree-field__search-results-name">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_category_tree_field_input_results_search_results_item_name_highlight %}
                             <sw-highlight-text
                                 :search-term="term"
@@ -233,7 +210,6 @@
                 </ul>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_tree_field_input_search_results_empty %}
                 <p
                     v-else

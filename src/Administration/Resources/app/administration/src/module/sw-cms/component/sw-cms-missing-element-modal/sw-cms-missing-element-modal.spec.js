@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -14,7 +14,7 @@ async function createWrapper() {
             },
             global: {
                 mocks: {
-                    $tc: (key, number, value) => {
+                    $tc: (key, value) => {
                         if (!value) {
                             return key;
                         }

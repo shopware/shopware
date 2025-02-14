@@ -26,9 +26,19 @@
 {% block page_checkout_main_content %}
     {% block page_checkout_cart %}
         {% block page_checkout_cart_header %}
-            <h1 class="cart-main-header">
-                {{ 'checkout.cartHeader'|trans|sw_sanitize }}
-            </h1>
+            {# @deprecated tag:v6.7.0 - Cart header will also display the current amount of line-items #}
+            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                <h1 class="cart-main-header d-inline-block">
+                    {{ 'checkout.cartHeader'|trans|sw_sanitize }}
+                </h1>
+                <span class="cart-main-header-item-counter d-inline-block mb-4 fw-bold fs-3 ms-1 text-dark-emphasis">
+                    ({{- 'checkout.itemCounter'|trans({'%count%': page.cart.lineItems|length})|sw_sanitize -}})
+                </span>
+            {% else %}
+                <h1 class="cart-main-header">
+                    {{ 'checkout.cartHeader'|trans|sw_sanitize }}
+                </h1>
+            {% endif %}
         {% endblock %}
 
         {% block page_checkout_cart_product_table %}

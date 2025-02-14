@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Script\Api;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class ResponseCacheConfiguration
 {
     private bool $enabled = true;

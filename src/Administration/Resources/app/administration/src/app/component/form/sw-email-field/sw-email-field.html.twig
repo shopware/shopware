@@ -1,11 +1,11 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-text-field component #}
+{% block sw_email_field %}
 <mt-email-field
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :model-value="compatValue"
-    v-on="listeners"
-    @update:modelValue="handleUpdateModelValue"
+    @update:model-value="handleUpdateModelValue"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -19,14 +19,15 @@
     </template>
     <slot></slot>
 </mt-email-field>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
+{% block sw_email_field_deprecated %}
 <sw-email-field-deprecated
     v-else
     v-bind="$attrs"
     :value="value"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -39,3 +40,4 @@
         </slot>
     </template>
 </sw-email-field-deprecated>
+{% endblock %}

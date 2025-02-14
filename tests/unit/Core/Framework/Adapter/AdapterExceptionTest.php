@@ -67,4 +67,14 @@ class AdapterExceptionTest extends TestCase
         static::assertSame('Failed rendering Twig string template due syntax error: "test"', $exception->getMessage());
         static::assertSame(['message' => 'test'], $exception->getParameters());
     }
+
+    public function testInvalidArgument(): void
+    {
+        $exception = AdapterException::invalidArgument('test');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(AdapterException::INVALID_ARGUMENT, $exception->getErrorCode());
+        static::assertSame('test', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
 }

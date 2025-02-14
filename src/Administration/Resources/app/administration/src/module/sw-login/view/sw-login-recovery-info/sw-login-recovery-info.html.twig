@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_login_recovery_info %}
 <div class="sw-login-recovery-info">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_info_headline %}
     <h2 class="sw-login__form-headline">
         <router-link
@@ -18,7 +16,6 @@
     </h2>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_info_info %}
     <template v-if="!rateLimitTime">
         <sw-alert variant="info">
@@ -30,7 +27,7 @@
     </template>
     <template v-else>
         <sw-alert variant="info">
-            {{ $tc('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', 0, { seconds: rateLimitTime }) }}
+            {{ $tc('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', { seconds: rateLimitTime }, 0) }}
         </sw-alert>
     </template>
     {% endblock %}

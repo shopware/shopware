@@ -18,9 +18,12 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type Notification array{id: non-empty-string, status: string, message: string, adminOnly?: bool, requiredPrivileges: array<int, string>, createdByIntegrationId?: string|null, createdByUserId?: string|null}
  */
-#[Package('administration')]
+#[Package('framework')]
 class NotificationService
 {
+    /**
+     * @param EntityRepository<NotificationCollection> $notificationRepository
+     */
     public function __construct(private readonly EntityRepository $notificationRepository)
     {
     }
@@ -61,10 +64,7 @@ class NotificationService
         $criteria->setLimit($limit);
 
         $notifications = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
-            /** @var NotificationCollection $notifications */
-            $notifications = $this->notificationRepository->search($criteria, $context)->getEntities();
-
-            return $notifications;
+            return $this->notificationRepository->search($criteria, $context)->getEntities();
         });
 
         if ($notifications->count() === 0) {
@@ -74,12 +74,7 @@ class NotificationService
             ];
         }
 
-        /** @var NotificationEntity $notification */
-        $notification = $notifications->last();
-
-        /** @var \DateTimeInterface $latestTimestamp */
-        $latestTimestamp = $notification->getCreatedAt();
-        $latestTimestamp = $latestTimestamp->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $latestTimestamp = $notifications->last()?->getCreatedAt()?->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         if ($isAdmin) {
             return [

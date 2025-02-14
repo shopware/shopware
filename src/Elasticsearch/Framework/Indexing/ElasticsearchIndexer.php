@@ -8,7 +8,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -16,7 +15,6 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -25,7 +23,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @final
  */
 #[AsMessageHandler]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchIndexer
 {
     /**
@@ -149,8 +147,6 @@ class ElasticsearchIndexer
     {
         $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
 
-        $this->createScripts();
-
         $timestamp = new \DateTime();
 
         $this->createIndex($timestamp);
@@ -189,28 +185,6 @@ class ElasticsearchIndexer
         }
 
         return $errors;
-    }
-
-    private function createScripts(): void
-    {
-        $finder = (new Finder())
-            ->files()
-            ->in(__DIR__ . '/Scripts')
-            ->name('*.groovy');
-
-        foreach ($finder as $file) {
-            $name = pathinfo($file->getFilename(), \PATHINFO_FILENAME);
-
-            $this->client->putScript([
-                'id' => $name,
-                'body' => [
-                    'script' => [
-                        'lang' => 'painless',
-                        'source' => file_get_contents($file->getPathname()),
-                    ],
-                ],
-            ]);
-        }
     }
 
     private function createIndex(\DateTime $timestamp): void
@@ -292,10 +266,7 @@ class ElasticsearchIndexer
         }
 
         if ($documents === []) {
-            if (Feature::isActive('v6.7.0.0')) {
-                throw ElasticsearchException::emptyIndexingRequest();
-            }
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Since v6.7.0.0 ElasticsearchException will be thrown if no documents are provided for indexing.');
+            throw ElasticsearchException::emptyIndexingRequest();
         }
 
         $arguments = [

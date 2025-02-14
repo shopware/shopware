@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-multi-select-filter.html.twig';
 
 const { Component } = Shopware;
@@ -8,8 +12,6 @@ const { Criteria, EntityCollection } = Shopware.Data;
  */
 Component.register('sw-multi-select-filter', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 

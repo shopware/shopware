@@ -4,9 +4,8 @@ import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package after-sales
  */
-
 async function createWrapper(privileges = []) {
     return mount(
         await wrapTestComponent('sw-settings-document-list', {
@@ -69,7 +68,6 @@ async function createWrapper(privileges = []) {
                     'sw-icon': true,
                     'sw-search-bar': true,
                     'router-link': true,
-                    'sw-language-switch': true,
                     'sw-checkbox-field': true,
                 },
                 provide: {

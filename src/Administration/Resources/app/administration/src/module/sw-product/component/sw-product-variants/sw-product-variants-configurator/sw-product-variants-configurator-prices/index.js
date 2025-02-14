@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-variants-configurator-prices.html.twig';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -124,11 +122,7 @@ export default {
             }
 
             // set empty surcharge
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(option, 'price', []);
-            } else {
-                option.price = [];
-            }
+            option.price = [];
             this.currenciesList.forEach((currency) => {
                 if (!option.price.find((price) => price.currencyId === currency.id)) {
                     const newPriceForCurrency = {

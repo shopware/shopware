@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @phpstan-type SystemConfig array{integrationId: string, appUrl: string, shopId: string}
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1700558603RemoveDataIntegration extends MigrationStep
 {
     final public const SYSTEM_CONFIG_KEY = 'core.usageData.integration';

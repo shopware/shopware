@@ -1,10 +1,11 @@
+import { inject } from 'vue';
 import template from './sw-switch-field-deprecated.html.twig';
 import './sw-switch-field-deprecated.scss';
 
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Boolean input field based on checkbox.
@@ -45,6 +46,13 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
                     'medium',
                     'default',
                 ].includes(val);
+            },
+        },
+        ariaLabel: {
+            type: String,
+            required: false,
+            default() {
+                return inject('ariaLabel', null)?.value;
             },
         },
     },

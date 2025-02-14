@@ -7,7 +7,7 @@ const { fileReader } = Shopware.Utils;
 /**
  * @status ready
  * @description The <u>sw-media-preview-v2</u> component is used to show a preview of media objects.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-preview-v2
@@ -20,8 +20,6 @@ const { fileReader } = Shopware.Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

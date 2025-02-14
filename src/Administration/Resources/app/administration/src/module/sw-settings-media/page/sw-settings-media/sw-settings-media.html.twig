@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_media_index %}
 <sw-page class="sw-settings-media">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_media_header %}
     <template #smart-bar-header>
         <h2>{{ $tc('sw-settings.index.title') }} <sw-icon
@@ -12,11 +10,9 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_media_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_media_actions_save %}
+        {% block sw_settings_media_actions_save %}
         <sw-button-process
             class="sw-settings-media__save-action"
             :is-loading="isLoading"
@@ -32,7 +28,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_media_content %}
     <template #content>
         <sw-card-view>
@@ -51,6 +46,8 @@
                     <mt-slider
                         v-if="!isLoading"
                         v-model="sliderValue"
+                        :label="$tc('sw-settings-media.3d.lightIntensity.label')"
+                        :help-text="$tc('sw-settings-media.3d.lightIntensity.helpText')"
                         :min="0"
                         :max="100"
                         @input="onSliderChange"

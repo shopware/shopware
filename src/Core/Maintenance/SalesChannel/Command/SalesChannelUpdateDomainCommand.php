@@ -15,13 +15,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
 #[AsCommand(
     name: 'sales-channel:update:domain',
     description: 'Updates a sales channel domain',
 )]
-#[Package('core')]
+#[Package('discovery')]
 class SalesChannelUpdateDomainCommand extends Command
 {
     /**

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';

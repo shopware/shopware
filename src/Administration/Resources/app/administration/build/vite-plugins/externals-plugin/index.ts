@@ -3,7 +3,7 @@ import { ensureDir, ensureFile, emptyDirSync, writeFile } from 'fs-extra';
 import path from 'path';
 
 /**
- * @package framework
+ * @sw-package framework
  * @private
  *
  * This plugin will add an alias for /^vue$/ pointing to a temp file that exports the global Vue instance.
@@ -40,7 +40,7 @@ export default function viteExternalsPlugin(): Plugin {
 
             // Write temp vue.js file
             await ensureFile(vueJsCachePath);
-            await writeFile(vueJsCachePath, `module.exports = window['Shopware']['Vue'];`);
+            await writeFile(vueJsCachePath, `module.exports = window['Shopware']?.['Vue']`);
 
             return {
                 resolve: {

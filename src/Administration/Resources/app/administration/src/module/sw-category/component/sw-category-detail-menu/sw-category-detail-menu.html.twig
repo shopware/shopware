@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_detail_menu %}
 <sw-card
     class="sw-category-detail-base__menu"
@@ -7,7 +6,6 @@
     :is-loading="isLoading"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_information_visible %}
     <sw-switch-field
         v-model:value="reversedVisibility"
@@ -17,7 +15,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_menu_media %}
     <sw-upload-listener
         :key="category.id + 'uploadListener'"
@@ -40,7 +37,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_menu_media_modal %}
     <sw-media-modal-v2
         v-if="showMediaModal"
@@ -51,9 +47,8 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_menu_description %}
-    <sw-text-editor
+    <mt-text-editor
         :key="category.id + 'description'"
         v-model:value="category.description"
         class="sw-category-detail-base__description"

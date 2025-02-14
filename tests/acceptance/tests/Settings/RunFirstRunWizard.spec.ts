@@ -1,14 +1,21 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { isSaaSInstance } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
+/**
+ * @sw-package fundamentals@after-sales
+ */
 test('Merchant is able to be guided through the First Run Wizard.', { tag: '@FirstRunWizard' }, async ({
     FRWSalesChannelSelectionPossibility,
     ShopAdmin,
     DefaultSalesChannel,
     AdminFirstRunWizard,
     AdminApiContext,
+    InstanceMeta,
 }) => {
     test.skip(await isSaaSInstance(AdminApiContext),'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
+    // TODO: Meteor fix
+    test.skip(satisfies(InstanceMeta.version, '>=6.7'), 'Skipped due to 6.7 expect in the ats npm package');
 
     await ShopAdmin.goesTo(AdminFirstRunWizard.url());
 

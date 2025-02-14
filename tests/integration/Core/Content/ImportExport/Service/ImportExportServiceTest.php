@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(ImportExportService::class)]
 class ImportExportServiceTest extends TestCase
 {

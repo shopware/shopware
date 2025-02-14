@@ -1,29 +1,23 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_mapping_field %}
 <div class="sw-cms-mapping-field">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_mapping_field_info %}
     <div class="sw-cms-mapping-field__info">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_mapping_field_label %}
         <div class="sw-cms-mapping-field__label">
             {{ label }}
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_mapping_field_mapping %}
         <template v-if="allowedMappingTypes.length">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_mapping_field_mapping_selection %}
             <sw-context-button
                 v-if="!isMapped"
                 class="sw-cms-mapping-field__selection"
                 :menu-width="360"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_mapping_field_mapping_selection_action %}
                 <template #button>
                     <div class="sw-cms-mapping-field__action">
@@ -38,7 +32,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_mapping_field_mapping_selection_options %}
                 <div class="sw-cms-mapping-field__options">
                     <sw-context-menu-item
@@ -53,7 +46,6 @@
             </sw-context-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_mapping_field_mapping_remove_action %}
             <div
                 v-else
@@ -74,26 +66,22 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_mapping_field_content %}
     <div
         v-if="!isMapped"
         class="sw-cms-mapping-field__form-field"
     >
-        <slot><!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_cms_mapping_field_slot_default %}{% endblock %}</slot>
+        <slot> </slot>
     </div>
     {% endblock %}
 
     <template v-else>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_mapping_field_mapping_value %}
         <div class="sw-cms-mapping-field__mapping-value">
             {{ $tc('sw-cms.detail.label.mappingPreview') }} <b>{{ config.value }}</b>
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_mapping_field_preview %}
         <div
             v-if="hasPreview"

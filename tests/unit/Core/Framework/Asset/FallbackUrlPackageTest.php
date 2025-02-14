@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(FallbackUrlPackage::class)]
 class FallbackUrlPackageTest extends TestCase
 {

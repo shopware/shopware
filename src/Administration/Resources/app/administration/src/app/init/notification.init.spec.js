@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initializeNotifications from 'src/app/init/notification.init';
 import { notification } from '@shopware-ag/meteor-admin-sdk';
@@ -10,7 +10,7 @@ describe('src/app/init/notification.init.ts', () => {
     });
 
     beforeEach(() => {
-        Shopware.State.get('notification').growlNotifications = {};
+        Shopware.Store.get('notification').growlNotifications = {};
     });
 
     it('should handle notificationDispatch requests', async () => {
@@ -33,8 +33,8 @@ describe('src/app/init/notification.init.ts', () => {
             ],
         });
 
-        const growlNotificationKey = Object.keys(Shopware.State.get('notification').growlNotifications)[0];
-        expect(Shopware.State.get('notification').growlNotifications).toEqual({
+        const growlNotificationKey = Object.keys(Shopware.Store.get('notification').growlNotifications)[0];
+        expect(Shopware.Store.get('notification').growlNotifications).toEqual({
             [growlNotificationKey]: expect.objectContaining({
                 title: 'Your title',
                 message: 'Your message',
@@ -46,8 +46,8 @@ describe('src/app/init/notification.init.ts', () => {
     it('should handle notificationDispatch requests with fallback', async () => {
         await notification.dispatch({});
 
-        const growlNotificationKey = Object.keys(Shopware.State.get('notification').growlNotifications)[0];
-        expect(Shopware.State.get('notification').growlNotifications).toEqual({
+        const growlNotificationKey = Object.keys(Shopware.Store.get('notification').growlNotifications)[0];
+        expect(Shopware.Store.get('notification').growlNotifications).toEqual({
             [growlNotificationKey]: expect.objectContaining({
                 title: 'global.notification.noTitle',
                 message: 'global.notification.noMessage',

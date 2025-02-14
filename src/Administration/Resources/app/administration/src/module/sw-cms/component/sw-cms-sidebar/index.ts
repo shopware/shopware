@@ -1,5 +1,4 @@
 import { type PropType } from 'vue';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import template from './sw-cms-sidebar.html.twig';
 import CMS from '../../constant/sw-cms.constant';
 import './sw-cms-sidebar.scss';
@@ -12,7 +11,7 @@ const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
-type DraggableBlock = EntitySchema.Entity<'cms_block'> & {
+type DraggableBlock = Entity<'cms_block'> & {
     isDragging?: boolean;
 };
 
@@ -24,7 +23,7 @@ type DragData = {
 type DropData = {
     dropIndex: number;
     block: DraggableBlock;
-    section: EntitySchema.Entity<'cms_section'> | null;
+    section: Entity<'cms_section'> | null;
     sectionPosition: string;
     sectionIndex: number;
 };
@@ -45,13 +44,11 @@ type DropObject = {
 };
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -82,7 +79,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         page: {
-            type: Object as PropType<EntitySchema.Entity<'cms_page'>>,
+            type: Object as PropType<Entity<'cms_page'>>,
             required: true,
         },
 
@@ -212,10 +209,6 @@ export default Shopware.Component.wrapComponentConfig({
             // Add all missing categories to the default categories
             uniqueCategories.forEach((category) => {
                 if (defaultCategories.some((defaultCategory) => defaultCategory.value === category)) {
-                    return;
-                }
-
-                if (this.isDuplicateCategory(category)) {
                     return;
                 }
 
@@ -366,12 +359,12 @@ export default Shopware.Component.wrapComponentConfig({
             itemConfigSidebar.openContent();
         },
 
-        blockIsRemovable(block: EntitySchema.Entity<'cms_block'>) {
+        blockIsRemovable(block: Entity<'cms_block'>) {
             const cmsBlocks = this.cmsService.getCmsBlockRegistry();
             return cmsBlocks[block.type]?.removable && this.isSystemDefaultLanguage;
         },
 
-        blockIsUnique(block: EntitySchema.Entity<'cms_block'>) {
+        blockIsUnique(block: Entity<'cms_block'>) {
             if (this.page.type !== CMS.PAGE_TYPES.PRODUCT_DETAIL) {
                 return false;
             }
@@ -381,11 +374,11 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        blockIsDuplicable(block: EntitySchema.Entity<'cms_block'>) {
+        blockIsDuplicable(block: Entity<'cms_block'>) {
             return !this.blockIsUnique(block);
         },
 
-        sectionIsDuplicable(section: EntitySchema.Entity<'cms_section'>) {
+        sectionIsDuplicable(section: Entity<'cms_section'>) {
             return section.blocks!.every((block) => this.blockIsDuplicable(block));
         },
 
@@ -510,7 +503,7 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        getDragData(block: EntitySchema.Entity<'cms_block'>, sectionIndex: number): DragObject {
+        getDragData(block: Entity<'cms_block'>, sectionIndex: number): DragObject {
             return {
                 delay: 300,
                 dragGroup: 'cms-navigator',
@@ -521,7 +514,7 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
 
-        getDropData(block: EntitySchema.Entity<'cms_block'>, sectionIndex: number): DropObject {
+        getDropData(block: Entity<'cms_block'>, sectionIndex: number): DropObject {
             return {
                 dragGroup: 'cms-navigator',
                 data: {
@@ -617,19 +610,19 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('current-block-change', section.id, newBlock);
         },
 
-        moveSectionUp(section: EntitySchema.Entity<'cms_section'>) {
+        moveSectionUp(section: Entity<'cms_section'>) {
             this.page.sections!.moveItem(section.position, section.position - 1);
 
             this.$emit('page-save', true);
         },
 
-        moveSectionDown(section: EntitySchema.Entity<'cms_section'>) {
+        moveSectionDown(section: Entity<'cms_section'>) {
             this.page.sections!.moveItem(section.position, section.position + 1);
 
             this.$emit('page-save', true);
         },
 
-        onSectionDuplicate(section: EntitySchema.Entity<'cms_section'>) {
+        onSectionDuplicate(section: Entity<'cms_section'>) {
             this.$emit('section-duplicate', section);
         },
 
@@ -639,7 +632,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('page-save');
         },
 
-        onBlockDelete(block: EntitySchema.Entity<'cms_block'>, section: EntitySchema.Entity<'cms_section'> | null) {
+        onBlockDelete(block: Entity<'cms_block'>, section: Entity<'cms_section'> | null) {
             if (!section) {
                 section = this.page.sections!.get(block.sectionId);
             }
@@ -653,7 +646,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('page-save', true);
         },
 
-        onBlockDuplicate(block: EntitySchema.Entity<'cms_block'>, section: EntitySchema.Entity<'cms_section'> | null) {
+        onBlockDuplicate(block: Entity<'cms_block'>, section: Entity<'cms_section'> | null) {
             if (!section) {
                 section = this.page.sections!.get(block.sectionId);
             }
@@ -661,17 +654,14 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('block-duplicate', block, section);
         },
 
-        onRemoveSectionBackgroundMedia(section: EntitySchema.Entity<'cms_section'>) {
+        onRemoveSectionBackgroundMedia(section: Entity<'cms_section'>) {
             section.backgroundMediaId = undefined;
             section.backgroundMedia = undefined;
 
             this.pageUpdate();
         },
 
-        onSetSectionBackgroundMedia(
-            [mediaItem]: [EntitySchema.Entity<'media'>],
-            section: EntitySchema.Entity<'cms_section'>,
-        ) {
+        onSetSectionBackgroundMedia([mediaItem]: [Entity<'media'>], section: Entity<'cms_section'>) {
             section.backgroundMediaId = mediaItem.id;
             section.backgroundMedia = mediaItem;
 
@@ -682,7 +672,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.cmsBlockFavorites.update(!this.cmsBlockFavorites.isFavorite(blockName), blockName);
         },
 
-        successfulUpload(media: MediaUploadResult, section: EntitySchema.Entity<'cms_section'>) {
+        successfulUpload(media: MediaUploadResult, section: Entity<'cms_section'>) {
             section.backgroundMediaId = media.targetId;
 
             void this.mediaRepository.get(media.targetId).then((mediaItem) => {
@@ -691,7 +681,7 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        uploadTag(section: EntitySchema.Entity<'cms_section'>) {
+        uploadTag(section: Entity<'cms_section'>) {
             return `cms-section-media-config-${section.id}`;
         },
 
@@ -719,23 +709,8 @@ export default Shopware.Component.wrapComponentConfig({
             return this.blockTypes.includes(type);
         },
 
-        onVisibilityChange(selectedBlock: EntitySchema.Entity<'cms_block'>, viewport: string, isVisible: boolean) {
+        onVisibilityChange(selectedBlock: Entity<'cms_block'>, viewport: string, isVisible: boolean) {
             (selectedBlock.visibility as { [key: string]: boolean })[viewport] = isVisible;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Remove the duplicate category check and all usages.
-         * Use the auto-generated category label instead of the hardcoded option
-         * value inside the template.
-         */
-        isDuplicateCategory(categoryValue: string) {
-            /**
-             * This method is a unusual hack to prevent the category from being added twice.
-             * Recommended for plugin developer is to remove the hardcoded option value
-             * inside the template and use the auto-generated category label instead.
-             * */
-            const swCmsSidebarTemplate = Shopware.Template.getRenderedTemplate('sw-cms-sidebar');
-            return swCmsSidebarTemplate?.includes(`value="${categoryValue}"`);
         },
     },
 });

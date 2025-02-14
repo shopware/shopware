@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_state_history_card %}
 <sw-card
     :title="title"
@@ -6,7 +5,6 @@
     class="sw-order-state-card"
     position-identifier="sw-order-state-history-card"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_change_card_modal %}
     <sw-order-state-change-modal
         v-if="showModal"
@@ -17,13 +15,11 @@
         @page-leave-confirm="onLeaveModalConfirm"
     />
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_history_card_container %}
     <sw-container
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         gap="30px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_card_transaction %}
         <sw-order-state-history-card-entry
             v-if="transaction"
@@ -49,7 +45,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_card_delivery %}
         <sw-order-state-history-card-entry
             v-if="delivery"
@@ -75,7 +70,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_card_order%}
         <sw-order-state-history-card-entry
             v-tooltip="{

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigLoader extends AbstractSystemConfigLoader
 {
     /**

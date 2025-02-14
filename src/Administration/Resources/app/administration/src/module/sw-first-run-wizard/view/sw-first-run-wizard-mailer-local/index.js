@@ -2,13 +2,12 @@ import './sw-first-run-wizard-mailer-local.scss';
 import template from './sw-first-run-wizard-mailer-local.html.twig';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['systemConfigApiService'],
 
@@ -47,7 +46,7 @@ export default {
         },
 
         nextAction() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.shopware.account';
             }
 

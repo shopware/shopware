@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

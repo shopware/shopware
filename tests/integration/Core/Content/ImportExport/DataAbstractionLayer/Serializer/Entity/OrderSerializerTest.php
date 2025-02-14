@@ -23,7 +23,7 @@ use Shopware\Core\Test\Integration\Traits\OrderFixture;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class OrderSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

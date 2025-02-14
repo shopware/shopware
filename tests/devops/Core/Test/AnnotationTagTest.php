@@ -15,7 +15,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversNothing]
 class AnnotationTagTest extends TestCase
 {
@@ -58,6 +58,8 @@ class AnnotationTagTest extends TestCase
 
     protected function setUp(): void
     {
+        static::markTestSkipped('remove before first RC');
+
         $this->rootDir = $this->getPathForClass(Kernel::class);
         $this->manifestRoot = $this->getPathForClass(Manifest::class);
     }

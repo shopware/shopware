@@ -102,7 +102,16 @@ class RangeAggregationTest extends TestCase
 
         $this->repository->create($data, $this->context);
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([
+            $ids->get('a'),
+            $ids->get('b'),
+            $ids->get('c'),
+            $ids->get('d'),
+            $ids->get('e'),
+            $ids->get('f'),
+            $ids->get('g'),
+            $ids->get('h'),
+        ]);
         $criteria->addAggregation(
             new RangeAggregation(
                 'test-range-aggregation',

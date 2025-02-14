@@ -11,6 +11,7 @@ use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\FlowLogEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -19,7 +20,7 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInterface
 {
     public function __construct(
@@ -49,6 +50,12 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
         if (($event instanceof StoppableEventInterface && $event->isPropagationStopped())
             || $event->getContext()->hasState(Context::SKIP_TRIGGER_FLOW)
         ) {
+            return $event;
+        }
+
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
+            $this->container->get(BufferedFlowQueue::class)->queueFlow($event);
+
             return $event;
         }
 
@@ -110,6 +117,7 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
             FlowFactory::class,
             FlowExecutor::class,
             FlowLoader::class,
+            BufferedFlowQueue::class,
         ];
     }
 
@@ -137,16 +145,6 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
                     . 'Error Code: ' . $e->getCode() . "\n",
                     ['exception' => $e]
                 );
-
-                if ($e->getPrevious() && $this->isInNestedTransaction()) {
-                    /**
-                     * If we are already in a nested transaction, that does not have save points enabled, we must inform the caller of the rollback.
-                     * We do this via an exception, so that the outer transaction can also be rolled back.
-                     *
-                     * Otherwise, when it attempts to commit, it would fail.
-                     */
-                    throw $e->getPrevious();
-                }
             } catch (\Throwable $e) {
                 $this->container->get('logger')->error(
                     "Could not execute flow with error message:\n"
@@ -174,10 +172,5 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
         }
 
         return $result;
-    }
-
-    private function isInNestedTransaction(): bool
-    {
-        return $this->container->get(Connection::class)->getTransactionNestingLevel() !== 1 && !$this->container->get(Connection::class)->getNestTransactionsWithSavepoints();
     }
 }

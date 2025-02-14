@@ -1,19 +1,17 @@
 /**
- * @package services-settings
+ * @sw-package checkout
  */
-const { State } = Shopware;
+const { Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         generateData: {
             get() {
-                return State.get('swBulkEdit')?.orderDocuments?.storno?.value;
+                return Store.get('swBulkEdit')?.orderDocuments?.storno?.value;
             },
             set(generateData) {
-                State.commit('swBulkEdit/setOrderDocumentsValue', {
+                Store.get('swBulkEdit').setOrderDocumentsValue({
                     type: 'storno',
                     value: generateData,
                 });

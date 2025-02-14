@@ -5,12 +5,10 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'change',
@@ -23,15 +21,7 @@ export default {
         };
     },
 
-    computed: {
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-    },
+    computed: {},
 
     watch: {
         criteria: {

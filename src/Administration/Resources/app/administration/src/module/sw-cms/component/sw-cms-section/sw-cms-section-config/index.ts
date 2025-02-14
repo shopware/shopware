@@ -6,13 +6,11 @@ import type MediaUploadResult from '../../../shared/MediaUploadResult';
 const { Mixin } = Shopware;
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -29,7 +27,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         section: {
-            type: Object as PropType<EntitySchema.Entity<'cms_section'>>,
+            type: Object as PropType<Entity<'cms_section'>>,
             required: true,
         },
     },
@@ -59,7 +57,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        onSetBackgroundMedia([mediaItem]: EntitySchema.Entity<'media'>[]) {
+        onSetBackgroundMedia([mediaItem]: Entity<'media'>[]) {
             this.section.backgroundMediaId = mediaItem.id;
             this.section.backgroundMedia = mediaItem;
         },
@@ -83,7 +81,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('section-delete', sectionId);
         },
 
-        onSectionDuplicate(section: EntitySchema.Entity<'cms_section'>) {
+        onSectionDuplicate(section: Entity<'cms_section'>) {
             if (this.quickactionsDisabled) {
                 return;
             }

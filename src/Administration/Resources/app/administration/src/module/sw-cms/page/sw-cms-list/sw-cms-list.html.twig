@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_list %}
 <sw-page class="sw-cms-list">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -12,7 +10,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_toolbar %}
     <template #smart-bar-header>
         <h2>{{ $tc('sw-cms.general.moduleTitle') }}</h2>
@@ -38,18 +35,14 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_card_view %}
     <template #content>
         <sw-card-view>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_content %}
             <div class="sw-cms-list__content">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_list_sidebar %}
                 <div class="sw-cms-list__sidebar">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_list_sidebar_tabs %}
                     <sw-tabs
                         is-vertical
@@ -71,23 +64,18 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_list_listing %}
                 <div class="sw-cms-list__listing">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_list_listing_actions %}
                     <div class="sw-cms-list__actions">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_list_listing_title %}
                         <h3>{{ $tc('sw-cms.general.greeting') }}</h3>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_list_listing_actions_sorting %}
                         <div class="sw-cms-list__actions-sorting">
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_list_listing_actions_sorting_select %}
                             <sw-sorting-select
                                 :sort-by="sortBy"
@@ -99,7 +87,6 @@
                         </div>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_list_listing_actions_mode %}
                         <div
                             class="sw-cms-list__actions-mode"
@@ -123,22 +110,18 @@
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_list_listing_list %}
                     <div class="sw-cms-list__list">
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_list_listing_list_grid %}
                         <div
                             v-if="listMode === 'grid'"
                             class="sw-cms-list__list-grid"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_list_listing_list_grid_content %}
                             <div class="sw-cms-list__list-grid-content">
                                 <template v-if="!isLoading">
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_item %}
                                     <sw-cms-list-item
                                         v-for="(cmsPage, index) in pages"
@@ -153,7 +136,6 @@
                                     >
                                         <template #contextMenu>
                                             <sw-context-button class="sw-cms-list-item__options">
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_cms_list_listing_list_item_option_add_preview %}
                                                 <sw-context-menu-item
                                                     class="sw-cms-list-item__option-preview"
@@ -178,7 +160,6 @@
                                                     </template>
                                                 </sw-context-menu-item>
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_cms_list_listing_list_item_option_duplicate %}
                                                 <sw-context-menu-item
                                                     :disabled="!acl.can('cms.creator') || undefined"
@@ -189,7 +170,6 @@
                                                 </sw-context-menu-item>
                                                 {% endblock %}
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_cms_list_listing_list_item_option_remove_preview %}
                                                 <sw-context-menu-item
                                                     v-if="cmsPage.previewMediaId"
@@ -202,7 +182,6 @@
                                                 </sw-context-menu-item>
                                                 {% endblock %}
 
-                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_cms_list_listing_list_item_option_delete %}
                                                 <sw-context-menu-item
                                                     v-if="!cmsPage.locked && defaultProductId !== cmsPage.id && defaultCategoryId !== cmsPage.id"
@@ -232,7 +211,6 @@
                             </div>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_list_listing_pagination %}
                             <sw-pagination
                                 v-if="!isLoading"
@@ -247,7 +225,6 @@
                         </div>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_list_listing_list_card %}
                         <sw-card
                             v-else-if="listMode === 'list'"
@@ -255,7 +232,6 @@
                             class="sw-cms-list__list-card"
                         >
                             <template #grid>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_list_listing_list_data_grid %}
                                 <sw-data-grid
                                     class="sw-cms-list__list-data-grid"
@@ -272,7 +248,6 @@
                                     :show-selection="false"
                                 >
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_name %}
                                     <template #column-name="{ item }">
                                         <sw-icon
@@ -287,14 +262,12 @@
                                     </template>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_type %}
                                     <template #column-type="{ item }">
                                         {{ getPageType(item) }}
                                     </template>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_assignments %}
                                     <template #column-assignments="{ item }">
                                         <sw-icon
@@ -306,7 +279,6 @@
                                     </template>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_assignment_list %}
                                     <template #column-assignedPages="{ item }">
                                         <div v-tooltip="getPagesTooltip(item)">
@@ -315,24 +287,20 @@
                                     </template>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_created %}
                                     <template #column-createdAt="{ item }">
                                         {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                                     </template>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_updated %}
                                     <template #column-updatedAt="{ item }">
                                         {{ dateFilter(item.updatedAt, { hour: '2-digit', minute: '2-digit' }) }}
                                     </template>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_actions %}
                                     <template #actions="{ item }">
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_cms_list_listing_list_data_grid_actions_edit %}
                                         <sw-context-menu-item
                                             :router-link="{ name: 'sw.cms.detail', params: { id: item.id } }"
@@ -357,7 +325,6 @@
                                             </template>
                                         </sw-context-menu-item>
 
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_cms_list_listing_list_data_grid_actions_edit_duplicate %}
                                         <sw-context-menu-item
                                             :disabled="!acl.can('cms.creator') || undefined"
@@ -368,7 +335,6 @@
                                         </sw-context-menu-item>
                                         {% endblock %}
 
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_cms_list_listing_list_item_option_rename %}
                                         <sw-context-menu-item
                                             v-if="!item.locked"
@@ -380,7 +346,6 @@
                                         </sw-context-menu-item>
                                         {% endblock %}
 
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
                                         <sw-context-menu-item
                                             v-if="!item.locked && defaultProductId !== item.id && defaultCategoryId !== item.id"
@@ -398,7 +363,6 @@
                                     </template>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_pagination %}
                                     <template #pagination>
                                         <sw-pagination
@@ -418,7 +382,6 @@
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_list_listing_list_empty_state %}
                     <sw-empty-state
                         v-if="isValidTerm(term) && !isLoading && !total"
@@ -442,7 +405,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_media_modal %}
             <sw-media-modal-v2
                 v-if="showMediaModal"
@@ -464,7 +426,6 @@
                 @close="onCloseLayoutSetAsDefault"
             />
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_rename_modal %}
             <sw-modal
                 v-if="showRenameModal"
@@ -473,10 +434,9 @@
                 @modal-close="onCloseRenameModal"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_list_rename_modal_confirm_rename_input %}
                 <div class="sw_tree__confirm-rename-text">
-                    {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
                 </div>
                 <sw-text-field
                     v-model:value="newName"
@@ -485,10 +445,8 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_list_rename_modal_footer %}
                 <template #modal-footer>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_list_rename_modal_cancel %}
                     <sw-button
                         size="small"
@@ -498,7 +456,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_list_rename_modal_confirm %}
                     <sw-button
                         size="small"
@@ -513,7 +470,6 @@
             </sw-modal>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_delete_modal %}
             <sw-modal
                 v-if="showDeleteModal"
@@ -522,17 +478,14 @@
                 @modal-close="onCloseDeleteModal"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_list_delete_modal_confirm_delete_text %}
                 <div class="sw_tree__confirm-delete-text">
-                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_list_delete_modal_footer %}
                 <template #modal-footer>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_list_delete_modal_cancel %}
                     <sw-button
                         size="small"
@@ -542,7 +495,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_list_delete_modal_confirm %}
                     <sw-button
                         variant="danger"

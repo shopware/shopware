@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 function getCollection(entity, collection) {
@@ -145,6 +145,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                     'router-link': true,
                     'sw-select-field': true,
                     'sw-loader': true,
+                    'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                 },
                 provide: {
                     stateStyleDataProviderService: {

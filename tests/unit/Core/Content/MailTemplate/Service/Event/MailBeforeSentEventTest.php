@@ -10,6 +10,7 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
@@ -18,6 +19,7 @@ use Symfony\Component\Mime\Email;
  * @internal
  */
 #[CoversClass(MailBeforeSentEvent::class)]
+#[Package('after-sales')]
 class MailBeforeSentEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

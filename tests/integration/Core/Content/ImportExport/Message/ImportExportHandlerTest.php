@@ -19,12 +19,12 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportHandlerTest extends AbstractImportExportTestCase
 {
     public function testImportExportHandlerDispatchesMessage(): void
     {
-        $messageBus = static::getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.default_bus');
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
 
         $importExportMessageCount = \count(
@@ -81,7 +81,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
     public function testImportExportHandlerOnError(): void
     {
-        $messageBus = static::getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.default_bus');
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
 
         $importExportMessageCount

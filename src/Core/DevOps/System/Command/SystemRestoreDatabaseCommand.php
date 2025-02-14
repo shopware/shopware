@@ -11,14 +11,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @psalm-import-type Params from DriverManager
- * @psalm-import-type OverrideParams from DriverManager
+ * @phpstan-import-type Params from DriverManager
+ * @phpstan-import-type OverrideParams from DriverManager
  */
 #[AsCommand(
     name: 'system:restore',
     description: 'Restores the database from a file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemRestoreDatabaseCommand extends Command
 {
     public function __construct(

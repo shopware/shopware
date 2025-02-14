@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initializeLocaleService from 'src/app/init/locale.init';
 

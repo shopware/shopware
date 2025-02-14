@@ -821,102 +821,11 @@
         "customerBirthdayRule": "Customer date of birth",
         "customerCreatedByAdminRule": "Customer created by admin",
         "customerSalutationRule": "Customer salutation",
-        "customerDefaultPaymentMethodRule": "Customer with default payment method",
         "lineItemPropertyValueRule": "Item with property value",
         "lineItemVariantValueRule": "Item with variant value"
       }
     },
     "sw-condition-generic": {
-      "customerDaysSinceLastLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceFirstLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceLastOrder": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerEmail": {
-        "email": {
-          "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
-        }
-      },
-      "cartLineItemDimensionWidth": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderWidth"
-        }
-      },
-      "cartLineItemDimensionHeight": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderHeight"
-        }
-      },
-      "cartLineItemDimensionLength": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderLength"
-        }
-      },
-      "cartTaxDisplay": {
-        "taxDisplay": {
-          "options": {
-            "gross": "@:global.sw-condition.condition.cartTaxDisplay.gross",
-            "net": "@:global.sw-condition.condition.cartTaxDisplay.net"
-          }
-        }
-      },
-      "dayOfWeek": {
-        "dayOfWeek": {
-          "options": {
-            "1": "@:global.day-of-week.monday",
-            "2": "@:global.day-of-week.tuesday",
-            "3": "@:global.day-of-week.wednesday",
-            "4": "@:global.day-of-week.thursday",
-            "5": "@:global.day-of-week.friday",
-            "6": "@:global.day-of-week.saturday",
-            "7": "@:global.day-of-week.sunday"
-          }
-        }
-      },
-      "cartLineItemOfType": {
-        "lineItemType": {
-          "options": {
-            "product": "@:global.sw-condition.condition.lineItemOfTypeRule.product",
-            "promotion": "@:global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge"
-          }
-        }
-      },
-      "promotionCodeOfType": {
-        "promotionCodeType": {
-          "options": {
-            "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
-            "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
-            "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
-          }
-        }
-      },
-      "cartLineItemProductStates": {
-        "productState": {
-          "options": {
-            "is-physical": "Physical",
-            "is-download": "Digital"
-          }
-        }
-      },
-      "cartTotalPurchasePrice": {
-        "type": {
-          "options": {
-            "gross": "Gross",
-            "net": "Net"
-          },
-          "placeholder": "Select operator..."
-        }
-      },
       "units": {
         "dimension": "mm",
         "weight": "kg",
@@ -969,32 +878,6 @@
           "mm3": "mm³",
           "in3": "in³",
           "ft3": "ft³"
-        }
-      },
-      "orderCreatedByAdmin": {
-        "shouldOrderBeCreatedByAdmin": {
-          "placeholder": "Select condition..."
-        }
-      },
-      "adminSalesChannelSource": {
-        "hasAdminSalesChannelSource": {
-          "placeholder": "Select condition..."
-        }
-      },
-      "orderTransactionStatus": {
-        "stateIds": {
-          "placeholder": "Select state..."
-        },
-        "operator": {
-          "placeholder": "Select operator..."
-        }
-      },
-      "orderStatus": {
-        "stateIds": {
-          "placeholder": "Select state..."
-        },
-        "operator": {
-          "placeholder": "Select operator..."
         }
       }
     },
@@ -1262,6 +1145,41 @@
       "insert-table": "Insert table",
       "code-switch": "Switch edit modes"
     }
+  },
+  "mt-text-editor-toolbar-button-link": {
+    "label": "Link"
+  },
+  "sw-text-editor-toolbar-button-link": {
+    "modalTitle": "Insert/Edit link",
+    "linkTo": "Link to",
+    "linkUrl": "URL",
+    "linkPhone": "Phone number",
+    "linkPhonePrefix": "tel:",
+    "linkDetail": "Product",
+    "linkEmail": "Email",
+    "linkEmailPlaceholder": "Enter email address...",
+    "detailPlaceholder": "Select a product...",
+    "categoryPlaceholder": "Select a category...",
+    "displayAsButton": "Display as button",
+    "openInNewTab": "Open in new tab",
+    "applyLink": "Apply",
+    "linkType": "Link type",
+    "removeLink": "Remove link",
+    "linkOptions": {
+      "link": "URL",
+      "product": "Product",
+      "category": "Category",
+      "media": "File",
+      "email": "Email",
+      "phoneNumber": "Phone number"
+    },
+    "buttonVariantPrimary": "Primary",
+    "buttonVariantSecondary": "Secondary",
+    "buttonVariantPrimarySmall": "Primary (small)",
+    "buttonVariantSecondarySmall": "Secondary (small)"
+  },
+  "sw-text-editor-toolbar-button-cms-data-mapping": {
+    "label": "Insert variable"
   },
   "sw-tree": {
     "general": {

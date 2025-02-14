@@ -1,13 +1,11 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import type { PaymentOverviewCard } from '../../state/overview-cards.store';
+import type { PaymentOverviewCard } from '../../store/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 interface PaymentMethodCard {
@@ -27,8 +25,6 @@ const { cloneDeep } = Shopware.Utils.object;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -59,7 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customCards(): PaymentOverviewCard[] {
-            return Shopware.State.get('paymentOverviewCardState').cards ?? [];
+            return Shopware.Store.get('paymentOverviewCard').cards ?? [];
         },
 
         paymentMethodRepository(): Repository<'payment_method'> {
@@ -154,7 +150,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.loadPaymentMethods();
         },
 
@@ -191,16 +187,16 @@ export default Shopware.Component.wrapComponentConfig({
 
         showActivationSuccessNotification(name: string, active: boolean) {
             const message = active
-                ? this.$tc('sw-settings-payment.overview.notification.activationSuccess', 0, { name })
-                : this.$tc('sw-settings-payment.overview.notification.deactivationSuccess', 0, { name });
+                ? this.$t('sw-settings-payment.overview.notification.activationSuccess', { name }, 0)
+                : this.$t('sw-settings-payment.overview.notification.deactivationSuccess', { name }, 0);
 
             this.createNotificationSuccess({ message });
         },
 
         showActivationErrorNotification(name: string, active: boolean) {
             const message = active
-                ? this.$tc('sw-settings-payment.overview.notification.activationError', 0, { name })
-                : this.$tc('sw-settings-payment.overview.notification.deactivationError', 0, { name });
+                ? this.$t('sw-settings-payment.overview.notification.activationError', { name }, 0)
+                : this.$t('sw-settings-payment.overview.notification.deactivationError', { name }, 0);
 
             this.createNotificationError({ message });
         },

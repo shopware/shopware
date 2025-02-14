@@ -6,7 +6,7 @@ const types = Shopware.Utils.types;
 /**
  * @class
  * @extends BulkEditBaseHandler
- * @package services-settings
+ * @sw-package checkout
  */
 class BulkEditCustomerHandler extends BulkEditBaseHandler {
     constructor() {
@@ -41,7 +41,7 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
 
     async bulkEditRequestedGroup(entityIds, payload) {
         const promises = [];
-        const shouldTriggerFlows = Shopware.State.get('swBulkEdit').isFlowTriggered;
+        const shouldTriggerFlows = Shopware.Store.get('swBulkEdit').isFlowTriggered;
 
         payload.forEach((change) => {
             if (!change.value) {

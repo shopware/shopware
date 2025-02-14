@@ -1,12 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item-purchase-price sw-condition__condition-value">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_purchase_price_field_gross_net %}
     <sw-condition-is-net-select v-bind="{ operators: isNetOperators, condition }" />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_purchase_price_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
@@ -15,7 +12,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_purchase_price_field_amount %}
     <sw-number-field
         v-if="!isEmpty"

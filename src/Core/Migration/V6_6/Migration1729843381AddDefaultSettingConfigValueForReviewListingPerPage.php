@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1729843381AddDefaultSettingConfigValueForReviewListingPerPage extends MigrationStep
 {
     private const CONFIG_KEY = 'core.listing.reviewsPerPage';

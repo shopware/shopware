@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_price_rounding %}
 <div class="sw-settings-price-rounding">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_price_rounding_header_warning %}
     <sw-alert
         v-if="showHeaderWarning"
@@ -12,7 +10,6 @@
     </sw-alert>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_price_rounding_header_items %}
     <div
         role="heading"
@@ -23,21 +20,18 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_price_rounding_subline_items %}
     <p class="sw-settings-price-rounding__info-text">
         {{ $tc('sw-settings-currency.price-rounding.itemsSubline') }}
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_price_rounding_container_items %}
     <sw-container
         class="sw-settings-price-rounding__rounding-container"
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_items_decimals %}
         <sw-number-field
             v-model:value="itemRounding.decimals"
@@ -52,7 +46,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_items_interval %}
         <sw-single-select
             v-model:value="itemRounding.interval"
@@ -70,7 +63,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_items_round_for_net %}
         <sw-switch-field
             v-model:value="itemRounding.roundForNet"
@@ -82,12 +74,10 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_price_rounding_spacer %}
     <hr class="sw-settings-price-rounding__spacer">
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_price_rounding_header_grand %}
     <div
         role="heading"
@@ -98,14 +88,12 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_price_rounding_subline_grand %}
     <p class="sw-settings-price-rounding__info-text">
         {{ $tc('sw-settings-currency.price-rounding.grandSubline') }}
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_price_rounding_header_info %}
     <sw-alert
         v-if="showHeaderInfo"
@@ -116,14 +104,12 @@
     </sw-alert>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_price_rounding_container_grand %}
     <sw-container
         class="sw-settings-price-rounding__rounding-container"
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_grand_decimals %}
         <sw-number-field
             v-model:value="totalRounding.decimals"
@@ -138,7 +124,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_grand_interval %}
         <sw-single-select
             v-model:value="totalRounding.interval"
@@ -156,7 +141,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_grand_round_for_net %}
         <sw-switch-field
             v-model:value="totalRounding.roundForNet"

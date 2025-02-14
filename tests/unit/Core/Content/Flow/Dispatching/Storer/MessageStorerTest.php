@@ -15,7 +15,7 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(MessageStorer::class)]
 class MessageStorerTest extends TestCase
 {

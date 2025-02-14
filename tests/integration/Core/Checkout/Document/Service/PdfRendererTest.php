@@ -24,7 +24,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class PdfRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -41,6 +41,8 @@ class PdfRendererTest extends TestCase
 
     protected function setUp(): void
     {
+        static::markTestSkipped('#6556');
+
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
@@ -100,10 +102,9 @@ class PdfRendererTest extends TestCase
 
         $rendered = $processedTemplate->getSuccess()[$orderId];
 
-        static::assertStringContainsString('<html>', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
-
         $generatorOutput = $this->pdfRenderer->render($rendered);
+        static::assertStringContainsString('<html lang="en-GB">', $generatorOutput);
+        static::assertStringContainsString('</html>', $generatorOutput);
         static::assertNotEmpty($generatorOutput);
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);

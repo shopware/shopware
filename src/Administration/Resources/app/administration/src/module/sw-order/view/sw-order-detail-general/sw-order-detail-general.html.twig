@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_general %}
 <div class="sw-order-detail-general">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_general_info_card %}
     <sw-card
         class="sw-order-detail-base__general-info"
         position-identifier="sw-order-detail-general-info"
         :title="$tc('sw-order.detailBase.cardTitleGeneralInfo')"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_general_info %}
         <sw-order-general-info
             ref="swOrderGeneralInfo"
@@ -19,7 +16,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_general_line_items_card %}
     <sw-extension-component-section
         position-identifier="sw-order-detail-base-line-items__before"
@@ -31,11 +27,9 @@
         :title="$tc('sw-order.detailBase.cardTitleLineItems')"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_general_line_items_card_rows %}
         <template #grid>
             <sw-container type="row">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_general_line_items_grid %}
                 <sw-order-line-items-grid
                     ref="sw-order-line-item-grid"
@@ -49,7 +43,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_general_line_items_summary %}
                 <sw-card-section
                     divider="top"
@@ -60,15 +53,12 @@
                         grid="1fr 1fr"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_general_line_items_summary_entries %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_general_line_items_summary_amount %}
                         <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
                         <dd>{{ currencyFilter(order.positionPrice, currency.isoCode, order.totalRounding.decimals) }}</dd>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_general_line_items_summary_shipping_cost %}
                         <template v-if="delivery">
                             <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
@@ -103,7 +93,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_general_line_items_summary_amount_without_tax %}
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
@@ -111,7 +100,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_general_line_items_summary_taxes %}
                         <template v-if="taxStatus !== 'tax-free'">
                             <template
@@ -119,7 +107,7 @@
                                 :key="index"
                             >
                                 <dt>
-                                    {{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
+                                    {{ $tc('sw-order.detailBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }, 1) }}
                                 </dt>
                                 <dd>
                                     {{ currencyFilter(calculatedTax.tax, currency.isoCode, order.totalRounding.decimals) }}
@@ -128,7 +116,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_general_line_items_summary_amount_total %}
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
@@ -140,7 +127,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_general_line_items_summary_amount_free_tax %}
                         <template v-if="taxStatus === 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>

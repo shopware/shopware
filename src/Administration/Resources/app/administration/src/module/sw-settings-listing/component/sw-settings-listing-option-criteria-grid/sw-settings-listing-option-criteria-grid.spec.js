@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid', () => {
     const customFieldRelations = [];
@@ -88,6 +88,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-inheritance-switch': true,
                         'sw-ai-copilot-badge': true,
                         'sw-help-text': true,
+                        'sw-provide': true,
                     },
                 },
                 props: {

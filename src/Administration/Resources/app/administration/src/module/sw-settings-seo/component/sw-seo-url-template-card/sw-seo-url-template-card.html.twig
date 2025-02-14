@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_seo_url_template_card %}
 <sw-card
     class="sw-seo-url-template-card"
@@ -13,7 +12,6 @@
         />
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_seo_url_template_card_info_box %}
     <sw-alert
         :title="$tc('sw-seo-url-template-card.general.headlineInfoMessageBoxEmptyProperties')"
@@ -22,7 +20,6 @@
     </sw-alert>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_seo_url_template_card_entries %}
     <template v-if="!isLoading && !salesChannelIsHeadless">
         <div
@@ -34,7 +31,6 @@
                 columns="3fr 1fr"
                 gap="5px"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_seo_url_template_card_entries_input_wrapper %}
                 <sw-inherit-wrapper
                     v-model:value="seoUrlTemplate.template"
@@ -44,7 +40,6 @@
                 >
 
                     <template #content="props">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_seo_url_template_card_entries_input %}
                         <sw-text-field
                             :map-inheritance="props"
@@ -58,7 +53,6 @@
                         >
 
                             <template #suffix>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_seo_url_template_card_entries_input_suffix %}
                                 <sw-loader
                                     v-if="previewLoadingStates[seoUrlTemplate.id]"
@@ -71,16 +65,16 @@
                                 />
                                 <sw-icon
                                     v-else-if="noEntityError.includes(seoUrlTemplate.id)"
-                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', 0, {
+                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', {
                                         entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
-                                    })"
+                                    }, 0)"
                                     name="regular-exclamation-triangle"
                                 />
                                 <sw-icon
                                     v-else-if="!props.currentValue"
-                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate', 1, {
+                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate', {
                                         entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
-                                    })"
+                                    }, 1)"
                                     name="regular-exclamation-triangle"
                                 />
                                 <sw-icon
@@ -96,7 +90,6 @@
                     </template>
                 </sw-inherit-wrapper>
                 {% endblock %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_seo_url_template_card_entries_variables %}
                 <sw-single-select
                     v-if="getVariableOptions(seoUrlTemplate.id) && !noEntityError.includes(seoUrlTemplate.id)"
@@ -111,19 +104,16 @@
                 />
                 {% endblock %}
             </sw-container>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_seo_url_template_card_entries_preview %}
             <div
                 v-if="seoUrlTemplate.template"
                 class="sw-seo-url-template-card__preview"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_seo_url_template_card_entries_preview_label %}
                 <span class="sw-seo-url-template-card__preview-label">
                     {{ $tc('sw-seo-url-template-card.general.preview') }}
                 </span>
                 {% endblock %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_seo_url_template_card_entries_preview_item %}
                 <div class="sw-seo-url-template-card__preview-item">
                     <span v-if="previews[seoUrlTemplate.id] && previews[seoUrlTemplate.id].length > 0">
@@ -133,7 +123,7 @@
                         {{ $tc('sw-seo-url-template-card.general.textUrlPreviewNotPossible') }}
                     </span>
                     <span v-if="noEntityError.includes(seoUrlTemplate.id)">
-                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', 0, { entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0) }) }}
+                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', { entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0) }, 0) }}
                     </span>
                 </div>
                 {% endblock %}

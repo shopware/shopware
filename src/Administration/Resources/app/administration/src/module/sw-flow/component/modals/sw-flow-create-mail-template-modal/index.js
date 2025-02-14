@@ -8,12 +8,10 @@ const utils = Shopware.Utils;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'mailService',
@@ -89,8 +87,8 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+                Shopware.Store.get('context').resetLanguageToDefault();
             }
 
             this.mailTemplate = this.mailTemplateRepository.create(Shopware.Context.api, utils.createId());
@@ -122,7 +120,7 @@ export default {
 
                     this.createNotificationError({
                         message:
-                            this.$tc('sw-mail-template.detail.messageSaveError', 0, { subject: mailTemplateSubject }) +
+                            this.$tc('sw-mail-template.detail.messageSaveError', { subject: mailTemplateSubject }, 0) +
                             errorMsg,
                     });
                 });

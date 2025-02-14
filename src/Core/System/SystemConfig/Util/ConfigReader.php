@@ -7,17 +7,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class ConfigReader extends XmlReader
 {
     private const FALLBACK_LOCALE = 'en-GB';
 
     /**
-     * @var string
-     *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $xsdFile = __DIR__ . '/../Schema/config.xsd';
+    protected string $xsdFile = __DIR__ . '/../Schema/config.xsd';
 
     /**
      * @throws BundleConfigNotFoundException

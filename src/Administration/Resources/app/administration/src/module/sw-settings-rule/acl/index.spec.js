@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const addPrivilegeMappingEntryMock = jest.fn();

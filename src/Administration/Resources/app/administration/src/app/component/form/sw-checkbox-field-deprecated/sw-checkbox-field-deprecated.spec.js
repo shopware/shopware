@@ -1,10 +1,11 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
+import { ref } from 'vue';
 
 const defaultData = {
     indeterminateOne: false,
@@ -250,5 +251,30 @@ describe('app/component/form/sw-checkbox-field', () => {
 
         const secondCheckbox = wrapper.findAll('.sw-field--checkbox').at(1);
         expect(secondCheckbox.find('input').attributes('aria-label')).toBe('Check Two');
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = mount(
+            { template: `<sw-checkbox-field-deprecated />` },
+            {
+                global: {
+                    stubs: {
+                        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-icon': true,
+                        'sw-field-error': { template: '<div></div>' },
+                        'sw-help-text': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-inheritance-switch': true,
+                    },
+                    provide: {
+                        ariaLabel: ref('Aria Label'),
+                    },
+                },
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

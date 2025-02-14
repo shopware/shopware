@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import ExtensionSdkService from 'src/core/service/api/extension-sdk.service';

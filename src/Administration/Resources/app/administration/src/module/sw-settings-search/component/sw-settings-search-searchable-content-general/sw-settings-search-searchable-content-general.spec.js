@@ -1,10 +1,10 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
 // Turn off known errors
-import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+import { missingGetListMethod } from 'test/_helper_/allowedErrors';
 
 global.allowedErrors.push(missingGetListMethod);
 
@@ -55,6 +55,7 @@ async function createWrapper() {
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
                     'router-link': true,
+                    'sw-provide': true,
                 },
             },
 

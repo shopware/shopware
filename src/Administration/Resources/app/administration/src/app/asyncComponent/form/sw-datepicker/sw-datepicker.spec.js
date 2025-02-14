@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -33,7 +33,7 @@ describe('src/app/component/base/sw-datepicker', () => {
     });
 
     it('should render the mt-datepicker when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['v6.7.0.0'];
+        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
 
         const wrapper = await createWrapper();
 

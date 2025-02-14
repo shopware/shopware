@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CorsListener implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

@@ -63,6 +63,7 @@ class RecalculationServiceTest extends TestCase
         $this->orderConverter
             ->method('assembleSalesChannelContext')
             ->willReturnCallback(function (OrderEntity $order, Context $context) {
+                static::assertNotNull($order->getTaxStatus());
                 $context->setTaxState($order->getTaxStatus());
 
                 $salesChannel = new SalesChannelEntity();
@@ -331,6 +332,7 @@ class RecalculationServiceTest extends TestCase
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
             new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
         );
 

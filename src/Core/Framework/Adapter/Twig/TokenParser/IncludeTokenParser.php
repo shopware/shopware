@@ -11,7 +11,12 @@ use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-#[Package('core')]
+/**
+ * @internal
+ *
+ * @see \Twig\TokenParser\IncludeTokenParser
+ */
+#[Package('framework')]
 final class IncludeTokenParser extends AbstractTokenParser
 {
     public function __construct(private readonly TemplateFinder $finder)

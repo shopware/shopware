@@ -3,7 +3,7 @@ import template from './sw-number-field.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -11,8 +11,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-number-field', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         /**
@@ -34,7 +32,7 @@ Component.register('sw-number-field', {
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
+            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
                 return true;
             }
 
@@ -62,27 +60,11 @@ Component.register('sw-number-field', {
                 this.$emit('change', value);
             },
         },
-
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        listeners(): Record<string, Function | Function[]> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

@@ -1,3 +1,5 @@
+{# @sw-package framework #}
+
 {% set name = parent.snippet_name ? parent.snippet_name|trans|sw_sanitize : parent.cookie %}
 {% set identifier = parent.cookie ? parent.cookie : name %}
 

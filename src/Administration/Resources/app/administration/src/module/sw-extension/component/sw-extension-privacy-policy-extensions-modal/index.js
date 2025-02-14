@@ -2,13 +2,11 @@ import template from './sw-extension-privacy-policy-extensions-modal.html.twig';
 import './sw-extension-privacy-policy-extensions-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['modal-close'],
 
@@ -26,9 +24,13 @@ export default {
 
     computed: {
         title() {
-            return this.$tc('sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.title', 0, {
-                extensionLabel: this.extensionName,
-            });
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.title',
+                {
+                    extensionLabel: this.extensionName,
+                },
+                0,
+            );
         },
     },
 

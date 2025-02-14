@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
 
@@ -12,8 +16,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-notifications', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -44,7 +46,7 @@ Component.register('sw-notifications', {
 
     computed: {
         notifications() {
-            return Object.values(Shopware.State.getters['notification/getGrowlNotificationsObject']);
+            return Object.values(Shopware.Store.get('notification').growlNotifications);
         },
 
         notificationsStyle() {
@@ -74,7 +76,7 @@ Component.register('sw-notifications', {
 
     methods: {
         onClose(notification) {
-            Shopware.State.commit('notification/removeGrowlNotification', notification);
+            Shopware.Store.get('notification').removeGrowlNotification(notification);
         },
 
         handleAction(action, notification) {

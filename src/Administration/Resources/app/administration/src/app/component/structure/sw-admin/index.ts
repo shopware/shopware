@@ -4,14 +4,12 @@ import template from './sw-admin.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-admin', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'userActivityService',

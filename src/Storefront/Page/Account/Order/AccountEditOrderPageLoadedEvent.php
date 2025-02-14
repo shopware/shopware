@@ -10,12 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class AccountEditOrderPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var AccountEditOrderPage
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
+    protected AccountEditOrderPage $page;
 
     public function __construct(
         AccountEditOrderPage $page,

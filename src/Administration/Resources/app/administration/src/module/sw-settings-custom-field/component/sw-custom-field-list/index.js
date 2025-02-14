@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
@@ -11,8 +11,6 @@ const types = Shopware.Utils.types;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -122,6 +120,7 @@ export default {
 
         onAddCustomField() {
             const customField = this.customFieldRepository.create();
+            customField.storeApiAware = true;
             this.onCustomFieldEdit(customField);
         },
 
@@ -180,11 +179,7 @@ export default {
                 }
 
                 if ((types.isEmpty(config[property]) || config[property] === undefined) && config[property !== null]) {
-                    if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                        this.$delete(config, property);
-                    } else {
-                        delete config[property];
-                    }
+                    delete config[property];
                 }
             });
         },

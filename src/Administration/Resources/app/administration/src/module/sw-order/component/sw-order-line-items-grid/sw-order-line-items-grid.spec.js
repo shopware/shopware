@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 const mockItems = [
     {
@@ -294,9 +294,10 @@ async function createWrapper() {
                 'sw-field-error': true,
                 'sw-icon-deprecated': true,
                 'sw-highlight-text': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
-                $tc: (t, count, value) => {
+                $tc: (t, value) => {
                     if (t === 'sw-order.detailBase.taxDetail') {
                         return `${value.taxRate}%: ${value.tax}`;
                     }

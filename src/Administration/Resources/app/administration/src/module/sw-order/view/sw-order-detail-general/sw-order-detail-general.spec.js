@@ -1,9 +1,9 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 import { mount } from '@vue/test-utils';
-import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
+import { createPinia, setActivePinia } from 'pinia';
 
 const orderMock = {
     orderCustomer: {
@@ -108,7 +108,7 @@ async function createWrapper() {
                 'sw-loader': true,
             },
             mocks: {
-                $tc: (key, number, value) => {
+                $tc: (key, value) => {
                     if (!value) {
                         return key;
                     }
@@ -140,14 +140,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swOrderDetail', {
-            ...orderDetailStore,
-            state: {
-                ...orderDetailStore.state,
-                order: orderMock,
-                orderAddressIds: [],
-            },
-        });
+        setActivePinia(createPinia());
+        Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
     it('should be a Vue.js component', async () => {

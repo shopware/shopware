@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     const notificationMixinMock = {
@@ -540,6 +540,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-loader': true,
                         'sw-select-field': true,
                         'sw-ai-copilot-badge': true,
+                        'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     },
                     mocks: {
                         $tc: (param) => {

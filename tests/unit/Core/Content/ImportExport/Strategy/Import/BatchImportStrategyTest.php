@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(BatchImportStrategy::class)]
 class BatchImportStrategyTest extends ImportStrategyTestCase
 {
@@ -57,7 +57,6 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
         $this->repository->expects(static::once())->method($method)->willReturn($writeResult);
-
         $this->eventDispatcher->expects(static::exactly(2))->method('dispatch');
 
         $progress = new Progress('logId', Progress::STATE_PROGRESS);

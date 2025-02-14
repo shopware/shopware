@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package admin
+ * @sw-package framework
  */
 
 describe('app/component/utils/sw-shortcut-overview', () => {

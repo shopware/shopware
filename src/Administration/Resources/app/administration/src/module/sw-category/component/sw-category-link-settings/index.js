@@ -4,13 +4,11 @@ import './sw-category-link-settings.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',

@@ -18,7 +18,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCase
 {
     private EntityRepository $logRepository;
@@ -36,7 +36,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCas
         $this->logRepository = static::getContainer()->get('import_export_log.repository');
         $this->fileRepository = static::getContainer()->get('import_export_file.repository');
         $this->filesystem = static::getContainer()->get('shopware.filesystem.private');
-        $this->messageBus = static::getContainer()->get('messenger.bus.shopware');
+        $this->messageBus = static::getContainer()->get('messenger.default_bus');
         $this->deleteFileHandler = static::getContainer()->get(DeleteFileHandler::class);
 
         parent::setUp();

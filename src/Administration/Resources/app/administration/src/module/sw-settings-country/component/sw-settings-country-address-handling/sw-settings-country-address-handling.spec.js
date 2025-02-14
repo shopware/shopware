@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -207,7 +207,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.get('session').currentUser = {};
+        Shopware.Store.get('session').setCurrentUser({});
     });
 
     it('should be a Vue.JS component', async () => {

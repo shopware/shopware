@@ -87,6 +87,20 @@ When the `ACESSIBILITY_TWEAKS` flag is active, the product card will no longer c
 For many-to-many associations it is necessary that the mapping definition contains the foreign key fields.
 Until now there was a silent error triggered, which is now changed to a proper deprecation message. An exception will be thrown in the next major version.
 
+## App servers: New In-App Purchases feature
+In-App Purchases are a way to lock certain features behind a paywall within the same extension. 
+This is useful for developers who want to offer a free version of their extension with limited features and a paid version with more features.
+
+We've modified the requests to app servers to include a JWT token for all active In-App Purchases.
+With GET requests, the `in-app-purchases` parameter was added.
+With POST requests, the In-App-Purchases are part of the `source` object in the request body.
+
+If you use the official Shopware [Symfony App bundle](https://github.com/shopware/app-bundle-symfony) or the [App PHP SDK](https://github.com/shopware/app-php-sdk), you're app server is already set to go.
+If you use a custom signing mechanism, you need to adjust your app server to handle the new requests.
+See an example implementation in PHP [here](https://github.com/shopware/app-php-sdk/blob/main/examples/index.php).
+
+See the documentation for In-App Purchases [here](https://developer.shopware.com/docs/guides/plugins/apps/in-app-purchase/).
+
 # 6.6.8.0
 ## Search server now provides OpenSearch/Elasticsearch shards and replicas
 
@@ -854,9 +868,11 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: cache
+                storage: redis
                 dsn: 'redis://localhost'
 ```
+
+Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 # General Core Breaking Changes
 
@@ -2068,9 +2084,11 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: cache
+                storage: redis
                 dsn: 'redis://localhost'
 ```
+
+Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 ## Introduced in 6.5.5.0
 ## New stock handling implementation is now the default

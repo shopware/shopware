@@ -10,16 +10,16 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
 class CartPositionPriceRule extends Rule
 {
     final public const RULE_NAME = 'cartPositionPrice';
 
     protected float $amount;
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         ?float $amount = null

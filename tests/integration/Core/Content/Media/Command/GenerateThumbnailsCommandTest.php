@@ -261,7 +261,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnailServiceMock,
             $this->mediaRepository,
             $this->mediaFolderRepository,
-            static::getContainer()->get('messenger.bus.shopware')
+            static::getContainer()->get('messenger.default_bus')
         );
 
         $commandTester = new CommandTester($command);
@@ -284,7 +284,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnailServiceMock,
             $this->mediaRepository,
             $this->mediaFolderRepository,
-            static::getContainer()->get('messenger.bus.shopware')
+            static::getContainer()->get('messenger.default_bus')
         );
 
         $commandTester = new CommandTester($command);
@@ -301,13 +301,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $expectedMessageStrict = new UpdateThumbnailsMessage();
         $expectedMessageStrict->setContext($this->context);
 
-        $expectedMessageStrict->setIsStrict(true);
+        $expectedMessageStrict->setStrict(true);
         $expectedMessageStrict->setMediaIds($affectedMediaIds);
 
         $expectedMessageNonStrict = new UpdateThumbnailsMessage();
         $expectedMessageNonStrict->setContext($this->context);
 
-        $expectedMessageNonStrict->setIsStrict(false);
+        $expectedMessageNonStrict->setStrict(false);
         $expectedMessageNonStrict->setMediaIds($affectedMediaIds);
 
         $messageBusMock = new CollectingMessageBus();

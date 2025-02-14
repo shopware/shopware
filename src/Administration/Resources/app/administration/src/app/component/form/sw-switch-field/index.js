@@ -3,7 +3,7 @@ import template from './sw-switch-field.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -11,8 +11,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-switch-field', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['update:value'],
 
@@ -35,7 +33,7 @@ Component.register('sw-switch-field', {
 
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
+            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
                 return true;
             }
 
@@ -47,15 +45,6 @@ Component.register('sw-switch-field', {
             );
 
             return false;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

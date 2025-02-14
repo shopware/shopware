@@ -21,7 +21,7 @@ Shopware.Component.extend(
 const { Module } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-payment', {
@@ -62,7 +62,7 @@ Module.register('sw-settings-payment', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'commerce',
         to: 'sw.settings.payment.overview',
         icon: 'regular-credit-card',
         privilege: 'payment.viewer',

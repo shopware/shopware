@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Pagelet\Footer;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Log\Package;
@@ -10,24 +12,33 @@ use Shopware\Storefront\Pagelet\NavigationPagelet;
 /**
  * @codeCoverageIgnore
  */
-#[Package('storefront')]
+#[Package('framework')]
 class FooterPagelet extends NavigationPagelet
 {
     /**
-     * @deprecated tag:v6.7.0 - reason:new-optional-parameter - Parameter serviceMenu will be required
+     * @internal
      */
     public function __construct(
         ?Tree $navigation,
-        protected ?CategoryCollection $serviceMenu = null,
+        protected CategoryCollection $serviceMenu,
+        protected PaymentMethodCollection $paymentMethods,
+        protected ShippingMethodCollection $shippingMethods,
     ) {
         parent::__construct($navigation);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return CategoryCollection
-     */
-    public function getServiceMenu(): ?CategoryCollection
+    public function getServiceMenu(): CategoryCollection
     {
         return $this->serviceMenu;
+    }
+
+    public function getPaymentMethods(): PaymentMethodCollection
+    {
+        return $this->paymentMethods;
+    }
+
+    public function getShippingMethods(): ShippingMethodCollection
+    {
+        return $this->shippingMethods;
     }
 }

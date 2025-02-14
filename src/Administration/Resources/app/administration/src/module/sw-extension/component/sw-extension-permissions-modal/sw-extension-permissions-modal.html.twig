@@ -1,17 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_permissions_modal %}
 <sw-modal
     class="sw-extension-permissions-modal"
     :title="modalTitle"
     variant="small"
-    v-on="listeners"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_content %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_intro %}
     <div class="sw-extension-permissions-modal__intro">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_intro_image %}
         <img
             class="sw-extension-permissions-modal__image"
@@ -20,7 +15,6 @@
         >
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_intro_text %}
         <p class="sw-extension-permissions-modal__description">
             {{ descriptionText }}
@@ -36,26 +30,21 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_categories %}
     <div class="sw-extension-permissions-modal__categories">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_category %}
         <div
             v-for="(permission, key) in permissionsWithGroupedOperations"
             :key="key"
             class="sw-extension-permissions-modal__category"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_permissions_modal_category_inner %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_permissions_modal_category_label %}
             <span class="sw-extension-permissions-modal__category-label">
                 {{ categoryLabel(key) }}
             </span>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_permissions_modal_link %}
             <sw-button
                 class="sw-extension-permissions-modal__link"
@@ -72,7 +61,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_category_domains %}
         <div
             v-if="domainsList.length > 0"
@@ -99,12 +87,9 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_footer_inner %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_footer_close %}
         <sw-button
             :variant="actionLabel === null ? 'primary' : ''"
@@ -115,7 +100,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_footer_action %}
         <sw-button
             v-if="actionLabel"
@@ -130,7 +114,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_details %}
     <sw-extension-permissions-details-modal
         v-if="showDetailsModal"
@@ -141,7 +124,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_domains %}
     <sw-extension-domains-modal
         v-if="showDomainsModal"

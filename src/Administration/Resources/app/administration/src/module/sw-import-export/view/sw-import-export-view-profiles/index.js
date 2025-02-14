@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-view-profiles.html.twig';
 import './sw-import-export-view-profiles.scss';
@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -141,11 +139,7 @@ export default {
             const profile = await this.profileRepository.get(id);
 
             if (Array.isArray(profile.config) && profile.config.length <= 0) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(profile, 'config', {});
-                } else {
-                    this.profile.config = {};
-                }
+                this.profile.config = {};
             }
 
             if (profile.config?.createEntities === undefined) {

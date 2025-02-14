@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_set_renderer_card_form_renderer %}
 <div class="sw-custom-field-set-renderer-card-form-renderer">
     <template
@@ -9,16 +8,14 @@
             columns="240px 1fr"
             gap="32px"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_form_renderer_change_field %}
             <sw-checkbox-field
                 class="sw-bulk-edit-custom-fields__change"
-                :label="$tc('sw-bulk-edit.product.customFields.changeLabel', 0, {name: getInlineSnippet(customField.config.label)})"
+                :label="$tc('sw-bulk-edit.product.customFields.changeLabel', {name: getInlineSnippet(customField.config.label)}, 0)"
                 @update:value="toggleItemCheck($event, customField)"
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_form_renderer_custom_field %}
             <sw-inherit-wrapper
                 v-if="entity && customField.config"

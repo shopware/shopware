@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-products-assignment-modal.html.twig';
@@ -20,8 +20,6 @@ const updateElementVisibility = (element, binding) => {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'modal-close',
@@ -101,17 +99,8 @@ export default {
             // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.product?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                // eslint-disable-next-line max-len
-                this.$set(
-                    this.productContainerStyle,
-                    'grid-template-rows',
-                    `auto calc(${this.tabContentHeight} - ${cardSectionSecondaryHeight})`,
-                );
-            } else {
-                this.productContainerStyle['grid-template-rows'] =
-                    `auto calc(${this.tabContentHeight} - ${cardSectionSecondaryHeight})`;
-            }
+            this.productContainerStyle['grid-template-rows'] =
+                `auto calc(${this.tabContentHeight} - ${cardSectionSecondaryHeight})`;
         },
 
         getCategoryContainerStyle() {
@@ -120,19 +109,10 @@ export default {
             // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.category?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(
-                    this.categoryContainerStyle,
-                    'grid-template-rows',
-                    // eslint-disable-next-line max-len
-                    `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight}))`,
-                );
-            } else {
-                this.productContainerStyle['grid-template-rows'] =
-                    `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
-                        cardSectionSecondaryHeight
-                    }))`;
-            }
+            this.productContainerStyle['grid-template-rows'] =
+                `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
+                    cardSectionSecondaryHeight
+                }))`;
         },
 
         getProductGroupContainerStyle() {
@@ -141,19 +121,10 @@ export default {
             // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.productGroup?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(
-                    this.productGroupContainerStyle,
-                    'grid-template-rows',
-                    // eslint-disable-next-line max-len
-                    `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight}))`,
-                );
-            } else {
-                this.productContainerStyle['grid-template-rows'] =
-                    `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
-                        cardSectionSecondaryHeight
-                    }))`;
-            }
+            this.productContainerStyle['grid-template-rows'] =
+                `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
+                    cardSectionSecondaryHeight
+                }))`;
         },
 
         onChangeSelection(products, type) {

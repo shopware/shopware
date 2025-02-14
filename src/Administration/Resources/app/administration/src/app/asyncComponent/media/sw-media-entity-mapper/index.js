@@ -1,11 +1,9 @@
 /**
  * @private
- * @package content
+ * @sw-package discovery
  */
 export default {
     functional: true,
-
-    compatConfig: Shopware.compatConfig,
 
     render(createElement, context) {
         function mapEntity() {

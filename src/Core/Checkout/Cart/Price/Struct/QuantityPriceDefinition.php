@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -21,63 +22,20 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     final public const TYPE = 'quantity';
     final public const SORTING_PRIORITY = 100;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
+    protected bool $isCalculated = true;
 
-    /**
-     * @var TaxRuleCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
+    protected ?ReferencePriceDefinition $referencePriceDefinition = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $quantity;
+    protected ?float $listPrice = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $isCalculated = true;
-
-    /**
-     * @var ReferencePriceDefinition|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencePriceDefinition;
-
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $listPrice;
-
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $regulationPrice;
+    protected ?float $regulationPrice = null;
 
     public function __construct(
-        float $price,
-        TaxRuleCollection $taxRules,
-        int $quantity = 1
+        protected float $price,
+        protected TaxRuleCollection $taxRules,
+        protected int $quantity = 1
     ) {
         $this->price = FloatComparator::cast($price);
-        $this->taxRules = $taxRules;
-        $this->quantity = $quantity;
     }
 
     public function getPrice(): float
@@ -146,6 +104,9 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         return self::SORTING_PRIORITY;
     }
 
+    /**
+     * @return array<string, list<Constraint>>
+     */
     public static function getConstraints(): array
     {
         return [

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Migration;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class Trigger
 {
     final public const TIME_BEFORE = 'BEFORE';
@@ -64,7 +64,7 @@ class Trigger
             ],
             true
         )) {
-            throw new \InvalidArgumentException('TriggerDefinition: argument time must be either \'BEFORE\' or \'AFTER\'');
+            throw MigrationException::invalidArgument('TriggerDefinition: argument time must be either \'BEFORE\' or \'AFTER\'');
         }
 
         return $time;
@@ -81,7 +81,7 @@ class Trigger
             ],
             true
         )) {
-            throw new \InvalidArgumentException('TriggerDefinition: argument time must be either \'INSERT\', \'UPDATE\' or \'DELETE\'');
+            throw MigrationException::invalidArgument('TriggerDefinition: argument time must be either \'INSERT\', \'UPDATE\' or \'DELETE\'');
         }
 
         return $event;

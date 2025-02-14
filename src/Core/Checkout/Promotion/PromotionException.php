@@ -4,14 +4,9 @@ namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
-use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
-use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
@@ -112,14 +107,20 @@ class PromotionException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     * @param list<string> $codes
      */
-    public static function invalidPriceDefinition(string $label, ?string $code): self|ShopwareHttpException
+    public static function promotionCodesNotFound(array $codes): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new InvalidPriceDefinitionException($label, $code);
-        }
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROMOTION_CODE_NOT_FOUND,
+            'None of the promotion codes "{{ code }}" have not been found!',
+            ['code' => \implode(', ', $codes)]
+        );
+    }
 
+    public static function invalidPriceDefinition(string $label, ?string $code): self
+    {
         if ($code === null) {
             $messages = [
                 'Invalid discount price definition for automated promotion "{{ label }}"',
@@ -139,15 +140,8 @@ class PromotionException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function unknownPromotionDiscountType(PromotionDiscountEntity $discount): self|UnknownPromotionDiscountTypeException
+    public static function unknownPromotionDiscountType(PromotionDiscountEntity $discount): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new UnknownPromotionDiscountTypeException($discount);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CHECKOUT_UNKNOWN_PROMOTION_DISCOUNT_TYPE,
@@ -156,15 +150,8 @@ class PromotionException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function promotionSetGroupNotFound(string $groupId): self|ShopwareHttpException
+    public static function promotionSetGroupNotFound(string $groupId): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new SetGroupNotFoundException($groupId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PROMOTION_SET_GROUP_NOT_FOUND,

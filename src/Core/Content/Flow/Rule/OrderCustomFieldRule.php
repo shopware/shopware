@@ -8,7 +8,10 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
 class OrderCustomFieldRule extends FlowRule
 {
     final public const RULE_NAME = 'orderCustomField';
@@ -24,8 +27,6 @@ class OrderCustomFieldRule extends FlowRule
 
     /**
      * @param array<string, string|array<string, string>> $renderedField
-     *
-     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

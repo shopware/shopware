@@ -14,7 +14,7 @@ use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class DatabaseAvailableThemeProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

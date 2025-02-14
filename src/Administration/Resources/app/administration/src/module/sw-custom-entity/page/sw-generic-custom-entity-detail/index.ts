@@ -1,11 +1,9 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type {
     AdminTabsDefinition,
     CustomEntityDefinition,
     CustomEntityProperties,
     AdminUiDefinition,
 } from 'src/app/service/custom-entity-definition.service';
-import type EntityCollection from 'src/core/data/entity-collection.data';
 import type Repository from 'src/core/data/repository.data';
 
 import template from './sw-generic-custom-entity-detail.html.twig';
@@ -22,12 +20,10 @@ type GenericCustomEntityDetailData = {
 
 /**
  * @private
- * @package content
+ * @sw-package framework
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'customEntityDefinitionService',
@@ -183,7 +179,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             void this.loadData();
         },
 

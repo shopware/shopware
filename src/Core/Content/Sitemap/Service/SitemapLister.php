@@ -8,7 +8,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Asset\Package;
 
-#[\Shopware\Core\Framework\Log\Package('services-settings')]
+#[\Shopware\Core\Framework\Log\Package('discovery')]
 class SitemapLister implements SitemapListerInterface
 {
     /**

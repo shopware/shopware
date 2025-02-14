@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_order_documents_generate_invoice %}
 <div class="sw-bulk-edit-order-documents-generate-invoice">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_documents_generate_invoice_datepicker %}
     <sw-datepicker
         v-model:value="generateData.documentDate"
@@ -12,7 +10,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_documents_generate_invoice_textarea %}
     <sw-textarea-field
         v-model:value="generateData.documentComment"
@@ -21,17 +18,14 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_documents_generate_invoice_toggle_skip %}
     <sw-switch-field
-        v-if="feature.isActive('v6.7.0.0')"
         v-model:value="generateData.forceDocumentCreation"
         :label="$tc('sw-bulk-edit.order.documents.forceDocumentCreation')"
         :help-text="$tc('sw-bulk-edit.order.documents.forceDocumentCreationHelpText')"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_documents_generate_invoice_placeholder %}
     {% endblock %}
 </div>

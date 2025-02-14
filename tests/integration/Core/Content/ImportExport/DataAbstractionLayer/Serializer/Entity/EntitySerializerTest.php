@@ -34,7 +34,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class EntitySerializerTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -243,7 +243,6 @@ class EntitySerializerTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $migration = new TestExtensionMigration();
         $migration->update($connection);
-        $connection->setNestTransactionsWithSavepoints(true);
         $connection->beginTransaction(); // do everything in a transaction
 
         // setup test extension

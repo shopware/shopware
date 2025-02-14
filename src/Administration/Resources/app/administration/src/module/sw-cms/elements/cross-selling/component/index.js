@@ -6,12 +6,10 @@ const { isEmpty } = Shopware.Utils.types;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('cms-element'),

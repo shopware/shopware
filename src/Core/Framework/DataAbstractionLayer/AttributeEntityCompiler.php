@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString as AllowEmptyStringAttr;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml as AllowHtmlAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields as CustomFieldsAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
@@ -31,8 +33,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field as DalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -64,7 +69,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @phpstan-type FieldArray array{type?: string, name?: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}
  */
-#[Package('core')]
+#[Package('framework')]
 class AttributeEntityCompiler
 {
     private const FIELD_ATTRIBUTES = [
@@ -137,6 +142,7 @@ class AttributeEntityCompiler
             'parent' => $instance->parent,
             'entity_class' => $class,
             'entity_name' => $instance->name,
+            'hydrator_class' => $instance->hydratorClass,
             'collection_class' => $instance->collectionClass,
             'fields' => $fields,
         ];
@@ -206,6 +212,7 @@ class AttributeEntityCompiler
             AutoIncrement::TYPE => AutoIncrementField::class,
             CustomFieldsAttr::TYPE => CustomFields::class,
             Serialized::TYPE => SerializedField::class,
+            FieldType::ENUM => EnumField::class,
             FieldType::JSON => JsonField::class,
             FieldType::DATE => DateField::class,
             FieldType::DATE_INTERVAL => DateIntervalField::class,
@@ -247,6 +254,7 @@ class AttributeEntityCompiler
             $field instanceof AutoIncrement, $field instanceof Version => [],
             $field instanceof ReferenceVersion => [$field->entity, $column],
             $field instanceof Serialized => [$column, $property->getName(), $field->serializer],
+            $field->type === FieldType::ENUM => [$column, $property->getName(), $this->getFirstEnumCase($property)],
             default => [$column, $property->getName()],
         };
     }
@@ -282,6 +290,15 @@ class AttributeEntityCompiler
         if ($inherited = $this->getAttribute($property, Inherited::class)) {
             $instance = $inherited->newInstance();
             $flags[Inherited::class] = ['class' => Inherited::class, 'args' => ['reversed' => $instance->reversed]];
+        }
+
+        if ($this->getAttribute($property, AllowEmptyStringAttr::class)) {
+            $flags[AllowEmptyString::class] = ['class' => AllowEmptyString::class];
+        }
+
+        if ($attr = $this->getAttribute($property, AllowHtmlAttr::class)) {
+            $instance = $attr->newInstance();
+            $flags[AllowHtml::class] = ['class' => AllowHtml::class, 'args' => ['sanitized' => $instance->sanitized]];
         }
 
         if ($field->api !== false) {
@@ -397,5 +414,20 @@ class AttributeEntityCompiler
             'source' => $entity,
             'reference' => $field->entity,
         ];
+    }
+
+    private function getFirstEnumCase(\ReflectionProperty $property): \BackedEnum
+    {
+        $enumType = $property->getType();
+        if (!$enumType instanceof \ReflectionNamedType) {
+            throw DataAbstractionLayerException::invalidEnumField($property->getName(), $enumType?->__toString() ?? 'null');
+        }
+
+        $enumClass = $enumType->getName();
+        if (!is_a($enumClass, \BackedEnum::class, true)) {
+            throw DataAbstractionLayerException::invalidEnumField($property->getName(), $enumClass);
+        }
+
+        return $enumClass::cases()[0];
     }
 }

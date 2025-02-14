@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
@@ -121,13 +121,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').languageId = '123456789';
+        Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
         await flushPromises();
     });
 
     afterEach(() => {
-        Shopware.State.get('session').languageId = '';
+        Shopware.Store.get('session').languageId = '';
     });
 
     it('should be a Vue.js component', async () => {

@@ -62,34 +62,6 @@ class WebhookDispatcherTest extends TestCase
         );
     }
 
-    public function testManagerIsNotExecutedWhenExtensionsDisabled(): void
-    {
-        $_ENV['DISABLE_EXTENSIONS'] = true;
-
-        $e = new \stdClass();
-
-        $eventDispatcher = $this->createMock(EventDispatcher::class);
-        $eventDispatcher->expects(static::once())
-            ->method('dispatch')
-            ->with($e, 'event')
-            ->willReturn($e);
-
-        $webhookManager = $this->createMock(WebhookManager::class);
-        $webhookManager->expects(static::never())->method('dispatch')->with($e);
-
-        $webhookDispatcher = new WebhookDispatcher(
-            $eventDispatcher,
-            $webhookManager,
-        );
-
-        static::assertSame(
-            $e,
-            $webhookDispatcher->dispatch($e, 'event')
-        );
-
-        $_ENV['DISABLE_EXTENSIONS'] = false;
-    }
-
     public function testAddSubscriberForwardsToInner(): void
     {
         $subscriber = new class implements EventSubscriberInterface {

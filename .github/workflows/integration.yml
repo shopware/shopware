@@ -16,7 +16,6 @@ on:
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:acceptance') }}
     strategy:
       fail-fast: false
       matrix:
@@ -144,7 +143,6 @@ jobs:
 
   phpunit-matrix:
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:phpunit') }}
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
@@ -160,7 +158,6 @@ jobs:
 
   phpunit:
     name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
-    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:phpunit') }}
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
@@ -331,7 +328,6 @@ jobs:
   tested-update-versions:
     name: tested-versions
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:acceptance') }}
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
@@ -345,7 +341,6 @@ jobs:
   acceptance-update:
     needs: tested-update-versions
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' || contains(join(github.event.pull_request.labels.*.name, ','), 'Integration:acceptance') }}
     strategy:
       fail-fast: false
       matrix:
@@ -449,7 +444,6 @@ jobs:
   blue-green-66-67:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
     env:
       APP_ENV: test
       APP_URL: http://localhost:8000

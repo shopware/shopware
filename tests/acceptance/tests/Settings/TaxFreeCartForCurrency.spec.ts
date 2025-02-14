@@ -16,6 +16,7 @@ test(
     SelectInvoicePaymentOption,
     SelectStandardShippingOption,
     SubmitOrder,
+    InstanceMeta,
 }) => {
     const product = await TestDataService.createBasicProduct();
     const currency = await TestDataService.createCurrency({ taxFreeFrom: 5 });

@@ -76,8 +76,9 @@
                     >
 
                         {% block sw_settings_currency_detail_content_field_name %}
-                        <sw-text-field
-                            v-model:value="currency.name"
+
+                        <mt-text-field
+                            v-model="currency.name"
                             name="sw-field--currency-name"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -88,8 +89,9 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_iso_code %}
-                        <sw-text-field
-                            v-model:value="currency.isoCode"
+
+                        <mt-text-field
+                            v-model="currency.isoCode"
                             name="sw-field--currency-isoCode"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -100,8 +102,9 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_short_name %}
-                        <sw-text-field
-                            v-model:value="currency.shortName"
+
+                        <mt-text-field
+                            v-model="currency.shortName"
                             name="sw-field--currency-shortName"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -112,8 +115,9 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_symbol %}
-                        <sw-text-field
-                            v-model:value="currency.symbol"
+
+                        <mt-text-field
+                            v-model="currency.symbol"
                             name="sw-field--currency-symbol"
                             required
                             :disabled="!acl.can('currencies.editor')"

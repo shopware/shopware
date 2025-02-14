@@ -34,8 +34,9 @@
                 class="sw-cms-el-config-product-slider__tab-content"
             >
                 {% block sw_cms_element_product_slider_config_content_title %}
-                <sw-text-field
-                    v-model:value="element.config.title.value"
+
+                <mt-text-field
+                    v-model="element.config.title.value"
                     class="sw-cms-el-config-product-slider__tab-content-title"
                     :label="$tc('sw-cms.elements.productSlider.config.label.title')"
                     :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.title')"
@@ -193,8 +194,9 @@
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-alignment has--two-elements">
                     {% block sw_cms_element_product_slider_config_settings_min_width %}
-                    <sw-text-field
-                        v-model:value="element.config.elMinWidth.value"
+
+                    <mt-text-field
+                        v-model="element.config.elMinWidth.value"
                         class="sw-cms-el-config-product-slider__tab-settings-alignment-min-width"
                         :label="$tc('sw-cms.elements.productSlider.config.label.minWidth')"
                         :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.minWidth')"

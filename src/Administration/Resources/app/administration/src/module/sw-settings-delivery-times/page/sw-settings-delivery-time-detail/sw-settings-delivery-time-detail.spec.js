@@ -106,12 +106,12 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
-        const nameField = wrapper.find('sw-text-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
+        const nameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-delivery-time.detail.labelName"]');
         const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
         const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
 
-        expect(nameField.attributes().disabled).toBeTruthy();
+        expect(nameField.attributes().disabled).toBeDefined();
         expect(maxNumberField.attributes().disabled).toBeTruthy();
         expect(minNumberField.attributes().disabled).toBeTruthy();
         expect(unitSingleSelect.attributes().disabled).toBeTruthy();
@@ -133,12 +133,12 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
-        const nameField = wrapper.find('sw-text-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
+        const nameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-delivery-time.detail.labelName"]');
         const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
         const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
 
-        expect(nameField.attributes().disabled).toBeFalsy();
+        expect(nameField.attributes().disabled).toBeUndefined();
         expect(maxNumberField.attributes().disabled).toBeFalsy();
         expect(minNumberField.attributes().disabled).toBeFalsy();
         expect(unitSingleSelect.attributes().disabled).toBeFalsy();
@@ -167,12 +167,12 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
-        const nameField = wrapper.find('sw-text-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
+        const nameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-delivery-time.detail.labelName"]');
         const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
         const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
 
-        expect(nameField.attributes().disabled).toBeFalsy();
+        expect(nameField.attributes().disabled).toBeUndefined();
         expect(maxNumberField.attributes().disabled).toBeFalsy();
         expect(minNumberField.attributes().disabled).toBeFalsy();
         expect(unitSingleSelect.attributes().disabled).toBeFalsy();

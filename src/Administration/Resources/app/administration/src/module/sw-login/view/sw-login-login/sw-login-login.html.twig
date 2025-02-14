@@ -22,8 +22,9 @@
     {% endblock %}
 
     {% block sw_login_login_user_field %}
-    <sw-text-field
-        v-model:value="username"
+
+    <mt-text-field
+        v-model="username"
         v-autofocus
         name="sw-field--username"
         :label="$tc('sw-login.index.labelUsername')"

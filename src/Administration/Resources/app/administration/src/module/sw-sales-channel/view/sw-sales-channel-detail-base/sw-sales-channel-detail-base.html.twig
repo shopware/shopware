@@ -60,8 +60,9 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_name %}
-        <sw-text-field
-            v-model:value="salesChannel.name"
+
+        <mt-text-field
+            v-model="salesChannel.name"
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor') || undefined"
@@ -424,8 +425,9 @@
         :title="$tc('sw-sales-channel.detail.productComparison.settings')"
     >
         {% block sw_sales_channel_detail_base_general_input_product_comparison_filename %}
-        <sw-text-field
-            v-model:value="productExport.fileName"
+
+        <mt-text-field
+            v-model="productExport.fileName"
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor') || undefined"
@@ -521,9 +523,9 @@
         />
         {% endblock %}
 
-        <sw-text-field
+        <mt-text-field
             v-if="salesChannel.productExports && salesChannel.productExports.length > 0"
-            v-model:value="cliCommand"
+            v-model="cliCommand"
             copyable
             :label="$tc('sw-sales-channel.detail.productComparison.cliCommand')"
             readonly
@@ -547,9 +549,10 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_options_input_access_key %}
-        <sw-text-field
+
+        <mt-text-field
             v-if="!isProductComparison"
-            v-model:value="salesChannel.accessKey"
+            v-model="salesChannel.accessKey"
             :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
             :disabled="true"
         />
@@ -583,9 +586,10 @@
 
         {% block sw_sales_channel_detail_base_product_comparison_access_key %}
         {% block sw_sales_channel_detail_base_product_comparison_input_access_key %}
-        <sw-text-field
+
+        <mt-text-field
             v-if="isProductComparison"
-            v-model:value="productExport.accessKey"
+            v-model="productExport.accessKey"
             :label="$tc('sw-sales-channel.detail.productComparison.accessKey')"
             :disabled="true"
             :copyable="true"
@@ -593,9 +597,10 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_product_comparison_input_access_url %}
-        <sw-text-field
+
+        <mt-text-field
             v-if="isProductComparison && productExport.salesChannelDomainId"
-            v-model:value="productComparisonAccessUrl"
+            v-model="productComparisonAccessUrl"
             :label="$tc('sw-sales-channel.detail.productComparison.accessUrl')"
             :disabled="true"
             :copyable="true"

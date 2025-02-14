@@ -120,7 +120,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             },
         });
 
-        const textField = wrapper.find('sw-text-field-stub');
+        const textField = wrapper.find('.mt-text-field');
 
         expect(textField.exists()).toBeTruthy();
     });
@@ -135,7 +135,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             },
         });
 
-        const textField = wrapper.find('sw-text-field-stub');
+        const textField = wrapper.find('.mt-text-field');
 
         expect(textField.exists()).toBeTruthy();
     });
@@ -152,7 +152,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
         });
 
         const productSelect = wrapper.find('sw-entity-single-select-stub');
-        const textField = wrapper.find('sw-text-field-stub');
+        const textField = wrapper.find('.mt-text-field');
 
         expect(productSelect.exists()).toBeFalsy();
         expect(textField.exists()).toBeFalsy();

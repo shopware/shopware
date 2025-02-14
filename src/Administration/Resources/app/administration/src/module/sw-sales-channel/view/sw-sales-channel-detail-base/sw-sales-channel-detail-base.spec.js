@@ -127,9 +127,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[placeholder="sw-sales-channel.detail.placeholderName"]');
+        const field = wrapper.getComponent('.sw-field--salesChannel-name');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.props().disabled).toBe(true);
     });
 
     it('should have the name field enabled', async () => {
@@ -143,9 +143,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[placeholder="sw-sales-channel.detail.placeholderName"]');
+        const field = wrapper.getComponent('.sw-field--salesChannel-name');
 
-        expect(field.attributes().disabled).toBeUndefined();
+        expect(field.props().disabled).toBe(false);
     });
 
     it('should have the navigation category id field disabled', async () => {
@@ -574,10 +574,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-text-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderFileName"]',
+            '.mt-text-field input[placeholder="sw-sales-channel.detail.productComparison.placeholderFileName"]',
         );
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the field for product export file name enabled', async () => {
@@ -592,7 +592,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-text-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderFileName"]',
+            '.mt-text-field input[placeholder="sw-sales-channel.detail.productComparison.placeholderFileName"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -796,9 +796,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             salesChannel: {},
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.labelAccessKeyField"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.labelAccessKeyField"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the field for salesChannel accessKey not disabled', async () => {
@@ -810,9 +810,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             salesChannel: {},
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.labelAccessKeyField"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.labelAccessKeyField"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the button for generate keys disabled', async () => {
@@ -850,9 +850,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.productComparison.accessKey"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.productComparison.accessKey"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the field for productExport accessKey not disabled', async () => {
@@ -866,9 +866,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.productComparison.accessKey"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.productComparison.accessKey"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     // eslint-disable-next-line jest/no-identical-title
@@ -884,9 +884,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.productComparison.accessUrl"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.productComparison.accessUrl"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     // eslint-disable-next-line jest/no-identical-title
@@ -904,9 +904,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.productComparison.accessUrl"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.productComparison.accessUrl"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the button for generating the keys disabled', async () => {

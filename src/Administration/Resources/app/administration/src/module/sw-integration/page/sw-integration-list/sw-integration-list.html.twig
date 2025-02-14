@@ -75,8 +75,9 @@
                         columns="2fr 1fr"
                         gap="24px"
                     >
-                        <sw-text-field
-                            v-model:value="currentIntegration.label"
+
+                        <mt-text-field
+                            v-model="currentIntegration.label"
                             name="sw-field--currentIntegration-label"
                             :label="$tc('sw-integration.detail.labelFieldLabel')"
                             :disabled="!acl.can('integration.editor')"
@@ -111,8 +112,9 @@
                     {% endblock %}
 
                     {% block sw_integration_list_detail_modal_inner_field_accesskey %}
-                    <sw-text-field
-                        v-model:value="currentIntegration.accessKey"
+
+                    <mt-text-field
+                        v-model="currentIntegration.accessKey"
                         name="sw-field--currentIntegration-accessKey"
                         :label="$tc('sw-integration.detail.idFieldLabel')"
                         :disabled="true"
@@ -123,9 +125,10 @@
 
                     {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
                     <template v-if="showSecretAccessKey">
-                        <sw-text-field
+
+                        <mt-text-field
                             v-if="secretAccessKeyFieldTypeIsText"
-                            v-model:value="currentIntegration.secretAccessKey"
+                            v-model="currentIntegration.secretAccessKey"
                             name="sw-field--currentIntegration-secretAccessKey"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"

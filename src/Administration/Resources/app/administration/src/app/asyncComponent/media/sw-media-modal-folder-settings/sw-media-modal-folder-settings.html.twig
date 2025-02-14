@@ -49,8 +49,9 @@
                 gap="32px"
             >
                 {% block sw_media_modal_folder_settings_name_field %}
-                <sw-text-field
-                    v-model:value="mediaFolder.name"
+
+                <mt-text-field
+                    v-model="mediaFolder.name"
                     :disabled="disabled"
                     :error="mediaFolderNameError"
                     :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"

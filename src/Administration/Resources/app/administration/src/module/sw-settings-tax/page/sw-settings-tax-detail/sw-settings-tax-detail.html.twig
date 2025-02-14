@@ -68,16 +68,17 @@
                     >
 
                         {% block sw_settings_tax_detail_content_field_name %}
-                        <sw-text-field
+
+                        <mt-text-field
                             id="sw-field--tax-name"
-                            :value="label"
+                            :model-value="label"
                             required
                             name="sw-field--tax-name"
                             :disabled="!acl.can('tax.editor') || isShopwareDefaultTax || undefined"
                             :label="$tc('sw-settings-tax.detail.labelName')"
                             :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
                             :error="taxNameError"
-                            @update:value="changeName"
+                            @update:model-value="changeName"
                         />
                         {% endblock %}
 

@@ -107,7 +107,6 @@ async function createWrapper() {
                     ),
                     'sw-settings-search-example-modal': true,
                     'sw-loader': true,
-                    'mt-text-field': true,
                     'sw-field-copyable': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

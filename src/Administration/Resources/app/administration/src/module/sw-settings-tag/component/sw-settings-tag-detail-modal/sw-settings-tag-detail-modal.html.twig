@@ -40,9 +40,10 @@
             <template v-if="active === 'general'">
                 {% block sw_settings_tag_detail_modal_tabs_general_tab %}
                 <p class="sw-settings-tag-detail-modal__tag-name">
-                    <sw-text-field
+
+                    <mt-text-field
                         id="sw-field--tag-name"
-                        v-model:value="tag.name"
+                        v-model="tag.name"
                         name="sw-field--tag-name"
                         :label="$tc('sw-settings-tag.list.columnName')"
                         :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"

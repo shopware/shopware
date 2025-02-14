@@ -24,8 +24,9 @@
             <template #content>
                 <div class="sw-cms-sidebar__settings">
                     {% block sw_cms_sidebar_page_settings_name_field %}
-                    <sw-text-field
-                        v-model:value="page.name"
+
+                    <mt-text-field
+                        v-model="page.name"
                         :label="$tc('sw-cms.detail.label.pageName')"
                         :placeholder="placeholder(page, 'name')"
                         :error="pageNameError"
@@ -33,8 +34,9 @@
                     {% endblock %}
 
                     {% block sw_cms_sidebar_page_settings_css_class_field %}
-                    <sw-text-field
-                        v-model:value="page.cssClass"
+
+                    <mt-text-field
+                        v-model="page.cssClass"
                         :label="$tc('sw-cms.detail.label.pageCssClass')"
                         :placeholder="placeholder(page, 'cssClass')"
                         :help-text="$tc('sw-cms.detail.helpText.cssClassField')"

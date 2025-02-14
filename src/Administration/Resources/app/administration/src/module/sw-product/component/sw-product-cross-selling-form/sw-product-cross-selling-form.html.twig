@@ -32,8 +32,9 @@
                 align="start"
             >
                 {% block sw_prduct_cross_selling_form_title_field %}
-                <sw-text-field
-                    v-model:value="crossSelling.name"
+
+                <mt-text-field
+                    v-model="crossSelling.name"
                     name="sw-field--crossSelling-name"
                     :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                     required

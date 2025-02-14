@@ -96,8 +96,9 @@
                 </span>
 
                 <template #inline-edit>
-                    <sw-text-field
-                        :value="getInlineSnippet(item.config.label) || item.name"
+
+                    <mt-text-field
+                        :model-value="getInlineSnippet(item.config.label) || item.name"
                         disabled
                     />
                 </template>
@@ -114,8 +115,9 @@
                 {{ $tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`) }}
 
                 <template #inline-edit>
-                    <sw-text-field
-                        :value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
+
+                    <mt-text-field
+                        :model-value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
                         disabled
                     />
                 </template>

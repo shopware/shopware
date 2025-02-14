@@ -44,7 +44,6 @@ async function createWrapper() {
                     template: '<div class="checkbox"></div>',
                 },
                 'sw-empty-state': true,
-                'mt-text-field': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -353,7 +352,7 @@ describe('components/base/sw-property-search', () => {
 
         jest.useFakeTimers();
 
-        const searchInput = wrapper.find('.sw-block-field__block input');
+        const searchInput = wrapper.find('.mt-block-field__block input');
         await searchInput.setValue('test');
         await searchInput.trigger('input');
 
@@ -386,7 +385,7 @@ describe('components/base/sw-property-search', () => {
 
         jest.useFakeTimers();
 
-        const searchInput = wrapper.find('.sw-block-field__block input');
+        const searchInput = wrapper.find('.mt-block-field__block input');
         await searchInput.setValue('property-A');
         await searchInput.trigger('input');
 

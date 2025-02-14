@@ -90,9 +90,10 @@
             {% block sw_settings_language_list_content_list_columns %}
             {% block sw_settings_language_list_content_list_column_name %}
             <template #column-name="{ item, column, compact, isInlineEdit }">
-                <sw-text-field
+
+                <mt-text-field
                     v-if="isInlineEdit"
-                    v-model:value="item.name"
+                    v-model="item.name"
                     :size="compact ? 'small' : 'default'"
                 />
                 <router-link

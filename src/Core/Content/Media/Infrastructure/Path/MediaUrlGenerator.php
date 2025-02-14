@@ -26,10 +26,7 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
             if (str_starts_with($value->path, 'http')) {
                 $url = $value->path;
             } else {
-                $pathInfo = pathinfo($value->path);
-                $encodedFilename = rawurlencode($pathInfo['basename']);
-                $encodedPath = ($pathInfo['dirname'] ?? '') . '/' . $encodedFilename;
-                $url = $this->filesystem->publicUrl($encodedPath);
+                $url = $this->filesystem->publicUrl($value->path);
             }
 
             if ($value->updatedAt !== null) {

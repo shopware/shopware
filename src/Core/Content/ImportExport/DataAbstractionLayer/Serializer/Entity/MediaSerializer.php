@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -110,6 +111,19 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
         }
 
         return $deserialized;
+    }
+
+    public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
+    {
+        $entity = \is_array($entity) ? $entity : iterator_to_array($entity);
+
+        if (isset($entity['url'])) {
+            $urlEncodingTwig = new UrlEncodingTwigFilter();
+            $entity['url'] = $urlEncodingTwig->encodeUrl($entity['url']);
+        }
+
+        yield from parent::serialize($config, $definition, $entity);
+        yield from $entity;
     }
 
     public function supports(string $entity): bool

@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'custom_entity';

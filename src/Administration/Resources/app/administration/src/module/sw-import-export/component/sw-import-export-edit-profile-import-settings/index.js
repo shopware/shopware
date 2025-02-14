@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-edit-profile-import-settings.html.twig';
 import './sw-import-export-edit-profile-import-settings.scss';
@@ -7,8 +7,6 @@ import './sw-import-export-edit-profile-import-settings.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         profile: {

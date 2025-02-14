@@ -1,30 +1,24 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_domains_modal %}
 <sw-modal
     class="sw-extension-domains-modal"
     :title="modalTitle"
     variant="small"
-    v-on="listeners"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_domains_modal_description %}
     <p class="sw-extension-domains-modal__description">
         {{ $tc('sw-extension-store.component.sw-extension-domains-modal.description') }}
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_domains_modal_list_title %}
     <h3 class="sw-extension-domains-modal__list-title">
         {{ $tc('sw-extension-store.component.sw-extension-domains-modal.listTitle') }}
     </h3>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_domains_modal_list %}
     <ul class="sw-extension-domains-modal__list">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_domains_modal_list_entry %}
         <li
             v-for="(domain, i) in domains"
@@ -37,10 +31,8 @@
     </ul>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_domains_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_domains_modal_footer_inner %}
         <sw-button
             variant="primary"

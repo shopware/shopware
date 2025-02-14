@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\TimeRangeRule;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(TimeRangeRule::class)]
 class TimeRangeRuleTest extends TestCase
 {

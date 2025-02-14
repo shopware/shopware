@@ -2,7 +2,7 @@ import template from './sw-tax-rule-card.html.twig';
 import './sw-tax-rule-card.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Context } = Shopware;
@@ -12,12 +12,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     props: {

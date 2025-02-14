@@ -9,14 +9,14 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
 class CartTaxDisplayRule extends Rule
 {
     final public const RULE_NAME = 'cartTaxDisplay';
 
-    /**
-     * @internal
-     */
     public function __construct(protected string $taxDisplay = CartPrice::TAX_STATE_GROSS)
     {
         parent::__construct();

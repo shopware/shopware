@@ -33,7 +33,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class FlowGenerator implements DemodataGeneratorInterface
 {
     /**

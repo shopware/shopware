@@ -3,10 +3,8 @@ import './sw-cms-el-preview-product-box.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

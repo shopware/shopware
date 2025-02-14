@@ -1,9 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_create_wizard %}
 <div class="sw-cms-create-wizard">
     <div class="sw-cms-create-wizard__inner">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_create_wizard_first_step %}
         <div
             v-if="step === 1"
@@ -13,10 +11,8 @@
                 {{ $tc('sw-cms.createWizard.choosePageTypeTitle') }}
             </h2>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_page_type %}
             <div class="sw-cms-create-wizard__page-type-selection">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_create_wizard_page_type_options %}
                 <div
                     v-for="pageType in visiblePageTypes"
@@ -38,7 +34,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_first_step_abort %}
             <router-link
                 class="sw-cms-create-wizard__back"
@@ -51,7 +46,6 @@
             </router-link>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_first_step_helptext %}
             <p class="sw-cms-create-wizard__step1-helptext">
                 {{ $tc('sw-cms.createWizard.choosePageTypeHelpText') }}
@@ -61,7 +55,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_create_wizard_second_step %}
         <div
             v-if="step === 2"
@@ -71,14 +64,12 @@
                 {{ $tc('sw-cms.createWizard.chooseSectionTitle') }}
             </h2>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_section %}
             <div class="sw-cms-create-wizard__section-selection">
                 <sw-cms-stage-section-selection @section-select="onSectionSelect" />
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_second_step_back %}
             <div
                 class="sw-cms-create-wizard__back"
@@ -94,7 +85,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_second_step_helptext %}
             <p class="sw-cms-create-wizard__step2-helptext">
                 {{ $tc('sw-cms.createWizard.chooseSectionHelpText') }}
@@ -103,7 +93,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_create_wizard_third_step %}
         <div
             v-if="step === 3"
@@ -114,7 +103,6 @@
             </h2>
 
             <div class="sw-cms-create-wizard__name-select">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_create_wizard_page_preview %}
                 <div class="sw-cms-create-wizard__page-preview">
                     <div
@@ -131,11 +119,9 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_create_wizard_page_completion %}
                 <div class="sw-cms-create-wizard__page-completion">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_create_wizard_page_name %}
                     <sw-text-field
                         v-model:value="page.name"
@@ -156,10 +142,8 @@
                         require
                     />
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_create_wizard_page_completion_buttons %}
                     <div class="sw-cms-create-wizard__page-completion-buttons">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_create_wizard_page_completion_save_button %}
                         <sw-button
                             variant="primary"
@@ -175,7 +159,6 @@
                 {% endblock %}
             </div>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_third_step_back %}
             <div
                 class="sw-cms-create-wizard__back"

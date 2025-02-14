@@ -26,8 +26,6 @@ type RecommendedPlugin = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'cacheApiService',
         'extensionHelperService',

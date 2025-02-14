@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class CustomFieldEntity extends Entity
 {
     use EntityIdTrait;
@@ -70,6 +70,8 @@ class CustomFieldEntity extends Entity
     protected $allowCustomerWrite = false;
 
     protected bool $allowCartExpose = false;
+
+    protected bool $storeApiAware = true;
 
     public function getName(): string
     {
@@ -165,5 +167,15 @@ class CustomFieldEntity extends Entity
     public function setAllowCartExpose(bool $allowCartExpose): void
     {
         $this->allowCartExpose = $allowCartExpose;
+    }
+
+    public function isStoreApiAware(): bool
+    {
+        return $this->storeApiAware;
+    }
+
+    public function setStoreApiAware(bool $storeApiAware): void
+    {
+        $this->storeApiAware = $storeApiAware;
     }
 }

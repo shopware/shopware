@@ -1,20 +1,17 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_view %}
 <sw-card-view
     class="sw-category-view"
     position-identifier="sw-category-view"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_view_language_info %}
     <sw-language-info
         :entity-description="placeholder(category, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_view_column_info %}
     <sw-alert
-        v-if="category.isColumn"
+        v-if="isCategoryColumn"
         class="swag-category-view__column-info"
         variant="info"
     >
@@ -27,14 +24,12 @@
     </sw-alert>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_view_tabs %}
     <sw-tabs
         v-if="!isLoading"
         position-identifier="sw-category-view"
         class="sw-customer-detail-page__tabs"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_view_tabs_general %}
         <sw-tabs-item
             class="sw-category-detail__tab-base"
@@ -45,7 +40,6 @@
         </sw-tabs-item>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_view_tabs_products %}
         <sw-tabs-item
             v-show="isPage && !isCustomEntity"
@@ -66,7 +60,6 @@
             {{ $tc('sw-category.view.customEntity') }}
         </sw-tabs-item>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_view_tabs_cms %}
         <sw-tabs-item
             v-show="cmsPage || isPage"
@@ -78,7 +71,6 @@
         </sw-tabs-item>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_view_tabs_seo %}
         <sw-tabs-item
             v-show="isPage"
@@ -92,7 +84,6 @@
     </sw-tabs>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_view_content %}
     <router-view
         v-slot="{ Component }"

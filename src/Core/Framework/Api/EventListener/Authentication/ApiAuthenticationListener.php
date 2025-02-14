@@ -13,13 +13,11 @@ use Shopware\Administration\Login\TokenService\ExternalTokenService;
 use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Api\OAuth\BearerTokenValidator;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
-use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -28,7 +26,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ApiAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;
@@ -37,9 +35,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly BearerTokenValidator $bearerTokenValidator,
         private readonly SymfonyBearerTokenValidator $symfonyBearerTokenValidator,
-        private readonly PsrHttpFactory $psrHttpFactory,
         private readonly AuthorizationServer $authorizationServer,
         private readonly UserRepositoryInterface $userRepository,
         private readonly RefreshTokenRepositoryInterface $refreshTokenRepository,
@@ -99,17 +95,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->symfonyBearerTokenValidator->validateAuthorization($event->getRequest());
-
-            return;
-        }
-
-        $psr7Request = $this->psrHttpFactory->createRequest($event->getRequest());
-
-        $psr7Request = $this->bearerTokenValidator->validateAuthorization($psr7Request);
-
-        $request->attributes->add($psr7Request->getAttributes());
+        $this->symfonyBearerTokenValidator->validateAuthorization($event->getRequest());
     }
 
     protected function getScopeRegistry(): RouteScopeRegistry

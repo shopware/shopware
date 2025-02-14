@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './sw-overlay.scss';
 import template from './sw-overlay.html.twig';
 
@@ -14,6 +18,4 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-overlay', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 });

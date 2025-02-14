@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_snippet_list %}
 <sw-page class="sw-settings-snippet-list">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_set_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -14,25 +12,21 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_list_smart_bar_header %}
     <template #smart-bar-header>
         {# Hack for fixing this problem: https://github.com/vuejs/core/issues/9308 #}
         <div style="display: none;"></div>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_list_smart_bar_header_title %}
         <h2
             v-if="!isLoading && snippetSets"
             class="sw-settings-snippet-list__smart_bar_header"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_snippet_list_smart_bar_header_title_text %}
             <span class="sw-settings_snippet_list__smart-bar-title-text">
                 {{ $tc('sw-settings-snippet.list.textSnippetList', snippetSets.length, { setName: metaName }) }}
             </span>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_snippet_list_smart_bar_header_amount %}
             <span class="sw-page__smart-bar-amount">
                 ({{ total }})
@@ -43,10 +37,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip.bottom="getNoPermissionsTooltip('snippet.creator')"
@@ -60,12 +52,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_list_content %}
     <template #content>
         <div class="sw-settings-snippet-list__content">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_snippet_list_grid %}
             <sw-data-grid
                 :is-loading="isLoading || !snippetSets"
@@ -86,21 +76,17 @@
                 @inline-edit-save="onInlineEditSave"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_salutations_list_columns %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_column_id %}
                 <template
                     #column-id="{ item, isInlineEdit }"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_column_id_inline_edit %}
                     <template v-if="isInlineEdit">
                         {{ item.id }}
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_column_id_content %}
                     <template v-else>
                         <router-link
@@ -117,14 +103,12 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_column_value %}
                 <template
                     v-for="set in snippetSets"
                     :key="set.id"
                     #[`column-${set.id}`]="{ item, compact, isInlineEdit }"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_column_value_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-text-field
@@ -135,7 +119,6 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_column_value_content %}
                     <template v-else>
                         {{ item[set.id].value }}
@@ -144,10 +127,8 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_grid_column_actions %}
                 <template #actions="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_grid_column_actions_edit %}
                     <sw-context-menu-item
                         class="sw-settings-snippet-list__edit-action"
@@ -161,7 +142,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_grid_column_actions_delete %}
                     <sw-context-menu-item
                         v-tooltip.left="getNoPermissionsTooltip('snippet.deleter')"
@@ -176,9 +156,7 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_salutation_list_action_modals %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_delete_modal %}
                 <template
                     #action-modals="{ item }"
@@ -190,9 +168,7 @@
                         variant="large"
                         @modal-close="onCloseDeleteModal"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_list_delete_modal_text %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_list_delete_modal_text_reset %}
                         <span
                             v-if="!item.isCustomSnippet"
@@ -202,17 +178,15 @@
                         </span>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_list_delete_modal_text_delete %}
                         <span
                             v-else
                             class="sw-settings-snippet-list__delete-modal-confirm-delete-text"
                         >
-                            {{ $tc('sw-settings-snippet.list.textDeleteConfirm', 0, { key: item[metaId].translationKey }) }}
+                            {{ $tc('sw-settings-snippet.list.textDeleteConfirm', { key: item[metaId].translationKey }, 0) }}
                         </span>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_list_delete_modal_grid %}
                         <sw-grid
                             v-if="!item.isCustomSnippet && resetItems.length > 1"
@@ -222,12 +196,10 @@
                             @sw-grid-select-item="onSelectionChanged"
                             @sw-grid-select-all="onSelectionChanged"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_list_delete_modal_grid_template %}
                             <template
                                 #columns="{ item }"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_list_delete_modal_grid_name %}
                                 <sw-grid-column
                                     :label="$tc('sw-settings-snippet.list.columnHeaderGridColumnTitleSet')"
@@ -237,7 +209,6 @@
                                 </sw-grid-column>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_list_delete_modal_grid_value %}
                                 <sw-grid-column
                                     :label="$tc('sw-settings-snippet.list.columnValue')"
@@ -247,7 +218,6 @@
                                 </sw-grid-column>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_list_delete_modal_grid_origin %}
                                 <sw-grid-column
                                     :label="$tc('sw-settings-snippet.list.columnHeaderResetTo')"
@@ -262,10 +232,8 @@
                         {% endblock %}
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_list_delete_modal_footer %}
                         <template #modal-footer>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_list_delete_modal_cancel %}
                             <sw-button
                                 size="small"
@@ -275,7 +243,6 @@
                             </sw-button>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_list_delete_modal_confirm %}
                             <sw-button
                                 :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1 || undefined"
@@ -294,7 +261,6 @@
                 {% endblock %}
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_grid_pagination %}
                 <template #pagination>
                     <sw-pagination
@@ -314,7 +280,6 @@
     </template>
 
     <template #sidebar>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_list_grid_sidebar %}
         <sw-settings-snippet-sidebar
             class="sw-settings-snippet-list__grid-sidebar"

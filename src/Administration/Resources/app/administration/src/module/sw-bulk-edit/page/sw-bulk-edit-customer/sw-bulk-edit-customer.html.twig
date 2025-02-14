@@ -1,31 +1,25 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_customer %}
 <sw-page class="sw-bulk-edit-customer">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_customer_search_bar %}
     <template #search-bar>
         <sw-search-bar />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_customer_smart_bar_header %}
     <template #smart-bar-header>
-        <h2>{{ $tc('sw-bulk-edit.customer.textTitle', selectedIds.length, { customerTotal: selectedIds.length }) }}</h2>
+        <h2>{{ $tc('sw-bulk-edit.customer.textTitle', { customerTotal: selectedIds.length }), selectedIds.length }}</h2>
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_customer_content_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_customer_content_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_customer_actions_save %}
         <sw-button-process
             class="sw-bulk-edit-customer__save-action"
@@ -41,13 +35,11 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_customer_content %}
     <template #content>
         <sw-card-view
             v-if="selectedIds.length > 0 && isLoadedData"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_customer_content_account_card %}
             <sw-card
                 class="sw-bulk-edit-customer-base__account"
@@ -55,7 +47,6 @@
                 :title="$tc('sw-bulk-edit.customer.account.cardTitle')"
                 :is-loading="isLoading"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_customer_content_account_section %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="accountFormFields"
@@ -66,7 +57,6 @@
             </sw-card>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_customer_tags_card %}
             <sw-card
                 class="sw-bulk-edit-customer-base__tags"
@@ -74,7 +64,6 @@
                 :title="$tc('sw-bulk-edit.customer.tags.cardTitle')"
                 :is-loading="isLoading"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_customer_tags %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="tagsFormFields"
@@ -85,7 +74,6 @@
             </sw-card>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_customer_custom_field_card %}
             <sw-card
                 class="sw-bulk-edit-customer-base__custom_fields"
@@ -102,7 +90,6 @@
             {% endblock %}
         </sw-card-view>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_customer_empty_state %}
         <sw-empty-state
             v-if="selectedIds.length <= 0 && !isLoading"
@@ -111,7 +98,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_customer_save_modal %}
         <router-view
             v-slot="{ Component }"

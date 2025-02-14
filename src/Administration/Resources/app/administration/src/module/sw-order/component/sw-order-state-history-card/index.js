@@ -1,7 +1,7 @@
 import template from './sw-order-state-history-card.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -11,15 +11,12 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'orderService',
         'stateMachineService',
         'orderStateMachineService',
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     emits: [

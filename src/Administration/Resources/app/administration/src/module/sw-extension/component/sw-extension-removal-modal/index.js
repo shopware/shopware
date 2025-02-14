@@ -2,13 +2,11 @@ import template from './sw-extension-removal-modal.html.twig';
 import './sw-extension-removal-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'modal-close',

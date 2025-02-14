@@ -3,10 +3,8 @@ import './sw-cms-block-text-three-column.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

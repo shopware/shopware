@@ -18,7 +18,7 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class CaptchaService {

@@ -21,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'es:status',
     description: 'Show the status of the elasticsearch index',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchStatusCommand extends Command
 {
     use ConsoleProgressTrait;

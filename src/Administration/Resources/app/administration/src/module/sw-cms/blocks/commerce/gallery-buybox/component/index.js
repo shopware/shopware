@@ -5,12 +5,10 @@ const { Store } = Shopware;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     computed: {
         currentDeviceView() {

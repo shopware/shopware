@@ -1,12 +1,10 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-popover component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_popover %}
 <mt-floating-ui
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :is-opened="isOpened"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -24,12 +22,10 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_popover_deprecated %}
 <sw-popover-deprecated
     v-else
     v-bind="$attrs"
-    v-on="listeners"
 >
     <slot></slot>
 </sw-popover-deprecated>

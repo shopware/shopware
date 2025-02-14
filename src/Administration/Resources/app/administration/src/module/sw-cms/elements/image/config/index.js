@@ -5,12 +5,10 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -90,22 +88,13 @@ export default {
         updateElementData(media = null) {
             const mediaId = media === null ? null : media.id;
             if (!this.element.data) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.element, 'data', { mediaId, media });
-                } else {
-                    this.element.data = { mediaId, media };
-                }
+                this.element.data = { mediaId, media };
 
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'mediaId', mediaId);
-                this.$set(this.element.data, 'media', media);
-            } else {
-                this.element.data.mediaId = mediaId;
-                this.element.data.media = media;
-            }
+            this.element.data.mediaId = mediaId;
+            this.element.data.media = media;
         },
 
         onOpenMediaModal() {
@@ -119,6 +108,12 @@ export default {
         },
 
         onChangeDisplayMode() {
+            this.$emit('element-update', this.element);
+        },
+
+        onChangeIsDecorative(value) {
+            this.element.config.isDecorative.value = value;
+
             this.$emit('element-update', this.element);
         },
     },

@@ -10,7 +10,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MessageHandlerCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

@@ -11,11 +11,13 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TokenParser\TokenParserInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class NodeExtension extends AbstractExtension
 {
     /**
      * @internal
+     *
+     * @deprecated tag:v6.8.0  - replace TemplateFinder with TemplateFinderInterface
      */
     public function __construct(
         private readonly TemplateFinder $finder,

@@ -10,7 +10,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
@@ -183,23 +183,6 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
-            ->arrayNode('jwt_key')
-                ->children()
-                    ->booleanNode('use_app_secret')->defaultFalse()->end()
-                    ->scalarNode('private_key_path')
-                        ->setDeprecated('shopware/core', '6.7.0.0', 'private_key_path is deprecated and will be removed with Shopware 6.7')
-                        ->defaultValue('file://%kernel.project_dir%/config/jwt/private.pem')
-                    ->end()
-                    ->scalarNode('private_key_passphrase')
-                        ->setDeprecated('shopware/core', '6.7.0.0', 'private_key_passphrase is deprecated and will be removed with Shopware 6.7')
-                        ->defaultValue('shopware')
-                    ->end()
-                    ->scalarNode('public_key_path')
-                        ->setDeprecated('shopware/core', '6.7.0.0', 'public_key_path is deprecated and will be removed with Shopware 6.7')
-                        ->defaultValue('file://%kernel.project_dir%/config/jwt/public.pem')
-                    ->end()
-                ->end()
-            ->end()
             ->scalarNode('max_limit')->end()
             ->arrayNode('api_browser')
                 ->children()
@@ -410,7 +393,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                /** @deprecated tag:v6.7.0 */
                 ->arrayNode('tagging')
+                    ->setDeprecated('shopware/core', '6.6.10.0', 'The fine-grained cache "tagging" configuration is deprecated and will be removed with Shopware 6.7.0.0')
                     ->children()
                         ->booleanNode('each_snippet')
                             ->defaultTrue()

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 import template from './sw-settings-search-search-behaviour.html.twig';
 import './sw-settings-search-search-behaviour.scss';
@@ -7,8 +7,6 @@ import './sw-settings-search-search-behaviour.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',

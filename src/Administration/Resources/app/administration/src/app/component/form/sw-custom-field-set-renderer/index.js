@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -21,8 +21,6 @@ Component.register('sw-custom-field-set-renderer', {
         'feature',
         'repositoryFactory',
     ],
-
-    compatConfig: Shopware.compatConfig,
 
     // Grant access to some variables to the child form render components
     provide() {
@@ -363,12 +361,8 @@ Component.register('sw-custom-field-set-renderer', {
                     // replace the fully fetched set
                     this.sets.forEach((originalSet, index) => {
                         if (originalSet.id === newSet.id) {
-                            if (this.isCompatEnabled('INSTANCE_SET')) {
-                                this.$set(this.sets, index, newSet);
-                            } else {
-                                // eslint-disable-next-line vue/no-mutating-props
-                                this.sets[index] = newSet;
-                            }
+                            // eslint-disable-next-line vue/no-mutating-props
+                            this.sets[index] = newSet;
                         }
                     });
 

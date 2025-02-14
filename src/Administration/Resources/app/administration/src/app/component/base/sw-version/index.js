@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-version.html.twig';
@@ -19,8 +19,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-version', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     computed: {
         version() {

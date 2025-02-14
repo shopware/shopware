@@ -55,7 +55,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class VersionManager
 {
     final public const DISABLE_AUDIT_LOG = 'disable-audit-log';
@@ -416,6 +416,7 @@ class VersionManager
             }
         }
 
+        /** @phpstan-ignore empty.variable (might be overridden by reference) */
         if (!empty($extensions)) {
             $payload['extensions'] = $extensions;
         }

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
-#[Package('core')]
+#[Package('framework')]
 class PartialEntity extends ArrayEntity
 {
 }

@@ -1,9 +1,9 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
-import uuid from 'src/../test/_helper_/uuid';
+import uuid from 'test/_helper_/uuid';
 
 async function createWrapper(items, mediaRepositoryFunctions = {}) {
     return mount(await wrapTestComponent('sw-media-sidebar', { sync: true }), {

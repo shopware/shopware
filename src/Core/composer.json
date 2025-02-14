@@ -28,8 +28,8 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.6.x-dev",
-            "dev-trunk": "6.6.x-dev"
+            "dev-master": "6.7.x-dev",
+            "dev-trunk": "6.7.x-dev"
         }
     },
     "replace": {
@@ -67,21 +67,22 @@
         "ext-zlib": "*",
         "composer-runtime-api": "^2.1",
         "cocur/slugify": "^4.3.0",
-        "composer/composer": "^2.7",
+        "composer/composer": "^2.8.5",
         "composer/semver": "^3.2",
-        "doctrine/dbal": "^3.9",
+        "doctrine/dbal": "^4.2",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "2.0.4",
+        "dompdf/dompdf": "3.1.0",
         "dragonmantank/cron-expression": "^3.3",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
+        "horstoeko/zugferd": "^1.0.104",
         "lcobucci/clock": "^3.1.0",
-        "lcobucci/jwt": "^5.0",
+        "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.10.3",
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",
-        "league/oauth2-server": "^8.5",
+        "league/oauth2-server": "^9.1",
         "monolog/monolog": "^3.3.1",
         "nyholm/psr7": "^1.5",
         "psr/cache": "^3.0.0",
@@ -148,7 +149,7 @@
         "tecnickcom/tcpdf": "^6.7.7",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.14.0",
+        "twig/twig": "^3.19.0",
         "zircote/swagger-php": "^4.9.2"
     },
     "require-dev": {

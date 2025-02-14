@@ -1,3 +1,6 @@
+{% set cmsPath = 'frontend.cms.page' %}
+{% set privacyNoticeSnippet = 'general.privacyNoticeText' %}
+
 {% block component_privacy_notice %}
     <fieldset class="form-text privacy-notice">
         {% block component_privacy_title %}
@@ -9,7 +12,22 @@
 
         {% block component_privacy_dpi %}
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                    {% set dataProtectionLabel = privacyNoticeSnippet|trans({
+                        '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
+                        '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
+                    })|raw %}
+
+                    {% sw_include '@Storefront/storefront/component/form/form-checkbox.html.twig' with {
+                        label: dataProtectionLabel,
+                        id: 'acceptedDataProtection',
+                        name: 'acceptedDataProtection',
+                        validationRules: 'required',
+                    } %}
+                {% else %}
                 <div class="form-check data-protection-information">
+
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_privacy_dpi_checkbox %}
                         <input type="checkbox"
                                class="form-check-input {% if formViolations.getViolations('/acceptedDataProtection') is not empty %} is-invalid{% endif %}"
@@ -20,25 +38,29 @@
                                {% if data.get('acceptedDataProtection') %}checked="checked"{% endif %}>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_privacy_dpi_label %}
                         <label class="custom-control-label no-validation"
                                for="acceptedDataProtection">
-                            {{ 'general.privacyNoticeText'|trans({
-                                '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
-                                '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+
+                            {{ privacyNoticeSnippet|trans({
+                                '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
+                                '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
                             })|raw }}
 
                             {{ 'general.required'|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
                 </div>
+                {% endif %}
             {% else %}
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
+
                         <div>
-                            {{ 'general.privacyNoticeText'|trans({
-                                '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
-                                '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+                            {{ privacyNoticeSnippet|trans({
+                                '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
+                                '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
                             })|raw }}
                         </div>
                     {% endblock %}

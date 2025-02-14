@@ -12,8 +12,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEv
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -63,13 +62,10 @@ class ProductExportRendererTest extends TestCase
         $environment = new Environment(new ArrayLoader());
 
         $twigRenderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlPlaceholderHandler->method('replace')->with($expected, $domainUrl, $this->context)->willReturn($expected);
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
             $dispatcher,
-            $seoUrlPlaceholderHandler,
         );
 
         $rendered = $renderer->renderHeader($productExport, $this->context);
@@ -101,15 +97,11 @@ class ProductExportRendererTest extends TestCase
         $dispatcher->expects(static::exactly(2))->method('dispatch')->willReturnOnConsecutiveCalls($event, $loggingEvent);
 
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $twigRenderer->expects(static::once())->method('render')->willThrowException(new StringTemplateRenderingException('error'));
-
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlPlaceholderHandler->expects(static::never())->method('replace');
+        $twigRenderer->expects(static::once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
             $dispatcher,
-            $seoUrlPlaceholderHandler,
         );
 
         static::expectException(ProductExportException::class);
@@ -143,13 +135,10 @@ class ProductExportRendererTest extends TestCase
         $environment = new Environment(new ArrayLoader());
 
         $twigRenderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlPlaceholderHandler->method('replace')->with($expected, $domainUrl, $this->context)->willReturn($expected);
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
             $dispatcher,
-            $seoUrlPlaceholderHandler,
         );
 
         $rendered = $renderer->renderFooter($productExport, $this->context);
@@ -177,13 +166,10 @@ class ProductExportRendererTest extends TestCase
         $environment = new Environment(new ArrayLoader());
 
         $twigRenderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlPlaceholderHandler->method('replace')->with($expected, $domainUrl, $this->context)->willReturn($expected);
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
             $dispatcher,
-            $seoUrlPlaceholderHandler,
         );
 
         $rendered = $renderer->renderBody($productExport, $this->context, $data);
@@ -215,15 +201,11 @@ class ProductExportRendererTest extends TestCase
         $dispatcher->expects(static::exactly(2))->method('dispatch')->willReturnOnConsecutiveCalls($event, $loggingEvent);
 
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $twigRenderer->expects(static::once())->method('render')->willThrowException(new StringTemplateRenderingException('error'));
-
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlPlaceholderHandler->expects(static::never())->method('replace');
+        $twigRenderer->expects(static::once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
             $dispatcher,
-            $seoUrlPlaceholderHandler,
         );
 
         static::expectException(ProductExportException::class);
@@ -240,12 +222,10 @@ class ProductExportRendererTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
             $dispatcher,
-            $seoUrlPlaceholderHandler,
         );
 
         static::expectException(ProductExportException::class);
@@ -272,15 +252,11 @@ class ProductExportRendererTest extends TestCase
         $dispatcher->expects(static::once())->method('dispatch')->willReturn($loggingEvent);
 
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $twigRenderer->expects(static::once())->method('render')->willThrowException(new StringTemplateRenderingException('error'));
-
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlPlaceholderHandler->expects(static::never())->method('replace');
+        $twigRenderer->expects(static::once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
             $dispatcher,
-            $seoUrlPlaceholderHandler,
         );
 
         static::expectException(ProductExportException::class);

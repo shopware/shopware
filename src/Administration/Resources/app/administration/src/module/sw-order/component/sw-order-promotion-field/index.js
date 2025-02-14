@@ -2,18 +2,15 @@ import './sw-order-promotion-field.scss';
 import template from './sw-order-promotion-field.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { Component } = Shopware;
+const { Store } = Shopware;
 const { ChangesetGenerator } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: {
         swOrderDetailOnLoadingChange: {
@@ -68,10 +65,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swOrderDetail', [
-            'order',
-            'versionContext',
-        ]),
+        order: () => Store.get('swOrderDetail').order,
+
+        versionContext: () => Store.get('swOrderDetail').versionContext,
 
         orderLineItemRepository() {
             return this.repositoryFactory.create('order_line_item');
@@ -174,9 +170,13 @@ export default {
                 .then(() => {
                     this.automaticPromotions.forEach((promotion) => {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-order.detailBase.textPromotionRemoved', 0, {
-                                promotion: promotion.label,
-                            }),
+                            message: this.$tc(
+                                'sw-order.detailBase.textPromotionRemoved',
+                                {
+                                    promotion: promotion.label,
+                                },
+                                0,
+                            ),
                         });
                     });
                 })

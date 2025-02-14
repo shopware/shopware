@@ -196,12 +196,6 @@
             <argument type="service" id="shopware.rate_limiter"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute" public="true">
-            <argument type="service" id="customer.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="payment_method.repository"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>

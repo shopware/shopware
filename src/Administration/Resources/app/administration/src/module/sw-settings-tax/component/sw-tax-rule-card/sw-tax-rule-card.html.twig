@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tax_rule_card %}
 <sw-card
     :title="$tc('sw-settings-tax.taxRuleCard.cardTitle')"
@@ -9,21 +8,18 @@
 >
     <template #grid>
         <template v-if="!taxRulesEmpty && !disabled">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tax_rule_card_header %}
             <sw-card-section
                 divider="bottom"
                 secondary
                 slim
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tax_rule_card_header_filter %}
                 <sw-card-filter
                     :placeholder="$tc('sw-settings-tax.taxRuleCard.searchBarPlaceholder')"
                     @sw-card-filter-term-change="onSearchTermChange"
                 >
                     <template #filter>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_tax_rule_card_header_create_rule_button %}
                         <sw-button
                             v-tooltip.bottom="{
@@ -37,7 +33,6 @@
                             @click="showModal = true"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_tax_rule_card_header_create_document_button_label %}
                             {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
                             {% endblock %}
@@ -51,7 +46,6 @@
             </sw-card-section>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tax_rule_card_grid %}
             <sw-data-grid
                 :data-source="taxRules"
@@ -67,7 +61,6 @@
                 identifier="sw-tax-rule-grid"
                 @column-sort="onColumnSort"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tax_rule_grid_column_tax_rate %}
                 <template #column-taxRate="{ item, isInlineEdit, compact }">
                     <template v-if="isInlineEdit">
@@ -89,7 +82,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tax_rule_grid_column_tax_rule_type_type_name %}
                 <template #column-type.typeName="{ item }">
                     <component
@@ -103,7 +95,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tax_rule_grid_column_tax_rule_active_from %}
                 <template #column-activeFrom="{ item }">
                     {{ dateFilter(item.activeFrom, {
@@ -116,10 +107,8 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tax_list_grid_columns_actions %}
                 <template #actions="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tax_list_grid_columns_actions_edit %}
                     <sw-context-menu-item
                         class="sw-tax-list__edit-action"
@@ -130,7 +119,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tax_list_grid_columns_actions_delete %}
                     <sw-context-menu-item
                         class="sw-tax-list__delete-action"
@@ -144,10 +132,8 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tax_list_grid_action_modals %}
                 <template #action-modals="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tax_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
@@ -155,17 +141,14 @@
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
                         <p class="sw-settings-tax-list__confirm-delete-text">
-                            {{ $tc('sw-settings-tax.taxRuleCard.textDeleteConfirm', 0, { name: item.country.name, type: item.type.typeName }) }}
+                            {{ $tc('sw-settings-tax.taxRuleCard.textDeleteConfirm', { name: item.country.name, type: item.type.typeName }, 0) }}
                         </p>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tax_list_delete_modal_footer %}
                         <template #modal-footer>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tax_list_delete_modal_cancel %}
                             <sw-button
                                 size="small"
@@ -175,7 +158,6 @@
                             </sw-button>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tax_list_delete_modal_confirm %}
                             <sw-button
                                 variant="danger"
@@ -192,7 +174,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tax_list_grid_pagination %}
                 <template #pagination>
                     <sw-pagination
@@ -208,7 +189,6 @@
         </template>
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tax_rule_card_grid_column_modal %}
     <sw-settings-tax-rule-modal
         v-if="showModal"
@@ -218,11 +198,9 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tax_rule_card_empty_state %}
     <template v-if="taxRulesEmpty || disabled">
         <div class="sw-settings-tax-rule-card__empty-state">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tax_rule_card_empty_state_image %}
             <img
                 :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
@@ -230,7 +208,6 @@
             >
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tax_rule_card_empty_state_label %}
             <div class="sw-settings-tax-rule-card__empty-state--label">
                 <p v-if="disabled">
@@ -242,7 +219,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tax_rule_card_empty_state_button %}
             <sw-button
                 v-tooltip.bottom="{

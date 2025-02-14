@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class Required extends Flag
 {
     public function parse(): \Generator

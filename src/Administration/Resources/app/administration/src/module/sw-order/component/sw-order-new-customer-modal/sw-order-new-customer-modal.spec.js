@@ -2,13 +2,18 @@ import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper() {
+async function createWrapper(
+    repositoryMocks = {
+        customerRepositoryMock: undefined,
+        languageRepositoryMock: undefined,
+    },
+) {
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
             stubs: {
@@ -32,6 +37,10 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: (entity) => {
                         if (entity === 'customer') {
+                            if (repositoryMocks.customerRepositoryMock) {
+                                return repositoryMocks.customerRepositoryMock;
+                            }
+
                             return {
                                 create: () => {
                                     return {
@@ -45,10 +54,15 @@ async function createWrapper() {
                                         ),
                                     };
                                 },
+                                save: () => Promise.resolve(),
                             };
                         }
 
                         if (entity === 'language') {
+                            if (repositoryMocks.languageRepositoryMock) {
+                                return repositoryMocks.languageRepositoryMock;
+                            }
+
                             return {
                                 searchIds: () =>
                                     Promise.resolve({
@@ -130,8 +144,18 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     });
 
     it('should override context when the sales channel does not exist language compared to the API language', async () => {
+        await wrapper.unmount();
+        wrapper = await createWrapper({
+            customerRepositoryMock: {
+                create: () => ({
+                    id: '1',
+                    addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                }),
+                save: jest.fn((customer, context) => Promise.resolve(context)),
+            },
+        });
+
         wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
-        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
 
         expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
 
@@ -154,15 +178,25 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     });
 
     it('should keep context when sales channel exists language compared to API language', async () => {
-        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
-        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
+        await wrapper.unmount();
+        wrapper = await createWrapper({
+            languageRepositoryMock: {
+                searchIds: () =>
+                    Promise.resolve({
+                        total: 1,
+                        data: [Shopware.Context.api.languageId],
+                    }),
+            },
+            customerRepositoryMock: {
+                create: () => ({
+                    id: '1',
+                    addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                }),
+                save: jest.fn((customer, context) => Promise.resolve(context)),
+            },
+        });
 
-        wrapper.vm.languageRepository.searchIds = jest.fn(() =>
-            Promise.resolve({
-                total: 1,
-                data: [Shopware.Context.api.languageId],
-            }),
-        );
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
 
         expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
 
@@ -191,7 +225,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(swDetailsTab.find('sw-icon-stub').exists()).toBe(false);
         expect(swBillingAddressTab.find('sw-icon-stub').exists()).toBe(false);
 
-        await Shopware.State.dispatch('error/addApiError', {
+        Shopware.Store.get('error').addApiError({
             expression: 'customer.1.email',
             error: new ShopwareError({
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
@@ -265,11 +299,28 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
             },
         });
 
+        wrapper.vm.isSameBilling = true;
         wrapper.vm.isSameBilling = false;
 
         expect(wrapper.vm.customer.defaultShippingAddressId).toBe('new-shipping-address-id');
         expect(wrapper.vm.customer.addresses.has('new-shipping-address-id')).toBe(true);
         expect(wrapper.vm.defaultSalutationId).toBe('salutationId');
         expect(wrapper.vm.customer.addresses.get('new-shipping-address-id').salutationId).toBe('salutationId');
+    });
+
+    it('should does not change defaultShippingAddressId if newValue is the same as isSameBilling', async () => {
+        await wrapper.setData({
+            customer: {
+                ...wrapper.vm.customer,
+                defaultBillingAddressId: 'billing-address-id',
+                defaultShippingAddressId: 'billing-address-id',
+                isNew: jest.fn(() => false),
+            },
+        });
+
+        const originalShippingAddressId = wrapper.vm.customer.defaultShippingAddressId;
+        wrapper.vm.isSameBilling = true;
+
+        expect(wrapper.vm.customer.defaultShippingAddressId).toBe(originalShippingAddressId);
     });
 });

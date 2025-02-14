@@ -5,12 +5,10 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -39,13 +37,6 @@ export default {
                 },
                 data: null,
             };
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed, use the specific navigation setting `hasNavigationArrows` instead
-         */
-        hasNavigation() {
-            return this.hasNavigationArrows;
         },
 
         hasNavigationArrows() {

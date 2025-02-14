@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 
-#[Package('core')]
+#[Package('framework')]
 class RequirementExceptionStack
 {
     /**

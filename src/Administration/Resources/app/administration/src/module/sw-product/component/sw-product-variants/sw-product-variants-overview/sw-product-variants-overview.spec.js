@@ -1,10 +1,24 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
 
+let repositoryFactoryMock;
+let repositoryFactoryCreateMock;
+
 async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {}) {
+    repositoryFactoryCreateMock = {
+        search: () => Promise.resolve([]),
+        save: jest.fn(() => Promise.resolve([])).mockName('repositoryFactory save'),
+        get: () => Promise.resolve({}),
+        syncDeleted: () => Promise.resolve({}),
+    };
+    repositoryFactoryMock = {
+        create: jest.fn(() => repositoryFactoryCreateMock),
+        ...repositoryFactoryOverride,
+    };
+
     return mount(await wrapTestComponent('sw-product-variants-overview', { sync: true }), {
         props: {
             selectedGroups: [],
@@ -17,15 +31,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         },
         global: {
             provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve([]),
-                        save: () => Promise.resolve([]),
-                        get: () => Promise.resolve({}),
-                        syncDeleted: () => Promise.resolve({}),
-                    }),
-                    ...repositoryFactoryOverride,
-                },
+                repositoryFactory: repositoryFactoryMock,
                 searchRankingService: {},
                 configService: {
                     getConfig: () =>
@@ -132,12 +138,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         };
         product.getEntityName = () => 'T-Shirt';
 
-        if (Shopware.State.get('swProductDetail')) {
-            Shopware.State.unregisterModule('swProductDetail');
-        }
-
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
+        Shopware.Store.register({
+            id: 'swProductDetail',
             state() {
                 return {
                     product: product,
@@ -180,7 +182,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             getters: {
                 isLoading: () => false,
             },
-            mutations: {
+            actions: {
                 setVariants(state, variants) {
                     state.variants = variants;
                 },
@@ -477,8 +479,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             productEntity: product,
         });
 
-        const productSaveSpy = jest.spyOn(wrapper.vm.productRepository, 'save');
-
         const deleteContextButton = wrapper.find('.sw-context-menu-item.sw-context-menu-item--danger');
         await deleteContextButton.trigger('click');
 
@@ -488,6 +488,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await wrapper.find('.sw-product-variants-overview__delete-modal .sw-button--danger').trigger('click');
         await flushPromises();
 
-        expect(productSaveSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);
     });
 });

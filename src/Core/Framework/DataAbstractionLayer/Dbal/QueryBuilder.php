@@ -5,11 +5,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class QueryBuilder extends DBALQueryBuilder
 {
     /**
-     * @var array<string>
+     * @var array<string, string>
      */
     private array $states = [];
 
@@ -17,6 +17,16 @@ class QueryBuilder extends DBALQueryBuilder
      * @var array<string, array{fromAlias: string, queryBuilder: self, joinCondition: string}>
      */
     private array $translationJoins = [];
+
+    /**
+     * @var array<string>
+     */
+    private array $selectParts = [];
+
+    /**
+     * @var array<string>
+     */
+    private array $oderByParts = [];
 
     private ?string $title = null;
 
@@ -35,6 +45,9 @@ class QueryBuilder extends DBALQueryBuilder
         return \in_array($state, $this->states, true);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getStates(): array
     {
         return $this->states;
@@ -68,10 +81,7 @@ class QueryBuilder extends DBALQueryBuilder
         $this->title = $title;
     }
 
-    /**
-     * @return string
-     */
-    public function getSQL()
+    public function getSQL(): string
     {
         // Use a copy of this query builder to generate the SQL including the translation joins. This way calling this
         // getter does not have any side effects on the original instance.
@@ -91,6 +101,74 @@ class QueryBuilder extends DBALQueryBuilder
         }
 
         return $sql;
+    }
+
+    /**
+     * @internal
+     * {@inheritdoc}
+     */
+    public function select(string ...$expressions): self
+    {
+        $this->selectParts = $expressions;
+
+        return parent::select(...$expressions);
+    }
+
+    /**
+     * @internal
+     * {@inheritdoc}
+     */
+    public function addSelect(string $expression, string ...$expressions): self
+    {
+        $this->selectParts = array_merge($this->selectParts, [$expression], $expressions);
+
+        return parent::addSelect($expression, ...$expressions);
+    }
+
+    /**
+     * @internal
+     * {@inheritdoc}
+     */
+    public function orderBy(string $sort, ?string $order = null): self
+    {
+        $this->oderByParts = [$sort . ' ' . ($order ?? 'ASC')];
+
+        return parent::orderBy($sort, $order);
+    }
+
+    /**
+     * @internal
+     * {@inheritdoc}
+     */
+    public function addOrderBy(string $sort, ?string $order = null): self
+    {
+        $this->oderByParts[] = $sort . ' ' . ($order ?? 'ASC');
+
+        return parent::addOrderBy($sort, $order);
+    }
+
+    /**
+     * This method is a hacky way to fix deprecations in the Doctrine DBAL QueryBuilder. It's usage is strongly discouraged.
+     *
+     * @internal
+     *
+     * @return array<string>
+     */
+    public function getSelectParts(): array
+    {
+        return $this->selectParts;
+    }
+
+    /**
+     * This method is a hacky way to fix deprecations in the Doctrine DBAL QueryBuilder. It's usage is strongly discouraged.
+     *
+     * @return array<string>
+     *
+     *@internal
+     */
+    public function getOrderByParts(): array
+    {
+        return $this->oderByParts;
     }
 
     /**

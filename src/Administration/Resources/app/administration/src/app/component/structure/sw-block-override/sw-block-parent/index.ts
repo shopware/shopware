@@ -2,7 +2,7 @@ import { h, inject } from 'vue';
 import parentsInjectionKey from '../sw-block/parents-injection-key';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @description
  * The `sw-block-parent` component is used to render the parent block content. It is used in combination with the
@@ -13,7 +13,6 @@ import parentsInjectionKey from '../sw-block/parents-injection-key';
  *
  */
 Shopware.Component.register('sw-block-parent', {
-    compatConfig: Shopware.compatConfig,
     setup() {
         const parent = inject(parentsInjectionKey, null)?.value.pop();
 

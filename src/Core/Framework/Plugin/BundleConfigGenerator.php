@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @phpstan-import-type BundleConfig from BundleConfigGeneratorInterface
  */
-#[Package('core')]
+#[Package('framework')]
 class BundleConfigGenerator implements BundleConfigGeneratorInterface
 {
     private readonly string $projectDir;
@@ -28,7 +28,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     ) {
         $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
         if (!\is_string($projectDir)) {
-            throw PluginException::projectDirNotInContainer();
+            throw PluginException::invalidContainerParameter('kernel.project_dir', 'string');
         }
         $this->projectDir = $projectDir;
     }
@@ -127,8 +127,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         $absolutePath = $rootPath . '/' . $path;
 
         return file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
-            : (file_exists($absolutePath . '/main.js') ? $path . '/main.js'
-                : null);
+            : (file_exists($absolutePath . '/main.js') ? $path . '/main.js' : null);
     }
 
     private function getWebpackConfig(string $rootPath, string $componentPath): ?string

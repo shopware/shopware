@@ -13,12 +13,15 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater;
 use Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -156,10 +159,29 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         static::assertNotNull($order);
 
-        $event = new CheckoutOrderPlacedEvent($this->salesChannelContext, $order);
+        $lineItems = $order->getLineItems();
+
+        static::assertNotNull($lineItems);
+
+        $lineItem1 = $lineItems->getAt(0);
+        $lineItem2 = $lineItems->getAt(1);
+        $lineItem3 = $lineItems->getAt(2);
+        $lineItem4 = $lineItems->getAt(3);
+
+        static::assertNotNull($lineItem1);
+        static::assertNotNull($lineItem2);
+        static::assertNotNull($lineItem3);
+        static::assertNotNull($lineItem4);
+
+        $event = new EntityWrittenEvent('order_line_item', [
+            new EntityWriteResult($lineItem1->getId(), $lineItem1->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($lineItem2->getId(), $lineItem2->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($lineItem3->getId(), $lineItem3->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($lineItem4->getId(), $lineItem4->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+        ], $this->salesChannelContext->getContext());
 
         $updater = static::getContainer()->get(PromotionIndividualCodeRedeemer::class);
-        $updater->onOrderPlaced($event);
+        $updater->onOrderLineItemWritten($event);
 
         $promotionIndividualCode = $connection->fetchAllAssociative(
             'SELECT `id`, `payload` FROM `promotion_individual_code` WHERE `promotion_id` = :id',

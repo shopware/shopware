@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 interface ExceptionHandlerInterface
 {
     public const PRIORITY_DEFAULT = 0;
@@ -15,5 +15,5 @@ interface ExceptionHandlerInterface
 
     public function getPriority(): int;
 
-    public function matchException(\Exception $e): ?\Exception;
+    public function matchException(\Throwable $e): ?\Throwable;
 }

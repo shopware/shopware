@@ -3,7 +3,7 @@ import { LineItemType, PriceType } from '../../order.types';
 import './sw-order-product-select.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Service } = Shopware;
@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         item: {

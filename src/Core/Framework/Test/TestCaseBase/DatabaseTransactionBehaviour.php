@@ -14,13 +14,6 @@ trait DatabaseTransactionBehaviour
 {
     public static ?string $lastTestCase = null;
 
-    private static bool $nextNestTransactionsWithSavepoints = true;
-
-    public function disableNestTransactionsWithSavepointsForNextTest(): void
-    {
-        self::$nextNestTransactionsWithSavepoints = false;
-    }
-
     #[Before]
     public function startTransactionBefore(): void
     {
@@ -30,9 +23,6 @@ trait DatabaseTransactionBehaviour
             This may affect following Tests in an unpredictable manner!
             Previous Test case: ' . (new \ReflectionClass($this))->getName() . '::' . static::$lastTestCase
         );
-
-        static::getContainer()->get(Connection::class)
-            ->setNestTransactionsWithSavepoints(self::$nextNestTransactionsWithSavepoints);
 
         static::getContainer()
             ->get(Connection::class)
@@ -57,8 +47,6 @@ trait DatabaseTransactionBehaviour
         );
 
         $connection->rollBack();
-
-        self::$nextNestTransactionsWithSavepoints = true;
 
         if (static::$lastTestCase === $this->nameWithDataSet()) {
             static::$lastTestCase = null;

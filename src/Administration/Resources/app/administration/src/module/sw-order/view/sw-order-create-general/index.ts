@@ -2,17 +2,15 @@ import template from './sw-order-create-general.html.twig';
 import type { CalculatedTax, CartDelivery, LineItem, Cart, PromotionCodeTag, SalesChannelContext } from '../../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { Component, State, Mixin, Utils } = Shopware;
+const { Component, Store, Mixin, Utils } = Shopware;
 const { get, format, array } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),
@@ -29,24 +27,24 @@ export default Component.wrapComponentConfig({
 
     computed: {
         customer(): Entity<'customer'> | null {
-            return State.get('swOrder').customer;
+            return Store.get('swOrder').customer;
         },
 
         cart(): Cart {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
         currency(): Entity<'currency'> {
-            return State.get('swOrder').context.currency;
+            return Store.get('swOrder').context.currency;
         },
 
         context(): SalesChannelContext {
-            return State.get('swOrder').context;
+            return Store.get('swOrder').context;
         },
 
         isCustomerActive(): boolean {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            return State.getters['swOrder/isCustomerActive'] as boolean;
+            return Store.get('swOrder').isCustomerActive;
         },
 
         cartDelivery(): CartDelivery {
@@ -68,16 +66,20 @@ export default Component.wrapComponentConfig({
 
             const calcTaxes = this.sortByTaxRate(this.cartDelivery.shippingCosts.calculatedTaxes);
             const decorateCalcTaxes = calcTaxes.map((item: CalculatedTax) => {
-                return this.$tc('sw-order.createBase.shippingCostsTax', 0, {
-                    taxRate: item.taxRate,
-                    tax: format.currency(
-                        item.tax,
-                        this.currency.isoCode,
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
-                        (this.currency.totalRounding as any)?.decimals,
-                    ),
-                });
+                return this.$t(
+                    'sw-order.createBase.shippingCostsTax',
+                    {
+                        taxRate: item.taxRate,
+                        tax: format.currency(
+                            item.tax,
+                            this.currency.isoCode,
+                            // eslint-disable-next-line max-len
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
+                            (this.currency.totalRounding as any)?.decimals,
+                        ),
+                    },
+                    0,
+                );
             });
 
             return `${this.$tc('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
@@ -139,27 +141,31 @@ export default Component.wrapComponentConfig({
             });
         },
 
-        onSaveItem(item: LineItem): Promise<void> {
+        async onSaveItem(item: LineItem): Promise<void> {
             this.isLoading = true;
+            if (!this.customer) return;
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/saveLineItem', {
-                salesChannelId: this.customer?.salesChannelId,
-                contextToken: this.cart.token,
-                item,
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            await Store.get('swOrder')
+                .saveLineItem({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                    item,
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onShippingChargeEdited(): void {
             this.isLoading = true;
+            if (!this.customer) return;
 
-            State.dispatch('swOrder/modifyShippingCosts', {
-                salesChannelId: this.customer?.salesChannelId,
-                contextToken: this.cart.token,
-                shippingCosts: this.cartDelivery.shippingCosts,
-            })
+            Store.get('swOrder')
+                .modifyShippingCosts({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                    shippingCosts: this.cartDelivery.shippingCosts,
+                })
                 .catch((error) => {
                     this.$emit('error', error);
                 })
@@ -168,25 +174,26 @@ export default Component.wrapComponentConfig({
                 });
         },
 
-        onRemoveItems(lineItemKeys: string[]): Promise<void> {
+        async onRemoveItems(lineItemKeys: string[]): Promise<void> {
             this.isLoading = true;
+            if (!this.customer) return;
 
-            return State.dispatch('swOrder/removeLineItems', {
-                salesChannelId: this.customer?.salesChannelId,
-                contextToken: this.cart.token,
-                lineItemKeys: lineItemKeys,
-            })
+            await Store.get('swOrder')
+                .removeLineItems({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                    lineItemKeys: lineItemKeys,
+                })
                 .then(() => {
                     // Remove promotion code tag if corresponding line item removed
                     lineItemKeys.forEach((key) => {
-                        const removedTag = State.get('swOrder').promotionCodes.find(
+                        const removedTag = Store.get('swOrder').promotionCodes.find(
                             (tag: PromotionCodeTag) => tag.discountId === key,
                         );
 
                         if (removedTag) {
-                            State.commit(
-                                'swOrder/setPromotionCodes',
-                                State.get('swOrder').promotionCodes.filter((item: PromotionCodeTag) => {
+                            Store.get('swOrder').setPromotionCodes(
+                                Store.get('swOrder').promotionCodes.filter((item: PromotionCodeTag) => {
                                     return item.discountId !== removedTag.discountId;
                                 }),
                             );
@@ -198,10 +205,11 @@ export default Component.wrapComponentConfig({
                 });
         },
 
-        loadCart(): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/getCart', {
-                salesChannelId: this.customer?.salesChannelId,
+        async loadCart(): Promise<void> {
+            if (!this.customer) return;
+
+            await Store.get('swOrder').getCart({
+                salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
             });
         },

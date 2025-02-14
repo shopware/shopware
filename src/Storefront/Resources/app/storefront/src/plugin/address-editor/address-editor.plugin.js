@@ -4,13 +4,14 @@ import ButtonLoadingIndicatorUtil from 'src/utility/loading-indicator/button-loa
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @package checkout
  *
  * This plugin opens a modal
  * where an address can be edited or created
+ *
+ * @deprecated tag:v6.7.0 - will be removed, use address-manager plugin instead
  */
 export default class AddressEditorPlugin extends Plugin {
 
@@ -162,7 +163,7 @@ export default class AddressEditorPlugin extends Plugin {
         const collapseTriggers = DomAccess.querySelectorAll(modal, '[data-bs-toggle="collapse"]', false);
 
         if (collapseTriggers) {
-            Iterator.iterate(collapseTriggers, collapseTrigger => {
+            collapseTriggers.forEach(collapseTrigger => {
                 const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-bs-target');
                 const target = DomAccess.querySelector(modal, targetSelector);
                 const parentSelector = DomAccess.getDataAttribute(target, 'data-bs-parent');
@@ -193,7 +194,7 @@ export default class AddressEditorPlugin extends Plugin {
         const ajaxForms = DomAccess.querySelectorAll(modal, '[data-form-ajax-submit]', false);
 
         if (ajaxForms) {
-            Iterator.iterate(ajaxForms, ajaxForm => {
+            ajaxForms.forEach(ajaxForm => {
 
                 /** @type FormAjaxSubmitPlugin **/
                 const FormAjaxSubmitInstance = window.PluginManager.getPluginInstanceFromElement(ajaxForm, 'FormAjaxSubmit');

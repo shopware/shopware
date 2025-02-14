@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 interface FlowEventAware extends ShopwareEvent
 {
     public static function getAvailableData(): EventDataCollection;

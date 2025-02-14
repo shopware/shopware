@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Integration;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class IntegrationEvents
 {
     final public const INTEGRATION_WRITTEN_EVENT = 'integration.written';

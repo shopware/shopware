@@ -1,28 +1,17 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation', () => {
     beforeAll(() => {
-        if (Shopware.State.get('shopwareExtensions')) {
-            Shopware.State.unregisterModule('shopwareExtensions');
-        }
-
-        Shopware.State.registerModule('shopwareExtensions', {
-            namespaced: true,
-            state: {
-                myExtensions: {
-                    data: [
-                        {
-                            name: 'Test',
-                            installedAt: null,
-                            version: '1.0.0',
-                        },
-                    ],
-                },
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
+            {
+                name: 'Test',
+                installedAt: null,
+                version: '1.0.0',
             },
-        });
+        ]);
     });
 
     async function createWrapper() {
@@ -66,9 +55,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                         'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                         'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
                         'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
-                        'sw-external-link-deprecated': await wrapTestComponent('sw-external-link-deprecated', {
-                            sync: true,
-                        }),
                         'sw-loader': true,
                         'sw-field-copyable': true,
                         'sw-inheritance-switch': true,

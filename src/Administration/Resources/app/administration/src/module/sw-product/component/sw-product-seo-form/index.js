@@ -1,18 +1,16 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-seo-form.html.twig';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -94,14 +92,17 @@ export default {
             return variants;
         },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         ...mapPropertyErrors('product', [
             'keywords',

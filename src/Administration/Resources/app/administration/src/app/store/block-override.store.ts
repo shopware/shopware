@@ -1,5 +1,5 @@
 /**
- * @package customer-order
+ * @sw-package framework
  * @private
  */
 import useBlockContext from '../composables/use-block-context';

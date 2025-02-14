@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Wrapper which removes class inheritance in Vue. You need to remove the class
@@ -27,6 +27,4 @@
  */
 Shopware.Component.register('sw-ignore-class', {
     template: '<div><slot></slot></div>',
-
-    compatConfig: Shopware.compatConfig,
 });

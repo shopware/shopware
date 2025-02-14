@@ -5,10 +5,14 @@ namespace Shopware\Core\Framework\Log;
 /**
  * @internal
  *
- * @phpstan-type PackageString 'buyers-experience'|'services-settings'|'inventory'|'checkout'|'after-sales'|'framework'|'core'|'administration'|'data-services'|'innovation'|'discovery'|'b2b'|'fundamentals@framework'|'fundamentals@discovery'|'fundamentals@checkout'|'fundamentals@after-sales'
+ * @phpstan-type PackageString 'inventory'|'checkout'|'after-sales'|'framework'|'data-services'|'innovation'|'discovery'|'b2b'|'fundamentals@framework'|'fundamentals@discovery'|'fundamentals@checkout'|'fundamentals@after-sales'
+ *
+ * # Important
+ * if the above valid types / domains are changed, please also update them here:
+ * src/Administration/Resources/app/administration/eslint-rules/core-rules/require-package-annotation.js
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
-#[Package('core')]
+#[Package('framework')]
 final class Package
 {
     public const PACKAGE_TRACE_ATTRIBUTE_KEY = 'pTrace';

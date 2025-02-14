@@ -41,12 +41,10 @@ interface RouteParseOptions {
 
 /**
  * @private
- * @package content
+ * @sw-package framework
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'customEntityDefinitionService',
@@ -196,7 +194,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             void this.getList();
         },
 

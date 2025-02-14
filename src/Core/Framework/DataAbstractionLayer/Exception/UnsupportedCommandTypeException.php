@@ -7,7 +7,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class UnsupportedCommandTypeException extends HttpException
 {
     public function __construct(WriteCommand $command)

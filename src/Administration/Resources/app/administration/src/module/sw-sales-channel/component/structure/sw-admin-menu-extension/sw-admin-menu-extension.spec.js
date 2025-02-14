@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -8,7 +8,7 @@ import swAdminMenuExtension from 'src/module/sw-sales-channel/component/structur
 import createMenuService from 'src/app/service/menu.service';
 
 // Turn off known errors
-import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+import { missingGetListMethod } from 'test/_helper_/allowedErrors';
 
 Shopware.Component.register('sw-admin-menu-extension', swAdminMenuExtension);
 
@@ -52,10 +52,10 @@ async function createWrapper() {
 
 describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', () => {
     beforeAll(() => {
-        Shopware.State.get('session').currentUser = {};
+        Shopware.Store.get('session').setCurrentUser({});
     });
 
-    it('should not show the sw-sales-channel-menu when privilege does not exists', async () => {
+    it('should not show the sw-sales-channel-menu when privilege does not exist', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

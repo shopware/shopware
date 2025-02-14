@@ -36,7 +36,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             ],
         ]);
 
-        $this->connection->expects(static::never())->method('executeUpdate');
+        $this->connection->expects(static::never())->method('executeStatement');
 
         $indexing = new CustomerNewsletterSalesChannelsUpdater($this->connection);
         $indexing->updateCustomersRecipient([Uuid::randomHex()]);
@@ -57,7 +57,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 
         $ids = $this->getNewsLetterIds($newsletterIds);
 
-        $this->connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
+        $this->connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): int {
             static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
 
             static::assertSame([
@@ -66,6 +66,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
                 'firstName' => 'Y',
                 'lastName' => 'Tran',
             ], $params);
+
+            return 1;
         });
 
         $indexing = new CustomerNewsletterSalesChannelsUpdater($this->connection);
@@ -86,7 +88,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         ]);
 
         $ids = $this->getNewsLetterIds($newsletterIds);
-        $this->connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
+        $this->connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): int {
             static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
 
             static::assertSame([
@@ -95,6 +97,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
                 'firstName' => 'Y',
                 'lastName' => 'Tran',
             ], $params);
+
+            return 1;
         });
 
         $indexing = new CustomerNewsletterSalesChannelsUpdater($this->connection);

@@ -6,7 +6,7 @@ const { Filter } = Shopware;
 /**
  * @description Renders an image slider with possible image descriptions
  * @status ready
- * @package content
+ * @sw-package discovery
  * @example-type static
  * @component-example
  * <sw-image-slider
@@ -30,8 +30,6 @@ const { Filter } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['image-change'],
 
@@ -330,10 +328,14 @@ export default {
         },
 
         imageAlt(index) {
-            return this.$tc('sw-image-slider.imageAlt', 0, {
-                index: index + 1,
-                total: this.images.length,
-            });
+            return this.$tc(
+                'sw-image-slider.imageAlt',
+                {
+                    index: index + 1,
+                    total: this.images.length,
+                },
+                0,
+            );
         },
 
         goToPreviousImage() {

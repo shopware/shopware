@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\App;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
@@ -20,10 +21,16 @@ class TemplateStateServiceTest extends TestCase
     use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<TemplateCollection>
+     */
     private EntityRepository $templateRepo;
 
     private TemplateStateService $templateStateService;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepo;
 
     protected function setUp(): void

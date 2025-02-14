@@ -7,17 +7,11 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
-use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,32 +62,21 @@ class CartException extends HttpException
     public const INVALID_COMPRESSION_METHOD = 'CHECKOUT__CART_INVALID_COMPRESSION_METHOD';
     public const CART_MIGRATION_INVALID_SOURCE = 'CHECKOUT_CART_MIGRATION_INVALID_SOURCE';
     public const CART_MIGRATION_MISSING_REDIS_CONNECTION = 'CHECKOUT__CART_MIGRATION_MISSING_REDIS_CONNECTION';
-    /**
-     * @deprecated tag:v6.7.0 - Constant SALES_CHANNEL_NOT_SET will be removed, as it is not used anymore in the future
-     */
-    public const SALES_CHANNEL_NOT_SET = 'CHECKOUT__SALES_CHANNEL_NOT_SET';
     public const CART_EMPTY = 'CHECKOUT__CART_EMPTY';
     public const HOOK_INJECTION_EXCEPTION = 'CHECKOUT__HOOK_INJECTION_EXCEPTION';
     public const LINE_ITEM_GROUP_PACKAGER_NOT_FOUND = 'CHECKOUT__GROUP_PACKAGER_NOT_FOUND';
     public const LINE_ITEM_GROUP_SORTER_NOT_FOUND = 'CHECKOUT__GROUP_SORTER_NOT_FOUND';
     public const UNEXPECTED_VALUE_EXCEPTION = 'CHECKOUT__UNEXPECTED_VALUE_EXCEPTION';
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self|ShippingException
+    public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_BAD_REQUEST,
-                self::SHIPPING_METHOD_NOT_FOUND,
-                self::$couldNotFindMessage,
-                ['entity' => 'shipping method', 'field' => 'id', 'value' => $id],
-                $e
-            );
-        }
-
-        return ShippingException::shippingMethodNotFound($id, $e);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SHIPPING_METHOD_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'shipping method', 'field' => 'id', 'value' => $id],
+            $e
+        );
     }
 
     public static function deserializeFailed(): self
@@ -493,15 +476,8 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function productNotFound(string $productId): self|ShopwareHttpException
+    public static function productNotFound(string $productId): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ProductNotFoundException($productId);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CART_PRODUCT_NOT_FOUND,
@@ -533,20 +509,6 @@ class CartException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Will be removed, as it is not used anymore in the future
-     */
-    public static function missingSalesChannelContext(): self
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0'));
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::SALES_CHANNEL_NOT_SET,
-            'The sales channel context is missing.'
-        );
-    }
-
-    /**
      * The {@see CustomerDeletedException} is a flow exception and should not be converted to a real domain exception
      */
     public static function orderCustomerDeleted(string $orderId): CustomerDeletedException
@@ -559,32 +521,18 @@ class CartException extends HttpException
         return new EmptyCartException();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function hookInjectionException(Hook $hook, string $class, string $required): self|HookInjectionException
+    public static function hookInjectionException(Hook $hook, string $class, string $required): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new HookInjectionException($hook, $class, $required);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::HOOK_INJECTION_EXCEPTION,
             'Class {{ class }} is only executable in combination with hooks that implement the {{ required }} interface. Hook {{ hook }} does not implement this interface',
-            ['class' => $class, 'required' => $required, 'hook' => $hook]
+            ['class' => $class, 'required' => $required, 'hook' => $hook->getName()]
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function lineItemGroupPackagerNotFoundException(string $key): self|LineItemGroupPackagerNotFoundException
+    public static function lineItemGroupPackagerNotFoundException(string $key): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new LineItemGroupPackagerNotFoundException($key);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::LINE_ITEM_GROUP_PACKAGER_NOT_FOUND,
@@ -593,15 +541,8 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function lineItemGroupSorterNotFoundException(string $key): self|LineItemGroupSorterNotFoundException
+    public static function lineItemGroupSorterNotFoundException(string $key): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new LineItemGroupSorterNotFoundException($key);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::LINE_ITEM_GROUP_SORTER_NOT_FOUND,
@@ -610,15 +551,8 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function unexpectedValueException(string $message): self|\UnexpectedValueException
+    public static function unexpectedValueException(string $message): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \UnexpectedValueException($message);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::UNEXPECTED_VALUE_EXCEPTION,

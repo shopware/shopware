@@ -10,7 +10,7 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRan
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationCollection;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeTypeEntity extends Entity
 {
     use EntityCustomFieldsTrait;

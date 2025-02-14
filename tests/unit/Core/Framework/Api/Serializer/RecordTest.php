@@ -20,7 +20,7 @@ use Shopware\Tests\Unit\Core\Framework\Api\Serializer\_fixtures\TestAttributeEnt
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Record::class)]
 class RecordTest extends TestCase
 {
@@ -44,7 +44,7 @@ class RecordTest extends TestCase
                     'data' => [],
                 ],
             ],
-            'meta' => null,
+            'meta' => [],
         ], $record->jsonSerialize());
     }
 
@@ -84,7 +84,7 @@ class RecordTest extends TestCase
                     ]],
                 ],
             ],
-            'meta' => null,
+            'meta' => [],
         ], $record->jsonSerialize());
     }
 

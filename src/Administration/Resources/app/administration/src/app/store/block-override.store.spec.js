@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './block-override.store';
 
 describe('block-override.store', () => {

@@ -38,7 +38,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(FieldSerializer::class)]
 class FieldSerializerTest extends TestCase
 {
@@ -92,14 +92,6 @@ class FieldSerializerTest extends TestCase
             '_uniqueIdentifier' => $deliveryId,
             'versionId' => null,
             'translated' => [],
-            'orderId' => null,
-            'orderVersionId' => null,
-            'shippingOrderAddressId' => null,
-            'shippingOrderAddressVersionId' => null,
-            'shippingMethodId' => null,
-            'trackingCodes' => null,
-            'shippingCosts' => null,
-            'stateId' => null,
             'customFields' => null,
             'id' => $deliveryId,
         ], $this->first($fieldSerializer->serialize($config, $field, $deliveries)));
@@ -155,11 +147,6 @@ class FieldSerializerTest extends TestCase
             '_uniqueIdentifier' => $transactionId,
             'versionId' => null,
             'translated' => [],
-            'orderId' => null,
-            'orderVersionId' => null,
-            'paymentMethodId' => null,
-            'amount' => null,
-            'stateId' => null,
             'validationData' => '[]',
             'customFields' => null,
             'id' => $transactionId,

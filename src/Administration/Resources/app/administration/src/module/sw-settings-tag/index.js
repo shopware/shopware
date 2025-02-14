@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import './acl';
 
@@ -37,7 +37,7 @@ Module.register('sw-settings-tag', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'content',
         to: 'sw.settings.tag.index',
         icon: 'regular-tag',
         privilege: 'tag.viewer',

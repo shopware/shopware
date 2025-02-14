@@ -3,12 +3,10 @@ import './sw-media-grid.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['media-grid-selection-clear'],
 

@@ -9,7 +9,7 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ChangelogParser
 {
     public const FIXES_REGEX = '(closes?|resolved?|fix(es)?):?\s+(#[0-9]+)';

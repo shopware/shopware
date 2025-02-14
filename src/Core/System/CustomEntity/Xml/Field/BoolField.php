@@ -9,7 +9,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\Traits\TranslatableTrait;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class BoolField extends Field
 {
     use RequiredTrait;

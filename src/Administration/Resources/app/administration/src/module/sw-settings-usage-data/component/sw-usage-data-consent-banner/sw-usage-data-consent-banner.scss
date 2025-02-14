@@ -60,7 +60,7 @@
         background-size: contain;
         background-position: bottom center;
         background-repeat: no-repeat;
-        background-image: url("../img/data-consent-background.png");
+        background-image: url("./assets/data-consent-background.png");
         container: consent-content / inline-size;
 
         &-headline {
@@ -143,6 +143,7 @@
                 font-weight: $font-weight-medium;
                 line-height: $line-height-md;
 
+                /* stylelint-disable max-nesting-depth */
                 .sw-icon.icon--solid-check-circle {
                     flex-shrink: 0;
                     margin-top: 4px;
@@ -151,6 +152,7 @@
                 .sw-help-text {
                     cursor: help;
                 }
+                /* stylelint-enable max-nesting-depth */
             }
         }
 

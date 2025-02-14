@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_variants_delivery_media %}
 <div class="sw-product-variants-delivery-media">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_delivery_media_groups %}
     <div class="sw-product-variants-delivery-media__groups">
         <ul>
@@ -25,13 +23,11 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_delivery_media_media %}
     <div
         v-if="activeOptions.length"
         class="sw-product-variants-delivery-media__media"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_delivery_media_data_grid %}
         <sw-data-grid
             ref="variantsMedia"
@@ -43,7 +39,6 @@
             full-page
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_delivery_media_data_grid_column_name %}
             <template
                 #column-name="{ item, isInlineEdit, compact }"
@@ -52,10 +47,8 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_delivery_media_data_grid_column_option_media %}
             <template #column-option.media="{ item, isInlineEdit, compact }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_delivery_media_data_grid_column_option_media_listener %}
                 <sw-upload-listener
                     :upload-tag="item.id"
@@ -64,7 +57,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_delivery_media_data_grid_column_option_media_upload %}
                 <sw-media-compact-upload-v2
                     :source="item.mediaId"
@@ -82,7 +74,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_delivery_media_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}

@@ -38,43 +38,10 @@
             </noscript>
         {% endblock %}
 
-        {% block base_header %}
-            {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
+        {{ render_esi(url('frontend.header')) }}
 
-            <header class="header-main">
-                {% block base_header_inner %}
-                    <div class="container">
-                        {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
-                    </div>
-                {% endblock %}
-            </header>
-        {% endblock %}
-
-        {% block base_navigation %}
-            {% if feature('v6.7.0.0') %}
-                <div class="nav-main d-none d-lg-block">
-                    {% block base_navbar_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navbar/navbar.html.twig' %}
-                    {% endblock %}
-                </div>
-            {% else %}
-                {# @deprecated tag:v6.7.0 - This template will be removed, use src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig #}
-                <div class="nav-main">
-                    {% block base_navigation_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' %}
-                    {% endblock %}
-                </div>
-            {% endif %}
-        {% endblock %}
-
-        {% block base_offcanvas_navigation %}
-            {% if page.header.navigation %}
-                <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == page.header.navigation.active.id %} is-root{% endif %}">
-                    {% block base_offcanvas_navigation_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
-                    {% endblock %}
-                </div>
-            {% endif %}
+        {% block base_navigation_styling %}
+            {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
         {% endblock %}
 
         {% block base_main %}
@@ -107,13 +74,8 @@
             </main>
         {% endblock %}
 
-        {% block base_footer %}
-            <footer class="footer-main">
-                {% block base_footer_inner %}
-                    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
-                {% endblock %}
-            </footer>
-        {% endblock %}
+        {{ render_esi(url('frontend.footer')) }}
+
     {% endblock %}
 
     {% block base_scroll_up %}

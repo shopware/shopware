@@ -25,7 +25,7 @@ use Symfony\Component\RateLimiter\Storage\StorageInterface;
  *  rate?: array<string, string>
  * }
  */
-#[Package('core')]
+#[Package('framework')]
 class RateLimiterFactory
 {
     /**

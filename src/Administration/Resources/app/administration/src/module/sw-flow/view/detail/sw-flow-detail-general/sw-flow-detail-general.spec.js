@@ -1,10 +1,9 @@
 import { mount } from '@vue/test-utils';
+import { createPinia } from 'pinia';
 
 /**
  * @sw-package after-sales
  */
-
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 async function createWrapper(privileges = [], query = {}) {
     return mount(
@@ -13,6 +12,7 @@ async function createWrapper(privileges = [], query = {}) {
         }),
         {
             global: {
+                plugins: [createPinia()],
                 provide: {
                     acl: {
                         can: (identifier) => {
@@ -54,10 +54,6 @@ async function createWrapper(privileges = [], query = {}) {
 }
 
 describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', flowState);
-    });
-
     it('should enabled element when have privilege', async () => {
         const wrapper = await createWrapper([
             'flow.editor',

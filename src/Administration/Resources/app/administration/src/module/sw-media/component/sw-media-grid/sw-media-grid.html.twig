@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_grid %}
 <div class="sw-media-grid">
     <slot name="content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_grid_slot_content %}
         <div
             class="sw-media-grid__content"
             :class="presentationClass"
         >
             <slot>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_grid_default_slot %}{% endblock %}
             </slot>
         </div>

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -245,10 +245,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     return Promise.resolve({ data: {} });
                 },
             };
-        });
-
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
         });
     });
 
@@ -646,7 +642,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
     it('should generate digital variants', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.productRepository.save = jest.fn().mockReturnValueOnce(Promise.resolve({}));
+
+        await wrapper.setData({
+            productRepository: {
+                save: jest.fn().mockReturnValueOnce(Promise.resolve({})),
+            },
+        });
 
         await wrapper.setData({
             variantGenerationQueue: {
@@ -682,9 +683,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
     it('should generate variants', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.productRepository.save = jest.fn().mockReturnValueOnce(Promise.resolve({}));
 
         await wrapper.setData({
+            productRepository: {
+                save: jest.fn().mockReturnValueOnce(Promise.resolve({})),
+            },
             variantGenerationQueue: {
                 createQueue: [
                     {
@@ -997,8 +1000,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 createQueue: items,
             },
             downloadFilesForAllVariants: [file],
+            mediaRepository: {
+                get: jest.fn().mockReturnValueOnce(Promise.resolve(file)),
+            },
         });
-        wrapper.vm.mediaRepository.get = jest.fn().mockReturnValueOnce(Promise.resolve(file));
 
         wrapper.vm.onTermChange('test');
         await wrapper.vm.successfulUpload({

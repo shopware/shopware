@@ -7,10 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @deprecated tag:v6.7.0 - Will be removed. Use ApiException::onRateLimitExceeded instead
- */
-#[Package('core')]
+#[Package('framework')]
 class AuthThrottledException extends ShopwareHttpException
 {
     public function __construct(

@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_container %}
 <div
     class="sw-container"
     :style="currentCssGrid"
 >
     <slot>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_container_slot_default %}{% endblock %}
     </slot>
 </div>

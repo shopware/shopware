@@ -44,13 +44,11 @@ type DropObject = {
 };
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -211,10 +209,6 @@ export default Shopware.Component.wrapComponentConfig({
             // Add all missing categories to the default categories
             uniqueCategories.forEach((category) => {
                 if (defaultCategories.some((defaultCategory) => defaultCategory.value === category)) {
-                    return;
-                }
-
-                if (this.isDuplicateCategory(category)) {
                     return;
                 }
 
@@ -667,10 +661,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.pageUpdate();
         },
 
-        onSetSectionBackgroundMedia(
-            [mediaItem]: [Entity<'media'>],
-            section: Entity<'cms_section'>,
-        ) {
+        onSetSectionBackgroundMedia([mediaItem]: [Entity<'media'>], section: Entity<'cms_section'>) {
             section.backgroundMediaId = mediaItem.id;
             section.backgroundMedia = mediaItem;
 
@@ -720,21 +711,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         onVisibilityChange(selectedBlock: Entity<'cms_block'>, viewport: string, isVisible: boolean) {
             (selectedBlock.visibility as { [key: string]: boolean })[viewport] = isVisible;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Remove the duplicate category check and all usages.
-         * Use the auto-generated category label instead of the hardcoded option
-         * value inside the template.
-         */
-        isDuplicateCategory(categoryValue: string) {
-            /**
-             * This method is a unusual hack to prevent the category from being added twice.
-             * Recommended for plugin developer is to remove the hardcoded option value
-             * inside the template and use the auto-generated category label instead.
-             * */
-            const swCmsSidebarTemplate = Shopware.Template.getRenderedTemplate('sw-cms-sidebar');
-            return swCmsSidebarTemplate?.includes(`value="${categoryValue}"`);
         },
     },
 });

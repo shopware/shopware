@@ -10,12 +10,10 @@ const Criteria = Shopware.Data.Criteria;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -263,16 +261,8 @@ export default {
                 });
 
                 if (!this.element.data) {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.element, 'data', { sliderItems });
-                    } else {
-                        this.element.data = { sliderItems };
-                    }
-                } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.element.data, 'sliderItems', sliderItems);
-                } else {
-                    this.element.data.sliderItems = sliderItems;
-                }
+                    this.element.data = { sliderItems };
+                } else this.element.data.sliderItems = sliderItems;
             }
         },
 

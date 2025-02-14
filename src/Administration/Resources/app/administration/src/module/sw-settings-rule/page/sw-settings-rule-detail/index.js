@@ -7,12 +7,10 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'ruleConditionDataProviderService',
@@ -233,7 +231,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.State.get('session').languageId,
+                languageId: Shopware.Store.get('session').languageId,
             };
             const criteria = new Criteria();
 
@@ -408,13 +406,17 @@ export default {
                 );
 
                 if (restrictions.isRestricted) {
-                    const message = this.$tc('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', 0, {
-                        conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
-                            restrictions.equalsAnyNotMatched,
-                            'sw-restricted-rules.or',
-                        ),
-                        entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
-                    });
+                    const message = this.$tc(
+                        'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
+                        {
+                            conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
+                                restrictions.equalsAnyNotMatched,
+                                'sw-restricted-rules.or',
+                            ),
+                            entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                        },
+                        0,
+                    );
 
                     this.createNotificationError({ message });
                     isValid = false;
@@ -451,7 +453,7 @@ export default {
             }
 
             if (!this.validateDateRange()) {
-                Shopware.State.dispatch('error/addApiError', {
+                Shopware.Store.get('error').addApiError({
                     expression: `rule_condition.${this.rule.id}.value`,
                     error: new Shopware.Classes.ShopwareError({
                         detail: this.$tc('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
@@ -508,7 +510,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
 
             this.isLoading = true;
             this.loadEntityData(this.ruleId).then(() => {
@@ -534,7 +536,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }),
+                message: this.$tc('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
             });
             this.isLoading = false;
         },

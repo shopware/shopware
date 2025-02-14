@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_new_customer_modal %}
 <sw-modal
     :title="$tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer')"
     @modal-close="onClose"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_new_customer_modal_tabs %}
     <sw-tabs
         class="sw-order-new-customer-modal"
@@ -12,7 +10,6 @@
         default-item="details"
     >
         <template #default="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_new_customer_modal_tabs_details %}
             <sw-tabs-item
                 name="details"
@@ -23,7 +20,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_new_customer_modal_tabs_billing %}
             <sw-tabs-item
                 name="billingAddress"
@@ -34,7 +30,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_new_customer_modal_tabs_shipping %}
             <sw-tabs-item
                 name="shippingAddress"
@@ -47,10 +42,8 @@
         </template>
 
         <template #content="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_new_customer_modal_content_details %}
             <div v-if="active ==='details'">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_details_guest %}
                 <sw-switch-field
                     v-model:value="customer.guest"
@@ -58,7 +51,6 @@
                     :label="$tc('sw-order.newCustomerModal.labelGuest')"
                 />
                 {% endblock %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_details_form %}
                 <sw-customer-base-form
                     :is-loading="isLoading"
@@ -69,10 +61,8 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_new_customer_modal_content_shipping %}
             <div v-if="active === 'shippingAddress'">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_shipping_same_billing %}
                 <sw-switch-field
                     v-model:value="isSameBilling"
@@ -81,7 +71,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_shipping_form %}
                 <sw-customer-address-form
                     :customer="customer"
@@ -92,10 +81,8 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_new_customer_modal_content_billing %}
             <div v-if="active ==='billingAddress'">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_billing_form %}
                 <sw-customer-address-form
                     :customer="customer"
@@ -108,10 +95,8 @@
     </sw-tabs>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_new_customer_modal_actions %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_new_customer_modal_action_close %}
         <sw-button
             size="small"
@@ -121,7 +106,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_new_customer_modal_actions_apply %}
         <sw-button
             size="small"

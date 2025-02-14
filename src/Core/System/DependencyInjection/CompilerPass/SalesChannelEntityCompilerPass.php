@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelEntityCompilerPass implements CompilerPassInterface
 {
     private const PREFIX = 'sales_channel_definition.';
@@ -130,7 +130,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $definitionRegistry->replaceArgument(2, $entityNameMap);
         $definitionRegistry->replaceArgument(3, $repositoryNameMap);
 
-        if (Feature::isActive('v6.7.0.0')) {
+        if (Feature::isActive('DYNAMIC_ENTITY_EXTENSIONS')) {
             $this->addExtensions($container, $baseDefinitions, $salesChannelDefinitions);
         }
     }

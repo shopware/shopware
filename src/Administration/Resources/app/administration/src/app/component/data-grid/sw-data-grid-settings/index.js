@@ -4,14 +4,12 @@ import './sw-data-grid-settings.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-data-grid-settings', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'change-compact-mode',

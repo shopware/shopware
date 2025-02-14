@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
     /**
@@ -58,8 +58,9 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         }
 
         // is specific currency id provided? => overwrite currency id and currency factor
-        if (Uuid::isValid((string) end($parts))) {
-            $currencyId = end($parts);
+        $lastPart = (string) end($parts);
+        if (Uuid::isValid($lastPart)) {
+            $currencyId = $lastPart;
             $currencyFactor = \sprintf(
                 '* (SELECT `factor` FROM `currency` WHERE `id` = %s)',
                 (string) $this->connection->quote($currencyId)

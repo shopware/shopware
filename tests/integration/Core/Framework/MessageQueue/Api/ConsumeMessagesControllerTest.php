@@ -18,7 +18,7 @@ use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class ConsumeMessagesControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -69,7 +69,7 @@ class ConsumeMessagesControllerTest extends TestCase
 
     public function testMessageStatsDecrement(): void
     {
-        $messageBus = static::getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.default_bus');
         $message = new ProductIndexingMessage([Uuid::randomHex()]);
         $messageBus->dispatch($message);
 

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_editor_toolbar %}
 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
@@ -9,10 +8,8 @@
     tabindex="0"
     @click="handleToolbarClick"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_buttons %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_buttons_left %}
     <div
         v-if="leftButtons.length > 0"
@@ -30,7 +27,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_buttons_middle %}
     <div
         v-if="middleButtons.length > 0"
@@ -48,7 +44,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_buttons_right %}
     <div
         v-if="rightButtons.length > 0"
@@ -66,7 +61,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_slot %}
     <slot name="itemsSlot"></slot>
     {% endblock %}

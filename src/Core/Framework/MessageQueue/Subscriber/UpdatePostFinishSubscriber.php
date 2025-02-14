@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 final class UpdatePostFinishSubscriber implements EventSubscriberInterface
 {
     /**

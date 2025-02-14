@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import './sw-generic-social-media-card.scss';
 
 import type { PropType } from 'vue';
@@ -12,8 +16,6 @@ const createId = Shopware.Utils.createId;
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

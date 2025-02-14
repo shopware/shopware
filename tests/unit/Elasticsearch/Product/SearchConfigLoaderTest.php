@@ -17,7 +17,7 @@ use Shopware\Elasticsearch\Product\SearchConfigLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(SearchConfigLoader::class)]
 class SearchConfigLoaderTest extends TestCase
 {

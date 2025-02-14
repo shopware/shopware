@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_basic_form %}
 <div class="product-basic-form">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_basic_form_title_field %}
     <sw-inherit-wrapper
         v-model:value="product.name"
@@ -30,7 +28,6 @@
         columns="2fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_basic_form_manufacturer_field %}
         <sw-inherit-wrapper
             v-model:value="product.manufacturerId"
@@ -59,7 +56,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_basic_form_id_field %}
         <sw-text-field
             v-model:value="product.productNumber"
@@ -71,7 +67,6 @@
         {% endblock %}
     </sw-container>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_basic_form_description_field %}
     <sw-inherit-wrapper
         v-model:value="product.description"
@@ -81,8 +76,7 @@
         :label="$tc('sw-product.basicForm.labelDescription')"
     >
         <template #content="{ currentValue, updateCurrentValue, isInherited }">
-
-            <sw-text-editor
+            <mt-text-editor
                 :key="isInherited"
                 :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
                 :error="productDescriptionError"
@@ -92,14 +86,12 @@
                 sanitize-field-name="product_translation.description"
                 @update:value="updateCurrentValue"
             />
-
         </template>
     </sw-inherit-wrapper>
     {% endblock %}
 
     <div class="product-basic-form__switches">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_mark_as_topseller_field %}
         <sw-inherit-wrapper
             v-show="showSettingsInformation"

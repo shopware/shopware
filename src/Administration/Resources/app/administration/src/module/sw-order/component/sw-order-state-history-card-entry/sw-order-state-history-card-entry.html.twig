@@ -1,8 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_state_card_entry %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 <div class="sw-order-state-history-card-entry">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_card_entry_headline %}
     <div>
         <h2 v-if="title">
@@ -11,7 +8,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_card_entry_history %}
     <div
         v-for="(entry, index) in history"
@@ -19,7 +15,6 @@
         class="sw-order-state-card__history-entry"
         :class="`sw-order-state-history__entry--${index}`"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_card_entry_icon %}
         <sw-label
             appearance="circle"
@@ -33,12 +28,10 @@
         </sw-label>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_card_entry_description %}
         <span class="sw-order-state-card__text">{{ entry.state.translated.name }}</span>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_card_entry_date %}
         <span
             v-tooltip="{
@@ -54,12 +47,11 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_card_entry_state_select %}
     <sw-order-state-select
         :transition-options="transitionOptions"
         :disabled="disabled"
-        v-on="listeners"
+        v-bind="$attrs"
     />
     {% endblock %}
 

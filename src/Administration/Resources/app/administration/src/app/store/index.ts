@@ -9,7 +9,7 @@ import {
 } from 'pinia';
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  * @deprecated: tag:v6.7.0 - Will be public
  */

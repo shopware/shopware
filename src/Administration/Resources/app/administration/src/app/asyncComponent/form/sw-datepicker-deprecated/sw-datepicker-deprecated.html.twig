@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_datepicker %}
 <sw-contextual-field
     class="sw-field--datepicker"
@@ -14,7 +13,6 @@
     @inheritance-restore="$emit('inheritance-restore', $event)"
     @inheritance-remove="$emit('inheritance-remove', $event)"
     @base-field-mounted="createFlatpickrInstance"
-    v-on="additionalEventListeners"
 >
 
     <template #sw-field-input="{ identification, disabled }">

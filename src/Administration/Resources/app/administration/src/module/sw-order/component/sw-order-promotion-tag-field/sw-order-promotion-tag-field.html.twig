@@ -1,17 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tagged_field %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_promotion_tag_field %}
 <sw-block-field
     class="sw-tagged-field sw-order-promotion-tag-field"
     :class="taggedFieldClasses"
     v-bind="$attrs"
     :disabled="disabled"
-    v-on="listeners"
 >
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tagged_field_inner %}
         <ul
             class="sw-tagged-field__tag-list"
@@ -22,14 +18,12 @@
             @keydown.enter="setFocus(true)"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_promotion_tag_field_tag_list %}
             <li
                 v-for="(item, index) in value"
                 :key="`sw-tagged-field-value--${index}`"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_promotion_tag_field_tag_item %}
                 <sw-label
                     v-if="item.isInvalid"
@@ -59,10 +53,8 @@
             </li>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_promotion_tag_field_item_input %}
             <li>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_promotion_tag_field_input %}
                 <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                 <input

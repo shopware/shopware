@@ -12,7 +12,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
  *
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('framework')]
 final class Listing extends ConfigXmlElement
 {
     protected Columns $columns;

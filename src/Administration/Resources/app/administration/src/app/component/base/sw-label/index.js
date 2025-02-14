@@ -4,7 +4,7 @@ import template from './sw-label.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -16,8 +16,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-label', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'selected',
@@ -132,10 +130,6 @@ Component.register('sw-label', {
             ];
         },
         showDismissable() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return !!this.$listeners.dismiss && this.dismissable;
-            }
-
             return !!this.$props.onDismiss && this.dismissable;
         },
     },

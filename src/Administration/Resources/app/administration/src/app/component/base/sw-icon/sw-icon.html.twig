@@ -1,12 +1,10 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-button component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_icon %}
 <mt-icon
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :name="name"
-    v-on="listeners"
 >
     <slot></slot>
 </mt-icon>
@@ -14,13 +12,11 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_icon_deprecated %}
 <sw-icon-deprecated
     v-else
     v-bind="$attrs"
     :name="name"
-    v-on="listeners"
 >
     <slot></slot>
 </sw-icon-deprecated>

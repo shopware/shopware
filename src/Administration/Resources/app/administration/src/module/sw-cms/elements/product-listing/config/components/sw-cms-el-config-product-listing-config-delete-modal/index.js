@@ -3,12 +3,10 @@ import './sw-cms-el-config-product-listing-config-delete-modal.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'confirm',

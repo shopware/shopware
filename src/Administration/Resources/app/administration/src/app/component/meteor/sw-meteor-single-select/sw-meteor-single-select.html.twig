@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_meteor_single_select %}
 <div class="sw-meteor-single-select">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_meteor_single_select_preview %}
     <div
         class="sw-meteor-single-select__preview"
@@ -22,7 +20,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_meteor_single_select_result_list %}
     <div class="sw-meteor-single-select__result-list">
         <sw-select-result-list
@@ -31,7 +28,7 @@
             :popover-resize-width="false"
             :options="results"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-meteor-single-select.messageNoResults', 0, { term: searchTerm })"
+            :empty-message="$tc('global.sw-meteor-single-select.messageNoResults', { term: searchTerm }, 0)"
             @paginate="$emit('paginate')"
             @item-select="setValue"
             @outside-click="closeResultList"

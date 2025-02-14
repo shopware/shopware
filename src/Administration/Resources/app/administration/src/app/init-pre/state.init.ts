@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  * @deprecated tag:v6.8.0 - Will be removed use store.init.ts instead
  */
 
@@ -11,7 +11,6 @@ import { createStore } from 'vuex';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initState() {
     initVuexState(Shopware.State);
-    // @ts-expect-error - vuex modules import is not typed
     initVuexModules(VuexModules, Shopware.State);
 
     return true;

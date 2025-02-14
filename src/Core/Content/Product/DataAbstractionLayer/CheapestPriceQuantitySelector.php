@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 /**
  * Allows project overrides to change cheapest price selection
  */
-#[Package('core')]
+#[Package('framework')]
 class CheapestPriceQuantitySelector extends AbstractCheapestPriceQuantitySelector
 {
     public function getDecorated(): AbstractCheapestPriceQuantitySelector
@@ -19,9 +19,9 @@ class CheapestPriceQuantitySelector extends AbstractCheapestPriceQuantitySelecto
 
     public function add(QueryBuilder $query): void
     {
-        $query->addSelect([
+        $query->addSelect(
             'price.quantity_start != 1 as is_ranged',
-        ]);
+        );
 
         $query->andWhere('price.quantity_end IS NULL');
     }

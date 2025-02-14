@@ -22,14 +22,13 @@ interface TextEditorLinkMenuConfig {
 }
 
 /**
- * @package admin
+ * @sw-package framework
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  *
  * @private
  */
 Component.register('sw-text-editor-link-menu', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

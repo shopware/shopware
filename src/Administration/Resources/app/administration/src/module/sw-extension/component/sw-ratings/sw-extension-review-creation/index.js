@@ -4,13 +4,11 @@ import './sw-extension-review-creation.scss';
 const { ShopwareError } = Shopware.Classes;
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['extensionStoreActionService'],
 
@@ -42,7 +40,7 @@ export default {
 
     computed: {
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userName() {
@@ -54,7 +52,7 @@ export default {
         },
 
         installedVersion() {
-            const installedExtension = Shopware.State.get('shopwareExtensions').myExtensions.data.find(
+            const installedExtension = Shopware.Store.get('shopwareExtensions').myExtensions.data.find(
                 (extension) => extension.name === this.extension.name,
             );
 

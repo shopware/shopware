@@ -4,7 +4,7 @@ import './sw-product-image.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Component which renders an image.
@@ -15,8 +15,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-product-image', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'sw-product-image-cover',

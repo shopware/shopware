@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
@@ -23,7 +22,6 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
      */
     public function __construct(
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly bool $fineGrainedCache
     ) {
     }
 
@@ -43,24 +41,6 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
     {
         $tags = [CachedResolvedConfigLoader::buildName($event->getThemeId())];
 
-        if (Feature::isActive('cache_rework')) {
-            $this->cacheInvalidator->invalidate($tags);
-
-            return;
-        }
-
-        if (!$this->fineGrainedCache) {
-            $this->cacheInvalidator->invalidate($tags);
-
-            return;
-        }
-
-        $keys = array_keys($event->getConfig());
-
-        foreach ($keys as $key) {
-            $tags[] = ThemeConfigValueAccessor::buildName($key);
-        }
-
         $this->cacheInvalidator->invalidate($tags);
     }
 
@@ -68,20 +48,10 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
     {
         $salesChannelId = $event->getSalesChannelId();
 
-        if (Feature::isActive('cache_rework')) {
-            $this->cacheInvalidator->invalidate([
-                CachedResolvedConfigLoader::buildName($event->getThemeId()),
-                CachedDomainLoader::CACHE_KEY,
-                Translator::tag($salesChannelId),
-            ]);
-
-            return;
-        }
-
         $this->cacheInvalidator->invalidate([
             CachedResolvedConfigLoader::buildName($event->getThemeId()),
             CachedDomainLoader::CACHE_KEY,
-            'translation.catalog.' . $salesChannelId,
+            Translator::tag($salesChannelId),
         ]);
     }
 

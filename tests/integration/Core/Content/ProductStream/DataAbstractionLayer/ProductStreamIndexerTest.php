@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 class ProductStreamIndexerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

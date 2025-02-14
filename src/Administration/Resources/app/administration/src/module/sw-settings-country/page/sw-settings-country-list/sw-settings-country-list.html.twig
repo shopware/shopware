@@ -1,10 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_list %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_country_index %}
 <sw-page class="sw-settings-country-list">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -16,13 +13,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }} <sw-icon
                 name="regular-chevron-right-xs"
@@ -30,7 +24,6 @@
             /> {{ $tc('sw-settings-country.list.textHeadline') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -44,10 +37,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip.bottom="{
@@ -66,27 +57,22 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_list_content_card %}
             <sw-card
                 v-if="isLoading || country"
                 position-identifier="sw-settings-country-list"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_list_grid %}
                 <template #grid>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_country_list_grid_inner %}
                     <sw-entity-listing
                         ref="swSettingsCountryGrid"
@@ -107,7 +93,6 @@
 
                         <template #column-active="{ item, isInlineEdit }">
                             <template v-if="isInlineEdit">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_country_list_columns_active_editor %}
                                 <sw-checkbox-field
                                     v-model:value="item.active"
@@ -115,7 +100,6 @@
                                 {% endblock %}
                             </template>
                             <template v-else>
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_country_list_columns_active_label %}
                                 <sw-icon
                                     v-if="item.active"
@@ -133,10 +117,8 @@
                             </template>
                         </template>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_country_list_grid_columns_actions %}
                         <template #actions="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_country_list_grid_columns_actions_edit %}
                             <sw-context-menu-item
                                 :router-link="{ name: 'sw.settings.country.detail', params: { id: item.id, edit: 'edit' }}"
@@ -147,7 +129,6 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_country_list_grid_columns_actions_delete %}
                             <sw-context-menu-item
                                 class="sw-country-list__delete-action"
@@ -161,10 +142,8 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_country_list_grid_action_modals %}
                         <template #action-modals="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_country_list_delete_modal %}
                             <sw-modal
                                 v-if="showDeleteModal === item.id"
@@ -172,17 +151,14 @@
                                 variant="small"
                                 @modal-close="onCloseDeleteModal"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_country_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-settings-country-list__confirm-delete-text">
-                                    {{ $tc('sw-settings-country.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-settings-country.list.textDeleteConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_country_list_delete_modal_footer %}
                                 <template #modal-footer>
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_country_list_delete_modal_cancel %}
                                     <sw-button
                                         size="small"
@@ -192,7 +168,6 @@
                                     </sw-button>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_country_list_delete_modal_confirm %}
                                     <sw-button
                                         variant="danger"

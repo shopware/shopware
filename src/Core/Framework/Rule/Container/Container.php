@@ -9,15 +9,13 @@ use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 /**
  * AbstractContainer implements setRules and addRule of the container interface
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 abstract class Container extends Rule implements ContainerInterface
 {
     /**
      * @var list<Rule>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $rules = [];
+    protected array $rules = [];
 
     /**
      * Constructor params will be used for internal rules

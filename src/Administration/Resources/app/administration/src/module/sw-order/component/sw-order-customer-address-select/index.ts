@@ -5,7 +5,7 @@ import type CriteriaType from '../../../../core/data/criteria.data';
 import type Repository from '../../../../core/data/repository.data';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component } = Shopware;
@@ -15,11 +15,8 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     props: {

@@ -1,19 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_permissions_details_modal %}
 <sw-modal
     class="sw-extension-permissions-details-modal"
     :title="modalTitle"
-    v-on="listeners"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_details_modal_content %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_details_modal_table %}
     <table class="sw-extension-permissions-details-modal__table">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_details_modal_table_head %}
         <thead class="sw-extension-permissions-details-modal__operations">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_permissions_details_modal_table_head_row %}
             <tr class="sw-extension-permissions-details-modal__grid-columns">
                 <td></td>
@@ -29,16 +23,13 @@
         </thead>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_details_modal_table_body %}
         <tbody>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_permissions_details_modal_table_permissions %}
             <template
                 v-for="(permissionCategory, category) in permissions"
                 :key="`permission-${category}`"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_permissions_details_modal_permissions_category %}
                 <tr
                     :id="`permission-${category}`"
@@ -48,21 +39,18 @@
                 </tr>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_permissions_details_modal_permission_row %}
                 <tr
                     v-for="(permissions, entity) in permissionCategory"
                     :key="entity"
                     class="sw-extension-permissions-details-modal__grid-columns"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_extension_permissions_details_modal_permission_entity %}
                     <td class="sw-extension-permissions-details-modal__entity-label">
                         {{ entityLabel(category, entity) }}
                     </td>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_extension_permissions_details_modal_permission_operation %}
                     <td
                         v-for="operation in operations"
@@ -94,10 +82,8 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_details_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_details_modal_footer_inner %}
         <sw-button
             variant="primary"

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_el_buy_box %}
 <div
     class="sw-cms-el-buy-box"
@@ -9,35 +8,30 @@
         class="sw-cms-el-buy-box__content"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_buy_box_product_info %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_buy_box_product_price %}
         <div class="sw-cms-el-buy-box__price">
             {{ currencyFilter(product.price[0].gross, 'EUR') }}
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_buy_box_product_tax_info %}
         <div class="sw-cms-el-buy-box__tax-info">
             {{ $tc('sw-cms.elements.buyBox.component.label.taxInfo') }}
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_buy_box_product_shipping_info %}
         <ul class="sw-cms-el-buy-box__shipping-info">
             <li v-if="product.shippingFree">
                 {{ $tc('sw-cms.elements.buyBox.component.label.deliveryShippingFree') }}
             </li>
             <li v-if="product.deliveryTime">
-                {{ $tc('sw-cms.elements.buyBox.component.label.deliveryTime', 0, {name: placeholder(product, 'deliveryTime.name', product.deliveryTime.name)}) }}
+                {{ $tc('sw-cms.elements.buyBox.component.label.deliveryTime', {name: placeholder(product, 'deliveryTime.name', product.deliveryTime.name)}, 0) }}
             </li>
         </ul>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_buy_box_product_variants %}
         <template v-if="product.parentId || product.childCount > 0">
             <p class="sw-cms-el-buy-box__variant-title">
@@ -51,11 +45,9 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_buy_box_form %}
         <div class="sw-cms-el-buy-box__form">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_buy_box_form_select_quantity %}
             <sw-block-field class="sw-cms-el-buy-box__quantity">
                 <template #sw-field-input>
@@ -82,7 +74,6 @@
             </sw-block-field>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_buy_box_form_action %}
             <div class="sw-cms-el-buy-box__actions">
                 <a
@@ -97,7 +88,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_buy_box_product_number %}
         <div class="sw-cms-el-buy-box__product-number">
             <span class="sw-cms-el-buy-box__product-number-title">
@@ -114,9 +104,7 @@
         class="sw-cms-el-buy-box__skeleton"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_buybox_skeleton %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_buybox_skeleton_info %}
         <div class="sw-cms-el-buy-box__placeholder"></div>
         <div class="sw-cms-el-buy-box__placeholder"></div>
@@ -124,11 +112,9 @@
         <div class="sw-cms-el-buy-box__placeholder"></div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_buybox_skeleton_form %}
         <div class="sw-cms-el-buy-box__form">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_buybox_skeleton_quantity %}
             <sw-block-field class="sw-cms-el-buy-box__quantity">
                 <template #sw-field-input>
@@ -157,7 +143,6 @@
             </sw-block-field>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_buy_box_skeleton_action %}
             <div class="sw-cms-el-buy-box__actions">
                 <a
@@ -172,7 +157,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_buybox_skeleton_product_number %}
         <div class="sw-cms-el-buy-box__placeholder"></div>
         {% endblock %}

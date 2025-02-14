@@ -4,13 +4,11 @@ import './sw-media-sidebar.scss';
 const { Filter, Context } = Shopware;
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -110,19 +108,7 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-
         filteredAttributes() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return {};
-            }
-
             const filteredAttributes = {};
 
             Object.entries(this.$attrs).forEach(
